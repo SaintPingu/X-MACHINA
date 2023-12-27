@@ -105,7 +105,7 @@ void Script_AirplanePlayer::FireBullet()
 }
 
 
-void Script_AirplanePlayer::OnCollisionStay(CObject& other)
+void Script_AirplanePlayer::OnCollisionStay(Object& other)
 {
 	switch (other.GetTag())
 	{

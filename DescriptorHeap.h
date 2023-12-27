@@ -10,14 +10,14 @@ struct DESCRIPTOR_HANDLE {
 };
 
 
-class CDescriptorHeap
+class DescriptorHeap
 {
 private:
 	void Close();
 
 public:
-	CDescriptorHeap() = default;
-	~CDescriptorHeap() = default;
+	DescriptorHeap() = default;
+	~DescriptorHeap() = default;
 
 	ComPtr<ID3D12DescriptorHeap> mHeap{};
 

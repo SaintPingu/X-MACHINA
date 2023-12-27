@@ -41,11 +41,11 @@ void GetBoundingSphere(BoundingSphere& out, const BoundingOrientedBox& obb)
 
 
 
-// [ CMesh ] //
+// [ Mesh ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void CMesh::CreateVertexBufferViews()
+void Mesh::CreateVertexBufferViews()
 {
 	BufferViews bufferViews{};
 	bufferViews.vertexBuffer = mVertexBuffer;
@@ -57,12 +57,12 @@ void CMesh::CreateVertexBufferViews()
 	::CreateVertexBufferViews(mVertexBufferViews, mVertexCount, bufferViews);
 }
 
-CMesh::~CMesh()
+Mesh::~Mesh()
 {
 	
 }
 
-void CMesh::ReleaseUploadBuffers()
+void Mesh::ReleaseUploadBuffers()
 {
 	mVertexUploadBuffer = nullptr;
 	mNormalUploadBuffer = nullptr;
@@ -75,7 +75,7 @@ void CMesh::ReleaseUploadBuffers()
 	mIndexUploadBuffer = nullptr;
 };
 
-void CMesh::Render() const
+void Mesh::Render() const
 {
 	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
 	if (mIndexBuffer) {
@@ -87,7 +87,7 @@ void CMesh::Render() const
 	}
 }
 
-void CMesh::Render(UINT subset, UINT instanceCount) const
+void Mesh::Render(UINT subset, UINT instanceCount) const
 {
 	if (instanceCount <= 0) {
 		return;
@@ -106,41 +106,41 @@ void CMesh::Render(UINT subset, UINT instanceCount) const
 
 
 
-// [ CModelObjectMesh ] //
+// [ ModelObjectMesh ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CModelObjectMesh::CModelObjectMesh()
+ModelObjectMesh::ModelObjectMesh()
 {
 
 }
 
-CModelObjectMesh::~CModelObjectMesh()
+ModelObjectMesh::~ModelObjectMesh()
 {
 
 }
 
-CModelObjectMesh::CModelObjectMesh(const BoundingOrientedBox& box)
+ModelObjectMesh::ModelObjectMesh(const BoundingOrientedBox& box)
 {
 	LoadMeshFromBoundingBox(box);
 }
 
-CModelObjectMesh::CModelObjectMesh(float width, float height, float depth, bool hasTexture, bool isLine)
+ModelObjectMesh::ModelObjectMesh(float width, float height, float depth, bool hasTexture, bool isLine)
 {
 	CreateCubeMesh(width, height, depth, hasTexture, isLine);
 }
 
-CModelObjectMesh::CModelObjectMesh(float width, float depth, bool isLine)
+ModelObjectMesh::ModelObjectMesh(float width, float depth, bool isLine)
 {
 	CreatePlaneMesh(width, depth, isLine);
 }
 
-CModelObjectMesh::CModelObjectMesh(float radius, bool isLine)
+ModelObjectMesh::ModelObjectMesh(float radius, bool isLine)
 {
 	CreateSphereMesh(radius, isLine);
 }
 
-void CModelObjectMesh::LoadMeshFromBoundingBox(const BoundingOrientedBox& box)
+void ModelObjectMesh::LoadMeshFromBoundingBox(const BoundingOrientedBox& box)
 {
 	std::vector<Vec3> vertices;
 	std::vector<UINT> indices;
@@ -181,7 +181,7 @@ void CModelObjectMesh::LoadMeshFromBoundingBox(const BoundingOrientedBox& box)
 	::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
 }
 
-void CModelObjectMesh::CreateCubeMesh(float width, float height, float depth, bool hasTexture, bool isLine)
+void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, bool hasTexture, bool isLine)
 {
 	float x = width * 0.5f, y = height * 0.5f, z = depth * 0.5f;
 
@@ -331,7 +331,7 @@ void CModelObjectMesh::CreateCubeMesh(float width, float height, float depth, bo
 	::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
 }
 
-void CModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
+void ModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
 {
 	float x = width * 0.5f;
 	float z = depth * 0.5f;
@@ -388,7 +388,7 @@ void CModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
 }
 
 
-void CModelObjectMesh::CreateSphereMesh(float radius, bool isLine)
+void ModelObjectMesh::CreateSphereMesh(float radius, bool isLine)
 {
 	constexpr int numSegments = 12;
 	// Calculate the number of vertices and indices needed
@@ -479,18 +479,18 @@ void CModelObjectMesh::CreateSphereMesh(float radius, bool isLine)
 
 
 
-// [ CSkyBoxMesh ] //
+// [ SkyBoxMesh ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSkyBoxMesh::CSkyBoxMesh(float width, float height, float depth)
+SkyBoxMesh::SkyBoxMesh(float width, float height, float depth)
 {
 	CreateMesh(width, height, depth);
 }
 
 
-void CSkyBoxMesh::CreateMesh(float width, float height, float depth)
+void SkyBoxMesh::CreateMesh(float width, float height, float depth)
 {
 	float x = width * 0.5f, y = height * 0.5f, z = depth * 0.5f;
 
@@ -556,12 +556,12 @@ void CSkyBoxMesh::CreateMesh(float width, float height, float depth)
 
 
 
-// [ CMeshLoadInfo ] //
+// [ MeshLoadInfo ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CMeshLoadInfo::~CMeshLoadInfo()
+MeshLoadInfo::~MeshLoadInfo()
 {
 
 }
@@ -570,21 +570,21 @@ CMeshLoadInfo::~CMeshLoadInfo()
 
 
 
-// [ CMergedMesh ] //
+// [ MergedMesh ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CMergedMesh::CMergedMesh()
+MergedMesh::MergedMesh()
 {
 	mMeshBuffer = std::make_unique<MeshBuffer>();
 }
 
-rsptr<CTexture> CMergedMesh::GetTexture() const
+rsptr<Texture> MergedMesh::GetTexture() const
 {
 	return mModelInfo.front().mMaterials.front()->mTexture;
 }
 
-void CMergedMesh::MergeSubMeshes(rsptr<CMeshLoadInfo> mesh, ModelInfo& modelInfo) // merge submesh to one indices vector
+void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo) // merge submesh to one indices vector
 {
 	UINT subMeshCount = mesh->mSubMeshCount;
 	modelInfo.mIndexCounts.resize(subMeshCount);
@@ -600,7 +600,7 @@ void CMergedMesh::MergeSubMeshes(rsptr<CMeshLoadInfo> mesh, ModelInfo& modelInfo
 	}
 }
 
-bool CMergedMesh::MergeMesh(rsptr<CMeshLoadInfo> mesh, const std::vector<sptr<CMaterial>>& materials)
+bool MergedMesh::MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials)
 {
 	ModelInfo modelInfo{};
 
@@ -641,7 +641,7 @@ bool CMergedMesh::MergeMesh(rsptr<CMeshLoadInfo> mesh, const std::vector<sptr<CM
 	return true;
 }
 
-void CMergedMesh::Close()
+void MergedMesh::Close()
 {
 	mVertexBuffer = nullptr;
 	mNormalBuffer = nullptr;
@@ -674,7 +674,7 @@ void UpdateShaderVariable(const Vec4x4& transform)
 }
 
 
-void CMergedMesh::Render(const CGameObject* gameObject) const
+void MergedMesh::Render(const GameObject* gameObject) const
 {
 	const std::vector<const Transform*>* mergedTransform = &gameObject->GetMergedTransform();
 
@@ -706,7 +706,7 @@ void CMergedMesh::Render(const CGameObject* gameObject) const
 	}
 }
 
-void CMergedMesh::Render(const CObjectInstanceBuffer* instBuffer) const
+void MergedMesh::Render(const ObjectInstanceBuffer* instBuffer) const
 {
 	if (!instBuffer) {
 		return;
@@ -750,7 +750,7 @@ void CMergedMesh::Render(const CObjectInstanceBuffer* instBuffer) const
 }
 
 
-void CMergedMesh::RenderSprite(const CGameObject* gameObject) const
+void MergedMesh::RenderSprite(const GameObject* gameObject) const
 {
 	if (!HasMesh(0)) {
 		return;
@@ -783,13 +783,13 @@ void CMergedMesh::RenderSprite(const CGameObject* gameObject) const
 
 
 
-static uptr<CModelObjectMesh> boxMesh{};
-static uptr<CModelObjectMesh> sphereMesh{};
+static uptr<ModelObjectMesh> boxMesh{};
+static uptr<ModelObjectMesh> sphereMesh{};
 
 void MeshRenderer::BuildMeshes()
 {
-	boxMesh = std::make_unique<CModelObjectMesh>(1.0f, 1.0f, 1.0f, false, true);
-	sphereMesh = std::make_unique<CModelObjectMesh>(1.0f, true);
+	boxMesh = std::make_unique<ModelObjectMesh>(1.0f, 1.0f, 1.0f, false, true);
+	sphereMesh = std::make_unique<ModelObjectMesh>(1.0f, true);
 }
 
 void MeshRenderer::ReleaseStaticUploadBuffers()

@@ -51,7 +51,7 @@ void Rigidbody::Update()
 }
 
 
-void Rigidbody::OnCollisionStay(CObject& other)
+void Rigidbody::OnCollisionStay(Object& other)
 {
 	//switch (other.GetTag())
 	//{

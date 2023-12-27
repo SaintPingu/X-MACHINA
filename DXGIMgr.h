@@ -8,7 +8,7 @@
 #define DRAW_SCENE_Z_DEPTH				'Z'
 #define DRAW_SCENE_DEPTH				'D'
 
-class CPostProcessingShader;
+class PostProcessingShader;
 
 class DXGIMgr {
 	SINGLETON_PATTERN(DXGIMgr)
@@ -59,7 +59,7 @@ private:
 #endif
 
 	D3D12_CPU_DESCRIPTOR_HANDLE	mSwapChainBackBufferRtvHandles[mSwapChainBufferCount]{};
-	sptr<CPostProcessingShader> mPostProcessingShader{};
+	sptr<PostProcessingShader> mPostProcessingShader{};
 	int mDrawOption{ DRAW_SCENE_COLOR };
 
 public:

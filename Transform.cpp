@@ -373,10 +373,6 @@ void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
 void Transform::UpdateShaderVariableTransform() const
 {
 	XMMATRIX mtx = _MATRIX(GetWorldTransform());
-	if (crntScene->IsRenderReflectObject()) {
-		XMMATRIX mtxReflect = crntScene->GetReflect();
-		mtx = XMMatrixMultiply(mtx, mtxReflect);
-	}
 	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtx), 0);
 }
 

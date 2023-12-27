@@ -21,5 +21,5 @@ public:
 
 	void Hit(float damage);
 
-	virtual void OnCollisionStay(CObject& other) override;
+	virtual void OnCollisionStay(Object& other) override;
 };

@@ -3,25 +3,25 @@
 #include "DXGIMgr.h"
 
 
-D3D12_CPU_DESCRIPTOR_HANDLE CDescriptorHeap::GetCPUCbvLastHandle()
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUCbvLastHandle()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE lastHandle{};
 	lastHandle.ptr = mCbvHandle.cpuNext.ptr - ::gnCbvSrvDescriptorIncrementSize;
 	return lastHandle;
 }
-D3D12_GPU_DESCRIPTOR_HANDLE CDescriptorHeap::GetGPUCbvLastHandle()
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUCbvLastHandle()
 {
 	D3D12_GPU_DESCRIPTOR_HANDLE lastHandle{};
 	lastHandle.ptr = mCbvHandle.gpuNext.ptr - ::gnCbvSrvDescriptorIncrementSize;
 	return lastHandle;
 }
-D3D12_CPU_DESCRIPTOR_HANDLE CDescriptorHeap::GetCPUSrvLastHandle()
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUSrvLastHandle()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE lastHandle{};
 	lastHandle.ptr = mSrvHandle.cpuNext.ptr - ::gnCbvSrvDescriptorIncrementSize;
 	return lastHandle;
 }
-D3D12_GPU_DESCRIPTOR_HANDLE CDescriptorHeap::GetGPUSrvLastHandle()
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUSrvLastHandle()
 {
 	D3D12_GPU_DESCRIPTOR_HANDLE lastHandle{};
 	lastHandle.ptr = mSrvHandle.gpuNext.ptr - ::gnCbvSrvDescriptorIncrementSize;
@@ -29,7 +29,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE CDescriptorHeap::GetGPUSrvLastHandle()
 }
 
 
-void CDescriptorHeap::Create(int cbvCount, int srvCount)
+void DescriptorHeap::Create(int cbvCount, int srvCount)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
 	descriptorHeapDesc.NumDescriptors = cbvCount + srvCount; //CBVs + SRVs 
@@ -51,26 +51,26 @@ void CDescriptorHeap::Create(int cbvCount, int srvCount)
 	mSrvHandle.gpuNext = mSrvHandle.gpuStart;
 }
 
-void CDescriptorHeap::CreateSrv(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc)
+void DescriptorHeap::CreateSrv(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc)
 {
 	device->CreateShaderResourceView(resource.Get(), srvDesc, mSrvHandle.cpuNext);
 	Close();
 }
 
-void CDescriptorHeap::CreateSrvs(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, UINT heapIndex)
+void DescriptorHeap::CreateSrvs(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, UINT heapIndex)
 {
 	mSrvHandle.cpuNext.ptr += (::gnCbvSrvDescriptorIncrementSize * heapIndex);
 	mSrvHandle.gpuNext.ptr += (::gnCbvSrvDescriptorIncrementSize * heapIndex);
 	CreateSrv(resource, srvDesc);
 }
 
-void CDescriptorHeap::Close()
+void DescriptorHeap::Close()
 {
 	mSrvHandle.cpuNext.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	mSrvHandle.gpuNext.ptr += ::gnCbvSrvDescriptorIncrementSize;
 }
 
-void CDescriptorHeap::Set()
+void DescriptorHeap::Set()
 {
 	cmdList->SetDescriptorHeaps(1, mHeap.GetAddressOf());
 }

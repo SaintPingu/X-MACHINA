@@ -1,6 +1,6 @@
 #pragma once
 
-class CGraphicsRootSignature {
+class GraphicsRootSignature {
 private:
 	ComPtr<ID3D12RootSignature> mRootSignature{};
 
@@ -11,8 +11,8 @@ private:
 	void ParamMapping(RootParam param);
 
 public:
-	CGraphicsRootSignature();
-	~CGraphicsRootSignature() = default;
+	GraphicsRootSignature();
+	~GraphicsRootSignature() = default;
 
 	RComPtr<ID3D12RootSignature> Get() const { return mRootSignature; }
 	UINT GetRootParamIndex(RootParam param) { return mParamMap[param]; }

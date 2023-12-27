@@ -54,7 +54,7 @@ void ObjectCollider::Start()
 	Transform::MergeTransform(mergedTransform, mObject);
 
 	for (auto transform : mergedTransform) {
-		const CObject* object = transform->Object<CObject>();
+		const Object* object = transform->GetObj<Object>();
 		auto components = object->GetComponents<BoxCollider>();
 		for(auto& boxCollider : components) {
 			auto& box = boxCollider->mBox;
@@ -151,7 +151,7 @@ bool ObjectCollider::IsInFrustum(const BoundingFrustum& frustum) const
 // 3-1. 내가   없다면	-> BS <-> OBB
 // 3-2. 상대가 없다면		-> OBB <-> BS
 // 4. 둘 다 있다면		-> OBB <-> OBB
-bool ObjectCollider::Intersects(const CObject& other) const
+bool ObjectCollider::Intersects(const Object& other) const
 {
 	auto otherCollider = other.GetComponent<ObjectCollider>();
 

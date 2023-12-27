@@ -5,7 +5,7 @@
 
 void Script_Apache::Start()
 {
-	mGameObject = mObject->Object<CGameObject>();
+	mGameObject = mObject->GetObj<GameObject>();
 	mGameObject->SetFlyable(true);
 	mMainRotorFrame = mGameObject->FindFrame("rotor");
 	mTailRotorFrame = mGameObject->FindFrame("tail_rotor");

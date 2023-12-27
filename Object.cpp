@@ -25,47 +25,47 @@
 
 
 
-// [ CModelObject ] //
+// [ ModelObject ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//===== (CModelObject) =====//
+//===== (ModelObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Constructor ] /////
-CModelObject::CModelObject()
+ModelObject::ModelObject()
 {
 	
 }
 
-CModelObject::~CModelObject()
+ModelObject::~ModelObject()
 {
 
 }
 
-//===== (CModelObject) =====//
+//===== (ModelObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Getter ] /////
 
 
 
-//===== (CModelObject) =====//
+//===== (ModelObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Setter ] /////
 
 //////////////////* Position *//////////////////
-void CModelObject::SetPosition(const Vec3& pos)
+void ModelObject::SetPosition(const Vec3& pos)
 {
-	CModelObject::SetPosition(pos.x, pos.y, pos.z);
+	ModelObject::SetPosition(pos.x, pos.y, pos.z);
 }
 
-void CModelObject::SetPosition(const XMVECTOR& pos)
+void ModelObject::SetPosition(const XMVECTOR& pos)
 {
 	Transform::SetPosition(pos);
 	//UpdateBoundingBox();
 }
 
-void CModelObject::SetPosition(float x, float y, float z)
+void ModelObject::SetPosition(float x, float y, float z)
 {
 	Transform::SetPosition(x, y, z);
 	auto& collider = GetComponent<ObjectCollider>();
@@ -78,96 +78,96 @@ void CModelObject::SetPosition(float x, float y, float z)
 //////////////////* Others *//////////////////
 
 
-//===== (CModelObject) =====//
+//===== (ModelObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Others ] /////
 
 //////////////////* DirectX *//////////////////
-void CModelObject::CreateShaderVariables()
+void ModelObject::CreateShaderVariables()
 {
 
 }
 
-void CModelObject::UpdateShaderVariables() const
+void ModelObject::UpdateShaderVariables() const
 {
 	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(XMLoadFloat4x4(&GetWorldTransform())), 0);
 }
 
 
-void CModelObject::ReleaseShaderVariables()
+void ModelObject::ReleaseShaderVariables()
 {
 
 }
 
-void CModelObject::ReleaseUploadBuffers()
+void ModelObject::ReleaseUploadBuffers()
 {
-	CObject::ReleaseUploadBuffers();
+	Object::ReleaseUploadBuffers();
 }
 
 
 
 
 //////////////////* Movement *//////////////////
-void CModelObject::Translate(const Vec3& translation)
+void ModelObject::Translate(const Vec3& translation)
 {
 	Transform::Translate(translation);
 }
 
-void CModelObject::Translate(const Vec3& direction, float distance)
+void ModelObject::Translate(const Vec3& direction, float distance)
 {
-	CModelObject::Translate(Vector3::ScalarProduct(direction, distance));
+	ModelObject::Translate(Vector3::ScalarProduct(direction, distance));
 }
 
-void CModelObject::Translate(float x, float y, float z)
+void ModelObject::Translate(float x, float y, float z)
 {
-	CModelObject::Translate(Vec3(x, y, z));
+	ModelObject::Translate(Vec3(x, y, z));
 }
 
-void CModelObject::Rotate(float pitch, float yaw, float roll)
+void ModelObject::Rotate(float pitch, float yaw, float roll)
 {
 	Transform::Rotate(pitch, yaw, roll);
 }
 
-void CModelObject::Rotate(const Vec3& axis, float angle)
+void ModelObject::Rotate(const Vec3& axis, float angle)
 {
 	Transform::Rotate(axis, angle);
 }
 
 
 //////////////////* Transform *//////////////////
-void CModelObject::SetWorldTransform(const Vec4x4& transform)
+void ModelObject::SetWorldTransform(const Vec4x4& transform)
 {
 	Transform::SetWorldTransform(transform);
 }
 
-void CModelObject::SetTransform(const Vec4x4& transform)
+void ModelObject::SetTransform(const Vec4x4& transform)
 {
 	Transform::SetTransform(transform);
 }
 
 
 //////////////////* Others *//////////////////
-void CModelObject::Update()
+void ModelObject::Update()
 {
-	CObject::Update();
+	Object::Update();
 }
 
 
 
 
-void CModelObject::ToggleDrawBoundings()
+void ModelObject::ToggleDrawBoundings()
 {
 	mIsDrawBounding = !mIsDrawBounding;
 
 	if (mSibling) {
-		mSibling->Object<CGameObject>()->ToggleDrawBoundings();
+		mSibling->GetObj<GameObject>()->ToggleDrawBoundings();
 	}
 	if (mChild) {
-		mChild->Object<CGameObject>()->ToggleDrawBoundings();
+		mChild->GetObj<GameObject>()->ToggleDrawBoundings();
 	}
 }
 
-Transform* CModelObject::FindFrame(const std::string& frameName)
+Transform* ModelObject::FindFrame(const std::string& frameName)
 {
 	if (mName == frameName) {
 		return this;
@@ -175,12 +175,12 @@ Transform* CModelObject::FindFrame(const std::string& frameName)
 
 	Transform* transform{};
 	if (mSibling) {
-		if (transform = mSibling->Object<CModelObject>()->FindFrame(frameName)) {
+		if (transform = mSibling->GetObj<ModelObject>()->FindFrame(frameName)) {
 			return transform;
 		}
 	}
 	if (mChild) {
-		if (transform = mChild->Object<CModelObject>()->FindFrame(frameName)) {
+		if (transform = mChild->GetObj<ModelObject>()->FindFrame(frameName)) {
 			return transform;
 		}
 	}
@@ -188,20 +188,20 @@ Transform* CModelObject::FindFrame(const std::string& frameName)
 	return nullptr;
 }
 
-CModelObject* CModelObject::FindObject(const std::string& frameName)
+ModelObject* ModelObject::FindObject(const std::string& frameName)
 {
 	if (mName == frameName) {
 		return this;
 	}
 
 	if (mSibling) {
-		CModelObject* object = mSibling->Object<CModelObject>()->FindObject(frameName);
+		ModelObject* object = mSibling->GetObj<ModelObject>()->FindObject(frameName);
 		if (object) {
 			return object;
 		}
 	}
 	if (mChild) {
-		CModelObject* object = mChild->Object<CModelObject>()->FindObject(frameName);
+		ModelObject* object = mChild->GetObj<ModelObject>()->FindObject(frameName);
 		if (object) {
 			return object;
 		}
@@ -213,12 +213,12 @@ CModelObject* CModelObject::FindObject(const std::string& frameName)
 
 
 //////////////////* Lights *//////////////////
-//void CModelObject::SetLightRange(LIGHT_RANGE lightRange)
+//void ModelObject::SetLightRange(LIGHT_RANGE lightRange)
 //{
 //	mLightRange = lightRange;
 //}
 //
-//void CModelObject::SetAllLight(const LIGHT* light)
+//void ModelObject::SetAllLight(const LIGHT* light)
 //{
 //	assert(light);
 //	assert(mLightRange.lights);
@@ -231,47 +231,47 @@ CModelObject* CModelObject::FindObject(const std::string& frameName)
 
 
 
-// [ CGameObject ] //
+// [ GameObject ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//===== (CGameObject) =====//
+//===== (GameObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Constructor ] /////
 
-CGameObject::CGameObject() : CModelObject()
+GameObject::GameObject() : ModelObject()
 {
 	AddComponent<ObjectCollider>();
 }
 
-CGameObject::~CGameObject()
+GameObject::~GameObject()
 {
 
 }
 
 
 
-//===== (CGameObject) =====//
+//===== (GameObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Getter ] /////
 
-bool CGameObject::IsTransparent() const
+bool GameObject::IsTransparent() const
 {
 	return mLayer == ObjectLayer::Transparent;
 }
 
-rsptr<CTexture> CGameObject::GetTexture() const
+rsptr<Texture> GameObject::GetTexture() const
 {
 	return mModel->GetTexture();
 }
 
-//===== (CGameObject) =====//
+//===== (GameObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Setter ] /////
 
-void CGameObject::SetModel(rsptr<const CMasterModel> model)
+void GameObject::SetModel(rsptr<const MasterModel> model)
 {
 	mModel = model;
 	mModel->CopyModelHierarchy(this);
@@ -286,22 +286,22 @@ void CGameObject::SetModel(rsptr<const CMasterModel> model)
 	Transform::MergeTransform(mMergedTransform, this);
 }
 
-void CGameObject::SetFlyable(bool isFlyable)
+void GameObject::SetFlyable(bool isFlyable)
 {
 	mIsFlyable = isFlyable;
 }
 
-//===== (CGameObject) =====//
+//===== (GameObject) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Others ] /////
 
 //////////////////* DirectX *//////////////////
-void CGameObject::UpdateShaderVariablesSprite()
+void GameObject::UpdateShaderVariablesSprite()
 {
 
 }
 
-void CGameObject::Render()
+void GameObject::Render()
 {
 	if (mModel) {
 		mModel->Render(this);
@@ -309,7 +309,7 @@ void CGameObject::Render()
 }
 
 
-void CGameObject::RenderBounds()
+void GameObject::RenderBounds()
 {
 	if (mIsDrawBounding) {
 		GetComponent<ObjectCollider>()->Render();
@@ -319,7 +319,7 @@ void CGameObject::RenderBounds()
 
 
 //////////////////* Movement *//////////////////
-void CGameObject::Update()
+void GameObject::Update()
 {
 	if (!IsActive()) {
 		return;
@@ -329,13 +329,13 @@ void CGameObject::Update()
 		TiltToGround();
 	}
 
-	CModelObject::Update();
+	ModelObject::Update();
 }
 
 
 //////////////////* Others *//////////////////
 // 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
-void CGameObject::AttachToGround()
+void GameObject::AttachToGround()
 {
 	Vec3 pos = GetPosition();
 	const float terrainHeight = crntScene->GetTerrainHeight(pos.x, pos.z);
@@ -345,7 +345,7 @@ void CGameObject::AttachToGround()
 }
 
 
-void CGameObject::TiltToGround()
+void GameObject::TiltToGround()
 {
 	AttachToGround();
 
@@ -388,7 +388,7 @@ void CGameObject::TiltToGround()
 }
 
 
-void CGameObject::Enable(bool isUpdateObjectGrid)
+void GameObject::Enable(bool isUpdateObjectGrid)
 {
 	mIsActive = true;
 
@@ -397,7 +397,7 @@ void CGameObject::Enable(bool isUpdateObjectGrid)
 	}
 }
 
-void CGameObject::Disable(bool isUpdateObjectGrid)
+void GameObject::Disable(bool isUpdateObjectGrid)
 {
 	mIsActive = false;
 
@@ -409,11 +409,11 @@ void CGameObject::Disable(bool isUpdateObjectGrid)
 
 
 
-// [ CInstancingObject ] //
+// [ InstancinObject ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void CInstancingObject::Push()
+void InstancinObject::Push()
 {
 	if (mIsPushed) {
 		return;
@@ -423,7 +423,7 @@ void CInstancingObject::Push()
 	mBuffer->PushObject(this);
 }
 
-void CInstancingObject::SetBuffer(rsptr<CObjectInstanceBuffer> buffer)
+void InstancinObject::SetBuffer(rsptr<ObjectInstanceBuffer> buffer)
 {
 	SetInstancing();
 	mBuffer = buffer;
@@ -436,59 +436,59 @@ void CInstancingObject::SetBuffer(rsptr<CObjectInstanceBuffer> buffer)
 	}
 }
 
-void CInstancingObject::Render()
+void InstancinObject::Render()
 {
 	Push();
 }
 
-void CInstancingObject::UpdateStatic()
+void InstancinObject::UpdateStatic()
 {
 	Reset();
 }
-void CInstancingObject::UpdateDynamic()
+void InstancinObject::UpdateDynamic()
 {
-	CGameObject::Update();
+	GameObject::Update();
 	Reset();
 }
 
-void CInstancingObject::Update()
+void InstancinObject::Update()
 {
 	mUpdate();
 }
 
 
 
-// [ CObjectInstanceBuffer ] //
+// [ ObjectInstanceBuffer ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void CObjectInstanceBuffer::SetModel(rsptr<const CMasterModel> model)
+void ObjectInstanceBuffer::SetModel(rsptr<const MasterModel> model)
 {
 	mModel = model;
 	Transform::MergeTransform(mMergedTransform, mModel.get());
 	mMergedTransform.erase(mMergedTransform.begin());
 }
 
-void CObjectInstanceBuffer::CreateShaderVariables(UINT objectCount)
+void ObjectInstanceBuffer::CreateShaderVariables(UINT objectCount)
 {
 	mObjectCount = objectCount;
 	::CreateBufferResource(NULL, sizeof(VS_OBJECT_INSTANCE) * mObjectCount, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuffer);
 	mInstBuffer->Map(0, NULL, (void**)&mMappedBuffer);
 }
 
-void CObjectInstanceBuffer::PushObject(CInstancingObject* object)
+void ObjectInstanceBuffer::PushObject(InstancinObject* object)
 {
 	assert(mCrntBufferIndex < mObjectCount);
 
 	XMStoreFloat4x4(&mMappedBuffer[mCrntBufferIndex++].mLocalTransform, XMMatrixTranspose(XMLoadFloat4x4(&object->GetWorldTransform())));
 }
 
-void CObjectInstanceBuffer::UpdateShaderVariables() const
+void ObjectInstanceBuffer::UpdateShaderVariables() const
 {
 	cmdList->SetGraphicsRootShaderResourceView(crntScene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
 }	
 
-void CObjectInstanceBuffer::Render()
+void ObjectInstanceBuffer::Render()
 {
 	if (mModel) {
 		mModel->Render(this);

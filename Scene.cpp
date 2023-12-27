@@ -31,7 +31,7 @@
 //#define DRAW_SCENE_GRID_3D
 
 
-// [ CScene ] //
+// [ Scene ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,29 +39,29 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Constructor ] /////
 
-static uptr<CScene> sceneInstance{};
+static uptr<Scene> sceneInstance{};
 
-void CScene::Create()
+void Scene::Create()
 {
-	sceneInstance = std::make_unique<CScene>();
+	sceneInstance = std::make_unique<Scene>();
 }
 
 
-void CScene::Destroy()
+void Scene::Destroy()
 {
 	sceneInstance = nullptr;
 	Canvas::Inst()->OnDestroy();
 }
 
 
-CScene* CScene::Inst()
+Scene* Scene::Inst()
 {
 	return sceneInstance.get();
 }
 
 
 
-CScene::CScene()
+Scene::Scene()
 {
 	constexpr int gridLengthCount{ 20 };		// gridCount = n*n
 
@@ -70,13 +70,13 @@ CScene::CScene()
 
 	mMapBorder = { borderPos, borderExtents };	// map segmentation criteria
 	mGridLength = static_cast<int>(mMapBorder.Extents.x / gridLengthCount);
-	mLight = std::make_unique<CLight>();
+	mLight = std::make_unique<Light>();
 
-	mDescriptorHeap = std::make_shared<CDescriptorHeap>();
+	mDescriptorHeap = std::make_shared<DescriptorHeap>();
 }
 
 
-CScene::~CScene()
+Scene::~Scene()
 {
 
 }
@@ -85,13 +85,13 @@ CScene::~CScene()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Getter ] /////
-float CScene::GetTerrainHeight(float x, float z) const
+float Scene::GetTerrainHeight(float x, float z) const
 {
 	return (mTerrain) ? mTerrain->GetHeight(x, z) : 0.0f;
 }
 
 
-rsptr<const CMasterModel> CScene::GetModel(const std::string& modelName)
+rsptr<const MasterModel> Scene::GetModel(const std::string& modelName)
 {
 	assert(mModels.contains(modelName));
 
@@ -99,32 +99,32 @@ rsptr<const CMasterModel> CScene::GetModel(const std::string& modelName)
 }
 
 
-rsptr<CTexture> CScene::GetTexture(const std::string& name)
+rsptr<Texture> Scene::GetTexture(const std::string& name)
 {
 	assert(mMaterialMap.contains(name)); return mMaterialMap[name]->mTexture;
 }
 
-rsptr<Camera> CScene::GetMainCamera() const
+rsptr<Camera> Scene::GetMainCamera() const
 {
 	return mMainCamera->GetCamera();
 }
 
-sptr<CCameraObject> CScene::GetCameraObject() const
+sptr<CameraObject> Scene::GetCameraObject() const
 {
 	return mMainCamera;
 }
 
-RComPtr<ID3D12RootSignature> CScene::GetRootSignature() const
+RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
 {
 	return mGraphicsRootSignature->Get();
 }
 
-UINT CScene::GetRootParamIndex(RootParam param)
+UINT Scene::GetRootParamIndex(RootParam param)
 {
 	return mGraphicsRootSignature->GetRootParamIndex(param);
 }
 
-void CScene::SetGlobalShader() const
+void Scene::SetGlobalShader() const
 {
 	mGlobalShader->Render();
 }
@@ -135,9 +135,9 @@ void CScene::SetGlobalShader() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////* DirectX *//////////////////
-void CScene::CreateGraphicsRootSignature()
+void Scene::CreateGraphicsRootSignature()
 {
-	mGraphicsRootSignature = std::make_shared<CGraphicsRootSignature>();
+	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
 	mGraphicsRootSignature->Push(RootParam::GameObjectInfo,		D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	0, D3D12_SHADER_VISIBILITY_ALL, 33);
@@ -165,54 +165,54 @@ void CScene::CreateGraphicsRootSignature()
 }
 
 
-void CScene::CreateShaderVariables()
+void Scene::CreateShaderVariables()
 {
 	mLight->CreateShaderVariables();
 }
 
 
-void CScene::UpdateShaderVariables()
+void Scene::UpdateShaderVariables()
 {
 	mLight->UpdateShaderVariables();
 	mMainCamera->UpdateShaderVariables();
 }
 
 
-void CScene::ReleaseShaderVariables()
+void Scene::ReleaseShaderVariables()
 {
 	mLight->ReleaseShaderVariables();
 	mMainCamera->ReleaseShaderVariables();
 }
 
 
-void CScene::ReleaseUploadBuffers()
+void Scene::ReleaseUploadBuffers()
 {
-	ProcessObjects([](sptr<CGameObject> object) {
+	ProcessObjects([](sptr<GameObject> object) {
 		object->ReleaseUploadBuffers();
 		});
 
 	MeshRenderer::ReleaseStaticUploadBuffers();
 }
 
-void CScene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
+void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
 {
 	constexpr UINT num32Bit = 16;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
-void CScene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
+void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
 {
 	constexpr UINT num32Bit = 16;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
-void CScene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
+void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
 {
 	constexpr UINT num32Bit = 4;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
-void CScene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
+void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
 {
 	constexpr UINT num32Bit = 1;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
@@ -223,7 +223,7 @@ void CScene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT off
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////* Build *//////////////////
-void CScene::BuildShaders()
+void Scene::BuildShaders()
 {
 	BuildGlobalShader();
 	BuildBoundingShader();
@@ -232,58 +232,58 @@ void CScene::BuildShaders()
 	BuildBillboardShader();
 }
 
-void CScene::BuildGlobalShader()
+void Scene::BuildGlobalShader()
 {
-	mGlobalShader = std::make_shared<CTexturedShader>();
+	mGlobalShader = std::make_shared<TexturedShader>();
 	mGlobalShader->CreateShader();
 	
-	mWaterShader = std::make_shared<CWaterShader>();
+	mWaterShader = std::make_shared<WaterShader>();
 	mWaterShader->CreateShader();
 
-	mInstancingShader = std::make_shared<CObjectInstancingShader>();
+	mInstancingShader = std::make_shared<ObjectInstancingShader>();
 	mInstancingShader->CreateShader();
 
-	mTransparentShader = std::make_shared<CTransparentShader>();
+	mTransparentShader = std::make_shared<TransparentShader>();
 	mTransparentShader->CreateShader();
 }
 
 
-void CScene::BuildBoundingShader()
+void Scene::BuildBoundingShader()
 {
-	mBoundingShader = std::make_shared<CWireShader>();
+	mBoundingShader = std::make_shared<WireShader>();
 	mBoundingShader->CreateShader();
 }
 
 
-void CScene::BuildSmallExpFXShader()
+void Scene::BuildSmallExpFXShader()
 {
-	mSmallExpFXShader = std::make_shared<CSmallExpEffectShader>();
+	mSmallExpFXShader = std::make_shared<SmallExpEffectShader>();
 	mSmallExpFXShader->Create();
 }
 
 
-void CScene::BuildBigExpFXShader()
+void Scene::BuildBigExpFXShader()
 {
-	mBigExpFXShader = std::make_shared<CBigExpEffectShader>();
+	mBigExpFXShader = std::make_shared<BigExpEffectShader>();
 	mBigExpFXShader->Create();
 }
 
-void CScene::BuildBillboardShader()
+void Scene::BuildBillboardShader()
 {
-	mBillboardShader = std::make_shared<CBillboardShader>();
+	mBillboardShader = std::make_shared<BillboardShader>();
 	mBillboardShader->CreateShader();
 	
-	mSpriteShader = std::make_shared<CSpriteShader>();
+	mSpriteShader = std::make_shared<SpriteShader>();
 	mSpriteShader->CreateShader();
 }
 
 
-void CScene::BuildPlayers()
+void Scene::BuildPlayers()
 {
 	LIGHT_RANGE lightRange{};
 	// [1]
 	mPlayers.reserve(2);
-	sptr<CGameObject> airplanePlayer = std::make_shared<CGameObject>();
+	sptr<GameObject> airplanePlayer = std::make_shared<GameObject>();
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("Gunship"));
 
@@ -291,7 +291,7 @@ void CScene::BuildPlayers()
 
 
 	//// [2]
-	//sptr<CGameObject> tankPlayer = std::make_shared<CGameObject>();
+	//sptr<GameObject> tankPlayer = std::make_shared<GameObject>();
 	//tankPlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(mGraphicsRootSignature, GetModel("tank_bullet"));
 	//tankPlayer->GetComponent<Script_TankPlayer>()->SetSpawn(Vec3(50.0f, 0.0f, 50.0f));
 	//tankPlayer->SetModel(GetModel("tank"));
@@ -337,17 +337,17 @@ void CScene::BuildPlayers()
 }
 
 
-void CScene::BuildTerrain()
+void Scene::BuildTerrain()
 {
 	constexpr int terrainGridLength = (TERRAIN_LENGTH - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
 
-	mTerrain = std::make_shared<CHeightMapTerrain>(_T("HeightMap.raw"), TERRAIN_LENGTH, TERRAIN_LENGTH, terrainGridLength, terrainGridLength);
+	mTerrain = std::make_shared<HeightMapTerrain>(_T("HeightMap.raw"), TERRAIN_LENGTH, TERRAIN_LENGTH, terrainGridLength, terrainGridLength);
 
 	BuildGrid();
 }
 
 
-void CScene::BuildGrid()
+void Scene::BuildGrid()
 {
 	constexpr float maxHeight = 300.0f;	// for 3D grid
 
@@ -383,9 +383,9 @@ void CScene::BuildGrid()
 }
 
 
-void CScene::BuildGridObjects()
+void Scene::BuildGridObjects()
 {
-	ProcessObjects([this](sptr<CGameObject> object) {
+	ProcessObjects([this](sptr<GameObject> object) {
 		UpdateObjectGrid(object.get());
 		});
 
@@ -395,18 +395,18 @@ void CScene::BuildGridObjects()
 }
 
 
-void CScene::BuildCamera()
+void Scene::BuildCamera()
 {
-	mMainCamera = std::make_shared<CMainCamera>();
+	mMainCamera = std::make_shared<MainCamera>();
 	mMainCamera->CreateShaderVariables();
 }
 
 
-void CScene::LoadModels()
+void Scene::LoadModels()
 {
 	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
 
-	sptr<CMasterModel> model;
+	sptr<MasterModel> model;
 	for (auto& name : binModelNames) {
 		if (!mModels.contains(name)) {
 			model = FileMgr::LoadGeometryFromFile("Models/Meshes/" + name + ".bin");
@@ -419,7 +419,7 @@ void CScene::LoadModels()
 }
 
 
-void CScene::InitObjectByTag(const void* pTag, sptr<CGameObject> object)
+void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 {
 	ObjectTag tag = *(ObjectTag*)pTag;
 	object->SetTag(tag);
@@ -473,21 +473,15 @@ void CScene::InitObjectByTag(const void* pTag, sptr<CGameObject> object)
 	}
 
 	break;
-	case ObjectTag::Mirror:
-	{
-		mMirrorShader->SetMirrorObject(object);
-		return;
-	}
-	break;
 	default:
 		break;
 	}
 
-	mStaticObjects.emplace_back(object);
+	mStatiObjects.emplace_back(object);
 	object->SetFlyable(true);
 }
 
-void CScene::LoadGameObjects(FILE* file)
+void Scene::LoadGameObjects(FILE* file)
 {
 	std::string token{};
 	std::string name{};
@@ -498,17 +492,17 @@ void CScene::LoadGameObjects(FILE* file)
 	::ReadUnityBinaryString(file, token); // "<GameObjects>:"
 	nReads = (UINT)::fread(&objectCount, sizeof(int), 1, file);
 
-	mStaticObjects.reserve(objectCount);
+	mStatiObjects.reserve(objectCount);
 
 	int sameObjectCount{};			// get one unique model from same object
-	sptr<CMasterModel> model{};
-	sptr<CObjectInstanceBuffer> instBuffer{};
+	sptr<MasterModel> model{};
+	sptr<ObjectInstanceBuffer> instBuffer{};
 	bool isInstancing{};
 	ObjectTag tag{};
 	ObjectLayer layer{};
 
 	for (int i = 0; i < objectCount; ++i) {
-		sptr<CGameObject> object{};
+		sptr<GameObject> object{};
 
 		if (sameObjectCount <= 0) {
 			::ReadUnityBinaryString(file, token); //"<Tag>:"
@@ -535,7 +529,7 @@ void CScene::LoadGameObjects(FILE* file)
 			::fread(&isInstancing, sizeof(bool), 1, file);
 				
 			if (isInstancing) {
-				instBuffer = std::make_shared<CObjectInstanceBuffer>();
+				instBuffer = std::make_shared<ObjectInstanceBuffer>();
 				instBuffer->CreateShaderVariables(sameObjectCount);
 				instBuffer->SetModel(model);
 				if (GetObjectType(tag) == ObjectType::Dynamic) {
@@ -546,10 +540,10 @@ void CScene::LoadGameObjects(FILE* file)
 		}
 
 		if (isInstancing) {
-			object = std::make_shared<CInstancingObject>();
+			object = std::make_shared<InstancinObject>();
 		}
 		else {
-			object = std::make_shared<CGameObject>();
+			object = std::make_shared<GameObject>();
 		}
 
 		InitObjectByTag(&tag, object);
@@ -568,7 +562,7 @@ void CScene::LoadGameObjects(FILE* file)
 		object->SetWorldTransform(transform);
 
 		if (isInstancing) {
-			((CInstancingObject*)object.get())->SetBuffer(instBuffer);
+			((InstancinObject*)object.get())->SetBuffer(instBuffer);
 		}
 
 		--sameObjectCount;
@@ -579,7 +573,7 @@ void CScene::LoadGameObjects(FILE* file)
 
 
 
-void CScene::LoadSceneObjectsFromFile(const std::string& fileName)
+void Scene::LoadSceneObjectsFromFile(const std::string& fileName)
 {
 	FILE* file = NULL;
 	::fopen_s(&file, fileName.c_str(), "rb");
@@ -590,7 +584,7 @@ void CScene::LoadSceneObjectsFromFile(const std::string& fileName)
 	LoadGameObjects(file);
 }
 
-void CScene::LoadTextures()
+void Scene::LoadTextures()
 {
 	std::vector<std::string> textureNames;
 	
@@ -600,14 +594,14 @@ void CScene::LoadTextures()
 	info.mAlbedo = Vec4(0.1f, .1f, .1f, 1.0f);
 	for (auto& textureName : textureNames) {
 		// load texture
-		sptr<CTexture> texture = std::make_shared<CTexture>(RESOURCE_TEXTURE2D);
+		sptr<Texture> texture = std::make_shared<Texture>(RESOURCE_TEXTURE2D);
 		texture->LoadTexture(textureName);
 
 		// apply to material
-		sptr<CMaterial> material = std::make_shared<CMaterial>();
+		sptr<Material> material = std::make_shared<Material>();
 		material->SetTexture(texture);
 
-		sptr<CMaterialColors> materialColors = std::make_shared<CMaterialColors>(info);
+		sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(info);
 		material->SetMaterialColors(materialColors);
 
 		mMaterialMap.insert(std::make_pair(textureName, material));
@@ -615,13 +609,13 @@ void CScene::LoadTextures()
 }
 
 
-void CScene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
+void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
 {
 	mDescriptorHeap->Create(cbvCount, srvCount);
 }
 
 
-void CScene::BuildObjects()
+void Scene::BuildObjects()
 {
 	CreateGraphicsRootSignature();
 
@@ -635,8 +629,6 @@ void CScene::BuildObjects()
 	Canvas::Inst()->Create();
 
 	// load models
-	mMirrorShader = std::make_shared<CMirrorShader>();
-	mMirrorShader->CreateShader();
 	LoadSceneObjectsFromFile("Models/Scene.bin");
 	LoadModels();
 
@@ -649,9 +641,9 @@ void CScene::BuildObjects()
 	CreateShaderVariables();
 
 #ifdef DRAW_SCENE_GRID_3D
-	mGridMesh = std::make_shared<CModelObjectMesh>((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
+	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
 #else
-	mGridMesh = std::make_shared<CModelObjectMesh>((float)mGridLength, (float)mGridLength, true);
+	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, (float)mGridLength, true);
 #endif
 
 	MeshRenderer::BuildMeshes();
@@ -660,18 +652,18 @@ void CScene::BuildObjects()
 	BuildCamera();
 
 	// skybox
-	mSkyBox = std::make_shared<CSkyBox>();
+	mSkyBox = std::make_shared<SkyBox>();
 }
 
 
-void CScene::ReleaseObjects()
+void Scene::ReleaseObjects()
 {
 	mGraphicsRootSignature = nullptr;
 	MeshRenderer::Release();
 }
 
 
-void CScene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat)
+void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -686,7 +678,7 @@ void CScene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FOR
 }
 
 
-void CScene::CreateShaderResourceView(CTexture* texture, UINT descriptorHeapIndex)
+void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
 {
 	ComPtr<ID3D12Resource> resource = texture->GetResource();
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
@@ -700,7 +692,7 @@ void CScene::CreateShaderResourceView(CTexture* texture, UINT descriptorHeapInde
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////* Render *//////////////////
 
-void CScene::OnPrepareRender()
+void Scene::OnPrepareRender()
 {
 	cmdList->SetGraphicsRootSignature(GetRootSignature().Get());
 
@@ -717,15 +709,15 @@ void CScene::OnPrepareRender()
 }
 
 
-void CScene::RenderTerrain(bool isMirror)
+void Scene::RenderTerrain()
 {
 	if (mTerrain) {
-		mTerrain->Render(isMirror);
+		mTerrain->Render();
 	}
 }
 
 
-void CScene::RenderGridObjects(std::set<CGameObject*>& renderObjects, std::set<CGameObject*>& transparentObjects, std::set<CGameObject*>& billboardObjects)
+void Scene::RenderGridObjects(std::set<GameObject*>& renderObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects)
 {
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -753,15 +745,13 @@ void CScene::RenderGridObjects(std::set<CGameObject*>& renderObjects, std::set<C
 			billboardObjects.insert(object);
 			break;
 		default:
-			if (!object->IsInstancing()) {
-				object->Render();
-			}
+			object->Render();
 			break;
 		}
 	}
 }
 
-void CScene::RenderInstanceObjects()
+void Scene::RenderInstanceObjects()
 {
 	mInstancingShader->Render();
 	for (auto& buffer : mInstanceBuffers) {
@@ -769,7 +759,7 @@ void CScene::RenderInstanceObjects()
 	}
 }
 
-void CScene::RenderBackgrounds()
+void Scene::RenderBackgrounds()
 {
 	for (auto& background : mBackgrounds) {
 		background->Render();
@@ -777,7 +767,7 @@ void CScene::RenderBackgrounds()
 }
 
 
-void CScene::RenderBullets()
+void Scene::RenderBullets()
 {
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
@@ -787,7 +777,7 @@ void CScene::RenderBullets()
 }
 
 
-void CScene::RenderBounds(const std::set<CGameObject*>& renderObjects)
+void Scene::RenderBounds(const std::set<GameObject*>& renderObjects)
 {
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
@@ -801,7 +791,7 @@ void CScene::RenderBounds(const std::set<CGameObject*>& renderObjects)
 }
 
 
-void UpdateGridShaderVariables(const CGrid& grid)
+void UpdateGridShaderVariables(const Grid& grid)
 {
 
 	BoundingBox box = grid.GetBB();
@@ -818,15 +808,15 @@ void UpdateGridShaderVariables(const CGrid& grid)
 	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(transform), 0);
 }
 
-void CScene::RenderGridBounds()
+void Scene::RenderGridBounds()
 {
-	for (CGrid& grid : mGrids) {
+	for (Grid& grid : mGrids) {
 		UpdateGridShaderVariables(grid);
 		mGridMesh->Render();
 	}
 }
 
-void CScene::RenderBillboards(const std::set<CGameObject*>& billboards)
+void Scene::RenderBillboards(const std::set<GameObject*>& billboards)
 {
 	mBillboardShader->Render();
 	for (auto& object : billboards) {
@@ -841,20 +831,17 @@ void CScene::RenderBillboards(const std::set<CGameObject*>& billboards)
 static D3D12_PRIMITIVE_TOPOLOGY objectPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 static D3D12_PRIMITIVE_TOPOLOGY terrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 static D3D12_PRIMITIVE_TOPOLOGY boundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-void CScene::Render()
+void Scene::Render()
 {
 	sptr<Camera> camera = mMainCamera->GetCamera();
-	std::set<CGameObject*> renderObjects{};
-	std::set<CGameObject*> transparentObjects{};
-	std::set<CGameObject*> billboardObjects{};
+	std::set<GameObject*> renderObjects{};
+	std::set<GameObject*> transparentObjects{};
+	std::set<GameObject*> billboardObjects{};
 
 	OnPrepareRender();
 
 	// objects
 	cmdList->IASetPrimitiveTopology(objectPrimitiveTopology);
-
-	// mirror
-	RenderMirror();
 
 	mGlobalShader->Render();
 
@@ -912,80 +899,18 @@ bool IsBehind(const Vec3& point, const Vec4& plane)
 	return XMVectorGetX(XMPlaneDotCoord(XMLoadFloat4(&plane), _VECTOR(point))) < 0.f;
 }
 
-void CScene::RenderMirrorObjects(const Vec4& mirrorPlane)
-{
-	std::set<CGameObject*> renderObjects;
-	std::set<CGameObject*> billboardObjects;
-	for (const auto& grid : mGrids) {
-		if (grid.Empty()) {
-			continue;
-		}
-
-		std::vector<Vec3> corners(8);
-		grid.GetBB().GetCorners(corners.data());
-		bool isGridFront{ false };
-		for (const Vec3& point : corners) {
-			if (!IsBehind(point, mirrorPlane)) {
-				isGridFront = true;
-				break;
-			}
-		}
-		if (!isGridFront) {
-			continue;
-		}
-
-		auto& objects = grid.GetObjects();
-		renderObjects.insert(objects.begin(), objects.end());
-	}
-
-	for (auto& object : renderObjects) {
-
-		if (object->IsTransparent()) {
-			continue;
-		}
-
-		if (object->GetTag() != ObjectTag::Terrain && IsBehind(object->GetPosition(), mirrorPlane)) {
-			continue;
-		}
-
-		switch (object->GetTag())
-		{
-		case ObjectTag::Bullet:
-			break;
-		case ObjectTag::Billboard:
-		case ObjectTag::Sprite:
-			break;
-		default:
-			if (!object->IsInstancing()) {
-				object->Render();
-			}
-			break;
-		}
-	}
-
-	RenderBackgrounds();
-
-	cmdList->IASetPrimitiveTopology(terrainPrimitiveTopology);
-	RenderTerrain(true);
-
-	cmdList->IASetPrimitiveTopology(objectPrimitiveTopology);
-}
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////* Update *//////////////////
 
-void CScene::UpdateLights()
+void Scene::UpdateLights()
 {
 	
 }
 
 
-void CScene::UpdateObjects()
+void Scene::UpdateObjects()
 {
-	ProcessObjects([this](sptr<CGameObject> object) {
+	ProcessObjects([this](sptr<GameObject> object) {
 		UpdateObject(object.get());
 		});
 
@@ -1014,25 +939,25 @@ void CScene::UpdateObjects()
 }
 
 
-void CScene::UpdateCamera()
+void Scene::UpdateCamera()
 {
 	mMainCamera->Update();
 }
 
 
-void CScene::AnimateObjects()
+void Scene::AnimateObjects()
 {
-	/*ProcessObjects([](sptr<CGameObject> object) {
+	/*ProcessObjects([](sptr<GameObject> object) {
 		object->Animate();
 		});*/
 }
 
 
-void CScene::CheckCollisions()
+void Scene::CheckCollisions()
 {
 	UpdatePlayerGrid();
 
-	for (CGrid& grid : mGrids) {
+	for (Grid& grid : mGrids) {
 		grid.CheckCollisions();
 	}
 
@@ -1040,12 +965,12 @@ void CScene::CheckCollisions()
 }
 
 
-void CScene::UpdatePlayerGrid()
+void Scene::UpdatePlayerGrid()
 {
 	for (auto& player : mPlayers) {
 		UpdateObjectGrid(player.get());
 
-		const std::list<sptr<CGameObject>>* bullets = player->GetComponent<Script_AirplanePlayer>()->GetBullets();
+		const std::list<sptr<GameObject>>* bullets = player->GetComponent<Script_AirplanePlayer>()->GetBullets();
 
 		if (!bullets) {
 			continue;
@@ -1058,7 +983,7 @@ void CScene::UpdatePlayerGrid()
 }
 
 
-void CScene::UpdateObject(CGameObject* object)
+void Scene::UpdateObject(GameObject* object)
 {
 	if (!object) {
 		return;
@@ -1072,9 +997,9 @@ void CScene::UpdateObject(CGameObject* object)
 }
 
 
-void CScene::Start()
+void Scene::Start()
 {
-	ProcessObjects([](sptr<CGameObject> object) {
+	ProcessObjects([](sptr<GameObject> object) {
 		object->Start();
 		});
 
@@ -1090,7 +1015,7 @@ void CScene::Start()
 	BuildGridObjects();
 
 }
-void CScene::Update()
+void Scene::Update()
 {
 	CheckCollisions();
 
@@ -1109,9 +1034,9 @@ void CScene::Update()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////* Others *//////////////////
-void CScene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
+void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 {
-	sptr<CGameObject> effect = std::make_shared<CGameObject>();
+	sptr<GameObject> effect = std::make_shared<GameObject>();
 	effect->SetModel(GetModel("sprite_explosion"));
 	effect->RemoveComponent<ObjectCollider>();
 	auto& script = effect->AddComponent<Script_Sprite>();
@@ -1126,7 +1051,7 @@ void CScene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 	mSpriteEffectObjects.emplace_back(effect);
 }
 
-void CScene::CreateSmallExpFX(Vec3 pos)
+void Scene::CreateSmallExpFX(Vec3 pos)
 {
 	if (mSmallExpFXShader) {
 		mSmallExpFXShader->SetActive(pos);
@@ -1136,7 +1061,7 @@ void CScene::CreateSmallExpFX(Vec3 pos)
 }
 
 
-void CScene::CreateBigExpFX(Vec3 pos)
+void Scene::CreateBigExpFX(Vec3 pos)
 {
 	if (mBigExpFXShader) {
 		mBigExpFXShader->SetActive(pos);
@@ -1146,7 +1071,7 @@ void CScene::CreateBigExpFX(Vec3 pos)
 }
 
 
-int CScene::GetGridIndexFromPos(Vec3 pos)
+int Scene::GetGridIndexFromPos(Vec3 pos)
 {
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
@@ -1158,7 +1083,7 @@ int CScene::GetGridIndexFromPos(Vec3 pos)
 }
 
 
-void CScene::SetObjectGridIndex(rsptr<CGameObject> object, int gridIndex)
+void Scene::SetObjectGridIndex(rsptr<GameObject> object, int gridIndex)
 {
 	object->SetGridIndex(gridIndex);
 
@@ -1170,7 +1095,7 @@ void CScene::SetObjectGridIndex(rsptr<CGameObject> object, int gridIndex)
 }
 
 
-void CScene::DeleteExplodedObjects()
+void Scene::DeleteExplodedObjects()
 {
 	for (auto it = mExplosiveObjects.begin(); it != mExplosiveObjects.end(); ) {
 		auto& object = *it;
@@ -1189,19 +1114,19 @@ void CScene::DeleteExplodedObjects()
 }
 
 
-void CScene::ProcessInput(HWND hWnd, POINT oldCursorPos)
+void Scene::ProcessInput(HWND hWnd, POINT oldCursorPos)
 {
 
 }
 
 
-bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool Scene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	return(false);
 }
 
 
-bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool Scene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
@@ -1245,17 +1170,17 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 }
 
 
-void CScene::ToggleDrawBoundings()
+void Scene::ToggleDrawBoundings()
 {
 	mIsRenderBounds = !mIsRenderBounds;
 
-	ProcessObjects([](sptr<CGameObject> object) {
+	ProcessObjects([](sptr<GameObject> object) {
 		object->ToggleDrawBoundings();
 		});
 }
 
 
-void CScene::CreateExplosion(ExplosionType explosionType, const Vec3& pos)
+void Scene::CreateExplosion(ExplosionType explosionType, const Vec3& pos)
 {
 	switch (explosionType) {
 	case ExplosionType::Small:
@@ -1271,7 +1196,7 @@ void CScene::CreateExplosion(ExplosionType explosionType, const Vec3& pos)
 }
 
 
-void CScene::BlowAllExplosiveObjects()
+void Scene::BlowAllExplosiveObjects()
 {
 	for (auto& object : mExplosiveObjects)
 	{
@@ -1284,7 +1209,7 @@ void CScene::BlowAllExplosiveObjects()
 }
 
 
-void CScene::ChangeToNextPlayer()
+void Scene::ChangeToNextPlayer()
 {
 	++mCrntPlayerIndex;
 	if (mCrntPlayerIndex >= mPlayers.size()) {
@@ -1295,7 +1220,7 @@ void CScene::ChangeToNextPlayer()
 }
 
 
-void CScene::ChangeToPrevPlayer()
+void Scene::ChangeToPrevPlayer()
 {
 	--mCrntPlayerIndex;
 	if (mCrntPlayerIndex < 0) {
@@ -1306,7 +1231,7 @@ void CScene::ChangeToPrevPlayer()
 }
 
 // 객체의 Grid정보를 업데이트한다.
-void CScene::UpdateObjectGrid(CGameObject* object, bool isCheckAdj)
+void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 {
 	if (!object->IsActive()) {
 		return;
@@ -1328,11 +1253,15 @@ void CScene::UpdateObjectGrid(CGameObject* object, bool isCheckAdj)
 		object->SetGridIndex(gridIndex);
 	}
 
-	std::unordered_set<int> gridIndices{};
-
 	// 1칸 이내의 인접한 그리드 충돌검사
 	// BoundingSphere가 Grid 내부에 완전히 포함되면 검사 X
-	const auto& objectBS = object->GetComponent<ObjectCollider>()->GetBS();
+	const auto& collider = object->GetComponent<ObjectCollider>();
+	if (!collider) {
+		return;
+	}
+
+	std::unordered_set<int> gridIndices{};
+	const auto& objectBS = collider->GetBS();
 	if (isCheckAdj && mGrids[gridIndex].GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
 		int gridX = gridIndex % mGridCols;
 		int gridZ = gridIndex / mGridCols;
@@ -1366,7 +1295,7 @@ void CScene::UpdateObjectGrid(CGameObject* object, bool isCheckAdj)
 }
 
 
-void CScene::RemoveObjectFromGrid(CGameObject* object)
+void Scene::RemoveObjectFromGrid(GameObject* object)
 {
 	for (int index : object->GetGridIndices()) {
 		mGrids[index].RemoveObject(object);
@@ -1376,32 +1305,17 @@ void CScene::RemoveObjectFromGrid(CGameObject* object)
 }
 
 
-void CScene::ProcessObjects(std::function<void(sptr<CGameObject>)> processFunc)
+void Scene::ProcessObjects(std::function<void(sptr<GameObject>)> processFunc)
 {
 	for (auto& player : mPlayers) {
 		processFunc(player);
 	}
 
-	for (auto& object : mStaticObjects) {
+	for (auto& object : mStatiObjects) {
 		processFunc(object);
 	}
 
 	for (auto& object : mExplosiveObjects) {
 		processFunc(object);
 	}
-}
-
-void CScene::RenderMirror()
-{
-
-}
-
-const XMMATRIX& CScene::GetReflect() const
-{
-	return mMirrorShader->GetReflect();
-}
-
-bool CScene::IsRenderReflectObject()
-{
-	return mMirrorShader->IsRenderReflectObject();
 }

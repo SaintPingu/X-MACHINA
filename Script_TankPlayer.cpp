@@ -8,8 +8,8 @@ void Script_TankPlayer::Start()
 	base::Start();
 
 	mShellFirePos = mPlayer->FindFrame("fire_pos");
-	mTurret = mPlayer->FindFrame("turret")->Object<CGameObject>();
-	mGun = mPlayer->FindFrame("gun")->Object<CGameObject>();
+	mTurret = mPlayer->FindFrame("turret")->GetObj<GameObject>();
+	mGun = mPlayer->FindFrame("gun")->GetObj<GameObject>();
 }
 
 

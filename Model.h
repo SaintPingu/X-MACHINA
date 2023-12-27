@@ -2,14 +2,14 @@
 #include "Component.h"
 
 
-class CModelObjectMesh;
-class CShader;
-class CMeshLoadInfo;
-class CModelObject;
-class CGameObject;
+class ModelObjectMesh;
+class Shader;
+class MeshLoadInfo;
+class ModelObject;
+class GameObject;
 class Camera;
 
-class CTexture;
+class Texture;
 
 // Constant Buffers
 struct CB_COLOR_OBJECT_INFO
@@ -42,12 +42,12 @@ struct MATERIALLOADINFO
 };
 
 // Classes
-class CMaterialColors
+class MaterialColors
 {
 public:
-	CMaterialColors() { }
-	CMaterialColors(const MATERIALLOADINFO& materialInfo);
-	virtual ~CMaterialColors() { }
+	MaterialColors() { }
+	MaterialColors(const MATERIALLOADINFO& materialInfo);
+	virtual ~MaterialColors() { }
 
 public:
 	XMFLOAT4						mAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -59,23 +59,23 @@ public:
 
 
 
-class CMaterial {
+class Material {
 private:
 	bool mIsDiffused{ false };
-	sptr<CMaterialColors> mMaterialColors{};
+	sptr<MaterialColors> mMaterialColors{};
 
 public:
-	sptr<CTexture> mTexture{};
+	sptr<Texture> mTexture{};
 
 public:
-	CMaterial();
-	virtual ~CMaterial();
+	Material();
+	virtual ~Material();
 
-	void SetMaterialColors(rsptr<CMaterialColors> pMaterialColors) { mMaterialColors = pMaterialColors; }
+	void SetMaterialColors(rsptr<MaterialColors> pMaterialColors) { mMaterialColors = pMaterialColors; }
 	void UpdateShaderVariable();
-	//void SetTexture(rsptr<CTexture> texture) { mTexture = texture; }
+	//void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
 	void LoadTextureFromFile(UINT nType, FILE* file);
-	void SetTexture(rsptr<CTexture> texture) { mTexture = texture; }
+	void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
 };
 
 
@@ -87,66 +87,66 @@ public:
 
 
 
-class CMaterial;
-class CMasterModel;
-class CMergedMesh;
+class Material;
+class MasterModel;
+class MergedMesh;
 
 
-class CModel : public CObject {
+class Model : public Object {
 private:
-	sptr<CMeshLoadInfo> mMeshInfo{};
-	std::vector<sptr<CMaterial>> mMaterials{};
+	sptr<MeshLoadInfo> mMeshInfo{};
+	std::vector<sptr<Material>> mMaterials{};
 
-	void CopyModelHierarchy(sptr<CModelObject>& object) const;
+	void CopyModelHierarchy(sptr<ModelObject>& object) const;
 
 public:
-	CModel();
-	~CModel();
+	Model();
+	~Model();
 
-	void SetMeshInfo(rsptr<CMeshLoadInfo> meshInfo) { mMeshInfo = meshInfo; }
-	void SetMaterials(const std::vector<sptr<CMaterial>>& materials) { mMaterials = materials; }
+	void SetMeshInfo(rsptr<MeshLoadInfo> meshInfo) { mMeshInfo = meshInfo; }
+	void SetMaterials(const std::vector<sptr<Material>>& materials) { mMaterials = materials; }
 
 	// model object의 trasnform 구조를 매핑(Copy)하여 새로운 transform 구조를 반환.
-	void CopyModelHierarchy(CGameObject* object) const;
+	void CopyModelHierarchy(GameObject* object) const;
 
-	void MergeModel(CMasterModel& out);
+	void MergeModel(MasterModel& out);
 };
 
 
-class CObjectInstanceBuffer;
-class CMasterModel : public CObject {
+class ObjectInstanceBuffer;
+class MasterModel : public Object {
 private:
-	sptr<CMergedMesh> mMesh{};
+	sptr<MergedMesh> mMesh{};
 
-	const CModel* GetModel() const { return mChild->Object<CModel>(); }
+	const Model* GetModel() const { return mChild->GetObj<Model>(); }
 
 public:
-	CMasterModel();
-	~CMasterModel();
+	MasterModel();
+	~MasterModel();
 
 	const std::string& GetName() const { return GetModel()->GetName(); }
 
 	void ReleaseUploadBuffers();
-	void MergeMesh(rsptr<CMeshLoadInfo> mesh, const std::vector<sptr<CMaterial>>& materials);
+	void MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials);
 	void Close();
 
-	void Render(const CGameObject* gameObject) const;
-	void Render(const CObjectInstanceBuffer* instBuffer = nullptr) const;
+	void Render(const GameObject* gameObject) const;
+	void Render(const ObjectInstanceBuffer* instBuffer = nullptr) const;
 private:
-	void RenderObject(const CGameObject* gameObject) const;
-	void RenderSprite(const CGameObject* gameObject) const;
+	void RenderObject(const GameObject* gameObject) const;
+	void RenderSprite(const GameObject* gameObject) const;
 public:
 
 	Vec4 GetColor() const;
 
-	rsptr<CMergedMesh> GetMesh() const { return mMesh; }
-	rsptr<CTexture> GetTexture() const;
+	rsptr<MergedMesh> GetMesh() const { return mMesh; }
+	rsptr<Texture> GetTexture() const;
 
-	void SetModel(rsptr<CModel> model);
-	void SetSprite() { RenderFunc = std::bind(&CMasterModel::RenderSprite, this, std::placeholders::_1); }
+	void SetModel(rsptr<Model> model);
+	void SetSprite() { RenderFunc = std::bind(&MasterModel::RenderSprite, this, std::placeholders::_1); }
 
-	void CopyModelHierarchy(CGameObject* object) const;
+	void CopyModelHierarchy(GameObject* object) const;
 
 private:
-	std::function<void(const CGameObject*)> RenderFunc{ std::bind(&CMasterModel::RenderObject, this, std::placeholders::_1) };
+	std::function<void(const GameObject*)> RenderFunc{ std::bind(&MasterModel::RenderObject, this, std::placeholders::_1) };
 };

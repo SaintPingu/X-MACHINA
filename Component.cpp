@@ -2,7 +2,7 @@
 #include "Component.h"
 #include "Collider.h"
 
-static DWORD dynamicObjects {
+static DWORD dynamiObjects {
 	static_cast<DWORD>(ObjectTag::Player) |
 	static_cast<DWORD>(ObjectTag::Tank) |
 	static_cast<DWORD>(ObjectTag::Helicopter) |
@@ -52,11 +52,8 @@ ObjectTag GetTagByName(const std::string& name)
 	else if (name == "Sprite") {
 		return ObjectTag::Sprite;
 	}
-	else if (name == "Mirror") {
-		return ObjectTag::Mirror;
-	}
 	else if (name != "Untagged") {
-		assert(0);
+		//assert(0);
 	}
 
 	return ObjectTag::Unspecified;
@@ -84,7 +81,7 @@ ObjectType GetObjectType(ObjectTag tag)
 	if (static_cast<DWORD>(tag) & dynamicMoveObjects) {
 		return ObjectType::DynamicMove;
 	}
-	else if (static_cast<DWORD>(tag) & dynamicObjects) {
+	else if (static_cast<DWORD>(tag) & dynamiObjects) {
 		return ObjectType::Dynamic;
 	}
 	else if (static_cast<DWORD>(tag) & environmentObjects) {
@@ -111,7 +108,7 @@ void CopyComponent(rsptr<Component> src, sptr<Component>& dst)
 	*my = *other;
 }
 
-sptr<Component> CObject::GetCopyComponent(rsptr<Component> component)
+sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 {
 	sptr<Component> result{};
 
@@ -139,7 +136,7 @@ sptr<Component> CObject::GetCopyComponent(rsptr<Component> component)
 
 	return result;
 }
-void CObject::CopyComponents(const CObject& src)
+void Object::CopyComponents(const Object& src)
 {
 	const auto& components = src.GetAllComponents();
 	for (auto& component : components) {
@@ -160,7 +157,7 @@ void CObject::CopyComponents(const CObject& src)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Others ] /////
 
-void CObject::ProcessComponents(std::function<void(sptr<Component>)> processFunc) {
+void Object::ProcessComponents(std::function<void(sptr<Component>)> processFunc) {
 	for (auto& component : mComponents) {
 		if (component) {
 			processFunc(component);
@@ -168,40 +165,40 @@ void CObject::ProcessComponents(std::function<void(sptr<Component>)> processFunc
 	}
 }
 
-void CObject::StartComponents()
+void Object::StartComponents()
 {
 	ProcessComponents([](sptr<Component> component) {
 		component->Start();
 		});
 }
 
-void CObject::UpdateComponents()
+void Object::UpdateComponents()
 {
 	ProcessComponents([](sptr<Component> component) {
 		component->Update();
 		});
 }
 
-void CObject::SetTag(ObjectTag tag)
+void Object::SetTag(ObjectTag tag)
 {
 	mTag = tag;
 	mType = GetObjectType(tag);
 }
 
-void CObject::Start()
+void Object::Start()
 {
 	Transform::Update();
 	StartComponents();
 }
 
-void CObject::Update()
+void Object::Update()
 {
 	mCollisionObjects.clear();
 	Transform::Update();
 	UpdateComponents();
 }
 
-void CObject::OnCollisionStay(CObject& other)
+void Object::OnCollisionStay(Object& other)
 {
 	if (mCollisionObjects.count(&other)) {
 		return;
@@ -213,7 +210,7 @@ void CObject::OnCollisionStay(CObject& other)
 		});
 }
 
-void CObject::ReleaseUploadBuffers()
+void Object::ReleaseUploadBuffers()
 {
 	ProcessComponents([](sptr<Component> component) {
 		component->ReleaseUploadBuffers();

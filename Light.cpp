@@ -12,14 +12,14 @@ std::set<std::string> lightModelNames = { "apache_high_light", "tank_head_light"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Constructor ] /////
 
-CLight::CLight()
+Light::Light()
 {
 	mLights = std::make_shared<LIGHTS>();
 	XMStoreFloat4(&mLights->fogColor, Colors::Gray);
 }
 
 
-CLight::~CLight()
+Light::~Light()
 {
 	for (auto& light : mLightModels) {
 		if (lightModelNames.contains(light.first)) {
@@ -35,7 +35,7 @@ CLight::~CLight()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Getter ] /////
 
-const LIGHT* CLight::GetLightModel(const std::string& modelName)
+const LIGHT* Light::GetLightModel(const std::string& modelName)
 {
 	assert(mLightModels.contains(modelName));
 
@@ -47,7 +47,7 @@ const LIGHT* CLight::GetLightModel(const std::string& modelName)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Setter ] /////
 
-void CLight::SetSunlight()
+void Light::SetSunlight()
 {
 	LIGHT& light = mLights->mLights[0];
 	light.mType = static_cast<int>(LightType::Directional);
@@ -58,7 +58,7 @@ void CLight::SetSunlight()
 }
 
 
-void CLight::SetMoonLight()
+void Light::SetMoonLight()
 {
 	LIGHT& light = mLights->mLights[0];
 	light.mType = static_cast<int>(LightType::Directional);
@@ -69,7 +69,7 @@ void CLight::SetMoonLight()
 }
 
 
-void CLight::SetGlobalLight(GlobalLight globalLight)
+void Light::SetGlobalLight(GlobalLight globalLight)
 {
 	switch (globalLight) {
 	case GlobalLight::Sunlight:
@@ -90,7 +90,7 @@ void CLight::SetGlobalLight(GlobalLight globalLight)
 ///// [ Others ] /////
 
 //////////////////* DirectX *//////////////////
-void CLight::CreateShaderVariables()
+void Light::CreateShaderVariables()
 {
 	UINT cubeLightBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ÀÇ ¹è¼ö
 	::CreateBufferResource(nullptr, cubeLightBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCBLights);
@@ -98,7 +98,7 @@ void CLight::CreateShaderVariables()
 }
 
 
-void CLight::UpdateShaderVariables()
+void Light::UpdateShaderVariables()
 {
 	::memcpy(mCBMappedLights, mLights.get(), sizeof(LIGHTS));
 
@@ -107,7 +107,7 @@ void CLight::UpdateShaderVariables()
 }
 
 
-void CLight::ReleaseShaderVariables()
+void Light::ReleaseShaderVariables()
 {
 	if (mCBLights) {
 		mCBLights->Unmap(0, nullptr);
@@ -117,7 +117,7 @@ void CLight::ReleaseShaderVariables()
 
 //////////////////* Build *//////////////////
 
-void CLight::LoadLightModels()
+void Light::LoadLightModels()
 {
 	for (auto& name : lightModelNames) {
 		LIGHT* light = new LIGHT;
@@ -127,7 +127,7 @@ void CLight::LoadLightModels()
 }
 
 
-void CLight::LoadLightObjects(FILE* file)
+void Light::LoadLightObjects(FILE* file)
 {
 	std::string token{};
 	std::string name{};
@@ -180,7 +180,7 @@ void CLight::LoadLightObjects(FILE* file)
 }
 
 
-void CLight::BuildLights(FILE* file)
+void Light::BuildLights(FILE* file)
 {
 	LoadLightObjects(file);
 	LoadLightModels();
@@ -194,7 +194,7 @@ void CLight::BuildLights(FILE* file)
 
 //////////////////* Others *//////////////////
 
-LIGHT_RANGE CLight::AllocLight(size_t count)
+LIGHT_RANGE Light::AlloLight(size_t count)
 {
 	mCrntLightCount += count;
 	assert(mCrntLightCount <= MAX_SCENE_LIGHTS);

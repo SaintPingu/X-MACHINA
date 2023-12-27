@@ -22,10 +22,10 @@ void Script_Sprite::Start()
 
 	base::Start();
 
-	CGameObject* gameObject = mObject->Object<CGameObject>();
+	GameObject* gameObject = mObject->GetObj<GameObject>();
 	gameObject->SetFlyable(true);
 
-	rsptr<CTexture> texture = gameObject->GetTexture();
+	rsptr<Texture> texture = gameObject->GetTexture();
 	SpriteInfo info = spriteMap.at(texture->GetName());
 	mRows = info.rows;
 	mCols = info.cols;

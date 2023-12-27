@@ -1,17 +1,17 @@
 #pragma once
 //-----------------------------------------------------------------------------
-// File: CTimer.h
+// File: Timer.h
 //-----------------------------------------------------------------------------
 
 const ULONG MAX_SAMPLE_COUNT = 50; // Maximum frame time sample count
 
-class CTimer
+class Timer
 {
-	SINGLETON_PATTERN(CTimer)
+	SINGLETON_PATTERN(Timer)
 
 public:
-	CTimer();
-	virtual ~CTimer();
+	Timer();
+	virtual ~Timer();
 
 	void Tick(float lockFPS = 0.0f);
 	void Start();

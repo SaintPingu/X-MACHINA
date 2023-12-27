@@ -1,11 +1,11 @@
 #pragma once
 
-class CGameFramework {
-	SINGLETON_PATTERN(CGameFramework)
+class Framework {
+	SINGLETON_PATTERN(Framework)
 
 public:
-	CGameFramework();
-	~CGameFramework();
+	Framework();
+	~Framework();
 
 	HWND GetHwnd() const;
 
@@ -31,4 +31,4 @@ private:
 };
 
 
-#define framework CGameFramework::Inst()
+#define framework Framework::Inst()

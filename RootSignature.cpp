@@ -2,17 +2,17 @@
 #include "RootSignature.h"
 #include "DXGIMgr.h"
 
-CGraphicsRootSignature::CGraphicsRootSignature()
+GraphicsRootSignature::GraphicsRootSignature()
 {
 	mRanges.resize(32);
 }
 
-void CGraphicsRootSignature::ParamMapping(RootParam param)
+void GraphicsRootSignature::ParamMapping(RootParam param)
 {
 	mParamMap[param] = mParams.size() - 1;
 }
 
-void CGraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues, UINT registerSpace)
+void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues, UINT registerSpace)
 {
 	assert(paramType != D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
 
@@ -29,7 +29,7 @@ void CGraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE par
 	ParamMapping(param);
 }
 
-void CGraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility)
+void GraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility)
 {
 	D3D12_DESCRIPTOR_RANGE range{};
 
@@ -54,7 +54,7 @@ void CGraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_T
 	ParamMapping(param);
 }
 
-RComPtr<ID3D12RootSignature> CGraphicsRootSignature::Create()
+RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 {
 	// sampler
 	D3D12_STATIC_SAMPLER_DESC samplerDescs[2]{};

@@ -178,7 +178,7 @@ bool Camera::IsInFrustum(const BoundingSphere& boundingSphere)
 }
 
 
-bool Camera::IsInFrustum(rsptr<const CGameObject> object)
+bool Camera::IsInFrustum(rsptr<const GameObject> object)
 {
 	return object->GetComponent<ObjectCollider>()->IsInFrustum(mFrustumWorld);
 }
@@ -200,25 +200,25 @@ void Camera::Update()
 
 
 
-CCameraObject::CCameraObject() : CObject()
+CameraObject::CameraObject() : Object()
 {
 	mCamera = AddComponent<Camera>();
 }
 
 
-void CCameraObject::CreateShaderVariables()
+void CameraObject::CreateShaderVariables()
 {
 	mCamera->CreateShaderVariables();
 }
 
 
-void CCameraObject::ReleaseShaderVariables()
+void CameraObject::ReleaseShaderVariables()
 {
 	mCamera->ReleaseShaderVariables();
 }
 
 
-void CCameraObject::UpdateShaderVariables()
+void CameraObject::UpdateShaderVariables()
 {
 	mCamera->UpdateShaderVariables();
 }
@@ -226,28 +226,28 @@ void CCameraObject::UpdateShaderVariables()
 
 
 
-void CCameraObject::Rotate(float pitch, float yaw, float roll)
+void CameraObject::Rotate(float pitch, float yaw, float roll)
 {
 	Transform::Rotate(pitch, yaw, roll);
 	SetRightY(0.0f);
 }
 
 
-void CCameraObject::MoveLocal(const Vec3& xmf3Shift)
+void CameraObject::MoveLocal(const Vec3& xmf3Shift)
 {
 	Transform::Translate(xmf3Shift);
 }
 
 
-void CCameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
+void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 {
 	mCamera->LookAt(lookAt, up);
 }
 
 
-void CCameraObject::Start()
+void CameraObject::Start()
 {
-	CObject::Start();
+	Object::Start();
 }
 
 
@@ -257,33 +257,33 @@ void CCameraObject::Start()
 
 
 
-Vec3 CMainCamera::GetPlayerPos() const
+Vec3 MainCamera::GetPlayerPos() const
 {
 	return mPlayer->GetPosition();
 }
 
 
-void CMainCamera::Start()
+void MainCamera::Start()
 {
 	SetPlayer(crntScene->GetPlayer());
 	SetPosition(0, 0, -1);	// must be non-zero
 	AddComponent<Script_MainCamera>();
-	CCameraObject::Start();
+	CameraObject::Start();
 }
 
 
-void CMainCamera::Update()
+void MainCamera::Update()
 {
-	CCameraObject::Update();
+	CameraObject::Update();
 }
 
-void CMainCamera::LookAt(const Vec3& lookAt)
+void MainCamera::LookAt(const Vec3& lookAt)
 {
-	CCameraObject::LookAt(lookAt, mPlayer->GetUp());
+	CameraObject::LookAt(lookAt, mPlayer->GetUp());
 }
 
 
-void CMainCamera::LookPlayer()
+void MainCamera::LookPlayer()
 {
 	if (mPlayer) {
 		LookAt(mPlayer->GetPosition());

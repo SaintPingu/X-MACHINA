@@ -10,15 +10,15 @@
 
 SINGLETON_PATTERN_DEFINITION(Canvas)
 
-sptr<CModelObjectMesh> UI::mesh;
-sptr<CTexture> Font::fontTexture;
+sptr<ModelObjectMesh> UI::mesh;
+sptr<Texture> Font::fontTexture;
 
 void UI::CreateUIMesh()
 {
-	mesh = std::make_shared<CModelObjectMesh>(1, 1, false);
+	mesh = std::make_shared<ModelObjectMesh>(1, 1, false);
 }
 
-void UI::Create(rsptr<CTexture> texture, Vec3 pos, float width, float height)
+void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
 {
 	pos.x /= FRAME_BUFFER_WIDTH;
 	pos.y /= FRAME_BUFFER_HEIGHT;
@@ -129,7 +129,7 @@ void Canvas::LoadTextures()
 
 	for (auto& textureName : textureNames) {
 		// load texture
-		sptr<CTexture> texture = std::make_shared<CTexture>(RESOURCE_TEXTURE2D);
+		sptr<Texture> texture = std::make_shared<Texture>(RESOURCE_TEXTURE2D);
 		texture->LoadUITexture(textureName);
 
 		mTextureMap.insert(std::make_pair(textureName, texture));
@@ -139,7 +139,7 @@ void Canvas::LoadTextures()
 
 void Canvas::Create()
 {
-	mShader = std::make_shared<CCanvasShader>();
+	mShader = std::make_shared<CanvasShader>();
 	mShader->CreateShader();
 	LoadTextures();
 

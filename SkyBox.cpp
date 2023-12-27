@@ -9,20 +9,20 @@
 #include "Shader.h"
 
 
-CSkyBox::CSkyBox()
+SkyBox::SkyBox()
 {
-	mMesh = std::make_unique<CSkyBoxMesh>(20, 20, 20);
+	mMesh = std::make_unique<SkyBoxMesh>(20, 20, 20);
 
-	mTexture = std::make_unique<CTexture>(RESOURCE_TEXTURE_CUBE);
+	mTexture = std::make_unique<Texture>(RESOURCE_TEXTURE_CUBE);
 	mTexture->LoadCubeTexture("SkyBox_0");
 
-	mShader = std::make_unique<CSkyBoxShader>();
+	mShader = std::make_unique<SkyBoxShader>();
 	mShader->CreateShader();
 
 	crntScene->CreateShaderResourceView(mTexture.get(), 0);
 }
 
-void CSkyBox::Render()
+void SkyBox::Render()
 {
 	Vec3 pos = mainCamera->GetPosition();
 	SetPosition(pos.x, pos.y, pos.z);

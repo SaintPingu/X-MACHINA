@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 
-class CGameObject;
+class GameObject;
 
 class Script_Apache : public Component {
 	COMPONENT(Component, Script_Apache)
@@ -10,7 +10,7 @@ private:
 	Transform* mMainRotorFrame{};
 	Transform* mTailRotorFrame{};
 
-	CGameObject* mGameObject{};
+	GameObject* mGameObject{};
 
 public:
 	virtual void Start() override;

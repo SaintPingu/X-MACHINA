@@ -4,29 +4,29 @@
 
 #include "Scene.h"
 
-CTexture::CTexture(UINT nTextureType)
+Texture::Texture(UINT nTextureType)
 {
 	mTextureType = nTextureType;
 	mRootParamIndex = crntScene->GetRootParamIndex(RootParam::Texture);
 }
 
-CTexture::~CTexture()
+Texture::~Texture()
 {
 
 }
 
-void CTexture::SetName(const std::string& name)
+void Texture::SetName(const std::string& name)
 {
 	std::string str = name;
 	mName.assign(str.begin(), str.end());
 }
 
-void CTexture::SetGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle)
+void Texture::SetGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle)
 {
 	mSrvGpuDescHandle = d3dSrvGpuDescriptorHandle;
 }
 
-void CTexture::UpdateShaderVariables()
+void Texture::UpdateShaderVariables()
 {
 	if (mSrvGpuDescHandle.ptr) {
 		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvGpuDescHandle);
@@ -35,22 +35,22 @@ void CTexture::UpdateShaderVariables()
 
 }
 
-void CTexture::ReleaseShaderVariables()
+void Texture::ReleaseShaderVariables()
 {
 }
 
-void CTexture::ReleaseUploadBuffers()
+void Texture::ReleaseUploadBuffers()
 {
 	mTextureUploadBuffer = nullptr;
 }
 
-ComPtr<ID3D12Resource> CTexture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
+ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
 {
 	return mTexture = ::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
 }
 
 
-void CTexture::LoadTexture(const std::wstring& filePath)
+void Texture::LoadTexture(const std::wstring& filePath)
 {
 	::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	crntScene->CreateShaderResourceView(this, 0);
@@ -59,14 +59,14 @@ void CTexture::LoadTexture(const std::wstring& filePath)
 }
 
 
-void CTexture::LoadTexture(const std::string& textureName)
+void Texture::LoadTexture(const std::string& textureName)
 {
 	SetName(textureName);
 	std::wstring filePath = L"Models/Textures/" + mName + L".dds";
 	LoadTexture(filePath);
 }
 
-void CTexture::LoadUITexture(const std::string& textureName)
+void Texture::LoadUITexture(const std::string& textureName)
 {
 	SetName(textureName);
 	std::wstring filePath = L"Models/UI/" + mName + L".dds";
@@ -74,7 +74,7 @@ void CTexture::LoadUITexture(const std::string& textureName)
 }
 
 
-void CTexture::LoadCubeTexture(const std::string& textureName)
+void Texture::LoadCubeTexture(const std::string& textureName)
 {
 	SetName(textureName);
 	std::wstring filePath = L"Models/Skybox/" + mName + L".dds";
@@ -83,7 +83,7 @@ void CTexture::LoadCubeTexture(const std::string& textureName)
 
 
 
-D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc()
+D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc()
 {
 	ComPtr<ID3D12Resource> shaderResource = GetResource();
 	D3D12_RESOURCE_DESC resourceDesc = shaderResource->GetDesc();

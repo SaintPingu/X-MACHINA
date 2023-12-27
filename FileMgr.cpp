@@ -23,14 +23,14 @@
 
 
 
-sptr<CMeshLoadInfo> FileMgr::LoadMeshInfoFromFile(FILE* file)
+sptr<MeshLoadInfo> FileMgr::LoadMeshInfoFromFile(FILE* file)
 {
 	std::string token;
 	UINT nReads = 0;
 
 	int nPositions = 0, nColors = 0, nNormals = 0, nIndices = 0, nSubMeshes = 0, nSubIndices = 0;
 
-	sptr<CMeshLoadInfo> meshInfo = std::make_shared<CMeshLoadInfo>();
+	sptr<MeshLoadInfo> meshInfo = std::make_shared<MeshLoadInfo>();
 
 	meshInfo->mVertexCount = ::ReadIntegerFromFile(file);
 	::ReadStringFromFile(file, meshInfo->mMeshName);
@@ -137,32 +137,32 @@ sptr<CMeshLoadInfo> FileMgr::LoadMeshInfoFromFile(FILE* file)
 	return meshInfo;
 }
 
-std::vector<sptr<CMaterial>> FileMgr::LoadMaterialsFromFile(FILE* file)
+std::vector<sptr<Material>> FileMgr::LoadMaterialsFromFile(FILE* file)
 {
 	std::string token;
 	UINT nReads = 0;
 
 	int matIndex = 0;
 
-	std::vector<sptr<CMaterial>> materials;
+	std::vector<sptr<Material>> materials;
 
 	int size = ::ReadIntegerFromFile(file);
 	materials.resize(size);
 
 	sptr<MATERIALLOADINFO> matInfo{};
-	sptr<CMaterial> material{};
+	sptr<Material> material{};
 
 	while (true) {
 		::ReadStringFromFile(file, token);
 
 		if (token == "<Material>:") {
 			if (matInfo) {
-				sptr<CMaterialColors> materialColors = std::make_shared<CMaterialColors>(*matInfo);
+				sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(*matInfo);
 				material->SetMaterialColors(materialColors);
 			}
 			matIndex = ::ReadIntegerFromFile(file);
 			matInfo = std::make_shared<MATERIALLOADINFO>();
-			materials[matIndex] = std::make_shared<CMaterial>();
+			materials[matIndex] = std::make_shared<Material>();
 			material = materials[matIndex];
 		}
 		else if (token == "<AlbedoColor>:") {
@@ -219,7 +219,7 @@ std::vector<sptr<CMaterial>> FileMgr::LoadMaterialsFromFile(FILE* file)
 		}*/
 		else if (token == "</Materials>") {
 			if (matInfo) {
-				sptr<CMaterialColors> materialColors = std::make_shared<CMaterialColors>(*matInfo);
+				sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(*matInfo);
 				material->SetMaterialColors(materialColors);
 			}
 			break;
@@ -228,7 +228,7 @@ std::vector<sptr<CMaterial>> FileMgr::LoadMaterialsFromFile(FILE* file)
 	return materials;
 }
 
-sptr<CModel> FileMgr::LoadFrameHierarchyFromFile(FILE* file)
+sptr<Model> FileMgr::LoadFrameHierarchyFromFile(FILE* file)
 {
 	std::string token;
 	UINT nReads = 0;
@@ -236,13 +236,13 @@ sptr<CModel> FileMgr::LoadFrameHierarchyFromFile(FILE* file)
 	int nFrame = 0;
 	int nTextures = 0;
 
-	sptr<CModel> model{};
+	sptr<Model> model{};
 
 	while (true) {
 		::ReadStringFromFile(file, token);
 
 		if (token == "<Frame>:") {
-			model = std::make_shared<CModel>();
+			model = std::make_shared<Model>();
 
 			nFrame = ::ReadIntegerFromFile(file);
 			nTextures = ::ReadIntegerFromFile(file);
@@ -297,7 +297,7 @@ sptr<CModel> FileMgr::LoadFrameHierarchyFromFile(FILE* file)
 			int nChilds = ::ReadIntegerFromFile(file);
 			if (nChilds > 0) {
 				for (int i = 0; i < nChilds; i++) {
-					sptr<CModel> child = FileMgr::LoadFrameHierarchyFromFile(file);
+					sptr<Model> child = FileMgr::LoadFrameHierarchyFromFile(file);
 					if (child) {
 						model->SetChild(child);
 					}
@@ -312,13 +312,13 @@ sptr<CModel> FileMgr::LoadFrameHierarchyFromFile(FILE* file)
 	return model;
 }
 
-sptr<CMasterModel> FileMgr::LoadGeometryFromFile(const std::string& fileName)
+sptr<MasterModel> FileMgr::LoadGeometryFromFile(const std::string& fileName)
 {
 	FILE* file = NULL;
 	::fopen_s(&file, fileName.c_str(), "rb");
 	::rewind(file);
 
-	sptr<CModel> model = std::make_shared<CModel>();
+	sptr<Model> model = std::make_shared<Model>();
 
 	std::string token;
 
@@ -333,7 +333,7 @@ sptr<CMasterModel> FileMgr::LoadGeometryFromFile(const std::string& fileName)
 		}
 	}
 
-	sptr<CMasterModel> masterModel = std::make_shared<CMasterModel>();
+	sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
 	model->MergeModel(*masterModel.get());
 	masterModel->SetModel(model);
 	masterModel->Close();

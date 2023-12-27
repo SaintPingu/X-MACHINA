@@ -1,13 +1,13 @@
 //-----------------------------------------------------------------------------
-// File: CTimer.cpp
+// File: Timer.cpp
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
 #include "Timer.h"
 
-SINGLETON_PATTERN_DEFINITION(CTimer)
+SINGLETON_PATTERN_DEFINITION(Timer)
 
-CTimer::CTimer()
+Timer::Timer()
 {
 	::QueryPerformanceFrequency((LARGE_INTEGER *)&mPerfFreqPerSec);
 	::QueryPerformanceCounter((LARGE_INTEGER *)&m_nLastPerfCount); 
@@ -16,11 +16,11 @@ CTimer::CTimer()
 	mBasePerfCount = m_nLastPerfCount;
 }
 
-CTimer::~CTimer()
+Timer::~Timer()
 {
 }
 
-void CTimer::Tick(float lockFPS)
+void Timer::Tick(float lockFPS)
 {
 	if (mIsStopped)
 	{
@@ -64,7 +64,7 @@ void CTimer::Tick(float lockFPS)
     if (m_nSampleCount > 0) mTimeElapsed /= m_nSampleCount;
 }
 
-unsigned long CTimer::GetFrameRate(LPTSTR string, int charSize) 
+unsigned long Timer::GetFrameRate(LPTSTR string, int charSize) 
 {
     if (string)
     {
@@ -75,13 +75,13 @@ unsigned long CTimer::GetFrameRate(LPTSTR string, int charSize)
     return(mCrntFrameRate);
 }
 
-float CTimer::GetTotalTime()
+float Timer::GetTotalTime()
 {
 	if (mIsStopped) return(float(((mStopPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale));
 	return(float(((mCurrentPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale));
 }
 
-void CTimer::Reset()
+void Timer::Reset()
 {
 	__int64 nPerfCount;
 	::QueryPerformanceCounter((LARGE_INTEGER*)&nPerfCount);
@@ -92,7 +92,7 @@ void CTimer::Reset()
 	mIsStopped = false;
 }
 
-void CTimer::Start()
+void Timer::Start()
 {
 	__int64 nPerfCount;
 	::QueryPerformanceCounter((LARGE_INTEGER *)&nPerfCount);
@@ -105,7 +105,7 @@ void CTimer::Start()
 	}
 }
 
-void CTimer::Stop()
+void Timer::Stop()
 {
 	if (!mIsStopped)
 	{
@@ -117,5 +117,5 @@ void CTimer::Stop()
 
 float DeltaTime()
 {
-	return CTimer::Inst()->GetTimeElapsed();
+	return Timer::Inst()->GetTimeElapsed();
 }

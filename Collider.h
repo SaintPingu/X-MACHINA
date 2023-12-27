@@ -1,8 +1,8 @@
 #pragma once
 #include "Component.h"
 
-class CObject;
-class CMesh;
+class Object;
+class Mesh;
 class Camera;
 
 
@@ -94,5 +94,5 @@ public:
 	virtual bool Intersects(const BoundingOrientedBox& box) const;
 	virtual bool Intersects(const std::vector<BoundingOrientedBox>& boxes) const;
 	virtual bool IsInFrustum(const BoundingFrustum& frustum) const;
-	virtual bool Intersects(const CObject& other) const;
+	virtual bool Intersects(const Object& other) const;
 };

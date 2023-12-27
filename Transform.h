@@ -151,7 +151,7 @@ public:
 	static void UpdateShaderVariables(const XMMATRIX& matrix);
 
 	template<class T>
-	T* Object() { return static_cast<T*>(mObject); }
+	T* GetObj() { return static_cast<T*>(mObject); }
 	template<class T>
-	const T* Object() const { return static_cast<T*>(mObject); }
+	const T* GetObj() const { return static_cast<T*>(mObject); }
 };

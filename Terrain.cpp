@@ -14,7 +14,7 @@
 
 
 
-CHeightMapTerrain::CHeightMapTerrain(LPCTSTR fileName, int width, int length, int blockWidth, int blockLength)
+HeightMapTerrain::HeightMapTerrain(LPCTSTR fileName, int width, int length, int blockWidth, int blockLength)
 {
 	mWidth = width;
 	mLength = length;
@@ -23,7 +23,7 @@ CHeightMapTerrain::CHeightMapTerrain(LPCTSTR fileName, int width, int length, in
 	int xQuadsPerBlock = blockWidth - 1;
 	int zQuadsPerBlock = blockLength - 1;
 
-	mHeightMapImage = std::make_shared<CHeightMapImage>(fileName, width, length);
+	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
 
 	//지형에서 가로 방향, 세로 방향으로 격자 메쉬가 몇 개가 있는 가를 나타낸다.
 	long xBlocks = (mWidth - 1) / xQuadsPerBlock;
@@ -45,8 +45,8 @@ CHeightMapTerrain::CHeightMapTerrain(LPCTSTR fileName, int width, int length, in
 
 			// 각자 메쉬를 생성해 저장
 			int index = x + (z * xBlocks);
-			sptr<CHeightMapGridMesh> mesh = std::make_shared<CHeightMapGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
-			mTerrains[index] = std::make_shared<CTerrainBlock>(mesh);
+			sptr<HeightMapGridMesh> mesh = std::make_shared<HeightMapGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
+			mTerrains[index] = std::make_shared<TerrainBlock>(mesh);
 			mTerrains[index]->SetTerrain(this);
 
 			Vec3 center = Vec3(xStart + blockWidth / 2, 0.f, zStart + blockLength / 2);
@@ -63,8 +63,8 @@ CHeightMapTerrain::CHeightMapTerrain(LPCTSTR fileName, int width, int length, in
 	materialInfo.mSpecularHighlight = 1.0f;
 	materialInfo.mGlossyReflection = 1.0f;
 
-	sptr<CMaterialColors> materialColors = std::make_shared<CMaterialColors>(materialInfo);
-	mMaterial = std::make_shared<CMaterial>();
+	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
+	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
 	mTextureLayer[0] = crntScene->GetTexture("Detail_Texture_7");
@@ -79,46 +79,44 @@ CHeightMapTerrain::CHeightMapTerrain(LPCTSTR fileName, int width, int length, in
 	mTextureLayer[3]->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::TerrainLayer3));
 	mSplatMap->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::SplatMap));
 
-	mShader = std::make_shared<CTerrainShader>();
+	mShader = std::make_shared<TerrainShader>();
 	mShader->CreateShader();
 }
 
-CHeightMapTerrain::~CHeightMapTerrain()
+HeightMapTerrain::~HeightMapTerrain()
 {
 
 }
 
-float CHeightMapTerrain::GetHeight(float x, float z)
+float HeightMapTerrain::GetHeight(float x, float z)
 {
 	return mHeightMapImage->GetHeight(x, z);
 }
 
-Vec3 CHeightMapTerrain::GetNormal(float x, float z)
+Vec3 HeightMapTerrain::GetNormal(float x, float z)
 {
 	return mHeightMapImage->GetHeightMapNormal(static_cast<int>(x), static_cast<int>(z));
 }
 
-int CHeightMapTerrain::GetHeightMapWidth()
+int HeightMapTerrain::GetHeightMapWidth()
 {
 	return mHeightMapImage->GetHeightMapWidth();
 }
-int CHeightMapTerrain::GetHeightMapLength()
+int HeightMapTerrain::GetHeightMapLength()
 {
 	return mHeightMapImage->GetHeightMapLength();
 }
 
-void CHeightMapTerrain::PushObject(CTerrainBlock* terrain)
+void HeightMapTerrain::PushObject(TerrainBlock* terrain)
 {
 	assert(mCrntBufferIndex < mBuffer.size());
 
 	mBuffer[mCrntBufferIndex++] = terrain;
 }
 
-void CHeightMapTerrain::Render(bool isMirror)
+void HeightMapTerrain::Render()
 {
-	if (!isMirror) {
-		mShader->Render();
-	}
+	mShader->Render();
 
 	UpdateShaderVariable();
 	mMaterial->UpdateShaderVariable();
@@ -136,14 +134,14 @@ void CHeightMapTerrain::Render(bool isMirror)
 	ResetBuffer();
 }
 
-void CHeightMapTerrain::Start()
+void HeightMapTerrain::Start()
 {
 	for (auto& terrain : mTerrains) {
 		terrain->Start();
 	}
 }
 
-void CHeightMapTerrain::Update()
+void HeightMapTerrain::Update()
 {
 
 }
@@ -153,7 +151,7 @@ void CHeightMapTerrain::Update()
 
 
 
-// [ CHeightMapImage ] //
+// [ HeightMapImage ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +161,7 @@ float uint16ToFloat(std::uint16_t value)
 	return static_cast<float>(value) / 65535.0f * 255.0f;
 }
 
-CHeightMapImage::CHeightMapImage(LPCTSTR fileName, int width, int length)
+HeightMapImage::HeightMapImage(LPCTSTR fileName, int width, int length)
 {
 	mWidth = width;
 	mLength = length * 2; // [ERROR] *2 안하면 절반밖에 로딩이 안되는 문제
@@ -186,13 +184,13 @@ CHeightMapImage::CHeightMapImage(LPCTSTR fileName, int width, int length)
 	}
 }
 
-CHeightMapImage::~CHeightMapImage()
+HeightMapImage::~HeightMapImage()
 {
 
 }
 
 #define _WITH_APPROXIMATE_OPPOSITE_CORNER
-float CHeightMapImage::GetHeight(float fx, float fz)
+float HeightMapImage::GetHeight(float fx, float fz)
 {
 	/*지형의 좌표 (fx, fz)는 이미지 좌표계이다. 높이 맵의 x-좌표와 z-좌표가 높이 맵의 범위를 벗어나면 지형의 높이는 0이다.*/
 	if ((fx < 0.0f) || (fz < 0.0f) || (fx >= mWidth - 1) || (fz >= mLength - 1)) {
@@ -247,7 +245,7 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 	float height = bottomHeight * (1 - zPercent) + topHeight * zPercent;
 	return height;
 }
-Vec3 CHeightMapImage::GetHeightMapNormal(int x, int z)
+Vec3 HeightMapImage::GetHeightMapNormal(int x, int z)
 {
 	// x - 좌표와 z - 좌표가 높이 맵의 범위를 벗어나면 지형의 법선 벡터는 y - 축 방향 벡터이다.
 	if ((x < 0.0f) || (z < 0.0f) || (x >= mWidth) || (z >= mLength)) {
@@ -272,7 +270,7 @@ Vec3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 
 
 
-// [ CHeightMapGridMesh ] //
+// [ HeightMapGridMesh ] //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +316,7 @@ MyBoundingSphere CalculateBoundingSphere(const std::vector<Vec3>& positions) {
 	return CalculateBoundingSphere(center, positions);
 }
 
-CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<CHeightMapImage> heightMapImage)
+HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage)
 {
 	static constexpr float corr = 1.0f / TERRAIN_LENGTH;	// for SplatMap
 	static constexpr float detailScale = 0.1f;
@@ -382,14 +380,14 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int width, int le
 	::CreateIndexBufferResource(indices, mIndexUploadBuffer, mIndexBuffer);
 	::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
 }
-CHeightMapGridMesh::~CHeightMapGridMesh()
+HeightMapGridMesh::~HeightMapGridMesh()
 {
 
 }
 
 
 //격자의 좌표가 (x, z)일 때 교점(정점)의 높이를 반환하는 함수이다.
-float CHeightMapGridMesh::OnGetHeight(int x, int z, rsptr<CHeightMapImage> heightMapImage)
+float HeightMapGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage)
 {
 	const std::vector<float>& heightMapPixels = heightMapImage->GetHeightMapPixels();
 	int width = heightMapImage->GetHeightMapWidth();
@@ -397,7 +395,7 @@ float CHeightMapGridMesh::OnGetHeight(int x, int z, rsptr<CHeightMapImage> heigh
 	return heightMapPixels[x + (z * width)];
 }
 
-void CHeightMapGridMesh::Render() const
+void HeightMapGridMesh::Render() const
 {
 	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
 
@@ -413,14 +411,14 @@ void CHeightMapGridMesh::Render() const
 
 
 
-CTerrainBlock::CTerrainBlock(rsptr<CHeightMapGridMesh> mesh) : CGameObject()
+TerrainBlock::TerrainBlock(rsptr<HeightMapGridMesh> mesh) : GameObject()
 {
 	mMesh = mesh;
 
 	SetTag(ObjectTag::Terrain);
 }
 
-void CTerrainBlock::Push()
+void TerrainBlock::Push()
 {
 	if (mIsPushed) {
 		return;
@@ -430,12 +428,12 @@ void CTerrainBlock::Push()
 	mBuffer->PushObject(this);
 }
 
-void CTerrainBlock::Render()
+void TerrainBlock::Render()
 {
 	Push();
 }
 
-void CTerrainBlock::RenderMesh()
+void TerrainBlock::RenderMesh()
 {
 	mMesh->Render();
 	Update();

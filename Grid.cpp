@@ -3,50 +3,50 @@
 #include "Object.h"
 #include "Collider.h"
 
-// [ CGrid ] //
+// [ Grid ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CGrid::CGrid()
+Grid::Grid()
 {
 }
-CGrid::~CGrid()
+Grid::~Grid()
 {
 
 }
 
-void CGrid::Init(int index, const BoundingBox& bb)
+void Grid::Init(int index, const BoundingBox& bb)
 {
 	mIndex = index;
 	mBB = bb;
 }
 
-void CGrid::AddObject(CGameObject* object)
+void Grid::AddObject(GameObject* object)
 {
 	mObjects.insert(object);
 
 	switch (object->GetType()) {
 	case ObjectType::DynamicMove:
-		mDynamicObjects.insert(object);
+		mDynamiObjects.insert(object);
 		break;
 	case ObjectType::Environment:
 		mEnvObjects.insert(object);
 		break;
 	default:
-		mStaticObjects.insert(object);
+		mStatiObjects.insert(object);
 		break;
 	}
 }
-void CGrid::RemoveObject(CGameObject* object)
+void Grid::RemoveObject(GameObject* object)
 {
 	mObjects.erase(object);
 	mEnvObjects.erase(object);
-	mDynamicObjects.erase(object);
-	mStaticObjects.erase(object);
+	mDynamiObjects.erase(object);
+	mStatiObjects.erase(object);
 }
 
-bool ProcessCollision(CGameObject* objectA, CGameObject* objectB)
+bool ProcessCollision(GameObject* objectA, GameObject* objectB)
 {
 	if (objectA->GetComponent<ObjectCollider>()->Intersects(*objectB)) {
 		objectA->OnCollisionStay(*objectB);
@@ -59,7 +59,7 @@ bool ProcessCollision(CGameObject* objectA, CGameObject* objectB)
 }
 
 // check collision for each object in objects
-void CheckCollisionObjects(std::unordered_set<CGameObject*> objects)
+void CheckCollisionObjects(std::unordered_set<GameObject*> objects)
 {
 	for (auto& a = objects.begin(); a != std::prev(objects.end()); ++a) {
 		auto& objectA = *a;
@@ -73,7 +73,7 @@ void CheckCollisionObjects(std::unordered_set<CGameObject*> objects)
 }
 
 // check collision for each object in each objects
-void CheckCollisionObjects(std::unordered_set<CGameObject*> objects1, std::unordered_set<CGameObject*> objects2)
+void CheckCollisionObjects(std::unordered_set<GameObject*> objects1, std::unordered_set<GameObject*> objects2)
 {
 	for (auto& a = objects1.begin(); a != objects1.end(); ++a) {
 		auto& objectA = *a;
@@ -86,12 +86,12 @@ void CheckCollisionObjects(std::unordered_set<CGameObject*> objects1, std::unord
 	}
 }
 
-void CGrid::CheckCollisions()
+void Grid::CheckCollisions()
 {
-	if (!mDynamicObjects.empty()) {
-		::CheckCollisionObjects(mDynamicObjects);
-		if (!mStaticObjects.empty()) {
-			::CheckCollisionObjects(mDynamicObjects, mStaticObjects);
+	if (!mDynamiObjects.empty()) {
+		::CheckCollisionObjects(mDynamiObjects);
+		if (!mStatiObjects.empty()) {
+			::CheckCollisionObjects(mDynamiObjects, mStatiObjects);
 		}
 	}
 }

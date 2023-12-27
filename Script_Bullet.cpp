@@ -9,7 +9,7 @@
 
 void Script_Bullet::Start()
 {
-	mGameObject = mObject->Object<CGameObject>();
+	mGameObject = mObject->GetObj<GameObject>();
 	mGameObject->SetTag(ObjectTag::Bullet);
 	mGameObject->SetFlyable(true);
 
@@ -32,7 +32,7 @@ void Script_Bullet::Update()
 
 }
 
-void Script_Bullet::OnCollisionStay(CObject& other)
+void Script_Bullet::OnCollisionStay(Object& other)
 {
 	if (mElapsedTimeAfterFire <= FLT_EPSILON) {
 		return;
@@ -55,7 +55,7 @@ void Script_Bullet::Reset()
 }
 
 
-bool Script_Bullet::IsOwner(const CObject* object)
+bool Script_Bullet::IsOwner(const Object* object)
 {
 	if (mOwner == object) {
 		return true;
@@ -95,5 +95,5 @@ void Script_Bullet::Explode()
 
 	Reset();
 
-	crntScene->CreateExplosion(CScene::ExplosionType::Small, mObject->GetPosition());
+	crntScene->CreateExplosion(Scene::ExplosionType::Small, mObject->GetPosition());
 }

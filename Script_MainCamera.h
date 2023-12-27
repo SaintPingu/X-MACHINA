@@ -2,8 +2,8 @@
 #include "Component.h"
 
 class Camera;
-class CMainCamera;
-class CGameObject;
+class MainCamera;
+class GameObject;
 
 
 class Script_MainCamera : public Component {
@@ -11,8 +11,8 @@ class Script_MainCamera : public Component {
 
 private:
 	Camera* mCamera{};
-	CMainCamera* mCameraObject{};
-	CGameObject* mPlayer{};
+	MainCamera* mCameraObject{};
+	GameObject* mPlayer{};
 	Vec3 mOffset = Vec3(0.0f, 15, -30.0f);
 	float mTimeLag{};
 

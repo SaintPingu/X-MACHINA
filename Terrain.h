@@ -4,13 +4,13 @@
 
 constexpr int TERRAIN_LENGTH = 513;
 
-class CMaterial;
-class CTexture;
-class CHeightMapTerrain;
-class CIlluminatedShader;
-class CTerrainShader;
+class Material;
+class Texture;
+class HeightMapTerrain;
+class IlluminatedShader;
+class TerrainShader;
 
-class CHeightMapImage {
+class HeightMapImage {
 private:
 	std::vector<float> mHeightMapPixels;
 
@@ -18,8 +18,8 @@ private:
 	int mLength;
 
 public:
-	CHeightMapImage(LPCTSTR fileName, int width, int length);
-	~CHeightMapImage(void);
+	HeightMapImage(LPCTSTR fileName, int width, int length);
+	~HeightMapImage(void);
 
 	float GetHeight(float fx, float fz);
 	Vec3 GetHeightMapNormal(int x, int z);
@@ -29,33 +29,33 @@ public:
 };
 
 
-class CHeightMapGridMesh : public CMesh {
+class HeightMapGridMesh : public Mesh {
 public:
-	CHeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<CHeightMapImage> heightMapImage);
-	virtual ~CHeightMapGridMesh();
+	HeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage);
+	virtual ~HeightMapGridMesh();
 
-	virtual float OnGetHeight(int x, int z, rsptr<CHeightMapImage> heightMapImage);
+	virtual float OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage);
 	void Render() const;
 };
 
 
-class CTerrainBlock;
-class CHeightMapTerrain : public Transform {
+class TerrainBlock;
+class HeightMapTerrain : public Transform {
 public:
-	CHeightMapTerrain(LPCTSTR fileName, int width, int length, int blockWidth, int blockLength);
-	virtual ~CHeightMapTerrain();
+	HeightMapTerrain(LPCTSTR fileName, int width, int length, int blockWidth, int blockLength);
+	virtual ~HeightMapTerrain();
 private:
-	sptr<CHeightMapImage> mHeightMapImage{};
+	sptr<HeightMapImage> mHeightMapImage{};
 
-	std::vector<sptr<CTerrainBlock>> mTerrains;
-	std::vector<CTerrainBlock*> mBuffer;
+	std::vector<sptr<TerrainBlock>> mTerrains;
+	std::vector<TerrainBlock*> mBuffer;
 	UINT mCrntBufferIndex{};
 
-	sptr<CTerrainShader> mShader;
+	sptr<TerrainShader> mShader;
 
-	sptr<CMaterial> mMaterial{};
-	sptr<CTexture> mTextureLayer[4];
-	sptr<CTexture> mSplatMap{};
+	sptr<Material> mMaterial{};
+	sptr<Texture> mTextureLayer[4];
+	sptr<Texture> mSplatMap{};
 
 	int mWidth{};
 	int mLength{};
@@ -72,28 +72,28 @@ public:
 	int GetWidth() { return mWidth; }
 	int GetLength() { return mLength; }
 
-	const std::vector<sptr<CTerrainBlock>>& GetTerrains() const { return mTerrains; }
+	const std::vector<sptr<TerrainBlock>>& GetTerrains() const { return mTerrains; }
 
-	void PushObject(CTerrainBlock* terrain);
-	void Render(bool isMirror = false);
+	void PushObject(TerrainBlock* terrain);
+	void Render();
 
 	void Start();
 	virtual void Update() override;
 };
 
 
-class CTerrainBlock : public CGameObject {
+class TerrainBlock : public GameObject {
 private:
-	CHeightMapTerrain* mBuffer{};
-	sptr<CHeightMapGridMesh> mMesh;
+	HeightMapTerrain* mBuffer{};
+	sptr<HeightMapGridMesh> mMesh;
 
 	bool mIsPushed{ false };
 	void Reset() { mIsPushed = false; }
 	void Push();
 
 public:
-	CTerrainBlock(rsptr<CHeightMapGridMesh> mesh);
-	void SetTerrain(CHeightMapTerrain* terrain) { mBuffer = terrain; }
+	TerrainBlock(rsptr<HeightMapGridMesh> mesh);
+	void SetTerrain(HeightMapTerrain* terrain) { mBuffer = terrain; }
 
 	virtual void Update() override { Reset(); };
 	virtual void Render() override;

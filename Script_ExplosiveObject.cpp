@@ -24,7 +24,7 @@ void Script_ExplosiveObject::Hit(float damage)
 	}
 }
 
-void Script_ExplosiveObject::OnCollisionStay(CObject& other)
+void Script_ExplosiveObject::OnCollisionStay(Object& other)
 {
 	Explode();
 }

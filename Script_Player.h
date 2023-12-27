@@ -1,9 +1,9 @@
 #pragma once
 #include "Component.h"
 
-class CGameObject;
+class GameObject;
 class Camera;
-class CMasterModel;
+class MasterModel;
 class Rigidbody;
 
 enum class PlayerType { Unspecified = 0, Tank, Airplane };
@@ -17,7 +17,7 @@ class Script_Player : public Component {
 	COMPONENT_ABSTRACT(Component, Script_Player)
 
 protected:
-	CGameObject* mPlayer{};
+	GameObject* mPlayer{};
 	sptr<Rigidbody> mRigid{};
 	Vec4x4 mSpawnTransform{ Matrix4x4::Identity() };
 
@@ -60,7 +60,7 @@ public:
 
 
 
-class CBulletShader;
+class BulletShader;
 
 class Script_ShootingPlayer : public Script_Player {
 	COMPONENT_ABSTRACT(Script_Player, Script_ShootingPlayer)
@@ -72,7 +72,7 @@ private:
 	float mbulletLifeTime{ 10.0f };
 
 protected:
-	sptr<CBulletShader> mBulletShader{};
+	sptr<BulletShader> mBulletShader{};
 	float mBulletSpeed{ 1.f };
 
 public:
@@ -90,9 +90,9 @@ public:
 	virtual void FireBullet() abstract;
 	virtual void RenderBullets() const;
 
-	const std::list<sptr<CGameObject>>* GetBullets() const;
+	const std::list<sptr<GameObject>>* GetBullets() const;
 
-	void CreateBullets(rsptr<const CMasterModel> bulletModel);
+	void CreateBullets(rsptr<const MasterModel> bulletModel);
 };
 
 
@@ -110,7 +110,7 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 	virtual void ProcessInput() override;
-	virtual void OnCollisionStay(CObject& other) override;
+	virtual void OnCollisionStay(Object& other) override;
 
 	virtual void Rotate(DWORD rotationDir, float angle);
 
@@ -129,8 +129,8 @@ private:
 	float mRotationSpeed{};
 
 public:
-	CGameObject* mTurret{};
-	CGameObject* mGun{};
+	GameObject* mTurret{};
+	GameObject* mGun{};
 	Transform* mShellFirePos{};
 
 private:

@@ -1,25 +1,25 @@
 #pragma once
-class CGameObject;
+class GameObject;
 
-class CGrid {
+class Grid {
 private:
 	int mIndex{};
 	BoundingBox mBB{};
-	std::unordered_set<CGameObject*> mObjects{};
-	std::unordered_set<CGameObject*> mEnvObjects{};
-	std::unordered_set<CGameObject*> mStaticObjects{};
-	std::unordered_set<CGameObject*> mDynamicObjects{};
+	std::unordered_set<GameObject*> mObjects{};
+	std::unordered_set<GameObject*> mEnvObjects{};
+	std::unordered_set<GameObject*> mStatiObjects{};
+	std::unordered_set<GameObject*> mDynamiObjects{};
 
 public:
-	CGrid();
-	~CGrid();
+	Grid();
+	~Grid();
 
 	void Init(int index, const BoundingBox& bb);
 	const BoundingBox& GetBB() const { return mBB; }
-	void RemoveObject(CGameObject* object);
-	void AddObject(CGameObject* object);
+	void RemoveObject(GameObject* object);
+	void AddObject(GameObject* object);
 
-	const std::unordered_set<CGameObject*>& GetObjects() const { return mObjects; }
+	const std::unordered_set<GameObject*>& GetObjects() const { return mObjects; }
 	bool Empty() const { return mObjects.empty(); }
 
 	void CheckCollisions();

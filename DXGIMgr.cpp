@@ -321,10 +321,10 @@ void DXGIMgr::BuildObjects()
 {
 	StartCommand();
 
-	CScene::Create();
+	Scene::Create();
 	crntScene->BuildObjects();
 
-	mPostProcessingShader = std::make_shared<CTextureToFullScreenShader>();
+	mPostProcessingShader = std::make_shared<TextureToFullScreenShader>();
 	mPostProcessingShader->CreateShader(1, NULL, DXGI_FORMAT_D32_FLOAT);
 
 	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
@@ -368,8 +368,6 @@ void DXGIMgr::Render()
 		// post processing
 		cmdList->OMSetRenderTargets(1, &mSwapChainBackBufferRtvHandles[mSwapChainBufferIndex], TRUE, NULL);
 		mPostProcessingShader->Render();
-
-		//crntScene->RenderMirror();
 	}
 	else {
 		crntScene->OnPrepareRender();

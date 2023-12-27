@@ -8,11 +8,11 @@
 #define MATERIAL_DETAIL_ALBEDO_MAP	0x20
 #define MATERIAL_DETAIL_NORMAL_MAP	0x40
 
-class CTexture
+class Texture
 {
 public:
-	CTexture(UINT nResourceType);
-	virtual ~CTexture();
+	Texture(UINT nResourceType);
+	virtual ~Texture();
 
 private:
 	UINT	mTextureType{};

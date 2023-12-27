@@ -20,7 +20,7 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 
-	virtual void OnCollisionStay(CObject& other) override;
+	virtual void OnCollisionStay(Object& other) override;
 
 	const Vec3& GetVelocity() const { return(mVelocity); }
 

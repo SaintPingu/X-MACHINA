@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// File: CGameFramework.cpp
+// File: Framework.cpp
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
@@ -11,24 +11,24 @@
 #include "InputMgr.h"
 #include "DXGIMgr.h"
 
-SINGLETON_PATTERN_DEFINITION(CGameFramework)
+SINGLETON_PATTERN_DEFINITION(Framework)
 
-CGameFramework::CGameFramework()
+Framework::Framework()
 {
 	_tcscpy_s(mFrameRate, _T("LabProject ("));
 }
 
 
-CGameFramework::~CGameFramework()
+Framework::~Framework()
 {
 }
 
-HWND CGameFramework::GetHwnd() const
+HWND Framework::GetHwnd() const
 {
 	return dxgi->GetHwnd();
 }
 
-bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
+bool Framework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 	dxgi->OnCreate(hInstance, hMainWnd);
 
@@ -37,11 +37,11 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	return(true);
 }
 
-void CGameFramework::OnDestroy()
+void Framework::OnDestroy()
 {
 	ReleaseObjects();
 
-	CTimer::Inst()->Destroy();
+	Timer::Inst()->Destroy();
 	InputMgr::Inst()->Destroy();
 	crntScene->Destroy();
 
@@ -52,22 +52,22 @@ void CGameFramework::OnDestroy()
 
 
 
-void CGameFramework::BuildObjects()
+void Framework::BuildObjects()
 {
-	CTimer::Inst()->Reset();
+	Timer::Inst()->Reset();
 
 	crntScene->Start();
 }
 
-void CGameFramework::ReleaseObjects()
+void Framework::ReleaseObjects()
 {
 	crntScene->ReleaseObjects();
 }
 
 
-void CGameFramework::FrameAdvance()
+void Framework::FrameAdvance()
 {
-	CTimer::Inst()->Tick(0.f);
+	Timer::Inst()->Tick(0.f);
 
 	UpdaetInput();
 
@@ -76,29 +76,29 @@ void CGameFramework::FrameAdvance()
 	RenderObjects();
 }
 
-void CGameFramework::UpdateObjects()
+void Framework::UpdateObjects()
 {
 	crntScene->Update();
 }
 
 
 
-void CGameFramework::RenderObjects()
+void Framework::RenderObjects()
 {
 	dxgi->Render();
 
 	// get frame rate
-	CTimer::Inst()->GetFrameRate(mFrameRate + 12, 37);
+	Timer::Inst()->GetFrameRate(mFrameRate + 12, 37);
 	::SetWindowText(dxgi->GetHwnd(), mFrameRate);
 }
 
 
-void CGameFramework::UpdaetInput()
+void Framework::UpdaetInput()
 {
 	InputMgr::Inst()->Update();
 }
 
-void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void Framework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	crntScene->ProcessInput(dxgi->GetHwnd(), mOldCursorPos);
 	switch (nMessageID)
@@ -119,7 +119,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	}
 }
 
-void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void Framework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	crntScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
@@ -154,10 +154,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		switch (wParam)
 		{
 		case VK_HOME:
-			CTimer::Inst()->Stop();
+			Timer::Inst()->Stop();
 			break;
 		case VK_END:
-			CTimer::Inst()->Start();
+			Timer::Inst()->Start();
 			break;
 		case '0':
 			crntScene->BlowAllExplosiveObjects();
@@ -171,16 +171,16 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	}
 }
 
-LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Framework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
 	case WM_ACTIVATE:
 	{
 		if (LOWORD(wParam) == WA_INACTIVE)
-			CTimer::Inst()->Stop();
+			Timer::Inst()->Stop();
 		else
-			CTimer::Inst()->Start();
+			Timer::Inst()->Start();
 		break;
 	}
 	case WM_SIZE:

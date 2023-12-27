@@ -7,7 +7,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CMesh {
+class Mesh {
 protected:
 	UINT mVertexCount{};
 	ComPtr<ID3D12Resource> mVertexBuffer{};
@@ -54,8 +54,8 @@ protected:
 	void CreateVertexBufferViews();
 
 public:
-	CMesh() {};
-	virtual ~CMesh();
+	Mesh() {};
+	virtual ~Mesh();
 	
 	UINT GetType() { return(mType); }
 
@@ -80,11 +80,11 @@ enum class VertexType : DWORD {
 	UV1 = 0x40,
 };
 
-class CMeshLoadInfo
+class MeshLoadInfo
 {
 public:
-	CMeshLoadInfo() { }
-	~CMeshLoadInfo();
+	MeshLoadInfo() { }
+	~MeshLoadInfo();
 
 public:
 	std::string mMeshName{};
@@ -111,31 +111,31 @@ public:
 	std::vector<std::vector<UINT>> mSubSetIndices{};
 };
 
-class CModelObjectMesh : public CMesh {
+class ModelObjectMesh : public Mesh {
 public:
-	CMeshLoadInfo mInfo{};
+	MeshLoadInfo mInfo{};
 
 public:
-	CModelObjectMesh();
-	virtual ~CModelObjectMesh();
+	ModelObjectMesh();
+	virtual ~ModelObjectMesh();
 
-	CModelObjectMesh(const BoundingOrientedBox& box);
+	ModelObjectMesh(const BoundingOrientedBox& box);
 	void LoadMeshFromBoundingBox(const BoundingOrientedBox& box);
 
-	CModelObjectMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
+	ModelObjectMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 
-	CModelObjectMesh(float width, float depth, bool isLine = false);
+	ModelObjectMesh(float width, float depth, bool isLine = false);
 	void CreatePlaneMesh(float width, float depth, bool isLine = false);
 
-	CModelObjectMesh(float radius, bool isLine = false);
+	ModelObjectMesh(float radius, bool isLine = false);
 	void CreateSphereMesh(float radius, bool isLine = false);
 };
 
 
-class CSkyBoxMesh : public CMesh {
+class SkyBoxMesh : public Mesh {
 public:
-	CSkyBoxMesh(float width, float height, float depth);
+	SkyBoxMesh(float width, float height, float depth);
 	void CreateMesh(float width, float height, float depth);
 };
 
@@ -146,17 +146,17 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class CMaterial;
-class CTexture;
+class Material;
+class Texture;
 class Transform;
-class CModelObject;
-class CGameObject;
-class CObjectInstanceBuffer;
+class ModelObject;
+class GameObject;
+class ObjectInstanceBuffer;
 
 struct ModelInfo {
 	std::vector<UINT> mIndexCounts{};
 	UINT mVertexCount{};
-	std::vector<sptr<CMaterial>> mMaterials{};
+	std::vector<sptr<Material>> mMaterials{};
 };
 
 struct MeshBuffer {
@@ -171,29 +171,29 @@ struct MeshBuffer {
 	std::vector<UINT> mIndices{};
 };
 
-class CMergedMesh : public CModelObjectMesh {
+class MergedMesh : public ModelObjectMesh {
 private:
 	uptr<MeshBuffer> mMeshBuffer{};
 
 	std::vector<ModelInfo> mModelInfo{};
 
-	void MergeSubMeshes(rsptr<CMeshLoadInfo> mesh, ModelInfo& modelInfo);
+	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo);
 
 public:
-	CMergedMesh();
+	MergedMesh();
 
-	rsptr<CTexture> GetTexture() const;
+	rsptr<Texture> GetTexture() const;
 
 	// 1. MergeMesh
 	// 2. MergeMaterial
 	// 3. ...
 	// 4. SetObject (transform)
 	// 5. Close
-	bool MergeMesh(rsptr<CMeshLoadInfo> mesh, const std::vector<sptr<CMaterial>>& materials);
+	bool MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials);
 	void Close();
-	virtual void Render(const CGameObject* gameObject) const;
-	virtual void Render(const CObjectInstanceBuffer* instBuffer) const;
-	virtual void RenderSprite(const CGameObject* gameObject) const;
+	virtual void Render(const GameObject* gameObject) const;
+	virtual void Render(const ObjectInstanceBuffer* instBuffer) const;
+	virtual void RenderSprite(const GameObject* gameObject) const;
 
 	bool HasMesh(UINT index) const { return mModelInfo[index].mVertexCount > 0; }
 };

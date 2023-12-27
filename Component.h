@@ -7,7 +7,7 @@ private:																\
 	using base = parent;												\
 																		\
 public:																	\
-	className(CObject* object) : parent(object) {}						\
+	className(Object* object) : parent(object) {}						\
 	virtual ~className() = default;										\
 
 #define COMPONENT( parent, className )									\
@@ -16,12 +16,12 @@ private:																\
 																		\
 public:																	\
     static const int mID = static_cast<int>(ComponentID::className);	\
-    className(CObject* object) : parent(object) { }						\
+    className(Object* object) : parent(object) { }						\
 	virtual int GetID() const override { return mID; }					\
 
 
 // Class Declarations
-class CObject;
+class Object;
 
 // Enum Classes
 enum class ComponentID {
@@ -60,7 +60,6 @@ enum class ObjectTag : DWORD {
 	Terrain			= 0x200,
 	Water			= 0x400,
 	Sprite			= 0x800,
-	Mirror			= 0x1000,
 };
 
 enum class ObjectLayer {
@@ -87,10 +86,10 @@ ObjectType GetObjectType(ObjectTag tag);
 
 class Component {
 public:
-	CObject* mObject{};
+	Object* mObject{};
 
 public:
-	Component(CObject* object) { mObject = object; }
+	Component(Object* object) { mObject = object; }
 	virtual ~Component() = default;
 
 	virtual int GetID() const { return -1; }
@@ -100,7 +99,7 @@ public:
 
 	virtual void ReleaseUploadBuffers() {}
 
-	virtual void OnCollisionStay(CObject& other) {}
+	virtual void OnCollisionStay(Object& other) {}
 };
 
 
@@ -108,10 +107,10 @@ public:
 
 
 
-class CObject : public Transform {
+class Object : public Transform {
 private:
 	std::vector<sptr<Component>> mComponents{};
-	std::unordered_set<const CObject*> mCollisionObjects{};
+	std::unordered_set<const Object*> mCollisionObjects{};
 
 protected:
 	std::string mName{};
@@ -126,8 +125,8 @@ private:
 	sptr<Component> GetCopyComponent(rsptr<Component> component);
 
 public:
-	CObject() : Transform(this) { }
-	virtual ~CObject() = default;
+	Object() : Transform(this) { }
+	virtual ~Object() = default;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Getter ] /////
@@ -182,7 +181,7 @@ public:
 
 	template<class T>
 	sptr<T> AddComponent() {
-		mComponents.emplace_back(std::make_shared<T>((CObject*)this));
+		mComponents.emplace_back(std::make_shared<T>((Object*)this));
 		return std::static_pointer_cast<T>(mComponents.back());
 	}
 
@@ -199,7 +198,7 @@ public:
 	}
 
 
-	void CopyComponents(const CObject& src);
+	void CopyComponents(const Object& src);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Others ] /////
@@ -210,5 +209,5 @@ public:
 	virtual void Start();
 	virtual void Update() override;
 
-	void OnCollisionStay(CObject& other);
+	void OnCollisionStay(Object& other);
 };

@@ -8,7 +8,7 @@
 
 void Script_MainCamera::Start()
 {
-	mCameraObject = mObject->Object<CMainCamera>();
+	mCameraObject = mObject->GetObj<MainCamera>();
 	mPlayer = mCameraObject->GetPlayer();
 	mCamera = mCameraObject->GetCamera().get();
 

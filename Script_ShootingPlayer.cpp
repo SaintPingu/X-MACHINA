@@ -66,7 +66,7 @@ void Script_ShootingPlayer::RenderBullets() const
 
 
 
-const std::list<sptr<CGameObject>>* Script_ShootingPlayer::GetBullets() const
+const std::list<sptr<GameObject>>* Script_ShootingPlayer::GetBullets() const
 {
 	if (mBulletShader) {
 		return mBulletShader->GetBullets();
@@ -77,9 +77,9 @@ const std::list<sptr<CGameObject>>* Script_ShootingPlayer::GetBullets() const
 }
 
 
-void Script_ShootingPlayer::CreateBullets(rsptr<const CMasterModel> bulletModel)
+void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 {
-	mBulletShader = std::make_shared<CBulletShader>();
+	mBulletShader = std::make_shared<BulletShader>();
 	mBulletShader->CreateShader();
 	mBulletShader->BuildObjects(100, bulletModel, mObject);
 	mBulletShader->SetLifeTime(mbulletLifeTime);

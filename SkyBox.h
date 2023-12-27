@@ -1,20 +1,20 @@
 #pragma once
 #include "Transform.h"
 
-class CTexture;
+class Texture;
 class Camera;
-class CSkyBoxShader;
-class CSkyBoxMesh;
+class SkyBoxShader;
+class SkyBoxMesh;
 
-class CSkyBox : public Transform {
+class SkyBox : public Transform {
 private:
-	std::unique_ptr<CSkyBoxShader> mShader{};
-	std::unique_ptr<CTexture> mTexture{};
-	std::unique_ptr<CSkyBoxMesh> mMesh{};
+	std::unique_ptr<SkyBoxShader> mShader{};
+	std::unique_ptr<Texture> mTexture{};
+	std::unique_ptr<SkyBoxMesh> mMesh{};
 
 public:
-	CSkyBox();
-	~CSkyBox() = default;
+	SkyBox();
+	~SkyBox() = default;
 
 	void Render();
 };

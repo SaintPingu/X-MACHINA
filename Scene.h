@@ -5,35 +5,34 @@
 #pragma once
 #include "Grid.h"
 
-class CMasterModel;
-class CModelObjectMesh;
+class MasterModel;
+class ModelObjectMesh;
 
-class CModel;
+class Model;
 class Camera;
-class CCameraObject;
-class CGameObject;
-class CShader;
-class CMirrorShader;
+class CameraObject;
+class GameObject;
+class Shader;
 
-class CMaterial;
+class Material;
 
-class CInstancingShader;
-class CEffectShader;
-class CTexturedEffectShader;
-class CModelObjectsShader;
-class CTexturedShader;
-class CStaticShader;
+class InstancingShader;
+class EffectShader;
+class TexturedEffectShader;
+class ModelObjectsShader;
+class TexturedShader;
+class StatiShader;
 
-class CHeightMapTerrain;
+class HeightMapTerrain;
 
-class CLight;
-class CMainCamera;
+class Light;
+class MainCamera;
 
-class CTexture;
-class CSkyBox;
+class Texture;
+class SkyBox;
 
-class CGraphicsRootSignature;
-class CDescriptorHeap;
+class GraphicsRootSignature;
+class DescriptorHeap;
 
 struct MATERIAL
 {
@@ -43,70 +42,69 @@ struct MATERIAL
 	Vec4 mEmissive{};
 };
 
-class CObjectInstanceBuffer;
-class CScene
+class ObjectInstanceBuffer;
+class Scene
 {
 public:
 	enum class ExplosionType { Small = 0, Big };
 
 private:
 	/* DirectX */
-	sptr<CGraphicsRootSignature> mGraphicsRootSignature{};
+	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
 
 	/* Model */
-	std::unordered_map<std::string, sptr<const CMasterModel>> mModels;
-	std::vector<sptr<CObjectInstanceBuffer>> mInstanceBuffers;
+	std::unordered_map<std::string, sptr<const MasterModel>> mModels;
+	std::vector<sptr<ObjectInstanceBuffer>> mInstanceBuffers;
 
 	/* Light */
-	uptr<CLight> mLight;
+	uptr<Light> mLight;
 
 	/* Textures */
-	std::unordered_map<std::string, sptr<CMaterial>> mMaterialMap{};
+	std::unordered_map<std::string, sptr<Material>> mMaterialMap{};
 
 	/* SkyBox */
-	sptr<CSkyBox> mSkyBox{};
+	sptr<SkyBox> mSkyBox{};
 
 	/* Shader */
-	sptr<CShader> mGlobalShader{};
-	sptr<CShader> mBoundingShader{};
-	sptr<CShader> mWaterShader{};
-	sptr<CShader> mBillboardShader{};
-	sptr<CShader> mSpriteShader{};
-	sptr<CShader> mInstancingShader{};
-	sptr<CShader> mTransparentShader{};
-	sptr<CStaticShader> mSmallExpFXShader{};
-	sptr<CStaticShader> mBigExpFXShader{};
-	sptr<CMirrorShader> mMirrorShader{};
+	sptr<Shader> mGlobalShader{};
+	sptr<Shader> mBoundingShader{};
+	sptr<Shader> mWaterShader{};
+	sptr<Shader> mBillboardShader{};
+	sptr<Shader> mSpriteShader{};
+	sptr<Shader> mInstancingShader{};
+	sptr<Shader> mTransparentShader{};
+	sptr<StatiShader> mSmallExpFXShader{};
+	sptr<StatiShader> mBigExpFXShader{};
 
 	/* Camera*/
-	sptr<CMainCamera> mMainCamera{};
+	sptr<MainCamera> mMainCamera{};
 
 	/* Object */
-	sptr<CGameObject> mWater{};
-	std::vector<sptr<CGameObject>> mBackgrounds{};
-	std::vector<sptr<CGameObject>> mStaticObjects{};
-	std::list<sptr<CGameObject>> mExplosiveObjects{};
-	std::list<sptr<CGameObject>> mSpriteEffectObjects{};
+	sptr<GameObject> mWater{};
+	std::vector<sptr<GameObject>> mBackgrounds{};
+	std::vector<sptr<GameObject>> mStatiObjects{};
+	std::list<sptr<GameObject>> mExplosiveObjects{};
+	std::list<sptr<GameObject>> mSpriteEffectObjects{};
 
 	/* Player */
-	std::vector<sptr<CGameObject>> mPlayers{};
-	sptr<CGameObject> mPlayer{};
+	std::vector<sptr<GameObject>> mPlayers{};
+	sptr<GameObject> mPlayer{};
 	int	mCrntPlayerIndex{};
 
 	/* Map */
-	sptr<CHeightMapTerrain> mTerrain{};
+	sptr<HeightMapTerrain> mTerrain{};
 	BoundingBox mMapBorder{};
 
 	/* Grid */
-	std::vector<CGrid> mGrids{};
-	sptr<CModelObjectMesh> mGridMesh{};
+	std::vector<Grid> mGrids{};
+	sptr<ModelObjectMesh> mGridMesh{};
 	const float mMaxGridHeight = 300.0f;
 	float mGridStartPoint{};
 	int mGridLength{};
 	int mGridCols{};
 
 	/* Descriptor */
-	sptr<CDescriptorHeap> mDescriptorHeap{};
+	sptr<DescriptorHeap> mDescriptorHeap{};
 
 	/* Others */
 	bool mIsRenderBounds{ false };
@@ -115,24 +113,24 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Constructor ] /////
 
-	CScene();
-	~CScene();
+	Scene();
+	~Scene();
 
 	static void Create();
 	static void Destroy();
-	static CScene* Inst();
+	static Scene* Inst();
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Getter ] /////
 
 	float GetTerrainHeight(float x, float z) const;
-	rsptr<const CMasterModel> GetModel(const std::string& modelName);
-	rsptr<CGameObject> GetPlayer() const { return mPlayers.front(); }
-	rsptr<CMaterial> GetMaterial(const std::string& name) { assert(mMaterialMap.contains(name)); return mMaterialMap[name]; }
-	rsptr<CTexture> GetTexture(const std::string& name);
+	rsptr<const MasterModel> GetModel(const std::string& modelName);
+	rsptr<GameObject> GetPlayer() const { return mPlayers.front(); }
+	rsptr<Material> GetMaterial(const std::string& name) { assert(mMaterialMap.contains(name)); return mMaterialMap[name]; }
+	rsptr<Texture> GetTexture(const std::string& name);
 	rsptr<Camera> GetMainCamera() const;
-	sptr<CCameraObject> GetCameraObject() const;
+	sptr<CameraObject> GetCameraObject() const;
 	RComPtr<ID3D12RootSignature> GetRootSignature() const;
 	//const LIGHT* GetLightModel(const std::string& modelName);
 
@@ -187,7 +185,7 @@ private:
 	/* Load */
 	void LoadModels();
 private:
-	void InitObjectByTag(const void* tag, sptr<CGameObject> object);
+	void InitObjectByTag(const void* tag, sptr<GameObject> object);
 
 public:
 	void LoadGameObjects(FILE* file);
@@ -200,27 +198,26 @@ public:
 	void ReleaseObjects();
 
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat);
-	void CreateShaderResourceView(CTexture* texture, UINT descriptorHeapIndex);
+	void CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex);
 
 
 
 	/* Render */
 private:
-	void RenderTerrain(bool isMirror = false);
+	void RenderTerrain();
 
-	void RenderGridObjects(std::set<CGameObject*>& renderObjects, std::set<CGameObject*>& transparentObjects, std::set<CGameObject*>& billboardObjects);
+	void RenderGridObjects(std::set<GameObject*>& renderObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects);
 	void RenderInstanceObjects();
 	void RenderBackgrounds();
 	void RenderBullets();
 
-	void RenderBounds(const std::set<CGameObject*>& renderObjects);
+	void RenderBounds(const std::set<GameObject*>& renderObjects);
 	void RenderGridBounds();
-	void RenderBillboards(const std::set<CGameObject*>& billboards);
+	void RenderBillboards(const std::set<GameObject*>& billboards);
 
 public:
 	void OnPrepareRender();
 	void Render();
-	void RenderMirrorObjects(const Vec4& mirrorPlane);
 
 
 
@@ -234,7 +231,7 @@ private:
 
 
 	void UpdatePlayerGrid();
-	void UpdateObject(CGameObject* object);
+	void UpdateObject(GameObject* object);
 
 public:
 	void Start();
@@ -248,7 +245,7 @@ private:
 	void CreateBigExpFX(Vec3 pos);
 
 	int GetGridIndexFromPos(Vec3 pos);
-	void SetObjectGridIndex(rsptr<CGameObject> object, int gridIndex);
+	void SetObjectGridIndex(rsptr<GameObject> object, int gridIndex);
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
 
 	void DeleteExplodedObjects();
@@ -266,15 +263,11 @@ public:
 	void ChangeToNextPlayer();
 	void ChangeToPrevPlayer();
 
-	void UpdateObjectGrid(CGameObject* object, bool isCheckAdj = true);
-	void RemoveObjectFromGrid(CGameObject* object);
+	void UpdateObjectGrid(GameObject* object, bool isCheckAdj = true);
+	void RemoveObjectFromGrid(GameObject* object);
 
-	void ProcessObjects(std::function<void(sptr<CGameObject>)> processFunc);
-
-	void RenderMirror();
-	const XMMATRIX& GetReflect() const;
-	bool IsRenderReflectObject();
+	void ProcessObjects(std::function<void(sptr<GameObject>)> processFunc);
 };
 
-#define crntScene CScene::Inst()
+#define crntScene Scene::Inst()
 #define mainCamera crntScene->GetMainCamera()

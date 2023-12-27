@@ -1,12 +1,12 @@
 #pragma once
 #include "Component.h"
 
-class CCameraObject;
+class CameraObject;
 class Script_Billboard : public Component {
 	COMPONENT(Component, Script_Billboard)
 
 private:
-	sptr<CCameraObject> mCameraObject;
+	sptr<CameraObject> mCameraObject;
 
 public:
 	virtual void Start() override;

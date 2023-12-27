@@ -28,7 +28,7 @@ void Script_Player::SetMaxSpeed(float speed)
 void Script_Player::Start()
 {
 	mObject->SetTag(ObjectTag::Player);
-	mPlayer = mObject->Object<CGameObject>();
+	mPlayer = mObject->GetObj<GameObject>();
 	mRigid = mObject->AddComponent<Rigidbody>();
 }
 
@@ -65,7 +65,7 @@ void Script_Player::Respawn()
 
 void Script_Player::Explode()
 {
-	crntScene->CreateExplosion(CScene::ExplosionType::Big, mObject->GetPosition());
+	crntScene->CreateExplosion(Scene::ExplosionType::Big, mObject->GetPosition());
 	Respawn();
 }
 

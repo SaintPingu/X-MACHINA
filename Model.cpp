@@ -20,23 +20,23 @@
 
 
 
-// [ CModel ] //
+// [ Model ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CModel::CModel()
+Model::Model()
 {
 	
 }
-CModel::~CModel()
+Model::~Model()
 {
 
 }
 
-void CModel::CopyModelHierarchy(sptr<CModelObject>& object) const
+void Model::CopyModelHierarchy(sptr<ModelObject>& object) const
 {
-	object = std::make_shared<CModelObject>();
+	object = std::make_shared<ModelObject>();
 
 	object->CopyComponents(*this);
 	object->SetTransform(GetLocalTransform());
@@ -44,18 +44,18 @@ void CModel::CopyModelHierarchy(sptr<CModelObject>& object) const
 
 
 	if (mSibling) {
-		sptr<CModelObject> sibling{};
-		mSibling->Object<CModel>()->CopyModelHierarchy(sibling);
+		sptr<ModelObject> sibling{};
+		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling);
 		object->mSibling = sibling;
 	}
 	if (mChild) {
-		sptr<CModelObject> child{};
-		mChild->Object<CModel>()->CopyModelHierarchy(child);
+		sptr<ModelObject> child{};
+		mChild->GetObj<Model>()->CopyModelHierarchy(child);
 		object->SetChild(child);
 	}
 }
 
-void CModel::CopyModelHierarchy(CGameObject* object) const
+void Model::CopyModelHierarchy(GameObject* object) const
 {
 	object->CopyComponents(*this);
 	object->SetTransform(GetLocalTransform());
@@ -63,28 +63,28 @@ void CModel::CopyModelHierarchy(CGameObject* object) const
 
 
 	if (mSibling) {
-		sptr<CModelObject> sibling{};
-		mSibling->Object<CModel>()->CopyModelHierarchy(sibling);
+		sptr<ModelObject> sibling{};
+		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling);
 		object->mSibling = sibling;
 	}
 	if (mChild) {
-		sptr<CModelObject> child{};
-		mChild->Object<CModel>()->CopyModelHierarchy(child);
+		sptr<ModelObject> child{};
+		mChild->GetObj<Model>()->CopyModelHierarchy(child);
 		object->SetChild(child);
 	}
 }
 
-void CModel::MergeModel(CMasterModel& out)
+void Model::MergeModel(MasterModel& out)
 {
 	out.MergeMesh(mMeshInfo, mMaterials);
 	mMeshInfo = nullptr;
 	mMaterials.clear();
 
 	if (mSibling) {
-		mSibling->Object<CModel>()->MergeModel(out);
+		mSibling->GetObj<Model>()->MergeModel(out);
 	}
 	if (mChild) {
-		mChild->Object<CModel>()->MergeModel(out);
+		mChild->GetObj<Model>()->MergeModel(out);
 	}
 }
 
@@ -95,11 +95,11 @@ void CModel::MergeModel(CMasterModel& out)
 
 
 
-// [ CMaterial ] //
+// [ Material ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CMaterialColors::CMaterialColors(const MATERIALLOADINFO& materialInfo)
+MaterialColors::MaterialColors(const MATERIALLOADINFO& materialInfo)
 {
 	mDiffuse = Vector4::Normalize(materialInfo.mAlbedo);
 	mSpecular = materialInfo.mSpecular; //(r,g,b,a=power)
@@ -107,15 +107,15 @@ CMaterialColors::CMaterialColors(const MATERIALLOADINFO& materialInfo)
 	mEmissive = materialInfo.mEmissive;
 }
 
-CMaterial::CMaterial()
+Material::Material()
 {
 }
 
-CMaterial::~CMaterial()
+Material::~Material()
 {
 }
 
-void CMaterial::UpdateShaderVariable()
+void Material::UpdateShaderVariable()
 {
 	constexpr RootParam param = RootParam::GameObjectInfo;
 
@@ -149,7 +149,7 @@ void CMaterial::UpdateShaderVariable()
 	crntScene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mEmissive, 28);
 }
 
-void CMaterial::LoadTextureFromFile(UINT nType, FILE* file)
+void Material::LoadTextureFromFile(UINT nType, FILE* file)
 {
 	std::string textureName{};
 	::ReadStringFromFile(file, textureName);
@@ -163,74 +163,74 @@ void CMaterial::LoadTextureFromFile(UINT nType, FILE* file)
 
 
 
-// [ CMasterModel ] //
+// [ MasterModel ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CMasterModel::CMasterModel()
+MasterModel::MasterModel()
 {
-	mMesh = std::make_shared<CMergedMesh>();
+	mMesh = std::make_shared<MergedMesh>();
 }
 
 
-CMasterModel::~CMasterModel()
+MasterModel::~MasterModel()
 {
 	
 }
 
-void CMasterModel::ReleaseUploadBuffers()
+void MasterModel::ReleaseUploadBuffers()
 {
 	mMesh->ReleaseUploadBuffers();
 }
 
-Vec4 CMasterModel::GetColor() const
+Vec4 MasterModel::GetColor() const
 {
 	return Vec4(1.0f, 1.0f, 0.0f, 1.0f);
 }
 
-rsptr<CTexture> CMasterModel::GetTexture() const
+rsptr<Texture> MasterModel::GetTexture() const
 {
 	return mMesh->GetTexture();
 }
 
-void CMasterModel::SetModel(rsptr<CModel> model)
+void MasterModel::SetModel(rsptr<Model> model)
 {
 	SetChild(model);
 }
 
-void CMasterModel::MergeMesh(rsptr<CMeshLoadInfo> mesh, const std::vector<sptr<CMaterial>>& materials)
+void MasterModel::MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials)
 {
 	mMesh->MergeMesh(mesh, materials);
 }
 
 
-void CMasterModel::Close()
+void MasterModel::Close()
 {
 	mMesh->Close();
 }
 
-void CMasterModel::Render(const CGameObject* gameObject) const
+void MasterModel::Render(const GameObject* gameObject) const
 {
 	RenderFunc(gameObject);
 }
 
-void CMasterModel::Render(const CObjectInstanceBuffer* instBuffer) const
+void MasterModel::Render(const ObjectInstanceBuffer* instBuffer) const
 {
 	mMesh->Render(instBuffer);
 }
 
-void CMasterModel::RenderObject(const CGameObject* gameObject) const
+void MasterModel::RenderObject(const GameObject* gameObject) const
 {
 	mMesh->Render(gameObject);
 }
 
-void CMasterModel::RenderSprite(const CGameObject* gameObject) const
+void MasterModel::RenderSprite(const GameObject* gameObject) const
 {
 	mMesh->RenderSprite(gameObject);
 }
 
-void CMasterModel::CopyModelHierarchy(CGameObject* object) const
+void MasterModel::CopyModelHierarchy(GameObject* object) const
 {
 	GetModel()->CopyModelHierarchy(object);
 }

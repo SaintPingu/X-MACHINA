@@ -66,12 +66,6 @@
     <ClInclude Include="Component.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="d3dx12.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSTextureLoader12.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="DescriptorHeap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -167,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일\PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -272,9 +269,6 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="DDSTextureLoader12.cpp">
-      <Filter>소스 파일\Library</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>소스 파일\Shaders</Filter>
     </ClCompile>
@@ -283,6 +277,9 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>소스 파일\Library</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

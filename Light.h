@@ -4,7 +4,6 @@
 
 enum class GlobalLight {
 	Sunlight = 0,
-	MoonLight = 1,
 };
 
 enum class LightType {
@@ -29,9 +28,9 @@ struct LIGHT
 
 	float mFalloff{};
 	Vec3 mDirection{};
-	float mTheta{}; //cos(m_fTheta)
+	float mTheta{};
 	Vec3 mAttenuation{};
-	float mPhi{}; //cos(m_fPhi)
+	float mPhi{};
 	bool mIsEnable{};
 	int mType{};
 	float mRange{};
@@ -89,7 +88,6 @@ public:
 
 private:
 	void SetSunlight();
-	void SetMoonLight();
 
 public:
 	void SetGlobalLight(GlobalLight globalLight);

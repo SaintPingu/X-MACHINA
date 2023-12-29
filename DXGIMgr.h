@@ -8,7 +8,11 @@
 #define DRAW_SCENE_Z_DEPTH				'Z'
 #define DRAW_SCENE_DEPTH				'D'
 
+//-----------------------------[Class Declaration]-----------------------------//
 class PostProcessingShader;
+//-----------------------------------------------------------------------------//
+
+
 
 class DXGIMgr {
 	SINGLETON_PATTERN(DXGIMgr)
@@ -31,7 +35,10 @@ private:
 	UINT mMsaa4xQualityLevels{};
 
 	// swap chain
-	static const UINT mSwapChainBufferCount{ 2 };
+	static constexpr UINT mSwapChainBufferCount{ 2 };
+	static constexpr UINT mRtvSize = 5;
+	std::array<DXGI_FORMAT, mRtvSize> mRtvFormats{ DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+
 	UINT mSwapChainBufferIndex{};
 	ComPtr<ID3D12Resource> mSwapChainBackBuffers[mSwapChainBufferCount]{};
 
@@ -69,9 +76,10 @@ public:
 	RComPtr<ID3D12Device> GetDevice() const { return mDevice; }
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const { return mCmdList; }
 	HWND GetHwnd() const { return mWnd; }
+	const auto& GetRtvFormats() const { return mRtvFormats; }
 
-	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
-	void OnDestroy();
+	bool Init(HINSTANCE hInstance, HWND hMainWnd);
+	void Release();
 	void Terminate(); // 강제종료
 
 private:

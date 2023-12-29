@@ -1,7 +1,9 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class GameObject;
+//-----------------------------------------------------------------------------//
 
 class Script_Apache : public Component {
 	COMPONENT(Component, Script_Apache)

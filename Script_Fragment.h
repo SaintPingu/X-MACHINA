@@ -1,7 +1,9 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class Rigidbody;
+//-----------------------------------------------------------------------------//
 
 class Script_Fragment : public Component {
 	COMPONENT(Component, Script_Fragment)

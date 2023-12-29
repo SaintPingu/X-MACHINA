@@ -9,6 +9,7 @@
 #include "Texture.h"
 #include "Scene.h"
 #include "Shader.h"
+#include "FileMgr.h"
 
 
 
@@ -124,41 +125,41 @@ void Material::UpdateShaderVariable()
 	}
 	else {
 		UINT mask = 0x00;
-		crntScene->SetGraphicsRoot32BitConstants(param, mask, 32);
+		scene->SetGraphicsRoot32BitConstants(param, mask, 32);
 	}
 
 	if (!mMaterialColors) {
 		Vec4 ambient{}, diffuse{}, specular{}, emmisive{};
 
-		crntScene->SetGraphicsRoot32BitConstants(param, ambient, 16);
-		crntScene->SetGraphicsRoot32BitConstants(param, diffuse, 20);
-		crntScene->SetGraphicsRoot32BitConstants(param, specular, 24);
-		crntScene->SetGraphicsRoot32BitConstants(param, emmisive, 28);
+		scene->SetGraphicsRoot32BitConstants(param, ambient, 16);
+		scene->SetGraphicsRoot32BitConstants(param, diffuse, 20);
+		scene->SetGraphicsRoot32BitConstants(param, specular, 24);
+		scene->SetGraphicsRoot32BitConstants(param, emmisive, 28);
 
 		return;
 	}
 
-	crntScene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mDiffuse, 20);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mDiffuse, 20);
 
 	if (mIsDiffused) {
 		return;
 	}
 
-	crntScene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mAmbient, 16);
-	crntScene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mSpecular, 24);
-	crntScene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mEmissive, 28);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mAmbient, 16);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mSpecular, 24);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mEmissive, 28);
 }
 
 void Material::LoadTextureFromFile(UINT nType, FILE* file)
 {
 	std::string textureName{};
-	::ReadStringFromFile(file, textureName);
+	IO::ReadStringFromFile(file, textureName);
 	
 	if (textureName == "null") {
 		return;
 	}
 
-	mTexture = crntScene->GetTexture(textureName);
+	mTexture = scene->GetTexture(textureName);
 }
 
 
@@ -184,11 +185,6 @@ void MasterModel::ReleaseUploadBuffers()
 	mMesh->ReleaseUploadBuffers();
 }
 
-Vec4 MasterModel::GetColor() const
-{
-	return Vec4(1.0f, 1.0f, 0.0f, 1.0f);
-}
-
 rsptr<Texture> MasterModel::GetTexture() const
 {
 	return mMesh->GetTexture();
@@ -208,11 +204,6 @@ void MasterModel::MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Mat
 void MasterModel::Close()
 {
 	mMesh->Close();
-}
-
-void MasterModel::Render(const GameObject* gameObject) const
-{
-	RenderFunc(gameObject);
 }
 
 void MasterModel::Render(const ObjectInstanceBuffer* instBuffer) const

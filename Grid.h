@@ -1,5 +1,7 @@
 #pragma once
+//-----------------------------[Class Declaration]-----------------------------//
 class GameObject;
+//-----------------------------------------------------------------------------//
 
 class Grid {
 private:
@@ -8,18 +10,18 @@ private:
 	std::unordered_set<GameObject*> mObjects{};
 	std::unordered_set<GameObject*> mEnvObjects{};
 	std::unordered_set<GameObject*> mStatiObjects{};
-	std::unordered_set<GameObject*> mDynamiObjects{};
+	std::unordered_set<GameObject*> mDynamicObjets{};
 
 public:
-	Grid();
-	~Grid();
+	Grid() = default;
+	~Grid() = default;
 
 	void Init(int index, const BoundingBox& bb);
 	const BoundingBox& GetBB() const { return mBB; }
 	void RemoveObject(GameObject* object);
 	void AddObject(GameObject* object);
 
-	const std::unordered_set<GameObject*>& GetObjects() const { return mObjects; }
+	const auto& GetObjects() const { return mObjects; }
 	bool Empty() const { return mObjects.empty(); }
 
 	void CheckCollisions();

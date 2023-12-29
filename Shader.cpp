@@ -1,12 +1,9 @@
-//-----------------------------------------------------------------------------
-// File: Shader.cpp
-//-----------------------------------------------------------------------------
-
 #include "stdafx.h"
 #include "Shader.h"
 #include "DXGIMgr.h"
 
 #include "Model.h"
+#include "Object.h"
 #include "Camera.h"
 #include "Mesh.h"
 #include "Scene.h"
@@ -32,10 +29,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Shader::Shader()
-{
-}
-
 Shader::~Shader()
 {
 	ReleaseShaderVariables();
@@ -137,7 +130,7 @@ D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 	rasterizerDesc.ForcedSampleCount = 0;
 	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	return(rasterizerDesc);
+	return rasterizerDesc;
 }
 
 D3D12_DEPTH_STENCIL_DESC Shader::CreateDepthStencilState()
@@ -180,16 +173,9 @@ D3D12_BLEND_DESC Shader::CreateBlendState()
 	return blendDesc;
 }
 
-void Shader::CreateShader()
+void Shader::CreateShader(DXGI_FORMAT dsvFormat, bool isClose)
 {
-	CreateShader(1, nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT);
-}
-
-void Shader::CreateShader(UINT renderTargetCnt, DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat)
-{
-	mIsClosed = false;
-
-	mPipelineStateDesc.pRootSignature = crntScene->GetRootSignature().Get();
+	mPipelineStateDesc.pRootSignature = scene->GetRootSignature().Get();
 	mPipelineStateDesc.VS = CreateVertexShader();
 	mPipelineStateDesc.PS = CreatePixelShader();
 	mPipelineStateDesc.RasterizerState = CreateRasterizerState();
@@ -201,17 +187,24 @@ void Shader::CreateShader(UINT renderTargetCnt, DXGI_FORMAT* rtvFormats, DXGI_FO
 	mPipelineStateDesc.DSVFormat = dsvFormat;
 	mPipelineStateDesc.SampleDesc.Count = 1;
 	mPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	mPipelineStateDesc.NumRenderTargets = renderTargetCnt;
-	for (UINT i = 0; i < renderTargetCnt; ++i) {
-		mPipelineStateDesc.RTVFormats[i] = (rtvFormats) ? rtvFormats[i] : DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	const auto& rtvFormats = dxgi->GetRtvFormats();
+	mPipelineStateDesc.NumRenderTargets = rtvFormats.size();
+	for (UINT i = 0; i < mPipelineStateDesc.NumRenderTargets; ++i) {
+		mPipelineStateDesc.RTVFormats[i] = rtvFormats[i];
 	}
 
-	if (mPipelineStates.size() == 0) {
+	if (mPipelineStates.empty()) {
 		mPipelineStates.resize(1);
 	}
 
 	HRESULT hResult = device->CreateGraphicsPipelineState(&mPipelineStateDesc, IID_PPV_ARGS(&mPipelineStates[0]));
 	assert(SUCCEEDED(hResult));
+
+	mIsClosed = false;
+	if (isClose) {
+		Close();
+	}
 }
 
 void Shader::CreateShaderVariables()
@@ -266,23 +259,6 @@ void Shader::Close()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-WireShader::WireShader()
-{
-
-}
-
-WireShader::~WireShader()
-{
-
-}
-
-void WireShader::CreateShader()
-{
-	DXGI_FORMAT dxgiRtvFormats[2] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM };
-	Shader::CreateShader(2, dxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	Close();
-}
-
 D3D12_RASTERIZER_DESC WireShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
@@ -298,7 +274,7 @@ D3D12_RASTERIZER_DESC WireShader::CreateRasterizerState()
 	rasterizerDesc.ForcedSampleCount = 0;
 	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	return(rasterizerDesc);
+	return rasterizerDesc;
 }
 
 D3D12_INPUT_LAYOUT_DESC WireShader::CreateInputLayout()
@@ -348,16 +324,6 @@ D3D12_SHADER_BYTECODE WireShader::CreatePixelShader()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-InstancingShader::InstancingShader()
-{
-
-}
-
-InstancingShader::~InstancingShader()
-{
-
-}
-
 D3D12_INPUT_LAYOUT_DESC InstancingShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 2;
@@ -389,26 +355,18 @@ D3D12_SHADER_BYTECODE InstancingShader::CreatePixelShader()
 #endif
 }
 
-void InstancingShader::CreateShader()
-{
-	DXGI_FORMAT dxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	Shader::CreateShader(5, dxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	Shader::Close();
-	/*Shader::CreateShader();
-	Close();*/
-}
-
 void InstancingShader::CreateShaderVariables()
 {
-	::CreateBufferResource(NULL, sizeof(INSTANCE_BUFFER) * mObjects.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuffer);
+	D3DUtil::CreateBufferResource(NULL, sizeof(INSTANCE_BUFFER) * mObjects.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuffer);
 	mInstBuffer->Map(0, NULL, (void**)&mMappedObjects);
 }
 
 void InstancingShader::UpdateShaderVariables()
 {
-	cmdList->SetGraphicsRootShaderResourceView(crntScene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
+
 	for (int j = 0; j < mObjects.size(); j++) {
-		::memcpy(&mMappedObjects[j].mLocalTransform, &Matrix4x4::Transpose(mObjects[j]->GetWorldTransform()), sizeof(Vec4x4));
+		mMappedObjects[j].mLocalTransform = Matrix4x4::Transpose(mObjects[j]->GetWorldTransform());
 	}
 }
 
@@ -422,7 +380,7 @@ void InstancingShader::Render()
 {
 	Shader::Render();
 	UpdateShaderVariables();
-	mMesh->Render(0, mObjects.size());
+	mMesh->RenderInstanced(mObjects.size());
 }
 
 
@@ -478,27 +436,17 @@ void InstancingShader::BuildObjects(size_t instanceCount, rsptr<const Mesh> mesh
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-EffectShader::EffectShader()
-{
-
-}
-
-EffectShader::~EffectShader()
-{
-
-}
-
-
 void EffectShader::UpdateShaderVariables()
 {
-	cmdList->SetGraphicsRootShaderResourceView(crntScene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
 
 	size_t i = 0;
 	for (auto& [begin, duration] : mActiveGroups) {
 		size_t index = begin;
 		size_t end = begin + mCountPerGroup;
 		for (; index < end; ++index, ++i) {
-			::memcpy(&mMappedObjects[i].mLocalTransform, &Matrix4x4::Transpose(mObjects[index]->GetWorldTransform()), sizeof(Vec4x4));
+			mMappedObjects[i].mLocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
+
 			Vec3 color = mObjects[i]->GetComponent<Script_Fragment>()->GetColor();
 			mMappedObjects[i].mColor = Vec4(color.x, color.y, color.z, 1.0f);
 		}
@@ -509,7 +457,7 @@ void EffectShader::Render()
 {
 	Shader::Render();
 	UpdateShaderVariables();
-	mMesh->Render(0, mActiveGroups.size() * mCountPerGroup);
+	mMesh->RenderInstanced(mActiveGroups.size() * mCountPerGroup);
 }
 
 void EffectShader::Update()
@@ -625,17 +573,18 @@ void SmallExpEffectShader::BuildObjects()
 	std::uniform_int_distribution uid{ minSpeed, maxSpeed };
 
 	SetDuration(duration);
-	SetMaterial(crntScene->GetMaterial("Metal02"));
+	SetMaterial(scene->GetMaterial("Metal02"));
 
-	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>(size, size, size, true);
+	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
+	mesh->CreateCubeMesh(size, size, size, true);
 	EffectShader::BuildObjects(groupCount, countPerGroup, mesh);
 
 	size_t i{};
 	for (auto& object : mObjects) {
 		float movingSpeed = static_cast<float>(uid(dre)) / toFloat;
 		Vec3 movingDir{};
-		XMStoreFloat3(&movingDir, RandomUnitVectorOnSphere());
-		auto& script = object->GetComponent<Script_Fragment>();
+		XMStoreFloat3(&movingDir, RandVectorOnSphere());
+		const auto& script = object->GetComponent<Script_Fragment>();
 		script->Start();
 
 		object->SetFlyable(true);
@@ -671,17 +620,18 @@ void BigExpEffectShader::BuildObjects()
 	std::uniform_int_distribution uid{ minSpeed, maxSpeed };
 
 	SetDuration(duration);
-	SetMaterial(crntScene->GetMaterial("Metal02"));
+	SetMaterial(scene->GetMaterial("Metal02"));
 
-	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>(size, size, size, true);
+	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
+	mesh->CreateCubeMesh(size, size, size, true);
 	EffectShader::BuildObjects(groupCount, countPerGroup, mesh);
 
 	size_t i{};
 	for (auto& object : mObjects) {
 		float movingSpeed = static_cast<float>(uid(dre)) / toFloat;
 		Vec3 movingDir{};
-		XMStoreFloat3(&movingDir, RandomUnitVectorOnSphere());
-		auto& script = object->GetComponent<Script_Fragment>();
+		XMStoreFloat3(&movingDir, RandVectorOnSphere());
+		const auto& script = object->GetComponent<Script_Fragment>();
 		script->Start();
 
 		object->SetFlyable(true);
@@ -728,14 +678,14 @@ D3D12_SHADER_BYTECODE TexturedEffectShader::CreatePixelShader()
 void TexturedEffectShader::UpdateShaderVariables()
 {
 	mMaterial->UpdateShaderVariable();
-	cmdList->SetGraphicsRootShaderResourceView(crntScene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
 
 	size_t i = 0;
 	for (auto& [begin, duration] : mActiveGroups) {
 		size_t index = begin;
 		size_t end = begin + mCountPerGroup;
 		for (; index < end; ++index, ++i) {
-			::memcpy(&mMappedObjects[i].mLocalTransform, &Matrix4x4::Transpose(mObjects[index]->GetWorldTransform()), sizeof(Vec4x4));
+			mMappedObjects[i].mLocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
 		}
 	}
 }
@@ -752,16 +702,6 @@ void TexturedEffectShader::Render()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-BulletShader::BulletShader()
-{
-
-}
-
-BulletShader::~BulletShader()
-{
-
-}
-
 void BulletShader::BuildObjects(size_t bufferSize, rsptr<const MasterModel> model, const Object* owner)
 {
 	mMesh = model->GetMesh();
@@ -817,7 +757,7 @@ void BulletShader::FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, 
 
 void BulletShader::UpdateShaderVariables()
 {
-	cmdList->SetGraphicsRootShaderResourceView(crntScene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
 
 	int i{};
 	for (auto it = mBuffer.begin(); it != mBuffer.end(); ) {
@@ -827,7 +767,7 @@ void BulletShader::UpdateShaderVariables()
 			continue;
 		}
 
-		::memcpy(&mMappedObjects[i].mLocalTransform, &Matrix4x4::Transpose(object->GetWorldTransform()), sizeof(Vec4x4));
+		mMappedObjects[i].mLocalTransform = Matrix4x4::Transpose(object->GetWorldTransform());
 		++i;
 		++it;
 	}
@@ -851,75 +791,8 @@ void BulletShader::Render()
 {
 	Shader::Render();
 	UpdateShaderVariables();
-	mMesh->Render(0, mBuffer.size());
+	mMesh->RenderInstanced(mBuffer.size());
 }
-
-
-
-// [ CIlluminatedShdaer ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-IlluminatedShader::IlluminatedShader()
-{
-}
-
-IlluminatedShader::~IlluminatedShader()
-{
-}
-
-D3D12_INPUT_LAYOUT_DESC IlluminatedShader::CreateInputLayout()
-{
-	UINT nInputElementDescs = 2;
-	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-
-	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
-	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = nInputElementDescs;
-
-	return inputLayoutDesc;
-}
-
-D3D12_SHADER_BYTECODE IlluminatedShader::CreateVertexShader()
-{
-#ifdef READ_COMPILED_SHADER
-	return Shader::ReadCompiledShaderFile(L"VShader_Lighting.cso", mVertexShaderBlob);
-#else
-	return Shader::CompileShaderFromFile(L"VShader_Lighting.hlsl", "VSLighting", "vs_5_1", mVertexShaderBlob);
-#endif
-}
-
-D3D12_SHADER_BYTECODE IlluminatedShader::CreatePixelShader()
-{
-#ifdef READ_COMPILED_SHADER
-	return Shader::ReadCompiledShaderFile(L"PShader_Lighting.cso", mPixelShaderBlob);
-#else
-	return Shader::CompileShaderFromFile(L"PShader_Lighting.hlsl", "PSLighting", "ps_5_1", mPixelShaderBlob);
-#endif
-}
-
-void IlluminatedShader::CreateShader()
-{
-	mPipelineStates.resize(2);
-
-	Shader::CreateShader();
-
-	mPipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	HRESULT hResult = device->CreateGraphicsPipelineState(&mPipelineStateDesc, IID_PPV_ARGS(&mPipelineStates[1]));
-
-	Close();
-}
-
-void IlluminatedShader::Render(int pipelineStateIndex)
-{
-	OnPrepareRender(pipelineStateIndex);
-}
-
-
-
 
 
 
@@ -928,22 +801,6 @@ void IlluminatedShader::Render(int pipelineStateIndex)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TexturedShader::TexturedShader()
-{
-}
-
-TexturedShader::~TexturedShader()
-{
-}
-
-void TexturedShader::CreateShader()
-{
-	DXGI_FORMAT dxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	Shader::CreateShader(5, dxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	//Shader::CreateShader();
-	Shader::Close();
-}
-
 D3D12_INPUT_LAYOUT_DESC TexturedShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 5;
@@ -1035,22 +892,6 @@ D3D12_BLEND_DESC TransparentShader::CreateBlendState()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TerrainShader::TerrainShader()
-{
-
-}
-TerrainShader::~TerrainShader()
-{
-
-}
-
-void TerrainShader::CreateShader()
-{
-	DXGI_FORMAT dxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	Shader::CreateShader(5, dxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	Shader::Close();
-}
-
 D3D12_RASTERIZER_DESC TerrainShader::CreateRasterizerState()
 {
 	return Shader::CreateRasterizerState();
@@ -1069,7 +910,7 @@ D3D12_RASTERIZER_DESC TerrainShader::CreateRasterizerState()
 	//rasterizerDesc.ForcedSampleCount = 0;
 	//rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	//return(rasterizerDesc);
+	//return rasterizerDesc;
 }
 
 D3D12_INPUT_LAYOUT_DESC TerrainShader::CreateInputLayout()
@@ -1107,22 +948,6 @@ D3D12_SHADER_BYTECODE TerrainShader::CreatePixelShader()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SkyBoxShader::SkyBoxShader()
-{
-}
-
-SkyBoxShader::~SkyBoxShader()
-{
-}
-
-
-void SkyBoxShader::CreateShader()
-{
-	Shader::CreateShader();
-	Shader::Close();
-}
-
-
 D3D12_INPUT_LAYOUT_DESC SkyBoxShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 1;
@@ -1232,18 +1057,16 @@ D3D12_SHADER_BYTECODE WaterShader::CreatePixelShader()
 
 
 
-// [ SkyBoxShader ] // // [ PostProcessingShader ] //
+
+// [ PostProcessingShader ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 PostProcessingShader::PostProcessingShader()
 {
+	mRtvSize = dxgi->GetRtvFormats().size() - 1;
+	mRtvFormats = dxgi->GetRtvFormats().data() + 1;
 }
-
-PostProcessingShader::~PostProcessingShader()
-{
-}
-
 D3D12_DEPTH_STENCIL_DESC PostProcessingShader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
@@ -1275,61 +1098,56 @@ D3D12_SHADER_BYTECODE PostProcessingShader::CreatePixelShader()
 	return Shader::CompileShaderFromFile(L"PShader_Post.hlsl", "PSPostProcessing", "ps_5_1", mPixelShaderBlob);
 }
 
-void PostProcessingShader::CreateShader(UINT renderTargetCnt, DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat)
-{
-	Shader::CreateShader(renderTargetCnt, rtvFormats, dsvFormat);
-	Shader::Close();
-}
-
 // texture resource를 생성한다 (ID3D12Resource)
-void PostProcessingShader::CreateTextureResources(UINT renderTargetCnt, DXGI_FORMAT* dxgiFormats)
+void PostProcessingShader::CreateTextureResources()
 {
-	mTextures.resize(renderTargetCnt);
+	mTextures.resize(mRtvSize);
 
 	D3D12_CLEAR_VALUE clearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 1.0f, 1.0f, 1.0f, 1.0f } };
-	for (UINT i = 0; i < renderTargetCnt; ++i)
+	for (UINT i = 0; i < mRtvSize; ++i)
 	{
-		clearValue.Format = dxgiFormats[i];
+		clearValue.Format = mRtvFormats[i];
 		mTextures[i] = std::make_shared<Texture>(RESOURCE_TEXTURE2D);
-		mTextures[i]->CreateTexture(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, dxgiFormats[i], D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &clearValue);
+		mTextures[i]->CreateTexture(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, mRtvFormats[i], D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &clearValue);
 	}
 }
 
 // resource의 SRV Descriptor를 생성한다. (ID3D12Device::CreateShaderResourceView)
-void PostProcessingShader::CreateSrvs(UINT renderTargetCnt)
+void PostProcessingShader::CreateSrvs()
 {
 	CreateShaderVariables();
-	for (UINT i = 0; i < renderTargetCnt; ++i) {
-		crntScene->CreateShaderResourceView(mTextures[i].get(), 0);
-		mTextures[i]->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::RenderTarget));
+
+	for (UINT i = 0; i < mRtvSize; ++i) {
+		scene->CreateShaderResourceView(mTextures[i].get(), 0);
+		mTextures[i]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::RenderTarget));
 	}
 }
 
 // resource의 RTV Descriptor를 생성한다. (ID3D12Device::CreateRenderTargetView)
-void PostProcessingShader::CreateRtvs(UINT renderTargetCnt, DXGI_FORMAT* dxgiFormats, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
+void PostProcessingShader::CreateRtvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 	rtvDesc.Texture2D.PlaneSlice = 0;
 
-	mRtvHandles.resize(renderTargetCnt);
+	mRtvHandles.resize(mRtvSize);
 
-	for (UINT i = 0; i < renderTargetCnt; ++i) {
-		rtvDesc.Format = dxgiFormats[i];
+	for (UINT i = 0; i < mRtvSize; ++i) {
+		rtvDesc.Format = mRtvFormats[i];
 		ComPtr<ID3D12Resource> textureResource = mTextures[i]->GetResource();
 		device->CreateRenderTargetView(textureResource.Get(), &rtvDesc, rtvHandle);
 		mRtvHandles[i] = rtvHandle;
-		rtvHandle.ptr += ::gnRtvDescriptorIncrementSize;
+		rtvHandle.ptr += ::gRtvDescriptorIncSize;
 	}
 }
 
-void PostProcessingShader::CreateResourcesAndRtvsSrvs(UINT renderTargetCnt, DXGI_FORMAT* dxgiFormats, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
+void PostProcessingShader::CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
 	// texture resource를 생성하고 이에 대한 SRV와 RTV를 생성한다
-	CreateTextureResources(renderTargetCnt, dxgiFormats);
-	CreateSrvs(renderTargetCnt);
-	CreateRtvs(renderTargetCnt, dxgiFormats, rtvHandle);
+	CreateTextureResources();
+	CreateSrvs();
+	CreateRtvs(rtvHandle);
 }
 
 // 각 RTV의 handle을 받아와 Clear하고 이들을 OutputMerger에 Set한다.
@@ -1346,7 +1164,7 @@ void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rt
 
 	// (SV_TARGET[1] ~ SV_TARGET[n])
 	for (int i = 0; i < resourceCnt; ++i) {
-		::SynchronizeResourceTransition(mTextures[i]->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		D3DUtil::ResourceTransition(mTextures[i]->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles[i];
 		cmdList->ClearRenderTargetView(rtvHandle, Colors::White, 0, NULL);
@@ -1359,7 +1177,7 @@ void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rt
 void PostProcessingShader::OnPostRenderTarget()
 {
 	for (const auto& texture : mTextures) {
-		::SynchronizeResourceTransition(texture->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		D3DUtil::ResourceTransition(texture->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 	}
 }
 
@@ -1376,26 +1194,19 @@ void PostProcessingShader::Render()
 
 
 
-// [ TextureToFullScreenShader ] //
+// [ TextureToScreenShader ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TextureToFullScreenShader::TextureToFullScreenShader()
+
+D3D12_SHADER_BYTECODE TextureToScreenShader::CreateVertexShader()
 {
+	return Shader::CompileShaderFromFile(L"VShader_Rect.hlsl", "VSScreen", "vs_5_1", mVertexShaderBlob);
 }
 
-TextureToFullScreenShader::~TextureToFullScreenShader()
+D3D12_SHADER_BYTECODE TextureToScreenShader::CreatePixelShader()
 {
-}
-
-D3D12_SHADER_BYTECODE TextureToFullScreenShader::CreateVertexShader()
-{
-	return(Shader::CompileShaderFromFile(L"VShader_Rect.hlsl", "VSScreen", "vs_5_1", mVertexShaderBlob));
-}
-
-D3D12_SHADER_BYTECODE TextureToFullScreenShader::CreatePixelShader()
-{
-	return(Shader::CompileShaderFromFile(L"PShader_Rect.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", mPixelShaderBlob));
+	return Shader::CompileShaderFromFile(L"PShader_Rect.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", mPixelShaderBlob);
 }
 
 
@@ -1403,13 +1214,6 @@ D3D12_SHADER_BYTECODE TextureToFullScreenShader::CreatePixelShader()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void BillboardShader::CreateShader()
-{
-	DXGI_FORMAT dxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	Shader::CreateShader(5, dxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	Shader::Close();
-}
-
 D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
@@ -1425,7 +1229,7 @@ D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 	rasterizerDesc.ForcedSampleCount = 0;
 	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	return(rasterizerDesc);
+	return rasterizerDesc;
 }
 
 D3D12_BLEND_DESC BillboardShader::CreateBlendState()
@@ -1449,12 +1253,12 @@ D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 
 D3D12_SHADER_BYTECODE BillboardShader::CreateVertexShader()
 {
-	return(Shader::CompileShaderFromFile(L"VShader_Billboard.hlsl", "VSBillboard", "vs_5_1", mVertexShaderBlob));
+	return Shader::CompileShaderFromFile(L"VShader_Billboard.hlsl", "VSBillboard", "vs_5_1", mVertexShaderBlob);
 }
 
 D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader()
 {
-	return(Shader::CompileShaderFromFile(L"PShader_Billboard.hlsl", "PSBillboard", "ps_5_1", mPixelShaderBlob));
+	return Shader::CompileShaderFromFile(L"PShader_Billboard.hlsl", "PSBillboard", "ps_5_1", mPixelShaderBlob);
 }
 
 
@@ -1462,7 +1266,7 @@ D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader()
 
 D3D12_SHADER_BYTECODE SpriteShader::CreateVertexShader()
 {
-	return(Shader::CompileShaderFromFile(L"VShader_Billboard.hlsl", "VSSprite", "vs_5_1", mVertexShaderBlob));
+	return Shader::CompileShaderFromFile(L"VShader_Billboard.hlsl", "VSSprite", "vs_5_1", mVertexShaderBlob);
 }
 
 
@@ -1470,13 +1274,6 @@ D3D12_SHADER_BYTECODE SpriteShader::CreateVertexShader()
 
 
 
-
-void CanvasShader::CreateShader()
-{
-	DXGI_FORMAT dxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	Shader::CreateShader(5, dxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	Close();
-}
 
 D3D12_INPUT_LAYOUT_DESC CanvasShader::CreateInputLayout()
 {
@@ -1506,7 +1303,7 @@ D3D12_RASTERIZER_DESC CanvasShader::CreateRasterizerState()
 	rasterizerDesc.ForcedSampleCount = 0;
 	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	return(rasterizerDesc);
+	return rasterizerDesc;
 }
 
 D3D12_BLEND_DESC CanvasShader::CreateBlendState()
@@ -1530,10 +1327,10 @@ D3D12_BLEND_DESC CanvasShader::CreateBlendState()
 
 D3D12_SHADER_BYTECODE CanvasShader::CreateVertexShader()
 {
-	return(Shader::CompileShaderFromFile(L"VShader_Canvas.hlsl", "VSCanvas", "vs_5_1", mVertexShaderBlob));
+	return Shader::CompileShaderFromFile(L"VShader_Canvas.hlsl", "VSCanvas", "vs_5_1", mVertexShaderBlob);
 }
 
 D3D12_SHADER_BYTECODE CanvasShader::CreatePixelShader()
 {
-	return(Shader::CompileShaderFromFile(L"PShader_Canvas.hlsl", "PSCanvas", "ps_5_1", mPixelShaderBlob));
+	return Shader::CompileShaderFromFile(L"PShader_Canvas.hlsl", "PSCanvas", "ps_5_1", mPixelShaderBlob);
 }

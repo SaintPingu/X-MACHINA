@@ -1,17 +1,17 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class Camera;
-class MainCamera;
+class MainCameraObject;
 class GameObject;
+//-----------------------------------------------------------------------------//
 
 
 class Script_MainCamera : public Component {
 	COMPONENT(Component, Script_MainCamera)
 
 private:
-	Camera* mCamera{};
-	MainCamera* mCameraObject{};
 	GameObject* mPlayer{};
 	Vec3 mOffset = Vec3(0.0f, 15, -30.0f);
 	float mTimeLag{};

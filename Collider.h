@@ -1,9 +1,11 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class Object;
 class Mesh;
 class Camera;
+//-----------------------------------------------------------------------------//
 
 
 

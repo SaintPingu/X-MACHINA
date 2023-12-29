@@ -22,20 +22,16 @@ Timer::~Timer()
 
 void Timer::Tick(float lockFPS)
 {
-	if (mIsStopped)
-	{
+	if (mIsStopped) {
 		mTimeElapsed = 0.0f;
 		return;
 	}
-	;
 
 	::QueryPerformanceCounter((LARGE_INTEGER *)&mCurrentPerfCount);
 	float timeElapsed = float((mCurrentPerfCount - m_nLastPerfCount) * mTimeScale);
 
-    if (lockFPS > 0.0f)
-    {
-        while (timeElapsed < (1.0f / lockFPS))
-        {
+    if (lockFPS > 0.0f) {
+        while (timeElapsed < (1.0f / lockFPS)) {
 	        ::QueryPerformanceCounter((LARGE_INTEGER *)&mCurrentPerfCount);
 	        timeElapsed = float((mCurrentPerfCount - m_nLastPerfCount) * mTimeScale);
         }
@@ -43,8 +39,7 @@ void Timer::Tick(float lockFPS)
 
 	m_nLastPerfCount = mCurrentPerfCount;
 
-    if (fabsf(timeElapsed - mTimeElapsed) < 1.0f)
-    {
+    if (fabsf(timeElapsed - mTimeElapsed) < 1.0f) {
         ::memmove(&mFrameTime[1], mFrameTime, (MAX_SAMPLE_COUNT - 1) * sizeof(float));
         mFrameTime[0] = timeElapsed;
         if (m_nSampleCount < MAX_SAMPLE_COUNT) m_nSampleCount++;
@@ -52,33 +47,37 @@ void Timer::Tick(float lockFPS)
 
 	mFPS++;
 	mFPSTimeElapsed += timeElapsed;
-	if (mFPSTimeElapsed > 1.0f) 
-    {
+	if (mFPSTimeElapsed > 1.0f)  {
 		mCrntFrameRate	= mFPS;
 		mFPS = 0;
 		mFPSTimeElapsed = 0.0f;
 	} 
 
     mTimeElapsed = 0.0f;
-    for (ULONG i = 0; i < m_nSampleCount; i++) mTimeElapsed += mFrameTime[i];
-    if (m_nSampleCount > 0) mTimeElapsed /= m_nSampleCount;
+	for (ULONG i = 0; i < m_nSampleCount; i++) {
+		mTimeElapsed += mFrameTime[i];
+	}
+	if (m_nSampleCount > 0) {
+		mTimeElapsed /= m_nSampleCount;
+	}
 }
 
-unsigned long Timer::GetFrameRate(LPTSTR string, int charSize) 
+const WCHAR* Timer::GetFrameRate()
 {
-    if (string)
-    {
-        _itow_s(mCrntFrameRate, string, charSize, 10);
-        wcscat_s(string, charSize, _T(" FPS)"));
-    } 
+	constexpr int radix = 10;
+	constexpr int kBuffSize = 5;
 
-    return(mCrntFrameRate);
+	static WCHAR buff[kBuffSize]{L'\0'};
+
+    _itow_s(mCrntFrameRate, buff, kBuffSize, radix);
+
+    return buff;
 }
 
 float Timer::GetTotalTime()
 {
-	if (mIsStopped) return(float(((mStopPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale));
-	return(float(((mCurrentPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale));
+	if (mIsStopped) return float(((mStopPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale);
+	return float(((mCurrentPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale);
 }
 
 void Timer::Reset()
@@ -117,5 +116,5 @@ void Timer::Stop()
 
 float DeltaTime()
 {
-	return Timer::Inst()->GetTimeElapsed();
+	return timer->GetTimeElapsed();
 }

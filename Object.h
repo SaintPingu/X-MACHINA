@@ -1,18 +1,14 @@
-//------------------------------------------------------- ----------------------
-// File: Object.h
-//-----------------------------------------------------------------------------
-
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class MasterModel;
-
-// Class Declarations
 class Mesh;
 class Camera;
 class Texture;
 
 struct LIGHT;
+//-----------------------------------------------------------------------------//
 
 
 
@@ -146,14 +142,6 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Setter ] /////
-
-	///* Direction */
-	//void SetMovingDirection(const Vec3& movingDir) { mMovingDir = Vector3::Normalize(movingDir); }
-	//void SetMovingDirection(const XMVECTOR& movingDir) { XMStoreFloat3(&mMovingDir, movingDir); }
-
-	///* Moving */
-	//void SetMovingSpeed(float speed) { mMovingSpeed = speed; }
-	//void SetMovingRange(float range) { mMovingRange = range; }
 
 	/* Others */
 	void SetFlyable(bool isFlyable);

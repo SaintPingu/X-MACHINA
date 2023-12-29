@@ -22,7 +22,7 @@ public:
 
 	virtual void OnCollisionStay(Object& other) override;
 
-	const Vec3& GetVelocity() const { return(mVelocity); }
+	const Vec3& GetVelocity() const { return mVelocity; }
 
 	void SetMass(float mass) { mMass = mass; }
 	void SetFriction(float fFriction) { mFriction = fFriction; }

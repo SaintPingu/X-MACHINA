@@ -19,12 +19,12 @@ SkyBox::SkyBox()
 	mShader = std::make_unique<SkyBoxShader>();
 	mShader->CreateShader();
 
-	crntScene->CreateShaderResourceView(mTexture.get(), 0);
+	scene->CreateShaderResourceView(mTexture.get(), 0);
 }
 
 void SkyBox::Render()
 {
-	Vec3 pos = mainCamera->GetPosition();
+	Vec3 pos = mainCameraObject->GetPosition();
 	SetPosition(pos.x, pos.y, pos.z);
 	
 	UpdateShaderVariable();

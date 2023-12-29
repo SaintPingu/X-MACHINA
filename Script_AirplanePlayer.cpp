@@ -2,6 +2,7 @@
 #include "Script_Player.h"
 #include "Scene.h"
 #include "Shader.h"
+#include "Object.h"
 #include "InputMgr.h"
 #include "Timer.h"
 #include "Rigidbody.h"
@@ -41,7 +42,7 @@ void Script_AirplanePlayer::Update()
 	ProcessInput();
 
 	Vec3 pos = mObject->GetPosition();
-	float terrainHeight = crntScene->GetTerrainHeight(pos.x, pos.z);
+	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 
 	if (pos.y < terrainHeight) {
 		Explode();
@@ -52,16 +53,16 @@ void Script_AirplanePlayer::ProcessInput()
 {
 	DWORD dwDirection = 0;
 	DWORD rotationDir = 0;
-	if (KEY_PRESSED('W'))			dwDirection |= DIR_FORWARD;
-	if (KEY_PRESSED('S'))			dwDirection |= DIR_BACKWARD;
-	if (KEY_PRESSED(VK_SPACE))		dwDirection |= DIR_UP;
-	if (KEY_PRESSED(VK_SHIFT))		dwDirection |= DIR_DOWN;
+	if (KEY_PRESSED('W'))			dwDirection |= (WORD)Dir::Front;
+	if (KEY_PRESSED('S'))			dwDirection |= (WORD)Dir::Back;
+	if (KEY_PRESSED(VK_SPACE))		dwDirection |= (WORD)Dir::Up;
+	if (KEY_PRESSED(VK_SHIFT))		dwDirection |= (WORD)Dir::Down;
 	if (dwDirection) {
 		base::Move(dwDirection);
 	}
 
-	if (KEY_PRESSED('A')) rotationDir |= DIR_LEFT;
-	if (KEY_PRESSED('D')) rotationDir |= DIR_RIGHT;
+	if (KEY_PRESSED('A')) rotationDir |= (WORD)Dir::Left;
+	if (KEY_PRESSED('D')) rotationDir |= (WORD)Dir::Right;
 	if (rotationDir) {
 		Rotate(rotationDir, DeltaTime());
 	}
@@ -79,10 +80,10 @@ void Script_AirplanePlayer::Rotate(DWORD rotationDir, float angle)
 	angle *= mRotationSpeed;
 	if (rotationDir) {
 		float zRotation = 0.0f;
-		if (rotationDir & DIR_LEFT) {
+		if (rotationDir & (WORD)Dir::Left) {
 			zRotation += angle;
 		}
-		if (rotationDir & DIR_RIGHT) {
+		if (rotationDir & (WORD)Dir::Right) {
 			zRotation -= angle;
 		}
 

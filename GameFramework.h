@@ -5,29 +5,21 @@ class Framework {
 
 public:
 	Framework();
-	~Framework();
+	~Framework() = default;
 
-	HWND GetHwnd() const;
-
-	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
-	void OnDestroy();
+	bool Init(HINSTANCE hInstance, HWND hMainWnd);
+	void Release();
 
 	void BuildObjects();
 	void ReleaseObjects();
 
 	void FrameAdvance();
+	void UpdaetInput();
 	void UpdateObjects();
 	void RenderObjects();
 
-	void UpdaetInput();
-	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-
 private:
-	POINT mOldCursorPos{};
-
-	_TCHAR mFrameRate[50]{};
+	std::wstring mTitle{};
 };
 
 

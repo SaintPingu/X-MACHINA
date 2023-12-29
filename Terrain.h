@@ -4,11 +4,13 @@
 
 constexpr int TERRAIN_LENGTH = 513;
 
+//-----------------------------[Class Declaration]-----------------------------//
 class Material;
 class Texture;
 class HeightMapTerrain;
 class IlluminatedShader;
 class TerrainShader;
+//-----------------------------------------------------------------------------//
 
 class HeightMapImage {
 private:
@@ -23,9 +25,9 @@ public:
 
 	float GetHeight(float fx, float fz);
 	Vec3 GetHeightMapNormal(int x, int z);
-	const std::vector<float>& GetHeightMapPixels() { return(mHeightMapPixels); }
-	int GetHeightMapWidth() { return(mWidth); }
-	int GetHeightMapLength() { return(mLength); }
+	const std::vector<float>& GetHeightMapPixels() { return mHeightMapPixels; }
+	int GetHeightMapWidth() { return mWidth; }
+	int GetHeightMapLength() { return mLength; }
 };
 
 

@@ -1,10 +1,7 @@
-//-----------------------------------------------------------------------------
-// File: Scene.h
-//-----------------------------------------------------------------------------
-
 #pragma once
 #include "Grid.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class MasterModel;
 class ModelObjectMesh;
 
@@ -26,13 +23,15 @@ class StatiShader;
 class HeightMapTerrain;
 
 class Light;
-class MainCamera;
+class MainCameraObject;
 
 class Texture;
 class SkyBox;
 
 class GraphicsRootSignature;
 class DescriptorHeap;
+class ObjectInstanceBuffer;
+//-----------------------------------------------------------------------------//
 
 struct MATERIAL
 {
@@ -42,7 +41,17 @@ struct MATERIAL
 	Vec4 mEmissive{};
 };
 
-class ObjectInstanceBuffer;
+
+
+
+
+
+
+
+
+
+
+
 class Scene
 {
 public:
@@ -54,7 +63,6 @@ private:
 
 	/* Model */
 	std::unordered_map<std::string, sptr<const MasterModel>> mModels;
-	std::vector<sptr<ObjectInstanceBuffer>> mInstanceBuffers;
 
 	/* Light */
 	uptr<Light> mLight;
@@ -76,15 +84,13 @@ private:
 	sptr<StatiShader> mSmallExpFXShader{};
 	sptr<StatiShader> mBigExpFXShader{};
 
-	/* Camera*/
-	sptr<MainCamera> mMainCamera{};
-
 	/* Object */
 	sptr<GameObject> mWater{};
 	std::vector<sptr<GameObject>> mBackgrounds{};
 	std::vector<sptr<GameObject>> mStatiObjects{};
 	std::list<sptr<GameObject>> mExplosiveObjects{};
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
+	std::vector<sptr<ObjectInstanceBuffer>> mInstanceBuffers;
 
 	/* Player */
 	std::vector<sptr<GameObject>> mPlayers{};
@@ -118,6 +124,7 @@ public:
 
 	static void Create();
 	static void Destroy();
+	static void Release();
 	static Scene* Inst();
 
 
@@ -129,10 +136,7 @@ public:
 	rsptr<GameObject> GetPlayer() const { return mPlayers.front(); }
 	rsptr<Material> GetMaterial(const std::string& name) { assert(mMaterialMap.contains(name)); return mMaterialMap[name]; }
 	rsptr<Texture> GetTexture(const std::string& name);
-	rsptr<Camera> GetMainCamera() const;
-	sptr<CameraObject> GetCameraObject() const;
 	RComPtr<ID3D12RootSignature> GetRootSignature() const;
-	//const LIGHT* GetLightModel(const std::string& modelName);
 
 	UINT GetRootParamIndex(RootParam param);
 
@@ -179,9 +183,6 @@ private:
 	void BuildGrid();
 	void BuildGridObjects();
 
-	/* Camera */
-	void BuildCamera();
-
 	/* Load */
 	void LoadModels();
 private:
@@ -223,12 +224,12 @@ public:
 
 	/* Update (per frame) */
 private:
-	void UpdateLights();
-	void UpdateObjects();
-	void UpdateCamera();
-	void AnimateObjects();
 	void CheckCollisions();
-
+	void UpdateObjects();
+	void UpdateShaders();
+	void UpdateSprites();
+	void UpdateCamera();
+	void UpdateLights();
 
 	void UpdatePlayerGrid();
 	void UpdateObject(GameObject* object);
@@ -236,6 +237,7 @@ private:
 public:
 	void Start();
 	void Update();
+	void Animate();
 
 
 	/* Others */
@@ -251,9 +253,9 @@ private:
 	void DeleteExplodedObjects();
 
 public:
-	void ProcessInput(HWND hWnd, POINT oldCursorPos);
-	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	void ProcessInput(HWND hWnd, Vec2 oldCursorPos);
+	bool ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	bool ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	void ToggleDrawBoundings();
 
@@ -269,5 +271,4 @@ public:
 	void ProcessObjects(std::function<void(sptr<GameObject>)> processFunc);
 };
 
-#define crntScene Scene::Inst()
-#define mainCamera crntScene->GetMainCamera()
+#define scene Scene::Inst()

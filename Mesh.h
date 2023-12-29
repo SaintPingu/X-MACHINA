@@ -5,6 +5,51 @@
 #pragma once
 #include "Collider.h"
 
+class Material;
+class Texture;
+class Transform;
+class ModelObject;
+class GameObject;
+class ObjectInstanceBuffer;
+
+enum class VertexType : DWORD {
+	Position = 0x01,
+	Color = 0x02,
+	Normal = 0x04,
+	Tangent = 0x08,
+	BiTangent = 0x10,
+	UV0 = 0x20,
+	UV1 = 0x40,
+};
+
+struct ModelInfo {
+	std::vector<UINT> mIndexCounts{};
+	UINT mVertexCount{};
+	std::vector<sptr<Material>> mMaterials{};
+};
+
+struct MeshBuffer {
+	std::vector<Vec3> mVertices{};
+	std::vector<Vec3> mNormals{};
+
+	std::vector<Vec3> mTangents{};
+	std::vector<Vec3> mBiTangents{};
+	std::vector<Vec2> mUVs0{};
+	std::vector<Vec2> mUVs1{};
+
+	std::vector<UINT> mIndices{};
+};
+
+namespace MeshRenderer {
+	void BuildMeshes();
+
+	void Render(const MyBoundingOrientedBox box);
+	void Render(const MyBoundingSphere bs);
+
+	void ReleaseStaticUploadBuffers();
+	void Release();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class Mesh {
@@ -48,16 +93,13 @@ protected:
 	UINT mOffset{};
 	UINT mType{};
 
-	UINT mStartIndex{};
-	int	mBaseVertex{};
-
 	void CreateVertexBufferViews();
 
 public:
-	Mesh() {};
-	virtual ~Mesh();
+	Mesh() = default;
+	virtual ~Mesh() = default;
 	
-	UINT GetType() { return(mType); }
+	UINT GetType() { return mType; }
 
 	std::pair<UINT, UINT> GetLocationInfo() const { return std::make_pair(mIndexCount, mVertexCount); }
 	UINT GetIndexCount() const { return mIndexCount; }
@@ -66,18 +108,7 @@ public:
 	void ReleaseUploadBuffers();
 
 	virtual void Render() const;
-	virtual void Render(UINT subset, UINT instanceCount = 1) const;
-};
-
-
-enum class VertexType : DWORD {
-	Position = 0x01,
-	Color = 0x02,
-	Normal = 0x04,
-	Tangent = 0x08,
-	BiTangent = 0x10,
-	UV0 = 0x20,
-	UV1 = 0x40,
+	virtual void RenderInstanced(UINT instanceCount) const;
 };
 
 class MeshLoadInfo
@@ -116,20 +147,16 @@ public:
 	MeshLoadInfo mInfo{};
 
 public:
-	ModelObjectMesh();
-	virtual ~ModelObjectMesh();
+	ModelObjectMesh() = default;
+	virtual ~ModelObjectMesh() = default;
 
-	ModelObjectMesh(const BoundingOrientedBox& box);
-	void LoadMeshFromBoundingBox(const BoundingOrientedBox& box);
+	void CreateMeshFromOBB(const BoundingOrientedBox& box);
 
-	ModelObjectMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 
-	ModelObjectMesh(float width, float depth, bool isLine = false);
 	void CreatePlaneMesh(float width, float depth, bool isLine = false);
 
-	ModelObjectMesh(float radius, bool isLine = false);
-	void CreateSphereMesh(float radius, bool isLine = false);
+	void CreateSphereMesh(float radius, bool isLine = false, int numSegments = 12);
 };
 
 
@@ -146,30 +173,6 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Material;
-class Texture;
-class Transform;
-class ModelObject;
-class GameObject;
-class ObjectInstanceBuffer;
-
-struct ModelInfo {
-	std::vector<UINT> mIndexCounts{};
-	UINT mVertexCount{};
-	std::vector<sptr<Material>> mMaterials{};
-};
-
-struct MeshBuffer {
-	std::vector<Vec3> mVertices{};
-	std::vector<Vec3> mNormals{};
-
-	std::vector<Vec3> mTangents{};
-	std::vector<Vec3> mBiTangents{};
-	std::vector<Vec2> mUVs0{};
-	std::vector<Vec2> mUVs1{};
-
-	std::vector<UINT> mIndices{};
-};
 
 class MergedMesh : public ModelObjectMesh {
 private:
@@ -179,6 +182,7 @@ private:
 
 	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo);
 
+	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCount = 1) const;
 public:
 	MergedMesh();
 
@@ -197,22 +201,3 @@ public:
 
 	bool HasMesh(UINT index) const { return mModelInfo[index].mVertexCount > 0; }
 };
-
-
-
-
-
-
-
-
-
-
-namespace MeshRenderer {
-	void BuildMeshes();
-
-	void Render(const MyBoundingOrientedBox box);
-	void Render(const MyBoundingSphere bs);
-
-	void ReleaseStaticUploadBuffers();
-	void Release();
-}

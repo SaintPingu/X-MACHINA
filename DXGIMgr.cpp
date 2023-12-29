@@ -11,7 +11,7 @@ DXGIMgr::DXGIMgr()
 	mClientHeight = FRAME_BUFFER_HEIGHT;
 }
 
-bool DXGIMgr::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
+bool DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 {
 	mInstance = hInstance;
 	mWnd = hMainWnd;
@@ -26,10 +26,10 @@ bool DXGIMgr::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	BuildObjects();
 
-	return(true);
+	return true;
 }
 
-void DXGIMgr::OnDestroy()
+void DXGIMgr::Release()
 {
 	::CloseHandle(mFenceEvent);
 	Destroy();
@@ -116,8 +116,8 @@ void DXGIMgr::CreateFence()
 
 void DXGIMgr::SetIncrementSize()
 {
-	::gnCbvSrvDescriptorIncrementSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	::gnRtvDescriptorIncrementSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	::gCbvSrvDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	::gRtvDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 }
 
 
@@ -198,7 +198,7 @@ void DXGIMgr::CreateRenderTargetViews()
 		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBackBuffers[i]));
 		mDevice->CreateRenderTargetView(mSwapChainBackBuffers[i].Get(), &rtvDesc, rtvHandle);
 		mSwapChainBackBufferRtvHandles[i] = rtvHandle;
-		rtvHandle.ptr += ::gnRtvDescriptorIncrementSize;
+		rtvHandle.ptr += ::gRtvDescriptorIncSize;
 	}
 }
 
@@ -322,24 +322,23 @@ void DXGIMgr::BuildObjects()
 	StartCommand();
 
 	Scene::Create();
-	crntScene->BuildObjects();
+	scene->BuildObjects();
 
-	mPostProcessingShader = std::make_shared<TextureToFullScreenShader>();
-	mPostProcessingShader->CreateShader(1, NULL, DXGI_FORMAT_D32_FLOAT);
+	mPostProcessingShader = std::make_shared<TextureToScreenShader>();
+	mPostProcessingShader->CreateShader(DXGI_FORMAT_D32_FLOAT);
 
 	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mSwapChainBackBufferRtvHandles[mSwapChainBufferCount - 1];
-	rtvHandle.ptr += ::gnRtvDescriptorIncrementSize;
+	rtvHandle.ptr += ::gRtvDescriptorIncSize;
 
-	DXGI_FORMAT resourceFormats[4] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	mPostProcessingShader->CreateResourcesAndRtvsSrvs(4, resourceFormats, rtvHandle); //SRV to (Render Targets) + (Depth Buffer)
+	mPostProcessingShader->CreateResourcesAndRtvsSrvs(rtvHandle); //SRV to (Render Targets) + (Depth Buffer)
 
 	// create SRV for DepthStencil buffer
-	crntScene->CreateShaderResourceView(mDepthStencilBuffer, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+	scene->CreateShaderResourceView(mDepthStencilBuffer, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
 	StopCommand();
 
-	crntScene->ReleaseUploadBuffers();
+	scene->ReleaseUploadBuffers();
 }
 
 
@@ -350,7 +349,7 @@ void DXGIMgr::Render()
 	StartCommand();
 
 	// set before barrier (present -> render target)
-	::SynchronizeResourceTransition(mSwapChainBackBuffers[mSwapChainBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	D3DUtil::ResourceTransition(mSwapChainBackBuffers[mSwapChainBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	if (mDrawOption == DRAW_SCENE_COLOR) {
 		// clear DSV
@@ -360,17 +359,17 @@ void DXGIMgr::Render()
 		mPostProcessingShader->OnPrepareRenderTarget(&mSwapChainBackBufferRtvHandles[mSwapChainBufferIndex], &mDsvHandle);
 
 		// render scene
-		crntScene->Render();
+		scene->Render();
 
-		// for SynchronizeResourceTransition
+		// for ResourceTransition
 		mPostProcessingShader->OnPostRenderTarget();
 
 		// post processing
-		cmdList->OMSetRenderTargets(1, &mSwapChainBackBufferRtvHandles[mSwapChainBufferIndex], TRUE, NULL);
+		mCmdList->OMSetRenderTargets(1, &mSwapChainBackBufferRtvHandles[mSwapChainBufferIndex], TRUE, NULL);
 		mPostProcessingShader->Render();
 	}
 	else {
-		crntScene->OnPrepareRender();
+		scene->OnPrepareRender();
 
 		mCmdList->OMSetRenderTargets(1, &mSwapChainBackBufferRtvHandles[mSwapChainBufferIndex], TRUE, NULL);
 
@@ -378,7 +377,7 @@ void DXGIMgr::Render()
 	}
 
 	// set after barrier (render target -> present)
-	::SynchronizeResourceTransition(mSwapChainBackBuffers[mSwapChainBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	D3DUtil::ResourceTransition(mSwapChainBackBuffers[mSwapChainBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	StopCommand();
 

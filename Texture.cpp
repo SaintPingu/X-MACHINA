@@ -7,7 +7,7 @@
 Texture::Texture(UINT nTextureType)
 {
 	mTextureType = nTextureType;
-	mRootParamIndex = crntScene->GetRootParamIndex(RootParam::Texture);
+	mRootParamIndex = scene->GetRootParamIndex(RootParam::Texture);
 }
 
 Texture::~Texture()
@@ -30,7 +30,7 @@ void Texture::UpdateShaderVariables()
 {
 	if (mSrvGpuDescHandle.ptr) {
 		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvGpuDescHandle);
-		crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, mTextureMask, 32);
+		scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, mTextureMask, 32);
 	}
 
 }
@@ -46,14 +46,14 @@ void Texture::ReleaseUploadBuffers()
 
 ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
 {
-	return mTexture = ::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
+	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
 }
 
 
 void Texture::LoadTexture(const std::wstring& filePath)
 {
-	::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	crntScene->CreateShaderResourceView(this, 0);
+	D3DUtil::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	scene->CreateShaderResourceView(this, 0);
 
 	mTextureMask |= MATERIAL_ALBEDO_MAP;
 }

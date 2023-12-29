@@ -62,15 +62,15 @@ void ModelObject::SetPosition(const Vec3& pos)
 void ModelObject::SetPosition(const XMVECTOR& pos)
 {
 	Transform::SetPosition(pos);
-	//UpdateBoundingBox();
 }
 
 void ModelObject::SetPosition(float x, float y, float z)
 {
 	Transform::SetPosition(x, y, z);
-	auto& collider = GetComponent<ObjectCollider>();
-	if (collider) {
-		collider->Update();
+
+	rsptr<ObjectCollider> objectCollider = GetComponent<ObjectCollider>();
+	if (objectCollider) {
+		objectCollider->Update();
 	}
 }
 
@@ -90,7 +90,7 @@ void ModelObject::CreateShaderVariables()
 
 void ModelObject::UpdateShaderVariables() const
 {
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(XMLoadFloat4x4(&GetWorldTransform())), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(_MATRIX(GetWorldTransform())), 0);
 }
 
 
@@ -212,25 +212,6 @@ ModelObject* ModelObject::FindObject(const std::string& frameName)
 
 
 
-//////////////////* Lights *//////////////////
-//void ModelObject::SetLightRange(LIGHT_RANGE lightRange)
-//{
-//	mLightRange = lightRange;
-//}
-//
-//void ModelObject::SetAllLight(const LIGHT* light)
-//{
-//	assert(light);
-//	assert(mLightRange.lights);
-//
-//	for (size_t i = mLightRange.begin; i < mLightRange.end; ++i) {
-//		mLightRange.Get(i) = *light;
-//		mLightRange.Get(i).mIsEnable = true;
-//	}
-//}
-
-
-
 // [ GameObject ] //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +319,7 @@ void GameObject::Update()
 void GameObject::AttachToGround()
 {
 	Vec3 pos = GetPosition();
-	const float terrainHeight = crntScene->GetTerrainHeight(pos.x, pos.z);
+	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 
 	pos.y = terrainHeight;
 	SetPosition(pos);
@@ -368,7 +349,7 @@ void GameObject::TiltToGround()
 		const Vec3 right = Vector3::Add(center, Vector3::Subtract(rightTop, leftTop), 0.5f);
 
 		// 각 지점에 대해 높이 차이 계산
-		auto GetHeight = [&](const Vec3& pos) { return pos.y - crntScene->GetTerrainHeight(pos.x, pos.z); };
+		auto GetHeight = [&](const Vec3& pos) { return pos.y - scene->GetTerrainHeight(pos.x, pos.z); };
 
 		float heightFront = GetHeight(front);
 		float heightBack = -GetHeight(back);
@@ -380,7 +361,7 @@ void GameObject::TiltToGround()
 		float roll = max(heightLeft, heightRight);
 
 		// 지면에 닿도록 각도로 회전
-		if (!IsZero(yaw) || !IsZero(roll)) {
+		if (!Math::IsZero(yaw) || !Math::IsZero(roll)) {
 			Rotate(80.0f * yaw * DeltaTime(), 0.0f, 0.0f);
 			Rotate(0.0f, 0.0f, 80.0f * roll * DeltaTime());
 		}
@@ -393,7 +374,7 @@ void GameObject::Enable(bool isUpdateObjectGrid)
 	mIsActive = true;
 
 	if (isUpdateObjectGrid) {
-		crntScene->UpdateObjectGrid(this);
+		scene->UpdateObjectGrid(this);
 	}
 }
 
@@ -402,7 +383,7 @@ void GameObject::Disable(bool isUpdateObjectGrid)
 	mIsActive = false;
 
 	if (isUpdateObjectGrid) {
-		crntScene->RemoveObjectFromGrid(this);
+		scene->RemoveObjectFromGrid(this);
 	}
 }
 
@@ -472,7 +453,7 @@ void ObjectInstanceBuffer::SetModel(rsptr<const MasterModel> model)
 void ObjectInstanceBuffer::CreateShaderVariables(UINT objectCount)
 {
 	mObjectCount = objectCount;
-	::CreateBufferResource(NULL, sizeof(VS_OBJECT_INSTANCE) * mObjectCount, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuffer);
+	D3DUtil::CreateBufferResource(NULL, sizeof(VS_OBJECT_INSTANCE) * mObjectCount, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuffer);
 	mInstBuffer->Map(0, NULL, (void**)&mMappedBuffer);
 }
 
@@ -480,12 +461,12 @@ void ObjectInstanceBuffer::PushObject(InstancinObject* object)
 {
 	assert(mCrntBufferIndex < mObjectCount);
 
-	XMStoreFloat4x4(&mMappedBuffer[mCrntBufferIndex++].mLocalTransform, XMMatrixTranspose(XMLoadFloat4x4(&object->GetWorldTransform())));
+	XMStoreFloat4x4(&mMappedBuffer[mCrntBufferIndex++].mLocalTransform, XMMatrixTranspose(_MATRIX(object->GetWorldTransform())));
 }
 
 void ObjectInstanceBuffer::UpdateShaderVariables() const
 {
-	cmdList->SetGraphicsRootShaderResourceView(crntScene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
 }	
 
 void ObjectInstanceBuffer::Render()

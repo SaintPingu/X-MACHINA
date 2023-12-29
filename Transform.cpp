@@ -373,7 +373,7 @@ void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
 void Transform::UpdateShaderVariableTransform() const
 {
 	XMMATRIX mtx = _MATRIX(GetWorldTransform());
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtx), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtx), 0);
 }
 
 void Transform::SetWorldTransform(const Vec4x4& transform)
@@ -406,18 +406,18 @@ void Transform::NormalizeAxis()
 Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
 {
 	if (!dwDirection) {
-		return Vec3{};
+		return Vector3::Zero();
 	}
 
 	Vec3 direction{};
 
-	if (dwDirection & DIR_FORWARD)	direction = Vector3::Add(direction, mLook, 1.0f);
-	if (dwDirection & DIR_BACKWARD) direction = Vector3::Add(direction, mLook, -1.0f);
-	if (dwDirection & DIR_RIGHT)	direction = Vector3::Add(direction, mRight, 1.0f);
-	if (dwDirection & DIR_LEFT)		direction = Vector3::Add(direction, mRight, -1.0f);
+	if (dwDirection & (WORD)Dir::Front)	direction = Vector3::Add(direction, mLook, 1.0f);
+	if (dwDirection & (WORD)Dir::Back)	direction = Vector3::Add(direction, mLook, -1.0f);
+	if (dwDirection & (WORD)Dir::Right)	direction = Vector3::Add(direction, mRight, 1.0f);
+	if (dwDirection & (WORD)Dir::Left)	direction = Vector3::Add(direction, mRight, -1.0f);
 
-	if (dwDirection & DIR_UP)		direction = Vector3::Add(direction, mUp, 1.0f);
-	if (dwDirection & DIR_DOWN)		direction = Vector3::Add(direction, mUp, -1.0f);
+	if (dwDirection & (WORD)Dir::Up)	direction = Vector3::Add(direction, mUp, 1.0f);
+	if (dwDirection & (WORD)Dir::Down)	direction = Vector3::Add(direction, mUp, -1.0f);
 
 	return direction;
 }
@@ -456,5 +456,5 @@ void Transform::GetTransformCount(UINT& out, const Transform* transform)
 
 void Transform::UpdateShaderVariables(const XMMATRIX& matrix)
 {
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(matrix), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(matrix), 0);
 }

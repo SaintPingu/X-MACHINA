@@ -5,7 +5,7 @@
 
 void Script_Billboard::Start()
 {
-	mCameraObject = crntScene->GetCameraObject();
+	mCameraObject = mainCameraObject;
 }
 
 void Script_Billboard::Update()

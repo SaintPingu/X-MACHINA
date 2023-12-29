@@ -1,9 +1,11 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class CanvasShader;
 class Texture;
 class ModelObjectMesh;
+//-----------------------------------------------------------------------------//
 
 class UI : public Transform {
 protected:
@@ -11,7 +13,7 @@ protected:
 
 public:
 	static void CreateUIMesh();
-	static void DeleteUIMesh() { mesh = nullptr; }
+	static void DeleteUIMesh();
 
 protected:
 	sptr<Texture> mTexture{};
@@ -33,7 +35,7 @@ protected:
 
 public:
 	static void SetFontTexture();
-	static void UnSetFontTexture() { fontTexture = nullptr; }
+	static void UnSetFontTexture();
 
 private:
 	std::string mText{};
@@ -53,7 +55,7 @@ public:
 class Canvas {
 	SINGLETON_PATTERN(Canvas)
 private:
-	vector<sptr<UI>> mUIs{};
+	std::vector<sptr<UI>> mUIs{};
 	sptr<Font> mFont{};
 	sptr<CanvasShader> mShader{};
 	std::unordered_map<std::string, sptr<Texture>> mTextureMap{};
@@ -62,8 +64,8 @@ private:
 public:
 	rsptr<Texture> GetTexture(const std::string& name) const { return mTextureMap.at(name); }
 
-	void Create();
-	void OnDestroy();
+	void Init();
+	void Release();
 	void BuildUIs();
 
 	void Update();
@@ -71,3 +73,5 @@ public:
 
 	void SetScore(int score);
 };
+
+#define canvas Canvas::Inst()

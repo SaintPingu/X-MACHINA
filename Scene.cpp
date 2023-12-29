@@ -46,11 +46,19 @@ void Scene::Create()
 	sceneInstance = std::make_unique<Scene>();
 }
 
-
 void Scene::Destroy()
 {
 	sceneInstance = nullptr;
-	Canvas::Inst()->OnDestroy();
+}
+
+
+void Scene::Release()
+{
+	scene->ReleaseShaderVariables();
+
+	mainCameraObject->Destroy();
+	canvas->Release();
+	Destroy();
 }
 
 
@@ -102,16 +110,6 @@ rsptr<const MasterModel> Scene::GetModel(const std::string& modelName)
 rsptr<Texture> Scene::GetTexture(const std::string& name)
 {
 	assert(mMaterialMap.contains(name)); return mMaterialMap[name]->mTexture;
-}
-
-rsptr<Camera> Scene::GetMainCamera() const
-{
-	return mMainCamera->GetCamera();
-}
-
-sptr<CameraObject> Scene::GetCameraObject() const
-{
-	return mMainCamera;
 }
 
 RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
@@ -174,14 +172,14 @@ void Scene::CreateShaderVariables()
 void Scene::UpdateShaderVariables()
 {
 	mLight->UpdateShaderVariables();
-	mMainCamera->UpdateShaderVariables();
+	mainCamera->UpdateShaderVariables();
 }
 
 
 void Scene::ReleaseShaderVariables()
 {
 	mLight->ReleaseShaderVariables();
-	mMainCamera->ReleaseShaderVariables();
+	mainCamera->ReleaseShaderVariables();
 }
 
 
@@ -196,25 +194,25 @@ void Scene::ReleaseUploadBuffers()
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
 {
-	constexpr UINT num32Bit = 16;
+	constexpr UINT num32Bit = 16U;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
 {
-	constexpr UINT num32Bit = 16;
+	constexpr UINT num32Bit = 16U;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
 {
-	constexpr UINT num32Bit = 4;
+	constexpr UINT num32Bit = 4U;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
 {
-	constexpr UINT num32Bit = 1;
+	constexpr UINT num32Bit = 1U;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
@@ -280,58 +278,12 @@ void Scene::BuildBillboardShader()
 
 void Scene::BuildPlayers()
 {
-	LIGHT_RANGE lightRange{};
-	// [1]
-	mPlayers.reserve(2);
+	mPlayers.reserve(1);
 	sptr<GameObject> airplanePlayer = std::make_shared<GameObject>();
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("Gunship"));
 
 	mPlayers.emplace_back(airplanePlayer);
-
-
-	//// [2]
-	//sptr<GameObject> tankPlayer = std::make_shared<GameObject>();
-	//tankPlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(mGraphicsRootSignature, GetModel("tank_bullet"));
-	//tankPlayer->GetComponent<Script_TankPlayer>()->SetSpawn(Vec3(50.0f, 0.0f, 50.0f));
-	//tankPlayer->SetModel(GetModel("tank"));
-	//
-	//mPlayers.emplace_back(tankPlayer);
-
-
-	//// [3]
-	//tankPlayer = std::make_shared<CTankPlayer>(mGraphicsRootSignature);
-	//tankPlayer->SetModel(GetModel("tank"));
-	//tankPlayer->OnInitialize();
-	//tankPlayer->CreateBullets(mGraphicsRootSignature, GetModel("tank_bullet"));
-	//tankPlayer->CreateBoundingMeshes(mGraphicsRootSignature);
-
-	//tankPlayer->SetSpawn(Vec3(453, 0.0f, 119));
-	//tankPlayer->SetHP(300.0f);
-	//tankPlayer->SetDamage(50.0f);
-	//tankPlayer->SetFireDelay(1.0f);
-	//tankPlayer->SetMovingSpeed(10.0f);
-	//tankPlayer->SetRotationSpeed(35.0f);
-
-	//mPlayers.emplace_back(tankPlayer);
-
-
-	//// [4]
-	//tankPlayer = std::make_shared<CTankPlayer>(mGraphicsRootSignature);
-	//tankPlayer->SetModel(GetModel("tank"));
-	//tankPlayer->OnInitialize();
-	//tankPlayer->CreateBullets(mGraphicsRootSignature, GetModel("tank_bullet"));
-	//tankPlayer->CreateBoundingMeshes(mGraphicsRootSignature);
-
-	//tankPlayer->SetSpawn(Vec3(413, 0.0f, 441));
-	//tankPlayer->SetHP(300.0f);
-	//tankPlayer->SetDamage(5.0f);
-	//tankPlayer->SetFireDelay(0.25f);
-	//tankPlayer->SetMovingSpeed(25.0f);
-	//tankPlayer->SetRotationSpeed(60.0f);
-
-	//mPlayers.emplace_back(tankPlayer);
-
 
 	mPlayer = mPlayers.front();
 }
@@ -352,7 +304,7 @@ void Scene::BuildGrid()
 	constexpr float maxHeight = 300.0f;	// for 3D grid
 
 	// recalculate scene grid size
-	int adjusted = RoundToNearestMultiple(mMapBorder.Extents.x, mGridLength);
+	int adjusted = Math::RoundToNearestMultiple(mMapBorder.Extents.x, mGridLength);
 	mMapBorder.Extents = Vec3(adjusted, mMapBorder.Extents.y, adjusted);
 
 	// set grid start pos
@@ -394,14 +346,6 @@ void Scene::BuildGridObjects()
 	}
 }
 
-
-void Scene::BuildCamera()
-{
-	mMainCamera = std::make_shared<MainCamera>();
-	mMainCamera->CreateShaderVariables();
-}
-
-
 void Scene::LoadModels()
 {
 	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
@@ -432,7 +376,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 		mExplosiveObjects.emplace_back(object);
 		object->SetFlyable(true);
 
-		auto& script = object->AddComponent<Script_ExplosiveObject>();
+		const auto& script = object->AddComponent<Script_ExplosiveObject>();
 		script->SetFX([&](const Vec3& pos) { CreateSmallExpFX(pos); });
 		return;
 	}
@@ -444,7 +388,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 	{
 		mExplosiveObjects.emplace_back(object);
 
-		auto& script = object->AddComponent<Script_ExplosiveObject>();
+		const auto& script = object->AddComponent<Script_ExplosiveObject>();
 		script->SetFX([&](const Vec3& pos) { CreateBigExpFX(pos); });
 		return;
 	}
@@ -489,7 +433,7 @@ void Scene::LoadGameObjects(FILE* file)
 	UINT nReads = 0;
 
 	int objectCount;
-	::ReadUnityBinaryString(file, token); // "<GameObjects>:"
+	IO::ReadUnityBinaryString(file, token); // "<GameObjects>:"
 	nReads = (UINT)::fread(&objectCount, sizeof(int), 1, file);
 
 	mStatiObjects.reserve(objectCount);
@@ -505,27 +449,27 @@ void Scene::LoadGameObjects(FILE* file)
 		sptr<GameObject> object{};
 
 		if (sameObjectCount <= 0) {
-			::ReadUnityBinaryString(file, token); //"<Tag>:"
-			::ReadUnityBinaryString(file, token);
+			IO::ReadUnityBinaryString(file, token); //"<Tag>:"
+			IO::ReadUnityBinaryString(file, token);
 			tag = GetTagByName(token);
 
 			int layerNum{};
-			::ReadUnityBinaryString(file, token); //"<Layer>:"
+			IO::ReadUnityBinaryString(file, token); //"<Layer>:"
 			::fread(&layerNum, sizeof(int), 1, file);
 			layer = GetLayerByNum(layerNum);
 
-			::ReadUnityBinaryString(file, token); //"<FileName>:"		// If an error occurs here, it may be a lighting problem.
-			 
-			std::string meshName{}; 
-			::ReadUnityBinaryString(file, meshName);
+			IO::ReadUnityBinaryString(file, token); //"<FileName>:"		// If an error occurs here, it may be a lighting problem.
+
+			std::string meshName{};
+			IO::ReadUnityBinaryString(file, meshName);
 
 			model = FileMgr::LoadGeometryFromFile("Models/Meshes/" + meshName + ".bin");
 			mModels.insert(std::make_pair(meshName, model));
-			 
-			::ReadUnityBinaryString(file, token); //"<Transforms>:"
+
+			IO::ReadUnityBinaryString(file, token); //"<Transforms>:"
 			::fread(&sameObjectCount, sizeof(int), 1, file);
 
-			::ReadUnityBinaryString(file, token); //"<IsInstancing>:"
+			IO::ReadUnityBinaryString(file, token); //"<IsInstancing>:"
 			::fread(&isInstancing, sizeof(bool), 1, file);
 				
 			if (isInstancing) {
@@ -588,7 +532,7 @@ void Scene::LoadTextures()
 {
 	std::vector<std::string> textureNames;
 	
-	::LoadTextureNames(textureNames, "Models/Textures");
+	FileMgr::GetTextureNames(textureNames, "Models/Textures");
 
 	MATERIALLOADINFO info{}; 
 	info.mAlbedo = Vec4(0.1f, .1f, .1f, 1.0f);
@@ -626,7 +570,7 @@ void Scene::BuildObjects()
 	LoadTextures();
 
 	// load canvas (UI)
-	Canvas::Inst()->Create();
+	canvas->Init();
 
 	// load models
 	LoadSceneObjectsFromFile("Models/Scene.bin");
@@ -642,14 +586,13 @@ void Scene::BuildObjects()
 
 #ifdef DRAW_SCENE_GRID_3D
 	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
+	mGridMesh->CreateCubeMesh((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
 #else
-	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, (float)mGridLength, true);
+	mGridMesh = std::make_shared<ModelObjectMesh>();
+	mGridMesh->CreatePlaneMesh((float)mGridLength, (float)mGridLength, true);
 #endif
 
 	MeshRenderer::BuildMeshes();
-
-	// camera
-	BuildCamera();
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
@@ -705,7 +648,7 @@ void Scene::OnPrepareRender()
 	// Game Info
 	static float timeElapsed{};
 	timeElapsed += DeltaTime();
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameInfo, timeElapsed, 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameInfo, timeElapsed, 0);
 }
 
 
@@ -805,7 +748,7 @@ void UpdateGridShaderVariables(const Grid& grid)
 	XMMatrix::SetPosition(transform, Vec3(box.Center.x, 30.0f, box.Center.z));
 #endif
 
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(transform), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(transform), 0);
 }
 
 void Scene::RenderGridBounds()
@@ -833,7 +776,6 @@ static D3D12_PRIMITIVE_TOPOLOGY terrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOG
 static D3D12_PRIMITIVE_TOPOLOGY boundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 void Scene::Render()
 {
-	sptr<Camera> camera = mMainCamera->GetCamera();
 	std::set<GameObject*> renderObjects{};
 	std::set<GameObject*> transparentObjects{};
 	std::set<GameObject*> billboardObjects{};
@@ -860,6 +802,11 @@ void Scene::Render()
 
 	RenderBillboards(billboardObjects);
 
+	// terrain
+	cmdList->IASetPrimitiveTopology(terrainPrimitiveTopology);
+	RenderTerrain();
+	cmdList->IASetPrimitiveTopology(objectPrimitiveTopology);
+
 	// transparent
 	mTransparentShader->Render();
 	for (auto& object : transparentObjects) {
@@ -869,15 +816,6 @@ void Scene::Render()
 		mWaterShader->Render();
 		mWater->Render();
 	}
-	
-	// canvas
-	Canvas::Inst()->Render();
-
-	// terrain
-	cmdList->IASetPrimitiveTopology(terrainPrimitiveTopology);
-	RenderTerrain();
-
-	cmdList->IASetPrimitiveTopology(objectPrimitiveTopology);
 
 	// skybox
 	mSkyBox->Render();
@@ -891,7 +829,8 @@ void Scene::Render()
 		RenderGridBounds();
 	}
 
-	
+	// canvas
+	canvas->Render();
 }
 
 bool IsBehind(const Vec3& point, const Vec4& plane)
@@ -913,9 +852,10 @@ void Scene::UpdateObjects()
 	ProcessObjects([this](sptr<GameObject> object) {
 		UpdateObject(object.get());
 		});
+}
 
-	mTerrain->Update();
-
+void Scene::UpdateShaders()
+{
 	if (mSmallExpFXShader) {
 		mSmallExpFXShader->Update();
 	}
@@ -923,7 +863,10 @@ void Scene::UpdateObjects()
 	if (mBigExpFXShader) {
 		mBigExpFXShader->Update();
 	}
+}
 
+void Scene::UpdateSprites()
+{
 	for (auto it = mSpriteEffectObjects.begin(); it != mSpriteEffectObjects.end(); ) {
 		auto& object = *it;
 		if (object->GetComponent<Script_Sprite>()->IsEnd()) {
@@ -934,22 +877,11 @@ void Scene::UpdateObjects()
 			++it;
 		}
 	}
-
-	Canvas::Inst()->Update();
 }
-
 
 void Scene::UpdateCamera()
 {
-	mMainCamera->Update();
-}
-
-
-void Scene::AnimateObjects()
-{
-	/*ProcessObjects([](sptr<GameObject> object) {
-		object->Animate();
-		});*/
+	mainCameraObject->Update();
 }
 
 
@@ -999,12 +931,13 @@ void Scene::UpdateObject(GameObject* object)
 
 void Scene::Start()
 {
+	mainCameraObject->Start();
+
 	ProcessObjects([](sptr<GameObject> object) {
 		object->Start();
 		});
-
 	mTerrain->Start();
-	mMainCamera->Start();
+
 	if (mSmallExpFXShader) {
 		mSmallExpFXShader->Start();
 	}
@@ -1012,19 +945,24 @@ void Scene::Start()
 	if (mBigExpFXShader) {
 		mBigExpFXShader->Start();
 	}
-	BuildGridObjects();
 
+	BuildGridObjects();
 }
 void Scene::Update()
 {
 	CheckCollisions();
 
 	UpdateObjects();
-
-	AnimateObjects();
+	UpdateShaders();
+	UpdateSprites();
 	UpdateLights();
-
 	UpdateCamera();
+	canvas->Update();
+}
+
+void Scene::Animate()
+{
+
 }
 
 
@@ -1039,7 +977,7 @@ void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 	sptr<GameObject> effect = std::make_shared<GameObject>();
 	effect->SetModel(GetModel("sprite_explosion"));
 	effect->RemoveComponent<ObjectCollider>();
-	auto& script = effect->AddComponent<Script_Sprite>();
+	const auto& script = effect->AddComponent<Script_Sprite>();
 
 	script->SetSpeed(speed);
 	script->SetScale(scale);
@@ -1076,8 +1014,8 @@ int Scene::GetGridIndexFromPos(Vec3 pos)
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
 
-	int gridX = static_cast<int>(pos.x / mGridLength);
-	int gridZ = static_cast<int>(pos.z / mGridLength);
+	const int gridX = static_cast<int>(pos.x / mGridLength);
+	const int gridZ = static_cast<int>(pos.z / mGridLength);
 
 	return gridZ * mGridCols + gridX;
 }
@@ -1114,19 +1052,19 @@ void Scene::DeleteExplodedObjects()
 }
 
 
-void Scene::ProcessInput(HWND hWnd, POINT oldCursorPos)
+void Scene::ProcessInput(HWND hWnd, Vec2 oldCursorPos)
 {
 
 }
 
 
-bool Scene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool Scene::ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	return(false);
+	return false;
 }
 
 
-bool Scene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool Scene::ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
@@ -1134,6 +1072,16 @@ bool Scene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPara
 	{
 		switch (wParam)
 		{
+		case VK_HOME:
+			timer->Stop();
+			break;
+		case VK_END:
+			timer->Start();
+			break;
+		case '0':
+			scene->BlowAllExplosiveObjects();
+			break;
+
 		case VK_OEM_6:
 			ChangeToNextPlayer();
 			break;
@@ -1141,18 +1089,8 @@ bool Scene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPara
 			ChangeToPrevPlayer();
 			break;
 
-		case VK_F1:
-			break;
-		case VK_F2:
-			break;
 		case VK_F5:
 			ToggleDrawBoundings();
-			break;
-		case VK_F6:
-			mLight->SetGlobalLight(GlobalLight::Sunlight);
-			break;
-		case VK_F7:
-			mLight->SetGlobalLight(GlobalLight::MoonLight);
 			break;
 		default:
 			break;
@@ -1237,7 +1175,7 @@ void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 		return;
 	}
 
-	int gridIndex = GetGridIndexFromPos(object->GetPosition());
+	const int gridIndex = GetGridIndexFromPos(object->GetPosition());
 
 	if (IsGridOutOfRange(gridIndex)) {
 		RemoveObjectFromGrid(object);

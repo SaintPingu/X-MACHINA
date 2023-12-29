@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "FileMgr.h"
 
 SINGLETON_PATTERN_DEFINITION(Canvas)
 
@@ -15,7 +16,13 @@ sptr<Texture> Font::fontTexture;
 
 void UI::CreateUIMesh()
 {
-	mesh = std::make_shared<ModelObjectMesh>(1, 1, false);
+	mesh = std::make_shared<ModelObjectMesh>();
+	mesh->CreatePlaneMesh(1, 1, false);
+}
+
+void UI::DeleteUIMesh()
+{
+	mesh = nullptr;
 }
 
 void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
@@ -36,9 +43,9 @@ void UI::Update()
 
 void UI::UpdateShaderVariable() const
 {
-	XMMATRIX scaling = XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), XMLoadFloat4x4(&GetWorldTransform()));
+	XMMATRIX scaling = XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform()));
 
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
 }
 
 void UI::Render()
@@ -53,7 +60,12 @@ void UI::Render()
 
 void Font::SetFontTexture()
 {
-	Font::fontTexture = Canvas::Inst()->GetTexture("Alphabet");
+	Font::fontTexture = canvas->GetTexture("Alphabet");
+}
+
+void Font::UnSetFontTexture()
+{
+	fontTexture = nullptr;
 }
 
 void Font::Create(const Vec3& pos, float width, float height)
@@ -82,7 +94,7 @@ void Font::UpdateShaderVariableSprite(char ch) const
 	spriteMtx._31 = col / cols;
 	spriteMtx._32 = row / rows;
 
-	crntScene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(spriteMtx), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(spriteMtx), 0);
 }
 
 void Font::Render()
@@ -125,7 +137,7 @@ void Font::Render()
 void Canvas::LoadTextures()
 {
 	std::vector<std::string> textureNames{};
-	::LoadTextureNames(textureNames, "Models/UI");
+	FileMgr::GetTextureNames(textureNames, "Models/UI");
 
 	for (auto& textureName : textureNames) {
 		// load texture
@@ -137,7 +149,7 @@ void Canvas::LoadTextures()
 }
 
 
-void Canvas::Create()
+void Canvas::Init()
 {
 	mShader = std::make_shared<CanvasShader>();
 	mShader->CreateShader();
@@ -149,10 +161,11 @@ void Canvas::Create()
 	BuildUIs();
 }
 
-void Canvas::OnDestroy()
+void Canvas::Release()
 {
 	UI::DeleteUIMesh();
 	Font::UnSetFontTexture();
+
 	Destroy();
 }
 

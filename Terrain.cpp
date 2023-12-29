@@ -67,17 +67,17 @@ HeightMapTerrain::HeightMapTerrain(LPCTSTR fileName, int width, int length, int 
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
-	mTextureLayer[0] = crntScene->GetTexture("Detail_Texture_7");
-	mTextureLayer[1] = crntScene->GetTexture("Detail_Texture_6");
-	mTextureLayer[2] = crntScene->GetTexture("Stone"); 
-	mTextureLayer[3] = crntScene->GetTexture("GrassUV01");
-	mSplatMap = crntScene->GetTexture("Terrain_splatmap");
+	mTextureLayer[0] = scene->GetTexture("Detail_Texture_7");
+	mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
+	mTextureLayer[2] = scene->GetTexture("Stone"); 
+	mTextureLayer[3] = scene->GetTexture("GrassUV01");
+	mSplatMap = scene->GetTexture("Terrain_splatmap");
 
-	mTextureLayer[0]->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::TerrainLayer0));
-	mTextureLayer[1]->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::TerrainLayer1));
-	mTextureLayer[2]->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::TerrainLayer2));
-	mTextureLayer[3]->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::TerrainLayer3));
-	mSplatMap->SetRootParamIndex(crntScene->GetRootParamIndex(RootParam::SplatMap));
+	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
+	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
+	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
+	mTextureLayer[3]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer3));
+	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
 
 	mShader = std::make_shared<TerrainShader>();
 	mShader->CreateShader();
@@ -350,10 +350,10 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 		}
 	}
 
-	::CreateVertexBufferResource<Vec3>(positions, mVertexUploadBuffer, mVertexBuffer);
-	::CreateVertexBufferResource<Vec3>(normals, mNormalUploadBuffer, mNormalBuffer);
-	::CreateVertexBufferResource<Vec2>(uvs0, mUV0UploadBuffer, mUV0Buffer);
-	::CreateVertexBufferResource<Vec2>(uvs1, mUV1UploadBuffer, mUV1Buffer);
+	D3DUtil::CreateVertexBufferResource<Vec3>(positions, mVertexUploadBuffer, mVertexBuffer);
+	D3DUtil::CreateVertexBufferResource<Vec3>(normals, mNormalUploadBuffer, mNormalBuffer);
+	D3DUtil::CreateVertexBufferResource<Vec2>(uvs0, mUV0UploadBuffer, mUV0Buffer);
+	D3DUtil::CreateVertexBufferResource<Vec2>(uvs1, mUV1UploadBuffer, mUV1Buffer);
 
 	CreateVertexBufferViews();
 
@@ -377,8 +377,8 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 		}
 	}
 
-	::CreateIndexBufferResource(indices, mIndexUploadBuffer, mIndexBuffer);
-	::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
+	D3DUtil::CreateIndexBufferResource(indices, mIndexUploadBuffer, mIndexBuffer);
+	D3DUtil::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
 }
 HeightMapGridMesh::~HeightMapGridMesh()
 {

@@ -3,15 +3,16 @@
 
 #define ASPECT_RATIO				(float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
 
-
+//-----------------------------[Class Declaration]-----------------------------//
 class GameObject;
+//-----------------------------------------------------------------------------//
 
 
 struct VS_CB_CAMERA_INFO
 {
-	Vec4x4 mView{};
-	Vec4x4 mProjection{};
-	Vec3 mPosition{};
+	Vec4x4 mView{};			// View 행렬
+	Vec4x4 mProjection{};	// Projection 행렬
+	Vec3 mPosition{};		// 카메라 위치
 };
 
 
@@ -29,20 +30,14 @@ class Camera : public Component {
 	COMPONENT(Component, Camera)
 
 private:
-	Transform* mLocalTransform{};
-
-protected:
-	ComPtr<ID3D12Resource> mCbCamera{};
-
-	VS_CB_CAMERA_INFO* mCbMappedCamera{};
-protected:
-	DWORD mCamMode{};
-
-	Vec3 mLookAtWorld{};
-	Vec3 mOffset{};
-
 	Vec4x4 mViewTransform = Matrix4x4::Identity();
 	Vec4x4 mProjectionTransform = Matrix4x4::Identity();
+
+	// Camera Constant Buffer
+	ComPtr<ID3D12Resource> mCBCamera{};
+	VS_CB_CAMERA_INFO* mCBMap_Camera{};
+
+	Vec3 mOffset{};
 
 	BoundingFrustum mFrustumView{};
 	BoundingFrustum mFrustumWorld{};
@@ -57,39 +52,17 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Getter ] /////
 
-	DWORD GetMode() { return(mCamMode); }
-
-	Vec3& GetLookAtPosition() { return(mLookAtWorld); }
-	Vec3 GetLook() const { return mLocalTransform->GetLook(); }
-
-	/*float& GetPitch() { return(mPitch); }
-	float& GetRoll() { return(mRoll); }
-	float& GetYaw() { return(mYaw); }*/
-
-	Vec3& GetOffset() { return(mOffset); }
-	Vec3 GetPosition();
-
-	Vec4x4 GetViewMatrix() { return(mViewTransform); }
-	Vec4x4 GetProjectionMatrix() { return(mProjectionTransform); }
-
-	D3D12_VIEWPORT GetViewport() { return(mViewport); }
-	D3D12_RECT GetScissorRect() { return(mScissorRect); }
+	Vec3 GetOffset() { return mOffset; }
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Setter ] /////
-
-	void SetMode(DWORD nMode) { mCamMode = nMode; }
-
-	void SetLookAtPosition(Vec3 lookAtWorld) { mLookAtWorld = lookAtWorld; }
-
 	void SetOffset(Vec3 xmf3Offset) { mOffset = xmf3Offset; }
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Others ] /////
 
-	/* Component */
 	virtual void Start() override;
-	virtual void Update() override;
+	virtual void Release() override;
 
 	/* Shader Variables */
 	virtual void CreateShaderVariables();
@@ -116,7 +89,6 @@ public:
 	bool IsInFrustum(const BoundingOrientedBox& boundingBox);
 	bool IsInFrustum(const BoundingSphere& boundingSphere);
 	bool IsInFrustum(rsptr<const GameObject> object);
-	
 };
 
 
@@ -151,18 +123,8 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Others ] /////
 
-	/* Object */
-	virtual void Start() override;
-	virtual void Update() override { Object::Update(); }
-
-	/* Shader Variables */
-	virtual void CreateShaderVariables();
-	virtual void ReleaseShaderVariables();
-	virtual void UpdateShaderVariables();
-
 	/* Transform */
 	void Rotate(float pitch = 0.0f, float yaw = 0.0f, float roll = 0.0f);
-	void MoveLocal(const Vec3& xmf3Shift);
 
 	/* Camera */
 	virtual void LookAt(const Vec3& lookAt, const Vec3& up);
@@ -173,7 +135,9 @@ public:
 
 
 
-class MainCamera : public CameraObject {
+class MainCameraObject : public CameraObject {
+	SINGLETON_PATTERN(MainCameraObject)
+
 private:
 	GameObject* mPlayer{};
 
@@ -181,8 +145,8 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Constructor ] /////
 
-	MainCamera() = default;
-	virtual ~MainCamera() = default;
+	MainCameraObject() = default;
+	virtual ~MainCameraObject() = default;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Getter ] /////
@@ -202,9 +166,11 @@ public:
 
 	/* Object */
 	virtual void Start() override;
-	virtual void Update() override;
 
 	/* Camera */
 	virtual void LookAt(const Vec3& lookAt);
 	virtual void LookPlayer();
 };
+
+#define mainCameraObject MainCameraObject::Inst()
+#define mainCamera mainCameraObject->GetCamera()

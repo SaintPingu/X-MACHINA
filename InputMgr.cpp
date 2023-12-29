@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "InputMgr.h"
-#include "GameFramework.h"
+#include "DXGIMgr.h"
+#include "Timer.h"
+#include "Scene.h"
 
 SINGLETON_PATTERN_DEFINITION(InputMgr)
 
@@ -82,7 +84,7 @@ void InputMgr::Update()
 
 		POINT ptMouse{};
 		GetCursorPos(&ptMouse);
-		ScreenToClient(framework->GetHwnd(), &ptMouse);
+		ScreenToClient(dxgi->GetHwnd(), &ptMouse);
 
 		mMousePrevPos = mMousePos;
 		mMousePos = XMFLOAT2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
@@ -110,4 +112,82 @@ void InputMgr::Update()
 			}
 		}
 	}
+}
+
+
+void InputMgr::ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	scene->ProcessInput(hWnd, mMousePrevPos);
+}
+
+void InputMgr::ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case VK_ESCAPE:
+		{
+			dxgi->Terminate();
+			::PostQuitMessage(0);
+		}
+		break;
+		case VK_RETURN:
+			break;
+		case VK_F3:
+			break;
+		case VK_F9:
+			dxgi->ToggleFullScreen();
+			break;
+		case 'S':
+		case 'T':
+		{
+			dxgi->SetDrawOption((int)wParam);
+			break;
+		}
+		default:
+			break;
+		}
+		break;
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_HOME:
+			timer->Stop();
+			break;
+		case VK_END:
+			timer->Start();
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	scene->ProcessKeyboardMsg(hWnd, nMessageID, wParam, lParam);
+}
+
+LRESULT CALLBACK InputMgr::ProcessWndMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MOUSEMOVE:
+		ProcessMsg(hWnd, nMessageID, wParam, lParam);
+		break;
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		ProcessKeyboardMsg(hWnd, nMessageID, wParam, lParam);
+		break;
+
+	default:
+		break;
+	}
+	return 0;
 }

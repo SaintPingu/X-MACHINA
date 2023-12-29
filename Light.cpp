@@ -58,25 +58,11 @@ void Light::SetSunlight()
 }
 
 
-void Light::SetMoonLight()
-{
-	LIGHT& light = mLights->mLights[0];
-	light.mType = static_cast<int>(LightType::Directional);
-	light.mAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	light.mDiffuse = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	light.mSpecular = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-	light.mDirection = XMFLOAT3(0.6f, -0.6f, -0.3f);
-}
-
-
 void Light::SetGlobalLight(GlobalLight globalLight)
 {
 	switch (globalLight) {
 	case GlobalLight::Sunlight:
 		SetSunlight();
-		break;
-	case GlobalLight::MoonLight:
-		SetMoonLight();
 		break;
 	default:
 		assert(0);
@@ -93,7 +79,7 @@ void Light::SetGlobalLight(GlobalLight globalLight)
 void Light::CreateShaderVariables()
 {
 	UINT cubeLightBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ÀÇ ¹è¼ö
-	::CreateBufferResource(nullptr, cubeLightBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCBLights);
+	D3DUtil::CreateBufferResource(nullptr, cubeLightBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCBLights);
 	mCBLights->Map(0, nullptr, (void**)&mCBMappedLights);
 }
 
@@ -103,7 +89,7 @@ void Light::UpdateShaderVariables()
 	::memcpy(mCBMappedLights, mLights.get(), sizeof(LIGHTS));
 
 	D3D12_GPU_VIRTUAL_ADDRESS cbLightsGpuVirtualAddress = mCBLights->GetGPUVirtualAddress();
-	cmdList->SetGraphicsRootConstantBufferView(crntScene->GetRootParamIndex(RootParam::Light), cbLightsGpuVirtualAddress);
+	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Light), cbLightsGpuVirtualAddress);
 }
 
 
@@ -135,7 +121,7 @@ void Light::LoadLightObjects(FILE* file)
 	UINT nReads = 0;
 
 	int lightCount;
-	::ReadUnityBinaryString(file, token); // "<Lights>:"
+	IO::ReadUnityBinaryString(file, token); // "<Lights>:"
 	nReads = (UINT)::fread(&lightCount, sizeof(int), 1, file);
 
 	++lightCount;
@@ -148,17 +134,17 @@ void Light::LoadLightObjects(FILE* file)
 		light->mIsEnable = true;
 
 		if (sameLightCount <= 0) {
-			::ReadUnityBinaryString(file, token); //"<FileName>:"
+			IO::ReadUnityBinaryString(file, token); //"<FileName>:"
 
 			std::string fileName{};
-			::ReadUnityBinaryString(file, fileName);
+			IO::ReadUnityBinaryString(file, fileName);
 
 			FileMgr::LoadLightFromFile("Models/Lights/" + fileName + ".bin", &light);
 			InsertLight(fileName, light);
 
 			modelLight = light;
 
-			::ReadUnityBinaryString(file, token); //"<Transforms>:"
+			IO::ReadUnityBinaryString(file, token); //"<Transforms>:"
 			::fread(&sameLightCount, sizeof(int), 1, file);
 		}
 

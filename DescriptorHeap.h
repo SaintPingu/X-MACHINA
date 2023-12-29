@@ -24,13 +24,13 @@ public:
 	DESCRIPTOR_HANDLE mCbvHandle{};
 	DESCRIPTOR_HANDLE mSrvHandle{};
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() { return(mHeap->GetCPUDescriptorHandleForHeapStart()); }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() { return(mHeap->GetGPUDescriptorHandleForHeapStart()); }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() { return mHeap->GetCPUDescriptorHandleForHeapStart(); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() { return mHeap->GetGPUDescriptorHandleForHeapStart(); }
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvStartHandle() { return(mCbvHandle.cpuStart); }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvStartHandle() { return(mCbvHandle.gpuStart); }
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvStartHandle() { return(mSrvHandle.cpuStart); }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvStartHandle() { return(mSrvHandle.gpuStart); }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvStartHandle() { return mCbvHandle.cpuStart; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvStartHandle() { return mCbvHandle.gpuStart; }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvStartHandle() { return mSrvHandle.cpuStart; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvStartHandle() { return mSrvHandle.gpuStart; }
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvLastHandle();
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvLastHandle();

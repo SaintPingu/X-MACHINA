@@ -9,7 +9,7 @@
 
 #include "Script_MainCamera.h"
 
-
+SINGLETON_PATTERN_DEFINITION(MainCameraObject)
 
 
 
@@ -20,56 +20,62 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//===== (Camera) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Constructor ] /////
 
 
-//===== (Camera) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Getter ] /////
 
-Vec3 Camera::GetPosition()
-{
-	return mLocalTransform->GetPosition();
-}
 
-//===== (Camera) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Setter ] /////
 
 
-//===== (Camera) =====//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Others ] /////
+
+void Camera::Start()
+{
+	CreateShaderVariables();
+}
+
+void Camera::Release()
+{
+	ReleaseShaderVariables();
+}
 
 //////////////////* Shader Variables *//////////////////
 void Camera::CreateShaderVariables()
 {
-	UINT cbBytes = ((sizeof(*mCbMappedCamera) + 255) & ~255);
-	::CreateBufferResource(nullptr, cbBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCbCamera);
-	mCbCamera->Map(0, nullptr, (void**)&mCbMappedCamera);
+	UINT cbByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_Camera));
+	D3DUtil::CreateBufferResource(nullptr, cbByteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCBCamera);
+	mCBCamera->Map(0, nullptr, (void**)&mCBMap_Camera);
 }
 
 
 void Camera::UpdateShaderVariables()
 {
-	::memcpy(&mCbMappedCamera->mView, &Matrix4x4::Transpose(mViewTransform), sizeof(Vec4x4));
+	Vec4x4 viewMtx = Matrix4x4::Transpose(mViewTransform);
+	Vec4x4 projMtx = Matrix4x4::Transpose(mProjectionTransform);
 
-	::memcpy(&mCbMappedCamera->mProjection, &Matrix4x4::Transpose(mProjectionTransform), sizeof(Vec4x4));
+	::memcpy(&mCBMap_Camera->mView, &viewMtx, sizeof(Vec4x4));
 
-	Vec3 pos = mLocalTransform->GetPosition();
-	::memcpy(&mCbMappedCamera->mPosition, &pos, sizeof(Vec3));
+	::memcpy(&mCBMap_Camera->mProjection, &projMtx, sizeof(Vec4x4));
 
-	D3D12_GPU_VIRTUAL_ADDRESS gpuVirtualAddress = mCbCamera->GetGPUVirtualAddress();
-	cmdList->SetGraphicsRootConstantBufferView(crntScene->GetRootParamIndex(RootParam::Camera), gpuVirtualAddress);
+	Vec3 pos = mObject->GetPosition();
+	::memcpy(&mCBMap_Camera->mPosition, &pos, sizeof(Vec3));
+
+	D3D12_GPU_VIRTUAL_ADDRESS gpuVirtualAddress = mCBCamera->GetGPUVirtualAddress();
+	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Camera), gpuVirtualAddress);
 }
 
 
 void Camera::ReleaseShaderVariables()
 {
-	if (mCbCamera) {
-		mCbCamera->Unmap(0, nullptr);
+	if (mCBCamera) {
+		mCBCamera->Unmap(0, nullptr);
+		mCBCamera = nullptr;
 	}
 }
 
@@ -78,16 +84,16 @@ void Camera::ReleaseShaderVariables()
 //////////////////* View Matrix *//////////////////a
 void Camera::GenerateViewMatrix()
 {
-	mViewTransform = Matrix4x4::LookAtLH(mLocalTransform->GetPosition(), mLookAtWorld, mLocalTransform->GetUp());
+	mViewTransform = Matrix4x4::LookAtLH(mObject->GetPosition(), mObject->GetLook(), mObject->GetUp());
 }
 
 
 void Camera::RegenerateViewMatrix()
 {
-	Vec3 pos = mLocalTransform->GetPosition();
-	Vec3 right = mLocalTransform->GetRight();
-	Vec3 up = mLocalTransform->GetUp();
-	Vec3 look = mLocalTransform->GetLook();
+	Vec3 pos = mObject->GetPosition();
+	Vec3 right = mObject->GetRight();
+	Vec3 up = mObject->GetUp();
+	Vec3 look = mObject->GetLook();
 
 	mViewTransform._11 = right.x; mViewTransform._12 = up.x; mViewTransform._13 = look.x;
 	mViewTransform._21 = right.y; mViewTransform._22 = up.y; mViewTransform._23 = look.y;
@@ -144,11 +150,11 @@ void Camera::SetViewportsAndScissorRects()
 
 void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 {
-	Vec4x4 mtxLookAt = Matrix4x4::LookAtLH(mLocalTransform->GetPosition(), lookAt, upVector);
+	Vec4x4 mtxLookAt = Matrix4x4::LookAtLH(mObject->GetPosition(), lookAt, upVector);
 	Vec3 right = Vec3(mtxLookAt._11, mtxLookAt._21, mtxLookAt._31);
 	Vec3 up = Vec3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);
 	Vec3 look = Vec3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
-	mLocalTransform->SetAxis(look, up, right);
+	mObject->SetAxis(look, up, right);
 }
 
 
@@ -156,7 +162,7 @@ void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 //////////////////* Frustum *//////////////////
 void Camera::CalculateFrustumPlanes()
 {
-	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, XMLoadFloat4x4(&mViewTransform)));
+	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));
 }
 
 
@@ -186,17 +192,6 @@ bool Camera::IsInFrustum(rsptr<const GameObject> object)
 
 
 ///////////////////////////* Others *///////////////////////////
-void Camera::Start()
-{
-	mLocalTransform = mObject;
-}
-
-
-void Camera::Update()
-{
-}
-
-
 
 
 
@@ -204,25 +199,6 @@ CameraObject::CameraObject() : Object()
 {
 	mCamera = AddComponent<Camera>();
 }
-
-
-void CameraObject::CreateShaderVariables()
-{
-	mCamera->CreateShaderVariables();
-}
-
-
-void CameraObject::ReleaseShaderVariables()
-{
-	mCamera->ReleaseShaderVariables();
-}
-
-
-void CameraObject::UpdateShaderVariables()
-{
-	mCamera->UpdateShaderVariables();
-}
-
 
 
 
@@ -233,57 +209,40 @@ void CameraObject::Rotate(float pitch, float yaw, float roll)
 }
 
 
-void CameraObject::MoveLocal(const Vec3& xmf3Shift)
-{
-	Transform::Translate(xmf3Shift);
-}
-
-
 void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 {
 	mCamera->LookAt(lookAt, up);
 }
 
 
-void CameraObject::Start()
-{
-	Object::Start();
-}
 
 
 
 
 
 
-
-
-Vec3 MainCamera::GetPlayerPos() const
+Vec3 MainCameraObject::GetPlayerPos() const
 {
 	return mPlayer->GetPosition();
 }
 
 
-void MainCamera::Start()
+void MainCameraObject::Start()
 {
-	SetPlayer(crntScene->GetPlayer());
+	SetPlayer(scene->GetPlayer());
 	SetPosition(0, 0, -1);	// must be non-zero
 	AddComponent<Script_MainCamera>();
+
 	CameraObject::Start();
 }
 
-
-void MainCamera::Update()
-{
-	CameraObject::Update();
-}
-
-void MainCamera::LookAt(const Vec3& lookAt)
+void MainCameraObject::LookAt(const Vec3& lookAt)
 {
 	CameraObject::LookAt(lookAt, mPlayer->GetUp());
 }
 
 
-void MainCamera::LookPlayer()
+void MainCameraObject::LookPlayer()
 {
 	if (mPlayer) {
 		LookAt(mPlayer->GetPosition());

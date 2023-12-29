@@ -28,32 +28,27 @@ static DWORD environmentObjects{
 
 ObjectTag GetTagByName(const std::string& name)
 {
-	if (name == "Building") {
+	switch (Hash(name)) {
+	case Hash("Building"):
 		return ObjectTag::Building;
-	}
-	else if (name == "Explosive_small" || name == "Explosive_static") {
+	case Hash("Explosive_small"):
+	case Hash("Explosive_static"):
 		return ObjectTag::ExplosiveSmall;
-	}
-	else if (name == "Explosive_big") {
+	case Hash("Explosive_big"):
 		return ObjectTag::ExplosiveBig;
-	}
-	else if (name == "Tank") {
+	case Hash("Tank"):
 		return ObjectTag::Tank;
-	}
-	else if (name == "Helicopter") {
+	case Hash("Helicopter"):
 		return ObjectTag::Helicopter;
-	}
-	else if (name == "Background") {
+	case Hash("Background"):
 		return ObjectTag::Background;
-	}
-	else if (name == "Billboard") {
+	case Hash("Billboard"):
 		return ObjectTag::Billboard;
-	}
-	else if (name == "Sprite") {
+	case Hash("Sprite"):
 		return ObjectTag::Sprite;
-	}
-	else if (name != "Untagged") {
+	default:
 		//assert(0);
+		break;
 	}
 
 	return ObjectTag::Unspecified;
@@ -100,12 +95,14 @@ ObjectType GetObjectType(ObjectTag tag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// [ Component ] /////
-template<class T>
-void CopyComponent(rsptr<Component> src, sptr<Component>& dst)
-{
-	sptr<T>& my = static_pointer_cast<T>(dst);
-	rsptr<T> other = static_pointer_cast<T>(src);
-	*my = *other;
+namespace {
+	template<class T>
+	void CopyComponent(rsptr<Component> src, sptr<Component>& dst)
+	{
+		rsptr<T> my = static_pointer_cast<T>(dst);
+		rsptr<T> other = static_pointer_cast<T>(src);
+		*my = *other;
+	}
 }
 
 sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
@@ -179,6 +176,13 @@ void Object::UpdateComponents()
 		});
 }
 
+void Object::ReleaseComponents()
+{
+	ProcessComponents([](sptr<Component> component) {
+		component->Release();
+		});
+}
+
 void Object::SetTag(ObjectTag tag)
 {
 	mTag = tag;
@@ -196,6 +200,11 @@ void Object::Update()
 	mCollisionObjects.clear();
 	Transform::Update();
 	UpdateComponents();
+}
+
+void Object::Release()
+{
+	ReleaseComponents();
 }
 
 void Object::OnCollisionStay(Object& other)

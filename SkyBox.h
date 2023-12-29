@@ -1,10 +1,12 @@
 #pragma once
 #include "Transform.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class Texture;
 class Camera;
 class SkyBoxShader;
 class SkyBoxMesh;
+//-----------------------------------------------------------------------------//
 
 class SkyBox : public Transform {
 private:

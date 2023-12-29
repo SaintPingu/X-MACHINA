@@ -53,14 +53,7 @@ void Rigidbody::Update()
 
 void Rigidbody::OnCollisionStay(Object& other)
 {
-	//switch (other.GetTag())
-	//{
-	//case ObjectTag::Building:
-	//	mObject->ReturnTransform();
-	//	break;
-	//default:
-	//	break;
-	//}
+
 }
 
 

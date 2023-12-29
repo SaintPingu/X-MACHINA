@@ -17,11 +17,14 @@ private:																\
 public:																	\
     static const int mID = static_cast<int>(ComponentID::className);	\
     className(Object* object) : parent(object) { }						\
+    virtual ~className() = default; 									\
 	virtual int GetID() const override { return mID; }					\
 
 
-// Class Declarations
+//-----------------------------[Class Declaration]-----------------------------//
 class Object;
+//-----------------------------------------------------------------------------//
+
 
 // Enum Classes
 enum class ComponentID {
@@ -44,7 +47,6 @@ enum class ComponentID {
 	Script_Sprite,
 	_count
 };
-// constexpr size_t NUM_COMPONENT = static_cast<size_t>(ComponentID::_count);
 
 enum class ObjectTag : DWORD {
 	Unspecified		= 0x000,
@@ -70,7 +72,7 @@ enum class ObjectLayer {
 
 enum class ObjectType {
 	Static = 0,
-	Environment,	// static, no collision
+	Environment,	// also static, but no collision.
 	Dynamic,
 	DynamicMove,
 };
@@ -94,8 +96,9 @@ public:
 
 	virtual int GetID() const { return -1; }
 
-	virtual void Update() {}
 	virtual void Start() {}
+	virtual void Update() {}
+	virtual void Release() {}
 
 	virtual void ReleaseUploadBuffers() {}
 
@@ -121,12 +124,13 @@ protected:
 private:
 	void StartComponents();
 	void UpdateComponents();
+	void ReleaseComponents();
 
 	sptr<Component> GetCopyComponent(rsptr<Component> component);
 
 public:
 	Object() : Transform(this) { }
-	virtual ~Object() = default;
+	virtual ~Object() { Release(); }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// [ Getter ] /////
@@ -188,7 +192,7 @@ public:
 	template<class T>
 	void RemoveComponent() {
 		sptr<Component> component{};
-		for (auto& it = mComponents.begin(); it != mComponents.end(); ++it) {
+		for (auto it = mComponents.begin(); it != mComponents.end(); ++it) {
 			component = *it;
 			if (component->GetID() == T::mID) {
 				mComponents.erase(it);
@@ -208,6 +212,7 @@ public:
 
 	virtual void Start();
 	virtual void Update() override;
+	virtual void Release();
 
 	void OnCollisionStay(Object& other);
 };

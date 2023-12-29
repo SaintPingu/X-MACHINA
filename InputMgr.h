@@ -15,9 +15,9 @@ public:
 
 private:
 	std::unordered_map<int, KeyInfo> mKeys;
-	XMFLOAT2             mMousePos;
-	XMFLOAT2             mMousePrevPos;
-	XMFLOAT2             mMouseDir;
+	Vec2             mMousePos;
+	Vec2             mMousePrevPos;
+	Vec2             mMouseDir;
 
 public:
 	void Init();
@@ -29,14 +29,18 @@ public:
 		return mKeys[key].mState;
 	}
 
-	XMFLOAT2 GetMousePos() const { return mMousePos; }
-	XMFLOAT2 GetMouseDir() const { return mMouseDir; }
+	Vec2 GetMousePos() const { return mMousePos; }
+	Vec2 GetMouseDir() const { return mMouseDir; }
 
-	XMFLOAT2 GetMouseDelta() const
+	Vec2 GetMouseDelta() const
 	{
-		XMFLOAT2 vDelta = XMFLOAT2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y);
+		Vec2 vDelta = Vec2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y);
 		return vDelta;
 	}
+
+	void ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	void ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	LRESULT CALLBACK ProcessWndMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 };
 
 

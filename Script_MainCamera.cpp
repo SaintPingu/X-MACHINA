@@ -8,9 +8,7 @@
 
 void Script_MainCamera::Start()
 {
-	mCameraObject = mObject->GetObj<MainCamera>();
-	mPlayer = mCameraObject->GetPlayer();
-	mCamera = mCameraObject->GetCamera().get();
+	mPlayer = mainCameraObject->GetPlayer();
 
 	ChangeCameraMode(CameraMode::Third);
 }
@@ -45,27 +43,25 @@ void Script_MainCamera::Update()
 	}
 	if (distance > 0)
 	{
-		mCameraObject->Translate(dir, distance);
+		mainCameraObject->Translate(dir, distance);
 	}
 
-	mCameraObject->LookPlayer();
-	mCamera->RegenerateViewMatrix();
+	mainCameraObject->LookPlayer();
+	mainCamera->RegenerateViewMatrix();
 }
 
 void Script_MainCamera::UpdateHeight()
 {
 	constexpr float minHeight = 2.0f;
 
-	if (mCameraMode == CameraMode::Third) {
-		if (mObject->GetPosition().y <= minHeight) {
-			mObject->SetPositionY(minHeight);
-			mCameraObject->LookPlayer();
-		}
+	if (mObject->GetPosition().y <= minHeight) {
+		mObject->SetPositionY(minHeight);
+		mainCameraObject->LookPlayer();
 	}
 
 	Vec3 camPos = mObject->GetPosition();
 
-	float height = crntScene->GetTerrainHeight(camPos.x, camPos.z) + minHeight;
+	float height = scene->GetTerrainHeight(camPos.x, camPos.z) + minHeight;
 	if (camPos.y <= height)
 	{
 		camPos.y = height;
@@ -77,25 +73,25 @@ void Script_MainCamera::UpdateHeight()
 
 void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 {
-	Vec3 playerPos = mCameraObject->GetPlayerPos();
+	Vec3 playerPos = mainCameraObject->GetPlayerPos();
 	mOffset = offset;
-	mCamera->SetOffset(mOffset);
-	mCamera->LookAt(playerPos, mPlayer->GetUp());
-	mCamera->GenerateViewMatrix();
+	mainCamera->SetOffset(mOffset);
+	mainCamera->LookAt(playerPos, mPlayer->GetUp());
+	mainCamera->GenerateViewMatrix();
 }
 
 void Script_MainCamera::RotateOffset(const Vec3& axis, float angle)
 {
-	Vec3 cameraOffset = mCamera->GetOffset();
-	XMMATRIX mtxRotation = XMMatrixRotationAxis(XMLoadFloat3(&axis), XMConvertToRadians(angle));
-	XMVECTOR xmNewOffset = XMVector3TransformCoord(XMLoadFloat3(&cameraOffset), mtxRotation);
-	XMStoreFloat3(&cameraOffset, xmNewOffset);
-	mCamera->SetOffset(cameraOffset);
+	Vec3 cameraOffset = mainCamera->GetOffset();
+	XMMATRIX mtxRotation = XMMatrixRotationAxis(_VECTOR(axis), XMConvertToRadians(angle));
+	Vec3 newCameraOffset = Vector3::TransformCoord(cameraOffset, mtxRotation);
+
+	mainCamera->SetOffset(newCameraOffset);
 }
 
 void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 {
-	constexpr float maxPlaneDistance = 2500.0f;
+	constexpr float maxPlaneDistance = 1000.0f;
 
 	if (mCameraMode == mode) {
 		return;
@@ -105,9 +101,9 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 	case CameraMode::Third:
 		mTimeLag = 0.1f;
 		SetCameraOffset(Vec3(0.0f, 15, -30.0f));
-		mCamera->GenerateProjectionMatrix(1.01f, maxPlaneDistance, ASPECT_RATIO, 80.0f);
-		mCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		mCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		mainCamera->GenerateProjectionMatrix(1.01f, maxPlaneDistance, ASPECT_RATIO, 80.0f);
+		mainCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		mainCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	default:
 		assert(0);

@@ -1,10 +1,12 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class GameObject;
 class Camera;
 class MasterModel;
 class Rigidbody;
+//-----------------------------------------------------------------------------//
 
 enum class PlayerType { Unspecified = 0, Tank, Airplane };
 

@@ -34,7 +34,8 @@ void Script_Player::Start()
 
 void Script_Player::Update()
 {
-	if (!border.Contains(_VECTOR(mObject->GetPosition()))) {
+	Vec3 pos = mObject->GetPosition();
+	if (!border.Contains(_VECTOR(pos))) {
 		mObject->ReturnTransform();
 	}
 }
@@ -42,8 +43,8 @@ void Script_Player::Update()
 void Script_Player::Move(DWORD dwDirection)
 {
 	if (mPlayerType == PlayerType::Tank) {
-		dwDirection &= ~DIR_UP;
-		dwDirection &= ~DIR_DOWN;
+		dwDirection &= ~(WORD)Dir::Up;
+		dwDirection &= ~(WORD)Dir::Down;
 	}
 
 	//mPlayer->SetMovingDirection(mObject->GetDirection(dwDirection));
@@ -65,7 +66,7 @@ void Script_Player::Respawn()
 
 void Script_Player::Explode()
 {
-	crntScene->CreateExplosion(Scene::ExplosionType::Big, mObject->GetPosition());
+	scene->CreateExplosion(Scene::ExplosionType::Big, mObject->GetPosition());
 	Respawn();
 }
 
@@ -84,5 +85,5 @@ void Script_Player::Hit(float damage)
 void Script_Player::AddScore(int score)
 {
 	mScore += score;
-	Canvas::Inst()->SetScore(mScore);
+	canvas->SetScore(mScore);
 }

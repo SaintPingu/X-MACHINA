@@ -1,15 +1,15 @@
 #pragma once
 #include "Component.h"
 
-
+//-----------------------------[Class Declaration]-----------------------------//
 class ModelObjectMesh;
 class Shader;
 class MeshLoadInfo;
 class ModelObject;
 class GameObject;
 class Camera;
-
 class Texture;
+//-----------------------------------------------------------------------------//
 
 // Constant Buffers
 struct CB_COLOR_OBJECT_INFO
@@ -73,7 +73,6 @@ public:
 
 	void SetMaterialColors(rsptr<MaterialColors> pMaterialColors) { mMaterialColors = pMaterialColors; }
 	void UpdateShaderVariable();
-	//void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
 	void LoadTextureFromFile(UINT nType, FILE* file);
 	void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
 };
@@ -130,14 +129,12 @@ public:
 	void MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials);
 	void Close();
 
-	void Render(const GameObject* gameObject) const;
+	void Render(const GameObject* gameObject) const { RenderFunc(gameObject); }
 	void Render(const ObjectInstanceBuffer* instBuffer = nullptr) const;
 private:
 	void RenderObject(const GameObject* gameObject) const;
 	void RenderSprite(const GameObject* gameObject) const;
 public:
-
-	Vec4 GetColor() const;
 
 	rsptr<MergedMesh> GetMesh() const { return mMesh; }
 	rsptr<Texture> GetTexture() const;

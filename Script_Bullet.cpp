@@ -68,7 +68,7 @@ bool Script_Bullet::IsOwner(const Object* object)
 bool Script_Bullet::IntersectTerrain()
 {
 	Vec3 pos = mObject->GetPosition();
-	float terrainHeight = crntScene->GetTerrainHeight(pos.x, pos.z);
+	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 
 	if (pos.y <= terrainHeight) {
 		return true;
@@ -95,5 +95,5 @@ void Script_Bullet::Explode()
 
 	Reset();
 
-	crntScene->CreateExplosion(Scene::ExplosionType::Small, mObject->GetPosition());
+	scene->CreateExplosion(Scene::ExplosionType::Small, mObject->GetPosition());
 }

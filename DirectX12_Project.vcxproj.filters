@@ -49,6 +49,12 @@
     <Filter Include="소스 파일\PCH">
       <UniqueIdentifier>{ea74563c-8510-43e9-863f-a7b66ac083b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Shaders\VS">
+      <UniqueIdentifier>{9603d623-9592-47df-b380-e51ab675186b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shaders\PS">
+      <UniqueIdentifier>{8a3e09f0-b061-4b20-9c48-00636a2e27a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -294,5 +300,91 @@
     <Image Include="DirectX12_Project.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\VShader_Billboard.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Canvas.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Instance.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Post.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Rect.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Skybox.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Standard.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_StandardInstance.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Terrain.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_TextureInstance.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Water.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Wired.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VSResource.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Billboard.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Canvas.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Instance.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_MRT.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Post.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Rect.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Skybox.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Standard.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_StandardInstance.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Terrain.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_TextureInstance.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Water.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Wired.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PSResource.hlsl">
+      <Filter>소스 파일\Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Light.hlsl">
+      <Filter>소스 파일\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

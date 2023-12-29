@@ -18,7 +18,7 @@ public:
 	void Stop();
 	void Reset();
 
-	unsigned long GetFrameRate(LPTSTR string = NULL, int charSize = 0);
+	const WCHAR* GetFrameRate();
 	float GetTimeElapsed() const { return mTimeElapsed; }
 	float GetTotalTime();
 
@@ -45,3 +45,5 @@ private:
 };
 
 float DeltaTime();
+
+#define timer Timer::Inst()

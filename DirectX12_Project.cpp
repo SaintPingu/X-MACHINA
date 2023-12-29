@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "DirectX12_Project.h"
 #include "GameFramework.h"
+#include "InputMgr.h"
 
 #define MAX_LOADSTRING 100
 
@@ -37,7 +38,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	::LoadString(hInstance, IDC_DIRECTX12PROJECT, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
-	if (!InitInstance(hInstance, nCmdShow)) return(FALSE);
+	if (!InitInstance(hInstance, nCmdShow)) return FALSE;
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DIRECTX12PROJECT));
 
@@ -64,13 +65,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 	}
 
-	framework->OnDestroy();
+	framework->Release();
 
 #if defined(_DEBUG)
 	_CrtDumpMemoryLeaks();
 #endif
 
-	return((int)msg.wParam);
+	return (int)msg.wParam;
 }
 
 ATOM MyRegisterClass(HINSTANCE hInstance)
@@ -103,9 +104,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
 
-	if (!hMainWnd) return(FALSE);
+	if (!hMainWnd) return FALSE;
 
-	framework->OnCreate(hInstance, hMainWnd);
+	framework->Init(hInstance, hMainWnd);
 
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);
@@ -114,7 +115,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	framework->ChangeSwapChainState();
 #endif
 
-	return(TRUE);
+	return TRUE;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -133,7 +134,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		framework->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+		InputMgr::Inst()->ProcessWndMsg(hWnd, message, wParam, lParam);
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
@@ -147,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			::DestroyWindow(hWnd);
 			break;
 		default:
-			return(::DefWindowProc(hWnd, message, wParam, lParam));
+			return ::DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
 	case WM_PAINT:
@@ -158,7 +159,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		::PostQuitMessage(0);
 		break;
 	default:
-		return(::DefWindowProc(hWnd, message, wParam, lParam));
+		return ::DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
@@ -169,14 +170,14 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_INITDIALOG:
-		return((INT_PTR)TRUE);
+		return (INT_PTR)TRUE;
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
 		{
 			::EndDialog(hDlg, LOWORD(wParam));
-			return((INT_PTR)TRUE);
+			return (INT_PTR)TRUE;
 		}
 		break;
 	}
-	return((INT_PTR)FALSE);
+	return (INT_PTR)FALSE;
 }

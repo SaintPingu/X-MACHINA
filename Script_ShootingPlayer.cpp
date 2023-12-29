@@ -84,6 +84,6 @@ void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 	mBulletShader->BuildObjects(100, bulletModel, mObject);
 	mBulletShader->SetLifeTime(mbulletLifeTime);
 
-	Vec4 color = bulletModel->GetColor();
+	constexpr Vec3 color{ 1.f, 1.f, 0.f };
 	mBulletShader->SetColor(Vec3(color.x, color.y, color.z));
 }

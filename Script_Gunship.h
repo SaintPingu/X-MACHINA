@@ -1,7 +1,9 @@
 #pragma once
 #include "Component.h"
 
+//-----------------------------[Class Declaration]-----------------------------//
 class GameObject;
+//-----------------------------------------------------------------------------//
 
 class Script_Gunship : public Component {
 	COMPONENT(Component, Script_Gunship)

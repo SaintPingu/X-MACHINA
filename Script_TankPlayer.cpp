@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Script_Player.h"
 #include "Scene.h"
+#include "Object.h"
 #include "Shader.h"
 
 void Script_TankPlayer::Start()
@@ -38,10 +39,10 @@ void Script_TankPlayer::Rotate(DWORD rotationDir, float angle)
 
 	if (rotationDir) {
 		float yRotation = 0.0f;
-		if (rotationDir & DIR_LEFT) {
+		if (rotationDir & (WORD)Dir::Left) {
 			yRotation -= angle;
 		}
-		if (rotationDir & DIR_RIGHT) {
+		if (rotationDir & (WORD)Dir::Right) {
 			yRotation += angle;
 		}
 

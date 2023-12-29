@@ -49,7 +49,7 @@ public:
 	ComPtr<ID3D12Resource> GetResource() const { return mTexture; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle() { return mSrvGpuDescHandle; }
 
-	UINT GetTextureType() { return(mTextureType); }
+	UINT GetTextureType() { return mTextureType; }
 	DXGI_FORMAT GetBufferFormat() { return mBufferFormat; }
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc();

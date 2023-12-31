@@ -1,50 +1,59 @@
 #pragma once
-enum class KEY_STATE { NONE, TAP, PRESSED, AWAY };
 
-struct KeyInfo {
-	KEY_STATE mState{};
-	bool mIsPrevPushed{};
+#pragma region Define
+#define KEY_NONE(key)		InputMgr::Inst()->GetKeyState(key) == KeyState::None
+#define KEY_TAP(key)		InputMgr::Inst()->GetKeyState(key) == KeyState::Tap
+#define KEY_PRESSED(key)	InputMgr::Inst()->GetKeyState(key) == KeyState::Pressed
+#define KEY_AWAY(key)		InputMgr::Inst()->GetKeyState(key) == KeyState::Away
+#pragma endregion
+
+
+#pragma region EnumClass
+enum class KeyState {
+	None = 0,
+	Tap,
+	Pressed,
+	Away
 };
+#pragma endregion
 
+
+#pragma region Struct
+struct KeyInfo {
+	KeyState	State{};
+	bool		IsPrevPressed{};
+};
+#pragma endregion
+
+
+#pragma region Class
 class InputMgr {
 	SINGLETON_PATTERN(InputMgr)
 
+private:
+	std::unordered_map<int, KeyInfo> mKeys{};
+
+	Vec2 mMousePos{};
+	Vec2 mMousePrevPos{};
+	Vec2 mMouseDir{};
+
 public:
 	InputMgr();
-	~InputMgr();
+	virtual ~InputMgr() = default;
 
-private:
-	std::unordered_map<int, KeyInfo> mKeys;
-	Vec2             mMousePos;
-	Vec2             mMousePrevPos;
-	Vec2             mMouseDir;
+	KeyState GetKeyState(int key) const { return mKeys.at(key).State; }
+
+	Vec2 GetMousePos() const { return mMousePos; }
+	Vec2 GetMouseDir() const { return mMouseDir; }
+
+	Vec2 GetMouseDelta() const { return Vec2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y); }
 
 public:
 	void Init();
 	void Update();
 
-public:
-	KEY_STATE GetKeyState(int key)
-	{
-		return mKeys[key].mState;
-	}
-
-	Vec2 GetMousePos() const { return mMousePos; }
-	Vec2 GetMouseDir() const { return mMouseDir; }
-
-	Vec2 GetMouseDelta() const
-	{
-		Vec2 vDelta = Vec2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y);
-		return vDelta;
-	}
-
-	void ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	void ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	LRESULT CALLBACK ProcessWndMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	LRESULT CALLBACK ProcessWndMsg(HWND hWnd, UINT messageID, WPARAM wParam, LPARAM lParam);
 };
-
-
-#define KEY_NONE(key)		InputMgr::Inst()->GetKeyState(key) == KEY_STATE::NONE
-#define KEY_TAP(key)		InputMgr::Inst()->GetKeyState(key) == KEY_STATE::TAP
-#define KEY_PRESSED(key)	InputMgr::Inst()->GetKeyState(key) == KEY_STATE::PRESSED
-#define KEY_AWAY(key)		InputMgr::Inst()->GetKeyState(key) == KEY_STATE::AWAY
+#pragma endregion

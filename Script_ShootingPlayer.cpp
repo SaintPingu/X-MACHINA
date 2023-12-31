@@ -26,13 +26,13 @@ void Script_ShootingPlayer::Update()
 	if (mBulletShader) {
 		mBulletShader->Update();
 
-		m_fCrntFireDelay += DeltaTime();
+		m_fCurrFireDelay += DeltaTime();
 		if (mIsShooting) {
-			if (m_fCrntFireDelay < m_fFireDelay) {
+			if (m_fCurrFireDelay < m_fFireDelay) {
 				return;
 			}
 
-			m_fCrntFireDelay = 0.0f;
+			m_fCurrFireDelay = 0.f;
 			FireBullet();
 		}
 	}
@@ -80,7 +80,7 @@ const std::list<sptr<GameObject>>* Script_ShootingPlayer::GetBullets() const
 void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 {
 	mBulletShader = std::make_shared<BulletShader>();
-	mBulletShader->CreateShader();
+	mBulletShader->Create();
 	mBulletShader->BuildObjects(100, bulletModel, mObject);
 	mBulletShader->SetLifeTime(mbulletLifeTime);
 

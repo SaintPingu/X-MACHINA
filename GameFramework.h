@@ -3,10 +3,14 @@
 class Framework {
 	SINGLETON_PATTERN(Framework)
 
+private:
+	std::wstring mTitle{};
+
 public:
 	Framework();
-	~Framework() = default;
+	virtual ~Framework() = default;
 
+public:
 	bool Init(HINSTANCE hInstance, HWND hMainWnd);
 	void Release();
 
@@ -17,9 +21,6 @@ public:
 	void UpdaetInput();
 	void UpdateObjects();
 	void RenderObjects();
-
-private:
-	std::wstring mTitle{};
 };
 
 

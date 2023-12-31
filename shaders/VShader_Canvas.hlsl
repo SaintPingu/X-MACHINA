@@ -1,68 +1,64 @@
 #include "VSResource.hlsl"
 
-struct VS_CANVAS_INPUT
-{
-    float3 position : POSITION;
-    float2 uv : UV;
+struct VSOutput_Canvas {
+    float4 Position : SV_POSITION;
+    float2 UV : UV;
 };
 
-struct VS_CANVAS_OUTPUT
+VSOutput_Canvas VSCanvas(uint vertexID : SV_VertexID)
 {
-    float4 position : SV_POSITION;
-    float2 uv : UV;
-};
-
-VS_CANVAS_OUTPUT VSCanvas(uint nVertexID : SV_VertexID)
-{
-    //VS_CANVAS_OUTPUT output;
+   
+    VSOutput_Canvas output;
     
-    //output.position = mul(float4(input.position, 1.0f), gmtxWorld);
-    //output.uv = input.uv;
-    
-    VS_CANVAS_OUTPUT output;
-    
-    switch (nVertexID)
-    {
+    switch (vertexID) {
         case 0:
         {
-                output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
-                output.uv = float2(0.0f, 0.0f);
-                break;
-            }
+            output.Position = float4(-1.f, +1.f, 0.f, 1.f);
+            output.UV = float2(0.f, 0.f);
+        }
+        
+        break;
         case 1:
         {
-                output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
-                output.uv = float2(1.0f, 0.0f);
-                break;
-            }
+            output.Position = float4(+1.f, +1.f, 0.f, 1.f);
+            output.UV = float2(1.f, 0.f);
+        }
+        
+        break;
         case 2:
         {
-                output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
-                output.uv = float2(1.0f, 1.0f);
-                break;
-            }
+            output.Position = float4(+1.f, -1.f, 0.f, 1.f);
+            output.UV = float2(1.f, 1.f);
+        }
+        
+        break;
         case 3:
         {
-                output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
-                output.uv = float2(0.0f, 0.0f);
-                break;
-            }
+            output.Position = float4(-1.f, +1.f, 0.f, 1.f);
+            output.UV = float2(0.f, 0.f);
+        }
+        
+        break;
         case 4:
         {
-                output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
-                output.uv = float2(1.0f, 1.0f);
-                break;
-            }
+            output.Position = float4(+1.f, -1.f, 0.f, 1.f);
+            output.UV = float2(1.f, 1.f);
+        }
+        
+        break;
         case 5:
         {
-                output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
-                output.uv = float2(0.0f, 1.0f);
-                break;
-            }
+            output.Position = float4(-1.f, -1.f, 0.f, 1.f);
+            output.UV = float2(0.f, 1.f);
+        }
+        break;
         
+        default:
+            break;
     }
-    output.position = mul(output.position, gmtxWorld);
-    output.uv = mul(float3(output.uv, 1.0f), (float3x3) (gmtxSprite)).xy;
     
-    return (output);
+    output.Position = mul(output.Position, gMtxWorld);
+    output.UV = mul(float3(output.UV, 1.f), (float3x3) (gMtxSprite)).xy;
+    
+    return output;
 }

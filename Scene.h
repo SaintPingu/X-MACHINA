@@ -1,59 +1,39 @@
 #pragma once
-#include "Grid.h"
 
-//-----------------------------[Class Declaration]-----------------------------//
+
+#pragma region Include
+#include "Grid.h"
+#pragma endregion
+
+#pragma region Define
+#define scene Scene::Inst()
+#pragma endregion
+
+#pragma region ClassForwardDecl
+class Model;
 class MasterModel;
 class ModelObjectMesh;
 
-class Model;
-class Camera;
-class CameraObject;
-class GameObject;
 class Shader;
+class StaticShader;
 
+class Camera;
+class GameObject;
 class Material;
-
-class InstancingShader;
-class EffectShader;
-class TexturedEffectShader;
-class ModelObjectsShader;
-class TexturedShader;
-class StatiShader;
-
 class HeightMapTerrain;
-
 class Light;
-class MainCameraObject;
-
 class Texture;
 class SkyBox;
-
 class GraphicsRootSignature;
 class DescriptorHeap;
 class ObjectInstanceBuffer;
-//-----------------------------------------------------------------------------//
-
-struct MATERIAL
-{
-	Vec4 mAmbient{};
-	Vec4 mDiffuse{};
-	Vec4 mSpecular{};
-	Vec4 mEmissive{};
-};
+#pragma endregion
 
 
 
 
-
-
-
-
-
-
-
-
-class Scene
-{
+#pragma region Class
+class Scene {
 public:
 	enum class ExplosionType { Small = 0, Big };
 
@@ -81,13 +61,13 @@ private:
 	sptr<Shader> mSpriteShader{};
 	sptr<Shader> mInstancingShader{};
 	sptr<Shader> mTransparentShader{};
-	sptr<StatiShader> mSmallExpFXShader{};
-	sptr<StatiShader> mBigExpFXShader{};
+	sptr<StaticShader> mSmallExpFXShader{};
+	sptr<StaticShader> mBigExpFXShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};
 	std::vector<sptr<GameObject>> mBackgrounds{};
-	std::vector<sptr<GameObject>> mStatiObjects{};
+	std::vector<sptr<GameObject>> mStaticObjects{};
 	std::list<sptr<GameObject>> mExplosiveObjects{};
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
 	std::vector<sptr<ObjectInstanceBuffer>> mInstanceBuffers;
@@ -95,7 +75,7 @@ private:
 	/* Player */
 	std::vector<sptr<GameObject>> mPlayers{};
 	sptr<GameObject> mPlayer{};
-	int	mCrntPlayerIndex{};
+	int	mCurrPlayerIndex{};
 
 	/* Map */
 	sptr<HeightMapTerrain> mTerrain{};
@@ -104,7 +84,7 @@ private:
 	/* Grid */
 	std::vector<Grid> mGrids{};
 	sptr<ModelObjectMesh> mGridMesh{};
-	const float mMaxGridHeight = 300.0f;
+	const float mMaxGridHeight = 300.f;
 	float mGridStartPoint{};
 	int mGridLength{};
 	int mGridCols{};
@@ -116,55 +96,57 @@ private:
 	bool mIsRenderBounds{ false };
 
 public:
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Constructor ] /////
-
+#pragma region C/Dtor
 	Scene();
-	~Scene();
+	~Scene() = default;
 
 	static void Create();
 	static void Destroy();
 	static void Release();
 	static Scene* Inst();
+#pragma endregion
 
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
-
+#pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
-	rsptr<const MasterModel> GetModel(const std::string& modelName);
+	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
 	rsptr<GameObject> GetPlayer() const { return mPlayers.front(); }
-	rsptr<Material> GetMaterial(const std::string& name) { assert(mMaterialMap.contains(name)); return mMaterialMap[name]; }
-	rsptr<Texture> GetTexture(const std::string& name);
+	rsptr<Material> GetMaterial(const std::string& name) const;
+	rsptr<Texture> GetTexture(const std::string& name) const;
+
 	RComPtr<ID3D12RootSignature> GetRootSignature() const;
+	UINT GetRootParamIndex(RootParam param) const;
+#pragma endregion
 
-	UINT GetRootParamIndex(RootParam param);
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
-	void SetGlobalShader() const;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
-	
-	/* DirectX */
-	void CreateGraphicsRootSignature();
-
-	void CreateShaderVariables();
-	void UpdateShaderVariables();
-	void ReleaseShaderVariables();
-	void ReleaseUploadBuffers();
 
 public:
+#pragma region DirectX
+public:
+	void ReleaseUploadBuffers();
+
 	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
 
+	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat);
+	void CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex);
+
+private:
+	void CreateGraphicsRootSignature();
+	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount);
+
+	void CreateShaderVars();
+	void UpdateShaderVars();
+	void ReleaseShaderVars();
+
+#pragma endregion
 
 
-	/* Build */
+#pragma region Build
+public:
+	void BuildObjects();
+	void ReleaseObjects();
+
 private:
 	/* Shader */
 	void BuildShaders();
@@ -184,78 +166,63 @@ private:
 	void BuildGridObjects();
 
 	/* Load */
+	void LoadTextures();
+	void LoadSceneObjectsFromFile(const std::string& fileName);
+	void LoadGameObjects(FILE* file);
 	void LoadModels();
-private:
+
+	/* Other */
 	void InitObjectByTag(const void* tag, sptr<GameObject> object);
 
-public:
-	void LoadGameObjects(FILE* file);
-	void LoadSceneObjectsFromFile(const std::string& fileName);
-	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount);
-	void LoadTextures();
-
-public:
-	void BuildObjects();
-	void ReleaseObjects();
-
-	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat);
-	void CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex);
+#pragma endregion
 
 
-
-	/* Render */
-private:
-	void RenderTerrain();
-
-	void RenderGridObjects(std::set<GameObject*>& renderObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects);
-	void RenderInstanceObjects();
-	void RenderBackgrounds();
-	void RenderBullets();
-
-	void RenderBounds(const std::set<GameObject*>& renderObjects);
-	void RenderGridBounds();
-	void RenderBillboards(const std::set<GameObject*>& billboards);
-
+#pragma region Render
 public:
 	void OnPrepareRender();
 	void Render();
 
-
-
-	/* Update (per frame) */
 private:
-	void CheckCollisions();
-	void UpdateObjects();
-	void UpdateShaders();
-	void UpdateSprites();
-	void UpdateCamera();
-	void UpdateLights();
+	void RenderGridObjects(std::set<GameObject*>& opaqueObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects);
+	void RenderBackgrounds();
+	void RenderBullets();
+	void RenderInstanceObjects();
+	void RenderFXObjects();
+	void RenderBillboards(const std::set<GameObject*>& billboards);
 
-	void UpdatePlayerGrid();
-	void UpdateObject(GameObject* object);
+	void RenderTerrain();
 
+	void RenderTransparentObjects(const std::set<GameObject*>& transparentObjects);
+	void RenderSkyBox();
+	bool RenderBounds(const std::set<GameObject*>& opaqueObjects);
+	void RenderObjectBounds(const std::set<GameObject*>& opaqueObjects);
+	void RenderGridBounds();
+#pragma endregion
+
+
+#pragma region Update
 public:
 	void Start();
 	void Update();
 	void Animate();
 
-
-	/* Others */
 private:
-	void CreateSpriteEffect(Vec3 pos, float speed, float scale = 1);
-	void CreateSmallExpFX(Vec3 pos);
-	void CreateBigExpFX(Vec3 pos);
+	void CheckCollisions();
+	void UpdatePlayerGrid();
 
-	int GetGridIndexFromPos(Vec3 pos);
-	void SetObjectGridIndex(rsptr<GameObject> object, int gridIndex);
-	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
+	void UpdateObjects();
+	void UpdateObject(GameObject* object);
+	void UpdateFXObjects();
 
-	void DeleteExplodedObjects();
+	void UpdateSprites();
+	void UpdateLights();
+	void UpdateCamera();
+
+#pragma endregion
 
 public:
-	void ProcessInput(HWND hWnd, Vec2 oldCursorPos);
-	bool ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 	void ToggleDrawBoundings();
 
@@ -269,6 +236,16 @@ public:
 	void RemoveObjectFromGrid(GameObject* object);
 
 	void ProcessObjects(std::function<void(sptr<GameObject>)> processFunc);
-};
 
-#define scene Scene::Inst()
+private:
+	void CreateSpriteEffect(Vec3 pos, float speed, float scale = 1);
+	void CreateSmallExpFX(Vec3 pos);
+	void CreateBigExpFX(Vec3 pos);
+
+	int GetGridIndexFromPos(Vec3 pos);
+	void SetObjectGridIndex(rsptr<GameObject> object, int gridIndex);
+	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
+
+	void DeleteExplodedObjects();
+};
+#pragma endregion

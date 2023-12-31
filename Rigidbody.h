@@ -4,24 +4,19 @@
 enum class ForceMode { Accleration = 0, Impulse };
 
 class Rigidbody : public Component {
-	COMPONENT(Component, Rigidbody)
+	COMPONENT(Rigidbody, Component)
 
 private	:
-	bool mUseGravity{ false };
-	float mGravityScale{ 1.f };
+	bool mUseGravity	{ false };
+	float mGravityScale	{ 1.f };
 
-	float mMass{ 1.f };
-	float mDrag{ 1.f };
+	float mMass		{ 1.f };
+	float mDrag		{ 1.f };
+	float mFriction	{ 1.f };
+	float mMaxSpeed	{ FLT_MAX };
 	Vec3 mVelocity{};
-	float mFriction{1.0f};
-	float mMaxSpeed{ FLT_MAX };
 
 public:
-	virtual void Start() override;
-	virtual void Update() override;
-
-	virtual void OnCollisionStay(Object& other) override;
-
 	const Vec3& GetVelocity() const { return mVelocity; }
 
 	void SetMass(float mass) { mMass = mass; }
@@ -32,6 +27,12 @@ public:
 	void SetGravity(bool useGravity) { mUseGravity = useGravity; }
 	void SetGravityScale(float scale) { mGravityScale = scale; }
 	void SetDrag(float drag) { mDrag = drag; }
+
+public:
+	virtual void Start() override;
+	virtual void Update() override;
+
+	virtual void OnCollisionStay(Object& other) override;
 
 	void Stop();
 	void AddForce(const Vec3& force, ForceMode forceMode = ForceMode::Accleration);

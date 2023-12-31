@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Script_Bullet.h"
+
 #include "Object.h"
 #include "Timer.h"
 #include "Scene.h"
@@ -21,12 +22,12 @@ void Script_Bullet::Start()
 
 void Script_Bullet::Update()
 {
-	mElapsedTimeAfterFire += DeltaTime();
+	mCurrLifeTime += DeltaTime();
 
-	if (mElapsedTimeAfterFire > mLifeTime) {
+	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
 	}
-	else if ((mObject->GetPosition().y < 0.0f) || IntersectTerrain()) {
+	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
 		Explode();
 	}
 
@@ -34,7 +35,7 @@ void Script_Bullet::Update()
 
 void Script_Bullet::OnCollisionStay(Object& other)
 {
-	if (mElapsedTimeAfterFire <= FLT_EPSILON) {
+	if (mCurrLifeTime <= FLT_EPSILON) {
 		return;
 	}
 	if (IsOwner(&other)) {
@@ -48,42 +49,14 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	}
 }
 
-void Script_Bullet::Reset()
-{
-	mElapsedTimeAfterFire = 0.f;
-	mGameObject->Disable();
-}
-
-
-bool Script_Bullet::IsOwner(const Object* object)
-{
-	if (mOwner == object) {
-		return true;
-	}
-
-	return false;
-}
-
-
-bool Script_Bullet::IntersectTerrain()
-{
-	Vec3 pos = mObject->GetPosition();
-	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
-
-	if (pos.y <= terrainHeight) {
-		return true;
-	}
-
-	return false;
-}
-
 void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed)
 {
-	mGameObject->LookTo(dir, up);
+	mObject->LookTo(dir, up);
 	mObject->SetPosition(pos);
 
 	mRigid->Stop();
 	mRigid->AddForce(dir, speed, ForceMode::Impulse);
+
 	mGameObject->Enable();
 }
 
@@ -96,4 +69,23 @@ void Script_Bullet::Explode()
 	Reset();
 
 	scene->CreateExplosion(Scene::ExplosionType::Small, mObject->GetPosition());
+}
+
+
+void Script_Bullet::Reset()
+{
+	mCurrLifeTime = 0.f;
+	mGameObject->Disable();
+}
+
+bool Script_Bullet::IntersectTerrain()
+{
+	const Vec3 pos = mObject->GetPosition();
+	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
+
+	if (pos.y <= terrainHeight) {
+		return true;
+	}
+
+	return false;
 }

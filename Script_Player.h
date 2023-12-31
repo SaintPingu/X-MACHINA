@@ -1,96 +1,99 @@
 #pragma once
-#include "Component.h"
 
-//-----------------------------[Class Declaration]-----------------------------//
+
+#pragma region Include
+#include "Component.h"
+#pragma endregion
+
+
+#pragma region ClassForwardDecl
 class GameObject;
-class Camera;
 class MasterModel;
 class Rigidbody;
-//-----------------------------------------------------------------------------//
-
-enum class PlayerType { Unspecified = 0, Tank, Airplane };
-
+class BulletShader;
+#pragma endregion
 
 
+#pragma region EnumClass
+enum class PlayerType {
+	Unspecified = 0,
+	Tank,
+	Airplane
+};
+#pragma endregion
 
 
-
+#pragma region Class
 class Script_Player : public Component {
-	COMPONENT_ABSTRACT(Component, Script_Player)
+	COMPONENT_ABSTRACT(Script_Player, Component)
 
 protected:
-	GameObject* mPlayer{};
+	PlayerType		mPlayerType{};
+	GameObject*		mPlayer{};
 	sptr<Rigidbody> mRigid{};
-	Vec4x4 mSpawnTransform{ Matrix4x4::Identity() };
+	Vec4x4			mSpawnTransform{ Matrix4x4::Identity() };
 
-	int mScore{};
-	float mMaxHP{};
-	float mHP{};
-	float mAcc{};
-
-public:
-	PlayerType					mPlayerType{};
+	int		mScore{};
+	float	mMaxHP{};
+	float	mHP{};
+	float	mAcc{};
 
 public:
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
+	PlayerType GetPlayerType() const { return mPlayerType; }
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
-
+	void SetHP(float hp) { mMaxHP = hp; mHP = hp; }
+	void SetAcc(float acc) { mAcc = acc; }
 	void SetSpawn(const Vec3& pos);
-	void SetAcc(float acc);
 	void SetMaxSpeed(float speed);
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
-
+public:
 	virtual void Start() override;
 	virtual void Update() override;
+
+public:
 	virtual void ProcessInput() {}
-
 	virtual void Move(DWORD dwDirection);
-
 	virtual void Rotate(float x, float y, float z);
 
 	void Respawn();
 	void Explode();
 	void Hit(float damage);
-	void SetHP(float hp) { mMaxHP = hp; mHP = hp; }
 	void AddScore(int score);
 };
 
 
 
-class BulletShader;
+
 
 class Script_ShootingPlayer : public Script_Player {
-	COMPONENT_ABSTRACT(Script_Player, Script_ShootingPlayer)
+	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
+
+protected:
+	sptr<BulletShader>	mBulletShader{};
+	float				mBulletSpeed{ 1.f };
 
 private:
 	float m_fFireDelay{};
-	float m_fCrntFireDelay{};
-	bool mIsShooting{};
-	float mbulletLifeTime{ 10.0f };
-
-protected:
-	sptr<BulletShader> mBulletShader{};
-	float mBulletSpeed{ 1.f };
+	float m_fCurrFireDelay{};
+	bool  mIsShooting{};
+	float mbulletLifeTime{ 10.f };
 
 public:
+	void SetDamage(float damage);
+	void SetFireDelay(float fDelay) { m_fFireDelay = fDelay; }
 
+public:
 	virtual void Start() override;
 	virtual void Update() override;
+
+public:
 	virtual void ProcessInput() override;
-
-	void SetDamage(float damage);
-
-	void SetFireDelay(float fDelay) { m_fFireDelay = fDelay; }
-	void StartFire() { mIsShooting = true; }
-	void StopFire() { mIsShooting = false; }
 
 	virtual void FireBullet() abstract;
 	virtual void RenderBullets() const;
+
+	void StartFire() { mIsShooting = true; }
+	void StopFire() { mIsShooting = false; }
 
 	const std::list<sptr<GameObject>>* GetBullets() const;
 
@@ -102,54 +105,61 @@ public:
 
 
 class Script_AirplanePlayer : public Script_ShootingPlayer {
-	COMPONENT(Script_ShootingPlayer, Script_AirplanePlayer)
+	COMPONENT(Script_AirplanePlayer, Script_ShootingPlayer)
 
 private:
 	Transform* mGunFirePos{};
 	float mRotationSpeed{};
 
 public:
+	virtual void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
+
+public:
 	virtual void Start() override;
 	virtual void Update() override;
-	virtual void ProcessInput() override;
+
 	virtual void OnCollisionStay(Object& other) override;
 
+public:
+	virtual void ProcessInput() override;
+
+	virtual void FireBullet() override;
 	virtual void Rotate(DWORD rotationDir, float angle);
-
-	virtual void FireBullet();
-
-	virtual void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
 };
 
 
 
+
+
 class Script_TankPlayer : public Script_ShootingPlayer {
-	COMPONENT(Script_ShootingPlayer, Script_TankPlayer)
+	COMPONENT(Script_TankPlayer, Script_ShootingPlayer)
+
+public:
+	GameObject* mTurret{};
+	GameObject* mGun{};
+	Transform*  mShellFirePos{};
 
 private:
 	float mPrevTurretYaw{};
 	float mRotationSpeed{};
 
 public:
-	GameObject* mTurret{};
-	GameObject* mGun{};
-	Transform* mShellFirePos{};
-
-private:
-	void FixTurret();
-
-public:
-
-	virtual void Start() override;
-	virtual void Update() override;
+	float GetGunPitch() const;
 
 	virtual void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
 
+public:
+	virtual void Start() override;
+	virtual void Update() override;
+
+public:
+	virtual void FireBullet() override;
 	virtual void Rotate(DWORD rotationDir, float angle);
+
 	void RotateTurret(float pitch, float yaw);
 	void RotateGun(float pitch);
 
-	virtual void FireBullet();
-
-	float GetGunPitch() const;
+private:
+	void FixTurret();
 };
+#pragma endregion

@@ -1,23 +1,21 @@
 #include "VSResource.hlsl"
 
-struct VS_SKYBOX_CUBEMAP_INPUT
-{
-    float3 position : POSITION;
+struct VSInput_Skybox {
+    float3 Position : POSITION;
 };
 
-struct VS_SKYBOX_CUBEMAP_OUTPUT
-{
-    float3 positionL : POSITION;
-    float4 position : SV_POSITION;
+struct VSOutput_Skybox {
+    float3 PositionL : POSITION;
+    float4 Position : SV_POSITION;
 };
 
 
-VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+VSOutput_Skybox VSSkyBox(VSInput_Skybox input)
 {
-    VS_SKYBOX_CUBEMAP_OUTPUT output;
+    VSOutput_Skybox output;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection).xyww;
-    output.positionL = input.position;
+    output.Position = mul(mul(mul(float4(input.Position, 1.f), gMtxWorld), gMtxView), gMtxProj).xyww;
+    output.PositionL = input.Position;
 
-    return (output);
+    return output;
 }

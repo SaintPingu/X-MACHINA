@@ -1,41 +1,39 @@
 #include "VSResource.hlsl"
 
-struct VS_STANDARD_INPUT
-{
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : UV;
-    float3 tangent : TANGENT;
-    float3 bitangent : BITANGENT;
+struct VSInput_Standard {
+    float3 Position : POSITION;
+    float3 Normal : NORMAL;
+    float2 UV : UV;
+    float3 Tangent : TANGENT;
+    float3 BiTangent : BITANGENT;
 };
 
-struct VS_BILLBOARD_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITIONW;
-    float2 uv : UV;
+struct VSOutput_Billboard {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITIONW;
+    float2 UV : UV;
 };
 
 
 
-VS_BILLBOARD_OUTPUT VSBillboard(VS_STANDARD_INPUT input)
+VSOutput_Billboard VSBillboard(VSInput_Standard input)
 {
-    VS_BILLBOARD_OUTPUT output;
+    VSOutput_Billboard output;
     
-    output.positionW = mul(float4(input.position, 1.0f), gmtxWorld).xyz;
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = input.uv;
+    output.PositionW = mul(float4(input.Position, 1.f), gMtxWorld).xyz;
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.UV = input.UV;
     
-    return (output);
+    return output;
 }
 
-VS_BILLBOARD_OUTPUT VSSprite(VS_STANDARD_INPUT input)
+VSOutput_Billboard VSSprite(VSInput_Standard input)
 {
-    VS_BILLBOARD_OUTPUT output;
+    VSOutput_Billboard output;
 
-    output.positionW = mul(float4(input.position, 1.0f), gmtxWorld).xyz;
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = mul(float3(input.uv, 1.0f), (float3x3) (gmtxSprite)).xy;
+    output.PositionW = mul(float4(input.Position, 1.f), gMtxWorld).xyz;
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.UV = mul(float3(input.UV, 1.f), (float3x3) (gMtxSprite)).xy;
 
-    return (output);
+    return output;
 }

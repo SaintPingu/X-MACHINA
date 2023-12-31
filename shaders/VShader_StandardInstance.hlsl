@@ -1,48 +1,44 @@
 #include "VSResource.hlsl"
 
-struct VS_STANDARD_INPUT
-{
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : UV;
-    float3 tangent : TANGENT;
-    float3 bitangent : BITANGENT;
+struct VSInput_Standard {
+    float3 Position : POSITION;
+    float3 Normal : NORMAL;
+    float2 UV : UV;
+    float3 Tangent : TANGENT;
+    float3 BiTangent : BITANGENT;
 };
 
-struct VS_STANDARD_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float3 tangentW : TANGENT;
-    float3 bitangentW : BITANGENT;
-    float2 uv : UV;
-    bool isTexture : ISTEXTURE;
+struct VSOutput_Standard {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float3 BiTangentW : BITANGENT;
+    float2 UV : UV;
+    bool IsTexture : ISTEXTURE;
 };
 
 
 
 
-VS_STANDARD_OUTPUT VS_StandardInstance(VS_STANDARD_INPUT input, uint nInstanceID : SV_InstanceID)
+VSOutput_Standard VS_StandardInstance(VSInput_Standard input, uint nInstanceID : SV_InstanceID)
 {
-    VS_STANDARD_OUTPUT output;
+    VSOutput_Standard output;
 
-    matrix mtxWorld = instanceBuffer[nInstanceID].m_mtxGameObject;
-    output.positionW = mul(mul(float4(input.position, 1.0f), gmtxWorld), mtxWorld).xyz;
-    output.normalW = mul(input.normal, (float3x3) mtxWorld);
-    output.tangentW = (float3) mul(float4(input.tangent, 1.0f), mtxWorld);
-    output.bitangentW = (float3) mul(float4(input.bitangent, 1.0f), mtxWorld);
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = input.uv;
+    matrix mtxWorld = instBuffer[nInstanceID].MtxObject;
+    output.PositionW = mul(mul(float4(input.Position, 1.f), gMtxWorld), mtxWorld).xyz;
+    output.NormalW = mul(input.Normal, (float3x3) mtxWorld);
+    output.TangentW = (float3) mul(float4(input.Tangent, 1.f), mtxWorld);
+    output.BiTangentW = (float3) mul(float4(input.BiTangent, 1.f), mtxWorld);
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.UV = input.UV;
     
-    if (texturesMask > 0)
-    {
-        output.isTexture = true;
+    if (gTextureMask > 0) {
+        output.IsTexture = true;
     }
-    else
-    {
-        output.isTexture = false;
+    else {
+        output.IsTexture = false;
     }
 
-    return (output);
+    return output;
 }

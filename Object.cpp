@@ -15,146 +15,25 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-// [ ModelObject ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//===== (ModelObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Constructor ] /////
+#pragma region ModelObject
 ModelObject::ModelObject()
 {
-	
+	mIsDrawBounding = false;
 }
 
-ModelObject::~ModelObject()
-{
-
-}
-
-//===== (ModelObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Getter ] /////
-
-
-
-//===== (ModelObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Setter ] /////
-
-//////////////////* Position *//////////////////
-void ModelObject::SetPosition(const Vec3& pos)
-{
-	ModelObject::SetPosition(pos.x, pos.y, pos.z);
-}
-
-void ModelObject::SetPosition(const XMVECTOR& pos)
-{
-	Transform::SetPosition(pos);
-}
-
-void ModelObject::SetPosition(float x, float y, float z)
-{
-	Transform::SetPosition(x, y, z);
-
-	rsptr<ObjectCollider> objectCollider = GetComponent<ObjectCollider>();
-	if (objectCollider) {
-		objectCollider->Update();
-	}
-}
-
-
-//////////////////* Others *//////////////////
-
-
-//===== (ModelObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Others ] /////
-
-//////////////////* DirectX *//////////////////
-void ModelObject::CreateShaderVariables()
-{
-
-}
-
-void ModelObject::UpdateShaderVariables() const
+/* DirectX */
+void ModelObject::UpdateShaderVars() const
 {
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(_MATRIX(GetWorldTransform())), 0);
 }
 
-
-void ModelObject::ReleaseShaderVariables()
-{
-
-}
-
 void ModelObject::ReleaseUploadBuffers()
 {
-	Object::ReleaseUploadBuffers();
+	base::ReleaseUploadBuffers();
 }
 
 
-
-
-//////////////////* Movement *//////////////////
-void ModelObject::Translate(const Vec3& translation)
-{
-	Transform::Translate(translation);
-}
-
-void ModelObject::Translate(const Vec3& direction, float distance)
-{
-	ModelObject::Translate(Vector3::ScalarProduct(direction, distance));
-}
-
-void ModelObject::Translate(float x, float y, float z)
-{
-	ModelObject::Translate(Vec3(x, y, z));
-}
-
-void ModelObject::Rotate(float pitch, float yaw, float roll)
-{
-	Transform::Rotate(pitch, yaw, roll);
-}
-
-void ModelObject::Rotate(const Vec3& axis, float angle)
-{
-	Transform::Rotate(axis, angle);
-}
-
-
-//////////////////* Transform *//////////////////
-void ModelObject::SetWorldTransform(const Vec4x4& transform)
-{
-	Transform::SetWorldTransform(transform);
-}
-
-void ModelObject::SetTransform(const Vec4x4& transform)
-{
-	Transform::SetTransform(transform);
-}
-
-
-//////////////////* Others *//////////////////
-void ModelObject::Update()
-{
-	Object::Update();
-}
-
-
-
-
+/* Others */
 void ModelObject::ToggleDrawBoundings()
 {
 	mIsDrawBounding = !mIsDrawBounding;
@@ -210,47 +89,28 @@ ModelObject* ModelObject::FindObject(const std::string& frameName)
 	return nullptr;
 }
 
+void ModelObject::Update()
+{
+	Object::Update();
+}
+#pragma endregion
 
 
-// [ GameObject ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//===== (GameObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Constructor ] /////
 
+#pragma region GameObject
 GameObject::GameObject() : ModelObject()
 {
 	AddComponent<ObjectCollider>();
 }
 
-GameObject::~GameObject()
-{
-
-}
-
-
-
-//===== (GameObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Getter ] /////
-
-bool GameObject::IsTransparent() const
-{
-	return mLayer == ObjectLayer::Transparent;
-}
 
 rsptr<Texture> GameObject::GetTexture() const
 {
 	return mModel->GetTexture();
 }
 
-//===== (GameObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Setter ] /////
 
 void GameObject::SetModel(rsptr<const MasterModel> model)
 {
@@ -267,20 +127,6 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	Transform::MergeTransform(mMergedTransform, this);
 }
 
-void GameObject::SetFlyable(bool isFlyable)
-{
-	mIsFlyable = isFlyable;
-}
-
-//===== (GameObject) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Others ] /////
-
-//////////////////* DirectX *//////////////////
-void GameObject::UpdateShaderVariablesSprite()
-{
-
-}
 
 void GameObject::Render()
 {
@@ -289,7 +135,6 @@ void GameObject::Render()
 	}
 }
 
-
 void GameObject::RenderBounds()
 {
 	if (mIsDrawBounding) {
@@ -297,9 +142,6 @@ void GameObject::RenderBounds()
 	}
 }
 
-
-
-//////////////////* Movement *//////////////////
 void GameObject::Update()
 {
 	if (!IsActive()) {
@@ -310,64 +152,8 @@ void GameObject::Update()
 		TiltToGround();
 	}
 
-	ModelObject::Update();
+	base::Update();
 }
-
-
-//////////////////* Others *//////////////////
-// 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
-void GameObject::AttachToGround()
-{
-	Vec3 pos = GetPosition();
-	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
-
-	pos.y = terrainHeight;
-	SetPosition(pos);
-}
-
-
-void GameObject::TiltToGround()
-{
-	AttachToGround();
-
-	auto& obbList = GetComponent<ObjectCollider>()->GetOBBList();
-	if (obbList.size() > 0) {
-		// 기울임 각도 계산
-		// OBB 모서리 아래 4개 점 구하기
-		std::vector<Vec3> corners(8);
-		obbList.front()->GetCorners(corners.data());
-		const Vec3 leftTop = corners[0];
-		const Vec3 rightTop = corners[1];
-		const Vec3 leftBottom = corners[4];
-		const Vec3 rightBottom = corners[5];
-
-		// weight points
-		const Vec3 center = GetPosition();
-		const Vec3 front = Vector3::Add(rightTop, Vector3::Subtract(leftTop, rightTop), 0.5f);
-		const Vec3 back = Vector3::Add(rightBottom, Vector3::Subtract(leftBottom, rightBottom), 0.5f);
-		const Vec3 left = Vector3::Add(center, Vector3::Subtract(leftTop, rightTop), 0.5f);
-		const Vec3 right = Vector3::Add(center, Vector3::Subtract(rightTop, leftTop), 0.5f);
-
-		// 각 지점에 대해 높이 차이 계산
-		auto GetHeight = [&](const Vec3& pos) { return pos.y - scene->GetTerrainHeight(pos.x, pos.z); };
-
-		float heightFront = GetHeight(front);
-		float heightBack = -GetHeight(back);
-		float heightLeft = GetHeight(left);
-		float heightRight = -GetHeight(right);
-
-		// 앞,뒤 / 좌,우로 높이차가 가장 큰 값에 대해 회전
-		float yaw = max(heightFront, heightBack);
-		float roll = max(heightLeft, heightRight);
-
-		// 지면에 닿도록 각도로 회전
-		if (!Math::IsZero(yaw) || !Math::IsZero(roll)) {
-			Rotate(80.0f * yaw * DeltaTime(), 0.0f, 0.0f);
-			Rotate(0.0f, 0.0f, 80.0f * roll * DeltaTime());
-		}
-	}
-}
-
 
 void GameObject::Enable(bool isUpdateObjectGrid)
 {
@@ -387,13 +173,86 @@ void GameObject::Disable(bool isUpdateObjectGrid)
 	}
 }
 
+// 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
+void GameObject::AttachToGround()
+{
+	Vec3 pos                  = GetPosition();
+	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
+	pos.y                     = terrainHeight;
+
+	SetPosition(pos);
+}
+
+
+void GameObject::TiltToGround()
+{
+	AttachToGround();
+
+	auto& obbList = GetComponent<ObjectCollider>()->GetOBBList();
+	if (obbList.size() > 0) {
+		// 기울임 각도 계산
+		// OBB 모서리 아래 4개 점 구하기
+		std::vector<Vec3> corners(8);
+		obbList.front()->GetCorners(corners.data());
+		const Vec3 leftTop     = corners[0];
+		const Vec3 rightTop    = corners[1];
+		const Vec3 leftBottom  = corners[4];
+		const Vec3 rightBottom = corners[5];
+
+		// weight points
+		const Vec3 center = GetPosition();
+		const Vec3 front  = Vector3::Add(rightTop, Vector3::Subtract(leftTop, rightTop), 0.5f);
+		const Vec3 back   = Vector3::Add(rightBottom, Vector3::Subtract(leftBottom, rightBottom), 0.5f);
+		const Vec3 left   = Vector3::Add(center, Vector3::Subtract(leftTop, rightTop), 0.5f);
+		const Vec3 right  = Vector3::Add(center, Vector3::Subtract(rightTop, leftTop), 0.5f);
+
+		// 각 지점에 대해 높이 차이 계산
+		auto GetHeight = [&](const Vec3& pos) { return pos.y - scene->GetTerrainHeight(pos.x, pos.z); };
+
+		const float heightFront = GetHeight(front);
+		const float heightBack  = -GetHeight(back);
+		const float heightLeft  = GetHeight(left);
+		const float heightRight = -GetHeight(right);
+
+		// 앞,뒤 / 좌,우로 높이차가 가장 큰 값에 대해 회전
+		const float yaw  = max(heightFront, heightBack);
+		const float roll = max(heightLeft, heightRight);
+
+		// 지면에 닿도록 각도로 회전
+		if (!Math::IsZero(yaw) || !Math::IsZero(roll)) {
+			Rotate(80.f * yaw * DeltaTime(), 0.f, 0.f);
+			Rotate(0.f, 0.f, 80.f * roll * DeltaTime());
+		}
+	}
+}
+#pragma endregion
 
 
 
-// [ InstancinObject ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#pragma region InstancinObject
+void InstancinObject::SetBuffer(rsptr<ObjectInstanceBuffer> buffer)
+{
+	SetInstancing();
+	mBuffer = buffer;
+
+	switch (mType) {
+	case ObjectType::DynamicMove:
+		mUpdateFunc = [this]() { UpdateDynamic(); };
+		break;
+
+	default:
+		mUpdateFunc = [this]() { UpdateStatic(); };
+		break;
+	}
+}
+
+void InstancinObject::Render()
+{
+	Push();
+}
+
 void InstancinObject::Push()
 {
 	if (mIsPushed) {
@@ -404,45 +263,22 @@ void InstancinObject::Push()
 	mBuffer->PushObject(this);
 }
 
-void InstancinObject::SetBuffer(rsptr<ObjectInstanceBuffer> buffer)
-{
-	SetInstancing();
-	mBuffer = buffer;
-
-	if (mType == ObjectType::DynamicMove) {
-		mUpdate = [this]() { UpdateDynamic(); };
-	}
-	else {
-		mUpdate = [this]() { UpdateStatic(); };
-	}
-}
-
-void InstancinObject::Render()
-{
-	Push();
-}
-
 void InstancinObject::UpdateStatic()
 {
 	Reset();
 }
 void InstancinObject::UpdateDynamic()
 {
-	GameObject::Update();
+	base::Update();
 	Reset();
 }
-
-void InstancinObject::Update()
-{
-	mUpdate();
-}
+#pragma endregion
 
 
 
-// [ ObjectInstanceBuffer ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#pragma region ObjectInstanceBuffer
 void ObjectInstanceBuffer::SetModel(rsptr<const MasterModel> model)
 {
 	mModel = model;
@@ -450,24 +286,24 @@ void ObjectInstanceBuffer::SetModel(rsptr<const MasterModel> model)
 	mMergedTransform.erase(mMergedTransform.begin());
 }
 
-void ObjectInstanceBuffer::CreateShaderVariables(UINT objectCount)
+void ObjectInstanceBuffer::CreateShaderVars(UINT objectCount)
 {
-	mObjectCount = objectCount;
-	D3DUtil::CreateBufferResource(NULL, sizeof(VS_OBJECT_INSTANCE) * mObjectCount, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuffer);
-	mInstBuffer->Map(0, NULL, (void**)&mMappedBuffer);
+	mObjectCnt = objectCount;
+	D3DUtil::CreateBufferResource(NULL, sizeof(*mMap_Buff) * mObjectCnt, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuff);
+	mInstBuff->Map(0, NULL, (void**)&mMap_Buff);
+}
+
+void ObjectInstanceBuffer::UpdateShaderVars() const
+{
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuff->GetGPUVirtualAddress());
 }
 
 void ObjectInstanceBuffer::PushObject(InstancinObject* object)
 {
-	assert(mCrntBufferIndex < mObjectCount);
+	assert(mCurrBuffIdx < mObjectCnt);
 
-	XMStoreFloat4x4(&mMappedBuffer[mCrntBufferIndex++].mLocalTransform, XMMatrixTranspose(_MATRIX(object->GetWorldTransform())));
+	XMStoreFloat4x4(&mMap_Buff[mCurrBuffIdx++].LocalTransform, XMMatrixTranspose(_MATRIX(object->GetWorldTransform())));
 }
-
-void ObjectInstanceBuffer::UpdateShaderVariables() const
-{
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuffer->GetGPUVirtualAddress());
-}	
 
 void ObjectInstanceBuffer::Render()
 {
@@ -477,3 +313,4 @@ void ObjectInstanceBuffer::Render()
 
 	ResetBuffer();
 }
+#pragma endregion

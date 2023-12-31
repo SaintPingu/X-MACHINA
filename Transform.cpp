@@ -11,34 +11,29 @@
 
 
 
-
-
-
-//===== (Transform) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Constructor ] /////
-
-Transform::Transform()
+#pragma region Getter
+Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
 {
-	
-}
+	if (!dwDirection) {
+		return Vector3::Zero();
+	}
 
-//===== (Transform) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Getter ] /////
+	Vec3 result{};
 
-UINT Transform::GetTransformCount() const
-{
-	UINT result{};
-	Transform::GetTransformCount(result, this);
+	if (dwDirection & static_cast<WORD>(Dir::Front))	result = Vector3::Add(result, mLook, 1.f);
+	if (dwDirection & static_cast<WORD>(Dir::Back))		result = Vector3::Add(result, mLook, -1.f);
+	if (dwDirection & static_cast<WORD>(Dir::Right))	result = Vector3::Add(result, mRight, 1.f);
+	if (dwDirection & static_cast<WORD>(Dir::Left))		result = Vector3::Add(result, mRight, -1.f);
+
+	if (dwDirection & static_cast<WORD>(Dir::Up))		result = Vector3::Add(result, mUp, 1.f);
+	if (dwDirection & static_cast<WORD>(Dir::Down))		result = Vector3::Add(result, mUp, -1.f);
+
 	return result;
 }
 
-//===== (Transform) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Setter ] /////
+#pragma endregion
 
-///////////////////////////* Position *///////////////////////////
+#pragma region Setter
 void Transform::SetPosition(float x, float y, float z)
 {
 	mPosition.x = x;
@@ -46,81 +41,71 @@ void Transform::SetPosition(float x, float y, float z)
 	mPosition.z = z;
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
 void Transform::SetPosition(const Vec3& pos)
 {
-	Transform::SetPosition(pos.x, pos.y, pos.z);
+	SetPosition(pos.x, pos.y, pos.z);
 }
 
-void Transform::SetPosition(const XMVECTOR& pos)
+void Transform::SetPosition(const Vector& pos)
 {
 	XMStoreFloat3(&mPosition, pos);
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
 void Transform::SetPositionX(float x)
 {
-	Transform::SetPosition(x, mPosition.y, mPosition.z);
+	SetPosition(x, mPosition.y, mPosition.z);
 }
 
 void Transform::SetPositionY(float y)
 {
-	Transform::SetPosition(mPosition.x, y, mPosition.z);
+	SetPosition(mPosition.x, y, mPosition.z);
 }
 
 void Transform::SetPositionZ(float z)
 {
-	Transform::SetPosition(mPosition.x, mPosition.y, z);
+	SetPosition(mPosition.x, mPosition.y, z);
 }
 
-
-///////////////////////////* Axis *///////////////////////////
 void Transform::SetAxis(const Vec3& look, const Vec3& up, const Vec3& right)
 {
-	mLook = look;
-	mUp = up;
+	mLook  = look;
+	mUp    = up;
 	mRight = right;
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
 void Transform::SetRight(const Vec3& right)
 {
 	mRight = Vector3::Normalize(right);
-	mUp = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
-	mLook = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
+	mUp    = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
+	mLook  = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
 void Transform::SetLook(const Vec3& look)
 {
-	mLook = Vector3::Normalize(look);
-	mUp = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
+	mLook  = Vector3::Normalize(look);
+	mUp    = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
 	mRight = Vector3::Normalize(Vector3::CrossProduct(mLook, mUp));
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
 void Transform::SetUp(const Vec3& up)
 {
-	mUp = Vector3::Normalize(up);
+	mUp    = Vector3::Normalize(up);
 	mRight = Vector3::Normalize(Vector3::CrossProduct(mLook, mUp));
-	mLook = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
+	mLook  = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
-
-///////////////////////////* Others *///////////////////////////
 void Transform::SetChild(rsptr<Transform> child)
 {
 	if (mChild) {
@@ -147,16 +132,13 @@ void Transform::SetChild(rsptr<Transform> child)
 void Transform::SetTransform(const Vec4x4& transform)
 {
 	mLocalTransform = transform;
-	mPrevTransform = transform;
-	UpdateAxis();
+	mPrevTransform  = transform;
+	UpdateAxis(false);
 }
+#pragma endregion
 
 
 
-
-//===== (Transform) =====//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Others ] /////
 
 ///////////////////////////* Translate *///////////////////////////
 void Transform::Translate(const Vec3& translation)
@@ -168,17 +150,16 @@ void Transform::Translate(const Vec3& translation)
 	mPosition = Vector3::Add(mPosition, translation);
 
 	UpdateTransform();
-	ComputeWorldTransform();
 }
 
 void Transform::Translate(const Vec3& direction, float distance)
 {
-	Transform::Translate(Vector3::ScalarProduct(direction, distance));
+	Translate(Vector3::ScalarProduct(direction, distance));
 }
 
 void Transform::Translate(float x, float y, float z)
 {
-	Transform::Translate(Vec3(x, y, z));
+	Translate(Vec3(x, y, z));
 }
 
 
@@ -186,50 +167,51 @@ void Transform::Translate(float x, float y, float z)
 void Transform::MoveLocal(const Vec3& translation)
 {
 	Vec3 right = Vector3::ScalarProduct(mRight, translation.x);
-	Vec3 up = Vector3::ScalarProduct(mUp, translation.y);
-	Vec3 left = Vector3::ScalarProduct(mLook, translation.z);
+	Vec3 up    = Vector3::ScalarProduct(mUp, translation.y);
+	Vec3 left  = Vector3::ScalarProduct(mLook, translation.z);
 
-	Transform::Translate(Vector3::Add(right, up, left));
+	Translate(Vector3::Add(right, up, left));
 }
 
 void Transform::MoveStrafe(float fDistance)
 {
-	Transform::Translate(mRight, fDistance);
+	Translate(mRight, fDistance);
 }
 
 void Transform::MoveUp(float fDistance)
 {
-	Transform::Translate(mUp, fDistance);
+	Translate(mUp, fDistance);
 }
 
 void Transform::MoveForward(float fDistance)
 {
-	Transform::Translate(mLook, fDistance);
+	Translate(mLook, fDistance);
 }
 
 
 ///////////////////////////* Rotation *///////////////////////////
 void Transform::Rotate(float pitch, float yaw, float roll)
 {
-	if (pitch != 0.0f) {
+	if (pitch != 0.f) {
 		mPitch += pitch;
 	}
-	if (yaw != 0.0f) {
+	if (yaw != 0.f) {
 		mYaw += yaw;
-		if (mYaw > 360.0f) mYaw -= 360.0f;
-		if (mYaw < 0.0f) mYaw += 360.0f;
+		if (mYaw > 360.f) {
+			mYaw -= 360.f;
+		}
+		if (mYaw < 0.f) {
+			mYaw += 360.f;
+		}
 	}
-	if (roll != 0.0f) {
+	if (roll != 0.f) {
 		mRoll += roll;
 	}
 
-	UpdateTransform();
-
-	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll));
-	mLocalTransform = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
+	Matrix mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll));
+	mLocalTransform  = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
 
 	UpdateAxis();
-	ComputeWorldTransform();
 }
 
 void Transform::Rotate(const Vec3& axis, float angle)
@@ -238,89 +220,82 @@ void Transform::Rotate(const Vec3& axis, float angle)
 	SetTransform(mLocalTransform);
 }
 
-void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& xmf3Offset)
+void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 {
-	UpdateTransform();
-
-	Vec4x4 mtxTranslateToOrigin = Matrix4x4::Translate(-xmf3Offset.x, -xmf3Offset.y, -xmf3Offset.z);
-	Vec4x4 mtxRotate = Matrix4x4::RotationAxis(axis, angle);
-	Vec4x4 mtxTranslateBack = Matrix4x4::Translate(xmf3Offset.x, xmf3Offset.y, xmf3Offset.z);
+	Vec4x4 mtxTranslateToOrigin = Matrix4x4::Translate(-offset.x, -offset.y, -offset.z);
+	Vec4x4 mtxRotate            = Matrix4x4::RotationAxis(axis, angle);
+	Vec4x4 mtxTranslateBack     = Matrix4x4::Translate(offset.x, offset.y, offset.z);
 
 	mLocalTransform = Matrix4x4::Multiply(mtxTranslateToOrigin, mLocalTransform);
 	mLocalTransform = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
 	mLocalTransform = Matrix4x4::Multiply(mtxTranslateBack, mLocalTransform);
 
 	UpdateAxis();
-	ComputeWorldTransform();
 }
 
-
-///////////////////////////* Look *///////////////////////////
-void Transform::LookTo(const Vec3& xmf3LookTo, const Vec3& up)
+void Transform::LookTo(const Vec3& lookTo, const Vec3& up)
 {
-	Vec4x4 xmf4x4View = Matrix4x4::LookToLH(GetPosition(), xmf3LookTo, up);
-	mLocalTransform._11 = xmf4x4View._11; mLocalTransform._12 = xmf4x4View._21; mLocalTransform._13 = xmf4x4View._31;
-	mLocalTransform._21 = xmf4x4View._12; mLocalTransform._22 = xmf4x4View._22; mLocalTransform._23 = xmf4x4View._32;
-	mLocalTransform._31 = xmf4x4View._13; mLocalTransform._32 = xmf4x4View._23; mLocalTransform._33 = xmf4x4View._33;
+	Vec4x4 mtxView = Matrix4x4::LookToLH(GetPosition(), lookTo, up, true);
+	::memcpy(&mLocalTransform, &mtxView, sizeof(Vec4x3));
 
 	UpdateAxis();
-	ComputeWorldTransform();
 }
 
 void Transform::LookAt(const Vec3& lookAt, const Vec3& up)
 {
-	Vec4x4 xmf4x4View = Matrix4x4::LookAtLH(GetPosition(), lookAt, up);
-	mLocalTransform._11 = xmf4x4View._11; mLocalTransform._12 = xmf4x4View._21; mLocalTransform._13 = xmf4x4View._31;
-	mLocalTransform._21 = xmf4x4View._12; mLocalTransform._22 = xmf4x4View._22; mLocalTransform._23 = xmf4x4View._32;
-	mLocalTransform._31 = xmf4x4View._13; mLocalTransform._32 = xmf4x4View._23; mLocalTransform._33 = xmf4x4View._33;
+	Vec4x4 mtxView = Matrix4x4::LookAtLH(GetPosition(), lookAt, up, true);
+	::memcpy(&mLocalTransform, &mtxView, sizeof(Vec4x3));
 
 	UpdateAxis();
-	ComputeWorldTransform();
 }
 
 
-///////////////////////////* Others *///////////////////////////
-void Transform::UpdateTransform()
+///////////////////////////* Transform *///////////////////////////
+void Transform::SetWorldTransform(const Vec4x4& transform)
+{
+	::memcpy(&mWorldTransform, &transform, sizeof(Vec4x4));
+	::memcpy(&mLocalTransform, &transform, sizeof(Vec4x4));
+	::memcpy(&mPrevTransform, &transform, sizeof(Vec4x4));
+
+	UpdateAxis();
+}
+
+void Transform::ReturnTransform()
+{
+	if (!mParent) {
+		XMStoreFloat4x4(&mLocalTransform, _MATRIX(mPrevTransform));
+
+		UpdateAxis();
+	}
+}
+
+void Transform::UpdateAxis(bool isComputeWorldTransform)
+{
+	::memcpy(&mRight, &mLocalTransform._11, sizeof(Vec3));
+	::memcpy(&mUp, &mLocalTransform._21, sizeof(Vec3));
+	::memcpy(&mLook, &mLocalTransform._31, sizeof(Vec3));
+	::memcpy(&mPosition, &mLocalTransform._41, sizeof(Vec3));
+
+	if (isComputeWorldTransform) {
+		ComputeWorldTransform();
+	}
+}
+
+void Transform::UpdateTransform(bool isComputeWorldTransform)
 {
 	if (isUpdated) {
 		XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 		isUpdated = false;
 	}
 
-	mLocalTransform._11 = mRight.x;
-	mLocalTransform._12 = mRight.y;
-	mLocalTransform._13 = mRight.z;
+	::memcpy(&mLocalTransform._11, &mRight,		sizeof(Vec3));
+	::memcpy(&mLocalTransform._21, &mUp,		sizeof(Vec3));
+	::memcpy(&mLocalTransform._31, &mLook,		sizeof(Vec3));
+	::memcpy(&mLocalTransform._41, &mPosition,	sizeof(Vec3));
 
-	mLocalTransform._21 = mUp.x;
-	mLocalTransform._22 = mUp.y;
-	mLocalTransform._23 = mUp.z;
-
-	mLocalTransform._31 = mLook.x;
-	mLocalTransform._32 = mLook.y;
-	mLocalTransform._33 = mLook.z;
-
-	mLocalTransform._41 = mPosition.x;
-	mLocalTransform._42 = mPosition.y;
-	mLocalTransform._43 = mPosition.z;
-}
-
-void Transform::UpdateAxis()
-{
-	mRight.x = mLocalTransform._11;
-	mRight.y = mLocalTransform._12;
-	mRight.z = mLocalTransform._13;
-
-	mUp.x = mLocalTransform._21;
-	mUp.y = mLocalTransform._22;
-	mUp.z = mLocalTransform._23;
-
-	mLook.x = mLocalTransform._31;
-	mLook.y = mLocalTransform._32;
-	mLook.z = mLocalTransform._33;
-
-	mPosition.x = mLocalTransform._41;
-	mPosition.y = mLocalTransform._42;
-	mPosition.z = mLocalTransform._43;
+	if (isComputeWorldTransform) {
+		ComputeWorldTransform();
+	}
 }
 
 void Transform::RequestTransform(Vec4x4& parentTransform)
@@ -332,17 +307,6 @@ void Transform::RequestTransform(Vec4x4& parentTransform)
 	}
 
 	parentTransform = mWorldTransform;
-}
-
-void Transform::Init()
-{
-	ComputeWorldTransform();
-}
-
-void Transform::Update()
-{
-	isUpdated = true;
-	ComputeWorldTransform();
 }
 
 void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
@@ -370,28 +334,15 @@ void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
 	}
 }
 
-void Transform::UpdateShaderVariableTransform() const
+void Transform::Update()
 {
-	XMMATRIX mtx = _MATRIX(GetWorldTransform());
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtx), 0);
-}
-
-void Transform::SetWorldTransform(const Vec4x4& transform)
-{
-	mWorldTransform = transform;
-	mLocalTransform = transform;
-	mPrevTransform = transform;
-	UpdateAxis();
+	isUpdated = true;
 	ComputeWorldTransform();
 }
 
-void Transform::ReturnTransform()
+void Transform::UpdateShaderVars() const
 {
-	if (!mParent) {
-		XMStoreFloat4x4(&mLocalTransform, _MATRIX(mPrevTransform));
-		UpdateAxis();
-		ComputeWorldTransform();
-	}
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(_MATRIX(GetWorldTransform())), 0);
 }
 
 void Transform::NormalizeAxis()
@@ -400,33 +351,8 @@ void Transform::NormalizeAxis()
 	mRight = Vector3::CrossProduct(mUp, mLook, true);
 	mUp = Vector3::CrossProduct(mLook, mRight, true);
 
-	UpdateTransform();
+	UpdateTransform(false);
 }
-
-Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
-{
-	if (!dwDirection) {
-		return Vector3::Zero();
-	}
-
-	Vec3 direction{};
-
-	if (dwDirection & (WORD)Dir::Front)	direction = Vector3::Add(direction, mLook, 1.0f);
-	if (dwDirection & (WORD)Dir::Back)	direction = Vector3::Add(direction, mLook, -1.0f);
-	if (dwDirection & (WORD)Dir::Right)	direction = Vector3::Add(direction, mRight, 1.0f);
-	if (dwDirection & (WORD)Dir::Left)	direction = Vector3::Add(direction, mRight, -1.0f);
-
-	if (dwDirection & (WORD)Dir::Up)	direction = Vector3::Add(direction, mUp, 1.0f);
-	if (dwDirection & (WORD)Dir::Down)	direction = Vector3::Add(direction, mUp, -1.0f);
-
-	return direction;
-}
-
-
-
-
-
-
 
 
 
@@ -442,19 +368,7 @@ void Transform::MergeTransform(std::vector<const Transform*>& out, const Transfo
 	}
 }
 
-void Transform::GetTransformCount(UINT& out, const Transform* transform)
-{
-	++out;
-
-	if (transform->mSibling) {
-		GetTransformCount(out, transform->mSibling.get());
-	}
-	if (transform->mChild) {
-		GetTransformCount(out, transform->mChild.get());
-	}
-}
-
-void Transform::UpdateShaderVariables(const XMMATRIX& matrix)
+void Transform::UpdateShaderVars(const Matrix& matrix)
 {
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(matrix), 0);
 }

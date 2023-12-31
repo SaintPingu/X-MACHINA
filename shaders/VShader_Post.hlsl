@@ -1,18 +1,18 @@
-float4 VSPostProcessing(uint nVertexID : SV_VertexID) : SV_POSITION
+float4 VSPostProcessing(uint vertexID : SV_VertexID) : SV_POSITION
 {
-    if (nVertexID == 0)
-        return (float4(-1.0f, +1.0f, 0.0f, 1.0f));
-    if (nVertexID == 1)
-        return (float4(+1.0f, +1.0f, 0.0f, 1.0f));
-    if (nVertexID == 2)
-        return (float4(+1.0f, -1.0f, 0.0f, 1.0f));
+    if (vertexID == 0)
+        return (float4(-1.f, +1.f, 0.f, 1.f));
+    if (vertexID == 1)
+        return (float4(+1.f, +1.f, 0.f, 1.f));
+    if (vertexID == 2)
+        return (float4(+1.f, -1.f, 0.f, 1.f));
 
-    if (nVertexID == 3)
-        return (float4(-1.0f, +1.0f, 0.0f, 1.0f));
-    if (nVertexID == 4)
-        return (float4(+1.0f, -1.0f, 0.0f, 1.0f));
-    if (nVertexID == 5)
-        return (float4(-1.0f, -1.0f, 0.0f, 1.0f));
+    if (vertexID == 3)
+        return (float4(-1.f, +1.f, 0.f, 1.f));
+    if (vertexID == 4)
+        return (float4(+1.f, -1.f, 0.f, 1.f));
+    if (vertexID == 5)
+        return (float4(-1.f, -1.f, 0.f, 1.f));
 
     return (float4(0, 0, 0, 0));
 }

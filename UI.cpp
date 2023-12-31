@@ -7,32 +7,23 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
-#include "FileMgr.h"
+#include "FileIO.h"
 
-SINGLETON_PATTERN_DEFINITION(Canvas)
 
-sptr<ModelObjectMesh> UI::mesh;
-sptr<Texture> Font::fontTexture;
 
-void UI::CreateUIMesh()
-{
-	mesh = std::make_shared<ModelObjectMesh>();
-	mesh->CreatePlaneMesh(1, 1, false);
-}
-
-void UI::DeleteUIMesh()
-{
-	mesh = nullptr;
-}
+#pragma region UI
+sptr<ModelObjectMesh> UI::mMesh;
 
 void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
 {
-	pos.x /= FRAME_BUFFER_WIDTH;
-	pos.y /= FRAME_BUFFER_HEIGHT;
-	mWidth = width / FRAME_BUFFER_WIDTH;
-	mHeight = height / FRAME_BUFFER_HEIGHT;
-
 	mTexture = texture;
+
+	pos.x /= gkFrameBufferWidth;
+	pos.y /= gkFrameBufferHeight;
+
+	mWidth = width / gkFrameBufferWidth;
+	mHeight = height / gkFrameBufferHeight;
+
 	SetPosition(pos);
 }
 
@@ -41,39 +32,45 @@ void UI::Update()
 
 }
 
-void UI::UpdateShaderVariable() const
+void UI::UpdateShaderVars() const
 {
-	XMMATRIX scaling = XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform()));
-
+	Matrix scaling = XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform()));
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
 }
 
 void UI::Render()
 {
-	mTexture->UpdateShaderVariables();
-	UpdateShaderVariable();
+	mTexture->UpdateShaderVars();
+	UpdateShaderVars();
 
-	mesh->Render();
+	mMesh->Render();
 }
 
-
-
-void Font::SetFontTexture()
+void UI::CreateUIMesh()
 {
-	Font::fontTexture = canvas->GetTexture("Alphabet");
+	mMesh = std::make_shared<ModelObjectMesh>();
+	mMesh->CreatePlaneMesh(1, 1, false);
 }
 
-void Font::UnSetFontTexture()
+void UI::DeleteUIMesh()
 {
-	fontTexture = nullptr;
+	mMesh = nullptr;
 }
+#pragma endregion
+
+
+
+
+
+#pragma region Font
+sptr<Texture> Font::mFontTexture;
 
 void Font::Create(const Vec3& pos, float width, float height)
 {
 	UI::Create(nullptr, pos, width, height);
 }
 
-void Font::UpdateShaderVariableSprite(char ch) const
+void Font::UpdateShaderVarSprite(char ch) const
 {
 	constexpr float cols = 8.f;
 	constexpr float rows = 5.f;
@@ -89,8 +86,8 @@ void Font::UpdateShaderVariableSprite(char ch) const
 
 	Vec4x4 spriteMtx = Matrix4x4::Identity();
 
-	spriteMtx._11 = 1.0f / cols;
-	spriteMtx._22 = 1.0f / rows;
+	spriteMtx._11 = 1.f / cols;
+	spriteMtx._22 = 1.f / rows;
 	spriteMtx._31 = col / cols;
 	spriteMtx._32 = row / rows;
 
@@ -99,26 +96,26 @@ void Font::UpdateShaderVariableSprite(char ch) const
 
 void Font::Render()
 {
-	fontTexture->UpdateShaderVariables();
+	mFontTexture->UpdateShaderVars();
 
 	Vec3 originPos = GetPosition();
 	Vec3 fontPos = GetPosition();
 
 	for (char ch : mText) {
-		UpdateShaderVariable();
+		UpdateShaderVars();
 		if (ch != ' ') {
-			UpdateShaderVariableSprite(ch);
-			mesh->Render();
+			UpdateShaderVarSprite(ch);
+			mMesh->Render();
 		}
 
 		fontPos.x += 0.07f;
 		SetPosition(fontPos);
 	}
 	for (char ch : mScore) {
-		UpdateShaderVariable();
+		UpdateShaderVars();
 		if (ch != ' ') {
-			UpdateShaderVariableSprite(ch);
-			mesh->Render();
+			UpdateShaderVarSprite(ch);
+			mMesh->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -128,31 +125,36 @@ void Font::Render()
 	SetPosition(originPos);
 }
 
-
-
-
-
-
-
-void Canvas::LoadTextures()
+void Font::SetFontTexture()
 {
-	std::vector<std::string> textureNames{};
-	FileMgr::GetTextureNames(textureNames, "Models/UI");
-
-	for (auto& textureName : textureNames) {
-		// load texture
-		sptr<Texture> texture = std::make_shared<Texture>(RESOURCE_TEXTURE2D);
-		texture->LoadUITexture(textureName);
-
-		mTextureMap.insert(std::make_pair(textureName, texture));
-	}
+	mFontTexture = canvas->GetTexture("Alphabet");
 }
 
+void Font::UnSetFontTexture()
+{
+	mFontTexture = nullptr;
+}
+#pragma endregion
+
+
+
+
+
+
+
+
+#pragma region Canvas
+SINGLETON_PATTERN_DEFINITION(Canvas)
+
+void Canvas::SetScore(int score)
+{
+	mFont->SetScore(std::to_string(score));
+}
 
 void Canvas::Init()
 {
 	mShader = std::make_shared<CanvasShader>();
-	mShader->CreateShader();
+	mShader->Create();
 	LoadTextures();
 
 	UI::CreateUIMesh();
@@ -193,8 +195,17 @@ void Canvas::Render() const
 	mFont->Render();
 }
 
-
-void Canvas::SetScore(int score)
+void Canvas::LoadTextures()
 {
-	mFont->SetScore(std::to_string(score));
+	std::vector<std::string> textureNames{};
+	FileIO::GetTextureNames(textureNames, "Models/UI");
+
+	// load textures
+	for (auto& textureName : textureNames) {
+		sptr<Texture> texture = std::make_shared<Texture>(Resource::Texture2D);
+		texture->LoadUITexture(textureName);
+
+		mTextureMap.insert(std::make_pair(textureName, texture));
+	}
 }
+#pragma endregion

@@ -1,38 +1,36 @@
 #include "Light.hlsl"
 
-struct VS_WATER_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float2 uv : UV;
+struct VSOutput_Water {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float2 UV : UV;
 };
 
-struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
-{
-    float4 cTexture : SV_TARGET1;
-    float distance : SV_TARGET4;
+struct PSOutput_MRT {
+    float4 Texture : SV_TARGET1;
+    float  Distance : SV_TARGET4;
 };
 
 
 #ifdef POST_PROCESSING
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSWater(VS_WATER_OUTPUT input)
+PSOutput_MRT PSWater(VSOutput_Water input)
 {
-    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-    float4 cColor = albedoTexture.Sample(samplerState, input.uv - float2(deltaTime * 0.06f, 0));
-    float4 illumination = Lighting(input.positionW, input.normalW);
+    PSOutput_MRT output;
+    float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV - float2(gDeltaTime * 0.06f, 0));
+    float4 illumination = Lighting(input.PositionW, input.NormalW);
     
-    output.cTexture = lerp(cColor, illumination, 0.5f);
-    output.distance = input.positionW;
+    output.Texture = lerp(color, illumination, 0.5f);
+    output.Distance = input.PositionW;
     
     return output;
 }
 #else
-float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
+float4 PSWater(VSOutput_Water input) : SV_TARGET
 {
-    float4 cColor = albedoTexture.Sample(samplerState, input.uv - float2(deltaTime * 0.06f, 0));
-    float4 illumination = Lighting(input.positionW, input.normalW);
+    float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV - float2(gDeltaTime * 0.06f, 0));
+    float4 illumination = Lighting(input.PositionW, input.NormalW);
     
-    return lerp(cColor, illumination, 0.5f);
+    return lerp(color, illumination, 0.5f);
 }
 #endif

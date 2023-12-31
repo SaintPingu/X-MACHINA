@@ -4,12 +4,8 @@
 
 GraphicsRootSignature::GraphicsRootSignature()
 {
-	mRanges.resize(32);
-}
-
-void GraphicsRootSignature::ParamMapping(RootParam param)
-{
-	mParamMap[param] = mParams.size() - 1;
+	constexpr int kMaxRangeSize = 32;
+	mRanges.resize(kMaxRangeSize);
 }
 
 void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues, UINT registerSpace)
@@ -18,13 +14,13 @@ void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE para
 
 	D3D12_ROOT_PARAMETER rootParam{};
 
-	rootParam.ParameterType = paramType;
+	rootParam.ParameterType            = paramType;
 	rootParam.Constants.Num32BitValues = num32BitValues;
 	rootParam.Constants.ShaderRegister = shaderRegister;
-	rootParam.Constants.RegisterSpace = registerSpace;
-	rootParam.ShaderVisibility = visibility;
+	rootParam.Constants.RegisterSpace  = registerSpace;
+	rootParam.ShaderVisibility         = visibility;
 
-	mParams.emplace_back(rootParam);
+	mParams.push_back(rootParam);
 
 	ParamMapping(param);
 }
@@ -33,23 +29,23 @@ void GraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TY
 {
 	D3D12_DESCRIPTOR_RANGE range{};
 
-	range.RangeType = rangeType;
-	range.NumDescriptors = numDescriptors;
-	range.BaseShaderRegister = shaderRegister;
-	range.RegisterSpace = 0;
+	range.RangeType                         = rangeType;
+	range.NumDescriptors                    = numDescriptors;
+	range.BaseShaderRegister                = shaderRegister;
+	range.RegisterSpace                     = 0;
 	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	mRanges.emplace_back(range);
+	mRanges.push_back(range);
 
 
 	D3D12_ROOT_PARAMETER rootParam{};
 
-	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParam.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParam.DescriptorTable.NumDescriptorRanges = 1;
-	rootParam.DescriptorTable.pDescriptorRanges = &mRanges.back();
-	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParam.DescriptorTable.pDescriptorRanges   = &mRanges.back();
+	rootParam.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	mParams.emplace_back(rootParam);
+	mParams.push_back(rootParam);
 
 	ParamMapping(param);
 }
@@ -58,30 +54,30 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 {
 	// sampler
 	D3D12_STATIC_SAMPLER_DESC samplerDescs[2]{};
-	samplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDescs[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDescs[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDescs[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDescs[0].MipLODBias = 0;
-	samplerDescs[0].MaxAnisotropy = 1;
-	samplerDescs[0].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDescs[0].MinLOD = 0;
-	samplerDescs[0].MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDescs[0].ShaderRegister = 0;
-	samplerDescs[0].RegisterSpace = 0;
+	samplerDescs[0].Filter           = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDescs[0].AddressU         = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDescs[0].AddressV         = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDescs[0].AddressW         = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDescs[0].MipLODBias       = 0;
+	samplerDescs[0].MaxAnisotropy    = 1;
+	samplerDescs[0].ComparisonFunc   = D3D12_COMPARISON_FUNC_ALWAYS;
+	samplerDescs[0].MinLOD           = 0;
+	samplerDescs[0].MaxLOD           = D3D12_FLOAT32_MAX;
+	samplerDescs[0].ShaderRegister   = 0;
+	samplerDescs[0].RegisterSpace    = 0;
 	samplerDescs[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	samplerDescs[1].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDescs[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDescs[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDescs[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDescs[1].MipLODBias = 0;
-	samplerDescs[1].MaxAnisotropy = 1;
-	samplerDescs[1].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDescs[1].MinLOD = 0;
-	samplerDescs[1].MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDescs[1].ShaderRegister = 1;
-	samplerDescs[1].RegisterSpace = 0;
+	samplerDescs[1].Filter           = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDescs[1].AddressU         = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDescs[1].AddressV         = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDescs[1].AddressW         = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDescs[1].MipLODBias       = 0;
+	samplerDescs[1].MaxAnisotropy    = 1;
+	samplerDescs[1].ComparisonFunc   = D3D12_COMPARISON_FUNC_ALWAYS;
+	samplerDescs[1].MinLOD           = 0;
+	samplerDescs[1].MaxLOD           = D3D12_FLOAT32_MAX;
+	samplerDescs[1].ShaderRegister   = 1;
+	samplerDescs[1].RegisterSpace    = 0;
 	samplerDescs[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// flags
@@ -93,11 +89,11 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 
 	// description
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.NumParameters = mParams.size();
-	rootSignatureDesc.pParameters = mParams.data();
+	rootSignatureDesc.NumParameters     = mParams.size();
+	rootSignatureDesc.pParameters       = mParams.data();
 	rootSignatureDesc.NumStaticSamplers = _countof(samplerDescs);
-	rootSignatureDesc.pStaticSamplers = samplerDescs;
-	rootSignatureDesc.Flags = rootSignatureFlags;
+	rootSignatureDesc.pStaticSamplers   = samplerDescs;
+	rootSignatureDesc.Flags             = rootSignatureFlags;
 
 	// serialize
 	ComPtr<ID3DBlob> signatureBlob{};
@@ -109,4 +105,10 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
 
 	return mRootSignature;
+}
+
+
+void GraphicsRootSignature::ParamMapping(RootParam param)
+{
+	mParamMap[param] = mParams.size() - 1;
 }

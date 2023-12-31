@@ -1,23 +1,23 @@
 #include "VSResource.hlsl"
 
-struct VS_INSTANCING_INPUT
-{
-    float3 position : POSITION;
-    float4 color : COLOR;
+struct VSInput_Inst {
+    float3 Position : POSITION;
+    float4 Color : COLOR;
 };
-struct VS_INSTANCING_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITIONW;
-    float4 color : COLOR;
+
+struct VSOutput_Inst {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITIONW;
+    float4 Color : COLOR;
 };
 
 
-VS_INSTANCING_OUTPUT VSInstancing(VS_INSTANCING_INPUT input, uint nInstanceID : SV_InstanceID)
+VSOutput_Inst VSInstancing(VSInput_Inst input, uint instanceID : SV_InstanceID)
 {
-    VS_INSTANCING_OUTPUT output;
-    output.positionW = mul(float4(input.position, 1.0f), colorInstanceBuffer[nInstanceID].m_mtxGameObject).xyz;
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.color = colorInstanceBuffer[nInstanceID].color;
-    return (output);
+    VSOutput_Inst output;
+    output.PositionW = mul(float4(input.Position, 1.f), colorInstBuffer[instanceID].MtxObject).xyz;
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.Color = colorInstBuffer[instanceID].Color;
+    
+    return output;
 }

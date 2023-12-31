@@ -13,11 +13,11 @@ SkyBox::SkyBox()
 {
 	mMesh = std::make_unique<SkyBoxMesh>(20, 20, 20);
 
-	mTexture = std::make_unique<Texture>(RESOURCE_TEXTURE_CUBE);
+	mTexture = std::make_unique<Texture>(Resource::TextureCube);
 	mTexture->LoadCubeTexture("SkyBox_0");
 
 	mShader = std::make_unique<SkyBoxShader>();
-	mShader->CreateShader();
+	mShader->Create();
 
 	scene->CreateShaderResourceView(mTexture.get(), 0);
 }
@@ -27,8 +27,8 @@ void SkyBox::Render()
 	Vec3 pos = mainCameraObject->GetPosition();
 	SetPosition(pos.x, pos.y, pos.z);
 	
-	UpdateShaderVariable();
-	mTexture->UpdateShaderVariables();
+	UpdateShaderVars();
+	mTexture->UpdateShaderVars();
 	mShader->Render();
 	mMesh->Render();
 }

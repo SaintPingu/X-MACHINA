@@ -1,176 +1,122 @@
 #pragma once
+
+#pragma region Include
 #include "Component.h"
+#pragma endregion
 
-#define ASPECT_RATIO				(float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
 
-//-----------------------------[Class Declaration]-----------------------------//
+#pragma region Define
+#define mainCameraObject MainCameraObject::Inst()
+#define mainCamera mainCameraObject->GetCamera()
+#pragma endregion
+
+
+#pragma region ClassForwardDecl
 class GameObject;
-//-----------------------------------------------------------------------------//
+#pragma endregion
 
 
-struct VS_CB_CAMERA_INFO
-{
-	Vec4x4 mView{};			// View 행렬
-	Vec4x4 mProjection{};	// Projection 행렬
-	Vec3 mPosition{};		// 카메라 위치
+#pragma region Variable
+constexpr float gkAspectRatio = (float(gkFrameBufferWidth) / float(gkFrameBufferHeight));
+#pragma endregion
+
+
+#pragma region Struct
+struct CB_CameraInfo {
+	Vec4x4 View{};			// View 행렬
+	Vec4x4 Projection{};	// Projection 행렬
+	Vec3   Position{};		// 카메라 위치
 };
+#pragma endregion
 
 
-
-
-
-
-
-
-
-
-
+#pragma region Class
 
 class Camera : public Component {
-	COMPONENT(Component, Camera)
+	COMPONENT(Camera, Component)
 
 private:
-	Vec4x4 mViewTransform = Matrix4x4::Identity();
-	Vec4x4 mProjectionTransform = Matrix4x4::Identity();
+	Vec4x4 mViewTransform       { Matrix4x4::Identity() };
+	Vec4x4 mProjectionTransform { Matrix4x4::Identity() };
 
 	// Camera Constant Buffer
-	ComPtr<ID3D12Resource> mCBCamera{};
-	VS_CB_CAMERA_INFO* mCBMap_Camera{};
+	ComPtr<ID3D12Resource>	mCB_Camera{};
+	CB_CameraInfo*			mCBMap_Camera{};
 
 	Vec3 mOffset{};
 
 	BoundingFrustum mFrustumView{};
 	BoundingFrustum mFrustumWorld{};
 
-	D3D12_VIEWPORT mViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-	D3D12_RECT mScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+	D3D12_VIEWPORT	mViewport    { 0.f, 0.f, gkFrameBufferWidth , gkFrameBufferHeight, 0.f, 1.f };
+	D3D12_RECT		mScissorRect { 0, 0, gkFrameBufferWidth , gkFrameBufferHeight };
 
 public:
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Constructor ] /////
+	Vec3 GetOffset() const { return mOffset; }
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
+	void SetOffset(const Vec3& offset) { mOffset = offset; }
 
-	Vec3 GetOffset() { return mOffset; }
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
-	void SetOffset(Vec3 xmf3Offset) { mOffset = xmf3Offset; }
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
-
+public:
 	virtual void Start() override;
 	virtual void Release() override;
 
-	/* Shader Variables */
-	virtual void CreateShaderVariables();
-	virtual void ReleaseShaderVariables();
-	virtual void UpdateShaderVariables();
+	virtual void UpdateShaderVars();
 
-	/* View Matrix */
-	void GenerateViewMatrix();
-	void RegenerateViewMatrix();
-	void GenerateProjectionMatrix(float nearPlaneDistance, float farPlaneDistance, float aspectRatio, float fovAngle);
-
-	/* Viewport */
-	void SetViewport(int xTopLeft, int yTopLeft, int width, int height, float minZ = 0.0f, float maxZ = 1.0f);
+	void UpdateViewMtx();
+	void SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float aspectRatio, float fovAngle);
+		 
+	void SetViewport(int xTopLeft, int yTopLeft, int width, int height, float minZ = 0.f, float maxZ = 1.f);
 	void SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom);
+	void SetViewportsAndScissorRects();
 
-	virtual void SetViewportsAndScissorRects();
-
-	/* Transform */
 	void LookAt(const Vec3& lookAt, const Vec3& up);
 
-	/* Frustum */
 	void CalculateFrustumPlanes();
 	bool IsInFrustum(const BoundingBox& boundingBox);
 	bool IsInFrustum(const BoundingOrientedBox& boundingBox);
 	bool IsInFrustum(const BoundingSphere& boundingSphere);
 	bool IsInFrustum(rsptr<const GameObject> object);
+
+private:
+	virtual void CreateShaderVars();
+	virtual void ReleaseShaderVars();
 };
-
-
-
 
 
 
 class CameraObject : public Object {
-protected:
-	float mMovingSpeed{};
-	sptr<Camera> mCamera{};
+	using base = Object;
 
 public:
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Constructor ] /////
-
 	CameraObject();
 	virtual ~CameraObject() = default;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
 
 	rsptr<Camera> GetCamera() const { return mCamera; }
 	float GetMovingSpeed() const { return mMovingSpeed; }
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
-
 	void SetMovingSpeed(float speed) { mMovingSpeed = speed; }
 
+public:
+	void Rotate(float pitch = 0.f, float yaw = 0.f, float roll = 0.f);
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
+	void LookAt(const Vec3& lookAt, const Vec3& up);
 
-	/* Transform */
-	void Rotate(float pitch = 0.0f, float yaw = 0.0f, float roll = 0.0f);
-
-	/* Camera */
-	virtual void LookAt(const Vec3& lookAt, const Vec3& up);
+protected:
+	float mMovingSpeed{};
+	sptr<Camera> mCamera{};
 };
-
-
-
 
 
 
 class MainCameraObject : public CameraObject {
+	using base = CameraObject;
 	SINGLETON_PATTERN(MainCameraObject)
 
-private:
-	GameObject* mPlayer{};
-
 public:
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Constructor ] /////
-
 	MainCameraObject() = default;
 	virtual ~MainCameraObject() = default;
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
-
-	Vec3 GetPlayerPos() const;
-	GameObject* GetPlayer() const { return mPlayer; }
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
-
-	void SetPlayer(rsptr<GameObject> player) { mPlayer = player.get(); }
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
-
-	/* Object */
+public:
 	virtual void Start() override;
-
-	/* Camera */
-	virtual void LookAt(const Vec3& lookAt);
-	virtual void LookPlayer();
 };
-
-#define mainCameraObject MainCameraObject::Inst()
-#define mainCamera mainCameraObject->GetCamera()
+#pragma endregion

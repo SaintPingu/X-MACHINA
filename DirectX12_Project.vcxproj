@@ -138,7 +138,7 @@
     <ClInclude Include="DescriptorHeap.h" />
     <ClInclude Include="DirectX12_Project.h" />
     <ClInclude Include="DXGIMgr.h" />
-    <ClInclude Include="FileMgr.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="Grid.h" />
@@ -178,7 +178,7 @@
     <ClCompile Include="DescriptorHeap.cpp" />
     <ClCompile Include="DirectX12_Project.cpp" />
     <ClCompile Include="DXGIMgr.cpp" />
-    <ClCompile Include="FileMgr.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="InputMgr.cpp" />

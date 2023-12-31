@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Script_Billboard.h"
+
 #include "Scene.h"
 #include "Camera.h"
 

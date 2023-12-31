@@ -1,23 +1,20 @@
 #include "stdafx.h"
 #include "Script_Player.h"
+
 #include "Object.h"
 #include "Scene.h"
 #include "Rigidbody.h"
 #include "UI.h"
 
-static BoundingBox border = { Vec3(256, 100, 256), Vec3(2400, 1100, 2400) };
-
+namespace {
+	BoundingBox border = { Vec3(256, 100, 256), Vec3(2400, 1100, 2400) };
+}
 
 
 void Script_Player::SetSpawn(const Vec3& pos)
 {
 	mObject->SetPosition(pos);
 	XMStoreFloat4x4(&mSpawnTransform, _MATRIX(mObject->GetWorldTransform()));
-}
-
-void Script_Player::SetAcc(float acc)
-{
-	mAcc = acc;
 }
 
 void Script_Player::SetMaxSpeed(float speed)
@@ -43,11 +40,10 @@ void Script_Player::Update()
 void Script_Player::Move(DWORD dwDirection)
 {
 	if (mPlayerType == PlayerType::Tank) {
-		dwDirection &= ~(WORD)Dir::Up;
-		dwDirection &= ~(WORD)Dir::Down;
+		dwDirection &= ~static_cast<DWORD>(Dir::Up);
+		dwDirection &= ~static_cast<DWORD>(Dir::Down);
 	}
 
-	//mPlayer->SetMovingDirection(mObject->GetDirection(dwDirection));
 	Vec3 force = Vector3::Multiply(mObject->GetDirection(dwDirection), mAcc);
 	mRigid->AddForce(force);
 }

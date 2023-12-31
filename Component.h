@@ -1,32 +1,37 @@
 #pragma once
-#include "Transform.h"
 
-// defines
-#define COMPONENT_ABSTRACT( parent, className )							\
+#pragma region Include
+#include "Transform.h"
+#pragma endregion
+
+
+#pragma region Define
+#define COMPONENT_ABSTRACT( className, parent )							\
 private:																\
 	using base = parent;												\
 																		\
 public:																	\
 	className(Object* object) : parent(object) {}						\
-	virtual ~className() = default;										\
+	virtual ~className() = default;
 
-#define COMPONENT( parent, className )									\
+#define COMPONENT( className, parent )									\
 private:																\
 	using base = parent;												\
 																		\
 public:																	\
-    static const int mID = static_cast<int>(ComponentID::className);	\
+    static const int ID = static_cast<int>(ComponentID::className);		\
     className(Object* object) : parent(object) { }						\
     virtual ~className() = default; 									\
-	virtual int GetID() const override { return mID; }					\
+	virtual int GetID() const override { return ID; }
+#pragma endregion
 
 
-//-----------------------------[Class Declaration]-----------------------------//
+#pragma region ClassForwardDecl
 class Object;
-//-----------------------------------------------------------------------------//
+#pragma endregion
 
 
-// Enum Classes
+#pragma region EnumClass
 enum class ComponentID {
 	BoxCollider = 0,
 	SphereCollider,
@@ -49,19 +54,19 @@ enum class ComponentID {
 };
 
 enum class ObjectTag : DWORD {
-	Unspecified		= 0x000,
-	Player			= 0x001,
-	Building		= 0x002,
-	ExplosiveSmall	= 0x004,
-	ExplosiveBig	= 0x008,
-	Tank			= 0x010,
-	Helicopter		= 0x020,
-	Background		= 0x040,
-	Bullet			= 0x080,
-	Billboard		= 0x100,
-	Terrain			= 0x200,
-	Water			= 0x400,
-	Sprite			= 0x800,
+	Unspecified = 0x000,
+	Player = 0x001,
+	Building = 0x002,
+	ExplosiveSmall = 0x004,
+	ExplosiveBig = 0x008,
+	Tank = 0x010,
+	Helicopter = 0x020,
+	Background = 0x040,
+	Bullet = 0x080,
+	Billboard = 0x100,
+	Terrain = 0x200,
+	Water = 0x400,
+	Sprite = 0x800,
 };
 
 enum class ObjectLayer {
@@ -76,25 +81,29 @@ enum class ObjectType {
 	Dynamic,
 	DynamicMove,
 };
+#pragma endregion
 
+
+#pragma region Function
 ObjectTag GetTagByName(const std::string& name);
 ObjectLayer GetLayerByNum(int num);
 ObjectType GetObjectType(ObjectTag tag);
+#pragma endregion
 
 
-
-
-
-
+#pragma region Class
 class Component {
 public:
 	Object* mObject{};
+
+private:
+	static constexpr int kNotID = -1;
 
 public:
 	Component(Object* object) { mObject = object; }
 	virtual ~Component() = default;
 
-	virtual int GetID() const { return -1; }
+	virtual int GetID() const { return kNotID; }
 
 	virtual void Start() {}
 	virtual void Update() {}
@@ -109,68 +118,58 @@ public:
 
 
 
-
 class Object : public Transform {
+protected:
+	std::string	mName{};
+	ObjectTag	mTag{};
+	ObjectLayer mLayer{};
+	ObjectType	mType{};
+
 private:
 	std::vector<sptr<Component>> mComponents{};
 	std::unordered_set<const Object*> mCollisionObjects{};
 
-protected:
-	std::string mName{};
-	ObjectTag mTag{};
-	ObjectLayer mLayer{};
-	ObjectType mType{};
-
-private:
-	void StartComponents();
-	void UpdateComponents();
-	void ReleaseComponents();
-
-	sptr<Component> GetCopyComponent(rsptr<Component> component);
-
 public:
+#pragma region C/Dtor
 	Object() : Transform(this) { }
 	virtual ~Object() { Release(); }
+#pragma endregion
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
-
+#pragma region Getter
 	ObjectTag GetTag() const { return mTag; }
 	ObjectLayer GetLayer() const { return mLayer; }
 	ObjectType GetType() const { return mType; }
 
 	const std::string& GetName() const { return mName; }
+#pragma endregion
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
-
+#pragma region Setter
 	void SetTag(ObjectTag tag);
 	void SetLayer(ObjectLayer layer) { mLayer = layer; }
 
 	void SetName(const std::string& name) { mName = name; }
+#pragma endregion
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Component ] /////
+
+
+#pragma region Component
 	template<class T>
 	sptr<T> GetComponent() const {
-		sptr<T> result{};
-
-		for (auto component : mComponents) {
-			if (component->GetID() == T::mID) {
-				result = std::static_pointer_cast<T>(component);
-				break;
+		for (const auto& component : mComponents) {
+			if (component->GetID() == T::ID) {
+				return std::static_pointer_cast<T>(component);
 			}
 		}
 
-		return result;
+		return nullptr;
 	}
 
 	template<class T>
 	std::vector<sptr<T>> GetComponents() const {
 		std::vector<sptr<T>> result{};
 
-		for (auto& component : mComponents) {
-			if (component->GetID() == T::mID) {
+		for (const auto& component : mComponents) {
+			if (component->GetID() == T::ID) {
 				result.emplace_back(std::static_pointer_cast<T>(component));
 			}
 		}
@@ -181,7 +180,6 @@ public:
 	std::vector<sptr<Component>> GetAllComponents() const {
 		return mComponents;
 	}
-
 
 	template<class T>
 	sptr<T> AddComponent() {
@@ -194,25 +192,30 @@ public:
 		sptr<Component> component{};
 		for (auto it = mComponents.begin(); it != mComponents.end(); ++it) {
 			component = *it;
-			if (component->GetID() == T::mID) {
+			if (component->GetID() == T::ID) {
 				mComponents.erase(it);
 				return;
 			}
 		}
 	}
 
-
 	void CopyComponents(const Object& src);
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
-	void ReleaseUploadBuffers();
-
-	void ProcessComponents(std::function<void(sptr<Component>)> processFunc);
+#pragma endregion
 
 	virtual void Start();
 	virtual void Update() override;
 	virtual void Release();
 
+	virtual void ReleaseUploadBuffers();
+
 	void OnCollisionStay(Object& other);
+
+private:
+	void ProcessComponents(std::function<void(sptr<Component>)> processFunc);
+	void StartComponents();
+	void UpdateComponents();
+	void ReleaseComponents();
+
+	sptr<Component> GetCopyComponent(rsptr<Component> component);
 };
+#pragma endregion

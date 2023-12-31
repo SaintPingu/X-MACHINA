@@ -9,166 +9,71 @@
 #include "Scene.h"
 #include "Texture.h"
 
+#define _WITH_APPROXIMATE_OPPOSITE_CORNER
 
-
-
-
-
-HeightMapTerrain::HeightMapTerrain(LPCTSTR fileName, int width, int length, int blockWidth, int blockLength)
-{
-	mWidth = width;
-	mLength = length;
-
-	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
-	int xQuadsPerBlock = blockWidth - 1;
-	int zQuadsPerBlock = blockLength - 1;
-
-	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
-
-	//지형에서 가로 방향, 세로 방향으로 격자 메쉬가 몇 개가 있는 가를 나타낸다.
-	long xBlocks = (mWidth - 1) / xQuadsPerBlock;
-	long zBlocks = (mLength - 1) / zQuadsPerBlock;
-
-	mTerrains.resize(xBlocks * zBlocks);
-	mBuffer.resize(xBlocks * zBlocks);
-
-	float meshRadius = std::sqrtf((blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
-	MyBoundingSphere bs;
-	bs.Radius = meshRadius;
-
-	for (int z = 0, zStart = 0; z < zBlocks; z++)
+namespace {
+	float uint16ToFloat(std::uint16_t value)
 	{
-		for (int x = 0, xStart = 0; x < xBlocks; x++)
-		{
-			xStart = x * (blockWidth - 1);
-			zStart = z * (blockLength - 1);
+		return static_cast<float>(value) / 65535.0f * 255.0f;
+	}
 
-			// 각자 메쉬를 생성해 저장
-			int index = x + (z * xBlocks);
-			sptr<HeightMapGridMesh> mesh = std::make_shared<HeightMapGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
-			mTerrains[index] = std::make_shared<TerrainBlock>(mesh);
-			mTerrains[index]->SetTerrain(this);
+	// 중심점(center)을 기준으로 정점들의 위치를 순회하며 BoundingSphere를 계산
+	MyBoundingSphere CalculateBoundingSphere(const Vec3& center, const std::vector<Vec3>& positions)
+	{
+		float maxDistanceSq = 0.f;
 
-			Vec3 center = Vec3(xStart + blockWidth / 2, 0.f, zStart + blockLength / 2);
-			mTerrains[index]->SetPosition(center);
-			bs.Center = center;
-			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
+		// 모든 정점 위치에 대해 평균 중심간 최대 거리 계산
+		for (const auto& position : positions) {
+			float distanceSq = (position.x - center.x) * (position.x - center.x) +
+				(position.y - center.y) * (position.y - center.y) +
+				(position.z - center.z) * (position.z - center.z);
+			maxDistanceSq = max(maxDistanceSq, distanceSq);
 		}
+
+		// BoundingSphere 반지름 설정
+		float radius = std::sqrt(maxDistanceSq);
+
+		MyBoundingSphere result{};
+		result.OriginCenter = center;
+		result.Center       = center;
+		result.Radius       = radius;
+		return result;
 	}
 
-	MATERIALLOADINFO materialInfo;
-	materialInfo.mEmissive = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	materialInfo.mGlossiness = 0.1414213f;
-	materialInfo.mMetallic = 0.0f;
-	materialInfo.mSpecularHighlight = 1.0f;
-	materialInfo.mGlossyReflection = 1.0f;
+	// 정점들의 위치를 순회하며 BoundingSphere를 계산
+	MyBoundingSphere CalculateBoundingSphere(const std::vector<Vec3>& positions)
+	{
+		Vec3 center{ 0.f, 0.f, 0.f };
+		float maxDistanceSq = 0.f;
 
-	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
-	mMaterial = std::make_shared<Material>();
-	mMaterial->SetMaterialColors(materialColors);
+		// 모든 정점 위치에 대한 평균 중심 위치 계산
+		for (const auto& position : positions) {
+			center.x += position.x;
+			center.y += position.y;
+			center.z += position.z;
+		}
+		int vertexCount = positions.size();
+		center.x /= vertexCount;
+		center.y /= vertexCount;
+		center.z /= vertexCount;
 
-	mTextureLayer[0] = scene->GetTexture("Detail_Texture_7");
-	mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
-	mTextureLayer[2] = scene->GetTexture("Stone"); 
-	mTextureLayer[3] = scene->GetTexture("GrassUV01");
-	mSplatMap = scene->GetTexture("Terrain_splatmap");
-
-	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
-	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
-	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
-	mTextureLayer[3]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer3));
-	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
-
-	mShader = std::make_shared<TerrainShader>();
-	mShader->CreateShader();
-}
-
-HeightMapTerrain::~HeightMapTerrain()
-{
-
-}
-
-float HeightMapTerrain::GetHeight(float x, float z)
-{
-	return mHeightMapImage->GetHeight(x, z);
-}
-
-Vec3 HeightMapTerrain::GetNormal(float x, float z)
-{
-	return mHeightMapImage->GetHeightMapNormal(static_cast<int>(x), static_cast<int>(z));
-}
-
-int HeightMapTerrain::GetHeightMapWidth()
-{
-	return mHeightMapImage->GetHeightMapWidth();
-}
-int HeightMapTerrain::GetHeightMapLength()
-{
-	return mHeightMapImage->GetHeightMapLength();
-}
-
-void HeightMapTerrain::PushObject(TerrainBlock* terrain)
-{
-	assert(mCrntBufferIndex < mBuffer.size());
-
-	mBuffer[mCrntBufferIndex++] = terrain;
-}
-
-void HeightMapTerrain::Render()
-{
-	mShader->Render();
-
-	UpdateShaderVariable();
-	mMaterial->UpdateShaderVariable();
-
-	mTextureLayer[0]->UpdateShaderVariables();
-	mTextureLayer[1]->UpdateShaderVariables();
-	mTextureLayer[2]->UpdateShaderVariables();
-	mTextureLayer[3]->UpdateShaderVariables();
-	mSplatMap->UpdateShaderVariables();
-
-	for (UINT i = 0; i < mCrntBufferIndex; ++i) {
-		mBuffer[i]->RenderMesh();
-	}
-
-	ResetBuffer();
-}
-
-void HeightMapTerrain::Start()
-{
-	for (auto& terrain : mTerrains) {
-		terrain->Start();
+		return CalculateBoundingSphere(center, positions);
 	}
 }
 
-void HeightMapTerrain::Update()
-{
-
-}
 
 
 
 
-
-
-// [ HeightMapImage ] //
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-float uint16ToFloat(std::uint16_t value)
-{
-	return static_cast<float>(value) / 65535.0f * 255.0f;
-}
-
-HeightMapImage::HeightMapImage(LPCTSTR fileName, int width, int length)
+#pragma region HeightMapImage
+HeightMapImage::HeightMapImage(const std::wstring& fileName, int width, int length)
 {
 	mWidth = width;
 	mLength = length * 2; // [ERROR] *2 안하면 절반밖에 로딩이 안되는 문제
 	std::vector<uint16_t> pHeightMapPixels(mWidth * mLength);
 
 	//파일을 열고 읽는다. 높이 맵 이미지는 파일 헤더가 없는 RAW 이미지이다.
-	HANDLE hFile = ::CreateFile(fileName, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, nullptr);
+	HANDLE hFile = ::CreateFile(fileName.data(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, nullptr);
 
 	DWORD dwBytesRead;
 	BOOL success = ::ReadFile(hFile, pHeightMapPixels.data(), (mWidth * mLength), &dwBytesRead, nullptr);
@@ -184,17 +89,12 @@ HeightMapImage::HeightMapImage(LPCTSTR fileName, int width, int length)
 	}
 }
 
-HeightMapImage::~HeightMapImage()
-{
 
-}
-
-#define _WITH_APPROXIMATE_OPPOSITE_CORNER
-float HeightMapImage::GetHeight(float fx, float fz)
+float HeightMapImage::GetHeight(float fx, float fz) const
 {
 	/*지형의 좌표 (fx, fz)는 이미지 좌표계이다. 높이 맵의 x-좌표와 z-좌표가 높이 맵의 범위를 벗어나면 지형의 높이는 0이다.*/
-	if ((fx < 0.0f) || (fz < 0.0f) || (fx >= mWidth - 1) || (fz >= mLength - 1)) {
-		return 0.0f;
+	if ((fx < 0.f) || (fz < 0.f) || (fx >= mWidth - 1) || (fz >= mLength - 1)) {
+		return 0.f;
 	}
 	//높이 맵의 좌표의 정수 부분과 소수 부분을 계산한다.
 	int x = static_cast<int>(fx);
@@ -228,11 +128,11 @@ float HeightMapImage::GetHeight(float fx, float fz)
 	else
 	{
 		/*지형의 삼각형들이 왼쪽에서 오른쪽 방향으로 나열되는 경우이다.
-		다음 그림의 왼쪽은 (zPercent < (1.0f - xPercent))인 경우이다.
+		다음 그림의 왼쪽은 (zPercent < (1.f - xPercent))인 경우이다.
 		이 경우 TopRight의 픽셀 값은 (topRight = topLeft + (bottomRight - bottomLeft))로 근사한다.
-		다음 그림의 오른쪽은 (zPercent ≥ (1.0f - xPercent))인 경우이다.
+		다음 그림의 오른쪽은 (zPercent ≥ (1.f - xPercent))인 경우이다.
 		이 경우 BottomLeft의 픽셀 값은 (bottomLeft = topLeft + (bottomRight - topRight))로 근사한다.*/
-		if (zPercent < (1.0f - xPercent))
+		if (zPercent < (1.f - xPercent))
 			topRight = topLeft + (bottomRight - bottomLeft);
 		else
 			bottomLeft = topLeft + (bottomRight - topRight);
@@ -245,83 +145,41 @@ float HeightMapImage::GetHeight(float fx, float fz)
 	float height = bottomHeight * (1 - zPercent) + topHeight * zPercent;
 	return height;
 }
-Vec3 HeightMapImage::GetHeightMapNormal(int x, int z)
+
+Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 {
 	// x - 좌표와 z - 좌표가 높이 맵의 범위를 벗어나면 지형의 법선 벡터는 y - 축 방향 벡터이다.
-	if ((x < 0.0f) || (z < 0.0f) || (x >= mWidth) || (z >= mLength)) {
-		return Vec3(0.0f, 1.0f, 0.0f);
+	if ((x < 0.f) || (z < 0.f) || (x >= mWidth) || (z >= mLength)) {
+		return Vec3(0.f, 1.f, 0.f);
 	}
 
 	/*높이 맵에서 (x, z) 좌표의 픽셀 값과 인접한 두 개의 점 (x+1, z), (z, z+1)에 대한 픽셀 값을 사용하여 법선 벡터를 계산한다.*/
 	int heightMapIndex = x + (z * mWidth);
-	int xHeightMapAdd = (x < (mWidth - 1)) ? 1 : -1;
-	int zHeightMapAdd = (z < (mLength - 1)) ? mWidth : -mWidth;
+	int xHeightMapAdd  = (x < (mWidth - 1)) ? 1 : -1;
+	int zHeightMapAdd  = (z < (mLength - 1)) ? mWidth : -mWidth;
 
 	float y1 = (float)mHeightMapPixels[heightMapIndex];
 	float y2 = (float)mHeightMapPixels[heightMapIndex + xHeightMapAdd];
 	float y3 = (float)mHeightMapPixels[heightMapIndex + zHeightMapAdd];
 
-	Vec3 edge1 = Vec3(0.0f, y3 - y1, 1.0f);
-	Vec3 edge2 = Vec3(1.0f, y2 - y1, 0.0f);
+	Vec3 edge1  = Vec3(0.f, y3 - y1, 1.f);
+	Vec3 edge2  = Vec3(1.f, y2 - y1, 0.f);
 	Vec3 normal = Vector3::CrossProduct(edge1, edge2, true);
 
 	return normal;
 }
+#pragma endregion
 
 
 
-// [ HeightMapGridMesh ] //
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// 중심점(center)을 기준으로 정점들의 위치를 순회하며 BoundingSphere를 계산
-MyBoundingSphere CalculateBoundingSphere(const Vec3& center, const std::vector<Vec3>& positions) {
-	float maxDistanceSq = 0.0f;
 
-	// 모든 정점 위치에 대해 평균 중심간 최대 거리 계산
-	for (const auto& position : positions) {
-		float distanceSq = (position.x - center.x) * (position.x - center.x) +
-			(position.y - center.y) * (position.y - center.y) +
-			(position.z - center.z) * (position.z - center.z);
-		maxDistanceSq = max(maxDistanceSq, distanceSq);
-	}
-
-	// BoundingSphere 반지름 설정
-	float radius = std::sqrt(maxDistanceSq);
-
-	MyBoundingSphere result;
-	result.OriginCenter = center;
-	result.Center = center;
-	result.Radius = radius;
-	return result;
-}
-
-// 정점들의 위치를 순회하며 BoundingSphere를 계산
-MyBoundingSphere CalculateBoundingSphere(const std::vector<Vec3>& positions) {
-	Vec3 center{ 0.0f, 0.0f, 0.0f };
-	float maxDistanceSq = 0.0f;
-
-	// 모든 정점 위치에 대한 평균 중심 위치 계산
-	for (const auto& position : positions) {
-		center.x += position.x;
-		center.y += position.y;
-		center.z += position.z;
-	}
-	int vertexCount = positions.size();
-	center.x /= vertexCount;
-	center.y /= vertexCount;
-	center.z /= vertexCount;
-
-	return CalculateBoundingSphere(center, positions);
-}
-
+#pragma region HeightMapGridMesh
 HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage)
 {
-	static constexpr float corr = 1.0f / TERRAIN_LENGTH;	// for SplatMap
+	static constexpr float corr = 1.f / TERRAIN_LENGTH;	// for SplatMap
 	static constexpr float detailScale = 0.1f;
 	mStride = sizeof(Vec3);
-	mPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
 	mVertexCount = width * length;
 	std::vector<Vec3> positions;
@@ -333,27 +191,32 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 	uvs0.resize(width * length);
 	uvs1.resize(width * length);
 
-	float height = 0.0f;
-	float minHeight = +FLT_MAX;
-	float maxHeight = -FLT_MAX;
+	float height = 0.f;
+	float minHeight = FLT_MAX;
+	float maxHeight = FLT_MIN;
 
 	for (int i = 0, z = zStart; z < (zStart + length); z++) {
 		for (int x = xStart; x < (xStart + width); x++, i++) {
-			positions[i] = Vec3(x, OnGetHeight(x, z, heightMapImage), z);
-			normals[i] = heightMapImage->GetHeightMapNormal(x, z);
-			uvs0[i] = Vec2(float(x) * detailScale, float(z) * detailScale);
 
+			positions[i] = Vec3(x, OnGetHeight(x, z, heightMapImage), z);
+			normals[i]   = heightMapImage->GetHeightMapNormal(x, z);
+
+			uvs0[i] = Vec2(float(x) * detailScale, float(z) * detailScale);
 			uvs1[i] = Vec2(float(x) * corr, float(z) * corr);
 
-			if (height < minHeight) minHeight = height;
-			if (height > maxHeight) maxHeight = height;
+			if (height < minHeight) {
+				minHeight = height;
+			}
+			if (height > maxHeight) {
+				maxHeight = height;
+			}
 		}
 	}
 
-	D3DUtil::CreateVertexBufferResource<Vec3>(positions, mVertexUploadBuffer, mVertexBuffer);
-	D3DUtil::CreateVertexBufferResource<Vec3>(normals, mNormalUploadBuffer, mNormalBuffer);
-	D3DUtil::CreateVertexBufferResource<Vec2>(uvs0, mUV0UploadBuffer, mUV0Buffer);
-	D3DUtil::CreateVertexBufferResource<Vec2>(uvs1, mUV1UploadBuffer, mUV1Buffer);
+	D3DUtil::CreateVertexBufferResource(positions, mVertexUploadBuffer, mVertexBuffer);
+	D3DUtil::CreateVertexBufferResource(normals, mNormalUploadBuffer, mNormalBuffer);
+	D3DUtil::CreateVertexBufferResource(uvs0, mUV0UploadBuffer, mUV0Buffer);
+	D3DUtil::CreateVertexBufferResource(uvs1, mUV1UploadBuffer, mUV1Buffer);
 
 	CreateVertexBufferViews();
 
@@ -363,14 +226,18 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 	for (int j = 0, z = 0; z < length - 1; z++) {
 		if ((z % 2) == 0) {
 			for (int x = 0; x < width; x++) {
-				if ((x == 0) && (z > 0)) indices[j++] = (UINT)(x + (z * width));
+				if ((x == 0) && (z > 0)) {
+					indices[j++] = (UINT)(x + (z * width));
+				}
 				indices[j++] = (UINT)(x + (z * width));
 				indices[j++] = (UINT)((x + (z * width)) + width);
 			}
 		}
 		else {
 			for (int x = width - 1; x >= 0; x--) {
-				if (x == (width - 1)) indices[j++] = (UINT)(x + (z * width));
+				if (x == (width - 1)) {
+					indices[j++] = (UINT)(x + (z * width));
+				}
 				indices[j++] = (UINT)(x + (z * width));
 				indices[j++] = (UINT)((x + (z * width)) + width);
 			}
@@ -380,17 +247,13 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 	D3DUtil::CreateIndexBufferResource(indices, mIndexUploadBuffer, mIndexBuffer);
 	D3DUtil::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
 }
-HeightMapGridMesh::~HeightMapGridMesh()
-{
-
-}
 
 
 //격자의 좌표가 (x, z)일 때 교점(정점)의 높이를 반환하는 함수이다.
 float HeightMapGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage)
 {
 	const std::vector<float>& heightMapPixels = heightMapImage->GetHeightMapPixels();
-	int width = heightMapImage->GetHeightMapWidth();
+	const int width                           = heightMapImage->GetHeightMapWidth();
 
 	return heightMapPixels[x + (z * width)];
 }
@@ -407,25 +270,160 @@ void HeightMapGridMesh::Render() const
 		cmdList->DrawInstanced(mVertexCount, 1, mOffset, 0);
 	}
 }
+#pragma endregion
 
 
 
 
+
+#pragma region HeightMapTerrain
+HeightMapTerrain::HeightMapTerrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength)
+{
+	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
+	mWidth          = width;
+	mLength         = length;
+
+	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
+	int xQuadsPerBlock = blockWidth - 1;
+	int zQuadsPerBlock = blockLength - 1;
+
+	//지형에서 가로 방향, 세로 방향으로 격자 메쉬가 몇 개가 있는 가를 나타낸다.
+	long xBlocks = (mWidth - 1) / xQuadsPerBlock;
+	long zBlocks = (mLength - 1) / zQuadsPerBlock;
+
+	mTerrains.resize(xBlocks * zBlocks);
+	mBuffer.resize(xBlocks * zBlocks);
+
+	float meshRadius = std::sqrtf((blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
+	MyBoundingSphere bs;
+	bs.Radius = meshRadius;
+
+	for (int z = 0, zStart = 0; z < zBlocks; z++)
+	{
+		for (int x = 0, xStart = 0; x < xBlocks; x++)
+		{
+			xStart = x * (blockWidth - 1);
+			zStart = z * (blockLength - 1);
+
+			// 각자 메쉬를 생성해 저장
+			int index = x + (z * xBlocks);
+
+			sptr<HeightMapGridMesh> mesh = std::make_shared<HeightMapGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
+			mTerrains[index]             = std::make_shared<TerrainBlock>(mesh);
+			mTerrains[index]->SetTerrain(this);
+
+			Vec3 center = Vec3(xStart + blockWidth / 2, 0.f, zStart + blockLength / 2);
+			bs.Center   = center;
+			mTerrains[index]->SetPosition(center);
+			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
+		}
+	}
+
+	MaterialLoadInfo materialInfo{};
+	materialInfo.Emissive          = Vec4(0.f, 0.f, 0.f, 1.f);
+	materialInfo.Glossiness        = 0.1414213f;
+	materialInfo.Metallic          = 0.f;
+	materialInfo.SpecularHighlight = 1.f;
+	materialInfo.GlossyReflection  = 1.f;
+
+	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
+	mMaterial                           = std::make_shared<Material>();
+	mMaterial->SetMaterialColors(materialColors);
+
+	mTextureLayer[0] = scene->GetTexture("Detail_Texture_7");
+	mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
+	mTextureLayer[2] = scene->GetTexture("Stone");
+	mTextureLayer[3] = scene->GetTexture("GrassUV01");
+	mSplatMap        = scene->GetTexture("Terrain_splatmap");
+
+	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
+	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
+	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
+	mTextureLayer[3]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer3));
+	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
+
+	mShader = std::make_shared<TerrainShader>();
+	mShader->Create();
+}
+
+
+
+float HeightMapTerrain::GetHeight(float x, float z) const
+{
+	return mHeightMapImage->GetHeight(x, z);
+}
+
+Vec3 HeightMapTerrain::GetNormal(float x, float z) const
+{
+	return mHeightMapImage->GetHeightMapNormal(static_cast<int>(x), static_cast<int>(z));
+}
+
+int HeightMapTerrain::GetHeightMapWidth() const
+{
+	return mHeightMapImage->GetHeightMapWidth();
+}
+int HeightMapTerrain::GetHeightMapLength() const
+{
+	return mHeightMapImage->GetHeightMapLength();
+}
+
+void HeightMapTerrain::PushObject(TerrainBlock* terrain)
+{
+	assert(mCurrBuffIdx < mBuffer.size());
+
+	mBuffer[mCurrBuffIdx++] = terrain;
+}
+
+void HeightMapTerrain::Render()
+{
+	mShader->Render();
+
+	UpdateShaderVars();
+	mMaterial->UpdateShaderVars();
+
+	mTextureLayer[0]->UpdateShaderVars();
+	mTextureLayer[1]->UpdateShaderVars();
+	mTextureLayer[2]->UpdateShaderVars();
+	mTextureLayer[3]->UpdateShaderVars();
+	mSplatMap->UpdateShaderVars();
+
+	for (UINT i = 0; i < mCurrBuffIdx; ++i) {
+		mBuffer[i]->RenderMesh();
+	}
+
+	ResetBuffer();
+}
+
+void HeightMapTerrain::Start()
+{
+	for (auto& terrain : mTerrains) {
+		terrain->Start();
+	}
+}
+
+void HeightMapTerrain::Update()
+{
+	UpdateGrid();
+}
+
+void HeightMapTerrain::UpdateGrid()
+{
+	for (auto& terrain : mTerrains) {
+		scene->UpdateObjectGrid(terrain.get());
+	}
+}
+#pragma endregion
+
+
+
+
+
+#pragma region TerrainBlock
 TerrainBlock::TerrainBlock(rsptr<HeightMapGridMesh> mesh) : GameObject()
 {
 	mMesh = mesh;
 
 	SetTag(ObjectTag::Terrain);
-}
-
-void TerrainBlock::Push()
-{
-	if (mIsPushed) {
-		return;
-	}
-
-	mIsPushed = true;
-	mBuffer->PushObject(this);
 }
 
 void TerrainBlock::Render()
@@ -438,3 +436,14 @@ void TerrainBlock::RenderMesh()
 	mMesh->Render();
 	Update();
 }
+
+void TerrainBlock::Push()
+{
+	if (mIsPushed) {
+		return;
+	}
+
+	mIsPushed = true;
+	mBuffer->PushObject(this);
+}
+#pragma endregion

@@ -1,28 +1,28 @@
-Texture2D albedoTexture : register(t2);
-TextureCube skyBoxTexture : register(t2);
+TextureCube gSkyBoxTexture : register(t2);
 
-Texture2D terrainTextureLayer0 : register(t2);
-Texture2D terrainTextureLayer1 : register(t3);
-Texture2D terrainTextureLayer2 : register(t4);
-Texture2D terrainTextureLayer3 : register(t5);
-Texture2D terrainSplatMap : register(t6);
+Texture2D gAlbedoTexture : register(t2);
+Texture2D gTerrainTextureLayer0 : register(t2);
+Texture2D gTerrainTextureLayer1 : register(t3);
+Texture2D gTerrainTextureLayer2 : register(t4);
+Texture2D gTerrainTextureLayer3 : register(t5);
+Texture2D gTerrainSplatMap : register(t6);
 
-Texture2D rt1_texture : register(t7);
-Texture2D rt2_ui : register(t8);
-Texture2D rt3_normal : register(t9);
-Texture2D rt4_distance : register(t10);
-Texture2D depthTexture : register(t11);
+Texture2D gRT1_Texture : register(t7);
+Texture2D gRT2_UI : register(t8);
+Texture2D gRT3_Normal : register(t9);
+Texture2D gRT4_Distance : register(t10);
+Texture2D gRT5_Depth : register(t11);
 
-SamplerState samplerState : register(s0);
+SamplerState gSamplerState : register(s0);
 
-cbuffer gameInfo : register(b3)
+cbuffer cbGameInfo : register(b3)
 {
-    float deltaTime : packoffset(c0);
+    float gDeltaTime : packoffset(c0);
 };
 
 bool IsWhite(float4 color)
 {
-    return color.rgb == float3(1.0f, 1.0f, 1.0f) && color.a == 1.0f;
+    return color.rgb == float3(1.f, 1.f, 1.f) && color.a == 1.f;
 }
 
 #define POST_PROCESSING

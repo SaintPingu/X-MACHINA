@@ -1,13 +1,19 @@
 #pragma once
-#include "Transform.h"
 
-//-----------------------------[Class Declaration]-----------------------------//
+#pragma region Include
+#include "Transform.h"
+#pragma endregion
+
+
+#pragma region ClassForwardDecl
 class Texture;
 class Camera;
 class SkyBoxShader;
 class SkyBoxMesh;
-//-----------------------------------------------------------------------------//
+#pragma endregion
 
+
+#pragma region Class
 class SkyBox : public Transform {
 private:
 	std::unique_ptr<SkyBoxShader> mShader{};
@@ -16,8 +22,9 @@ private:
 
 public:
 	SkyBox();
-	~SkyBox() = default;
+	virtual ~SkyBox() = default;
 
+public:
 	void Render();
 };
-
+#pragma endregion

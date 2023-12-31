@@ -20,16 +20,16 @@ void Script_AirplanePlayer::Start()
 
 	SetFireDelay(0.1f);
 	mPlayerType = PlayerType::Airplane;
-	mRotationSpeed = 90.0f;
+	mRotationSpeed = 90.f;
 
-	SetSpawn(Vec3(50.0f, 100.0f, 50.0f));
-	SetHP(150.0f);
-	SetDamage(10.0f);
+	SetSpawn(Vec3(50.f, 100.f, 50.f));
+	SetHP(150.f);
+	SetDamage(10.f);
 	mObject->GetComponent<Rigidbody>()->SetMass(100.f);
 	mObject->GetComponent<Rigidbody>()->SetFriction(30.f);
 
-	base::SetAcc(5000.0f);
-	base::SetMaxSpeed(100.0f);
+	base::SetAcc(5000.f);
+	base::SetMaxSpeed(100.f);
 	mBulletSpeed = 300.f;
 }
 
@@ -56,7 +56,7 @@ void Script_AirplanePlayer::ProcessInput()
 	if (KEY_PRESSED('W'))			dwDirection |= (WORD)Dir::Front;
 	if (KEY_PRESSED('S'))			dwDirection |= (WORD)Dir::Back;
 	if (KEY_PRESSED(VK_SPACE))		dwDirection |= (WORD)Dir::Up;
-	if (KEY_PRESSED(VK_SHIFT))		dwDirection |= (WORD)Dir::Down;
+	if (KEY_PRESSED(VK_LSHIFT))		dwDirection |= (WORD)Dir::Down;
 	if (dwDirection) {
 		base::Move(dwDirection);
 	}
@@ -79,7 +79,7 @@ void Script_AirplanePlayer::Rotate(DWORD rotationDir, float angle)
 {
 	angle *= mRotationSpeed;
 	if (rotationDir) {
-		float zRotation = 0.0f;
+		float zRotation = 0.f;
 		if (rotationDir & (WORD)Dir::Left) {
 			zRotation += angle;
 		}
@@ -87,8 +87,8 @@ void Script_AirplanePlayer::Rotate(DWORD rotationDir, float angle)
 			zRotation -= angle;
 		}
 
-		if (zRotation != 0.0f) {
-			mObject->Rotate(0.0f, 0.0f, zRotation);
+		if (zRotation != 0.f) {
+			mObject->Rotate(0.f, 0.f, zRotation);
 		}
 	}
 }

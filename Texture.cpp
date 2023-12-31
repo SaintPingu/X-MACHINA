@@ -4,15 +4,44 @@
 
 #include "Scene.h"
 
-Texture::Texture(UINT nTextureType)
+
+Texture::Texture(Resource resourceType)
 {
-	mTextureType = nTextureType;
+	mResourceType = resourceType;
 	mRootParamIndex = scene->GetRootParamIndex(RootParam::Texture);
 }
 
-Texture::~Texture()
+D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 {
+	ComPtr<ID3D12Resource> shaderResource = GetResource();
+	D3D12_RESOURCE_DESC resourceDesc = shaderResource->GetDesc();
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	switch (mResourceType)
+	{
+	case Resource::Texture2D: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 1)
+	case Resource::Texture2D_Array:
+		shaderResourceViewDesc.Format                        = resourceDesc.Format;
+		shaderResourceViewDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MipLevels           = -1;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip     = 0;
+		shaderResourceViewDesc.Texture2D.PlaneSlice          = 0;
+		shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.f;
+		break;
+	case Resource::TextureCube: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 6)
+		shaderResourceViewDesc.Format                          = resourceDesc.Format;
+		shaderResourceViewDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		shaderResourceViewDesc.TextureCube.MipLevels           = 1;
+		shaderResourceViewDesc.TextureCube.MostDetailedMip     = 0;
+		shaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.f;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+	return shaderResourceViewDesc;
 }
 
 void Texture::SetName(const std::string& name)
@@ -21,12 +50,12 @@ void Texture::SetName(const std::string& name)
 	mName.assign(str.begin(), str.end());
 }
 
-void Texture::SetGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle)
+void Texture::ReleaseUploadBuffers()
 {
-	mSrvGpuDescHandle = d3dSrvGpuDescriptorHandle;
+	mTextureUploadBuffer = nullptr;
 }
 
-void Texture::UpdateShaderVariables()
+void Texture::UpdateShaderVars()
 {
 	if (mSrvGpuDescHandle.ptr) {
 		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvGpuDescHandle);
@@ -35,27 +64,8 @@ void Texture::UpdateShaderVariables()
 
 }
 
-void Texture::ReleaseShaderVariables()
+void Texture::ReleaseShaderVars()
 {
-}
-
-void Texture::ReleaseUploadBuffers()
-{
-	mTextureUploadBuffer = nullptr;
-}
-
-ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
-{
-	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
-}
-
-
-void Texture::LoadTexture(const std::wstring& filePath)
-{
-	D3DUtil::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	scene->CreateShaderResourceView(this, 0);
-
-	mTextureMask |= MATERIAL_ALBEDO_MAP;
 }
 
 
@@ -82,36 +92,16 @@ void Texture::LoadCubeTexture(const std::string& textureName)
 }
 
 
-
-D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc()
+ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
 {
-	ComPtr<ID3D12Resource> shaderResource = GetResource();
-	D3D12_RESOURCE_DESC resourceDesc = shaderResource->GetDesc();
+	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
+}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-	switch (mTextureType)
-	{
-	case RESOURCE_TEXTURE2D: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 1)
-	case RESOURCE_TEXTURE2D_ARRAY: //[]
-		shaderResourceViewDesc.Format = resourceDesc.Format;
-		shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		shaderResourceViewDesc.Texture2D.MipLevels = -1;
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.PlaneSlice = 0;
-		shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-		break;
-	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
-		shaderResourceViewDesc.Format = resourceDesc.Format;
-		shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
-		shaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-	return shaderResourceViewDesc;
+void Texture::LoadTexture(const std::wstring& filePath)
+{
+	D3DUtil::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	scene->CreateShaderResourceView(this, 0);
+
+	mTextureMask |= static_cast<WORD>(MaterialMap::Albedo);
 }

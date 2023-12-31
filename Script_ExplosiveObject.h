@@ -3,23 +3,26 @@
 
 
 class Script_ExplosiveObject : public Component {
-	COMPONENT(Component, Script_ExplosiveObject)
+	COMPONENT(Script_ExplosiveObject, Component)
 
 private:
 	bool mIsExploded{};
-	std::function<void(const Vec3&)> CreateFX{};
 
 	float mHP{};
 
 public:
 	bool IsExploded() { return mIsExploded; };
 
-	void SetFX(std::function<void(const Vec3&)> func) { CreateFX = func; }
 	void SetHP(float hp) { mHP = hp; }
+	void SetFX(std::function<void(const Vec3&)> func) { CreateFX = func; }
 
+	virtual void OnCollisionStay(Object& other) override;
+
+public:
 	void Explode();
 
 	void Hit(float damage);
 
-	virtual void OnCollisionStay(Object& other) override;
+private:
+	std::function<void(const Vec3&)> CreateFX{};
 };

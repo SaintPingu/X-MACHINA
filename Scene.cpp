@@ -1,3 +1,4 @@
+#pragma region Include
 #include "stdafx.h"
 #include "Scene.h"
 #include "DXGIMgr.h"
@@ -9,7 +10,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Timer.h"
-#include "FileMgr.h"
+#include "FileIO.h"
 #include "Light.h"
 #include "Collider.h"
 #include "InputMgr.h"
@@ -24,22 +25,30 @@
 #include "Script_ExplosiveObject.h"
 #include "Script_Billboard.h"
 #include "Script_Sprite.h"
+#pragma endregion
 
 
 
 
-//#define DRAW_SCENE_GRID_3D
-
-
-// [ Scene ] //
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Constructor ] /////
+#pragma region C/Dtor
+namespace {
+	uptr<Scene> sceneInstance{};
+}
 
-static uptr<Scene> sceneInstance{};
+Scene::Scene()
+{
+	constexpr int gridLengthCount{ 20 };		// gridCount = n*n
+
+	constexpr Vec3 borderPos     = Vec3(256, 200, 256);
+	constexpr Vec3 borderExtents = Vec3(1500, 500, 1500);
+
+	mMapBorder      = { borderPos, borderExtents };	// map segmentation criteria
+	mGridLength     = static_cast<int>(mMapBorder.Extents.x / gridLengthCount);
+	mLight          = std::make_unique<Light>();
+	mDescriptorHeap = std::make_shared<DescriptorHeap>();
+}
 
 void Scene::Create()
 {
@@ -51,65 +60,50 @@ void Scene::Destroy()
 	sceneInstance = nullptr;
 }
 
-
 void Scene::Release()
 {
-	scene->ReleaseShaderVariables();
+	scene->ReleaseShaderVars();
 
 	mainCameraObject->Destroy();
 	canvas->Release();
 	Destroy();
 }
 
-
 Scene* Scene::Inst()
 {
 	return sceneInstance.get();
 }
+#pragma endregion
 
-
-
-Scene::Scene()
-{
-	constexpr int gridLengthCount{ 20 };		// gridCount = n*n
-
-	constexpr Vec3 borderPos = Vec3(256, 200, 256);
-	constexpr Vec3 borderExtents = Vec3(1500, 500, 1500);
-
-	mMapBorder = { borderPos, borderExtents };	// map segmentation criteria
-	mGridLength = static_cast<int>(mMapBorder.Extents.x / gridLengthCount);
-	mLight = std::make_unique<Light>();
-
-	mDescriptorHeap = std::make_shared<DescriptorHeap>();
-}
-
-
-Scene::~Scene()
-{
-
-}
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Getter ] /////
+#pragma region Getter
 float Scene::GetTerrainHeight(float x, float z) const
 {
-	return (mTerrain) ? mTerrain->GetHeight(x, z) : 0.0f;
+	return (mTerrain) ? mTerrain->GetHeight(x, z) : 0.f;
 }
 
-
-rsptr<const MasterModel> Scene::GetModel(const std::string& modelName)
+rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
 {
 	assert(mModels.contains(modelName));
 
-	return mModels[modelName];
+	return mModels.at(modelName);
 }
 
-
-rsptr<Texture> Scene::GetTexture(const std::string& name)
+rsptr<Material> Scene::GetMaterial(const std::string& name) const
 {
-	assert(mMaterialMap.contains(name)); return mMaterialMap[name]->mTexture;
+	assert(mMaterialMap.contains(name));
+	
+	return mMaterialMap.at(name);
+}
+
+rsptr<Texture> Scene::GetTexture(const std::string& name) const
+{
+	assert(mMaterialMap.contains(name));
+	
+	return mMaterialMap.at(name)->mTexture;
 }
 
 RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
@@ -117,72 +111,18 @@ RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
 	return mGraphicsRootSignature->Get();
 }
 
-UINT Scene::GetRootParamIndex(RootParam param)
+UINT Scene::GetRootParamIndex(RootParam param) const
 {
 	return mGraphicsRootSignature->GetRootParamIndex(param);
 }
-
-void Scene::SetGlobalShader() const
-{
-	mGlobalShader->Render();
-}
+#pragma endregion
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// [ Others ] /////
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////* DirectX *//////////////////
-void Scene::CreateGraphicsRootSignature()
-{
-	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
-
-	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::GameObjectInfo,		D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	0, D3D12_SHADER_VISIBILITY_ALL, 33);
-	mGraphicsRootSignature->Push(RootParam::Camera,				D3D12_ROOT_PARAMETER_TYPE_CBV,				1, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Light,				D3D12_ROOT_PARAMETER_TYPE_CBV,				2, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->Push(RootParam::GameInfo,			D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	3, D3D12_SHADER_VISIBILITY_ALL, 1);
-	mGraphicsRootSignature->Push(RootParam::SpriteInfo,			D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	4, D3D12_SHADER_VISIBILITY_VERTEX, 16);
-
-	mGraphicsRootSignature->Push(RootParam::Instancing,			D3D12_ROOT_PARAMETER_TYPE_SRV,				0, D3D12_SHADER_VISIBILITY_VERTEX);
-
-	mGraphicsRootSignature->PushTable(RootParam::Texture,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV,			2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture1,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV,			3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture2,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV,			4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture3,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV,			5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture4,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV,			6, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::RenderTarget,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV,			7, 5, D3D12_SHADER_VISIBILITY_PIXEL);
-
-	mGraphicsRootSignature->AddAlias(RootParam::Texture, RootParam::TerrainLayer0);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture1, RootParam::TerrainLayer1);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture2, RootParam::TerrainLayer2);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture3, RootParam::TerrainLayer3);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture4, RootParam::SplatMap);
-
-	mGraphicsRootSignature->Create();
-}
-
-
-void Scene::CreateShaderVariables()
-{
-	mLight->CreateShaderVariables();
-}
-
-
-void Scene::UpdateShaderVariables()
-{
-	mLight->UpdateShaderVariables();
-	mainCamera->UpdateShaderVariables();
-}
-
-
-void Scene::ReleaseShaderVariables()
-{
-	mLight->ReleaseShaderVariables();
-	mainCamera->ReleaseShaderVariables();
-}
-
-
+#pragma region DirectX
 void Scene::ReleaseUploadBuffers()
 {
 	ProcessObjects([](sptr<GameObject> object) {
@@ -216,11 +156,133 @@ void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offs
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
+void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format                        = dxgiSrvFormat;
+	srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels           = 1;
+	srvDesc.Texture2D.MostDetailedMip     = 0;
+	srvDesc.Texture2D.PlaneSlice          = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
+
+	mDescriptorHeap->CreateSrv(resource, &srvDesc);
+}
+
+void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
+{
+	ComPtr<ID3D12Resource> resource         = texture->GetResource();
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
+
+	mDescriptorHeap->CreateSrvs(resource, &srvDesc, descriptorHeapIndex);
+	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
+}
+
+void Scene::CreateGraphicsRootSignature()
+{
+	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
+
+	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
+	mGraphicsRootSignature->Push(RootParam::GameObjectInfo,		D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	0, D3D12_SHADER_VISIBILITY_ALL,		33);
+	mGraphicsRootSignature->Push(RootParam::Camera,				D3D12_ROOT_PARAMETER_TYPE_CBV,				1, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Light,				D3D12_ROOT_PARAMETER_TYPE_CBV,				2, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->Push(RootParam::GameInfo,			D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	3, D3D12_SHADER_VISIBILITY_ALL,		1);
+	mGraphicsRootSignature->Push(RootParam::SpriteInfo,			D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	4, D3D12_SHADER_VISIBILITY_VERTEX,	16);
+
+	mGraphicsRootSignature->Push(RootParam::Instancing,			D3D12_ROOT_PARAMETER_TYPE_SRV,				0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+	mGraphicsRootSignature->PushTable(RootParam::Texture,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture1,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture2,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture3,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture4,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::RenderTarget,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 7, 5, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	mGraphicsRootSignature->AddAlias(RootParam::Texture,	RootParam::TerrainLayer0);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture1,	RootParam::TerrainLayer1);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture2,	RootParam::TerrainLayer2);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture3,	RootParam::TerrainLayer3);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture4,	RootParam::SplatMap);
+
+	mGraphicsRootSignature->Create();
+}
+
+
+void Scene::CreateShaderVars()
+{
+	mLight->CreateShaderVars();
+}
+
+void Scene::UpdateShaderVars()
+{
+	mLight->UpdateShaderVars();
+	mainCamera->UpdateShaderVars();
+}
+
+void Scene::ReleaseShaderVars()
+{
+	mLight->ReleaseShaderVars();
+}
+
+void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
+{
+	mDescriptorHeap->Create(cbvCount, srvCount);
+}
+#pragma endregion
+
+
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////* Build *//////////////////
+#pragma region Build
+void Scene::BuildObjects()
+{
+	CreateGraphicsRootSignature();
+
+	assert(mGraphicsRootSignature);
+	CreateCbvSrvDescriptorHeaps(0, 1024);
+
+	// load textures
+	LoadTextures();
+
+	// load canvas (UI)
+	canvas->Init();
+
+	// load models
+	LoadSceneObjectsFromFile("Models/Scene.bin");
+	LoadModels();
+
+	// build settings
+	BuildPlayers();
+	BuildTerrain();
+
+	// shader variables
+	BuildShaders();
+	CreateShaderVars();
+
+#ifdef DRAW_SCENE_GRID_3D
+	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
+	mGridMesh->CreateCubeMesh((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
+#else
+	mGridMesh = std::make_shared<ModelObjectMesh>();
+	mGridMesh->CreatePlaneMesh((float)mGridLength, (float)mGridLength, true);
+#endif
+
+	MeshRenderer::BuildMeshes();
+
+	// skybox
+	mSkyBox = std::make_shared<SkyBox>();
+}
+
+void Scene::ReleaseObjects()
+{
+	mGraphicsRootSignature = nullptr;
+	MeshRenderer::Release();
+}
+
+
 void Scene::BuildShaders()
 {
 	BuildGlobalShader();
@@ -233,32 +295,29 @@ void Scene::BuildShaders()
 void Scene::BuildGlobalShader()
 {
 	mGlobalShader = std::make_shared<TexturedShader>();
-	mGlobalShader->CreateShader();
-	
+	mGlobalShader->Create();
+
 	mWaterShader = std::make_shared<WaterShader>();
-	mWaterShader->CreateShader();
+	mWaterShader->Create();
 
 	mInstancingShader = std::make_shared<ObjectInstancingShader>();
-	mInstancingShader->CreateShader();
+	mInstancingShader->Create();
 
 	mTransparentShader = std::make_shared<TransparentShader>();
-	mTransparentShader->CreateShader();
+	mTransparentShader->Create();
 }
-
 
 void Scene::BuildBoundingShader()
 {
 	mBoundingShader = std::make_shared<WireShader>();
-	mBoundingShader->CreateShader();
+	mBoundingShader->Create();
 }
-
 
 void Scene::BuildSmallExpFXShader()
 {
 	mSmallExpFXShader = std::make_shared<SmallExpEffectShader>();
 	mSmallExpFXShader->Create();
 }
-
 
 void Scene::BuildBigExpFXShader()
 {
@@ -269,12 +328,11 @@ void Scene::BuildBigExpFXShader()
 void Scene::BuildBillboardShader()
 {
 	mBillboardShader = std::make_shared<BillboardShader>();
-	mBillboardShader->CreateShader();
-	
-	mSpriteShader = std::make_shared<SpriteShader>();
-	mSpriteShader->CreateShader();
-}
+	mBillboardShader->Create();
 
+	mSpriteShader = std::make_shared<SpriteShader>();
+	mSpriteShader->Create();
+}
 
 void Scene::BuildPlayers()
 {
@@ -288,7 +346,6 @@ void Scene::BuildPlayers()
 	mPlayer = mPlayers.front();
 }
 
-
 void Scene::BuildTerrain()
 {
 	constexpr int terrainGridLength = (TERRAIN_LENGTH - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
@@ -298,13 +355,12 @@ void Scene::BuildTerrain()
 	BuildGrid();
 }
 
-
 void Scene::BuildGrid()
 {
-	constexpr float maxHeight = 300.0f;	// for 3D grid
+	constexpr float maxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	int adjusted = Math::RoundToNearestMultiple(mMapBorder.Extents.x, mGridLength);
+	const int adjusted = Math::RoundToNearestMultiple(mMapBorder.Extents.x, mGridLength);
 	mMapBorder.Extents = Vec3(adjusted, mMapBorder.Extents.y, adjusted);
 
 	// set grid start pos
@@ -312,8 +368,8 @@ void Scene::BuildGrid()
 
 	// set grid count
 	int gridLengthCount = adjusted / mGridLength;
-	int gridCount = gridLengthCount;
-	gridCount *= gridCount;
+	int gridCount       = gridLengthCount;
+	gridCount          *= gridCount;
 	mGrids.resize(gridCount);
 	mGridCols = static_cast<int>(sqrt(mGrids.size()));
 
@@ -325,7 +381,7 @@ void Scene::BuildGrid()
 			int gridZ = (mGridLength * y) + (mGridLength / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
-			bb.Center = Vec3(gridX, maxHeight / 2, gridZ);
+			bb.Center  = Vec3(gridX, maxHeight / 2, gridZ);
 			bb.Extents = Vec3(gridExtent, maxHeight, gridExtent);
 
 			int index = (y * gridLengthCount) + x;
@@ -341,8 +397,129 @@ void Scene::BuildGridObjects()
 		UpdateObjectGrid(object.get());
 		});
 
-	for (auto& terrain : mTerrain->GetTerrains()) {
-		UpdateObjectGrid(terrain.get());
+	mTerrain->UpdateGrid();
+}
+
+
+void Scene::LoadTextures()
+{
+	std::vector<std::string> textureNames;
+
+	FileIO::GetTextureNames(textureNames, "Models/Textures");
+
+	MaterialLoadInfo info{};
+	info.Albedo = Vec4(0.1f, .1f, .1f, 1.f);
+	for (auto& textureName : textureNames) {
+		// load texture
+		sptr<Texture> texture = std::make_shared<Texture>(Resource::Texture2D);
+		texture->LoadTexture(textureName);
+
+		// apply to material
+		sptr<Material> material = std::make_shared<Material>();
+		material->SetTexture(texture);
+
+		sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(info);
+		material->SetMaterialColors(materialColors);
+
+		mMaterialMap.insert(std::make_pair(textureName, material));
+	}
+}
+
+void Scene::LoadSceneObjectsFromFile(const std::string& fileName)
+{
+	FILE* file = NULL;
+	::fopen_s(&file, fileName.c_str(), "rb");
+	assert(file);
+	::rewind(file);
+
+	mLight->BuildLights(file);
+	LoadGameObjects(file);
+}
+
+void Scene::LoadGameObjects(FILE* file)
+{
+	std::string token{};
+	std::string name{};
+
+	int objectCount;
+	FileIO::ReadString(file, token); // "<GameObjects>:"
+	FileIO::ReadVal(file, objectCount);
+
+	mStaticObjects.reserve(objectCount);
+
+	int sameObjectCount{};			// get one unique model from same object
+	sptr<MasterModel> model{};
+	sptr<ObjectInstanceBuffer> instBuffer{};
+
+	bool isInstancing{};
+	ObjectTag tag{};
+	ObjectLayer layer{};
+
+	for (int i = 0; i < objectCount; ++i) {
+		sptr<GameObject> object{};
+
+		if (sameObjectCount <= 0) {
+			FileIO::ReadString(file, token); //"<Tag>:"
+			FileIO::ReadString(file, token);
+			tag = GetTagByName(token);
+
+			int layerNum{};
+			FileIO::ReadString(file, token); //"<Layer>:"
+			FileIO::ReadVal(file, layerNum);
+			layer = GetLayerByNum(layerNum);
+
+			FileIO::ReadString(file, token); //"<FileName>:"
+
+			std::string meshName{};
+			FileIO::ReadString(file, meshName);
+
+			model = FileIO::LoadGeometryFromFile("Models/Meshes/" + meshName + ".bin");
+			mModels.insert(std::make_pair(meshName, model));
+
+			FileIO::ReadString(file, token); //"<Transforms>:"
+			FileIO::ReadVal(file, sameObjectCount);
+
+			FileIO::ReadString(file, token); //"<IsInstancing>:"
+			FileIO::ReadVal(file, isInstancing);
+
+			if (isInstancing) {
+				instBuffer = std::make_shared<ObjectInstanceBuffer>();
+				instBuffer->CreateShaderVars(sameObjectCount);
+				instBuffer->SetModel(model);
+				if (GetObjectType(tag) == ObjectType::Dynamic) {
+					instBuffer->SetDynamic();
+				}
+				mInstanceBuffers.emplace_back(instBuffer);
+			}
+		}
+
+		if (isInstancing) {
+			object = std::make_shared<InstancinObject>();
+		}
+		else {
+			object = std::make_shared<GameObject>();
+		}
+
+		InitObjectByTag(&tag, object);
+
+		object->SetLayer(layer);
+		if (layer == ObjectLayer::Water) {
+			mBackgrounds.pop_back();
+			mWater = object;
+		}
+
+
+		object->SetModel(model);
+
+		Vec4x4 transform;
+		FileIO::ReadVal(file, transform);
+		object->SetWorldTransform(transform);
+
+		if (isInstancing) {
+			((InstancinObject*)object.get())->SetBuffer(instBuffer);
+		}
+
+		--sameObjectCount;
 	}
 }
 
@@ -353,7 +530,7 @@ void Scene::LoadModels()
 	sptr<MasterModel> model;
 	for (auto& name : binModelNames) {
 		if (!mModels.contains(name)) {
-			model = FileMgr::LoadGeometryFromFile("Models/Meshes/" + name + ".bin");
+			model = FileIO::LoadGeometryFromFile("Models/Meshes/" + name + ".bin");
 			if (name.substr(0, 6) == "sprite") {
 				model->SetSprite();
 			}
@@ -393,7 +570,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 		return;
 	}
 
-	break;	
+	break;
 	case ObjectTag::Background:
 	{
 		mBackgrounds.emplace_back(object);
@@ -421,220 +598,23 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 		break;
 	}
 
-	mStatiObjects.emplace_back(object);
+	mStaticObjects.emplace_back(object);
 	object->SetFlyable(true);
 }
-
-void Scene::LoadGameObjects(FILE* file)
-{
-	std::string token{};
-	std::string name{};
-
-	UINT nReads = 0;
-
-	int objectCount;
-	IO::ReadUnityBinaryString(file, token); // "<GameObjects>:"
-	nReads = (UINT)::fread(&objectCount, sizeof(int), 1, file);
-
-	mStatiObjects.reserve(objectCount);
-
-	int sameObjectCount{};			// get one unique model from same object
-	sptr<MasterModel> model{};
-	sptr<ObjectInstanceBuffer> instBuffer{};
-	bool isInstancing{};
-	ObjectTag tag{};
-	ObjectLayer layer{};
-
-	for (int i = 0; i < objectCount; ++i) {
-		sptr<GameObject> object{};
-
-		if (sameObjectCount <= 0) {
-			IO::ReadUnityBinaryString(file, token); //"<Tag>:"
-			IO::ReadUnityBinaryString(file, token);
-			tag = GetTagByName(token);
-
-			int layerNum{};
-			IO::ReadUnityBinaryString(file, token); //"<Layer>:"
-			::fread(&layerNum, sizeof(int), 1, file);
-			layer = GetLayerByNum(layerNum);
-
-			IO::ReadUnityBinaryString(file, token); //"<FileName>:"		// If an error occurs here, it may be a lighting problem.
-
-			std::string meshName{};
-			IO::ReadUnityBinaryString(file, meshName);
-
-			model = FileMgr::LoadGeometryFromFile("Models/Meshes/" + meshName + ".bin");
-			mModels.insert(std::make_pair(meshName, model));
-
-			IO::ReadUnityBinaryString(file, token); //"<Transforms>:"
-			::fread(&sameObjectCount, sizeof(int), 1, file);
-
-			IO::ReadUnityBinaryString(file, token); //"<IsInstancing>:"
-			::fread(&isInstancing, sizeof(bool), 1, file);
-				
-			if (isInstancing) {
-				instBuffer = std::make_shared<ObjectInstanceBuffer>();
-				instBuffer->CreateShaderVariables(sameObjectCount);
-				instBuffer->SetModel(model);
-				if (GetObjectType(tag) == ObjectType::Dynamic) {
-					instBuffer->SetDynamic();
-				}
-				mInstanceBuffers.emplace_back(instBuffer);
-			}
-		}
-
-		if (isInstancing) {
-			object = std::make_shared<InstancinObject>();
-		}
-		else {
-			object = std::make_shared<GameObject>();
-		}
-
-		InitObjectByTag(&tag, object);
-
-		object->SetLayer(layer);
-		if(layer == ObjectLayer::Water){
-			mBackgrounds.pop_back();
-			mWater = object;
-		}
-		
-
-		object->SetModel(model);
-
-		Vec4x4 transform;
-		::fread(&transform, sizeof(float), 16, file); //Transform
-		object->SetWorldTransform(transform);
-
-		if (isInstancing) {
-			((InstancinObject*)object.get())->SetBuffer(instBuffer);
-		}
-
-		--sameObjectCount;
-	}
-}
+#pragma endregion
 
 
-
-
-
-void Scene::LoadSceneObjectsFromFile(const std::string& fileName)
-{
-	FILE* file = NULL;
-	::fopen_s(&file, fileName.c_str(), "rb");
-	assert(file);
-	::rewind(file);
-
-	mLight->BuildLights(file);
-	LoadGameObjects(file);
-}
-
-void Scene::LoadTextures()
-{
-	std::vector<std::string> textureNames;
-	
-	FileMgr::GetTextureNames(textureNames, "Models/Textures");
-
-	MATERIALLOADINFO info{}; 
-	info.mAlbedo = Vec4(0.1f, .1f, .1f, 1.0f);
-	for (auto& textureName : textureNames) {
-		// load texture
-		sptr<Texture> texture = std::make_shared<Texture>(RESOURCE_TEXTURE2D);
-		texture->LoadTexture(textureName);
-
-		// apply to material
-		sptr<Material> material = std::make_shared<Material>();
-		material->SetTexture(texture);
-
-		sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(info);
-		material->SetMaterialColors(materialColors);
-
-		mMaterialMap.insert(std::make_pair(textureName, material));
-	}
-}
-
-
-void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
-{
-	mDescriptorHeap->Create(cbvCount, srvCount);
-}
-
-
-void Scene::BuildObjects()
-{
-	CreateGraphicsRootSignature();
-
-	assert(mGraphicsRootSignature);
-	CreateCbvSrvDescriptorHeaps(0, 1024);
-
-	// load textures
-	LoadTextures();
-
-	// load canvas (UI)
-	canvas->Init();
-
-	// load models
-	LoadSceneObjectsFromFile("Models/Scene.bin");
-	LoadModels();
-
-	// build settings
-	BuildPlayers();
-	BuildTerrain();
-
-	// shader variables
-	BuildShaders();
-	CreateShaderVariables();
-
-#ifdef DRAW_SCENE_GRID_3D
-	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
-	mGridMesh->CreateCubeMesh((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
-#else
-	mGridMesh = std::make_shared<ModelObjectMesh>();
-	mGridMesh->CreatePlaneMesh((float)mGridLength, (float)mGridLength, true);
-#endif
-
-	MeshRenderer::BuildMeshes();
-
-	// skybox
-	mSkyBox = std::make_shared<SkyBox>();
-}
-
-
-void Scene::ReleaseObjects()
-{
-	mGraphicsRootSignature = nullptr;
-	MeshRenderer::Release();
-}
-
-
-void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat)
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = dxgiSrvFormat;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.PlaneSlice = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-	mDescriptorHeap->CreateSrv(resource, &srvDesc);
-}
-
-
-void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
-{
-	ComPtr<ID3D12Resource> resource = texture->GetResource();
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
-
-	mDescriptorHeap->CreateSrvs(resource, &srvDesc, descriptorHeapIndex);
-	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
-}
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////* Render *//////////////////
-
+#pragma region Render
+namespace {
+	bool IsBehind(const Vec3& point, const Vec4& plane)
+	{
+		return XMVectorGetX(XMPlaneDotCoord(XMLoadFloat4(&plane), _VECTOR(point))) < 0.f;
+	}
+}
 void Scene::OnPrepareRender()
 {
 	cmdList->SetGraphicsRootSignature(GetRootSignature().Get());
@@ -643,7 +623,7 @@ void Scene::OnPrepareRender()
 
 	mDescriptorHeap->Set();
 
-	UpdateShaderVariables();
+	UpdateShaderVars();
 
 	// Game Info
 	static float timeElapsed{};
@@ -651,6 +631,41 @@ void Scene::OnPrepareRender()
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameInfo, timeElapsed, 0);
 }
 
+static constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+static constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology      = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+static constexpr D3D12_PRIMITIVE_TOPOLOGY kTerrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+static constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+void Scene::Render()
+{
+	std::set<GameObject*> opaqueObjects{};
+	std::set<GameObject*> transparentObjects{};
+	std::set<GameObject*> billboardObjects{};
+
+	OnPrepareRender();
+	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
+	mGlobalShader->Render();
+
+	RenderGridObjects(opaqueObjects, transparentObjects, billboardObjects);
+	RenderBackgrounds();
+	RenderBullets();
+	RenderInstanceObjects();
+	RenderFXObjects();
+	RenderBillboards(billboardObjects);
+
+	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
+	RenderTerrain();
+	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
+
+	RenderTransparentObjects(transparentObjects);
+
+	RenderSkyBox();
+
+	if (RenderBounds(opaqueObjects)) {
+		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
+	}
+
+	canvas->Render();
+}
 
 void Scene::RenderTerrain()
 {
@@ -659,8 +674,26 @@ void Scene::RenderTerrain()
 	}
 }
 
+void Scene::RenderTransparentObjects(const std::set<GameObject*>& transparentObjects)
+{
+	mTransparentShader->Render();
+	for (auto& object : transparentObjects) {
+		object->Render();
+	}
+	if (mWater) {
+		mWaterShader->Render();
+		mWater->Render();
+	}
+}
 
-void Scene::RenderGridObjects(std::set<GameObject*>& renderObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects)
+
+void Scene::RenderSkyBox()
+{
+	mSkyBox->Render();
+}
+
+
+void Scene::RenderGridObjects(std::set<GameObject*>& opaqueObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects)
 {
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -669,11 +702,11 @@ void Scene::RenderGridObjects(std::set<GameObject*>& renderObjects, std::set<Gam
 
 		if (mainCamera->IsInFrustum(grid.GetBB())) {
 			auto& objects = grid.GetObjects();
-			renderObjects.insert(objects.begin(), objects.end());
+			opaqueObjects.insert(objects.begin(), objects.end());
 		}
 	}
 
-	for (auto& object : renderObjects) {
+	for (auto& object : opaqueObjects) {
 		if (object->IsTransparent()) {
 			transparentObjects.insert(object);
 			continue;
@@ -702,6 +735,16 @@ void Scene::RenderInstanceObjects()
 	}
 }
 
+void Scene::RenderFXObjects()
+{
+	if (mSmallExpFXShader) {
+		mSmallExpFXShader->Render();
+	}
+	if (mBigExpFXShader) {
+		mBigExpFXShader->Render();
+	}
+}
+
 void Scene::RenderBackgrounds()
 {
 	for (auto& background : mBackgrounds) {
@@ -720,21 +763,23 @@ void Scene::RenderBullets()
 }
 
 
-void Scene::RenderBounds(const std::set<GameObject*>& renderObjects)
+bool Scene::RenderBounds(const std::set<GameObject*>& opaqueObjects)
 {
-	for (auto& player : mPlayers) {
-		if (player->IsActive()) {
-			player->RenderBounds();
-		}
+	if (!mIsRenderBounds || !mBoundingShader) {
+		return false;
 	}
 
-	for (auto& object : renderObjects) {
-		object->RenderBounds();
-	}
+	cmdList->IASetPrimitiveTopology(kBoundsPrimitiveTopology);
+
+	mBoundingShader->Render();
+	RenderObjectBounds(opaqueObjects);
+	RenderGridBounds();
+
+	return true;
 }
 
 
-void UpdateGridShaderVariables(const Grid& grid)
+void UpdateGridShaderVars(const Grid& grid)
 {
 
 	BoundingBox box = grid.GetBB();
@@ -744,17 +789,30 @@ void UpdateGridShaderVariables(const Grid& grid)
 #ifdef DRAW_SCENE_GRID_3D
 	XMMatrix::SetPosition(transform, Vec3(box.Center.x, box.Center.y, box.Center.z));
 #else
-	constexpr float meshHeight = 30.0f;
-	XMMatrix::SetPosition(transform, Vec3(box.Center.x, 30.0f, box.Center.z));
+	constexpr float meshHeight = 30.f;
+	XMMatrix::SetPosition(transform, Vec3(box.Center.x, 30.f, box.Center.z));
 #endif
 
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(transform), 0);
 }
 
+void Scene::RenderObjectBounds(const std::set<GameObject*>& opaqueObjects)
+{
+	for (auto& player : mPlayers) {
+		if (player->IsActive()) {
+			player->RenderBounds();
+		}
+	}
+
+	for (auto& object : opaqueObjects) {
+		object->RenderBounds();
+	}
+}
+
 void Scene::RenderGridBounds()
 {
 	for (Grid& grid : mGrids) {
-		UpdateGridShaderVariables(grid);
+		UpdateGridShaderVars(grid);
 		mGridMesh->Render();
 	}
 }
@@ -770,165 +828,14 @@ void Scene::RenderBillboards(const std::set<GameObject*>& billboards)
 		object->Render();
 	}
 }
+#pragma endregion
 
-static D3D12_PRIMITIVE_TOPOLOGY objectPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-static D3D12_PRIMITIVE_TOPOLOGY terrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-static D3D12_PRIMITIVE_TOPOLOGY boundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-void Scene::Render()
-{
-	std::set<GameObject*> renderObjects{};
-	std::set<GameObject*> transparentObjects{};
-	std::set<GameObject*> billboardObjects{};
 
-	OnPrepareRender();
 
-	// objects
-	cmdList->IASetPrimitiveTopology(objectPrimitiveTopology);
 
-	mGlobalShader->Render();
-
-	RenderGridObjects(renderObjects, transparentObjects, billboardObjects);
-	RenderBackgrounds();
-	RenderBullets();
-
-	RenderInstanceObjects();
-
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->Render();
-	}
-	if (mBigExpFXShader) {
-		mBigExpFXShader->Render();
-	}
-
-	RenderBillboards(billboardObjects);
-
-	// terrain
-	cmdList->IASetPrimitiveTopology(terrainPrimitiveTopology);
-	RenderTerrain();
-	cmdList->IASetPrimitiveTopology(objectPrimitiveTopology);
-
-	// transparent
-	mTransparentShader->Render();
-	for (auto& object : transparentObjects) {
-		object->Render();
-	}
-	if (mWater) {
-		mWaterShader->Render();
-		mWater->Render();
-	}
-
-	// skybox
-	mSkyBox->Render();
-
-	// bounds
-	if (mIsRenderBounds && mBoundingShader) {
-		cmdList->IASetPrimitiveTopology(boundsPrimitiveTopology);
-		mBoundingShader->Render();
-
-		RenderBounds(renderObjects);
-		RenderGridBounds();
-	}
-
-	// canvas
-	canvas->Render();
-}
-
-bool IsBehind(const Vec3& point, const Vec4& plane)
-{
-	return XMVectorGetX(XMPlaneDotCoord(XMLoadFloat4(&plane), _VECTOR(point))) < 0.f;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////* Update *//////////////////
-
-void Scene::UpdateLights()
-{
-	
-}
-
-
-void Scene::UpdateObjects()
-{
-	ProcessObjects([this](sptr<GameObject> object) {
-		UpdateObject(object.get());
-		});
-}
-
-void Scene::UpdateShaders()
-{
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->Update();
-	}
-
-	if (mBigExpFXShader) {
-		mBigExpFXShader->Update();
-	}
-}
-
-void Scene::UpdateSprites()
-{
-	for (auto it = mSpriteEffectObjects.begin(); it != mSpriteEffectObjects.end(); ) {
-		auto& object = *it;
-		if (object->GetComponent<Script_Sprite>()->IsEnd()) {
-			it = mSpriteEffectObjects.erase(it);
-		}
-		else {
-			object->Update();
-			++it;
-		}
-	}
-}
-
-void Scene::UpdateCamera()
-{
-	mainCameraObject->Update();
-}
-
-
-void Scene::CheckCollisions()
-{
-	UpdatePlayerGrid();
-
-	for (Grid& grid : mGrids) {
-		grid.CheckCollisions();
-	}
-
-	DeleteExplodedObjects();
-}
-
-
-void Scene::UpdatePlayerGrid()
-{
-	for (auto& player : mPlayers) {
-		UpdateObjectGrid(player.get());
-
-		const std::list<sptr<GameObject>>* bullets = player->GetComponent<Script_AirplanePlayer>()->GetBullets();
-
-		if (!bullets) {
-			continue;
-		}
-
-		for (auto& bullet : *bullets) {
-			UpdateObjectGrid(bullet.get(), true);
-		}
-	}
-}
-
-
-void Scene::UpdateObject(GameObject* object)
-{
-	if (!object) {
-		return;
-	}
-
-	object->Update();
-
-	if (object->GetType() == ObjectType::DynamicMove) {
-		UpdateObjectGrid(object);
-	}
-}
-
-
+#pragma region Update
 void Scene::Start()
 {
 	mainCameraObject->Start();
@@ -948,13 +855,12 @@ void Scene::Start()
 
 	BuildGridObjects();
 }
+
 void Scene::Update()
 {
 	CheckCollisions();
 
 	UpdateObjects();
-	UpdateShaders();
-	UpdateSprites();
 	UpdateLights();
 	UpdateCamera();
 	canvas->Update();
@@ -966,11 +872,99 @@ void Scene::Animate()
 }
 
 
+void Scene::CheckCollisions()
+{
+	UpdatePlayerGrid();
+
+	for (Grid& grid : mGrids) {
+		grid.CheckCollisions();
+	}
+
+	DeleteExplodedObjects();
+}
+
+void Scene::UpdatePlayerGrid()
+{
+	for (auto& player : mPlayers) {
+		UpdateObjectGrid(player.get());
+
+		const std::list<sptr<GameObject>>* bullets = player->GetComponent<Script_AirplanePlayer>()->GetBullets();
+
+		if (!bullets) {
+			continue;
+		}
+
+		for (auto& bullet : *bullets) {
+			UpdateObjectGrid(bullet.get(), true);
+		}
+	}
+}
+
+
+void Scene::UpdateObjects()
+{
+	ProcessObjects([this](sptr<GameObject> object) {
+		UpdateObject(object.get());
+		});
+
+	UpdateFXObjects();
+	UpdateSprites();
+}
+
+void Scene::UpdateObject(GameObject* object)
+{
+	if (!object) {
+		return;
+	}
+
+	object->Update();
+
+	if (object->GetType() == ObjectType::DynamicMove) {
+		UpdateObjectGrid(object);
+	}
+}
+
+void Scene::UpdateFXObjects()
+{
+	if (mSmallExpFXShader) {
+		mSmallExpFXShader->Update();
+	}
+
+	if (mBigExpFXShader) {
+		mBigExpFXShader->Update();
+	}
+}
+
+
+void Scene::UpdateSprites()
+{
+	for (auto it = mSpriteEffectObjects.begin(); it != mSpriteEffectObjects.end(); ) {
+		auto& object = *it;
+		if (object->GetComponent<Script_Sprite>()->IsEnd()) {
+			it = mSpriteEffectObjects.erase(it);
+		}
+		else {
+			object->Update();
+			++it;
+		}
+	}
+}
+
+void Scene::UpdateLights()
+{
+	// update dynamic lights here.
+}
+
+void Scene::UpdateCamera()
+{
+	mainCameraObject->Update();
+}
+#pragma endregion
 
 
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //////////////////* Others *//////////////////
 void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 {
@@ -1052,21 +1046,15 @@ void Scene::DeleteExplodedObjects()
 }
 
 
-void Scene::ProcessInput(HWND hWnd, Vec2 oldCursorPos)
+void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 
 }
 
 
-bool Scene::ProcessMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	return false;
-}
-
-
-bool Scene::ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
-{
-	switch (nMessageID)
+	switch (messageID)
 	{
 	case WM_KEYDOWN:
 	{
@@ -1101,10 +1089,6 @@ bool Scene::ProcessKeyboardMsg(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM
 	default:
 		break;
 	}
-
-	
-
-	return true;
 }
 
 
@@ -1149,23 +1133,23 @@ void Scene::BlowAllExplosiveObjects()
 
 void Scene::ChangeToNextPlayer()
 {
-	++mCrntPlayerIndex;
-	if (mCrntPlayerIndex >= mPlayers.size()) {
-		mCrntPlayerIndex = 0;
+	++mCurrPlayerIndex;
+	if (mCurrPlayerIndex >= mPlayers.size()) {
+		mCurrPlayerIndex = 0;
 	}
 
-	mPlayer = mPlayers[mCrntPlayerIndex];
+	mPlayer = mPlayers[mCurrPlayerIndex];
 }
 
 
 void Scene::ChangeToPrevPlayer()
 {
-	--mCrntPlayerIndex;
-	if (mCrntPlayerIndex < 0) {
-		mCrntPlayerIndex = static_cast<int>(mPlayers.size() - 1);
+	--mCurrPlayerIndex;
+	if (mCurrPlayerIndex < 0) {
+		mCurrPlayerIndex = static_cast<int>(mPlayers.size() - 1);
 	}
 
-	mPlayer = mPlayers[mCrntPlayerIndex];
+	mPlayer = mPlayers[mCurrPlayerIndex];
 }
 
 // 객체의 Grid정보를 업데이트한다.
@@ -1249,7 +1233,7 @@ void Scene::ProcessObjects(std::function<void(sptr<GameObject>)> processFunc)
 		processFunc(player);
 	}
 
-	for (auto& object : mStatiObjects) {
+	for (auto& object : mStaticObjects) {
 		processFunc(object);
 	}
 

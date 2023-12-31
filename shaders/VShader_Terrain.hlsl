@@ -1,31 +1,29 @@
 #include "VSResource.hlsl"
 
-struct VS_TERRAIN_INPUT
-{
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv0 : UVA;
-    float2 uv1 : UVB;
+struct VSInput_Terrain {
+    float3 Position : POSITION;
+    float3 Normal : NORMAL;
+    float2 UV0 : UVA;
+    float2 UV1 : UVB;
 };
 
-struct VS_TERRAIN_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float2 uv0 : UVA;
-    float2 uv1 : UVB;
+struct VSOutput_Terrain {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float2 UV0 : UVA;
+    float2 UV1 : UVB;
 };
 
-VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
+VSOutput_Terrain VSTerrain(VSInput_Terrain input)
 {
-    VS_TERRAIN_OUTPUT output;
+    VSOutput_Terrain output;
 
-    output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxWorld);
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.normalW = mul(input.normal, (float3x3) gmtxWorld);
-    output.uv0 = input.uv0;
-    output.uv1 = input.uv1;
+    output.PositionW = (float3) mul(float4(input.Position, 1.f), gMtxWorld);
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.NormalW = mul(input.Normal, (float3x3) gMtxWorld);
+    output.UV0 = input.UV0;
+    output.UV1 = input.UV1;
 
-    return (output);
+    return output;
 }

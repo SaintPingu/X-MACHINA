@@ -78,7 +78,7 @@
     <ClInclude Include="DXGIMgr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="FileMgr.h">
+    <ClInclude Include="FileIO.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameFramework.h">
@@ -248,9 +248,6 @@
     <ClCompile Include="DXGIMgr.cpp">
       <Filter>소스 파일\Framework\Device</Filter>
     </ClCompile>
-    <ClCompile Include="FileMgr.cpp">
-      <Filter>소스 파일\Framework\Device</Filter>
-    </ClCompile>
     <ClCompile Include="InputMgr.cpp">
       <Filter>소스 파일\Framework\Device</Filter>
     </ClCompile>
@@ -285,6 +282,9 @@
       <Filter>소스 파일\PCH</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>소스 파일\Library</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
       <Filter>소스 파일\Library</Filter>
     </ClCompile>
   </ItemGroup>

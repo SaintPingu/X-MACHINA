@@ -3,6 +3,12 @@
 #include "Timer.h"
 
 
+void Rigidbody::SetVelocity(float speed)
+{
+	mVelocity = Vector3::Resize(mVelocity, speed);
+}
+
+
 void Rigidbody::Start()
 {
 
@@ -10,7 +16,7 @@ void Rigidbody::Start()
 
 void Rigidbody::Update()
 {
-	const float gravity = GRAVITY * mGravityScale;
+	const float gravity = Math::kGravity * mGravityScale;
 
 	if (mFriction > FLT_EPSILON) {
 		float normalForce{ mMass };
@@ -24,13 +30,11 @@ void Rigidbody::Update()
 		if (mag > FLT_EPSILON) {
 			frictionDir = Vector3::Divide(frictionDir, mag);
 
-			Vec3 frictionForce = Vector3::Multiply(frictionDir, friction);
+			const Vec3 frictionForce = Vector3::Multiply(frictionDir, friction);
+			const Vec3 dragForce = Vector3::Multiply(mVelocity, -mDrag);
+			const Vec3 dragAcc = Vector3::Divide(dragForce, mMass);
 
-			Vec3 frictionAcc = Vector3::Divide(frictionForce, mMass);
-
-			Vec3 dragForce = Vector3::Multiply(mVelocity, -mDrag);
-			Vec3 dragAcc = Vector3::Divide(dragForce, mMass);
-			frictionAcc = Vector3::Add(frictionAcc, dragAcc);
+			Vec3 frictionAcc = Vector3::Add(Vector3::Divide(frictionForce, mMass), dragAcc);
 
 			Vec3 resultVec = Vector3::Add(mVelocity, Vector3::Multiply(frictionAcc, DeltaTime()));
 
@@ -39,8 +43,8 @@ void Rigidbody::Update()
 			mVelocity.z = (mVelocity.z * resultVec.z < 0) ? 0.f : resultVec.z;
 
 			if (mUseGravity) {
-				Vec3 gravityForce = Vector3::Multiply(Vector3::Down(), normalForce);
-				Vec3 gravityAcc = Vector3::Divide(gravityForce, mMass);
+				const Vec3 gravityForce = Vector3::Multiply(Vector3::Down(), normalForce);
+				const Vec3 gravityAcc = Vector3::Divide(gravityForce, mMass);
 				mVelocity = Vector3::Add(mVelocity, Vector3::Multiply(gravityAcc, DeltaTime()));
 			}
 		}
@@ -53,14 +57,10 @@ void Rigidbody::Update()
 
 void Rigidbody::OnCollisionStay(Object& other)
 {
-
+	// 面倒贸府 内靛 鞘夸...
 }
 
 
-void Rigidbody::SetVelocity(float speed)
-{
-	mVelocity = Vector3::Resize(mVelocity, speed);
-}
 
 void Rigidbody::Stop()
 {
@@ -74,7 +74,7 @@ void Rigidbody::AddForce(const Vec3& force, ForceMode forceMode)
 		t = DeltaTime();
 	}
 
-	Vec3 acc = Vector3::Multiply(Vector3::Divide(force, mMass), t);
+	const Vec3 acc = Vector3::Multiply(Vector3::Divide(force, mMass), t);
 	mVelocity = Vector3::Add(mVelocity, acc);
 	if (Vector3::Length(mVelocity) > mMaxSpeed) {
 		SetVelocity(mMaxSpeed);
@@ -85,4 +85,3 @@ void Rigidbody::AddForce(const Vec3& dir, float speed, ForceMode forceMode)
 {
 	AddForce(Vector3::Multiply(dir, speed), forceMode);
 }
-

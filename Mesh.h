@@ -1,45 +1,69 @@
-//------------------------------------------------------- ----------------------
-// File: Mesh.h
-//-----------------------------------------------------------------------------
-
 #pragma once
-#include "Collider.h"
 
+#pragma region Include
+#include "Collider.h"
+#pragma endregion
+
+
+#pragma region ClassForwardDecl
 class Material;
 class Texture;
 class Transform;
 class ModelObject;
 class GameObject;
 class ObjectInstanceBuffer;
+#pragma endregion
 
+
+#pragma region EnumClass
 enum class VertexType : DWORD {
-	Position = 0x01,
-	Color = 0x02,
-	Normal = 0x04,
-	Tangent = 0x08,
+	Position  = 0x01,
+	Color     = 0x02,
+	Normal    = 0x04,
+	Tangent   = 0x08,
 	BiTangent = 0x10,
-	UV0 = 0x20,
-	UV1 = 0x40,
+	UV0       = 0x20,
+	UV1       = 0x40,
 };
+#pragma endregion
 
+
+#pragma region Struct
 struct ModelInfo {
-	std::vector<UINT> mIndexCounts{};
-	UINT mVertexCount{};
-	std::vector<sptr<Material>> mMaterials{};
+	std::vector<sptr<Material>> Materials{};
+	std::vector<UINT>			IndexCounts{};
+	UINT						VertexCount{};
 };
 
 struct MeshBuffer {
-	std::vector<Vec3> mVertices{};
-	std::vector<Vec3> mNormals{};
+	std::vector<Vec3> Vertices{};
+	std::vector<Vec3> Normals{};
+	std::vector<Vec3> Tangents{};
+	std::vector<Vec3> BiTangents{};
+	std::vector<Vec2> UVs0{};
+	std::vector<Vec2> UVs1{};
 
-	std::vector<Vec3> mTangents{};
-	std::vector<Vec3> mBiTangents{};
-	std::vector<Vec2> mUVs0{};
-	std::vector<Vec2> mUVs1{};
-
-	std::vector<UINT> mIndices{};
+	std::vector<UINT> Indices{};
 };
 
+struct MeshLoadInfo {
+	DWORD		Type{};
+	std::string MeshName{};
+
+	MyBoundingSphere					BS{};
+	std::vector<MyBoundingOrientedBox>	OBBList{};
+
+	int			VertexCount{};
+	MeshBuffer	Buffer{};
+
+	int								SubMeshCount{};
+	std::vector<int>				SubSetIndexCounts{};
+	std::vector<std::vector<UINT>>	SubSetIndices{};
+};
+#pragma endregion
+
+
+#pragma region NameSpace
 namespace MeshRenderer {
 	void BuildMeshes();
 
@@ -49,9 +73,10 @@ namespace MeshRenderer {
 	void ReleaseStaticUploadBuffers();
 	void Release();
 }
+#pragma endregion
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
+#pragma region Class
 class Mesh {
 protected:
 	UINT mVertexCount{};
@@ -87,69 +112,42 @@ protected:
 	D3D12_INDEX_BUFFER_VIEW mIndexBufferView{};
 	D3D12_VERTEX_BUFFER_VIEW mNormalBufferView{};
 
-	D3D12_PRIMITIVE_TOPOLOGY mPrimitiveTopology{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	UINT mSlot{};
 	UINT mStride{};
 	UINT mOffset{};
 	UINT mType{};
 
-	void CreateVertexBufferViews();
-
 public:
-	Mesh() = default;
+	Mesh()          = default;
 	virtual ~Mesh() = default;
 	
-	UINT GetType() { return mType; }
+	UINT GetType() const { return mType; }
 
 	std::pair<UINT, UINT> GetLocationInfo() const { return std::make_pair(mIndexCount, mVertexCount); }
 	UINT GetIndexCount() const { return mIndexCount; }
 	UINT GetVertedxCount() const { return mVertexCount; }
 
+public:
 	void ReleaseUploadBuffers();
 
 	virtual void Render() const;
 	virtual void RenderInstanced(UINT instanceCount) const;
+
+protected:
+	void CreateVertexBufferViews();
+	void CreateIndexBuffer(const std::vector<UINT>& indices);
 };
 
-class MeshLoadInfo
-{
-public:
-	MeshLoadInfo() { }
-	~MeshLoadInfo();
 
-public:
-	std::string mMeshName{};
 
-	DWORD mType = 0x00;
 
-	std::vector<MyBoundingOrientedBox> mOBBList{};
-	MyBoundingSphere mBS{};
-
-	int	mVertexCount = 0;
-	std::vector<XMFLOAT3> mVertices{};
-	std::vector<XMFLOAT3> mNormals{};
-
-	std::vector<XMFLOAT3> mTangents{};
-	std::vector<XMFLOAT3> mBiTangents{};
-	std::vector<XMFLOAT2> mUV0{};
-	std::vector<XMFLOAT2> mUV1{};
-
-	std::vector<UINT> mIndices{};
-
-	int mSubMeshCount{};
-
-	std::vector<int> mSubSetIndexCounts{};
-	std::vector<std::vector<UINT>> mSubSetIndices{};
-};
 
 class ModelObjectMesh : public Mesh {
 public:
-	MeshLoadInfo mInfo{};
-
-public:
-	ModelObjectMesh() = default;
+	ModelObjectMesh()          = default;
 	virtual ~ModelObjectMesh() = default;
 
+public:
 	void CreateMeshFromOBB(const BoundingOrientedBox& box);
 
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
@@ -160,7 +158,14 @@ public:
 };
 
 
+
+
+
 class SkyBoxMesh : public Mesh {
+public:
+	SkyBoxMesh() = default;
+	virtual ~SkyBoxMesh() = default;
+
 public:
 	SkyBoxMesh(float width, float height, float depth);
 	void CreateMesh(float width, float height, float depth);
@@ -170,24 +175,19 @@ public:
 
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class MergedMesh : public ModelObjectMesh {
 private:
 	uptr<MeshBuffer> mMeshBuffer{};
 
 	std::vector<ModelInfo> mModelInfo{};
 
-	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo);
-
-	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCount = 1) const;
 public:
 	MergedMesh();
+	virtual ~MergedMesh() = default;
 
 	rsptr<Texture> GetTexture() const;
 
+public:
 	// 1. MergeMesh
 	// 2. MergeMaterial
 	// 3. ...
@@ -199,5 +199,11 @@ public:
 	virtual void Render(const ObjectInstanceBuffer* instBuffer) const;
 	virtual void RenderSprite(const GameObject* gameObject) const;
 
-	bool HasMesh(UINT index) const { return mModelInfo[index].mVertexCount > 0; }
+	bool HasMesh(UINT index) const { return mModelInfo[index].VertexCount > 0; }
+
+private:
+	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo);
+
+	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCount = 1) const;
 };
+#pragma endregion

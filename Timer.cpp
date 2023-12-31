@@ -1,106 +1,103 @@
-//-----------------------------------------------------------------------------
-// File: Timer.cpp
-//-----------------------------------------------------------------------------
-
 #include "stdafx.h"
 #include "Timer.h"
 
 SINGLETON_PATTERN_DEFINITION(Timer)
 
+
+float DeltaTime()
+{
+	return timer->GetTimeElapsed();
+}
+
+
+
+
 Timer::Timer()
 {
-	::QueryPerformanceFrequency((LARGE_INTEGER *)&mPerfFreqPerSec);
-	::QueryPerformanceCounter((LARGE_INTEGER *)&m_nLastPerfCount); 
-	mTimeScale = 1.0 / (double)mPerfFreqPerSec;
+	__int64	perfFreq{};
 
-	mBasePerfCount = m_nLastPerfCount;
+	QueryPerformanceFrequency(perfFreq);
+	QueryPerformanceCounter(mLastPerfCnt);
+	mTimeScale = 1.0 / static_cast<double>(perfFreq);
+
+	mBasePerfCnt = mLastPerfCnt;
 }
 
-Timer::~Timer()
+float Timer::GetTotalTime() const
 {
+	if (mIsStopped) {
+		return static_cast<float>(((mStopPerfCnt - mPausedPerfCnt) - mBasePerfCnt) * mTimeScale);
+	}
+
+	return static_cast<float>(((mCurrPerfCnt - mPausedPerfCnt) - mBasePerfCnt) * mTimeScale);
 }
+
+const WCHAR* Timer::GetFrameRate() const
+{
+	constexpr int radix     = 10;
+	constexpr int kBuffSize = 5;
+
+	static WCHAR buff[kBuffSize]{ L'\0' };
+
+	_itow_s(mCurrFrameRate, buff, kBuffSize, radix);
+
+	return buff;
+}
+
 
 void Timer::Tick(float lockFPS)
 {
 	if (mIsStopped) {
-		mTimeElapsed = 0.0f;
+		mTimeElapsed = 0.f;
 		return;
 	}
 
-	::QueryPerformanceCounter((LARGE_INTEGER *)&mCurrentPerfCount);
-	float timeElapsed = float((mCurrentPerfCount - m_nLastPerfCount) * mTimeScale);
+	QueryPerformanceCounter(mCurrPerfCnt);
+	float timeElapsed = static_cast<float>((mCurrPerfCnt - mLastPerfCnt) * mTimeScale);
 
-    if (lockFPS > 0.0f) {
-        while (timeElapsed < (1.0f / lockFPS)) {
-	        ::QueryPerformanceCounter((LARGE_INTEGER *)&mCurrentPerfCount);
-	        timeElapsed = float((mCurrentPerfCount - m_nLastPerfCount) * mTimeScale);
+    if (lockFPS > 0.f) {
+        while (timeElapsed < (1.f / lockFPS)) {
+	        QueryPerformanceCounter(mCurrPerfCnt);
+	        timeElapsed = static_cast<float>((mCurrPerfCnt - mLastPerfCnt) * mTimeScale);
         }
     } 
 
-	m_nLastPerfCount = mCurrentPerfCount;
+	mLastPerfCnt = mCurrPerfCnt;
 
-    if (fabsf(timeElapsed - mTimeElapsed) < 1.0f) {
-        ::memmove(&mFrameTime[1], mFrameTime, (MAX_SAMPLE_COUNT - 1) * sizeof(float));
+    if (fabsf(timeElapsed - mTimeElapsed) < 1.f) {
+        ::memmove(&mFrameTime[1], mFrameTime, (kMaxSampleCnt - 1) * sizeof(float));
         mFrameTime[0] = timeElapsed;
-        if (m_nSampleCount < MAX_SAMPLE_COUNT) m_nSampleCount++;
+		if (mSampleCnt < kMaxSampleCnt) {
+			mSampleCnt++;
+		}
     }
 
 	mFPS++;
 	mFPSTimeElapsed += timeElapsed;
-	if (mFPSTimeElapsed > 1.0f)  {
-		mCrntFrameRate	= mFPS;
-		mFPS = 0;
-		mFPSTimeElapsed = 0.0f;
+	if (mFPSTimeElapsed > 1.f)  {
+		mCurrFrameRate	= mFPS;
+		mFPS            = 0;
+		mFPSTimeElapsed = 0.f;
 	} 
 
-    mTimeElapsed = 0.0f;
-	for (ULONG i = 0; i < m_nSampleCount; i++) {
+    mTimeElapsed = 0.f;
+	for (ULONG i = 0; i < mSampleCnt; i++) {
 		mTimeElapsed += mFrameTime[i];
 	}
-	if (m_nSampleCount > 0) {
-		mTimeElapsed /= m_nSampleCount;
+	if (mSampleCnt > 0) {
+		mTimeElapsed /= mSampleCnt;
 	}
-}
-
-const WCHAR* Timer::GetFrameRate()
-{
-	constexpr int radix = 10;
-	constexpr int kBuffSize = 5;
-
-	static WCHAR buff[kBuffSize]{L'\0'};
-
-    _itow_s(mCrntFrameRate, buff, kBuffSize, radix);
-
-    return buff;
-}
-
-float Timer::GetTotalTime()
-{
-	if (mIsStopped) return float(((mStopPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale);
-	return float(((mCurrentPerfCount - mPausedPerfCount) - mBasePerfCount) * mTimeScale);
-}
-
-void Timer::Reset()
-{
-	__int64 nPerfCount;
-	::QueryPerformanceCounter((LARGE_INTEGER*)&nPerfCount);
-
-	mBasePerfCount = nPerfCount;
-	m_nLastPerfCount = nPerfCount;
-	mStopPerfCount = 0;
-	mIsStopped = false;
 }
 
 void Timer::Start()
 {
-	__int64 nPerfCount;
-	::QueryPerformanceCounter((LARGE_INTEGER *)&nPerfCount);
-	if (mIsStopped)
-	{
-		mPausedPerfCount += (nPerfCount - mStopPerfCount);
-		m_nLastPerfCount = nPerfCount;
-		mStopPerfCount = 0;
-		mIsStopped = false;
+	__int64 perfCnt;
+	QueryPerformanceCounter(perfCnt);
+	if (mIsStopped) {
+		mPausedPerfCnt += (perfCnt - mStopPerfCnt);
+		mLastPerfCnt    = perfCnt;
+		mStopPerfCnt    = 0;
+		mIsStopped      = false;
 	}
 }
 
@@ -108,13 +105,19 @@ void Timer::Stop()
 {
 	if (!mIsStopped)
 	{
-		::QueryPerformanceCounter((LARGE_INTEGER *)&mStopPerfCount);
+		QueryPerformanceCounter(mStopPerfCnt);
 		mIsStopped = true;
 	}
 }
 
 
-float DeltaTime()
+void Timer::Reset()
 {
-	return timer->GetTimeElapsed();
+	__int64 perfCnt;
+	QueryPerformanceCounter(perfCnt);
+
+	mBasePerfCnt = perfCnt;
+	mLastPerfCnt = perfCnt;
+	mStopPerfCnt = 0;
+	mIsStopped = false;
 }

@@ -38,7 +38,7 @@ void Script_TankPlayer::Rotate(DWORD rotationDir, float angle)
 	//}
 
 	if (rotationDir) {
-		float yRotation = 0.0f;
+		float yRotation = 0.f;
 		if (rotationDir & (WORD)Dir::Left) {
 			yRotation -= angle;
 		}
@@ -46,9 +46,9 @@ void Script_TankPlayer::Rotate(DWORD rotationDir, float angle)
 			yRotation += angle;
 		}
 
-		if (yRotation != 0.0f) {
-			mObject->Rotate(0.0f, yRotation, 0.0f);
-			mTurret->Rotate(0.0f, -yRotation, 0.0f);
+		if (yRotation != 0.f) {
+			mObject->Rotate(0.f, yRotation, 0.f);
+			mTurret->Rotate(0.f, -yRotation, 0.f);
 			mPrevTurretYaw = -yRotation;
 		}
 	}
@@ -57,14 +57,14 @@ void Script_TankPlayer::Rotate(DWORD rotationDir, float angle)
 
 void Script_TankPlayer::RotateTurret(float pitch, float yaw)
 {
-	mTurret->Rotate(0.0f, yaw, 0.0f);
+	mTurret->Rotate(0.f, yaw, 0.f);
 	RotateGun(pitch);
 }
 
 
 void Script_TankPlayer::RotateGun(float pitch)
 {
-	if (pitch == 0.0f) {
+	if (pitch == 0.f) {
 		return;
 	}
 
@@ -78,7 +78,7 @@ void Script_TankPlayer::RotateGun(float pitch)
 		pitch = minPitch - gunPitch;
 	}
 
-	mGun->Rotate(Vec3(1.0f, 0.0f, 0.0f), pitch);
+	mGun->Rotate(Vec3(1.f, 0.f, 0.f), pitch);
 }
 
 

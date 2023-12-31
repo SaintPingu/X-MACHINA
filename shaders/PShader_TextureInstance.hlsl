@@ -1,31 +1,29 @@
 #include "PSResource.hlsl"
 #include "VSResource.hlsl"
 
-struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
-{
-    float4 cTexture : SV_TARGET1;
-    float distance : SV_TARGET4;
+struct PSOutput_MRT {
+    float4 Texture : SV_TARGET1;
+    float Distance : SV_TARGET4;
 };
 
-struct VS_TEX_INSTANCING_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITIONW;
-    float2 uv : UV;
+struct VSOutput_TexInst {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITIONW;
+    float2 UV : UV;
 };
 
 #ifdef POST_PROCESSING
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTextureInstancing(VS_TEX_INSTANCING_OUTPUT input)
+PSOutput_MRT PSTextureInstancing(VSOutput_TexInst input)
 {
-    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-    output.cTexture = albedoTexture.Sample(samplerState, input.uv);
-    output.distance = length(input.positionW - gf3CameraPosition);
+    PSOutput_MRT output;
+    output.Texture = gAlbedoTexture.Sample(gSamplerState, input.UV);
+    output.Distance = length(input.PositionW - gCameraPos);
     
     return output;
 }
 #else
-float4 PSTextureInstancing(VS_TEX_INSTANCING_OUTPUT input) : SV_TARGET
+float4 PSTextureInstancing(VSOutput_TexInst input) : SV_TARGET
 {
-    return albedoTexture.Sample(samplerState, input.uv);
+    return gAlbedoTexture.Sample(gSamplerState, input.UV);
 }
 #endif

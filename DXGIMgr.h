@@ -1,128 +1,131 @@
 #pragma once
 
-#define DRAW_SCENE_COLOR				'S'
+#pragma region Define
+#define dxgi DXGIMgr::Inst()
+#define device dxgi->GetDevice()
+#define cmdList dxgi->GetCmdList()
+#pragma endregion
 
-#define DRAW_SCENE_TEXTURE				'T'
-#define DRAW_SCENE_LIGHTING				'L'
-#define DRAW_SCENE_NORMAL				'N'
-#define DRAW_SCENE_Z_DEPTH				'Z'
-#define DRAW_SCENE_DEPTH				'D'
-
-//-----------------------------[Class Declaration]-----------------------------//
+#pragma region ClassForwardDecl
 class PostProcessingShader;
-//-----------------------------------------------------------------------------//
+#pragma endregion
 
 
+#pragma region EnumClass
+enum class DrawOption {
+	Main = 0,
+};
+#pragma endregion
 
+
+#pragma region Class
 class DXGIMgr {
 	SINGLETON_PATTERN(DXGIMgr)
 
 private:
 	// window
-	HINSTANCE mInstance{};
-	HWND mWnd{};
+	HINSTANCE	mInstance{};
+	HWND		mWnd{};
 
 	// screen
 	int mClientWidth{};
 	int mClientHeight{};
 
 	// device
-	ComPtr<IDXGIFactory4> mFactory{};
+	ComPtr<IDXGIFactory4>	mFactory{};
 	ComPtr<IDXGISwapChain3> mSwapChain{};
-	ComPtr<ID3D12Device> mDevice{};
+	ComPtr<ID3D12Device>	mDevice{};
 
 	bool mIsMsaa4xEnabled{ false };
 	UINT mMsaa4xQualityLevels{};
 
 	// swap chain
-	static constexpr UINT mSwapChainBufferCount{ 2 };
-	static constexpr UINT mRtvSize = 5;
-	std::array<DXGI_FORMAT, mRtvSize> mRtvFormats{ DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	static constexpr UINT mSwapChainBuffCnt{ 2 };
+	static constexpr UINT mRtvCnt = 5;
+	static constexpr std::array<DXGI_FORMAT, mRtvCnt> mRtvFormats{ DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
-	UINT mSwapChainBufferIndex{};
-	ComPtr<ID3D12Resource> mSwapChainBackBuffers[mSwapChainBufferCount]{};
+	UINT mSwapChainBuffIdx{};
+	ComPtr<ID3D12Resource> mSwapChainBuffers[mSwapChainBuffCnt]{};
 
-	// RTV & DSV
-	ComPtr<ID3D12DescriptorHeap> mRtvHeap{};
-
-	ComPtr<ID3D12Resource> mDepthStencilBuffer{};
-	ComPtr<ID3D12DescriptorHeap> mDsvHeap{};
-	D3D12_CPU_DESCRIPTOR_HANDLE mDsvHandle{};
+	// view
+	UINT							mCbvSrvDescriptorIncSize{};
+	UINT							mRtvDescriptorIncSize{};
+	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};
+	ComPtr<ID3D12DescriptorHeap>	mDsvHeap{};
+	ComPtr<ID3D12Resource>			mDepthStencilBuff{};
+	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};
 
 	// command
-	ComPtr<ID3D12CommandAllocator> mCmdAllocator{};
-	ComPtr<ID3D12CommandQueue> mCmdQueue{};
-	ComPtr<ID3D12GraphicsCommandList> mCmdList{};
+	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
+	ComPtr<ID3D12CommandQueue>			mCmdQueue{};
+	ComPtr<ID3D12GraphicsCommandList>	mCmdList{};
 
 	// fence
 	ComPtr<ID3D12Fence> mFence{};
-	UINT64 mFenceValues[mSwapChainBufferCount]{};
-	HANDLE mFenceEvent{};
+	UINT64				mFenceValues[mSwapChainBuffCnt]{};
+	HANDLE				mFenceEvent{};
 
+	D3D12_CPU_DESCRIPTOR_HANDLE	mSwapChainBuffRtvHandles[mSwapChainBuffCnt]{};
 
-	// others
-#if defined(_DEBUG)
-	ComPtr<ID3D12Debug> mDebugController{};
-#endif
+	sptr<PostProcessingShader>	mPostProcessingShader{};
 
-	D3D12_CPU_DESCRIPTOR_HANDLE	mSwapChainBackBufferRtvHandles[mSwapChainBufferCount]{};
-	sptr<PostProcessingShader> mPostProcessingShader{};
-	int mDrawOption{ DRAW_SCENE_COLOR };
+	DrawOption mDrawOption{};
 
 public:
+#pragma region C/Dtor
 	DXGIMgr();
-	~DXGIMgr() = default;
+	virtual ~DXGIMgr() = default;
+#pragma endregion
 
+#pragma region Getter
 	RComPtr<ID3D12Device> GetDevice() const { return mDevice; }
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const { return mCmdList; }
 	HWND GetHwnd() const { return mWnd; }
 	const auto& GetRtvFormats() const { return mRtvFormats; }
+	UINT GetCbvSrvDescriptorIncSize() const { return mCbvSrvDescriptorIncSize; }
+	UINT GetRtvDescriptorIncSize() const { return mRtvDescriptorIncSize; }
+#pragma endregion
 
-	bool Init(HINSTANCE hInstance, HWND hMainWnd);
+#pragma region Setter
+	void SetDrawOption(DrawOption option) { mDrawOption = option; }
+#pragma endregion
+
+public:
+	void Init(HINSTANCE hInstance, HWND hMainWnd);
 	void Release();
 	void Terminate(); // 강제종료
 
+	void Render();
+
+	void ToggleFullScreen();
+
+	void ClearDepth();
+	void ClearStencil();
+	void ClearDepthStencil();
+
 private:
-	/* Creation */
-	// for CreateDirect3DDevice
-	void CreateDirect3DDevice();
+	void StartCommand();
+	void StopCommand();
+
 	void CreateFactory();
 	void CreateDevice();
 	void SetMSAA();
 	void CreateFence();
 	void SetIncrementSize();
-	//
 
-	void CreateCommandQueueAndList();
+	void CreateDirect3DDevice();
+	void CreateCmdQueueAndList();
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateSwapChain();
-	void CreateRenderTargetViews();
-	void CreateDepthStencilView();
+	void CreateRTVs();
+	void CreateDSV();
 
-
-	/* for rendering */
 	void ChangeSwapChainState();
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
-	void StartCommand();
-	void StopCommand();
-
-public:
 	void BuildObjects();
-	void Render();
-
-	void ToggleFullScreen();
-	void SetDrawOption(int option);
-
-	void ClearStencil();
 };
-
-inline RComPtr<ID3D12Device> GetDXGIDevice() { return DXGIMgr::Inst()->GetDevice(); }
-inline RComPtr<ID3D12GraphicsCommandList> GetDXGICmdList() { return DXGIMgr::Inst()->GetCmdList(); }
-
-#define dxgi DXGIMgr::Inst()
-#define device dxgi->GetDevice()
-#define cmdList dxgi->GetCmdList()
+#pragma endregion

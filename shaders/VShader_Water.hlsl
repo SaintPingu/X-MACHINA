@@ -1,36 +1,33 @@
 #include "VSResource.hlsl"
 
-struct VS_WATER_INPUT
-{
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : UV;
-    float3 tangent : TANGENT;
-    float3 bitangent : BITANGENT;
+struct VSInput_Water {
+    float3 Position : POSITION;
+    float3 Normal : NORMAL;
+    float2 UV : UV;
+    float3 Tangent : TANGENT;
+    float3 BiTangent : BITANGENT;
 };
 
-struct VS_WATER_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float2 uv : UV;
+struct VSOutput_Water {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float2 UV : UV;
 };
 
-cbuffer gameInfo : register(b3)
-{
-    float deltaTime : packoffset(c0);
+cbuffer cbGameInfo : register(b3) {
+    float gDeltaTime : packoffset(c0);
 };
 
-VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
+VSOutput_Water VSWater(VSInput_Water input)
 {
-    VS_WATER_OUTPUT output;
-    input.position.y += sin(deltaTime * 1.35f + input.position.x * 1.35f) * 1.95f + cos(deltaTime * 1.30f + input.position.z * 1.35f) * 1.05f;
+    VSOutput_Water output;
+    input.Position.y += sin(gDeltaTime * 1.35f + input.Position.x * 1.35f) * 1.95f + cos(gDeltaTime * 1.30f + input.Position.z * 1.35f) * 1.05f;
 
-    output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxWorld);
-    output.normalW = mul(input.normal, (float3x3) gmtxWorld);
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = input.uv * 5.0f;
+    output.PositionW = (float3) mul(float4(input.Position, 1.f), gMtxWorld);
+    output.NormalW = mul(input.Normal, (float3x3) gMtxWorld);
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.UV = input.UV * 5.0f;
 
-    return (output);
+    return output;
 }

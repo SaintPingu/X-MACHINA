@@ -1,8 +1,7 @@
 #pragma once
 
-//-----------------------------[Class Declaration]-----------------------------//
+#pragma region ClassForwardDecl
 class ModelObjectMesh;
-class Camera;
 class Mesh;
 class GameObject;
 class MasterModel;
@@ -10,44 +9,48 @@ class Object;
 class Material;
 class Texture;
 
-struct MATERIAL;
-//-----------------------------------------------------------------------------//
+class Script_Fragment;
+class Script_Bullet;
+#pragma endregion
 
-struct CB_GAMEOBJECT_INFO
-{
-	Vec4x4 mWorldTransform{};
+
+#pragma region Struct
+struct SB_ColorInst {
+	Vec4x4	LocalTransform{};
+	Vec4	Color{};
 };
-
-struct VS_VB_INSTANCE
-{
-	Vec4x4 mLocalTransform{};
-	Vec4 mColor{};
-};
+#pragma endregion
 
 
-
-
-
-
-// [ Shader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma region Class
 class Shader {
 private:
 	bool mIsClosed{ true };
 
 protected:
-	std::vector<ComPtr<ID3D12PipelineState>> mPipelineStates;
+	std::vector<ComPtr<ID3D12PipelineState>>	mPipelineStates;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC			mPipelineStateDesc{};
 
-	ComPtr<ID3DBlob> mVertexShaderBlob{};
-	ComPtr<ID3DBlob> mPixelShaderBlob{};
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC	mPipelineStateDesc{};
+	ComPtr<ID3DBlob> mVSBlob{};
+	ComPtr<ID3DBlob> mPSBlob{};
 
 public:
 	Shader() = default;
 	virtual ~Shader();
+
+public:
+	virtual void Create(DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT, bool isClose = true);
+
+	virtual void CreateShaderVars()  {};
+	virtual void UpdateShaderVars()  {};
+	virtual void ReleaseShaderVars() {};
+
+	virtual void Render(int pipelineStateIndex = 0);
+
+protected:
+	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; };
+
+	void SetPipelineState(int pipelineStateIndex = 0);
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
@@ -57,22 +60,8 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 
-	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; };
-
-	D3D12_SHADER_BYTECODE CompileShaderFromFile(const std::wstring& fileName, LPCSTR shaderName, LPCSTR shaderProfile, ComPtr<ID3DBlob>& shaderBlob);
+	D3D12_SHADER_BYTECODE CompileShaderFile(const std::wstring& fileName, LPCSTR shaderName, LPCSTR shaderProfile, ComPtr<ID3DBlob>& shaderBlob);
 	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob);
-
-	virtual void CreateShader(DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT, bool isClose = true);
-
-	virtual void CreateShaderVariables();
-	virtual void UpdateShaderVariables();
-	virtual void ReleaseShaderVariables();
-
-	virtual void OnPrepareRender(int pipelineStateIndex = 0);
-	virtual void Render(int pipelineStateIndex = 0);
-
-	virtual void UpdateShaderVariable(Vec4x4* world) { }
-	virtual void UpdateShaderVariable(MATERIAL* material) { }
 
 	void Close();
 };
@@ -81,50 +70,60 @@ public:
 
 
 
-
-
-
-
-
-// [ WireShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class WireShader : public Shader {
 public:
-	WireShader() = default;
+	WireShader()          = default;
 	virtual ~WireShader() = default;
 
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
+protected:
+	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const override { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; }
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 
-	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; };
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
 
 
 
 
-
-
-
-
-
-// [ InstancingShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class InstancingShader : public Shader {
-	using INSTANCE_BUFFER = VS_VB_INSTANCE;
+private:
+	using InstBuff = SB_ColorInst;
 
 protected:
-	std::vector<sptr<GameObject>> mObjects{};
-	ComPtr<ID3D12Resource> mInstBuffer{};
-	INSTANCE_BUFFER* mMappedObjects{};
-	sptr<const Mesh> mMesh;
+	std::vector<sptr<GameObject>>	mObjects{};
+	ComPtr<ID3D12Resource>			mInstBuff{};
+	InstBuff* mMappedObjects{};
+	sptr<const Mesh>				mMesh;
+
+public:
+	InstancingShader() = default;
+	virtual ~InstancingShader();
+
+	std::vector<sptr<GameObject>>& GetObjects() { return mObjects; }
+
+	void SetColor(const Vec3& color);
+
+public:
+	virtual void Start();
+	virtual void Update();
+	virtual void Render();
+
+	void BuildObjects(size_t instanceCount, rsptr<const Mesh> mesh);
+
+protected:
+	void SetSRV();
+
+	virtual void CreateShaderVars() override;
+	virtual void UpdateShaderVars() override;
+	virtual void ReleaseShaderVars() override;
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 
 	template<class Pred>
 	void DoAllObjects(Pred pred)
@@ -133,42 +132,16 @@ protected:
 			pred(object);
 		}
 	}
-
-public:
-	InstancingShader() = default;
-	virtual ~InstancingShader() = default;
-
-	std::vector<sptr<GameObject>>& GetObjects() { return mObjects; }
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-	virtual void CreateShaderVariables();
-	virtual void UpdateShaderVariables();
-	virtual void ReleaseShaderVariables();
-
-	virtual void Render();
-
-	virtual void Start();
-	virtual void Update();
-
-	void SetColor(const Vec3& color);
-
-	void BuildObjects(size_t instanceCount, rsptr<const Mesh> mesh);
 };
 
 
 
 
 
-// [ EffectShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class EffectShader : public InstancingShader {
-protected:
-	using InstancingShader::BuildObjects;
 
+class EffectShader : public InstancingShader {
+
+protected:
 	// mObjects를 그룹으로 나눈다.
 	// 활성화된 그룹
 	// <begin, duration>
@@ -176,73 +149,63 @@ protected:
 	size_t mGroupSize{};
 	size_t mCountPerGroup{};
 
+	std::vector<sptr<Script_Fragment>> mObjectScripts{};
+
+private:
 	float mMaxDuration{};
 
 	// 시간 초과 객체 관리
-	std::vector<size_t> timeOvers{};
-
-	size_t GetGroupBegin(size_t index);
-
-	template<class Pred>
-	void DoActivatedObjects(Pred pred)
-	{
-		for (auto& [begin, duration] : mActiveGroups) {
-			size_t index = begin;
-			size_t end = begin + mCountPerGroup;
-			for (; index < end; ++index) {
-				pred(mObjects[index]);
-			}
-		}
-	}
-
+	std::vector<size_t> mTimeOvers{};
 
 public:
-	EffectShader() = default;
+	EffectShader()          = default;
 	virtual ~EffectShader() = default;
-
-	virtual void UpdateShaderVariables();
-
-	virtual void Render();
-
-	virtual void Update();
 
 	void SetDuration(float duration) { mMaxDuration = duration; }
 	void SetColor(size_t i, const Vec3& color);
 
+public:
+	virtual void Update() override;
+	virtual void Render() override;
+
 	void BuildObjects(size_t groupCount, size_t countPerGroup, rsptr<const ModelObjectMesh> mesh);
 
-	// return the activated group
 	void SetActive(const Vec3& pos);
+
+protected:
+	virtual void UpdateShaderVars() override;
 };
 
 
 
 
-// [ TexturedEffectShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class TexturedEffectShader : public EffectShader {
 private:
 	sptr<Material> mMaterial;
+	
+public:
+	TexturedEffectShader()          = default;
+	virtual ~TexturedEffectShader() = default;
 
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-
 	void SetMaterial(rsptr<Material> material) { mMaterial = material; }
 
-	virtual void UpdateShaderVariables();
-	virtual void Render();
+	virtual void Render() override;
+
+protected:
+	virtual void UpdateShaderVars() override;
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
 
-// [ StatiShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class StatiShader abstract : public TexturedEffectShader {
+
+
+#pragma region StaticShader
+class StaticShader abstract : public TexturedEffectShader {
 private:
 	virtual void BuildObjects() abstract;
 
@@ -250,177 +213,165 @@ public:
 	virtual void Create();
 };
 
-class SmallExpEffectShader : public StatiShader {
+class SmallExpEffectShader : public StaticShader {
 private:
 	virtual void BuildObjects() override;
 };
 
-class BigExpEffectShader : public StatiShader {
+class BigExpEffectShader : public StaticShader {
 private:
 	virtual void BuildObjects() override;
 };
+#pragma endregion
 
 
 
 
 
 
-// [ BulletShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class BulletShader : public InstancingShader {
+protected:
+	std::vector<sptr<Script_Bullet>> mObjectScripts{};
+
 private:
 	std::list<sptr<GameObject>> mBuffer{};
 
 public:
-	BulletShader() = default;
+	BulletShader()          = default;
 	virtual ~BulletShader() = default;
 
-	const std::vector<sptr<GameObject>>& GetObjects() { return mObjects; }
+	const std::vector<sptr<GameObject>>& GetObjects() const { return mObjects; }
 	void BuildObjects(size_t bufferSize, rsptr<const MasterModel> model, const Object* owner);
 	void SetLifeTime(float bulletLifeTime);
 	void SetDamage(float damage);
 
+public:
+	virtual void Start() override;
+	virtual void Update() override;
+	virtual void Render() override;
+
 	void FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed);
 
-	virtual void UpdateShaderVariables();
-
-	virtual void Start();
-	virtual void Update();
-	virtual void Render();
-
 	const std::list<sptr<GameObject>>* GetBullets() const { return &mBuffer; }
+
+protected:
+	virtual void UpdateShaderVars() override;
 };
 
 
 
 
 
-
-
-
-
-
-
-
-
-// [ TexturedShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class TexturedShader : public Shader {
 public:
-	TexturedShader() = default;
+	TexturedShader()          = default;
 	virtual ~TexturedShader() = default;
 
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 
 };
 
 
 
-// [ ObjectInstancingShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 class ObjectInstancingShader : public TexturedShader {
 public:
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	ObjectInstancingShader()          = default;
+	virtual ~ObjectInstancingShader() = default;
+
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 };
 
 
 
-// [ TransparentShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 class TransparentShader : public TexturedShader {
 public:
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
-	virtual D3D12_BLEND_DESC CreateBlendState();
+	TransparentShader()          = default;
+	virtual ~TransparentShader() = default;
+
+protected:
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
+	virtual D3D12_BLEND_DESC CreateBlendState() override;
 };
 
 
 
-// [ TerrainShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 class TerrainShader : public Shader {
 public:
-	TerrainShader() = default;
+	TerrainShader()          = default;
 	virtual ~TerrainShader() = default;
 
-	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 
 };
 
 
 
 
-// [ SkyBoxShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class SkyBoxShader : public Shader {
 public:
-	SkyBoxShader() = default;
+	SkyBoxShader()          = default;
 	virtual ~SkyBoxShader() = default;
 
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
 
 
-// [ WaterShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 class WaterShader : public TexturedShader {
 public:
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
-	virtual D3D12_BLEND_DESC CreateBlendState();
+	WaterShader()          = default;
+	virtual ~WaterShader() = default;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+protected:
+	virtual D3D12_BLEND_DESC CreateBlendState() override;
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
 
 
 
-// [ PostProcessingShader ] //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class PostProcessingShader : public Shader
-{
-private:
-	UINT mRtvSize{};
-	const DXGI_FORMAT* mRtvFormats{};
 
-	void CreateTextureResources();
-	void CreateSrvs();
-	void CreateRtvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+class PostProcessingShader : public Shader {
+protected:
+	std::vector<sptr<Texture>> mTextures{};
+
+	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> mRtvHandles{};
+
+private:
+	UINT mRtvCnt{};
+	const DXGI_FORMAT* mRtvFormats{};
 
 public:
 	PostProcessingShader();
 	virtual ~PostProcessingShader() = default;
 
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-
+public:
 	virtual void CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 
 	virtual void OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle);
@@ -428,51 +379,72 @@ public:
 
 	virtual void Render();
 
-protected:
-	std::vector<sptr<Texture>> mTextures{};
+private:
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> mRtvHandles{};
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 
-public:
-	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHandle(UINT index) { return mRtvHandles[index]; }
+	void CreateTextureResources();
+	void CreateSrvs();
+	void CreateRtvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 };
 
 
-class TextureToScreenShader : public PostProcessingShader
-{
+
+
+
+class TextureToScreenShader : public PostProcessingShader {
 public:
-	TextureToScreenShader() = default;
+	TextureToScreenShader()          = default;
 	virtual ~TextureToScreenShader() = default;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
 
 
+
+#pragma region BillboardShader
 class BillboardShader : public TexturedShader {
 public:
-	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
-	virtual D3D12_BLEND_DESC CreateBlendState();
+	BillboardShader()          = default;
+	virtual ~BillboardShader() = default;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+protected:
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
+	virtual D3D12_BLEND_DESC CreateBlendState() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
 class SpriteShader : public BillboardShader {
 public:
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	SpriteShader()          = default;
+	virtual ~SpriteShader() = default;
+
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 };
+#pragma endregion
+
 
 
 
 class CanvasShader : public TexturedShader {
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	CanvasShader()          = default;
+	virtual ~CanvasShader() = default;
 
-	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
-	virtual D3D12_BLEND_DESC CreateBlendState();
+public:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
+	virtual D3D12_BLEND_DESC CreateBlendState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
+#pragma endregion

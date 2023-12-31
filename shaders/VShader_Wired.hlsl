@@ -1,23 +1,21 @@
 #include "VSResource.hlsl"
 
-struct VS_INPUT
-{
-    float3 position : POSITION;
+struct VSInput {
+    float3 Position : POSITION;
 };
 
-struct VS_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
+struct VSOutput {
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR;
 };
 
 
-VS_OUTPUT VSWired(VS_INPUT input)
+VSOutput VSWired(VSInput input)
 {
-    VS_OUTPUT output;
+    VSOutput output;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
-    output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+    output.Position = mul(mul(mul(float4(input.Position, 1.f), gMtxWorld), gMtxView), gMtxProj);
+    output.Color = float4(1.f, 0.f, 0.f, 1.f);
 
     return output;
 }

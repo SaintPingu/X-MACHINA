@@ -1,18 +1,17 @@
 #include "PSResource.hlsl"
 
-struct VS_TEXTURED_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float2 uv : UV;
+struct VSOutput_Tex {
+    float4 Position : SV_POSITION;
+    float2 UV : UV;
 };
 
-float4 PSCanvas(VS_TEXTURED_OUTPUT input) : SV_Target2
+float4 PSCanvas(VSOutput_Tex input) : SV_Target2
 {
-    float4 color = albedoTexture.Sample(samplerState, input.uv);
+    float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV);
     if (color.a < 0.9f)
     {
         discard;
     }
 
-    return (color);
+    return color;
 }

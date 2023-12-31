@@ -4,12 +4,11 @@
 
 #include "stdafx.h"
 #include "GameFramework.h"
-#include "Timer.h"
-#include "Camera.h"
-#include "Scene.h"
-#include "Shader.h"
-#include "InputMgr.h"
 #include "DXGIMgr.h"
+#include "InputMgr.h"
+
+#include "Timer.h"
+#include "Scene.h"
 
 SINGLETON_PATTERN_DEFINITION(Framework)
 

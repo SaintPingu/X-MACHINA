@@ -1,31 +1,28 @@
 #include "Light.hlsl"
 
-struct VS_STANDARD_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float3 tangentW : TANGENT;
-    float3 bitangentW : BITANGENT;
-    float2 uv : UV;
-    bool isTexture : ISTEXTURE;
+struct VSOutput_Standard {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float3 BiTangentW : BITANGENT;
+    float2 UV : UV;
+    bool   IsTexture : ISTEXTURE;
 };
 
-float4 PS_Standard(VS_STANDARD_OUTPUT input) : SV_TARGET
+float4 PS_Standard(VSOutput_Standard input) : SV_TARGET
 {
-    if (input.isTexture)
-    {
-        float4 cColor = albedoTexture.Sample(samplerState, input.uv);
+    if (input.IsTexture) {
+        float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV);
     
-        float3 normalW = normalize(input.normalW);
-        float4 illumination = Lighting(input.positionW, normalW);
+        float3 normalW = normalize(input.NormalW);
+        float4 illumination = Lighting(input.PositionW, normalW);
         
-        return Fog(lerp(cColor, illumination, 0.5f), input.positionW);
+        return Fog(lerp(color, illumination, 0.5f), input.PositionW);
     }
-    else
-    {
-        float3 normalW = normalize(input.normalW);
-        float4 color = Lighting(input.positionW, normalW);
-        return (color);
+    else {
+        float3 normalW = normalize(input.NormalW);
+        float4 color = Lighting(input.PositionW, normalW);
+        return color;
     }
 }

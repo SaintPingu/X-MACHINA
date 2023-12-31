@@ -1,48 +1,43 @@
-#define MATERIAL_ALBEDO_MAP			0x01
-#define MATERIAL_SPECULAR_MAP		0x02
-#define MATERIAL_NORMAL_MAP			0x04
-#define MATERIAL_METALLIC_MAP		0x08
-#define MATERIAL_EMISSION_MAP		0x10
-#define MATERIAL_DETAIL_ALBEDO_MAP	0x20
-#define MATERIAL_DETAIL_NORMAL_MAP	0x40
-#define MATERIAL_SPRITE         	0x80
+#define MaterialInfo_Albedo			0x01
+#define MaterialInfo_Specular		0x02
+#define MaterialInfo_Normal			0x04
+#define MaterialInfo_Metalic    	0x08
+#define MaterialInfo_Emission		0x10
+#define MaterialInfo_DetailAlbedo	0x20
+#define MaterialInfo_DetailNormal	0x40
+#define MaterialInfo_Sprite         0x80
 
-struct MATERIAL
-{
-    float4 m_cAmbient;
-    float4 m_cDiffuse;
-    float4 m_cSpecular; //a = power
-    float4 m_cEmissive;
+struct MaterialInfo {
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Sepcular; //a = power
+    float4 Emissive;
 };
 
-cbuffer cbGameObjectInfo : register(b0)
-{
-    matrix gmtxWorld : packoffset(c0);
-    MATERIAL gMaterial : packoffset(c4);
-    uint texturesMask : packoffset(c8);
+cbuffer cbGameObjectInfo : register(b0) {
+    matrix gMtxWorld : packoffset(c0);
+    MaterialInfo gMaterial : packoffset(c4);
+    uint gTextureMask : packoffset(c8);
 };
 
-cbuffer cbCameraInfo : register(b1)
-{
-    matrix gmtxView : packoffset(c0);
-    matrix gmtxProjection : packoffset(c4);
-    float3 gf3CameraPosition : packoffset(c8);
+cbuffer cbCameraInfo : register(b1) {
+    matrix gMtxView : packoffset(c0);
+    matrix gMtxProj : packoffset(c4);
+    float3 gCameraPos : packoffset(c8);
 };
 
-cbuffer cbSpriteInfo : register(b4)
-{
-    matrix gmtxSprite : packoffset(c0);
+cbuffer cbSpriteInfo : register(b4) {
+    matrix gMtxSprite : packoffset(c0);
 };
 
-struct STANDARD_INSTANCED_GAMEOBJECT_INFO
-{
-    matrix m_mtxGameObject;
+struct SB_StandardInst {
+    matrix MtxObject;
 };
-StructuredBuffer<STANDARD_INSTANCED_GAMEOBJECT_INFO> instanceBuffer : register(t0);
+StructuredBuffer<SB_StandardInst> instBuffer : register(t0);
 
-struct COLORED_INSTANCED_GAMEOBJECT_INFO
-{
-    matrix m_mtxGameObject;
-    float4 color;
+struct SB_ColorInst {
+    matrix MtxObject;
+    float4 Color;
 };
-StructuredBuffer<COLORED_INSTANCED_GAMEOBJECT_INFO> colorInstanceBuffer : register(t0);
+StructuredBuffer<SB_ColorInst> colorInstBuffer : register(t0);
+

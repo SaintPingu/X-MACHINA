@@ -1,11 +1,10 @@
-struct VS_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
+struct VSOutput {
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR;
 };
 
 
-float4 PSWired(VS_OUTPUT input) : SV_TARGET1
+float4 PSWired(VSOutput input) : SV_TARGET1
 {
-    return input.color;
+    return input.Color;
 }

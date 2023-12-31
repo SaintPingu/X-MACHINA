@@ -1,52 +1,48 @@
 #include "Light.hlsl"
 
-struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
-{
-    float4 cTexture : SV_TARGET1;
-    float distance : SV_TARGET4;
+struct PSOutput_MRT {
+    float4 Texture : SV_TARGET1;
+    float  Distance : SV_TARGET4;
 };
 
-struct VS_STANDARD_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float3 tangentW : TANGENT;
-    float3 bitangentW : BITANGENT;
-    float2 uv : UV;
-    bool isTexture : ISTEXTURE;
+struct VSOutput_Standard {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float3 BiTangentW : BITANGENT;
+    float2 UV : UV;
+    bool   IsTexture : ISTEXTURE;
 };
 
 #ifdef POST_PROCESSING
-
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLightingToMultipleRTs(VS_STANDARD_OUTPUT input)
+PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
 {
-    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+    PSOutput_MRT output;
     
-    input.normalW = normalize(input.normalW);
+    input.NormalW = normalize(input.NormalW);
     
-    float4 illumination = Lighting(input.positionW, input.normalW);
+    float4 illumination = Lighting(input.PositionW, input.NormalW);
     
-    //output.position = float4(input.positionW, 1.f);
-    //output.normal = float4(input.normalW.xyz * 0.5f + 0.5f, 1.0f);
-    output.distance = length(input.positionW - gf3CameraPosition);
+    //output.Position = float4(input.PositionW, 1.f);
+    //output.normal = float4(input.NormalW.xyz * 0.5f + 0.5f, 1.f);
+    output.Distance = length(input.PositionW - gCameraPos);
     
-    if (input.isTexture)
+    if (input.IsTexture)
     {
-        output.cTexture = albedoTexture.Sample(samplerState, input.uv) * illumination;
+        output.Texture = gAlbedoTexture.Sample(gSamplerState, input.UV) * illumination;
     }
     else
     {
-        output.cTexture = illumination;
+        output.Texture = illumination;
     }
     
-    return (output);
+    return output;
 }
-
 #else
-float4 PSTexturedLightingToMultipleRTs(VS_STANDARD_OUTPUT input) : SV_TARGET
+float4 PSTexturedLightingToMultipleRTs(VSOutput_Standard input) : SV_TARGET
 {
-    return albedoTexture.Sample(samplerState, input.uv);
+    return gAlbedoTexture.Sample(gSamplerState, input.UV);
 }
 
 #endif

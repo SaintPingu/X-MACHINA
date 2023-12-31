@@ -1,9 +1,16 @@
 #include "stdafx.h"
 #include "Script_ExplosiveObject.h"
+
 #include "Scene.h"
 #include "Object.h"
+
 #include "Script_Player.h"
 
+
+void Script_ExplosiveObject::OnCollisionStay(Object& other)
+{
+	Explode();
+}
 
 void Script_ExplosiveObject::Explode()
 {
@@ -22,9 +29,4 @@ void Script_ExplosiveObject::Hit(float damage)
 	if (mHP <= 0) {
 		Explode();
 	}
-}
-
-void Script_ExplosiveObject::OnCollisionStay(Object& other)
-{
-	Explode();
 }

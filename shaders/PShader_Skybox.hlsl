@@ -1,14 +1,13 @@
 #include "Light.hlsl"
 
-struct VS_SKYBOX_CUBEMAP_OUTPUT
-{
-    float3 positionL : POSITION;
-    float4 position : SV_POSITION;
+struct VSOutput_Skybox {
+    float3 PositionL : POSITION;
+    float4 Position : SV_POSITION;
 };
 
-float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
 {
-    float4 color = skyBoxTexture.Sample(samplerState, input.positionL);
+    float4 color = gSkyBoxTexture.Sample(gSamplerState, input.PositionL);
 
-    return lerp(color, fogColor, 0.9f);
+    return lerp(color, gFogColor, 0.9f);
 }

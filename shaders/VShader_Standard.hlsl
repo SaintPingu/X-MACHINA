@@ -1,44 +1,42 @@
 #include "VSResource.hlsl"
 
-struct VS_STANDARD_INPUT
-{
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : UV;
-    float3 tangent : TANGENT;
-    float3 bitangent : BITANGENT;
+struct VSInput_Standard {
+    float3 Position : POSITION;
+    float3 Normal : NORMAL;
+    float2 UV : UV;
+    float3 Tangent : TANGENT;
+    float3 BiTangent : BITANGENT;
 };
 
-struct VS_STANDARD_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITION;
-    float3 normalW : NORMAL;
-    float3 tangentW : TANGENT;
-    float3 bitangentW : BITANGENT;
-    float2 uv : UV;
-    bool isTexture : ISTEXTURE;
+struct VSOutput_Standard {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float3 BiTangentW : BITANGENT;
+    float2 UV : UV;
+    bool IsTexture : ISTEXTURE;
 };
 
-VS_STANDARD_OUTPUT VS_Standard(VS_STANDARD_INPUT input)
+VSOutput_Standard VS_Standard(VSInput_Standard input)
 {
-    VS_STANDARD_OUTPUT output;
+    VSOutput_Standard output;
 
-    output.positionW = (float3) mul(float4(input.position, 1.0f), gmtxWorld);
-    output.normalW = mul(input.normal, (float3x3) gmtxWorld);
-    output.tangentW = (float3) mul(float4(input.tangent, 1.0f), gmtxWorld);
-    output.bitangentW = (float3) mul(float4(input.bitangent, 1.0f), gmtxWorld);
-    output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.uv = input.uv;
+    output.PositionW = (float3) mul(float4(input.Position, 1.f), gMtxWorld);
+    output.NormalW = mul(input.Normal, (float3x3) gMtxWorld);
+    output.TangentW = (float3) mul(float4(input.Tangent, 1.f), gMtxWorld);
+    output.BiTangentW = (float3) mul(float4(input.BiTangent, 1.f), gMtxWorld);
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
+    output.UV = input.UV;
     
-    if (texturesMask > 0)
+    if (gTextureMask > 0)
     {
-        output.isTexture = true;
+        output.IsTexture = true;
     }
     else
     {
-        output.isTexture = false;
+        output.IsTexture = false;
     }
 
-    return (output);
+    return output;
 }

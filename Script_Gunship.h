@@ -1,12 +1,19 @@
 #pragma once
+
+
+#pragma region Include
 #include "Component.h"
+#pragma endregion
 
-//-----------------------------[Class Declaration]-----------------------------//
+
+#pragma region ClassForwardDecl
 class GameObject;
-//-----------------------------------------------------------------------------//
+#pragma endregion
 
+
+#pragma region Class
 class Script_Gunship : public Component {
-	COMPONENT(Component, Script_Gunship)
+	COMPONENT(Script_Gunship, Component)
 
 private:
 	Transform* mMainRotorFrame{};
@@ -18,3 +25,4 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 };
+#pragma endregion

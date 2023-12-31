@@ -9,10 +9,12 @@
 #include "GameFramework.h"
 #include "Scene.h"
 
-struct SpriteInfo {
-	int rows{};
-	int cols{};
-};
+namespace {
+	struct SpriteInfo {
+		int rows{};
+		int cols{};
+	};
+}
 
 void Script_Sprite::Start()
 {
@@ -26,7 +28,8 @@ void Script_Sprite::Start()
 	gameObject->SetFlyable(true);
 
 	rsptr<Texture> texture = gameObject->GetTexture();
-	SpriteInfo info = spriteMap.at(texture->GetName());
+	SpriteInfo info        = spriteMap.at(texture->GetName());
+
 	mRows = info.rows;
 	mCols = info.cols;
 }
@@ -37,15 +40,15 @@ void Script_Sprite::Update()
 
 	mElapsedTime += DeltaTime() * 0.5f;
 	if (mElapsedTime >= mSpeed) {
-		mElapsedTime = 0.0f;
+		mElapsedTime = 0.f;
 	}
 
-	mTextureMtx._11 = 1.0f / mRows;
-	mTextureMtx._22 = 1.0f / mCols;
+	mTextureMtx._11 = 1.f / mRows;
+	mTextureMtx._22 = 1.f / mCols;
 	mTextureMtx._31 = mCol / mCols;
 	mTextureMtx._32 = mRow / mRows;
 
-	if (mElapsedTime == 0.0f)
+	if (mElapsedTime == 0.f)
 	{
 		if (++mCol >= mCols) { mRow++; mCol = 0; }
 		if (mRow == mRows) {
@@ -58,7 +61,7 @@ void Script_Sprite::Update()
 void Script_Sprite::UpdateSpriteVariable() const
 {
 	Matrix scaling = XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform()));
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
 
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
 	scene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(mTextureMtx), 0);
 }

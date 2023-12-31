@@ -1,30 +1,31 @@
 #include "VSResource.hlsl"
 
-struct VS_INSTANCING_OUTPUT
-{
-    float4 position : SV_POSITION;
-    float3 positionW : POSITIONW;
-    float4 color : COLOR;
+struct VSOutput_Inst {
+    float4 Position : SV_POSITION;
+    float3 PositionW : POSITIONW;
+    float4 Color : COLOR;
 };
 
-struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
-{
-    float4 cTexture : SV_TARGET1;
-    float distance : SV_TARGET4;
+
+/*
+// WITH_POSTPROCESSING - has error (color isn't apply)
+
+struct PSOutput_MRT {
+    float4 Texture : SV_TARGET1;
+    float  Distance : SV_TARGET4;
 };
 
-#ifdef POST_PROCESSING
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstancing(VS_INSTANCING_OUTPUT input)
+PSOutput_MRT PSInstancing(VSOutput_Inst input)
 {
-    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-    output.cTexture = input.color;
-    output.distance = length(input.positionW - gf3CameraPosition);
+    PSOutput_MRT output;
+    output.Texture = input.Color;
+    output.Distance = input.PositionW;
     
     return output;
 }
-#else
-float4 PSInstancing(VS_INSTANCING_OUTPUT input) : SV_TARGET
+*/
+
+float4 PSInstancing(VSOutput_Inst input) : SV_TARGET
 {
-    return input.color;
+    return input.Color;
 }
-#endif

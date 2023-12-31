@@ -1,116 +1,98 @@
 #pragma once
 
-#define MAX_SCENE_LIGHTS	32
-
-enum class GlobalLight {
-	Sunlight = 0,
-};
-
+#pragma region EnumClass
 enum class LightType {
-	Spot		= 0,
-	Directional	= 1,
-	Point		= 2,
-	Area		= 3,
-	Rectangle	= 3,
-	Disc		= 4
+	Spot = 0,
+	Directional = 1,
+	Point = 2,
+	Area = 3,
+	Rectangle = 3,
+	Disc = 4
 };
 
+#pragma endregion
 
 
+#pragma region Variable
+constexpr int gkMaxSceneLight = 32;
+#pragma endregion
 
 
-struct LIGHT
-{
-	Vec4 mAmbient{};
-	Vec4 mDiffuse{};
-	Vec4 mSpecular{};
-	Vec3 mPosition{};
+#pragma region Struct
+struct LightInfo {
+	Vec4	Ambient{};
+	Vec4	Diffuse{};
+	Vec4	Specular{};
 
-	float mFalloff{};
-	Vec3 mDirection{};
-	float mTheta{};
-	Vec3 mAttenuation{};
-	float mPhi{};
-	bool mIsEnable{};
-	int mType{};
-	float mRange{};
-	float mPadding{};
+	Vec3	Position{};
+	float	Falloff{};
+
+	Vec3	Direction{};
+	float	Theta{};
+
+	Vec3	Attenuation{};
+	float	Phi{};
+
+	float	Range{};
+	float	Padding{};
+	int		Type{};
+	bool	IsEnable{};
 };
 
-struct LIGHTS
-{
-	LIGHT mLights[MAX_SCENE_LIGHTS]{};
-	Vec4 mGlobalAmbient{};
+struct SceneLight {
+	LightInfo Lights[gkMaxSceneLight]{};
 
-	Vec4 fogColor{};
-	float fogStart{ 100.f };
-	float fogRange{ 300.f };
+	Vec4	GlobalAmbient{};
+
+	Vec4	FogColor{};
+	float	FogStart{ 100.f };
+	float	FogRange{ 300.f };
 };
 
-struct LIGHT_RANGE {
-	sptr<LIGHTS>* lights{};
-	size_t begin{};
-	size_t end{};
+struct LightInfoRange {
+	sptr<SceneLight>* Lights{};
 
-	LIGHT& Get(size_t i) { return (*lights)->mLights[i]; }
+	size_t	Begin{};
+	size_t End{};
+
+	LightInfo& GetLight(size_t i) { return (*Lights)->Lights[i]; }
 };
+#pragma endregion
 
 
-
-
-
-
+#pragma region Class
 class Light {
 private:
-	sptr<LIGHTS> mLights{};
+	sptr<SceneLight> mLights{};
 
-	size_t mCrntLightCount{};
-	LIGHTS* mCBMappedLights{};
-	ComPtr<ID3D12Resource> mCBLights{};
+	ComPtr<ID3D12Resource>	mCBLights{};
+	size_t					mCurrLightCnt{};
+	SceneLight*					mCBMap_Lights{};
 
-	std::unordered_map<std::string, const LIGHT*> mLightModels;
+	std::unordered_map<std::string, const LightInfo*> mLightModels;
 
 public:
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Constructor ] /////
-
 	Light();
-	~Light();
+	virtual ~Light();
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Getter ] /////
+	const LightInfo* GetLightModel(const std::string& modelName) const;
+	LightInfo* GetLight(int index) const { return &mLights->Lights[index]; }
 
-	const LIGHT* GetLightModel(const std::string& modelName);
-	LIGHT* GetLight(int index) { return &mLights->mLights[index]; }
+public:
+	void InsertLight(std::string name, const LightInfo* light) { mLightModels.insert(std::make_pair(name, light)); }
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Setter ] /////
+	void BuildLights(FILE* file);
+
+	LightInfoRange AlloLight(size_t count);
+
+	void CreateShaderVars();
+	void UpdateShaderVars();
+	void ReleaseShaderVars();
 
 private:
 	void SetSunlight();
 
-public:
-	void SetGlobalLight(GlobalLight globalLight);
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// [ Others ] /////
-	
-	/* DirectX */
-	void CreateShaderVariables();
-	void UpdateShaderVariables();
-	void ReleaseShaderVariables();
-
-	/* Build */
-private:
 	void LoadLightModels();
 	void LoadLightObjects(FILE* file);
-
-public:
-	void BuildLights(FILE* file);
-
-	/* Others*/
-	LIGHT_RANGE AlloLight(size_t count);
-
-	void InsertLight(std::string name, const LIGHT* light) { mLightModels.insert(std::make_pair(name, light)); }
 };
+#pragma endregion

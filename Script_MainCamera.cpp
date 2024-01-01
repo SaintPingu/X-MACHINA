@@ -54,6 +54,7 @@ void Script_MainCamera::Update()
 
 	if (distance > 0) {
 		mainCameraObject->Translate(dir, distance);
+		UpdateHeight();
 		LookPlayer();
 		mainCamera->UpdateViewMtx();
 	}
@@ -76,15 +77,6 @@ void Script_MainCamera::UpdateHeight()
 		camPos.y = height;
 		mObject->SetPosition(camPos);
 	}
-}
-
-void Script_MainCamera::RotateOffset(const Vec3& axis, float angle)
-{
-	const Vec3 cameraOffset    = mainCamera->GetOffset();
-	const Matrix mtxRotation   = XMMatrixRotationAxis(_VECTOR(axis), XMConvertToRadians(angle));
-	const Vec3 newCameraOffset = Vector3::TransformCoord(cameraOffset, mtxRotation);
-
-	mainCamera->SetOffset(newCameraOffset);
 }
 
 void Script_MainCamera::ChangeCameraMode(CameraMode mode)

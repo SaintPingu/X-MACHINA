@@ -14,7 +14,7 @@ class ObjectCollider;
 
 
 #pragma region Struct
-// 표준 인스턴싱 버퍼
+// 표준 인스턴싱 StructuredBuffer
 struct SB_StandardInst {
 	Vec4x4 LocalTransform{};
 };

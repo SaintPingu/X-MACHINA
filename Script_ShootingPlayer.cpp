@@ -26,13 +26,13 @@ void Script_ShootingPlayer::Update()
 	if (mBulletShader) {
 		mBulletShader->Update();
 
-		m_fCurrFireDelay += DeltaTime();
+		mCurrFireDelay += DeltaTime();
 		if (mIsShooting) {
-			if (m_fCurrFireDelay < m_fFireDelay) {
+			if (mCurrFireDelay < mMaxFireDelay) {
 				return;
 			}
 
-			m_fCurrFireDelay = 0.f;
+			mCurrFireDelay = 0.f;
 			FireBullet();
 		}
 	}
@@ -65,24 +65,14 @@ void Script_ShootingPlayer::RenderBullets() const
 }
 
 
-
-const std::list<sptr<GameObject>>* Script_ShootingPlayer::GetBullets() const
-{
-	if (mBulletShader) {
-		return mBulletShader->GetBullets();
-	}
-	else {
-		return nullptr;
-	}
-}
-
-
 void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 {
+	static constexpr float kBulletLifeTime = 10.f;
+
 	mBulletShader = std::make_shared<BulletShader>();
 	mBulletShader->Create();
 	mBulletShader->BuildObjects(100, bulletModel, mObject);
-	mBulletShader->SetLifeTime(mbulletLifeTime);
+	mBulletShader->SetLifeTime(kBulletLifeTime);
 
 	constexpr Vec3 color{ 1.f, 1.f, 0.f };
 	mBulletShader->SetColor(Vec3(color.x, color.y, color.z));

@@ -15,6 +15,7 @@ class BulletShader;
 
 
 #pragma region EnumClass
+// 플레이어 객체 타입
 enum class PlayerType {
 	Unspecified = 0,
 	Tank,
@@ -29,22 +30,20 @@ class Script_Player : public Component {
 
 protected:
 	PlayerType		mPlayerType{};
-	GameObject*		mPlayer{};
+	GameObject*		mPlayer{};		// self GameObject
 	sptr<Rigidbody> mRigid{};
-	Vec4x4			mSpawnTransform{ Matrix4x4::Identity() };
+	Vec4x4			mSpawnTransform{ Matrix4x4::Identity() };	// 리스폰 지점
 
 	int		mScore{};
 	float	mMaxHP{};
 	float	mHP{};
-	float	mAcc{};
 
 public:
 	PlayerType GetPlayerType() const { return mPlayerType; }
 
 	void SetHP(float hp) { mMaxHP = hp; mHP = hp; }
-	void SetAcc(float acc) { mAcc = acc; }
+	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
-	void SetMaxSpeed(float speed);
 
 public:
 	virtual void Start() override;
@@ -52,8 +51,9 @@ public:
 
 public:
 	virtual void ProcessInput() {}
+	// direction 방향으로 이동한다.
 	virtual void Move(DWORD dwDirection);
-	virtual void Rotate(float x, float y, float z);
+	virtual void Rotate(float pitch, float yaw, float roll);
 
 	void Respawn();
 	void Explode();
@@ -65,6 +65,7 @@ public:
 
 
 
+// 총알을 발사할 수 있는 플레이어
 class Script_ShootingPlayer : public Script_Player {
 	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
 
@@ -73,14 +74,13 @@ protected:
 	float				mBulletSpeed{ 1.f };
 
 private:
-	float m_fFireDelay{};
-	float m_fCurrFireDelay{};
-	bool  mIsShooting{};
-	float mbulletLifeTime{ 10.f };
+	float mMaxFireDelay{};		// 총알 발사 딜레이
+	float mCurrFireDelay{};		// 현재 발사 딜레이
+	bool  mIsShooting{};		// 발사중인가?
 
 public:
 	void SetDamage(float damage);
-	void SetFireDelay(float fDelay) { m_fFireDelay = fDelay; }
+	void SetFireDelay(float fDelay) { mMaxFireDelay = fDelay; }
 
 public:
 	virtual void Start() override;
@@ -95,8 +95,7 @@ public:
 	void StartFire() { mIsShooting = true; }
 	void StopFire() { mIsShooting = false; }
 
-	const std::list<sptr<GameObject>>* GetBullets() const;
-
+	// [bulletModel]에 대한 BulletShader를 생성한다.
 	void CreateBullets(rsptr<const MasterModel> bulletModel);
 };
 
@@ -104,12 +103,13 @@ public:
 
 
 
+// 헬리콥터 플레이어
 class Script_AirplanePlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_AirplanePlayer, Script_ShootingPlayer)
 
 private:
-	Transform* mGunFirePos{};
-	float mRotationSpeed{};
+	Transform* mGunFirePos{};	// 총알 발사 위치
+	float mRotationSpeed{};		// 회전 속도
 
 public:
 	virtual void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
@@ -124,6 +124,7 @@ public:
 	virtual void ProcessInput() override;
 
 	virtual void FireBullet() override;
+	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
 };
 
@@ -131,6 +132,7 @@ public:
 
 
 
+// 탱크 플레이어 (미사용)
 class Script_TankPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_TankPlayer, Script_ShootingPlayer)
 
@@ -153,6 +155,7 @@ public:
 	virtual void Update() override;
 
 public:
+	virtual void Move(DWORD dwDirection) override;
 	virtual void FireBullet() override;
 	virtual void Rotate(DWORD rotationDir, float angle);
 

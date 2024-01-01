@@ -866,16 +866,6 @@ void Scene::UpdatePlayerGrid()
 {
 	for (auto& player : mPlayers) {
 		UpdateObjectGrid(player.get());
-
-		const std::list<sptr<GameObject>>* bullets = player->GetComponent<Script_AirplanePlayer>()->GetBullets();
-
-		if (!bullets) {
-			continue;
-		}
-
-		for (auto& bullet : *bullets) {
-			UpdateObjectGrid(bullet.get(), true);
-		}
 	}
 }
 

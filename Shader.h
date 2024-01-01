@@ -15,6 +15,7 @@ class Script_Bullet;
 
 
 #pragma region Struct
+// Color를 가지는 객체의 인스턴싱 StructuredBuffer
 struct SB_ColorInst {
 	Vec4x4	LocalTransform{};
 	Vec4	Color{};

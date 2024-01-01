@@ -28,8 +28,8 @@ void Script_AirplanePlayer::Start()
 	mObject->GetComponent<Rigidbody>()->SetMass(100.f);
 	mObject->GetComponent<Rigidbody>()->SetFriction(30.f);
 
-	base::SetAcc(5000.f);
-	base::SetMaxSpeed(100.f);
+	mRigid->SetAcc(5000.f);
+	mRigid->SetMaxSpeed(100.f);
 	mBulletSpeed = 300.f;
 }
 

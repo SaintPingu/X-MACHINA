@@ -692,6 +692,7 @@ void BulletShader::Update()
 {
 	for (auto& bullet : mBuffer) {
 		bullet->Update();
+		scene->UpdateObjectGrid(bullet.get(), false);
 	}
 }
 

@@ -17,20 +17,23 @@ private	:
 	float mMass		{ 1.f };
 	float mDrag		{ 1.f };
 	float mFriction	{ 1.f };
+	float mAcc		{ 1.f };
 	float mMaxSpeed	{ FLT_MAX };
 	Vec3 mVelocity{};
 
 public:
 	const Vec3& GetVelocity() const { return mVelocity; }
 
+	void SetGravity(bool useGravity) { mUseGravity = useGravity; }
+	void SetGravityScale(float scale) { mGravityScale = scale; }
+
 	void SetMass(float mass) { mMass = mass; }
+	void SetDrag(float drag) { mDrag = drag; }
+	void SetAcc(float acc) { mAcc = acc; }
+	void SetMaxSpeed(float speed) { mMaxSpeed = speed; }
 	void SetFriction(float fFriction) { mFriction = fFriction; }
 	void SetVelocity(const Vec3& xmf3Velocity) { mVelocity = xmf3Velocity; }
 	void SetVelocity(float speed);
-	void SetMaxSpeed(float speed) { mMaxSpeed = speed; }
-	void SetGravity(bool useGravity) { mUseGravity = useGravity; }
-	void SetGravityScale(float scale) { mGravityScale = scale; }
-	void SetDrag(float drag) { mDrag = drag; }
 
 public:
 	virtual void Start() override;

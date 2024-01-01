@@ -45,19 +45,19 @@ private:
 	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
 
 	/* Model */
-	std::unordered_map<std::string, sptr<const MasterModel>> mModels;
+	std::unordered_map<std::string, sptr<const MasterModel>> mModels;	// file에서 로드한 모델 객체 모음
 
 	/* Light */
 	uptr<Light> mLight;
 
 	/* Textures */
-	std::unordered_map<std::string, sptr<Material>> mMaterialMap{};
+	std::unordered_map<std::string, sptr<Material>> mMaterialMap{};		// file에서 로드한 재질(텍스쳐) 모음
 
 	/* SkyBox */
-	sptr<SkyBox> mSkyBox{};
+	sptr<SkyBox> mSkyBox{};					// sky box object
 
 	/* Shader */
-	sptr<Shader> mGlobalShader{};			// sun
+	sptr<Shader> mGlobalShader{};			// 기본 Shader
 	sptr<Shader> mBoundingShader{};
 	sptr<Shader> mWaterShader{};
 	sptr<Shader> mBillboardShader{};

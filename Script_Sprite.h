@@ -11,30 +11,28 @@ class Script_Sprite : public Script_Billboard {
 	COMPONENT(Script_Sprite, Script_Billboard)
 
 private:
-	bool  mIsEnd{ false };
+	bool  mIsEndAnimation{ false };		// 애니메이션이 종료되었는가? (마지막 프레임에 도달했는가?)
 
-	float mRows{};
-	float mRow{};
-	float mCols{};
-	float mCol{};
+	float mRows{};			// 행 개수
+	float mRow{};			// 현재 행
+	float mCols{};			// 열 개수
+	float mCol{};			// 현재 열
 	
-	float mSpeed{ 0.01f };
-	float mElapsedTime{};
-
-	float mScale{ 1.f };
+	float mSpeed{ 0.01f };	// 애니메이션 속도
+	float mElapsedTime{};	// 애니메이션 실행 경과시간
 
 	Vec4x4 mTextureMtx{ Matrix4x4::Identity() };
 
 public:
-	bool IsEnd() const { return mIsEnd; }
+	bool IsEndAnimation() const { return mIsEndAnimation; }
+
 	void SetSpeed(float speed) { mSpeed = speed; }
-	void SetScale(float scale) { mScale = scale; }
 
 public:
 	virtual void Start() override;
 	virtual void Update() override;
 
 public:
-	void UpdateSpriteVariable() const;
+	virtual void UpdateSpriteVariable() const override;
 };
 #pragma endregion

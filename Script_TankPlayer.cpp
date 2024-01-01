@@ -83,6 +83,14 @@ void Script_TankPlayer::RotateGun(float pitch)
 
 
 
+void Script_TankPlayer::Move(DWORD dwDirection)
+{
+	dwDirection &= ~Dir::Up;
+	dwDirection &= ~Dir::Down;
+
+	base::Move(dwDirection);
+}
+
 void Script_TankPlayer::FireBullet()
 {
 	Vec3 position = mShellFirePos->GetPosition();

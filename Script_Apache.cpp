@@ -9,18 +9,18 @@ void Script_Apache::Start()
 {
 	mGameObject = mObject->GetObj<GameObject>();
 	mGameObject->SetFlyable(true);
-	mMainRotorFrame = mGameObject->FindFrame("rotor");
-	mTailRotorFrame = mGameObject->FindFrame("tail_rotor");
+	mMainRotor = mGameObject->FindFrame("rotor");
+	mTailRotor = mGameObject->FindFrame("tail_rotor");
 }
 
 void Script_Apache::Update()
 {
-	if (mMainRotorFrame) {
+	if (mMainRotor) {
 		const float rotorSpeed = 360.f * 7.0f * DeltaTime();
-		mMainRotorFrame->Rotate(Vector3::Up(), rotorSpeed);
+		mMainRotor->Rotate(Vector3::Up(), rotorSpeed);
 	}
-	if (mTailRotorFrame) {
+	if (mTailRotor) {
 		const float rotorSpeed = 360.f * 8.0f * DeltaTime();
-		mTailRotorFrame->Rotate(Vector3::Up(), rotorSpeed);
+		mTailRotor->Rotate(Vector3::Up(), rotorSpeed);
 	}
 }

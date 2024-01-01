@@ -11,6 +11,7 @@ class Rigidbody;
 
 
 #pragma region Class
+// 폭발 시 발생하는 파편(single object)
 class Script_Fragment : public Component {
 	COMPONENT(Script_Fragment, Component)
 
@@ -19,8 +20,8 @@ private:
 	Vec3 mColor{};
 	Vec3 mRotationAxis{ Vector3::Up() };
 	Vec3 mMovingDir{};
-	float mMovingSpeed{ 0.f };
-	float mRotationSpeed{ 0.f };
+	float mMovingSpeed{};
+	float mRotationSpeed{};
 
 public:
 	const Vec3& GetColor() const { return mColor; }
@@ -36,6 +37,7 @@ public:
 	virtual void Update() override;
 
 public:
+	// create fragment at [pos]
 	void Active(const Vec3& pos);
 };
 #pragma endregion

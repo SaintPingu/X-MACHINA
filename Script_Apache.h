@@ -10,12 +10,14 @@ class GameObject;
 
 
 #pragma region Class
+// Apache를 모델로 하는 객체
+// 매 업데이트마다 로터를 회전한다.
 class Script_Apache : public Component {
 	COMPONENT(Script_Apache, Component)
 
 private:
-	Transform* mMainRotorFrame{};
-	Transform* mTailRotorFrame{};
+	Transform* mMainRotor{};
+	Transform* mTailRotor{};
 
 	GameObject* mGameObject{};
 

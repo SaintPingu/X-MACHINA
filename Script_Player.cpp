@@ -10,16 +10,10 @@ namespace {
 	BoundingBox border = { Vec3(256, 100, 256), Vec3(2400, 1100, 2400) };
 }
 
-
 void Script_Player::SetSpawn(const Vec3& pos)
 {
 	mObject->SetPosition(pos);
 	XMStoreFloat4x4(&mSpawnTransform, _MATRIX(mObject->GetWorldTransform()));
-}
-
-void Script_Player::SetMaxSpeed(float speed)
-{
-	mRigid->SetMaxSpeed(speed);
 }
 
 void Script_Player::Start()
@@ -39,18 +33,12 @@ void Script_Player::Update()
 
 void Script_Player::Move(DWORD dwDirection)
 {
-	if (mPlayerType == PlayerType::Tank) {
-		dwDirection &= ~Dir::Up;
-		dwDirection &= ~Dir::Down;
-	}
-
-	Vec3 force = Vector3::Multiply(mObject->GetDirection(dwDirection), mAcc);
-	mRigid->AddForce(force);
+	mRigid->AddForce(mObject->GetDirection(dwDirection));
 }
 
-void Script_Player::Rotate(float x, float y, float z)
+void Script_Player::Rotate(float pitch, float yaw, float roll)
 {
-	mObject->Rotate(x, y, z);
+	mObject->Rotate(pitch, yaw, roll);
 }
 
 void Script_Player::Respawn()

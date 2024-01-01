@@ -74,7 +74,7 @@ void Rigidbody::AddForce(const Vec3& force, ForceMode forceMode)
 		t = DeltaTime();
 	}
 
-	const Vec3 acc = Vector3::Multiply(Vector3::Divide(force, mMass), t);
+	const Vec3 acc = Vector3::Multiply(Vector3::Divide(Vector3::Multiply(force, mAcc), mMass), t);
 	mVelocity = Vector3::Add(mVelocity, acc);
 	if (Vector3::Length(mVelocity) > mMaxSpeed) {
 		SetVelocity(mMaxSpeed);

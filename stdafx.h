@@ -217,6 +217,7 @@ enum class Dir : WORD {
 	Down  = 0x20
 };
 
+// 카메라 시점
 enum class CameraMode {
 	None  = -1,
 	Third = 0,

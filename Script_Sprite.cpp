@@ -53,15 +53,14 @@ void Script_Sprite::Update()
 		if (++mCol >= mCols) { mRow++; mCol = 0; }
 		if (mRow == mRows) {
 			mRow = 0;
-			mIsEnd = true;
+			mIsEndAnimation = true;
 		}
 	}
 }
 
 void Script_Sprite::UpdateSpriteVariable() const
 {
-	Matrix scaling = XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform()));
+	base::UpdateSpriteVariable();
 
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
 	scene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(mTextureMtx), 0);
 }

@@ -32,10 +32,9 @@ public:
 	// set grid's index and bounding box
 	void Init(int index, const BoundingBox& bb);
 
-	// add object to gird
+	// add [object] to gird
 	void AddObject(GameObject* object);
-
-	// remove object from gird
+	// remove [object] from gird
 	void RemoveObject(GameObject* object);
 
 	// collision check for objects contained in grid

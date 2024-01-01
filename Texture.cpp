@@ -13,20 +13,20 @@ Texture::Texture(D3DResource resourceType) : mResourceType(resourceType)
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 {
 	ComPtr<ID3D12Resource> shaderResource = GetResource();
-	D3D12_RESOURCE_DESC resourceDesc = shaderResource->GetDesc();
+	D3D12_RESOURCE_DESC resourceDesc      = shaderResource->GetDesc();
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 	switch (mResourceType)
 	{
 	case D3DResource::Texture2D: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 1)
 	case D3DResource::Texture2D_Array:
-		srvDesc.Format = resourceDesc.Format;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = -1;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.PlaneSlice = 0;
+		srvDesc.Format                        = resourceDesc.Format;
+		srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels           = -1;
+		srvDesc.Texture2D.MostDetailedMip     = 0;
+		srvDesc.Texture2D.PlaneSlice          = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
 		break;
 	case D3DResource::TextureCube: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 6)

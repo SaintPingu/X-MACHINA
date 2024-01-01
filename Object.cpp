@@ -116,30 +116,7 @@ Transform* GameObject::FindFrame(const std::string& frameName)
 	return nullptr;
 }
 
-GameObject* GameObject::FindObject(const std::string& frameName)
-{
-	if (mName == frameName) {
-		return this;
-	}
 
-	if (mSibling) {
-		GameObject* object = mSibling->GetObj<GameObject>()->FindObject(frameName);
-		if (object) {
-			return object;
-		}
-	}
-	if (mChild) {
-		GameObject* object = mChild->GetObj<GameObject>()->FindObject(frameName);
-		if (object) {
-			return object;
-		}
-	}
-
-	return nullptr;
-}
-
-
-// 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
 void GameObject::AttachToGround()
 {
 	Vec3 pos = GetPosition();
@@ -150,6 +127,7 @@ void GameObject::AttachToGround()
 }
 
 
+// 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
 void GameObject::TiltToGround()
 {
 	AttachToGround();
@@ -197,8 +175,8 @@ void GameObject::TiltToGround()
 
 
 
-#pragma region InstancinObject
-void InstancinObject::SetBuffer(rsptr<ObjectInstanceBuffer> buffer)
+#pragma region InstObject
+void InstObject::SetBuffer(rsptr<ObjectInstBuffer> buffer)
 {
 	SetInstancing();
 	mBuffer = buffer;
@@ -214,12 +192,7 @@ void InstancinObject::SetBuffer(rsptr<ObjectInstanceBuffer> buffer)
 	}
 }
 
-void InstancinObject::Render()
-{
-	Push();
-}
-
-void InstancinObject::Push()
+void InstObject::Push()
 {
 	if (mIsPushed) {
 		return;
@@ -229,11 +202,11 @@ void InstancinObject::Push()
 	mBuffer->PushObject(this);
 }
 
-void InstancinObject::UpdateStatic()
+void InstObject::UpdateStatic()
 {
 	Reset();
 }
-void InstancinObject::UpdateDynamic()
+void InstObject::UpdateDynamic()
 {
 	base::Update();
 	Reset();
@@ -244,33 +217,33 @@ void InstancinObject::UpdateDynamic()
 
 
 
-#pragma region ObjectInstanceBuffer
-void ObjectInstanceBuffer::SetModel(rsptr<const MasterModel> model)
+#pragma region ObjectInstBuffer
+void ObjectInstBuffer::SetModel(rsptr<const MasterModel> model)
 {
 	mMasterModel = model;
 	Transform::MergeTransform(mMergedTransform, mMasterModel->GetTransform());
 }
 
-void ObjectInstanceBuffer::CreateShaderVars(UINT objectCount)
+void ObjectInstBuffer::CreateShaderVars(int objectCount)
 {
 	mObjectCnt = objectCount;
-	D3DUtil::CreateBufferResource(NULL, sizeof(*mMap_Buff) * mObjectCnt, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuff);
-	mInstBuff->Map(0, NULL, (void**)&mMap_Buff);
+	D3DUtil::CreateBufferResource(NULL, sizeof(*mSBMap_Buffer) * mObjectCnt, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mSB_Buffer);
+	mSB_Buffer->Map(0, NULL, (void**)&mSBMap_Buffer);
 }
 
-void ObjectInstanceBuffer::UpdateShaderVars() const
+void ObjectInstBuffer::UpdateShaderVars() const
 {
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuff->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Buffer->GetGPUVirtualAddress());
 }
 
-void ObjectInstanceBuffer::PushObject(InstancinObject* object)
+void ObjectInstBuffer::PushObject(const InstObject* object)
 {
 	assert(mCurrBuffIdx < mObjectCnt);
 
-	XMStoreFloat4x4(&mMap_Buff[mCurrBuffIdx++].LocalTransform, XMMatrixTranspose(_MATRIX(object->GetWorldTransform())));
+	XMStoreFloat4x4(&mSBMap_Buffer[mCurrBuffIdx++].LocalTransform, XMMatrixTranspose(_MATRIX(object->GetWorldTransform())));
 }
 
-void ObjectInstanceBuffer::Render()
+void ObjectInstBuffer::Render()
 {
 	if (mMasterModel) {
 		mMasterModel->Render(this);

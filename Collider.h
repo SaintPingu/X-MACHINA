@@ -53,7 +53,7 @@ public:
 
 
 
-// for collision check.
+// for collision check
 class ObjectCollider : public Component {
 	COMPONENT(ObjectCollider, Component)
 

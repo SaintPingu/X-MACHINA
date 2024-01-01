@@ -42,7 +42,7 @@ public:
 	// descriptor heap을 생성하고 핸들값들을 설정한다.
 	void Create(int cbvCount, int srvCount);
 
-	void CreateSrv(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc);
+	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc);
 
 	// descriptor heap을 CommandList에 set한다.
 	void Set();

@@ -62,7 +62,7 @@ void Script_Player::Respawn()
 
 void Script_Player::Explode()
 {
-	scene->CreateExplosion(Scene::ExplosionType::Big, mObject->GetPosition());
+	scene->CreateFX(Scene::FXType::BigExplosion, mObject->GetPosition());
 	Respawn();
 }
 

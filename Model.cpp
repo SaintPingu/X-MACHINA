@@ -165,14 +165,18 @@ void MasterModel::SetModel(const rsptr<Model> model)
 	mModel = model;
 	model->MergeModel(*this);
 	mMesh->StopMerge();
+
+	mMerged = true;
 }
 
 void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials)
 {
+	assert(!mMerged);
+
 	mMesh->MergeMesh(mesh, materials);
 }
 
-void MasterModel::Render(const ObjectInstanceBuffer* instBuffer) const
+void MasterModel::Render(const ObjectInstBuffer* instBuffer) const
 {
 	mMesh->Render(instBuffer);
 }
@@ -183,12 +187,12 @@ void MasterModel::CopyModelHierarchy(GameObject* object) const
 }
 
 
-void MasterModel::RenderObject(const GameObject* gameObject) const
+void MasterModel::RenderObject(const GameObject* object) const
 {
-	mMesh->Render(gameObject);
+	mMesh->Render(object);
 }
 
-void MasterModel::RenderSprite(const GameObject* gameObject) const
+void MasterModel::RenderSprite(const GameObject* object) const
 {
-	mMesh->RenderSprite(gameObject);
+	mMesh->RenderSprite(object);
 }

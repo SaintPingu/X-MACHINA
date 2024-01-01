@@ -43,7 +43,7 @@ void DescriptorHeap::Create(int cbvCount, int srvCount)
 	mSrvHandle.GpuNext = mSrvHandle.GpuStart;
 }
 
-void DescriptorHeap::CreateSrv(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc)
+void DescriptorHeap::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc)
 {
 	device->CreateShaderResourceView(resource.Get(), srvDesc, mSrvHandle.CpuNext);
 	

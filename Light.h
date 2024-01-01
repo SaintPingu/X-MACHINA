@@ -65,10 +65,9 @@ public:
 	Light();
 	virtual ~Light();
 
-	// (modelName)에 따른 LightInfo을 반환한다.
+	// [modelName]에 따른 LightInfo을 반환한다.
 	const LightInfo* GetLightModel(const std::string& modelName) const;
-
-	// index에 따른 LightInfo를 반환한다.
+	// [index]에 따른 LightInfo를 반환한다.
 	LightInfo* GetLight(int index) const { return &mLights->Lights[index]; }
 
 public:
@@ -89,7 +88,6 @@ private:
 
 	// 조명 모델을 불러온다.
 	void LoadLightModels();
-
 	// file에서 조명 모델을 불러오고 할당한다.
 	void LoadLightObjects(FILE* file);
 };

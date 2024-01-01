@@ -8,12 +8,13 @@
 #pragma region ClassForwardDecl
 class MasterModel;
 class Texture;
-class ObjectInstanceBuffer;
+class ObjectInstBuffer;
 class ObjectCollider;
 #pragma endregion
 
 
 #pragma region Struct
+// 표준 인스턴싱 버퍼
 struct SB_StandardInst {
 	Vec4x4 LocalTransform{};
 };
@@ -21,8 +22,8 @@ struct SB_StandardInst {
 
 
 #pragma region Class
+// base class for all entities in Scene
 class GameObject : public Object {
-private:
 	using base = Object;
 	using Transform::ReturnTransform;
 
@@ -30,44 +31,55 @@ public:
 	sptr<const MasterModel> mMasterModel{};
 
 protected:
-	bool mIsInstancing{ false };
+	bool mIsInstancing{ false };	// 인스턴싱 객체인가?
 
 private:
-	bool mIsAwake{ false };
-	bool mIsActive{ true };
-	bool mIsFlyable{ false };
-	bool mIsDrawBounding{ false };
+	bool mIsActive{ true };			// 활성화되어 있는가?
+	bool mIsFlyable{ false };		// 날 수 있는가?
+	bool mIsDrawBounding{ false };	// collision bounds를 그리는가?
 
-	std::unordered_set<int> mGridIndices{};
-	int mCurrGridIndex{ -1 };
+	std::unordered_set<int> mGridIndices{};				// 인접 Grid indices (충돌됨)
+	int mCurrGridIndex{ -1 };							// 현재 위치의 Grid index
 
-	std::vector<const Transform*> mMergedTransform{};
+	std::vector<const Transform*> mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위해)
 
 	sptr<ObjectCollider> mCollider{};
 
 public:
+#pragma region C/Dtor
 	GameObject();
 	virtual ~GameObject() = default;
+#pragma endregion
 
+#pragma region Getter
 	int GetGridIndex() const { return mCurrGridIndex; }
 	const std::unordered_set<int>& GetGridIndices() const { return mGridIndices; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
+
+	// 최상위(대표) 텍스쳐를 반환한다.
 	rsptr<Texture> GetTexture() const;
 
 	rsptr<ObjectCollider> GetCollider() const { return mCollider; }
+#pragma endregion
 
+#pragma region Setter
 	bool IsActive() const { return mIsActive; }
 	bool IsTransparent() const { return mLayer == ObjectLayer::Transparent; }
 	bool IsInstancing() const { return mIsInstancing; }
 
 	void SetInstancing() { mIsInstancing = true; }
 	void SetFlyable(bool isFlyable) { mIsFlyable = isFlyable; }
+
 	void SetGridIndex(int index) { mCurrGridIndex = index; }
 	void SetGridIndices(const std::unordered_set<int>& indices) { mGridIndices = indices; }
+
 	void SetModel(rsptr<const MasterModel> model);
+#pragma endregion
 
 public:
 	virtual void Render();
+
+	// render collision bounds
 	virtual void RenderBounds();
 
 	virtual void Update();
@@ -78,11 +90,13 @@ public:
 	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
 	void ClearGridIndices() { mGridIndices.clear(); }
 
+	// frameName을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
 	Transform* FindFrame(const std::string& frameName);
-	GameObject* FindObject(const std::string& frameName);
 
 private:
+	// 객체를 지면에 붙인다.
 	void AttachToGround();
+	// 객체를 지면의 기울기에 맞게 붙도록 한다.
 	void TiltToGround();
 };
 
@@ -90,34 +104,39 @@ private:
 
 
 
-class InstancinObject : public GameObject {
+// instanced GameObject
+// 모델을 가지지 않는다.
+class InstObject : public GameObject {
 private:
 	using base = GameObject;
 
 	using GameObject::Render;
 
 private:
-	sptr<ObjectInstanceBuffer> mBuffer{};
+	sptr<ObjectInstBuffer> mBuffer{};
 
 	std::function<void()> mUpdateFunc{};
 
 	bool mIsPushed{ false };
 
 public:
-	InstancinObject()          = default;
-	virtual ~InstancinObject() = default;
+	InstObject()          = default;
+	virtual ~InstObject() = default;
 
-	void SetBuffer(rsptr<ObjectInstanceBuffer> buffer);
+	void SetBuffer(rsptr<ObjectInstBuffer> buffer);
 
 public:
-	virtual void Render() override;
+	virtual void Render() override { Push(); }
 	virtual void Update() override { mUpdateFunc(); }
 
 private:
+	// 인스턴싱 버퍼에 이 객체를 추가한다.
 	void Push();
 	void Reset() { mIsPushed = false; }
 
+	// 정적 객체 업데이트 (update 실행 x, 렌더링용)
 	void UpdateStatic();
+	// 동적 객체 업데이트 (update 실행 o)
 	void UpdateDynamic();
 };
 
@@ -125,36 +144,40 @@ private:
 
 
 
-class ObjectInstanceBuffer {
+// 인스턴싱 객체들을 담기 위한 버퍼
+// 객체가 아닌 버퍼에서 모델을 가지고, 각 객체의 transform 정보만 받아와 렌더링한다.
+class ObjectInstBuffer {
 protected:
-	UINT mCurrBuffIdx{};
+	int mCurrBuffIdx{};
 	bool mIsStatic{ true };
 
 private:
-	UINT mObjectCnt{};
+	int mObjectCnt{};
 	sptr<const MasterModel> mMasterModel{};
 
-	std::vector<const Transform*> mMergedTransform{};
-	ComPtr<ID3D12Resource> mInstBuff{};
-	SB_StandardInst* mMap_Buff{};	
+	std::vector<const Transform*>	mMergedTransform{};
+
+	ComPtr<ID3D12Resource>			mSB_Buffer{};
+	SB_StandardInst*				mSBMap_Buffer{};	
 
 public:
-	ObjectInstanceBuffer()          = default;
-	virtual ~ObjectInstanceBuffer() = default;
+	ObjectInstBuffer()          = default;
+	virtual ~ObjectInstBuffer() = default;
 
 	bool IsStatic() { return mIsStatic; }
-	UINT GetObjectCount() const { return mObjectCnt; }
-	UINT GetInstanceCount() const { return mCurrBuffIdx; }
+	int GetObjectCount() const { return mObjectCnt; }
+	int GetInstanceCount() const { return mCurrBuffIdx; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 
 	void SetDynamic() { mIsStatic = false; }
 	void SetModel(rsptr<const MasterModel> model);
 
 public:
-	void CreateShaderVars(UINT objectCount);
+	void CreateShaderVars(int objectCount);
 	void UpdateShaderVars() const;
 
-	void PushObject(InstancinObject* object);
+	// 렌더링할 객체를 추가한다.
+	void PushObject(const InstObject* object);
 	void Render();
 
 private:

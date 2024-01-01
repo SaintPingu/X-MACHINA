@@ -62,7 +62,7 @@ enum class ObjectTag : DWORD {
 	ExplosiveBig   = 0x008,
 	Tank           = 0x010,
 	Helicopter     = 0x020,
-	Background     = 0x040,
+	Environment	   = 0x040,
 	Bullet         = 0x080,
 	Billboard      = 0x100,
 	Terrain        = 0x200,

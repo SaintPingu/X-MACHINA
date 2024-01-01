@@ -21,9 +21,9 @@ namespace {
 		ObjectTag::Bullet
 	};
 
-	constexpr DWORD gkEnvObjects{
+	constexpr DWORD gkEnvObjects {
 		ObjectTag::Unspecified		|
-		ObjectTag::Background		|
+		ObjectTag::Environment		|
 		ObjectTag::Billboard		|
 		ObjectTag::Terrain
 	};
@@ -188,7 +188,7 @@ ObjectTag GetTagByString(const std::string& tag)
 		return ObjectTag::Helicopter;
 
 	case Hash("Background"):
-		return ObjectTag::Background;
+		return ObjectTag::Environment;
 
 	case Hash("Billboard"):
 		return ObjectTag::Billboard;

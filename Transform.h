@@ -21,7 +21,7 @@ private:
 	float mYaw{};
 	float mRoll{};
 
-	bool isUpdated{};
+	bool mIsUpdated{};
 
 public:
 	Transform*		mParent{};

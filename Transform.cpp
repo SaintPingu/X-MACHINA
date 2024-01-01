@@ -284,15 +284,15 @@ void Transform::UpdateAxis(bool isComputeWorldTransform)
 
 void Transform::UpdateTransform(bool isComputeWorldTransform)
 {
-	if (isUpdated) {
+	if (mIsUpdated) {
 		XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
-		isUpdated = false;
+		mIsUpdated = false;
 	}
 
-	::memcpy(&mLocalTransform._11, &mRight,		sizeof(Vec3));
-	::memcpy(&mLocalTransform._21, &mUp,		sizeof(Vec3));
-	::memcpy(&mLocalTransform._31, &mLook,		sizeof(Vec3));
-	::memcpy(&mLocalTransform._41, &mPosition,	sizeof(Vec3));
+	::memcpy(&mLocalTransform._11, &mRight, sizeof(Vec3));
+	::memcpy(&mLocalTransform._21, &mUp, sizeof(Vec3));
+	::memcpy(&mLocalTransform._31, &mLook, sizeof(Vec3));
+	::memcpy(&mLocalTransform._41, &mPosition, sizeof(Vec3));
 
 	if (isComputeWorldTransform) {
 		ComputeWorldTransform();
@@ -337,7 +337,7 @@ void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
 
 void Transform::Update()
 {
-	isUpdated = true;
+	mIsUpdated = true;
 	ComputeWorldTransform();
 }
 

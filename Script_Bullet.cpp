@@ -68,7 +68,7 @@ void Script_Bullet::Explode()
 
 	Reset();
 
-	scene->CreateExplosion(Scene::ExplosionType::Small, mObject->GetPosition());
+	scene->CreateFX(Scene::FXType::SmallExplosion, mObject->GetPosition());
 }
 
 

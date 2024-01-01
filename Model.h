@@ -15,7 +15,7 @@ class Texture;
 class Material;
 class MasterModel;
 class MergedMesh;
-class ObjectInstanceBuffer;
+class ObjectInstBuffer;
 #pragma endregion
 
 
@@ -104,10 +104,14 @@ private:
 
 
 // 모델의 계층 구조 정보를 하나로 병합해 관리하는 객체
+// 모델의 모든 메쉬와 재질 정보를 가지고 있다.
+// 이 클래스를 통해 모델을 가지는 게임 객체를 렌더링 한다.
 class MasterModel {
 private:
 	sptr<MergedMesh> mMesh{};
 	sptr<Model> mModel{};
+
+	bool mMerged{ false };
 
 public:
 	MasterModel();
@@ -124,17 +128,16 @@ public:
 public:
 	void ReleaseUploadBuffers();
 
-	// merge model's mesh hierarchy
+	// merge [model]'s mesh hierarchy
 	void SetModel(const rsptr<Model> model);
 
 	// merge [mesh] to [mMesh], call MergedMesh::MergeMesh().
 	void MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
 
-	// render single object
-	void Render(const GameObject* gameObject) const { RenderFunc(gameObject); }
-
-	// render instancing object from instance buffer
-	void Render(const ObjectInstanceBuffer* instBuffer = nullptr) const;
+	// render single [object]
+	void Render(const GameObject* object) const { RenderFunc(object); }
+	// render instancing objects from [instBuffer]
+	void Render(const ObjectInstBuffer* instBuffer = nullptr) const;
 
 	// Model의 trasnform 계층구조를 [object]에 복사한다.
 	// call Model::CopyModelHierarchy()
@@ -143,10 +146,10 @@ public:
 private:
 	std::function<void(const GameObject*)> RenderFunc{ std::bind(&MasterModel::RenderObject, this, std::placeholders::_1) };	// 렌더링 함수
 
-	// 단일 객체 렌더링
-	void RenderObject(const GameObject* gameObject) const;
+	// render [object]
+	void RenderObject(const GameObject* object) const;
 
-	// 스프라이트 객체 렌더링
-	void RenderSprite(const GameObject* gameObject) const;
+	// render sprite [object]
+	void RenderSprite(const GameObject* object) const;
 };
 #pragma endregion

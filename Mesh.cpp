@@ -533,12 +533,12 @@ void UpdateShaderVars(const Vec4x4& transform)
 }
 
 
-void MergedMesh::Render(const GameObject* gameObject) const
+void MergedMesh::Render(const GameObject* object) const
 {
-	Render(gameObject->GetMergedTransform());
+	Render(object->GetMergedTransform());
 }
 
-void MergedMesh::Render(const ObjectInstanceBuffer* instBuffer) const
+void MergedMesh::Render(const ObjectInstBuffer* instBuffer) const
 {
 	if (!instBuffer) {
 		return;
@@ -555,7 +555,7 @@ void MergedMesh::Render(const ObjectInstanceBuffer* instBuffer) const
 }
 
 
-void MergedMesh::RenderSprite(const GameObject* gameObject) const
+void MergedMesh::RenderSprite(const GameObject* object) const
 {
 	constexpr int rootIndex{ 0 };
 	if (!HasMesh(rootIndex)) {
@@ -569,7 +569,7 @@ void MergedMesh::RenderSprite(const GameObject* gameObject) const
 	const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
 
 	modelMeshInfo.Materials.front()->UpdateShaderVars();
-	gameObject->GetComponent<Script_Sprite>()->UpdateSpriteVariable();
+	object->GetComponent<Script_Sprite>()->UpdateSpriteVariable();
 
 	constexpr UINT indexCount{ 6 };
 	cmdList->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);

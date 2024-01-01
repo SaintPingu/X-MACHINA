@@ -35,19 +35,26 @@
 #pragma region C/Dtor
 namespace {
 	uptr<Scene> sceneInstance{};
+
+
+	constexpr int kGridWidthCount = 20 ;						// all grid count = n*n
+	constexpr Vec3 kBorderPos      = Vec3(256, 200, 256);		// center of border
+	constexpr Vec3 kBorderExtents  = Vec3(1500, 500, 1500);		// extents of border
+
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology      = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kTerrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 }
 
 Scene::Scene()
+	:
+	mMapBorder(kBorderPos, kBorderExtents),
+	mGridhWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
+	mLight(std::make_unique<Light>()),
+	mDescriptorHeap(std::make_unique<DescriptorHeap>())
 {
-	constexpr int gridLengthCount{ 20 };		// gridCount = n*n
 
-	constexpr Vec3 borderPos     = Vec3(256, 200, 256);
-	constexpr Vec3 borderExtents = Vec3(1550, 500, 1550);
-
-	mMapBorder      = { borderPos, borderExtents };	// map segmentation criteria
-	mGridLength     = static_cast<int>(mMapBorder.Extents.x / gridLengthCount);
-	mLight          = std::make_unique<Light>();
-	mDescriptorHeap = std::make_shared<DescriptorHeap>();
 }
 
 void Scene::Create()
@@ -156,18 +163,18 @@ void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offs
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
-void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT dxgiSrvFormat)
+void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format                        = dxgiSrvFormat;
+	srvDesc.Format                        = srvFormat;
 	srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels           = 1;
 	srvDesc.Texture2D.MostDetailedMip     = 0;
 	srvDesc.Texture2D.PlaneSlice          = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
 
-	mDescriptorHeap->CreateSrv(resource, &srvDesc);
+	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
 }
 
 void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
@@ -175,7 +182,7 @@ void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
 	ComPtr<ID3D12Resource> resource         = texture->GetResource();
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
 
-	mDescriptorHeap->CreateSrv(resource, &srvDesc);
+	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
 	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
 }
 
@@ -243,13 +250,13 @@ void Scene::BuildObjects()
 	CreateCbvSrvDescriptorHeaps(0, 1024);
 
 	// load textures
-	LoadTextures();
+	LoadMaterials();
 
 	// load canvas (UI)
 	canvas->Init();
 
 	// load models
-	LoadSceneObjectsFromFile("Models/Scene.bin");
+	LoadSceneObjects("Models/Scene.bin");
 	LoadModels();
 
 	// build settings
@@ -350,38 +357,35 @@ void Scene::BuildGrid()
 	constexpr float maxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	const int adjusted = Math::GetNearestMultiple(mMapBorder.Extents.x, mGridLength);
+	const int adjusted = Math::GetNearestMultiple(mMapBorder.Extents.x, mGridhWidth);
 	mMapBorder.Extents = Vec3(adjusted, mMapBorder.Extents.y, adjusted);
 
 	// set grid start pos
 	mGridStartPoint = mMapBorder.Center.x - mMapBorder.Extents.x / 2;
 
 	// set grid count
-	int gridLengthCount = adjusted / mGridLength;
-	int gridCount       = gridLengthCount;
-	gridCount          *= gridCount;
+	mGridCols = adjusted / mGridhWidth;
+	const int gridCount = mGridCols * mGridCols;
 	mGrids.resize(gridCount);
-	mGridCols = static_cast<int>(sqrt(mGrids.size()));
 
 	// set grid bounds
-	float gridExtent = static_cast<float>(mGridLength) / 2.0f;
-	for (int y = 0; y < gridLengthCount; ++y) {
-		for (int x = 0; x < gridLengthCount; ++x) {
-			int gridX = (mGridLength * x) + (mGridLength / 2) + mGridStartPoint;
-			int gridZ = (mGridLength * y) + (mGridLength / 2) + mGridStartPoint;
+	float gridExtent = static_cast<float>(mGridhWidth) / 2.0f;
+	for (int y = 0; y < mGridCols; ++y) {
+		for (int x = 0; x < mGridCols; ++x) {
+			int gridX = (mGridhWidth * x) + (mGridhWidth / 2) + mGridStartPoint;
+			int gridZ = (mGridhWidth * y) + (mGridhWidth / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
-			bb.Center  = Vec3(gridX, maxHeight / 2, gridZ);
+			bb.Center = Vec3(gridX, maxHeight / 2, gridZ);
 			bb.Extents = Vec3(gridExtent, maxHeight, gridExtent);
 
-			int index = (y * gridLengthCount) + x;
+			int index = (y * mGridCols) + x;
 			mGrids[index].Init(index, bb);
 		}
 	}
 }
 
-
-void Scene::BuildGridObjects()
+void Scene::UpdateGridInfo()
 {
 	ProcessObjects([this](sptr<GameObject> object) {
 		UpdateObjectGrid(object.get());
@@ -390,15 +394,13 @@ void Scene::BuildGridObjects()
 	mTerrain->UpdateGrid();
 }
 
-
-void Scene::LoadTextures()
+void Scene::LoadMaterials()
 {
 	std::vector<std::string> textureNames;
 
 	FileIO::GetTextureNames(textureNames, "Models/Textures");
 
 	MaterialLoadInfo info{};
-	info.Albedo = Vec4(0.1f, .1f, .1f, 1.f);
 	for (auto& textureName : textureNames) {
 		// load texture
 		sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
@@ -415,7 +417,7 @@ void Scene::LoadTextures()
 	}
 }
 
-void Scene::LoadSceneObjectsFromFile(const std::string& fileName)
+void Scene::LoadSceneObjects(const std::string& fileName)
 {
 	FILE* file = NULL;
 	::fopen_s(&file, fileName.c_str(), "rb");
@@ -439,7 +441,7 @@ void Scene::LoadGameObjects(FILE* file)
 
 	int sameObjectCount{};			// get one unique model from same object
 	sptr<MasterModel> model{};
-	sptr<ObjectInstanceBuffer> instBuffer{};
+	sptr<ObjectInstBuffer> instBuffer{};
 
 	bool isInstancing{};
 	ObjectTag tag{};
@@ -473,7 +475,7 @@ void Scene::LoadGameObjects(FILE* file)
 			FileIO::ReadVal(file, isInstancing);
 
 			if (isInstancing) {
-				instBuffer = std::make_shared<ObjectInstanceBuffer>();
+				instBuffer = std::make_shared<ObjectInstBuffer>();
 				instBuffer->CreateShaderVars(sameObjectCount);
 				instBuffer->SetModel(model);
 				if (GetObjectType(tag) == ObjectType::Dynamic) {
@@ -484,7 +486,7 @@ void Scene::LoadGameObjects(FILE* file)
 		}
 
 		if (isInstancing) {
-			object = std::make_shared<InstancinObject>();
+			object = std::make_shared<InstObject>();
 		}
 		else {
 			object = std::make_shared<GameObject>();
@@ -494,7 +496,7 @@ void Scene::LoadGameObjects(FILE* file)
 
 		object->SetLayer(layer);
 		if (layer == ObjectLayer::Water) {
-			mBackgrounds.pop_back();
+			mEnvironments.pop_back();
 			mWater = object;
 		}
 
@@ -506,7 +508,7 @@ void Scene::LoadGameObjects(FILE* file)
 		object->SetWorldTransform(transform);
 
 		if (isInstancing) {
-			((InstancinObject*)object.get())->SetBuffer(instBuffer);
+			static_cast<InstObject*>(object.get())->SetBuffer(instBuffer);
 		}
 
 		--sameObjectCount;
@@ -561,9 +563,9 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 	}
 
 	break;
-	case ObjectTag::Background:
+	case ObjectTag::Environment:
 	{
-		mBackgrounds.emplace_back(object);
+		mEnvironments.emplace_back(object);
 		object->SetFlyable(true);
 		return;
 	}
@@ -605,6 +607,7 @@ namespace {
 		return XMVectorGetX(XMPlaneDotCoord(XMLoadFloat4(&plane), _VECTOR(point))) < 0.f;
 	}
 }
+
 void Scene::OnPrepareRender()
 {
 	cmdList->SetGraphicsRootSignature(GetRootSignature().Get());
@@ -621,13 +624,9 @@ void Scene::OnPrepareRender()
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameInfo, timeElapsed, 0);
 }
 
-static constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-static constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology      = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-static constexpr D3D12_PRIMITIVE_TOPOLOGY kTerrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-static constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 void Scene::Render()
 {
-	std::set<GameObject*> opaqueObjects{};
+	std::set<GameObject*> renderedObjects{};
 	std::set<GameObject*> transparentObjects{};
 	std::set<GameObject*> billboardObjects{};
 
@@ -635,8 +634,8 @@ void Scene::Render()
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	mGlobalShader->Render();
 
-	RenderGridObjects(opaqueObjects, transparentObjects, billboardObjects);
-	RenderBackgrounds();
+	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects);
+	RenderEnvironments();
 	RenderBullets();
 	RenderInstanceObjects();
 	RenderFXObjects();
@@ -650,7 +649,7 @@ void Scene::Render()
 
 	RenderSkyBox();
 
-	if (RenderBounds(opaqueObjects)) {
+	if (RenderBounds(renderedObjects)) {
 		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
 	}
 
@@ -683,7 +682,7 @@ void Scene::RenderSkyBox()
 }
 
 
-void Scene::RenderGridObjects(std::set<GameObject*>& opaqueObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects)
+void Scene::RenderGridObjects(std::set<GameObject*>& renderedObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects)
 {
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -692,11 +691,11 @@ void Scene::RenderGridObjects(std::set<GameObject*>& opaqueObjects, std::set<Gam
 
 		if (mainCamera->IsInFrustum(grid.GetBB())) {
 			auto& objects = grid.GetObjects();
-			opaqueObjects.insert(objects.begin(), objects.end());
+			renderedObjects.insert(objects.begin(), objects.end());
 		}
 	}
 
-	for (auto& object : opaqueObjects) {
+	for (auto& object : renderedObjects) {
 		if (object->IsTransparent()) {
 			transparentObjects.insert(object);
 			continue;
@@ -735,10 +734,10 @@ void Scene::RenderFXObjects()
 	}
 }
 
-void Scene::RenderBackgrounds()
+void Scene::RenderEnvironments()
 {
-	for (auto& background : mBackgrounds) {
-		background->Render();
+	for (auto& env : mEnvironments) {
+		env->Render();
 	}
 }
 
@@ -753,7 +752,7 @@ void Scene::RenderBullets()
 }
 
 
-bool Scene::RenderBounds(const std::set<GameObject*>& opaqueObjects)
+bool Scene::RenderBounds(const std::set<GameObject*>& renderedObjects)
 {
 	if (!mIsRenderBounds || !mBoundingShader) {
 		return false;
@@ -762,14 +761,14 @@ bool Scene::RenderBounds(const std::set<GameObject*>& opaqueObjects)
 	cmdList->IASetPrimitiveTopology(kBoundsPrimitiveTopology);
 
 	mBoundingShader->Render();
-	RenderObjectBounds(opaqueObjects);
+	RenderObjectBounds(renderedObjects);
 	RenderGridBounds();
 
 	return true;
 }
 
 
-void Scene::RenderObjectBounds(const std::set<GameObject*>& opaqueObjects)
+void Scene::RenderObjectBounds(const std::set<GameObject*>& renderedObjects)
 {
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
@@ -777,7 +776,7 @@ void Scene::RenderObjectBounds(const std::set<GameObject*>& opaqueObjects)
 		}
 	}
 
-	for (auto& object : opaqueObjects) {
+	for (auto& object : renderedObjects) {
 		object->RenderBounds();
 	}
 }
@@ -792,7 +791,7 @@ void Scene::RenderGridBounds()
 		constexpr float kGirdHeight = 30.f;
 		Vec3 pos = grid.GetBB().Center;
 		pos.y = kGirdHeight;
-		MeshRenderer::RenderPlane(pos, mGridLength, mGridLength);
+		MeshRenderer::RenderPlane(pos, mGridhWidth, mGridhWidth);
 #endif
 	}
 }
@@ -833,7 +832,7 @@ void Scene::Start()
 		mBigExpFXShader->Start();
 	}
 
-	BuildGridObjects();
+	UpdateGridInfo();
 }
 
 void Scene::Update()
@@ -963,7 +962,7 @@ void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 	mSpriteEffectObjects.emplace_back(effect);
 }
 
-void Scene::CreateSmallExpFX(Vec3 pos)
+void Scene::CreateSmallExpFX(const Vec3& pos)
 {
 	if (mSmallExpFXShader) {
 		mSmallExpFXShader->SetActive(pos);
@@ -973,7 +972,7 @@ void Scene::CreateSmallExpFX(Vec3 pos)
 }
 
 
-void Scene::CreateBigExpFX(Vec3 pos)
+void Scene::CreateBigExpFX(const Vec3& pos)
 {
 	if (mBigExpFXShader) {
 		mBigExpFXShader->SetActive(pos);
@@ -988,22 +987,10 @@ int Scene::GetGridIndexFromPos(Vec3 pos)
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
 
-	const int gridX = static_cast<int>(pos.x / mGridLength);
-	const int gridZ = static_cast<int>(pos.z / mGridLength);
+	const int gridX = static_cast<int>(pos.x / mGridhWidth);
+	const int gridZ = static_cast<int>(pos.z / mGridhWidth);
 
 	return gridZ * mGridCols + gridX;
-}
-
-
-void Scene::SetObjectGridIndex(rsptr<GameObject> object, int gridIndex)
-{
-	object->SetGridIndex(gridIndex);
-
-	constexpr int gridRange = 1;
-	std::unordered_set<int> gridIndices{};
-	gridIndices.insert(gridIndex);
-
-	object->SetGridIndices(gridIndices);
 }
 
 
@@ -1082,13 +1069,13 @@ void Scene::ToggleDrawBoundings()
 }
 
 
-void Scene::CreateExplosion(ExplosionType explosionType, const Vec3& pos)
+void Scene::CreateFX(FXType type, const Vec3& pos)
 {
-	switch (explosionType) {
-	case ExplosionType::Small:
+	switch (type) {
+	case FXType::SmallExplosion:
 		CreateSmallExpFX(pos);
 		break;
-	case ExplosionType::Big:
+	case FXType::BigExplosion:
 		CreateBigExpFX(pos);
 		break;
 	default:
@@ -1132,7 +1119,7 @@ void Scene::ChangeToPrevPlayer()
 	mPlayer = mPlayers[mCurrPlayerIndex];
 }
 
-// 객체의 Grid정보를 업데이트한다.
+
 void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 {
 	if (!object->IsActive()) {
@@ -1199,7 +1186,7 @@ void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 
 void Scene::RemoveObjectFromGrid(GameObject* object)
 {
-	for (int index : object->GetGridIndices()) {
+	for (const int index : object->GetGridIndices()) {
 		mGrids[index].RemoveObject(object);
 	}
 

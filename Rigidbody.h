@@ -1,13 +1,17 @@
 #pragma once
 #include "Component.h"
 
-enum class ForceMode { Accleration = 0, Impulse };
+enum class ForceMode {
+	Accleration = 0,
+	Impulse
+};
 
+// control of an object's position through physics simulation.
 class Rigidbody : public Component {
 	COMPONENT(Rigidbody, Component)
 
 private	:
-	bool mUseGravity	{ false };
+	bool mUseGravity	{ false };	// controls whether gravity affects this rigidbody.
 	float mGravityScale	{ 1.f };
 
 	float mMass		{ 1.f };
@@ -34,7 +38,10 @@ public:
 
 	virtual void OnCollisionStay(Object& other) override;
 
+	// set velocity to zero immediately
 	void Stop();
+
+	// adds a force to the Rigidbody.
 	void AddForce(const Vec3& force, ForceMode forceMode = ForceMode::Accleration);
 	void AddForce(const Vec3& dir, float speed, ForceMode forceMode = ForceMode::Accleration);
 };

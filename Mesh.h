@@ -12,7 +12,7 @@ class Texture;
 class Transform;
 class ModelObject;
 class GameObject;
-class ObjectInstanceBuffer;
+class ObjectInstBuffer;
 #pragma endregion
 
 
@@ -159,18 +159,17 @@ public:
 
 public:
 	
-	// merge all meshes to (mFrameMeshInfo) from (mesh) and (materials)
+	// merge all meshes to [mFrameMeshInfo] from [mesh] and [materials]
 	bool MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
-
 	// stop merge and create buffer resource
 	void StopMerge();
 
-	// render game object for this mesh
-	virtual void Render(const GameObject* gameObject) const;
-
-	// render 
-	virtual void Render(const ObjectInstanceBuffer* instBuffer) const;
-	virtual void RenderSprite(const GameObject* gameObject) const;
+	// render [object] for this mesh
+	virtual void Render(const GameObject* object) const;
+	// render instanced objects from [instBuffer]
+	virtual void Render(const ObjectInstBuffer* instBuffer) const;
+	// render sprite [object]
+	virtual void RenderSprite(const GameObject* object) const;
 
 	bool HasMesh(UINT index) const { return mFrameMeshInfo[index].VertexCount > 0; }
 

@@ -79,6 +79,13 @@ void Transform::SetAxis(const Vec3& look, const Vec3& up, const Vec3& right)
 	UpdateTransform();
 }
 
+void Transform::SetAxis(const Vec4x4& axisMatrix)
+{
+	::memcpy(&mLocalTransform, &axisMatrix, sizeof(Vec4x3));
+
+	UpdateAxis();
+}
+
 void Transform::SetRight(const Vec3& right)
 {
 	mRight = Vector3::Normalize(right);
@@ -235,18 +242,12 @@ void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 
 void Transform::LookTo(const Vec3& lookTo, const Vec3& up)
 {
-	Vec4x4 mtxView = Matrix4x4::LookToLH(GetPosition(), lookTo, up, true);
-	::memcpy(&mLocalTransform, &mtxView, sizeof(Vec4x3));
-
-	UpdateAxis();
+	SetAxis(Matrix4x4::LookToLH(GetPosition(), lookTo, up, true));
 }
 
 void Transform::LookAt(const Vec3& lookAt, const Vec3& up)
 {
-	Vec4x4 mtxView = Matrix4x4::LookAtLH(GetPosition(), lookAt, up, true);
-	::memcpy(&mLocalTransform, &mtxView, sizeof(Vec4x3));
-
-	UpdateAxis();
+	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, true));
 }
 
 
@@ -255,7 +256,7 @@ void Transform::SetWorldTransform(const Vec4x4& transform)
 {
 	::memcpy(&mWorldTransform, &transform, sizeof(Vec4x4));
 	::memcpy(&mLocalTransform, &transform, sizeof(Vec4x4));
-	::memcpy(&mPrevTransform, &transform, sizeof(Vec4x4));
+	::memcpy(&mPrevTransform,  &transform, sizeof(Vec4x4));
 
 	UpdateAxis();
 }

@@ -30,17 +30,14 @@ void Camera::Release()
 void Camera::UpdateShaderVars()
 {
 	Vec4x4 viewMtx = Matrix4x4::Transpose(mViewTransform);
-	Vec4x4 projMtx = Matrix4x4::Transpose(mProjectionTransform);
+	Vec4x4 projMtx = Matrix4x4::Transpose(mProjTransform);
+	Vec3   pos     = mObject->GetPosition();
 
-	::memcpy(&mCBMap_Camera->View, &viewMtx, sizeof(Vec4x4));
+	::memcpy(&mCBMap_CameraInfo->View, &viewMtx, sizeof(Vec4x4));
+	::memcpy(&mCBMap_CameraInfo->Projection, &projMtx, sizeof(Vec4x4));
+	::memcpy(&mCBMap_CameraInfo->Position, &pos, sizeof(Vec3));
 
-	::memcpy(&mCBMap_Camera->Projection, &projMtx, sizeof(Vec4x4));
-
-	Vec3 pos = mObject->GetPosition();
-	::memcpy(&mCBMap_Camera->Position, &pos, sizeof(Vec3));
-
-	D3D12_GPU_VIRTUAL_ADDRESS gpuVirtualAddress = mCB_Camera->GetGPUVirtualAddress();
-	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Camera), gpuVirtualAddress);
+	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Camera), mCB_CameraInfo->GetGPUVirtualAddress());
 }
 
 
@@ -62,10 +59,10 @@ void Camera::UpdateViewMtx()
 }
 void Camera::SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float aspectRatio, float fovAngle)
 {
-	Matrix projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovAngle), aspectRatio, nearPlaneDistance, farPlaneDistance);
-	XMStoreFloat4x4(&mProjectionTransform, projection);
+	Matrix projMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovAngle), aspectRatio, nearPlaneDistance, farPlaneDistance);
+	XMStoreFloat4x4(&mProjTransform, projMtx);
 
-	BoundingFrustum::CreateFromMatrix(mFrustumView, projection);
+	BoundingFrustum::CreateFromMatrix(mFrustumView, projMtx);
 }
 
 
@@ -94,49 +91,34 @@ void Camera::SetViewportsAndScissorRects()
 
 void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 {
-	Vec4x4 mtxLookAt = Matrix4x4::LookAtLH(mObject->GetPosition(), lookAt, upVector);
-	Vec3 right       = Vec3(mtxLookAt._11, mtxLookAt._21, mtxLookAt._31);
-	Vec3 up          = Vec3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);
-	Vec3 look        = Vec3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
-
-	mObject->SetAxis(look, up, right);
+	mObject->SetAxis(Matrix4x4::LookAtLH(mObject->GetPosition(), lookAt, upVector, true));
 }
 
 
-void Camera::CalculateFrustumPlanes()
-{
-	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));
-}
-bool Camera::IsInFrustum(const BoundingOrientedBox& boundingBox)
-{
-	return mFrustumWorld.Intersects(boundingBox);
-}
-bool Camera::IsInFrustum(const BoundingBox& boundingBox)
-{
-	return mFrustumWorld.Intersects(boundingBox);
-}
-bool Camera::IsInFrustum(const BoundingSphere& boundingSphere)
-{
-	return mFrustumWorld.Intersects(boundingSphere);
-}
 bool Camera::IsInFrustum(rsptr<const GameObject> object)
 {
-	return object->GetComponent<ObjectCollider>()->IsInFrustum(mFrustumWorld);
+	return object->GetCollider()->Intersects(mFrustumWorld);
 }
 
 
 void Camera::CreateShaderVars()
 {
-	const UINT cbByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_Camera));
-	D3DUtil::CreateBufferResource(nullptr, cbByteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_Camera);
-	mCB_Camera->Map(0, nullptr, (void**)&mCBMap_Camera);
+	const UINT cbByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_CameraInfo));
+	D3DUtil::CreateBufferResource(nullptr, cbByteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_CameraInfo);
+	mCB_CameraInfo->Map(0, nullptr, (void**)&mCBMap_CameraInfo);
 }
+
 void Camera::ReleaseShaderVars()
 {
-	if (mCB_Camera) {
-		mCB_Camera->Unmap(0, nullptr);
-		mCB_Camera = nullptr;
+	if (mCB_CameraInfo) {
+		mCB_CameraInfo->Unmap(0, nullptr);
+		mCB_CameraInfo = nullptr;
 	}
+}
+
+void Camera::CalculateFrustumPlanes()
+{
+	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));
 }
 #pragma endregion
 
@@ -154,7 +136,8 @@ CameraObject::CameraObject() : Object()
 void CameraObject::Rotate(float pitch, float yaw, float roll)
 {
 	base::Rotate(pitch, yaw, roll);
-	SetRightY(0.f);
+
+	SetRightY(0.f);	// Roll È¸Àü x
 }
 
 

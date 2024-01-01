@@ -23,7 +23,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUSrvLastHandle() const
 
 void DescriptorHeap::Create(int cbvCount, int srvCount)
 {
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = cbvCount + srvCount; //CBVs + SRVs
 	descriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -46,24 +46,12 @@ void DescriptorHeap::Create(int cbvCount, int srvCount)
 void DescriptorHeap::CreateSrv(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc)
 {
 	device->CreateShaderResourceView(resource.Get(), srvDesc, mSrvHandle.CpuNext);
-	Close();
-}
-
-void DescriptorHeap::CreateSrvs(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, UINT heapIndex)
-{
-	mSrvHandle.CpuNext.ptr += (dxgi->GetCbvSrvDescriptorIncSize() * heapIndex);
-	mSrvHandle.GpuNext.ptr += (dxgi->GetCbvSrvDescriptorIncSize() * heapIndex);
-	CreateSrv(resource, srvDesc);
+	
+	mSrvHandle.CpuNext.ptr += dxgi->GetCbvSrvDescriptorIncSize();
+	mSrvHandle.GpuNext.ptr += dxgi->GetCbvSrvDescriptorIncSize();
 }
 
 void DescriptorHeap::Set()
 {
 	cmdList->SetDescriptorHeaps(1, mHeap.GetAddressOf());
-}
-
-
-void DescriptorHeap::Close()
-{
-	mSrvHandle.CpuNext.ptr += dxgi->GetCbvSrvDescriptorIncSize();
-	mSrvHandle.GpuNext.ptr += dxgi->GetCbvSrvDescriptorIncSize();
 }

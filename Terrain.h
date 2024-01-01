@@ -71,7 +71,7 @@ private:
 	sptr<TerrainShader> mShader{};
 
 	sptr<Material> mMaterial{};
-	sptr<Texture> mTextureLayer[4];
+	sptr<Texture> mTextureLayer[3];
 	sptr<Texture> mSplatMap{};
 
 	int mWidth{};

@@ -1,10 +1,21 @@
 #include "stdafx.h"
 #include "Collider.h"
 
-#include "Mesh.h"
-
+#include "MeshRenderer.h"
+#include "Object.h"
 
 #pragma region BoxCollider
+BoxCollider& BoxCollider::operator=(const BoxCollider& other)
+{
+	if (this == &other) {
+		return *this;
+	}
+
+	mBox = other.mBox;
+
+	return *this;
+}
+
 void BoxCollider::Update()
 {
 	mBox.Transform(mObject->GetWorldTransform());
@@ -22,9 +33,20 @@ void BoxCollider::Render() const
 
 
 #pragma region SphereCollider
+SphereCollider& SphereCollider::operator=(const SphereCollider& other)
+{
+	if (this == &other) {
+		return *this;
+	}
+
+	mBS = other.mBS;
+
+	return *this;
+}
+
 void SphereCollider::Update()
 {
-	mBS.Center = Vector3::Add(mBS.OriginCenter, mObject->GetPosition());
+	mBS.Center = Vector3::Add(mBS.GetOrigin(), mObject->GetPosition());
 }
 
 
@@ -39,47 +61,34 @@ void SphereCollider::Render() const
 
 
 #pragma region ObjectCollider
-ObjectCollider& ObjectCollider::operator=(const ObjectCollider& other) {
-	if (this == &other) {
-		return *this;
-	}
-
-	mIsCollidable   = other.mIsCollidable;
-	mSphereCollider = other.mSphereCollider;
-
-	return *this;
-}
-
 void ObjectCollider::Start()
 {
+	// SphereCollider를 가져오고, 없으면 self(ObjectCollider)를 제거한다.
 	mSphereCollider = mObject->GetComponent<SphereCollider>();
 	if (!mSphereCollider) {
 		mObject->RemoveComponent<ObjectCollider>();
 		return;
 	}
 
-	std::vector<const Transform*> mergedTransform{};
-	Transform::MergeTransform(mergedTransform, mObject);
+	// 객체의 모든 BoxCollider와 bounding box들을 가져온다.
+	const auto& mergedTransform = mObject->GetObj<GameObject>()->GetMergedTransform();
 
 	for (auto transform : mergedTransform) {
 		const Object* object = transform->GetObj<Object>();
-		const auto& components = std::move(object->GetComponents<BoxCollider>());
+		const auto& components = object->GetComponents<BoxCollider>();
 
 		for (auto& boxCollider : components) {
-			mOBBList.emplace_back(&boxCollider->mBox);				// insert at "All"
+			mOBBList.emplace_back(&boxCollider->mBox);
 			mBoxColliders.emplace_back(boxCollider);
 		}
 	}
 
-	UpdateCollidable();
 	Update();
 }
+
+// 모든 Collider의 transform 정보를 update한다.
 void ObjectCollider::Update()
 {
-	if (!mIsCollidable) {
-		return;
-	}
-
 	for (auto& boxCollider : mBoxColliders) {
 		boxCollider->Update();
 	}
@@ -90,11 +99,11 @@ void ObjectCollider::Update()
 
 void ObjectCollider::Render() const
 {
-	//#define RENDER_BOUNDING_SPHERE
 	for (auto& boxCollider : mBoxColliders) {
 		boxCollider->Render();
 	}
 
+	//#define RENDER_BOUNDING_SPHERE
 #ifdef RENDER_BOUNDING_SPHERE
 	if (mSphereCollider) {
 		mSphereCollider->Render();
@@ -102,112 +111,47 @@ void ObjectCollider::Render() const
 #endif
 }
 
-
-bool ObjectCollider::Intersects(const BoundingSphere& sphere) const
+// 두 ObjectCollider 충돌처리 알고리즘
+//       [A] <-> [B]
+// 1.    BS  <-> BS
+// 2-1.  OBB <-> OBB : 둘 다 OBB가 있다면
+// 2-2.  OBB <-> BS  : A만 있다면
+// 2-3.  BS  <-> OBB : B만 있다면
+// 3.       true     : 둘 다 없다면
+bool ObjectCollider::Intersects(const GameObject& a, const GameObject& b)
 {
-	for (auto& box : mOBBList) {
-		if (box->Intersects(sphere)) {
-			return true;
-		}
-	}
+	const auto& colliderA = a.GetCollider();
+	const auto& colliderB = b.GetCollider();
 
-	return false;
-}
-bool ObjectCollider::Intersects(const BoundingBox& srcBox) const
-{
-	for (auto& box : mOBBList) {
-		if (box->Intersects(srcBox)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-bool ObjectCollider::Intersects(const BoundingOrientedBox& srcBox) const
-{
-	for (auto& box : mOBBList) {
-		if (box->Intersects(srcBox)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-bool ObjectCollider::Intersects(const std::vector<MyBoundingOrientedBox*>& boxes) const
-{
-	for (auto& srcBox : boxes) {
-		if (Intersects(*srcBox)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-//    My  - Other
-// 1. BS <-> BS
-// 2. 둘 다 OBB가 없다면	-> true
-// 3. 하나만 OBB가 있다면
-// 3-1. 내가   있다면	-> OBB <-> BS
-// 3-2. 상대가 있다면		-> BS  <-> OBB
-// 4. 둘 다 있다면		-> OBB <-> OBB
-bool ObjectCollider::Intersects(const Object& other) const
-{
-	auto otherCollider = other.GetComponent<ObjectCollider>();
-
-	if (!IsCollidable() || !otherCollider->IsCollidable()) {
+	if (!colliderA || !colliderB) {
 		return false;
 	}
 
-	auto& otherBS = otherCollider->GetBS();
-	auto& myBS    = GetBS();
-	if (!IntersectsBS(otherBS)) {
+	const auto& bsA = colliderA->GetBS();
+	const auto& bsB = colliderB->GetBS();
+
+	if (!bsA.Intersects(bsB)) {
 		return false;
 	}
 
-	auto& myOBBList    = mOBBList;
-	auto& otherOBBList = otherCollider->mOBBList;
+	const auto& obbListA = colliderA->GetOBBList();
+	const auto& obbListB = colliderB->GetOBBList();
 
-	size_t myOBBSize    = myOBBList.size();
-	size_t otherOBBSize = otherOBBList.size();
+	const bool aHasOBB = !obbListA.empty();
+	const bool bHasOBB = !obbListB.empty();
 
-	// Only one object has or does not has a bounding box
-	bool a = otherOBBSize <= 0;
-	bool b = myOBBSize <= 0;
-	if (a || b) {
-		if (a && b) {
-			return true;	// both don't have a bounding box
+	if (aHasOBB || bHasOBB) {
+		if (aHasOBB && bHasOBB) {
+			return ObjectCollider::Intersects(obbListA, obbListB);
 		}
-
-		if (a) {			// Only I have a bounding box
-			for (auto& box : myOBBList) {
-				if (box->Intersects(otherBS)) {
-					return true;
-				}
-			}
+		else if (aHasOBB) {
+			return ObjectCollider::Intersects(obbListA, bsB);
 		}
-		else if (b) {		// Only the other has a bounding box
-			if (myBS.IntersectBoxes(otherOBBList)) {
-				return true;
-			}
+		else {
+			return ObjectCollider::Intersects(obbListB, bsA);
 		}
-
-		return false;
 	}
 
-	// both have a bounding box
-	if (Intersects(otherOBBList)) {
-		return true;
-	}
-
-	return false;
-}
-
-
-void ObjectCollider::UpdateCollidable()
-{
-	mIsCollidable = false;
-	if (mSphereCollider || mOBBList.size() > 0) {
-		mIsCollidable = true;
-	}
+	return true;
 }
 #pragma endregion

@@ -13,8 +13,8 @@ struct DescriptorHandle {
 
 
 #pragma region Class
-class DescriptorHeap
-{
+// util of ID3D12DescriptorHeap
+class DescriptorHeap {
 private:
 	ComPtr<ID3D12DescriptorHeap> mHeap{};
 
@@ -33,20 +33,18 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvStartHandle() const { return mSrvHandle.CpuStart; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvStartHandle() const { return mSrvHandle.GpuStart; }
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvLastHandle() const;
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvLastHandle() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvLastHandle() const;
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvLastHandle() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvLastHandle() const;	// CPU의 CBV 마지막 주소 핸들값을 반환한다. (next 이전값)
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvLastHandle() const;	// GPU의 CBV 마지막 주소 핸들값을 반환한다. (next 이전값)
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvLastHandle() const;	// CPU의 SRV 마지막 주소 핸들값을 반환한다. (next 이전값)
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvLastHandle() const;	// GPU의 SRV 마지막 주소 핸들값을 반환한다. (next 이전값)
 
 public:
+	// descriptor heap을 생성하고 핸들값들을 설정한다.
 	void Create(int cbvCount, int srvCount);
 
 	void CreateSrv(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc);
-	void CreateSrvs(RComPtr<ID3D12Resource> resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, UINT heapIndex);
 
+	// descriptor heap을 CommandList에 set한다.
 	void Set();
-
-private:
-	void Close();
 };
 #pragma endregion

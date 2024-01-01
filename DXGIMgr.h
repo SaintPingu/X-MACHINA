@@ -14,18 +14,22 @@ class PostProcessingShader;
 #pragma region EnumClass
 enum class DrawOption {
 	Main = 0,
+	Texture,
+	Normal,
+	Depth,
 };
 #pragma endregion
 
 
 #pragma region Class
+// device, swapchain 등 DXGI 전반 및 렌더링을 관리한다.
 class DXGIMgr {
 	SINGLETON_PATTERN(DXGIMgr)
 
 private:
 	// window
 	HINSTANCE	mInstance{};
-	HWND		mWnd{};
+	HWND		mWnd{};			// 메인 윈도우 핸들
 
 	// screen
 	int mClientWidth{};
@@ -42,14 +46,15 @@ private:
 	// swap chain
 	static constexpr UINT mSwapChainBuffCnt{ 2 };
 	static constexpr UINT mRtvCnt = 5;
-	static constexpr std::array<DXGI_FORMAT, mRtvCnt> mRtvFormats{ DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	static constexpr std::array<DXGI_FORMAT, mRtvCnt>			mRtvFormats{ DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };	// formats of multi render target
+	std::array<D3D12_CPU_DESCRIPTOR_HANDLE, mSwapChainBuffCnt>	mRtvHandles{};
 
-	UINT mSwapChainBuffIdx{};
-	ComPtr<ID3D12Resource> mSwapChainBuffers[mSwapChainBuffCnt]{};
+	std::array<ComPtr<ID3D12Resource>, mSwapChainBuffCnt>	mSwapChainBuffers{};
+	UINT													mSwapChainBuffCurrIdx{};	// current swap chain buffer index
 
-	// view
-	UINT							mCbvSrvDescriptorIncSize{};
-	UINT							mRtvDescriptorIncSize{};
+	// view (descriptor)
+	UINT mCbvSrvDescriptorIncSize{};
+	UINT mRtvDescriptorIncSize{};
 	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};
 	ComPtr<ID3D12DescriptorHeap>	mDsvHeap{};
 	ComPtr<ID3D12Resource>			mDepthStencilBuff{};
@@ -61,12 +66,11 @@ private:
 	ComPtr<ID3D12GraphicsCommandList>	mCmdList{};
 
 	// fence
-	ComPtr<ID3D12Fence> mFence{};
-	UINT64				mFenceValues[mSwapChainBuffCnt]{};
-	HANDLE				mFenceEvent{};
+	ComPtr<ID3D12Fence>						mFence{};
+	std::array<UINT64, mSwapChainBuffCnt>	mFenceValues{};
+	HANDLE									mFenceEvent{};
 
-	D3D12_CPU_DESCRIPTOR_HANDLE	mSwapChainBuffRtvHandles[mSwapChainBuffCnt]{};
-
+	// others
 	sptr<PostProcessingShader>	mPostProcessingShader{};
 
 	DrawOption mDrawOption{};
@@ -93,10 +97,14 @@ public:
 public:
 	void Init(HINSTANCE hInstance, HWND hMainWnd);
 	void Release();
-	void Terminate(); // 강제종료
 
+	// 강제종료
+	void Terminate();
+
+	// render scene
 	void Render();
 
+	// full screen on/off
 	void ToggleFullScreen();
 
 	void ClearDepth();
@@ -104,9 +112,13 @@ public:
 	void ClearDepthStencil();
 
 private:
+	// reset command
 	void StartCommand();
+
+	// close command
 	void StopCommand();
 
+	// for CreateDirect3DDevice
 	void CreateFactory();
 	void CreateDevice();
 	void SetMSAA();
@@ -121,6 +133,7 @@ private:
 	void CreateRTVs();
 	void CreateDSV();
 
+	// full screen on/off (resize swap chain buffer)
 	void ChangeSwapChainState();
 
 	void WaitForGpuComplete();

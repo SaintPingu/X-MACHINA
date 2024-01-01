@@ -1102,7 +1102,7 @@ void PostProcessingShader::CreateTextureResources()
 	for (UINT i = 0; i < mRtvCnt; ++i)
 	{
 		clearValue.Format = mRtvFormats[i];
-		mTextures[i] = std::make_shared<Texture>(Resource::Texture2D);
+		mTextures[i] = std::make_shared<Texture>(D3DResource::Texture2D);
 		mTextures[i]->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight, mRtvFormats[i], D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &clearValue);
 	}
 }

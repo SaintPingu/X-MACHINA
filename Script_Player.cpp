@@ -40,8 +40,8 @@ void Script_Player::Update()
 void Script_Player::Move(DWORD dwDirection)
 {
 	if (mPlayerType == PlayerType::Tank) {
-		dwDirection &= ~static_cast<DWORD>(Dir::Up);
-		dwDirection &= ~static_cast<DWORD>(Dir::Down);
+		dwDirection &= ~Dir::Up;
+		dwDirection &= ~Dir::Down;
 	}
 
 	Vec3 force = Vector3::Multiply(mObject->GetDirection(dwDirection), mAcc);

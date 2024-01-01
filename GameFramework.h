@@ -1,27 +1,24 @@
 #pragma once
 
+#define framework Framework::Inst()
+
 class Framework {
 	SINGLETON_PATTERN(Framework)
 
 private:
-	std::wstring mTitle{};
+	std::wstring mTitle{};	// 윈도우 타이틀 문자열
 
-public:
+private:
 	Framework();
 	virtual ~Framework() = default;
 
 public:
-	bool Init(HINSTANCE hInstance, HWND hMainWnd);
+	void Init(HINSTANCE hInstance, HWND hMainWnd);
 	void Release();
 
 	void BuildObjects();
 	void ReleaseObjects();
 
+	// call per once frame
 	void FrameAdvance();
-	void UpdaetInput();
-	void UpdateObjects();
-	void RenderObjects();
 };
-
-
-#define framework Framework::Inst()

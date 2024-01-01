@@ -16,11 +16,12 @@
 
 #pragma region MaterialColors
 MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
+	:
+	Diffuse(Vector4::Normalize(materialInfo.Albedo)),
+	Specular(materialInfo.Specular),
+	Emissive(materialInfo.Emissive)
 {
-	mDiffuse    = Vector4::Normalize(materialInfo.Albedo);
-	mSpecular   = materialInfo.Specular; //(r,g,b,a=power)
-	mSpecular.w = materialInfo.Glossiness * 255.0f;
-	mEmissive   = materialInfo.Emissive;
+	Specular.w = materialInfo.Glossiness * 255.0f;
 }
 #pragma endregion
 
@@ -48,15 +49,15 @@ void Material::UpdateShaderVars()
 		return;
 	}
 
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mDiffuse, 20);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Diffuse, 20);
 
 	if (mIsDiffused) {
 		return;
 	}
 
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mAmbient, 16);
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mSpecular, 24);
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->mEmissive, 28);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Ambient, 16);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Specular, 24);
+	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Emissive, 28);
 }
 
 void Material::LoadTextureFromFile(FILE* file)
@@ -82,12 +83,12 @@ void Model::CopyModelHierarchy(GameObject* object) const
 
 
 	if (mSibling) {
-		sptr<ModelObject> sibling{};
+		sptr<Object> sibling{};
 		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling);
 		object->mSibling = sibling;
 	}
 	if (mChild) {
-		sptr<ModelObject> child{};
+		sptr<Object> child{};
 		mChild->GetObj<Model>()->CopyModelHierarchy(child);
 		object->SetChild(child);
 	}
@@ -96,8 +97,6 @@ void Model::CopyModelHierarchy(GameObject* object) const
 void Model::MergeModel(MasterModel& out)
 {
 	out.MergeMesh(mMeshInfo, mMaterials);
-	mMeshInfo = nullptr;
-	mMaterials.clear();
 
 	if (mSibling) {
 		mSibling->GetObj<Model>()->MergeModel(out);
@@ -107,22 +106,21 @@ void Model::MergeModel(MasterModel& out)
 	}
 }
 
-void Model::CopyModelHierarchy(sptr<ModelObject>& object) const
+void Model::CopyModelHierarchy(sptr<Object>& object) const
 {
-	object = std::make_shared<ModelObject>();
+	object = std::make_shared<Object>();
 
 	object->CopyComponents(*this);
 	object->SetTransform(GetLocalTransform());
 	object->SetName(mName);
 
-
 	if (mSibling) {
-		sptr<ModelObject> sibling{};
+		sptr<Object> sibling{};
 		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling);
 		object->mSibling = sibling;
 	}
 	if (mChild) {
-		sptr<ModelObject> child{};
+		sptr<Object> child{};
 		mChild->GetObj<Model>()->CopyModelHierarchy(child);
 		object->SetChild(child);
 	}
@@ -157,25 +155,21 @@ rsptr<Texture> MasterModel::GetTexture() const
 	return mMesh->GetTexture();
 }
 
-void MasterModel::SetModel(rsptr<Model> model)
-{
-	SetChild(model);
-}
-
-
 void MasterModel::ReleaseUploadBuffers()
 {
 	mMesh->ReleaseUploadBuffers();
 }
 
-void MasterModel::MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials)
+void MasterModel::SetModel(const rsptr<Model> model)
 {
-	mMesh->MergeMesh(mesh, materials);
+	mModel = model;
+	model->MergeModel(*this);
+	mMesh->StopMerge();
 }
 
-void MasterModel::Close()
+void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials)
 {
-	mMesh->Close();
+	mMesh->MergeMesh(mesh, materials);
 }
 
 void MasterModel::Render(const ObjectInstanceBuffer* instBuffer) const
@@ -185,7 +179,7 @@ void MasterModel::Render(const ObjectInstanceBuffer* instBuffer) const
 
 void MasterModel::CopyModelHierarchy(GameObject* object) const
 {
-	GetModel()->CopyModelHierarchy(object);
+	mModel->CopyModelHierarchy(object);
 }
 
 

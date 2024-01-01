@@ -7,22 +7,23 @@
 
 #pragma region Define
 #define COMPONENT_ABSTRACT( className, parent )							\
-private:																\
-	using base = parent;												\
-																		\
 public:																	\
 	className(Object* object) : parent(object) {}						\
-	virtual ~className() = default;
-
-#define COMPONENT( className, parent )									\
+	virtual ~className() = default;										\
+																		\
 private:																\
 	using base = parent;												\
-																		\
+
+#define COMPONENT( className, parent )									\
 public:																	\
     static const int ID = static_cast<int>(ComponentID::className);		\
     className(Object* object) : parent(object) { }						\
     virtual ~className() = default; 									\
-	virtual int GetID() const override { return ID; }
+	virtual int GetID() const override { return ID; }					\
+																		\
+private:																\
+	using base = parent;												\
+
 #pragma endregion
 
 
@@ -32,7 +33,7 @@ class Object;
 
 
 #pragma region EnumClass
-enum class ComponentID {
+enum class ComponentID {	// except abstract component
 	BoxCollider = 0,
 	SphereCollider,
 	ObjectCollider,
@@ -54,47 +55,55 @@ enum class ComponentID {
 };
 
 enum class ObjectTag : DWORD {
-	Unspecified = 0x000,
-	Player = 0x001,
-	Building = 0x002,
+	Unspecified    = 0x000,
+	Player         = 0x001,
+	Building       = 0x002,
 	ExplosiveSmall = 0x004,
-	ExplosiveBig = 0x008,
-	Tank = 0x010,
-	Helicopter = 0x020,
-	Background = 0x040,
-	Bullet = 0x080,
-	Billboard = 0x100,
-	Terrain = 0x200,
-	Water = 0x400,
-	Sprite = 0x800,
+	ExplosiveBig   = 0x008,
+	Tank           = 0x010,
+	Helicopter     = 0x020,
+	Background     = 0x040,
+	Bullet         = 0x080,
+	Billboard      = 0x100,
+	Terrain        = 0x200,
+	Water          = 0x400,
+	Sprite         = 0x800,
 };
 
+
+// rendering layer
 enum class ObjectLayer {
 	Default = 0,
-	Transparent,
-	Water
+	Transparent,	// use transparent shader
+	Water			// use water shader
 };
 
+// update type
 enum class ObjectType {
-	Static = 0,
-	Environment,	// also static, but no collision.
-	Dynamic,
-	DynamicMove,
+	Static = 0,		// do not update, do not grid update.
+	Env,			// also static,   but no collision.
+	Dynamic,		// do update,	  do not grid update.
+	DynamicMove,	// do update,     do     grid update.
 };
 #pragma endregion
 
 
 #pragma region Function
-ObjectTag GetTagByName(const std::string& name);
+// 유니티의 tag 문자열을 ObjectTag로 변환한다.
+ObjectTag GetTagByString(const std::string& tag);
+
+// 유니티의 Layer 번호를 ObjectLayer로 변환한다.
 ObjectLayer GetLayerByNum(int num);
+
+// ObjectTag에 따른 ObjectType을 반환한다.
 ObjectType GetObjectType(ObjectTag tag);
 #pragma endregion
 
 
 #pragma region Class
 class Component {
-public:
-	Object* mObject{};
+protected:
+	Object* mObject{};	// 이 Component를 소유하는 객체
 
 private:
 	static constexpr int kNotID = -1;
@@ -105,12 +114,19 @@ public:
 
 	virtual int GetID() const { return kNotID; }
 
+public:
+	// Update 호출 전 한 번 호출한다.
 	virtual void Start() {}
+
+	// 매 프레임 호출한다.
 	virtual void Update() {}
+
+	// 동적 리소스를 해제한다.
 	virtual void Release() {}
 
 	virtual void ReleaseUploadBuffers() {}
 
+	// 객체(other)와 충돌 시 호출된다.
 	virtual void OnCollisionStay(Object& other) {}
 };
 
@@ -127,7 +143,7 @@ protected:
 
 private:
 	std::vector<sptr<Component>> mComponents{};
-	std::unordered_set<const Object*> mCollisionObjects{};
+	std::unordered_set<const Object*> mCollisionObjects{};	// 한 프레임에서 충돌한 오브젝트 집합
 
 public:
 #pragma region C/Dtor
@@ -136,9 +152,9 @@ public:
 #pragma endregion
 
 #pragma region Getter
-	ObjectTag GetTag() const { return mTag; }
+	ObjectTag GetTag() const	 { return mTag; }
 	ObjectLayer GetLayer() const { return mLayer; }
-	ObjectType GetType() const { return mType; }
+	ObjectType GetType() const	 { return mType; }
 
 	const std::string& GetName() const { return mName; }
 #pragma endregion
@@ -153,8 +169,10 @@ public:
 
 
 #pragma region Component
+	// 최상위 T component를 반환한다.
 	template<class T>
-	sptr<T> GetComponent() const {
+	sptr<T> GetComponent() const
+	{
 		for (const auto& component : mComponents) {
 			if (component->GetID() == T::ID) {
 				return std::static_pointer_cast<T>(component);
@@ -164,8 +182,10 @@ public:
 		return nullptr;
 	}
 
+	// 모든 T component들을 반환한다.
 	template<class T>
-	std::vector<sptr<T>> GetComponents() const {
+	std::vector<sptr<T>> GetComponents() const
+	{
 		std::vector<sptr<T>> result{};
 
 		for (const auto& component : mComponents) {
@@ -177,45 +197,61 @@ public:
 		return result;
 	}
 
-	std::vector<sptr<Component>> GetAllComponents() const {
+	// 모든 component들을 반환한다.
+	const std::vector<sptr<Component>>& GetAllComponents() const
+	{
 		return mComponents;
 	}
 
+	// T component를 추가한다.
 	template<class T>
-	sptr<T> AddComponent() {
+	sptr<T> AddComponent()
+	{
 		mComponents.emplace_back(std::make_shared<T>((Object*)this));
 		return std::static_pointer_cast<T>(mComponents.back());
 	}
 
+	// 최상위 T component를 제거한다.
 	template<class T>
-	void RemoveComponent() {
-		sptr<Component> component{};
+	void RemoveComponent()
+	{
 		for (auto it = mComponents.begin(); it != mComponents.end(); ++it) {
-			component = *it;
-			if (component->GetID() == T::ID) {
+			if ((*it)->GetID() == T::ID) {
 				mComponents.erase(it);
 				return;
 			}
 		}
 	}
 
+	// src 객체의 모든 component들을 복사해 추가한다.
 	void CopyComponents(const Object& src);
 #pragma endregion
 
 	virtual void Start();
 	virtual void Update() override;
 	virtual void Release();
-
 	virtual void ReleaseUploadBuffers();
 
+	// 객체(other)와 충돌 시 호출된다.
 	void OnCollisionStay(Object& other);
 
 private:
+	// 모든 component들에 대해 (processFunc) 함수를 실행한다.
 	void ProcessComponents(std::function<void(sptr<Component>)> processFunc);
+
+	// 모든 component들의 Start() 실행
 	void StartComponents();
+
+	// 모든 component들의 Update() 실행
 	void UpdateComponents();
+
+	// 모든 component들의 Release() 실행
 	void ReleaseComponents();
 
+	// 모든 component들의 ReleaseUploadBuffers() 실행
+	void ReleaseUploadBuffersComponents();
+
+	// (component)의 복사본을 반환한다.
 	sptr<Component> GetCopyComponent(rsptr<Component> component);
 };
 #pragma endregion

@@ -49,39 +49,26 @@ void Light::BuildLights(FILE* file)
 	SetSunlight();
 }
 
-LightInfoRange Light::AlloLight(size_t count)
-{
-	mCurrLightCnt += count;
-	assert(mCurrLightCnt <= gkMaxSceneLight);
-
-	LightInfoRange range;
-	range.Lights = &mLights;
-	range.Begin  = mCurrLightCnt - count;
-	range.End    = mCurrLightCnt;
-
-	return range;
-}
-
 
 void Light::CreateShaderVars()
 {
 	UINT cubeLightBytes = ((sizeof(SceneLight) + 255) & ~255); //256ÀÇ ¹è¼ö
-	D3DUtil::CreateBufferResource(nullptr, cubeLightBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCBLights);
-	mCBLights->Map(0, nullptr, (void**)&mCBMap_Lights);
+	D3DUtil::CreateBufferResource(nullptr, cubeLightBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_Lights);
+	mCB_Lights->Map(0, nullptr, (void**)&mCBMap_Lights);
 }
 
 void Light::UpdateShaderVars()
 {
 	::memcpy(mCBMap_Lights, mLights.get(), sizeof(SceneLight));
 
-	D3D12_GPU_VIRTUAL_ADDRESS cbLightsGpuVirtualAddress = mCBLights->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS cbLightsGpuVirtualAddress = mCB_Lights->GetGPUVirtualAddress();
 	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Light), cbLightsGpuVirtualAddress);
 }
 
 void Light::ReleaseShaderVars()
 {
-	if (mCBLights) {
-		mCBLights->Unmap(0, nullptr);
+	if (mCB_Lights) {
+		mCB_Lights->Unmap(0, nullptr);
 	}
 }
 
@@ -131,7 +118,7 @@ void Light::LoadLightObjects(FILE* file)
 			FileIO::ReadString(file, fileName);
 
 			FileIO::LoadLightFromFile("Models/Lights/" + fileName + ".bin", &light);
-			InsertLight(fileName, light);
+			InsertLightModel(fileName, light);
 
 			modelLight = light;
 

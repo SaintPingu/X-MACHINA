@@ -33,9 +33,9 @@ class InputMgr {
 private:
 	std::unordered_map<int, KeyInfo> mKeys{};
 
-	Vec2 mMousePos{};
-	Vec2 mMousePrevPos{};
-	Vec2 mMouseDir{};
+	Vec2 mMousePos{};		// 현재 마우스 위치
+	Vec2 mMousePrevPos{};	// 이전 마우스 위치
+	Vec2 mMouseDir{};		// 이전->현재의 마우스 이동 방향
 
 public:
 	InputMgr();
@@ -49,7 +49,11 @@ public:
 	Vec2 GetMouseDelta() const { return Vec2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y); }
 
 public:
+
+	// 사용할 키들을 설정한다.
 	void Init();
+
+	// 각 키들의 정보(KeyInfo)를 업데이트한다.
 	void Update();
 
 	void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);

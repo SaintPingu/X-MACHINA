@@ -9,6 +9,7 @@
 class MasterModel;
 class Texture;
 class ObjectInstanceBuffer;
+class ObjectCollider;
 #pragma endregion
 
 
@@ -20,46 +21,13 @@ struct SB_StandardInst {
 
 
 #pragma region Class
-class ModelObject : public Object {
+class GameObject : public Object {
 private:
 	using base = Object;
-
 	using Transform::ReturnTransform;
 
-protected:
-	bool mIsDrawBounding{};
-
 public:
-	ModelObject();
-	virtual ~ModelObject() = default;
-
-public:
-	/* DirectX */
-	virtual void CreateShaderVars() {};
-	virtual void UpdateShaderVars() const;
-	virtual void ReleaseShaderVars() {};
-	virtual void ReleaseUploadBuffers() override;
-
-	/* Others*/
-	virtual void ToggleDrawBoundings();
-
-	Transform* FindFrame(const std::string& frameName);
-	ModelObject* FindObject(const std::string& frameName);
-
-protected:
-	virtual void Update();
-};
-
-
-
-
-
-class GameObject : public ModelObject {
-private:
-	using base = ModelObject;
-
-public:
-	sptr<const MasterModel> mModel{};
+	sptr<const MasterModel> mMasterModel{};
 
 protected:
 	bool mIsInstancing{ false };
@@ -68,11 +36,14 @@ private:
 	bool mIsAwake{ false };
 	bool mIsActive{ true };
 	bool mIsFlyable{ false };
+	bool mIsDrawBounding{ false };
 
 	std::unordered_set<int> mGridIndices{};
 	int mCurrGridIndex{ -1 };
 
 	std::vector<const Transform*> mMergedTransform{};
+
+	sptr<ObjectCollider> mCollider{};
 
 public:
 	GameObject();
@@ -82,6 +53,8 @@ public:
 	const std::unordered_set<int>& GetGridIndices() const { return mGridIndices; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 	rsptr<Texture> GetTexture() const;
+
+	rsptr<ObjectCollider> GetCollider() const { return mCollider; }
 
 	bool IsActive() const { return mIsActive; }
 	bool IsTransparent() const { return mLayer == ObjectLayer::Transparent; }
@@ -94,8 +67,6 @@ public:
 	void SetModel(rsptr<const MasterModel> model);
 
 public:
-	void ClearGridIndices() { mGridIndices.clear(); }
-
 	virtual void Render();
 	virtual void RenderBounds();
 
@@ -103,6 +74,12 @@ public:
 
 	virtual void Enable(bool isUpdateObjectGrid = true);
 	virtual void Disable(bool isUpdateObjectGrid = true);
+
+	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
+	void ClearGridIndices() { mGridIndices.clear(); }
+
+	Transform* FindFrame(const std::string& frameName);
+	GameObject* FindObject(const std::string& frameName);
 
 private:
 	void AttachToGround();
@@ -155,7 +132,7 @@ protected:
 
 private:
 	UINT mObjectCnt{};
-	sptr<const MasterModel> mModel{};
+	sptr<const MasterModel> mMasterModel{};
 
 	std::vector<const Transform*> mMergedTransform{};
 	ComPtr<ID3D12Resource> mInstBuff{};

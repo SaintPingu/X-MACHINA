@@ -6,7 +6,7 @@
 
 
 #pragma region ClassForwardDecl
-class Object;
+class GameObject;
 #pragma endregion
 
 
@@ -18,7 +18,7 @@ class Collider : public Component {
 
 
 
-
+// basic cuboid-shaped collision primitive.
 class BoxCollider : public Collider {
 	COMPONENT(BoxCollider, Collider)
 
@@ -26,6 +26,9 @@ public:
 	MyBoundingOrientedBox mBox;
 
 public:
+	BoxCollider& operator=(const BoxCollider& other);
+
+public:
 	virtual void Update();
 	virtual void Render() const;
 };
@@ -33,7 +36,7 @@ public:
 
 
 
-
+// basic sphere-shaped collision primitive.
 class SphereCollider : public Collider {
 	COMPONENT(SphereCollider, Collider)
 
@@ -41,49 +44,64 @@ public:
 	MyBoundingSphere mBS;
 
 public:
+	SphereCollider& operator=(const SphereCollider& other);
+
+public:
 	virtual void Update();
 	virtual void Render() const;
 };
 
 
 
-
-
+// for collision check.
 class ObjectCollider : public Component {
 	COMPONENT(ObjectCollider, Component)
 
 private:
-	bool mIsCollidable{};
-
-	std::shared_ptr<SphereCollider>		mSphereCollider{};
-	std::vector<MyBoundingOrientedBox*> mOBBList{};
-	std::vector<sptr<BoxCollider>>		mBoxColliders{};
+	std::shared_ptr<SphereCollider>		mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
+	std::vector<MyBoundingOrientedBox*> mOBBList{};			// 전체 bounding box
+	std::vector<sptr<BoxCollider>>		mBoxColliders{};	// 전체 box collider
 
 public:
-	ObjectCollider& operator=(const ObjectCollider& other);
-
-	MyBoundingSphere& GetBS() const { return mSphereCollider->mBS; }
+	const MyBoundingSphere& GetBS() const { return mSphereCollider->mBS; }
 	const auto& GetOBBList() const { return mOBBList; }
-
-	void SetCollidable(bool collidable) { mIsCollidable = collidable; }
 
 public:
 	virtual void Start() override;
 	virtual void Update() override;
 
-	bool IsCollidable() const { return mIsCollidable; }
-
+public:
 	void Render() const;
 
-	bool Intersects(const BoundingSphere& sphere) const;
-	bool Intersects(const BoundingBox& box) const;
-	bool IntersectsBS(const BoundingSphere& sphere) const { return mSphereCollider->mBS.Intersects(sphere); }
-	bool Intersects(const BoundingOrientedBox& box) const;
-	bool Intersects(const std::vector<MyBoundingOrientedBox*>& boxes) const;
-	bool IsInFrustum(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }
-	bool Intersects(const Object& other) const;
+	bool Intersects(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }
 
-private:
-	void UpdateCollidable();
+	// bs를 각 obb에 대해 교차 여부를 반환한다.
+	static inline bool Intersects(const std::vector<MyBoundingOrientedBox*>& obbList, const BoundingSphere& bs)
+	{
+		for (const auto& boxA : obbList) {
+			if (boxA->Intersects(bs)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	// 두 obb list에 대해 각 요소의 교차 여부를 반환한다.
+	static inline bool Intersects(const std::vector<MyBoundingOrientedBox*>& obbListA, const std::vector<MyBoundingOrientedBox*>& obbListB)
+	{
+		for (const auto& obbA : obbListA) {
+			for (const auto& obbB : obbListB) {
+				if (obbA->Intersects(*obbB)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	// 두 객체의 충돌 여부를 반환한다.
+	static bool Intersects(const GameObject& a, const GameObject& b);
 };
 #pragma endregion

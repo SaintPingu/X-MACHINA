@@ -5,18 +5,14 @@
 
 
 
-
 namespace {
-	bool ProcessCollision(GameObject* objectA, GameObject* objectB)
+	// call collision function if collide
+	void ProcessCollision(GameObject* objectA, GameObject* objectB)
 	{
-		if (objectA->GetComponent<ObjectCollider>()->Intersects(*objectB)) {
+		if (ObjectCollider::Intersects(*objectA, *objectB)) {
 			objectA->OnCollisionStay(*objectB);
 			objectB->OnCollisionStay(*objectA);
-
-			return true;
 		}
-
-		return false;
 	}
 
 	// check collision for each object in objects
@@ -33,13 +29,13 @@ namespace {
 		}
 	}
 
-	// check collision for each object in each objects
-	void CheckCollisionObjects(std::unordered_set<GameObject*> objects1, std::unordered_set<GameObject*> objects2)
+	// check collision for (each objectsA) <-> (each objectsB)
+	void CheckCollisionObjects(std::unordered_set<GameObject*> objectsA, std::unordered_set<GameObject*> objectsB)
 	{
-		for (auto a = objects1.begin(); a != objects1.end(); ++a) {
+		for (auto a = objectsA.begin(); a != objectsA.end(); ++a) {
 			GameObject* objectA = *a;
 
-			for (auto b = objects2.begin(); b != objects2.end(); ++b) {
+			for (auto b = objectsB.begin(); b != objectsB.end(); ++b) {
 				GameObject* objectB = *b;
 
 				ProcessCollision(objectA, objectB);
@@ -64,7 +60,7 @@ void Grid::AddObject(GameObject* object)
 	case ObjectType::DynamicMove:
 		mDynamicObjets.insert(object);
 		break;
-	case ObjectType::Environment:
+	case ObjectType::Env:
 		mEnvObjects.insert(object);
 		break;
 	default:
@@ -76,17 +72,26 @@ void Grid::AddObject(GameObject* object)
 void Grid::RemoveObject(GameObject* object)
 {
 	mObjects.erase(object);
-	mEnvObjects.erase(object);
-	mDynamicObjets.erase(object);
-	mStaticObjects.erase(object);
+
+	switch (object->GetType()) {
+	case ObjectType::DynamicMove:
+		mDynamicObjets.erase(object);
+		break;
+	case ObjectType::Env:
+		mEnvObjects.erase(object);
+		break;
+	default:
+		mStaticObjects.erase(object);
+		break;
+	}
 }
 
 void Grid::CheckCollisions()
 {
 	if (!mDynamicObjets.empty()) {
-		::CheckCollisionObjects(mDynamicObjets);
+		::CheckCollisionObjects(mDynamicObjets);						// 동적 객체간 충돌 검사를 수행한다.
 		if (!mStaticObjects.empty()) {
-			::CheckCollisionObjects(mDynamicObjets, mStaticObjects);
+			::CheckCollisionObjects(mDynamicObjets, mStaticObjects);	// 동적<->정적 객체간 충돌 검사를 수행한다.
 		}
 	}
 }

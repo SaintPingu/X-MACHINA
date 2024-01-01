@@ -69,6 +69,7 @@ public:
 
 	/* Axis */
 	void SetAxis(const Vec3& look, const Vec3& up, const Vec3& right);
+	void SetAxis(const Vec4x4& axisMatrix);
 
 	void SetRight(const Vec3& right);
 	void SetLook(const Vec3& look);

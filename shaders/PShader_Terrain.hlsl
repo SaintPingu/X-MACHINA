@@ -24,12 +24,12 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
     float4 layer0 = float4(0, 0, 0, 0);
     float4 layer1 = float4(0, 0, 0, 0);
     float4 layer2 = float4(0, 0, 0, 0);
-    float4 layer3 = float4(0, 0, 0, 0);
     
-    if (splatColor.r > 0.1f)
+    if (splatColor.r > 0.f)
     {
         layer0 = gTerrainTextureLayer0.Sample(gSamplerState, input.UV0);
         layer0 *= splatColor.r;
+
     }
     if (splatColor.g > 0.f)
     {
@@ -41,12 +41,8 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
         layer2 = gTerrainTextureLayer2.Sample(gSamplerState, input.UV0);
         layer2 *= splatColor.b;
     }
-    if (splatColor.a > 0.f)
-    {
-        layer3 = gTerrainTextureLayer3.Sample(gSamplerState, input.UV0);
-        layer3 *= splatColor.a;
-    }
-    float4 texColor = normalize(layer0 + layer1 + layer2 + layer3);
+
+    float4 texColor = normalize(layer0 + layer1 + layer2);
     
     output.Texture = saturate(illumination * 0.5 + texColor * 0.5f);
     output.distance = length(input.PositionW - gCameraPos);
@@ -62,7 +58,6 @@ float4 PSTerrain(VSOutput_Terrain input) : SV_TARGET
     float4 layer0 = float4(0, 0, 0, 0);
     float4 layer1 = float4(0, 0, 0, 0);
     float4 layer2 = float4(0, 0, 0, 0);
-    float4 layer3 = float4(0, 0, 0, 0);
     
     if (splatColor.r > 0.1f)
     {
@@ -84,7 +79,7 @@ float4 PSTerrain(VSOutput_Terrain input) : SV_TARGET
         layer3 = gTerrainTextureLayer3.Sample(gSamplerState, input.UV0);
         layer3 *= splatColor.a;
     }
-    float4 texColor = normalize(layer0 + layer1 + layer2 + layer3);
+    float4 texColor = normalize(layer0 + layer1 + layer2);
     
     return saturate(illumination * 0.5 + texColor * 0.5f);;
 }

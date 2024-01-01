@@ -34,9 +34,9 @@ namespace {
 		float radius = std::sqrt(maxDistanceSq);
 
 		MyBoundingSphere result{};
-		result.OriginCenter = center;
-		result.Center       = center;
-		result.Radius       = radius;
+		result.SetOrigin(center);
+		result.Center = center;
+		result.Radius = radius;
 		return result;
 	}
 
@@ -179,7 +179,6 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 {
 	static constexpr float corr = 1.f / TERRAIN_LENGTH;	// for SplatMap
 	static constexpr float detailScale = 0.1f;
-	mStride = sizeof(Vec3);
 
 	mVertexCount = width * length;
 	std::vector<Vec3> positions;
@@ -244,8 +243,7 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 		}
 	}
 
-	D3DUtil::CreateIndexBufferResource(indices, mIndexUploadBuffer, mIndexBuffer);
-	D3DUtil::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
+	CreateIndexBuffer(indices);
 }
 
 
@@ -278,10 +276,10 @@ void HeightMapGridMesh::Render() const
 
 #pragma region HeightMapTerrain
 HeightMapTerrain::HeightMapTerrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength)
+	: mWidth(width), 
+	mLength(length)
 {
 	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
-	mWidth          = width;
-	mLength         = length;
 
 	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
 	int xQuadsPerBlock = blockWidth - 1;
@@ -330,16 +328,14 @@ HeightMapTerrain::HeightMapTerrain(const std::wstring& fileName, int width, int 
 	mMaterial                           = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
-	mTextureLayer[0] = scene->GetTexture("Detail_Texture_7");
+	mTextureLayer[0] = scene->GetTexture("GrassUV01");
 	mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
 	mTextureLayer[2] = scene->GetTexture("Stone");
-	mTextureLayer[3] = scene->GetTexture("GrassUV01");
 	mSplatMap        = scene->GetTexture("Terrain_splatmap");
 
 	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
 	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
 	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
-	mTextureLayer[3]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer3));
 	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
 
 	mShader = std::make_shared<TerrainShader>();

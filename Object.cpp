@@ -15,113 +15,34 @@
 
 
 
-#pragma region ModelObject
-ModelObject::ModelObject()
-{
-	mIsDrawBounding = false;
-}
-
-/* DirectX */
-void ModelObject::UpdateShaderVars() const
-{
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(_MATRIX(GetWorldTransform())), 0);
-}
-
-void ModelObject::ReleaseUploadBuffers()
-{
-	base::ReleaseUploadBuffers();
-}
-
-
-/* Others */
-void ModelObject::ToggleDrawBoundings()
-{
-	mIsDrawBounding = !mIsDrawBounding;
-
-	if (mSibling) {
-		mSibling->GetObj<GameObject>()->ToggleDrawBoundings();
-	}
-	if (mChild) {
-		mChild->GetObj<GameObject>()->ToggleDrawBoundings();
-	}
-}
-
-Transform* ModelObject::FindFrame(const std::string& frameName)
-{
-	if (mName == frameName) {
-		return this;
-	}
-
-	Transform* transform{};
-	if (mSibling) {
-		if (transform = mSibling->GetObj<ModelObject>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-	if (mChild) {
-		if (transform = mChild->GetObj<ModelObject>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-
-	return nullptr;
-}
-
-ModelObject* ModelObject::FindObject(const std::string& frameName)
-{
-	if (mName == frameName) {
-		return this;
-	}
-
-	if (mSibling) {
-		ModelObject* object = mSibling->GetObj<ModelObject>()->FindObject(frameName);
-		if (object) {
-			return object;
-		}
-	}
-	if (mChild) {
-		ModelObject* object = mChild->GetObj<ModelObject>()->FindObject(frameName);
-		if (object) {
-			return object;
-		}
-	}
-
-	return nullptr;
-}
-
-void ModelObject::Update()
-{
-	Object::Update();
-}
-#pragma endregion
-
-
-
-
 
 #pragma region GameObject
-GameObject::GameObject() : ModelObject()
+GameObject::GameObject()
 {
-	AddComponent<ObjectCollider>();
+	mCollider = AddComponent<ObjectCollider>();
 }
 
 
 rsptr<Texture> GameObject::GetTexture() const
 {
-	return mModel->GetTexture();
+	return mMasterModel->GetTexture();
 }
 
 
 void GameObject::SetModel(rsptr<const MasterModel> model)
 {
-	mModel = model;
-	mModel->CopyModelHierarchy(this);
+	mMasterModel = model;
+	mMasterModel->CopyModelHierarchy(this);
 
-	if (mModel->GetName() == "Apache") {
+	switch (Hash(mMasterModel->GetName())) {
+	case Hash("Apache"):
 		AddComponent<Script_Apache>();
-	}
-	else if (mModel->GetName() == "Gunship") {
+		break;
+	case Hash("Gunship"):
 		AddComponent<Script_Gunship>();
+		break;
+	default:
+		break;
 	}
 
 	Transform::MergeTransform(mMergedTransform, this);
@@ -130,8 +51,8 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 
 void GameObject::Render()
 {
-	if (mModel) {
-		mModel->Render(this);
+	if (mMasterModel) {
+		mMasterModel->Render(this);
 	}
 }
 
@@ -173,12 +94,57 @@ void GameObject::Disable(bool isUpdateObjectGrid)
 	}
 }
 
+
+Transform* GameObject::FindFrame(const std::string& frameName)
+{
+	if (mName == frameName) {
+		return this;
+	}
+
+	Transform* transform{};
+	if (mSibling) {
+		if (transform = mSibling->GetObj<GameObject>()->FindFrame(frameName)) {
+			return transform;
+		}
+	}
+	if (mChild) {
+		if (transform = mChild->GetObj<GameObject>()->FindFrame(frameName)) {
+			return transform;
+		}
+	}
+
+	return nullptr;
+}
+
+GameObject* GameObject::FindObject(const std::string& frameName)
+{
+	if (mName == frameName) {
+		return this;
+	}
+
+	if (mSibling) {
+		GameObject* object = mSibling->GetObj<GameObject>()->FindObject(frameName);
+		if (object) {
+			return object;
+		}
+	}
+	if (mChild) {
+		GameObject* object = mChild->GetObj<GameObject>()->FindObject(frameName);
+		if (object) {
+			return object;
+		}
+	}
+
+	return nullptr;
+}
+
+
 // 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
 void GameObject::AttachToGround()
 {
-	Vec3 pos                  = GetPosition();
+	Vec3 pos = GetPosition();
 	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
-	pos.y                     = terrainHeight;
+	pos.y = terrainHeight;
 
 	SetPosition(pos);
 }
@@ -194,28 +160,28 @@ void GameObject::TiltToGround()
 		// OBB 모서리 아래 4개 점 구하기
 		std::vector<Vec3> corners(8);
 		obbList.front()->GetCorners(corners.data());
-		const Vec3 leftTop     = corners[0];
-		const Vec3 rightTop    = corners[1];
-		const Vec3 leftBottom  = corners[4];
+		const Vec3 leftTop = corners[0];
+		const Vec3 rightTop = corners[1];
+		const Vec3 leftBottom = corners[4];
 		const Vec3 rightBottom = corners[5];
 
 		// weight points
 		const Vec3 center = GetPosition();
-		const Vec3 front  = Vector3::Add(rightTop, Vector3::Subtract(leftTop, rightTop), 0.5f);
-		const Vec3 back   = Vector3::Add(rightBottom, Vector3::Subtract(leftBottom, rightBottom), 0.5f);
-		const Vec3 left   = Vector3::Add(center, Vector3::Subtract(leftTop, rightTop), 0.5f);
-		const Vec3 right  = Vector3::Add(center, Vector3::Subtract(rightTop, leftTop), 0.5f);
+		const Vec3 front = Vector3::Add(rightTop, Vector3::Subtract(leftTop, rightTop), 0.5f);
+		const Vec3 back = Vector3::Add(rightBottom, Vector3::Subtract(leftBottom, rightBottom), 0.5f);
+		const Vec3 left = Vector3::Add(center, Vector3::Subtract(leftTop, rightTop), 0.5f);
+		const Vec3 right = Vector3::Add(center, Vector3::Subtract(rightTop, leftTop), 0.5f);
 
 		// 각 지점에 대해 높이 차이 계산
 		auto GetHeight = [&](const Vec3& pos) { return pos.y - scene->GetTerrainHeight(pos.x, pos.z); };
 
 		const float heightFront = GetHeight(front);
-		const float heightBack  = -GetHeight(back);
-		const float heightLeft  = GetHeight(left);
+		const float heightBack = -GetHeight(back);
+		const float heightLeft = GetHeight(left);
 		const float heightRight = -GetHeight(right);
 
 		// 앞,뒤 / 좌,우로 높이차가 가장 큰 값에 대해 회전
-		const float yaw  = max(heightFront, heightBack);
+		const float yaw = max(heightFront, heightBack);
 		const float roll = max(heightLeft, heightRight);
 
 		// 지면에 닿도록 각도로 회전
@@ -281,9 +247,8 @@ void InstancinObject::UpdateDynamic()
 #pragma region ObjectInstanceBuffer
 void ObjectInstanceBuffer::SetModel(rsptr<const MasterModel> model)
 {
-	mModel = model;
-	Transform::MergeTransform(mMergedTransform, mModel.get());
-	mMergedTransform.erase(mMergedTransform.begin());
+	mMasterModel = model;
+	Transform::MergeTransform(mMergedTransform, mMasterModel->GetTransform());
 }
 
 void ObjectInstanceBuffer::CreateShaderVars(UINT objectCount)
@@ -307,8 +272,8 @@ void ObjectInstanceBuffer::PushObject(InstancinObject* object)
 
 void ObjectInstanceBuffer::Render()
 {
-	if (mModel) {
-		mModel->Render(this);
+	if (mMasterModel) {
+		mMasterModel->Render(this);
 	}
 
 	ResetBuffer();

@@ -9,16 +9,16 @@
 class Texture;
 class Camera;
 class SkyBoxShader;
-class SkyBoxMesh;
+class ModelObjectMesh;
 #pragma endregion
 
 
 #pragma region Class
 class SkyBox : public Transform {
 private:
-	std::unique_ptr<SkyBoxShader> mShader{};
-	std::unique_ptr<Texture> mTexture{};
-	std::unique_ptr<SkyBoxMesh> mMesh{};
+	std::unique_ptr<ModelObjectMesh> mMesh{};
+	std::unique_ptr<SkyBoxShader>	 mShader{};
+	std::unique_ptr<Texture>		 mTexture{};
 
 public:
 	SkyBox();

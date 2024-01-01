@@ -202,7 +202,7 @@ void Canvas::LoadTextures()
 
 	// load textures
 	for (auto& textureName : textureNames) {
-		sptr<Texture> texture = std::make_shared<Texture>(Resource::Texture2D);
+		sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
 		texture->LoadUITexture(textureName);
 
 		mTextureMap.insert(std::make_pair(textureName, texture));

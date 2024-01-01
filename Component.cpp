@@ -5,28 +5,43 @@
 
 
 namespace {
-	DWORD gkDynamiObjects {
-		static_cast<DWORD>(ObjectTag::Player)			|
-		static_cast<DWORD>(ObjectTag::Tank)				|
-		static_cast<DWORD>(ObjectTag::Helicopter)		|
-		static_cast<DWORD>(ObjectTag::Bullet)			|
-		static_cast<DWORD>(ObjectTag::ExplosiveBig)		|
-		static_cast<DWORD>(ObjectTag::ExplosiveSmall)
+	constexpr DWORD gkDynamicObjects {
+		ObjectTag::Player			|
+		ObjectTag::Tank				|
+		ObjectTag::Helicopter		|
+		ObjectTag::Bullet			|
+		ObjectTag::ExplosiveBig		|
+		ObjectTag::ExplosiveSmall
 	};
 
-	DWORD gkDynamicMoveObjects {
-		static_cast<DWORD>(ObjectTag::Player)			|
-		static_cast<DWORD>(ObjectTag::Tank)				|
-		static_cast<DWORD>(ObjectTag::Helicopter)		|
-		static_cast<DWORD>(ObjectTag::Bullet)
+	constexpr DWORD gkDynamicMoveObjects {
+		ObjectTag::Player			|
+		ObjectTag::Tank				|
+		ObjectTag::Helicopter		|
+		ObjectTag::Bullet
 	};
 
-	DWORD gkEnvironmentObjects{
-		static_cast<DWORD>(ObjectTag::Unspecified)		|
-		static_cast<DWORD>(ObjectTag::Background)		|
-		static_cast<DWORD>(ObjectTag::Billboard)		|
-		static_cast<DWORD>(ObjectTag::Terrain)
+	constexpr DWORD gkEnvObjects{
+		ObjectTag::Unspecified		|
+		ObjectTag::Background		|
+		ObjectTag::Billboard		|
+		ObjectTag::Terrain
 	};
+
+	constexpr bool IsDynamicMoveObject(ObjectTag tag)
+	{
+		return gkDynamicMoveObjects & tag;
+	}
+
+	constexpr bool IsDynamicObject(ObjectTag tag)
+	{
+		return gkDynamicMoveObjects & tag;
+	}
+
+	constexpr bool IsEnvObject(ObjectTag tag)
+	{
+		return gkEnvObjects & tag;
+	}
 }
 
 
@@ -42,8 +57,7 @@ void Object::CopyComponents(const Object& src)
 {
 	const auto& components = src.GetAllComponents();
 	for (auto& component : components) {
-		sptr<Component> copy = GetCopyComponent(component);
-		mComponents.emplace_back(copy);
+		mComponents.emplace_back(GetCopyComponent(component));
 	}
 }
 
@@ -63,20 +77,20 @@ void Object::Release()
 {
 	ReleaseComponents();
 }
+
 void Object::ReleaseUploadBuffers()
 {
-	ProcessComponents([](sptr<Component> component) {
-		component->ReleaseUploadBuffers();
-		});
+	ReleaseUploadBuffersComponents();
 }
 
 void Object::OnCollisionStay(Object& other)
 {
+	// 동일 프레임에 중복 호출된 경우 무시한다.
 	if (mCollisionObjects.count(&other)) {
 		return;
 	}
-	mCollisionObjects.insert(&other);
 
+	mCollisionObjects.insert(&other);
 	ProcessComponents([&other](sptr<Component> component) {
 		component->OnCollisionStay(other);
 		});
@@ -114,13 +128,20 @@ void Object::ReleaseComponents()
 		});
 }
 
+void Object::ReleaseUploadBuffersComponents()
+{
+	ProcessComponents([](sptr<Component> component) {
+		component->ReleaseUploadBuffers();
+		});
+}
+
 namespace {
 	template<class T>
-	sptr<T> CopyComponent(rsptr<Component> src)
+	inline sptr<T> CopyComponent(rsptr<Component> src, Object* object)
 	{
-		sptr<T> result = std::make_shared<T>(src->mObject);
+		sptr<T> result = std::make_shared<T>(object);
 		rsptr<T> other = static_pointer_cast<T>(src);
-		*result        = *other;
+		*result        = *other;						// 복사 생성자 필요
 		return result;
 	}
 }
@@ -131,21 +152,14 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 
 	switch (component->GetID()) {
 	case BoxCollider::ID:
-		result = CopyComponent<BoxCollider>(component);
+		result = CopyComponent<BoxCollider>(component, this);
 		break;
 	case SphereCollider::ID:
-		result = CopyComponent<SphereCollider>(component);
-		break;
-	case ObjectCollider::ID:
-		result = CopyComponent<ObjectCollider>(component);
+		result = CopyComponent<SphereCollider>(component, this);
 		break;
 	default:
 		assert(0);
 		break;
-	}
-
-	if (result) {
-		result->mObject = this;
 	}
 
 	return result;
@@ -154,9 +168,9 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 
 
 #pragma region Functions
-ObjectTag GetTagByName(const std::string& name)
+ObjectTag GetTagByString(const std::string& tag)
 {
-	switch (Hash(name)) {
+	switch (Hash(tag)) {
 	case Hash("Building"):
 		return ObjectTag::Building;
 
@@ -212,14 +226,14 @@ ObjectLayer GetLayerByNum(int num)
 
 ObjectType GetObjectType(ObjectTag tag)
 {
-	if (static_cast<DWORD>(tag) & gkDynamicMoveObjects) {
+	if (::IsDynamicMoveObject(tag)) {
 		return ObjectType::DynamicMove;
 	}
-	else if (static_cast<DWORD>(tag) & gkDynamiObjects) {
+	else if (::IsDynamicObject(tag)) {
 		return ObjectType::Dynamic;
 	}
-	else if (static_cast<DWORD>(tag) & gkEnvironmentObjects) {
-		return ObjectType::Environment;
+	else if (::IsEnvObject(tag)) {
+		return ObjectType::Env;
 	}
 
 	return ObjectType::Static;

@@ -83,7 +83,6 @@ private:
 
 	/* Grid */
 	std::vector<Grid> mGrids{};
-	sptr<ModelObjectMesh> mGridMesh{};
 	const float mMaxGridHeight = 300.f;
 	float mGridStartPoint{};
 	int mGridLength{};

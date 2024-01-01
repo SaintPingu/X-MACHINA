@@ -13,76 +13,6 @@
 
 
 
-namespace MeshRenderer {
-	namespace {
-		uptr<ModelObjectMesh> boxMesh{};
-		uptr<ModelObjectMesh> sphereMesh{};
-	}
-
-	void BuildMeshes()
-	{
-		boxMesh    = std::make_unique<ModelObjectMesh>();
-		sphereMesh = std::make_unique<ModelObjectMesh>();
-
-		boxMesh->CreateCubeMesh(1.f, 1.f, 1.f, false, true);
-		sphereMesh->CreateSphereMesh(1.f, true);
-	}
-
-	void ReleaseStaticUploadBuffers()
-	{
-		boxMesh->ReleaseUploadBuffers();
-		sphereMesh->ReleaseUploadBuffers();
-	}
-
-	void Render(const MyBoundingOrientedBox box)
-	{
-		const Vec3 center          = box.Center;
-		const Vec3 extents         = box.Extents;
-		const Vec4 orientation	   = box.Orientation;
-		const Vector quaternion  = XMLoadFloat4(&orientation);
-		
-		const Matrix scaleMatrix     = XMMatrixScaling(extents.x * 2, extents.y * 2, extents.z * 2);
-		const Matrix rotationMatrix  = XMMatrixRotationQuaternion(quaternion);
-		const Matrix translateMatrix = XMMatrixTranslation(center.x, center.y, center.z);
-
-		Matrix matrix = scaleMatrix;
-		matrix        = XMMatrixMultiply(matrix, rotationMatrix);
-		matrix        = XMMatrixMultiply(matrix, translateMatrix);
-
-		Transform::UpdateShaderVars(matrix);
-		boxMesh->Render();
-	}
-
-	void Render(const MyBoundingSphere bs)
-	{
-		const Vec3 center  = bs.Center;
-		const float radius = bs.Radius;
-
-		const Matrix scaleMatrix     = XMMatrixScaling(radius / 2, radius / 2, radius / 2);
-		const Matrix translateMatrix = XMMatrixTranslation(center.x, center.y, center.z);
-
-		Matrix matrix = scaleMatrix;
-		matrix        = XMMatrixMultiply(matrix, translateMatrix);
-
-		Transform::UpdateShaderVars(matrix);
-		sphereMesh->Render();
-	}
-
-	void Release()
-	{
-		boxMesh = nullptr;
-		sphereMesh = nullptr;
-	}
-
-}
-
-
-
-
-
-
-
-
 
 
 #pragma region Mesh
@@ -127,13 +57,13 @@ void Mesh::RenderInstanced(UINT instanceCount) const
 
 void Mesh::CreateVertexBufferViews()
 {
-	BufferViews bufferViews{};
-	bufferViews.vertexBuffer    = mVertexBuffer;
-	bufferViews.normalBuffer    = mNormalBuffer;
+	VertexBufferViews bufferViews{};
+	bufferViews.VertexBuffer    = mVertexBuffer;
+	bufferViews.NormalBuffer    = mNormalBuffer;
 	bufferViews.UV0Buffer       = mUV0Buffer;
 	bufferViews.UV1Buffer       = mUV1Buffer;
-	bufferViews.tangentBuffer   = mTangentBuffer;
-	bufferViews.biTangentBuffer = mBiTangentBuffer;
+	bufferViews.TangentBuffer   = mTangentBuffer;
+	bufferViews.BiTangentBuffer = mBiTangentBuffer;
 
 	D3DUtil::CreateVertexBufferViews(mVertexBufferViews, mVertexCount, bufferViews);
 }
@@ -144,6 +74,9 @@ void Mesh::CreateIndexBuffer(const std::vector<UINT>& indices)
 	D3DUtil::CreateIndexBufferView(mIndexBufferView, mIndexCount, mIndexBuffer);
 }
 #pragma endregion
+
+
+
 
 
 #pragma region ModelObjectMesh
@@ -311,6 +244,62 @@ void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, boo
 	CreateIndexBuffer(indices);
 }
 
+void ModelObjectMesh::CreateSkyBoxMesh(float width, float height, float depth)
+{
+	const float x = width * 0.5f, y = height * 0.5f, z = depth * 0.5f;
+
+	mVertexCount = 36;
+
+	std::vector<Vec3> vertices;
+
+	vertices.resize(mVertexCount);
+	vertices[0] = Vec3(-x, +x, +x);
+	vertices[1] = Vec3(+x, +x, +x);
+	vertices[2] = Vec3(-x, -x, +x);
+	vertices[3] = Vec3(-x, -x, +x);
+	vertices[4] = Vec3(+x, +x, +x);
+	vertices[5] = Vec3(+x, -x, +x);
+	// Back Quad										
+	vertices[6] = Vec3(+x, +x, -x);
+	vertices[7] = Vec3(-x, +x, -x);
+	vertices[8] = Vec3(+x, -x, -x);
+	vertices[9] = Vec3(+x, -x, -x);
+	vertices[10] = Vec3(-x, +x, -x);
+	vertices[11] = Vec3(-x, -x, -x);
+	// Left Quad										
+	vertices[12] = Vec3(-x, +x, -x);
+	vertices[13] = Vec3(-x, +x, +x);
+	vertices[14] = Vec3(-x, -x, -x);
+	vertices[15] = Vec3(-x, -x, -x);
+	vertices[16] = Vec3(-x, +x, +x);
+	vertices[17] = Vec3(-x, -x, +x);
+	// Right Quad										
+	vertices[18] = Vec3(+x, +x, +x);
+	vertices[19] = Vec3(+x, +x, -x);
+	vertices[20] = Vec3(+x, -x, +x);
+	vertices[21] = Vec3(+x, -x, +x);
+	vertices[22] = Vec3(+x, +x, -x);
+	vertices[23] = Vec3(+x, -x, -x);
+	// Top Quad											
+	vertices[24] = Vec3(-x, +x, -x);
+	vertices[25] = Vec3(+x, +x, -x);
+	vertices[26] = Vec3(-x, +x, +x);
+	vertices[27] = Vec3(-x, +x, +x);
+	vertices[28] = Vec3(+x, +x, -x);
+	vertices[29] = Vec3(+x, +x, +x);
+	// Bottom Quad										
+	vertices[30] = Vec3(-x, -x, +x);
+	vertices[31] = Vec3(+x, -x, +x);
+	vertices[32] = Vec3(-x, -x, -x);
+	vertices[33] = Vec3(-x, -x, -x);
+	vertices[34] = Vec3(+x, -x, +x);
+	vertices[35] = Vec3(+x, -x, -x);
+
+	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
+
+	CreateVertexBufferViews();
+}
+
 void ModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
 {
 	const float x = width * 0.5f, z = depth * 0.5f;
@@ -364,7 +353,7 @@ void ModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
 }
 
 
-void ModelObjectMesh::CreateSphereMesh(float radius, bool isLine, int numSegments)
+void ModelObjectMesh::CreateSphereMesh(float radius, int numSegments, bool isLine)
 {
 	// Calculate the number of vertices and indices needed
 	const int numVertices = (numSegments + 1) * (numSegments + 1);
@@ -451,68 +440,7 @@ void ModelObjectMesh::CreateSphereMesh(float radius, bool isLine, int numSegment
 #pragma endregion
 
 
-#pragma region SkyBoxMesh
-SkyBoxMesh::SkyBoxMesh(float width, float height, float depth)
-{
-	CreateMesh(width, height, depth);
-}
 
-void SkyBoxMesh::CreateMesh(float width, float height, float depth)
-{
-	const float x = width * 0.5f, y = height * 0.5f, z = depth * 0.5f;
-
-	mVertexCount = 36;
-
-	std::vector<Vec3> vertices;
-
-	vertices.resize(mVertexCount);
-	vertices[0] = Vec3(-x, +x, +x);
-	vertices[1] = Vec3(+x, +x, +x);
-	vertices[2] = Vec3(-x, -x, +x);
-	vertices[3] = Vec3(-x, -x, +x);
-	vertices[4] = Vec3(+x, +x, +x);
-	vertices[5] = Vec3(+x, -x, +x);
-	// Back Quad										
-	vertices[6]  = Vec3(+x, +x, -x);
-	vertices[7]  = Vec3(-x, +x, -x);
-	vertices[8]  = Vec3(+x, -x, -x);
-	vertices[9]  = Vec3(+x, -x, -x);
-	vertices[10] = Vec3(-x, +x, -x);
-	vertices[11] = Vec3(-x, -x, -x);
-	// Left Quad										
-	vertices[12] = Vec3(-x, +x, -x);
-	vertices[13] = Vec3(-x, +x, +x);
-	vertices[14] = Vec3(-x, -x, -x);
-	vertices[15] = Vec3(-x, -x, -x);
-	vertices[16] = Vec3(-x, +x, +x);
-	vertices[17] = Vec3(-x, -x, +x);
-	// Right Quad										
-	vertices[18] = Vec3(+x, +x, +x);
-	vertices[19] = Vec3(+x, +x, -x);
-	vertices[20] = Vec3(+x, -x, +x);
-	vertices[21] = Vec3(+x, -x, +x);
-	vertices[22] = Vec3(+x, +x, -x);
-	vertices[23] = Vec3(+x, -x, -x);
-	// Top Quad											
-	vertices[24] = Vec3(-x, +x, -x);
-	vertices[25] = Vec3(+x, +x, -x);
-	vertices[26] = Vec3(-x, +x, +x);
-	vertices[27] = Vec3(-x, +x, +x);
-	vertices[28] = Vec3(+x, +x, -x);
-	vertices[29] = Vec3(+x, +x, +x);
-	// Bottom Quad										
-	vertices[30] = Vec3(-x, -x, +x);
-	vertices[31] = Vec3(+x, -x, +x);
-	vertices[32] = Vec3(-x, -x, -x);
-	vertices[33] = Vec3(-x, -x, -x);
-	vertices[34] = Vec3(+x, -x, +x);
-	vertices[35] = Vec3(+x, -x, -x);
-
-	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
-
-	CreateVertexBufferViews();
-}
-#pragma endregion
 
 
 #pragma region MergedMesh
@@ -523,51 +451,60 @@ MergedMesh::MergedMesh()
 
 rsptr<Texture> MergedMesh::GetTexture() const
 {
-	return mModelInfo.front().Materials.front()->mTexture;
+	return mFrameMeshInfo.front().Materials.front()->mTexture;
 }
 
-bool MergedMesh::MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials)
+// 1. MergeMesh
+// 2. MergeMaterial
+// 3. ...
+// 4. SetObject (transform)
+// 5. Close
+bool MergedMesh::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials)
 {
-	ModelInfo modelInfo{};
+	FrameMeshInfo modelMeshInfo{};
 
 	if (!mesh) {
-		mModelInfo.emplace_back(modelInfo);
+		mFrameMeshInfo.emplace_back(modelMeshInfo);
 		return false;
 	}
-	CopyBack(materials, modelInfo.Materials);
+	CopyBack(materials, modelMeshInfo.Materials);
 
 	// copy vertices
 	const std::vector<Vec3>& meshVertices = mesh->Buffer.Vertices;
-	const std::vector<Vec3>& meshNormals = mesh->Buffer.Normals;
+	const std::vector<Vec3>& meshNormals  = mesh->Buffer.Normals;
 
 	CopyBack(meshVertices, mMeshBuffer->Vertices);
-	CopyBack(meshNormals, mMeshBuffer->Normals);
+	CopyBack(meshNormals,  mMeshBuffer->Normals);
 
-	if (modelInfo.Materials[0]->mTexture) {
-		const std::vector<Vec3>& meshTangents = mesh->Buffer.Tangents;
+	if (modelMeshInfo.Materials.front()->mTexture) {
+		const std::vector<Vec3>& meshTangents   = mesh->Buffer.Tangents;
 		const std::vector<Vec3>& meshBiTangents = mesh->Buffer.BiTangents;
-		const std::vector<Vec2>& meshUVs0 = mesh->Buffer.UVs0;
+		const std::vector<Vec2>& meshUVs0       = mesh->Buffer.UVs0;
 		//const std::vector<Vec2>& meshUVs1     = mesh->mUV1;
 
-		CopyBack(meshTangents, mMeshBuffer->Tangents);
+		CopyBack(meshTangents,	 mMeshBuffer->Tangents);
 		CopyBack(meshBiTangents, mMeshBuffer->BiTangents);
-		CopyBack(meshUVs0, mMeshBuffer->UVs0);
+		CopyBack(meshUVs0,		 mMeshBuffer->UVs0);
 		//CopyBack(meshUVs1, mUVs1);
 	}
 
 	// set vertexCount
-	modelInfo.VertexCount = mesh->Buffer.Vertices.size();
+	modelMeshInfo.VertexCount = mesh->Buffer.Vertices.size();
 	mVertexCount += meshVertices.size();
 
 	// merge & copy SubMeshes
-	MergeSubMeshes(mesh, modelInfo);
+	MergeSubMeshes(mesh, modelMeshInfo);
 
-	mModelInfo.emplace_back(modelInfo);
+	mFrameMeshInfo.emplace_back(modelMeshInfo);
+
+	// unlink
+	mesh = nullptr;
+	materials.clear();
 
 	return true;
 }
 
-void MergedMesh::Close()
+void MergedMesh::StopMerge()
 {
 	mVertexBuffer = nullptr;
 	mNormalBuffer = nullptr;
@@ -629,27 +566,27 @@ void MergedMesh::RenderSprite(const GameObject* gameObject) const
 	cmdList->IASetIndexBuffer(&mIndexBufferView);
 
 	constexpr UINT transformIndex{ 0 };
-	const ModelInfo& modelInfo = mModelInfo[transformIndex];
+	const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
 
-	modelInfo.Materials.front()->UpdateShaderVars();
+	modelMeshInfo.Materials.front()->UpdateShaderVars();
 	gameObject->GetComponent<Script_Sprite>()->UpdateSpriteVariable();
 
 	constexpr UINT indexCount{ 6 };
 	cmdList->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 
-void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo)
+void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelMeshInfo)
 {
 	const UINT subMeshCount = mesh->SubMeshCount;
-	modelInfo.IndexCounts.resize(subMeshCount);
+	modelMeshInfo.IndexCounts.resize(subMeshCount);
 
 	for (int i = 0; i < subMeshCount; ++i) {
 		std::vector<UINT>& indices = mesh->SubSetIndices[i];
-		modelInfo.IndexCounts[i] = indices.size();
+		modelMeshInfo.IndexCounts[i] = indices.size();
 		CopyBack(indices, mMeshBuffer->Indices);
 	}
 
-	for (UINT indexCount : modelInfo.IndexCounts) {
+	for (UINT indexCount : modelMeshInfo.IndexCounts) {
 		mIndexCount += indexCount;
 	}
 }
@@ -664,23 +601,27 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const UINT transformCount = mergedTransform.size();
 
 	for (int transformIndex = 0; transformIndex < transformCount; ++transformIndex) {
-		if (HasMesh(transformIndex)) {
-			const ModelInfo& modelInfo = mModelInfo[transformIndex];
-			const Transform* transform = mergedTransform[transformIndex];
-
-			transform->UpdateShaderVars();
-
-			UINT vertexCount = modelInfo.VertexCount;
-			UINT mat{ 0 };
-			for (UINT indexCount : modelInfo.IndexCounts) {
-				modelInfo.Materials[mat++]->UpdateShaderVars();
-
-				cmdList->DrawIndexedInstanced(indexCount, instanceCount, indexLocation, vertexLocation, 0);
-				indexLocation += indexCount;
-			}
-
-			vertexLocation += vertexCount;
+		if (!HasMesh(transformIndex)) {
+			continue;
 		}
+
+		const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
+		const Transform* transform = mergedTransform[transformIndex];
+
+		transform->UpdateShaderVars();
+
+		UINT vertexCount = modelMeshInfo.VertexCount;
+		UINT mat{ 0 };
+		for (UINT indexCount : modelMeshInfo.IndexCounts) {
+			modelMeshInfo.Materials[mat++]->UpdateShaderVars();
+
+			cmdList->DrawIndexedInstanced(indexCount, instanceCount, indexLocation, vertexLocation, 0);
+			indexLocation += indexCount;
+		}
+
+		vertexLocation += vertexCount;
 	}
 }
+#pragma endregion
+
 #pragma endregion

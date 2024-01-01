@@ -10,15 +10,17 @@ class Material;
 #pragma endregion
 
 namespace FileIO {
-	/* Read Single */
+	// 단일 문자열을 읽어 out으로 반환한다.
 	void ReadString(FILE* file, std::string& out);
 
+	// T의 size만큼 file의 내용을 읽어 out으로 반환한다.
 	template<class T>
 	inline void ReadVal(FILE* file, T& out)
 	{
 		::fread(&out, sizeof(T), 1, file);
 	}
 
+	// T의 size만큼 file의 내용을 읽어 반환한다.
 	template<class T>
 	inline T ReadVal(FILE* file)
 	{
@@ -27,17 +29,19 @@ namespace FileIO {
 		return val;
 	}
 
+	// T의 size * (cnt)만큼 file의 내용을 읽어 out으로 반환한다.
 	template<class T>
-	inline void ReadRange(FILE* file, std::vector<T>& out, int size)
+	inline void ReadRange(FILE* file, std::vector<T>& out, int cnt)
 	{
-		::fread(out.data(), sizeof(T), size, file);
+		out.resize(cnt);
+		::fread(out.data(), sizeof(T), cnt, file);
 	}
 
 	/* Model */
-	std::vector<sptr<Material>> LoadMaterialsFromFile(FILE* file);
-	sptr<MeshLoadInfo> LoadMeshInfoFromFile(FILE* file);
+	std::vector<sptr<Material>> LoadMaterial(FILE* file);
+	sptr<MeshLoadInfo> LoadMesh(FILE* file);
 
-	sptr<Model> LoadFrameHierarchyFromFile(FILE* file);
+	sptr<Model> LoadFrrameHierarchy(FILE* file);
 	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName);
 
 	/* Light */

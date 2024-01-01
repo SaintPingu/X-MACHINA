@@ -6,6 +6,7 @@
 
 
 #pragma region ClassForwardDecl
+class Scene;
 class Material;
 class Texture;
 class Transform;
@@ -16,6 +17,7 @@ class ObjectInstanceBuffer;
 
 
 #pragma region EnumClass
+// 메쉬의 정점이 가지고 있는 정보
 enum class VertexType : DWORD {
 	Position  = 0x01,
 	Color     = 0x02,
@@ -29,12 +31,14 @@ enum class VertexType : DWORD {
 
 
 #pragma region Struct
-struct ModelInfo {
+// (계층 구조에서)한 프레임이 가지는 메쉬 정보
+struct FrameMeshInfo {
 	std::vector<sptr<Material>> Materials{};
-	std::vector<UINT>			IndexCounts{};
-	UINT						VertexCount{};
+	std::vector<UINT>			IndexCounts{};	// sub mesh의 각 index 개수, guarantee Materials.size() == IndexCounts.size()
+	UINT						VertexCount{};	// 모든 mesh의 정점 개수
 };
 
+// sub mesh의 각 정보들을 하나로 merge하기 위한 임시 버퍼
 struct MeshBuffer {
 	std::vector<Vec3> Vertices{};
 	std::vector<Vec3> Normals{};
@@ -46,12 +50,10 @@ struct MeshBuffer {
 	std::vector<UINT> Indices{};
 };
 
+// file에서 읽은 (계층 구조에서)한 프레임의 mesh 정보를 담는 구조체
 struct MeshLoadInfo {
-	DWORD		Type{};
+	DWORD		VertexType{};
 	std::string MeshName{};
-
-	MyBoundingSphere					BS{};
-	std::vector<MyBoundingOrientedBox>	OBBList{};
 
 	int			VertexCount{};
 	MeshBuffer	Buffer{};
@@ -62,18 +64,6 @@ struct MeshLoadInfo {
 };
 #pragma endregion
 
-
-#pragma region NameSpace
-namespace MeshRenderer {
-	void BuildMeshes();
-
-	void Render(const MyBoundingOrientedBox box);
-	void Render(const MyBoundingSphere bs);
-
-	void ReleaseStaticUploadBuffers();
-	void Release();
-}
-#pragma endregion
 
 
 #pragma region Class
@@ -107,25 +97,15 @@ protected:
 	ComPtr<ID3D12Resource> mIndexBuffer{};
 	ComPtr<ID3D12Resource> mIndexUploadBuffer{};
 
-	std::vector<D3D12_VERTEX_BUFFER_VIEW> mVertexBufferViews{};
+	std::vector<D3D12_VERTEX_BUFFER_VIEW>	mVertexBufferViews{};
+	D3D12_INDEX_BUFFER_VIEW					mIndexBufferView{};
 
-	D3D12_INDEX_BUFFER_VIEW mIndexBufferView{};
-	D3D12_VERTEX_BUFFER_VIEW mNormalBufferView{};
-
-	UINT mSlot{};
-	UINT mStride{};
-	UINT mOffset{};
-	UINT mType{};
+	static constexpr UINT mSlot   = 0;	// StartSlot
+	static constexpr UINT mOffset = 0;	// StartVertexLocation
 
 public:
 	Mesh()          = default;
 	virtual ~Mesh() = default;
-	
-	UINT GetType() const { return mType; }
-
-	std::pair<UINT, UINT> GetLocationInfo() const { return std::make_pair(mIndexCount, mVertexCount); }
-	UINT GetIndexCount() const { return mIndexCount; }
-	UINT GetVertedxCount() const { return mVertexCount; }
 
 public:
 	void ReleaseUploadBuffers();
@@ -141,7 +121,7 @@ protected:
 
 
 
-
+// basic shape mesh (cube, plane, sphere, ...)
 class ModelObjectMesh : public Mesh {
 public:
 	ModelObjectMesh()          = default;
@@ -151,58 +131,53 @@ public:
 	void CreateMeshFromOBB(const BoundingOrientedBox& box);
 
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
+	void CreateSkyBoxMesh(float width, float height, float depth);
 
 	void CreatePlaneMesh(float width, float depth, bool isLine = false);
 
-	void CreateSphereMesh(float radius, bool isLine = false, int numSegments = 12);
+	void CreateSphereMesh(float radius, int numSegments = 12, bool isLine = false);
+
 };
 
 
 
 
 
-class SkyBoxMesh : public Mesh {
-public:
-	SkyBoxMesh() = default;
-	virtual ~SkyBoxMesh() = default;
-
-public:
-	SkyBoxMesh(float width, float height, float depth);
-	void CreateMesh(float width, float height, float depth);
-};
-
-
-
-
-
-class MergedMesh : public ModelObjectMesh {
+// mesh that merged all sub meshes
+class MergedMesh : public Mesh {
 private:
 	uptr<MeshBuffer> mMeshBuffer{};
 
-	std::vector<ModelInfo> mModelInfo{};
+	std::vector<FrameMeshInfo> mFrameMeshInfo{};
 
 public:
 	MergedMesh();
 	virtual ~MergedMesh() = default;
 
+	// return the first texture of meshes
 	rsptr<Texture> GetTexture() const;
 
 public:
-	// 1. MergeMesh
-	// 2. MergeMaterial
-	// 3. ...
-	// 4. SetObject (transform)
-	// 5. Close
-	bool MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials);
-	void Close();
+	
+	// merge all meshes to (mFrameMeshInfo) from (mesh) and (materials)
+	bool MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
+
+	// stop merge and create buffer resource
+	void StopMerge();
+
+	// render game object for this mesh
 	virtual void Render(const GameObject* gameObject) const;
+
+	// render 
 	virtual void Render(const ObjectInstanceBuffer* instBuffer) const;
 	virtual void RenderSprite(const GameObject* gameObject) const;
 
-	bool HasMesh(UINT index) const { return mModelInfo[index].VertexCount > 0; }
+	bool HasMesh(UINT index) const { return mFrameMeshInfo[index].VertexCount > 0; }
 
 private:
-	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, ModelInfo& modelInfo);
+
+	// merge all sub meshes from (mesh)
+	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelInfo);
 
 	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCount = 1) const;
 };

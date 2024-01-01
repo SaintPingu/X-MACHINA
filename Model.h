@@ -20,42 +20,36 @@ class ObjectInstanceBuffer;
 
 
 #pragma region Struct
-struct MaterialLoadInfo
-{
-	Vec4 Albedo   = Vec4(1.f, 1.f, 1.f, 1.f);
-	Vec4 Emissive = Vec4(0.f, 0.f, 0.f, 1.f);
-	Vec4 Specular = Vec4(0.f, 0.f, 0.f, 1.f);
+// file에서 읽은 material 정보를 담는 구조체
+struct MaterialLoadInfo {
+	Vec4 Albedo{ Vector4::One() };
+	Vec4 Emissive{};
+	Vec4 Specular{};
 
-	float Glossiness = 0.f;
-	float Smoothness = 0.f;
-	float SpecularHighlight = 0.f;
-	float Metallic = 0.f;
-	float GlossyReflection = 0.f;
-
-	UINT Type = 0x00;
+	float Glossiness{};
+	float Smoothness{};
+	float SpecularHighlight{};
+	float Metallic{};
+	float GlossyReflection{};
 };
+
+// material의 색상
+struct MaterialColors {
+public:
+	MaterialColors(const MaterialLoadInfo& materialInfo);
+
+public:
+	Vec4 Ambient{};
+	Vec4 Diffuse{};
+	Vec4 Specular{};
+	Vec4 Emissive{};
+};
+
 #pragma endregion
 
 
+
 #pragma region Class
-class MaterialColors
-{
-public:
-	MaterialColors()  = default;
-	MaterialColors(const MaterialLoadInfo& materialInfo);
-	~MaterialColors() = default;
-
-public:
-	Vec4 mAmbient = Vec4(1.f, 1.f, 1.f, 1.f);
-	Vec4 mDiffuse = Vec4(0.f, 0.f, 0.f, 1.f);
-	Vec4 mSpecular = Vec4(0.f, 0.f, 0.f, 1.f); //(r,g,b,a=power)
-	Vec4 mEmissive = Vec4(0.f, 0.f, 0.f, 1.f);
-};
-
-
-
-
-
 class Material {
 public:
 	sptr<Texture> mTexture{};
@@ -79,10 +73,11 @@ public:
 
 
 
-
+// (각 계층구조)객체의 원본이 되는 모델
+// mesh와 material 정보를 갖는다.
 class Model : public Object {
 private:
-	sptr<MeshLoadInfo> mMeshInfo{};
+	sptr<MeshLoadInfo>			mMeshInfo{};
 	std::vector<sptr<Material>> mMaterials{};
 
 public:
@@ -93,49 +88,65 @@ public:
 	void SetMaterials(const std::vector<sptr<Material>>& materials) { mMaterials = materials; }
 
 public:
-	// model object의 trasnform 구조를 매핑(Copy)하여 새로운 transform 구조를 반환.
+	// 이 Model의 trasnform 계층구조를 [object]에 복사한다.
 	void CopyModelHierarchy(GameObject* object) const;
 
+	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
 	void MergeModel(MasterModel& out);
 
 private:
-	void CopyModelHierarchy(sptr<ModelObject>& object) const;
+	// [object]를 생성하며, 이 Model의 trasnform 구조를 [object]에 복사한다.
+	void CopyModelHierarchy(sptr<Object>& object) const;
 };
 
 
 
 
 
-class MasterModel : public Object {
+// 모델의 계층 구조 정보를 하나로 병합해 관리하는 객체
+class MasterModel {
 private:
 	sptr<MergedMesh> mMesh{};
+	sptr<Model> mModel{};
 
 public:
 	MasterModel();
 	virtual ~MasterModel() = default;
 
-	const std::string& GetName() const { return GetModel()->GetName(); }
+	const Transform* GetTransform() const { return mModel.get(); }
+	const std::string& GetName() const { return mModel->GetName(); }
 	rsptr<MergedMesh> GetMesh() const { return mMesh; }
 	rsptr<Texture> GetTexture() const;
 
-	void SetModel(rsptr<Model> model);
+	// 모델을 스프라이트로 설정한다.
 	void SetSprite() { RenderFunc = std::bind(&MasterModel::RenderSprite, this, std::placeholders::_1); }
 
 public:
 	void ReleaseUploadBuffers();
-	void MergeMesh(rsptr<MeshLoadInfo> mesh, const std::vector<sptr<Material>>& materials);
-	void Close();
 
+	// merge model's mesh hierarchy
+	void SetModel(const rsptr<Model> model);
+
+	// merge [mesh] to [mMesh], call MergedMesh::MergeMesh().
+	void MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
+
+	// render single object
 	void Render(const GameObject* gameObject) const { RenderFunc(gameObject); }
+
+	// render instancing object from instance buffer
 	void Render(const ObjectInstanceBuffer* instBuffer = nullptr) const;
 
+	// Model의 trasnform 계층구조를 [object]에 복사한다.
+	// call Model::CopyModelHierarchy()
 	void CopyModelHierarchy(GameObject* object) const;
 
 private:
-	std::function<void(const GameObject*)> RenderFunc{ std::bind(&MasterModel::RenderObject, this, std::placeholders::_1) };
-	const Model* GetModel() const { return mChild->GetObj<Model>(); }
+	std::function<void(const GameObject*)> RenderFunc{ std::bind(&MasterModel::RenderObject, this, std::placeholders::_1) };	// 렌더링 함수
 
+	// 단일 객체 렌더링
 	void RenderObject(const GameObject* gameObject) const;
+
+	// 스프라이트 객체 렌더링
 	void RenderSprite(const GameObject* gameObject) const;
 };
 #pragma endregion

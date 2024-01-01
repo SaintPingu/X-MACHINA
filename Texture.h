@@ -17,7 +17,7 @@ enum class MaterialMap : WORD {
 #pragma region Class
 class Texture {
 private:
-	Resource	mResourceType{};
+	D3DResource	mResourceType{};
 	WORD		mTextureMask{};
 
 	ComPtr<ID3D12Resource> mTexture{};
@@ -32,7 +32,7 @@ private:
 	int mRootParamIndex{ -1 };
 
 public:
-	Texture(Resource resourceType);
+	Texture(D3DResource resourceType);
 	virtual ~Texture() = default;
 
 	const std::wstring& GetName() const { return mName; }

@@ -5,7 +5,7 @@
 
 
 #pragma region Functions
-void PrintMessage(const char* message)
+void PrintMsgBox(const char* message)
 {
 	::MessageBoxA(nullptr, message, "Message", MB_OK | MB_ICONERROR);
 }
@@ -15,7 +15,7 @@ void PrintErrorBlob(RComPtr<ID3DBlob> errorBlob)
 {
 #if defined(_DEBUG)
 	if (errorBlob) {
-		PrintMessage(static_cast<const char*>(errorBlob->GetBufferPointer()));
+		PrintMsgBox(static_cast<const char*>(errorBlob->GetBufferPointer()));
 	}
 #endif
 }
@@ -26,39 +26,9 @@ Vector RandVectorOnSphere()
 }
 Vector RandVectorOnDom()
 {
-	return GetUnitVector(Math::RandF(-1.f, 1.f), Math::RandF(.0f, 1.f), Math::RandF(-1.f, 1.f));
+	return GetUnitVector(Math::RandF(-1.f, 1.f), Math::RandF(0.f, 1.f), Math::RandF(-1.f, 1.f));
 }
 #pragma endregion
-
-
-
-
-#pragma region Class
-void MyBoundingOrientedBox::Transform(const Vec4x4& transform)
-{
-	Matrix matrix     = _MATRIX(transform);
-	Vector rotation = XMQuaternionRotationMatrix(matrix);
-
-	XMStoreFloat4(&Orientation, rotation);
-	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(OriginCenter), matrix));
-}
-
-void MyBoundingSphere::Transform(const Vec4x4& transform)
-{
-	Center = Matrix4x4::Multiply(transform, OriginCenter);
-}
-
-bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const {
-	for (auto& box : boxes) {
-		if (Intersects(*box)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-#pragma endregion
-
 
 
 
@@ -144,53 +114,38 @@ namespace D3DUtil {
 
 
 
-	void CreateVertexBufferViews(std::vector<D3D12_VERTEX_BUFFER_VIEW>& vertexBufferViews, size_t vertexCount, const BufferViews& bufferViews)
+	void CreateVertexBufferViews(std::vector<D3D12_VERTEX_BUFFER_VIEW>& out, size_t vertexCount, const VertexBufferViews& bufferViews)
 	{
 		D3D12_VERTEX_BUFFER_VIEW view{};
 
-		const size_t kVec3Size = sizeof(Vec3) * vertexCount;
-		const size_t kVec2Size = sizeof(Vec2) * vertexCount;
-
-		if (bufferViews.vertexBuffer) {
-			view.BufferLocation = bufferViews.vertexBuffer->GetGPUVirtualAddress();
-			view.StrideInBytes  = sizeof(Vec3);
-			view.SizeInBytes    = kVec3Size;
-			vertexBufferViews.emplace_back(view);
+		if (bufferViews.VertexBuffer) {
+			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.VertexBuffer);
+			out.emplace_back(view);
 		}
 
-		if (bufferViews.normalBuffer) {
-			view.BufferLocation = bufferViews.normalBuffer->GetGPUVirtualAddress();
-			view.StrideInBytes  = sizeof(Vec3);
-			view.SizeInBytes    = kVec3Size;
-			vertexBufferViews.emplace_back(view);
+		if (bufferViews.NormalBuffer) {
+			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.NormalBuffer);
+			out.emplace_back(view);
 		}
 
 		if (bufferViews.UV0Buffer) {
-			view.BufferLocation = bufferViews.UV0Buffer->GetGPUVirtualAddress();
-			view.StrideInBytes  = sizeof(Vec2);
-			view.SizeInBytes    = kVec2Size;
-			vertexBufferViews.emplace_back(view);
+			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV0Buffer);
+			out.emplace_back(view);
 		}
 
 		if (bufferViews.UV1Buffer) {
-			view.BufferLocation = bufferViews.UV1Buffer->GetGPUVirtualAddress();
-			view.StrideInBytes  = sizeof(Vec2);
-			view.SizeInBytes    = kVec2Size;
-			vertexBufferViews.emplace_back(view);
+			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV1Buffer);
+			out.emplace_back(view);
 		}
 
-		if (bufferViews.tangentBuffer) {
-			view.BufferLocation = bufferViews.tangentBuffer->GetGPUVirtualAddress();
-			view.StrideInBytes  = sizeof(Vec3);
-			view.SizeInBytes    = kVec3Size;
-			vertexBufferViews.emplace_back(view);
+		if (bufferViews.TangentBuffer) {
+			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.TangentBuffer);
+			out.emplace_back(view);
 		}
 
-		if (bufferViews.biTangentBuffer) {
-			view.BufferLocation = bufferViews.biTangentBuffer->GetGPUVirtualAddress();
-			view.StrideInBytes  = sizeof(Vec3);
-			view.SizeInBytes    = kVec3Size;
-			vertexBufferViews.emplace_back(view);
+		if (bufferViews.BiTangentBuffer) {
+			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.BiTangentBuffer);
+			out.emplace_back(view);
 		}
 	}
 
@@ -280,5 +235,35 @@ namespace D3DUtil {
 		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		cmdList->ResourceBarrier(1, &resourceBarrier);
 	}
+}
+#pragma endregion
+
+
+
+
+
+#pragma region Class
+void MyBoundingOrientedBox::Transform(const Vec4x4& transform)
+{
+	Matrix matrix = _MATRIX(transform);
+	Vector rotation = XMQuaternionRotationMatrix(_MATRIX(transform));
+
+	XMStoreFloat4(&Orientation, rotation);
+	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), matrix));
+}
+
+void MyBoundingSphere::Transform(const Vec4x4& transform)
+{
+	Center = Matrix4x4::Multiply(transform, mOriginCenter);
+}
+
+bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const {
+	for (auto& box : boxes) {
+		if (Intersects(*box)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 #pragma endregion

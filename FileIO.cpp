@@ -29,7 +29,7 @@ namespace FileIO {
 		token.resize(length);
 	}
 
-	sptr<MeshLoadInfo> LoadMeshInfoFromFile(FILE* file)
+	sptr<MeshLoadInfo> LoadMesh(FILE* file)
 	{
 		std::string token;
 
@@ -40,7 +40,8 @@ namespace FileIO {
 		FileIO::ReadVal(file, meshInfo->VertexCount);
 		FileIO::ReadString(file, meshInfo->MeshName);
 
-		while (true) {
+		bool isEOF{ false };
+		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
@@ -48,8 +49,7 @@ namespace FileIO {
 			{
 				FileIO::ReadVal(file, nPositions);
 				if (nPositions > 0) {
-					meshInfo->Type |= static_cast<DWORD>(VertexType::Position);
-					meshInfo->Buffer.Vertices.resize(nPositions);
+					meshInfo->VertexType |= VertexType::Position;
 					FileIO::ReadRange(file, meshInfo->Buffer.Vertices, nPositions);
 				}
 			}
@@ -59,9 +59,8 @@ namespace FileIO {
 			{
 				FileIO::ReadVal(file, nColors);
 				if (nColors > 0) {
-					meshInfo->Type |= static_cast<DWORD>(VertexType::Color);
+					meshInfo->VertexType |= VertexType::Color;
 					std::vector<Vec4> colors{};
-					colors.resize(nColors);
 					FileIO::ReadRange(file, colors, nColors);
 				}
 			}
@@ -71,8 +70,7 @@ namespace FileIO {
 			{
 				FileIO::ReadVal(file, nNormals);
 				if (nNormals > 0) {
-					meshInfo->Type |= static_cast<DWORD>(VertexType::Normal);
-					meshInfo->Buffer.Normals.resize(nNormals);
+					meshInfo->VertexType |= VertexType::Normal;
 					FileIO::ReadRange(file, meshInfo->Buffer.Normals, nNormals);
 				}
 			}
@@ -82,7 +80,6 @@ namespace FileIO {
 			{
 				FileIO::ReadVal(file, nIndices);
 				if (nIndices > 0) {
-					meshInfo->Buffer.Indices.resize(nIndices);
 					FileIO::ReadRange(file, meshInfo->Buffer.Indices, nIndices);
 				}
 			}
@@ -101,7 +98,6 @@ namespace FileIO {
 							int nIndex = FileIO::ReadVal<int>(file);
 							FileIO::ReadVal(file, meshInfo->SubSetIndexCounts[i]);
 							if (meshInfo->SubSetIndexCounts[i] > 0) {
-								meshInfo->SubSetIndices[i].resize(meshInfo->SubSetIndexCounts[i]);
 								FileIO::ReadRange(file, meshInfo->SubSetIndices[i], meshInfo->SubSetIndexCounts[i]);
 							}
 						}
@@ -115,8 +111,7 @@ namespace FileIO {
 				int nUV0 = FileIO::ReadVal<int>(file);
 				if (nUV0 > 0)
 				{
-					meshInfo->Type |= static_cast<DWORD>(VertexType::UV0);
-					meshInfo->Buffer.UVs0.resize(nUV0);
+					meshInfo->VertexType |= VertexType::UV0;
 					FileIO::ReadRange(file, meshInfo->Buffer.UVs0, nUV0);
 				}
 			}
@@ -127,8 +122,7 @@ namespace FileIO {
 				int nUV1 = FileIO::ReadVal<int>(file);
 				if (nUV1 > 0)
 				{
-					meshInfo->Type |= static_cast<DWORD>(VertexType::UV1);
-					meshInfo->Buffer.UVs1.resize(nUV1);
+					meshInfo->VertexType |= VertexType::UV1;
 					FileIO::ReadRange(file, meshInfo->Buffer.UVs1, nUV1);
 				}
 			}
@@ -138,8 +132,7 @@ namespace FileIO {
 			{
 				int nTangents = FileIO::ReadVal<int>(file);
 				if (nTangents > 0) {
-					meshInfo->Type |= static_cast<DWORD>(VertexType::Tangent);
-					meshInfo->Buffer.Tangents.resize(nTangents);
+					meshInfo->VertexType |= VertexType::Tangent;
 					FileIO::ReadRange(file, meshInfo->Buffer.Tangents, nTangents);
 				}
 			}
@@ -149,15 +142,14 @@ namespace FileIO {
 			{
 				int nBiTangents = FileIO::ReadVal<int>(file);
 				if (nBiTangents > 0) {
-					meshInfo->Type |= static_cast<DWORD>(VertexType::BiTangent);
-					meshInfo->Buffer.BiTangents.resize(nBiTangents);
+					meshInfo->VertexType |= VertexType::BiTangent;
 					FileIO::ReadRange(file, meshInfo->Buffer.BiTangents, nBiTangents);
 				}
 			}
 
 			break;
 			case Hash("</Mesh>"):
-				goto end_loop;
+				isEOF = true;
 				break;
 
 			default:
@@ -165,26 +157,26 @@ namespace FileIO {
 				break;
 			}
 		}
-	end_loop:
 
 		return meshInfo;
 	}
 
-	std::vector<sptr<Material>> LoadMaterialsFromFile(FILE* file)
+	std::vector<sptr<Material>> LoadMaterial(FILE* file)
 	{
 		std::string token;
 
 		int matIndex = 0;
 
-		std::vector<sptr<Material>> materials;
+		std::vector<sptr<Material>> result;
 
 		int size = FileIO::ReadVal<int>(file);
-		materials.resize(size);
+		result.resize(size);
 
 		sptr<MaterialLoadInfo> matInfo{};
 		sptr<Material> material{};
 
-		while (true) {
+		bool isEOF{ false };
+		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
@@ -194,10 +186,10 @@ namespace FileIO {
 					sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(*matInfo);
 					material->SetMaterialColors(materialColors);
 				}
-				matIndex            = FileIO::ReadVal<int>(file);
-				matInfo             = std::make_shared<MaterialLoadInfo>();
-				materials[matIndex] = std::make_shared<Material>();
-				material            = materials[matIndex];
+				matIndex = FileIO::ReadVal<int>(file);
+				matInfo = std::make_shared<MaterialLoadInfo>();
+				result[matIndex] = std::make_shared<Material>();
+				material = result[matIndex];
 			}
 			break;
 			case Hash("<AlbedoColor>:"):
@@ -242,20 +234,19 @@ namespace FileIO {
 					sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(*matInfo);
 					material->SetMaterialColors(materialColors);
 				}
+				isEOF = true;
 			}
 
-			goto end_loop;
 			break;
 			default:	// 다른 Map들은 import하지 않을 수 있다.
 				break;
 			}
 		}
-	end_loop:
 
-		return materials;
+		return result;
 	}
 
-	sptr<Model> LoadFrameHierarchyFromFile(FILE* file)
+	sptr<Model> LoadFrrameHierarchy(FILE* file)
 	{
 		std::string token;
 
@@ -264,7 +255,8 @@ namespace FileIO {
 
 		sptr<Model> model{};
 
-		while (true) {
+		bool isEOF{ false };
+		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
@@ -307,8 +299,8 @@ namespace FileIO {
 				MyBoundingSphere bs;
 				FileIO::ReadVal(file, bs.Center);
 				FileIO::ReadVal(file, bs.Radius);
+				bs.SetOrigin(bs.Center);
 
-				bs.OriginCenter = bs.Center;
 				model->AddComponent<SphereCollider>()->mBS = bs;
 			}
 
@@ -317,16 +309,16 @@ namespace FileIO {
 			{
 				int obbSize = FileIO::ReadVal<int>(file);
 
-				std::vector<Vec3> centers(obbSize);
-				std::vector<Vec3> extents(obbSize);
+				std::vector<Vec3> centers;
+				std::vector<Vec3> extents;
 				FileIO::ReadRange(file, centers, obbSize);
 				FileIO::ReadRange(file, extents, obbSize);
 
 				MyBoundingOrientedBox box{};
 				for (int i = 0; i < obbSize; ++i) {
-					box.Center       = centers[i];
-					box.OriginCenter = centers[i];
-					box.Extents      = extents[i];
+					box.SetOrigin(centers[i]);
+					box.Center = centers[i];
+					box.Extents = extents[i];
 
 					model->AddComponent<BoxCollider>()->mBox = box;
 				}
@@ -335,13 +327,13 @@ namespace FileIO {
 			break;
 			case Hash("<Mesh>:"):
 			{
-				model->SetMeshInfo(FileIO::LoadMeshInfoFromFile(file));
+				model->SetMeshInfo(FileIO::LoadMesh(file));
 			}
 
 			break;
 			case Hash("<Materials>:"):
 			{
-				model->SetMaterials(FileIO::LoadMaterialsFromFile(file));
+				model->SetMaterials(FileIO::LoadMaterial(file));
 			}
 
 			break;
@@ -350,7 +342,7 @@ namespace FileIO {
 				int nChilds = FileIO::ReadVal<int>(file);
 				if (nChilds > 0) {
 					for (int i = 0; i < nChilds; i++) {
-						sptr<Model> child = FileIO::LoadFrameHierarchyFromFile(file);
+						sptr<Model> child = FileIO::LoadFrrameHierarchy(file);
 						if (child) {
 							model->SetChild(child);
 						}
@@ -360,7 +352,7 @@ namespace FileIO {
 
 			break;
 			case Hash("</Frame>"):
-				goto end_loop;
+				isEOF = true;
 				break;
 
 			default:
@@ -368,7 +360,6 @@ namespace FileIO {
 				break;
 			}
 		}
-	end_loop:
 
 		return model;
 	}
@@ -380,30 +371,31 @@ namespace FileIO {
 		::rewind(file);
 
 		sptr<Model> model = std::make_shared<Model>();
+		sptr<MasterModel> masterModelA = std::make_shared<MasterModel>();
 
 		std::string token;
 
-		while (true) {
+		bool isEOF{ false };
+		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
 			case Hash("<Hierarchy>:"):
-				model = FileIO::LoadFrameHierarchyFromFile(file);
+				model = FileIO::LoadFrrameHierarchy(file);
 				break;
 			case Hash("</Hierarchy>"):
-				goto end_loop;
+				isEOF = true;
 				break;
 			default:
 				assert(0);
 				break;
 			}
 		}
-	end_loop:
+
+		sptr<MasterModel> masterModelB = std::make_shared<MasterModel>();
 
 		sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
-		model->MergeModel(*masterModel.get());
 		masterModel->SetModel(model);
-		masterModel->Close();
 
 		return masterModel;
 	}

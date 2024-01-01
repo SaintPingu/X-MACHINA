@@ -53,16 +53,16 @@ void Script_AirplanePlayer::ProcessInput()
 {
 	DWORD dwDirection = 0;
 	DWORD rotationDir = 0;
-	if (KEY_PRESSED('W'))			dwDirection |= (WORD)Dir::Front;
-	if (KEY_PRESSED('S'))			dwDirection |= (WORD)Dir::Back;
-	if (KEY_PRESSED(VK_SPACE))		dwDirection |= (WORD)Dir::Up;
-	if (KEY_PRESSED(VK_LSHIFT))		dwDirection |= (WORD)Dir::Down;
+	if (KEY_PRESSED('W'))			dwDirection |= Dir::Front;
+	if (KEY_PRESSED('S'))			dwDirection |= Dir::Back;
+	if (KEY_PRESSED(VK_SPACE))		dwDirection |= Dir::Up;
+	if (KEY_PRESSED(VK_LSHIFT))		dwDirection |= Dir::Down;
 	if (dwDirection) {
 		base::Move(dwDirection);
 	}
 
-	if (KEY_PRESSED('A')) rotationDir |= (WORD)Dir::Left;
-	if (KEY_PRESSED('D')) rotationDir |= (WORD)Dir::Right;
+	if (KEY_PRESSED('A')) rotationDir |= Dir::Left;
+	if (KEY_PRESSED('D')) rotationDir |= Dir::Right;
 	if (rotationDir) {
 		Rotate(rotationDir, DeltaTime());
 	}
@@ -80,10 +80,10 @@ void Script_AirplanePlayer::Rotate(DWORD rotationDir, float angle)
 	angle *= mRotationSpeed;
 	if (rotationDir) {
 		float zRotation = 0.f;
-		if (rotationDir & (WORD)Dir::Left) {
+		if (rotationDir & Dir::Left) {
 			zRotation += angle;
 		}
-		if (rotationDir & (WORD)Dir::Right) {
+		if (rotationDir & Dir::Right) {
 			zRotation -= angle;
 		}
 

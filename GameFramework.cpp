@@ -17,13 +17,11 @@ Framework::Framework()
 	mTitle = _T("LabProject");
 }
 
-bool Framework::Init(HINSTANCE hInstance, HWND hMainWnd)
+void Framework::Init(HINSTANCE hInstance, HWND hMainWnd)
 {
 	dxgi->Init(hInstance, hMainWnd);
 
 	BuildObjects();
-
-	return true;
 }
 
 void Framework::Release()
@@ -57,29 +55,17 @@ void Framework::ReleaseObjects()
 void Framework::FrameAdvance()
 {
 	timer->Tick(0.f);
-
-	UpdaetInput();
-
-	UpdateObjects();
-
-	RenderObjects();
-}
-
-void Framework::UpdaetInput()
-{
+	
+	// update input
 	InputMgr::Inst()->Update();
-}
 
-void Framework::UpdateObjects()
-{
+	// update scene
 	scene->Update();
-}
 
-void Framework::RenderObjects()
-{
+	// rendering
 	dxgi->Render();
 
-	// show title
+	// update title with fps
 	std::wstring title = mTitle + L" | FPS : " + timer->GetFrameRate();
 	::SetWindowText(dxgi->GetHwnd(), title.data());
 }

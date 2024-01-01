@@ -3,12 +3,14 @@
 #include "Scene.h"
 #include "DXGIMgr.h"
 
+#include "UI.h"
 #include "Object.h"
 #include "Model.h"
 #include "Terrain.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "MeshRenderer.h"
 #include "Timer.h"
 #include "FileIO.h"
 #include "Light.h"
@@ -18,8 +20,6 @@
 #include "Texture.h"
 #include "RootSignature.h"
 #include "DescriptorHeap.h"
-
-#include "UI.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -42,7 +42,7 @@ Scene::Scene()
 	constexpr int gridLengthCount{ 20 };		// gridCount = n*n
 
 	constexpr Vec3 borderPos     = Vec3(256, 200, 256);
-	constexpr Vec3 borderExtents = Vec3(1500, 500, 1500);
+	constexpr Vec3 borderExtents = Vec3(1550, 500, 1550);
 
 	mMapBorder      = { borderPos, borderExtents };	// map segmentation criteria
 	mGridLength     = static_cast<int>(mMapBorder.Extents.x / gridLengthCount);
@@ -129,7 +129,7 @@ void Scene::ReleaseUploadBuffers()
 		object->ReleaseUploadBuffers();
 		});
 
-	MeshRenderer::ReleaseStaticUploadBuffers();
+	MeshRenderer::ReleaseUploadBuffers();
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
@@ -175,7 +175,7 @@ void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
 	ComPtr<ID3D12Resource> resource         = texture->GetResource();
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
 
-	mDescriptorHeap->CreateSrvs(resource, &srvDesc, descriptorHeapIndex);
+	mDescriptorHeap->CreateSrv(resource, &srvDesc);
 	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
 }
 
@@ -196,14 +196,12 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->PushTable(RootParam::Texture1,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::Texture2,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::Texture3,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture4,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::RenderTarget,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 7, 5, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::RenderTarget,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	mGraphicsRootSignature->AddAlias(RootParam::Texture,	RootParam::TerrainLayer0);
 	mGraphicsRootSignature->AddAlias(RootParam::Texture1,	RootParam::TerrainLayer1);
 	mGraphicsRootSignature->AddAlias(RootParam::Texture2,	RootParam::TerrainLayer2);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture3,	RootParam::TerrainLayer3);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture4,	RootParam::SplatMap);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture3,	RootParam::SplatMap);
 
 	mGraphicsRootSignature->Create();
 }
@@ -261,14 +259,6 @@ void Scene::BuildObjects()
 	// shader variables
 	BuildShaders();
 	CreateShaderVars();
-
-#ifdef DRAW_SCENE_GRID_3D
-	mGridMesh = std::make_shared<ModelObjectMesh>((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
-	mGridMesh->CreateCubeMesh((float)mGridLength, mMaxGridHeight, (float)mGridLength, false, true);
-#else
-	mGridMesh = std::make_shared<ModelObjectMesh>();
-	mGridMesh->CreatePlaneMesh((float)mGridLength, (float)mGridLength, true);
-#endif
 
 	MeshRenderer::BuildMeshes();
 
@@ -360,7 +350,7 @@ void Scene::BuildGrid()
 	constexpr float maxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	const int adjusted = Math::RoundToNearestMultiple(mMapBorder.Extents.x, mGridLength);
+	const int adjusted = Math::GetNearestMultiple(mMapBorder.Extents.x, mGridLength);
 	mMapBorder.Extents = Vec3(adjusted, mMapBorder.Extents.y, adjusted);
 
 	// set grid start pos
@@ -411,7 +401,7 @@ void Scene::LoadTextures()
 	info.Albedo = Vec4(0.1f, .1f, .1f, 1.f);
 	for (auto& textureName : textureNames) {
 		// load texture
-		sptr<Texture> texture = std::make_shared<Texture>(Resource::Texture2D);
+		sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
 		texture->LoadTexture(textureName);
 
 		// apply to material
@@ -461,7 +451,7 @@ void Scene::LoadGameObjects(FILE* file)
 		if (sameObjectCount <= 0) {
 			FileIO::ReadString(file, token); //"<Tag>:"
 			FileIO::ReadString(file, token);
-			tag = GetTagByName(token);
+			tag = GetTagByString(token);
 
 			int layerNum{};
 			FileIO::ReadString(file, token); //"<Layer>:"
@@ -779,23 +769,6 @@ bool Scene::RenderBounds(const std::set<GameObject*>& opaqueObjects)
 }
 
 
-void UpdateGridShaderVars(const Grid& grid)
-{
-
-	BoundingBox box = grid.GetBB();
-
-	Matrix transform = XMMatrixIdentity();
-
-#ifdef DRAW_SCENE_GRID_3D
-	XMMatrix::SetPosition(transform, Vec3(box.Center.x, box.Center.y, box.Center.z));
-#else
-	constexpr float meshHeight = 30.f;
-	XMMatrix::SetPosition(transform, Vec3(box.Center.x, 30.f, box.Center.z));
-#endif
-
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(transform), 0);
-}
-
 void Scene::RenderObjectBounds(const std::set<GameObject*>& opaqueObjects)
 {
 	for (auto& player : mPlayers) {
@@ -809,11 +782,18 @@ void Scene::RenderObjectBounds(const std::set<GameObject*>& opaqueObjects)
 	}
 }
 
+//#define DRAW_SCENE_GRID_3D
 void Scene::RenderGridBounds()
 {
-	for (Grid& grid : mGrids) {
-		UpdateGridShaderVars(grid);
-		mGridMesh->Render();
+	for (const auto& grid : mGrids) {
+#ifdef DRAW_SCENE_GRID_3D
+		MeshRenderer::Render(grid.GetBB());
+#else
+		constexpr float kGirdHeight = 30.f;
+		Vec3 pos = grid.GetBB().Center;
+		pos.y = kGirdHeight;
+		MeshRenderer::RenderPlane(pos, mGridLength, mGridLength);
+#endif
 	}
 }
 

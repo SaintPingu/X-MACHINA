@@ -96,6 +96,7 @@ public:
 #include <random>
 #include <functional>
 #include <filesystem>
+#include <type_traits>
 
 /* STL Containers */
 #include <span>
@@ -126,15 +127,19 @@ public:
 
 /* ifdef */
 #ifdef _DEBUG
+
 // 메모리 누수 검사, new를 하고 delete를 하지 않은 경우 그 위치를 보여준다.
 #define _CRTDBG_MAP_ALLOC
 #define new new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+
 #else
+
 #define new new
+
 #endif
 
 /* Macro */
-#define RANDOM_COLOR	Vec4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#define RANDOM_COLOR	Vec4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))	// return random Vec4
 
 #define _MATRIX(x)	XMLoadFloat4x4(&x)
 #define _VECTOR(x)	XMLoadFloat3(&x)
@@ -159,9 +164,7 @@ public:										\
 #define SINGLETON_PATTERN_DEFINITION(Type)  \
    Type* Type::mInst = new Type;
 
-
 #pragma endregion
-
 
 #pragma region Using
 /* DirectX */
@@ -196,12 +199,8 @@ using rwptr = const wptr<T>&;
 #pragma endregion
 
 
-#pragma region ClassForwardDecl
-#pragma endregion
-
-
 #pragma region EnumClass
-enum class Resource {
+enum class D3DResource {
 	Texture2D = 0,
 	Texture2D_Array,	// []
 	Texture2DArray,
@@ -223,6 +222,10 @@ enum class CameraMode {
 	Third = 0,
 };
 
+// [ root parameter index alias ]
+// usage:
+// index = scene->GetRootParamIndex(RootParam);
+// 32BitConstant => scene->SetGraphicsRoot32BitConstants(RootParam, ...);
 enum class RootParam {
 	GameObjectInfo = 0,
 	Camera,
@@ -255,19 +258,21 @@ constexpr short gkFrameBufferHeight = 960;
 
 
 #pragma region Struct
-struct BufferViews {
-	ComPtr<ID3D12Resource> vertexBuffer{};
-	ComPtr<ID3D12Resource> normalBuffer{};
+struct VertexBufferViews {
+	ComPtr<ID3D12Resource> VertexBuffer{};
+	ComPtr<ID3D12Resource> NormalBuffer{};
 	ComPtr<ID3D12Resource> UV0Buffer{};
 	ComPtr<ID3D12Resource> UV1Buffer{};
-	ComPtr<ID3D12Resource> tangentBuffer{};
-	ComPtr<ID3D12Resource> biTangentBuffer{};
+	ComPtr<ID3D12Resource> TangentBuffer{};
+	ComPtr<ID3D12Resource> BiTangentBuffer{};
 };
 #pragma endregion
 
 
 #pragma region Function
-void PrintMessage(const char* message);
+void PrintMsgBox(const char* message);
+
+// print error msg if blob has error
 void PrintErrorBlob(RComPtr<ID3DBlob> errorBlob);
 
 inline Vector GetUnitVector(float x, float y, float z)
@@ -278,36 +283,100 @@ Vector RandVectorOnSphere();
 Vector RandVectorOnDom();
 
 template<class T>
+// copy src's data to end of dst
 inline void CopyBack(const std::vector<T>& src, std::vector<T>& dst)
 {
 	copy(src.begin(), src.end(), std::back_inserter(dst));
 }
 
-
+/* string to hash code. can use string in switch statement. */
 constexpr unsigned int Hash(const char* str) noexcept
 {
 	return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * Hash(str + 1) : 8603;
 }
-
 constexpr unsigned int Hash(const wchar_t* str) noexcept
 {
 	return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * Hash(str + 1) : 8603;
 }
-
 constexpr unsigned int Hash(const std::string& str) noexcept
 {
 	return Hash(str.data());
 }
-
 constexpr unsigned int Hash(const std::wstring& str) noexcept
 {
 	return Hash(str.data());
 }
 
+// assert if hResult is failed
 inline void AssertHResult(HRESULT hResult)
 {
 	assert(SUCCEEDED(hResult));
 }
+
+#pragma region EnumOperator_DWORD
+// 아래 정의된 EnumType의 DWORD 연산을 오버로딩하여 불필요한 static_cast를 줄인다.
+// is_valid_dword_type_v에 EnumType을 추가해주어야 한다.
+enum class ObjectTag : DWORD;
+enum class VertexType : DWORD;
+
+template <typename T>
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType>);
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator|(EnumType lhs, EnumType rhs)
+{
+	return static_cast<DWORD>(lhs) | static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator|(DWORD lhs, EnumType rhs)
+{
+	return lhs | static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator|(EnumType lhs, DWORD rhs)
+{
+	return static_cast<DWORD>(lhs) | rhs;
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator|=(DWORD& lhs, EnumType rhs)
+{
+	return lhs = lhs | static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator&(EnumType lhs, EnumType rhs)
+{
+	return static_cast<DWORD>(lhs) & static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator&(DWORD lhs, EnumType rhs)
+{
+	return lhs & static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator&(EnumType lhs, DWORD rhs)
+{
+	return static_cast<DWORD>(lhs) & rhs;
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator&=(DWORD& lhs, EnumType rhs)
+{
+	return lhs = lhs & static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr DWORD operator~(EnumType value)
+{
+	return ~static_cast<DWORD>(value);
+}
+#pragma endregion
+
 #pragma endregion
 
 
@@ -333,20 +402,17 @@ namespace Math {
 		return (x >= FLT_EPSILON) ? 1 : -1;
 	}
 
-	constexpr int RoundToNearestMultiple(int value, int multiple)
+	// (value)를 가장 가까운 (multiple)의 배수로 반환한다.
+	// ex) GetNearestMultiple(17, 5) -> 15
+	constexpr int GetNearestMultiple(int value, int multiple)
 	{
-		const int kRemainder = value % multiple;
-
-		if (kRemainder <= multiple / 2) {
-			return value - kRemainder;
-		}
-
-		return value + (multiple - kRemainder);
+		return ((value + multiple / 2) / multiple) * multiple;
 	}
 }
 
 namespace D3DUtil {
 
+	// create buffer resource from data
 	void CreateBufferResource(
 		const void* data,
 		UINT byteSize,
@@ -355,6 +421,7 @@ namespace D3DUtil {
 		ComPtr<ID3D12Resource>& uploadBuffer,
 		ComPtr<ID3D12Resource>& buffer);
 
+	// upload buffer can be nullptr
 	inline void CreateBufferResource(
 		const void* data,
 		UINT byteSize,
@@ -367,7 +434,6 @@ namespace D3DUtil {
 		ComPtr<ID3D12Resource> tempUploadBuffer{};
 		D3DUtil::CreateBufferResource(data, byteSize, heapType, resourceStates, tempUploadBuffer, buffer);
 	}
-
 
 	template<class DataType>
 	inline void CreateVertexBufferResource(
@@ -382,10 +448,7 @@ namespace D3DUtil {
 		D3DUtil::CreateBufferResource(data.data(), sizeof(DataType) * data.size(), D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, uploadBuffer, buffer);
 	}
 
-
 	inline void CreateIndexBufferResource(
-
-
 		const std::vector<UINT>& indices,
 		ComPtr<ID3D12Resource>& uploadBuffer,
 		ComPtr<ID3D12Resource>& buffer)
@@ -393,7 +456,7 @@ namespace D3DUtil {
 		D3DUtil::CreateBufferResource(indices.data(), sizeof(UINT) * indices.size(), D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, uploadBuffer, buffer);
 	}
 
-	void CreateVertexBufferViews(std::vector<D3D12_VERTEX_BUFFER_VIEW>& vertexBufferViews, size_t vertexCount, const BufferViews& bufferViews);
+	void CreateVertexBufferViews(std::vector<D3D12_VERTEX_BUFFER_VIEW>& out, size_t vertexCount, const VertexBufferViews& bufferViews);
 
 	template<class DataType>
 	inline void CreateVertexBufferView(D3D12_VERTEX_BUFFER_VIEW& vertexBufferView, size_t vertexCount, RComPtr<ID3D12Resource> vertexBuffer)
@@ -568,7 +631,7 @@ namespace Vector3 {
 
 	inline Vec3 Divide(const Vec3& vector, float scalar) noexcept
 	{
-		if (Math::IsEqual(scalar, .0f)) {
+		if (Math::IsEqual(scalar, 0.f)) {
 			return Vec3{};
 		}
 
@@ -613,43 +676,43 @@ namespace Vector3 {
 	// (0, 0, 0)
 	inline Vec3 Zero()
 	{
-		return Vec3(.0f, .0f, .0f);
+		return Vec3(0.f, 0.f, 0.f);
 	}
 
 	// (0, 1, 0)
 	inline Vec3 Up()
 	{
-		return Vec3(.0f, 1.f, .0f);
+		return Vec3(0.f, 1.f, 0.f);
 	}
 
 	// (0, -1, 0)
 	inline Vec3 Down()
 	{
-		return Vec3(.0f, -1.f, .0f);
+		return Vec3(0.f, -1.f, 0.f);
 	}
 
 	// (1, 0, 0)
 	inline Vec3 Right()
 	{
-		return Vec3(1.f, .0f, .0f);
+		return Vec3(1.f, 0.f, 0.f);
 	}
 
 	// (-1, 0, 0)
 	inline Vec3 Left()
 	{
-		return Vec3(-1.f, 0.f, .0f);
+		return Vec3(-1.f, 0.f, 0.f);
 	}
 
 	// (0, 0, 1)
 	inline Vec3 Forrward()
 	{
-		return Vec3(.0f, .0f, 1.f);
+		return Vec3(0.f, 0.f, 1.f);
 	}
 
 	// (0, 0, -1)
 	inline Vec3 Back()
 	{
-		return Vec3(.0f, .0f, -1.f);
+		return Vec3(0.f, 0.f, -1.f);
 	}
 
 	// (1, 1, 1)
@@ -735,6 +798,18 @@ namespace Vector4 {
 		Vec4 result;
 		XMStoreFloat4(&result, scalar * XMLoadFloat4(&vector));
 		return result;
+	}
+
+	// (1, 1, 1, 1)
+	inline Vec4 One()
+	{
+		return Vec4(1.f, 1.f, 1.f, 1.f);
+	}
+
+	// (0, 0, 0, 0)
+	inline Vec4 Zero()
+	{
+		return Vec4(0.f, 0.f, 0.f, 0.f);
 	}
 }
 
@@ -888,13 +963,17 @@ namespace XMMatrix
 
 #pragma region Class
 class MyBoundingOrientedBox : public BoundingOrientedBox {
-public:
-	Vec3 OriginCenter{};
+private:
+	Vec3 mOriginCenter{};	// 모델좌표계 Center
 
 public:
 	MyBoundingOrientedBox() = default;
 	virtual ~MyBoundingOrientedBox() = default;
 	
+	Vec3 GetOrigin() const { return mOriginCenter; }
+
+	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
+
 public:
 	// no apply scale
 	void Transform(const Vec4x4& transform);
@@ -905,12 +984,16 @@ public:
 };
 
 class MyBoundingSphere : public BoundingSphere {
-public:
-	Vec3 OriginCenter{};
+private:
+	Vec3 mOriginCenter{};	// 모델좌표계 Center
 
 public:
 	MyBoundingSphere() = default;
 	virtual ~MyBoundingSphere() = default;
+
+	Vec3 GetOrigin() const { return mOriginCenter; }
+
+	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
 
 public:
 	void Transform(const Vec4x4& transform);

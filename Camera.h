@@ -36,12 +36,12 @@ class Camera : public Component {
 	COMPONENT(Camera, Component)
 
 private:
-	Vec4x4 mViewTransform       { Matrix4x4::Identity() };
-	Vec4x4 mProjectionTransform { Matrix4x4::Identity() };
+	Vec4x4 mViewTransform { Matrix4x4::Identity() };
+	Vec4x4 mProjTransform { Matrix4x4::Identity() };
 
 	// Camera Constant Buffer
-	ComPtr<ID3D12Resource>	mCB_Camera{};
-	CB_CameraInfo*			mCBMap_Camera{};
+	ComPtr<ID3D12Resource>	mCB_CameraInfo{};
+	CB_CameraInfo*			mCBMap_CameraInfo{};
 
 	Vec3 mOffset{};
 
@@ -60,7 +60,8 @@ public:
 	virtual void Start() override;
 	virtual void Release() override;
 
-	virtual void UpdateShaderVars();
+public:
+	void UpdateShaderVars();
 
 	void UpdateViewMtx();
 	void SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float aspectRatio, float fovAngle);
@@ -71,21 +72,26 @@ public:
 
 	void LookAt(const Vec3& lookAt, const Vec3& up);
 
-	void CalculateFrustumPlanes();
-	bool IsInFrustum(const BoundingBox& boundingBox);
-	bool IsInFrustum(const BoundingOrientedBox& boundingBox);
-	bool IsInFrustum(const BoundingSphere& boundingSphere);
+	bool IsInFrustum(const BoundingBox& boundingBox)		 { return mFrustumWorld.Intersects(boundingBox); }
+	bool IsInFrustum(const BoundingOrientedBox& boundingBox) { return mFrustumWorld.Intersects(boundingBox); }
+	bool IsInFrustum(const BoundingSphere& boundingSphere)   { return mFrustumWorld.Intersects(boundingSphere); }
 	bool IsInFrustum(rsptr<const GameObject> object);
 
 private:
-	virtual void CreateShaderVars();
-	virtual void ReleaseShaderVars();
+	void CreateShaderVars();
+	void ReleaseShaderVars();
+
+	void CalculateFrustumPlanes();
 };
 
 
-
+/* Camera Component를 가지는 객체 */
 class CameraObject : public Object {
 	using base = Object;
+
+protected:
+	float mMovingSpeed{};
+	sptr<Camera> mCamera{};
 
 public:
 	CameraObject();
@@ -100,14 +106,10 @@ public:
 	void Rotate(float pitch = 0.f, float yaw = 0.f, float roll = 0.f);
 
 	void LookAt(const Vec3& lookAt, const Vec3& up);
-
-protected:
-	float mMovingSpeed{};
-	sptr<Camera> mCamera{};
 };
 
 
-
+/* main camera for scene rendering */
 class MainCameraObject : public CameraObject {
 	using base = CameraObject;
 	SINGLETON_PATTERN(MainCameraObject)

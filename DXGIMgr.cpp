@@ -25,8 +25,6 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDSV();
 
 	BuildObjects();
-
-	mDrawOption = DrawOption::Main;
 }
 
 void DXGIMgr::Release()
@@ -52,7 +50,7 @@ void DXGIMgr::Render()
 	StartCommand();
 
 	// set before barrier (present -> render target)
-	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffIdx].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	switch (mDrawOption) {
 	case DrawOption::Main:
@@ -61,7 +59,7 @@ void DXGIMgr::Render()
 		ClearDepthStencil();
 
 		// OMSetRenderTarget
-		mPostProcessingShader->OnPrepareRenderTarget(&mSwapChainBuffRtvHandles[mSwapChainBuffIdx], &mDsvHandle);
+		mPostProcessingShader->OnPrepareRenderTarget(&mRtvHandles[mSwapChainBuffCurrIdx], &mDsvHandle);
 
 		// render scene
 		scene->Render();
@@ -70,7 +68,7 @@ void DXGIMgr::Render()
 		mPostProcessingShader->OnPostRenderTarget();
 
 		// post processing
-		mCmdList->OMSetRenderTargets(1, &mSwapChainBuffRtvHandles[mSwapChainBuffIdx], TRUE, NULL);
+		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
 		mPostProcessingShader->Render();
 	}
 
@@ -79,7 +77,7 @@ void DXGIMgr::Render()
 	{
 		scene->OnPrepareRender();
 
-		mCmdList->OMSetRenderTargets(1, &mSwapChainBuffRtvHandles[mSwapChainBuffIdx], TRUE, NULL);
+		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
 
 		mPostProcessingShader->Render();
 	}
@@ -87,7 +85,7 @@ void DXGIMgr::Render()
 	}
 
 	// set after barrier (render target -> present)
-	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	StopCommand();
 
@@ -189,7 +187,7 @@ void DXGIMgr::CreateFence()
 {
 	HRESULT hResult = mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence));
 	AssertHResult(hResult);
-	for (UINT i = 0; i < mSwapChainBuffCnt; i++) {
+	for (UINT i = 0; i < mFenceValues.size(); i++) {
 		mFenceValues[i] = 0;
 	}
 	mFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -233,7 +231,7 @@ void DXGIMgr::CreateCmdQueueAndList()
 void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc{};
-	d3dDescriptorHeapDesc.NumDescriptors = mSwapChainBuffCnt + 5;
+	d3dDescriptorHeapDesc.NumDescriptors = mSwapChainBuffCnt + mRtvCnt;
 	d3dDescriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	d3dDescriptorHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask       = 0;
@@ -280,7 +278,7 @@ void DXGIMgr::CreateSwapChain()
 	hResult           = mFactory->MakeWindowAssociation(mWnd, DXGI_MWA_NO_ALT_ENTER);
 	AssertHResult(hResult);
 
-	mSwapChainBuffIdx = mSwapChain->GetCurrentBackBufferIndex();
+	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 }
 
@@ -297,7 +295,7 @@ void DXGIMgr::CreateRTVs()
 	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffers[i]));
 		mDevice->CreateRenderTargetView(mSwapChainBuffers[i].Get(), &rtvDesc, rtvHandle);
-		mSwapChainBuffRtvHandles[i] = rtvHandle;
+		mRtvHandles[i] = rtvHandle;
 		rtvHandle.ptr += mRtvDescriptorIncSize;
 	}
 }
@@ -356,7 +354,7 @@ void DXGIMgr::ChangeSwapChainState()
 	dxgiTargetParameters.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	mSwapChain->ResizeTarget(&dxgiTargetParameters);
 
-	for (int i = 0; i < mSwapChainBuffCnt; i++) {
+	for (int i = 0; i < mSwapChainBuffers.size(); i++) {
 		mSwapChainBuffers[i] = nullptr;
 	}
 
@@ -365,14 +363,14 @@ void DXGIMgr::ChangeSwapChainState()
 	HRESULT hResult = mSwapChain->ResizeBuffers(mSwapChainBuffCnt, mClientWidth, mClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	AssertHResult(hResult);
 
-	mSwapChainBuffIdx = mSwapChain->GetCurrentBackBufferIndex();
+	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 	CreateRTVs();
 }
 
 void DXGIMgr::WaitForGpuComplete()
 {
-	UINT64 fenceValue = ++mFenceValues[mSwapChainBuffIdx];
+	UINT64 fenceValue = ++mFenceValues[mSwapChainBuffCurrIdx];
 	mCmdQueue->Signal(mFence.Get(), fenceValue);
 
 	if (mFence->GetCompletedValue() < fenceValue) {
@@ -383,7 +381,7 @@ void DXGIMgr::WaitForGpuComplete()
 
 void DXGIMgr::MoveToNextFrame()
 {
-	mSwapChainBuffIdx = mSwapChain->GetCurrentBackBufferIndex();
+	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 	WaitForGpuComplete();
 }
@@ -399,10 +397,10 @@ void DXGIMgr::BuildObjects()
 	mPostProcessingShader->Create(DXGI_FORMAT_D32_FLOAT);
 
 	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mSwapChainBuffRtvHandles[mSwapChainBuffCnt - 1];
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles.back();
 	rtvHandle.ptr                        += mRtvDescriptorIncSize;
 
-	mPostProcessingShader->CreateResourcesAndRtvsSrvs(rtvHandle); //SRV to (Render Targets) + (Depth Buffer)
+	mPostProcessingShader->CreateResourcesAndRtvsSrvs(rtvHandle); // SRV to render targets
 
 	// create SRV for DepthStencil buffer
 	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);

@@ -7,6 +7,7 @@
 SINGLETON_PATTERN_DEFINITION(InputMgr)
 
 namespace {
+	// 사용할 키들 목록
 	constexpr int kKeyList[] =
 	{
 		VK_ESCAPE, VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12,
@@ -34,6 +35,7 @@ InputMgr::InputMgr()
 
 void InputMgr::Init()
 {
+	// 각 키들의 목록을 불러온다.
 	for (int key : kKeyList) {
 		mKeys[key] = KeyInfo{ KeyState::None, false };
 	}
@@ -43,37 +45,30 @@ void InputMgr::Update()
 {
 	const HWND hFocusedHwnd = GetFocus();
 
-	if (hFocusedHwnd)
-	{
-		for(auto& keyInfo : mKeys)
-		{
+	// 윈도우가 포커싱 되어 있다면, 각 키들의 정보를 업데이트한다.
+	if (hFocusedHwnd) {
+		for(auto& keyInfo : mKeys) {
 			int key = keyInfo.first;
 			KeyInfo& info = keyInfo.second;
 
 			// 키가 눌려있다
-			if (GetAsyncKeyState(key) & 0x8000)
-			{
+			if (GetAsyncKeyState(key) & 0x8000) {
 				// 이전엔 눌린적이 없다.
-				if (info.IsPrevPressed == false)
-				{
+				if (info.IsPrevPressed == false) {
 					info.State = KeyState::Tap;
 				}
-				else
-				{
+				else {
 					info.State = KeyState::Pressed;
 				}
 				info.IsPrevPressed = true;
 			}
 			// 키가 안눌려있다.
-			else
-			{
+			else {
 				// 이전엔 눌려있었다.
-				if (info.State == KeyState::Tap || info.State == KeyState::Pressed)
-				{
+				if (info.State == KeyState::Tap || info.State == KeyState::Pressed) {
 					info.State = KeyState::Away;
 				}
-				else if (KeyState::Away == info.State)
-				{
+				else if (KeyState::Away == info.State) {
 					info.State = KeyState::None;
 				}
 				info.IsPrevPressed = false;
@@ -89,21 +84,16 @@ void InputMgr::Update()
 		mMouseDir.x   = mMousePos.x - mMousePrevPos.x;
 		mMouseDir.y   = -(mMousePos.y - mMousePrevPos.y);
 	}
-
-	// 윈도우가 포커싱 되어있지 않다.
-	else
-	{
-		for (auto& keyInfo : mKeys)
-		{
+	// 윈도우가 포커싱 되어있지 않다면, 각 키들의 상태를 away or none으로 변경한다.
+	else {
+		for (auto& keyInfo : mKeys) {
 			KeyInfo& info = keyInfo.second;
 
 			info.IsPrevPressed = false;
-			if (KeyState::Tap == info.State || KeyState::Pressed == info.State)
-			{
+			if (KeyState::Tap == info.State || KeyState::Pressed == info.State) {
 				info.State = KeyState::Away;
 			}
-			else if (KeyState::Away == info.State)
-			{
+			else if (KeyState::Away == info.State) {
 				info.State = KeyState::None;
 			}
 		}

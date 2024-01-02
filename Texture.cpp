@@ -5,9 +5,12 @@
 #include "Scene.h"
 
 
-Texture::Texture(D3DResource resourceType) : mResourceType(resourceType)
+Texture::Texture(D3DResource resourceType)
+	:
+	mResourceType(resourceType),
+	mRootParamIndex(scene->GetRootParamIndex(RootParam::Texture))
 {
-	mRootParamIndex = scene->GetRootParamIndex(RootParam::Texture);
+
 }
 
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
@@ -45,7 +48,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 
 void Texture::SetName(const std::string& name)
 {
-	std::string str = name;
+	std::string str = std::move(name);
 	mName.assign(str.begin(), str.end());
 }
 
@@ -56,8 +59,8 @@ void Texture::ReleaseUploadBuffers()
 
 void Texture::UpdateShaderVars()
 {
-	if (mSrvGpuDescHandle.ptr) {
-		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvGpuDescHandle);
+	if (mSrvDescriptorHandle.ptr) {
+		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvDescriptorHandle);
 		scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, mTextureMask, 32);
 	}
 
@@ -68,30 +71,30 @@ void Texture::ReleaseShaderVars()
 }
 
 
-void Texture::LoadTexture(const std::string& textureName)
+void Texture::LoadTexture(const std::string& fileName)
 {
-	SetName(textureName);
+	SetName(fileName);
 	std::wstring filePath = L"Models/Textures/" + mName + L".dds";
 	LoadTexture(filePath);
 }
 
-void Texture::LoadUITexture(const std::string& textureName)
+void Texture::LoadUITexture(const std::string& fileName)
 {
-	SetName(textureName);
+	SetName(fileName);
 	std::wstring filePath = L"Models/UI/" + mName + L".dds";
 	LoadTexture(filePath);
 }
 
 
-void Texture::LoadCubeTexture(const std::string& textureName)
+void Texture::LoadCubeTexture(const std::string& fileName)
 {
-	SetName(textureName);
+	SetName(fileName);
 	std::wstring filePath = L"Models/Skybox/" + mName + L".dds";
 	LoadTexture(filePath);
 }
 
 
-ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
+ComPtr<ID3D12Resource> Texture::CreateTextureResource(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
 {
 	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
 }
@@ -102,5 +105,5 @@ void Texture::LoadTexture(const std::wstring& filePath)
 	D3DUtil::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	scene->CreateShaderResourceView(this, 0);
 
-	mTextureMask |= static_cast<WORD>(MaterialMap::Albedo);
+	mTextureMask |= MaterialMap::Albedo;
 }

@@ -78,7 +78,7 @@ void Material::LoadTextureFromFile(FILE* file)
 void Model::CopyModelHierarchy(GameObject* object) const
 {
 	object->CopyComponents(*this);
-	object->SetTransform(GetLocalTransform());
+	object->SetLocalTransform(GetLocalTransform());
 	object->SetName(mName);
 
 
@@ -111,7 +111,7 @@ void Model::CopyModelHierarchy(sptr<Object>& object) const
 	object = std::make_shared<Object>();
 
 	object->CopyComponents(*this);
-	object->SetTransform(GetLocalTransform());
+	object->SetLocalTransform(GetLocalTransform());
 	object->SetName(mName);
 
 	if (mSibling) {

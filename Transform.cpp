@@ -20,13 +20,13 @@ Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
 
 	Vec3 result{};
 
-	if (dwDirection & static_cast<WORD>(Dir::Front))	result = Vector3::Add(result, mLook, 1.f);
-	if (dwDirection & static_cast<WORD>(Dir::Back))		result = Vector3::Add(result, mLook, -1.f);
-	if (dwDirection & static_cast<WORD>(Dir::Right))	result = Vector3::Add(result, mRight, 1.f);
-	if (dwDirection & static_cast<WORD>(Dir::Left))		result = Vector3::Add(result, mRight, -1.f);
+	if (dwDirection & Dir::Front)	result = Vector3::Add(result, mLook, 1.f);
+	if (dwDirection & Dir::Back)	result = Vector3::Add(result, mLook, -1.f);
+	if (dwDirection & Dir::Right)	result = Vector3::Add(result, mRight, 1.f);
+	if (dwDirection & Dir::Left)	result = Vector3::Add(result, mRight, -1.f);
 
-	if (dwDirection & static_cast<WORD>(Dir::Up))		result = Vector3::Add(result, mUp, 1.f);
-	if (dwDirection & static_cast<WORD>(Dir::Down))		result = Vector3::Add(result, mUp, -1.f);
+	if (dwDirection & Dir::Up)		result = Vector3::Add(result, mUp, 1.f);
+	if (dwDirection & Dir::Down)	result = Vector3::Add(result, mUp, -1.f);
 
 	return result;
 }
@@ -136,7 +136,7 @@ void Transform::SetChild(rsptr<Transform> child)
 	if (child) child->mParent = this;
 }
 
-void Transform::SetTransform(const Vec4x4& transform)
+void Transform::SetLocalTransform(const Vec4x4& transform)
 {
 	mLocalTransform = transform;
 	mPrevTransform  = transform;
@@ -180,19 +180,19 @@ void Transform::MoveLocal(const Vec3& translation)
 	Translate(Vector3::Add(right, up, left));
 }
 
-void Transform::MoveStrafe(float fDistance)
+void Transform::MoveStrafe(float distance)
 {
-	Translate(mRight, fDistance);
+	Translate(mRight, distance);
 }
 
-void Transform::MoveUp(float fDistance)
+void Transform::MoveUp(float distance)
 {
-	Translate(mUp, fDistance);
+	Translate(mUp, distance);
 }
 
-void Transform::MoveForward(float fDistance)
+void Transform::MoveForward(float distance)
 {
-	Translate(mLook, fDistance);
+	Translate(mLook, distance);
 }
 
 
@@ -224,7 +224,7 @@ void Transform::Rotate(float pitch, float yaw, float roll)
 void Transform::Rotate(const Vec3& axis, float angle)
 {
 	mLocalTransform = Matrix4x4::Multiply(XMMatrix::RotationAxis(axis, angle), mLocalTransform);
-	SetTransform(mLocalTransform);
+	SetLocalTransform(mLocalTransform);
 }
 
 void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
@@ -261,7 +261,7 @@ void Transform::SetWorldTransform(const Vec4x4& transform)
 	UpdateAxis();
 }
 
-void Transform::ReturnTransform()
+void Transform::ReturnToPrevTransform()
 {
 	if (!mParent) {
 		XMStoreFloat4x4(&mLocalTransform, _MATRIX(mPrevTransform));
@@ -272,9 +272,9 @@ void Transform::ReturnTransform()
 
 void Transform::UpdateAxis(bool isComputeWorldTransform)
 {
-	::memcpy(&mRight, &mLocalTransform._11, sizeof(Vec3));
-	::memcpy(&mUp, &mLocalTransform._21, sizeof(Vec3));
-	::memcpy(&mLook, &mLocalTransform._31, sizeof(Vec3));
+	::memcpy(&mRight,	 &mLocalTransform._11, sizeof(Vec3));
+	::memcpy(&mUp,		 &mLocalTransform._21, sizeof(Vec3));
+	::memcpy(&mLook,	 &mLocalTransform._31, sizeof(Vec3));
 	::memcpy(&mPosition, &mLocalTransform._41, sizeof(Vec3));
 
 	if (isComputeWorldTransform) {
@@ -348,9 +348,9 @@ void Transform::UpdateShaderVars() const
 
 void Transform::NormalizeAxis()
 {
-	mLook = Vector3::Normalize(mLook);
+	mLook  = Vector3::Normalize(mLook);
 	mRight = Vector3::CrossProduct(mUp, mLook, true);
-	mUp = Vector3::CrossProduct(mLook, mRight, true);
+	mUp    = Vector3::CrossProduct(mLook, mRight, true);
 
 	UpdateTransform(false);
 }

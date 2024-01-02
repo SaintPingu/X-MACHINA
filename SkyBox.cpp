@@ -9,7 +9,7 @@
 #include "Shader.h"
 
 
-SkyBox::SkyBox()
+SkyBox::SkyBox() : Transform(this)
 {
 	mMesh = std::make_unique<ModelObjectMesh>();
 	mMesh->CreateSkyBoxMesh(20, 20, 20);

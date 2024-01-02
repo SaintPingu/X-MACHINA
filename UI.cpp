@@ -63,8 +63,6 @@ void UI::DeleteUIMesh()
 
 
 #pragma region Font
-sptr<Texture> Font::mFontTexture;
-
 void Font::Create(const Vec3& pos, float width, float height)
 {
 	UI::Create(nullptr, pos, width, height);
@@ -96,7 +94,7 @@ void Font::UpdateShaderVarSprite(char ch) const
 
 void Font::Render()
 {
-	mFontTexture->UpdateShaderVars();
+	mTexture->UpdateShaderVars();
 
 	Vec3 originPos = GetPosition();
 	Vec3 fontPos = GetPosition();
@@ -125,14 +123,14 @@ void Font::Render()
 	SetPosition(originPos);
 }
 
-void Font::SetFontTexture()
+void Font::CreateFontTexture()
 {
-	mFontTexture = canvas->GetTexture("Alphabet");
+	mTexture = canvas->GetTexture("Alphabet");
 }
 
-void Font::UnSetFontTexture()
+void Font::ReleaseFontTexture()
 {
-	mFontTexture = nullptr;
+	mTexture = nullptr;
 }
 #pragma endregion
 
@@ -158,7 +156,6 @@ void Canvas::Init()
 	LoadTextures();
 
 	UI::CreateUIMesh();
-	Font::SetFontTexture();
 
 	BuildUIs();
 }
@@ -166,7 +163,7 @@ void Canvas::Init()
 void Canvas::Release()
 {
 	UI::DeleteUIMesh();
-	Font::UnSetFontTexture();
+	mFont->ReleaseFontTexture();
 
 	Destroy();
 }
@@ -175,6 +172,7 @@ void Canvas::BuildUIs()
 {
 	mFont = std::make_shared<Font>();
 	mFont->Create(Vec3(-600, 900, 0), 100, 100);
+	mFont->CreateFontTexture();
 	mFont->SetText("YOUR SCORE IS ");
 	mFont->SetScore("0");
 }

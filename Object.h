@@ -25,7 +25,7 @@ struct SB_StandardInst {
 // base class for all entities in Scene
 class GameObject : public Object {
 	using base = Object;
-	using Transform::ReturnTransform;
+	using Transform::ReturnToPrevTransform;
 
 public:
 	sptr<const MasterModel> mMasterModel{};

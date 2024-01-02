@@ -136,7 +136,7 @@ public:
 	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
+	void SetGraphicsRoot32BitConstants(RootParam param, __int32 data, UINT offset);
 
 	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);

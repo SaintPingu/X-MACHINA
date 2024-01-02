@@ -6,40 +6,48 @@ class Timer {
 	SINGLETON_PATTERN(Timer)
 
 private:
-	constexpr static ULONG kMaxSampleCnt = 50; // Maximum frame time sample count
+	constexpr static ULONG kMaxSampleCnt = 50;		// Maximum frame time sample count
 
-	double							mTimeScale{};
-	float							mTimeElapsed{};
+	double			mTimeScale{};		// 시간 속도
+	float			mTimeElapsed{};		// 이전 프레임에서 현재 프레임까지 경과 시간 (프레임 전환 시간)
 
-	__int64							mBasePerfCnt{};
-	__int64							mPausedPerfCnt{};
-	__int64							mStopPerfCnt{};
-	__int64							mCurrPerfCnt{};
-	__int64							mLastPerfCnt{};
+	/* performance count */
+	__int64			mBasePerfCnt{};
+	__int64			mPausedPerfCnt{};
+	__int64			mStopPerfCnt{};
+	__int64			mCurrPerfCnt{};
+	__int64			mLastPerfCnt{};
 
-	float							mFrameTime[kMaxSampleCnt]{};
-	ULONG							mSampleCnt{};
+	float			mFrameTime[kMaxSampleCnt]{};	// frame time을 최대 kMaxSampleCnt개 까지 기록한다.
+	ULONG			mSampleCnt{};					// 현재 sampling된 frame cnt (최대 kMaxSampleCnt개)
 
-	unsigned long					mCurrFrameRate{};
-	unsigned long					mFPS{};
-	float							mFPSTimeElapsed{};
+	unsigned long	mCurrFrameRate{};				// 현재 frame rate
+	unsigned long	mFPS{};							// Tick() 함수가 호출될 때 마다 증가한다. 1초가 경과하면 0으로 초기화된다.
+	float			mFPSTimeElapsed{};				// 한 frame의 경과시간
 
-	bool							mIsStopped{};
+	bool			mIsStopped{};					// 일시정지 되었는가?
 
 public:
 	Timer();
 	virtual ~Timer() = default;
 
+	// 전체 경과 시간을 반환한다.
 	float GetTotalTime() const;
+	// 프레임 전환 시간를 반환한다.
 	float GetTimeElapsed() const { return mTimeElapsed; }
+	// 현재 frame rate를 문자열로 반환한다.
 	const WCHAR* GetFrameRate() const;
 
 public:
+	// calculate frame rate
 	void Tick(float lockFPS = 0.f);
 
+	// 타이머 시작(재개)
 	void Start();
+	// 타이머 일시 정지
 	void Stop();
 
+	// 타이머 초기화
 	void Reset();
 
 private:
@@ -53,4 +61,5 @@ private:
 	}
 };
 
+// 이전 프레임에서 현재 프레임까지 경과 시간을 반환한다. (프레임 전환 시간)
 float DeltaTime();

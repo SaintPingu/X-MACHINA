@@ -319,9 +319,10 @@ inline void AssertHResult(HRESULT hResult)
 // is_valid_dword_type_v에 EnumType을 추가해주어야 한다.
 enum class ObjectTag : DWORD;
 enum class VertexType : DWORD;
+enum class MaterialMap : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType>);
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)

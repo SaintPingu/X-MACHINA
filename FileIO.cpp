@@ -290,7 +290,7 @@ namespace FileIO {
 				Vec4x4 transform;
 				FileIO::ReadVal(file, transform);
 
-				model->SetTransform(transform);
+				model->SetLocalTransform(transform);
 			}
 
 			break;

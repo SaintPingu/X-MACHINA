@@ -202,7 +202,6 @@
     <ClCompile Include="Script_Player.cpp" />
     <ClCompile Include="Script_ShootingPlayer.cpp" />
     <ClCompile Include="Script_Sprite.cpp" />
-    <ClCompile Include="Script_TankPlayer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="stdafx.cpp">

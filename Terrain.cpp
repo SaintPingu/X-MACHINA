@@ -174,8 +174,8 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 
 #pragma region Terrain
-Terrain::Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength)
-	: mWidth(width), 
+Terrain::Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength) : Transform(this),
+	mWidth(width), 
 	mLength(length)
 {
 	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);

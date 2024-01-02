@@ -7,7 +7,7 @@
 
 void Script_Billboard::Update()
 {
-	mObject->LookAt(mainCameraObject->GetPosition(), Vector3::Up());
+	mObject->LookAt(mainCameraObject->GetPosition());
 }
 
 void Script_Billboard::UpdateSpriteVariable() const

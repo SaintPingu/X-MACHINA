@@ -227,9 +227,6 @@
     <ClCompile Include="Script_ShootingPlayer.cpp">
       <Filter>소스 파일\Components\Scripts\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Script_TankPlayer.cpp">
-      <Filter>소스 파일\Components\Scripts\Player</Filter>
-    </ClCompile>
     <ClCompile Include="UI.cpp">
       <Filter>소스 파일\Components\UI</Filter>
     </ClCompile>

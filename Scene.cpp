@@ -157,7 +157,7 @@ void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UIN
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
 }
 
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
+void Scene::SetGraphicsRoot32BitConstants(RootParam param, __int32 data, UINT offset)
 {
 	constexpr UINT num32Bit = 1U;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);

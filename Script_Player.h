@@ -127,42 +127,4 @@ public:
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
 };
-
-
-
-
-
-// 탱크 플레이어 (미사용)
-class Script_TankPlayer : public Script_ShootingPlayer {
-	COMPONENT(Script_TankPlayer, Script_ShootingPlayer)
-
-public:
-	GameObject* mTurret{};
-	GameObject* mGun{};
-	Transform*  mShellFirePos{};
-
-private:
-	float mPrevTurretYaw{};
-	float mRotationSpeed{};
-
-public:
-	float GetGunPitch() const;
-
-	virtual void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
-
-public:
-	virtual void Start() override;
-	virtual void Update() override;
-
-public:
-	virtual void Move(DWORD dwDirection) override;
-	virtual void FireBullet() override;
-	virtual void Rotate(DWORD rotationDir, float angle);
-
-	void RotateTurret(float pitch, float yaw);
-	void RotateGun(float pitch);
-
-private:
-	void FixTurret();
-};
 #pragma endregion

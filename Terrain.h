@@ -10,7 +10,7 @@
 #pragma region ClassForwardDecl
 class Material;
 class Texture;
-class HeightMapTerrain;
+class Terrain;
 class IlluminatedShader;
 class TerrainShader;
 class TerrainBlock;
@@ -23,6 +23,7 @@ constexpr int TERRAIN_LENGTH = 513;
 
 
 #pragma region Class
+// 2D height map 정보를 읽고 저장한다.
 class HeightMapImage {
 private:
 	std::vector<float> mHeightMapPixels{};
@@ -31,10 +32,11 @@ private:
 	int mLength{};
 
 public:
+	// [fileName]의 파일을 [width * height]만큼 읽어 저장한다.
 	HeightMapImage(const std::wstring& fileName, int width, int length);
 	virtual ~HeightMapImage() = default;
 
-	float GetHeight(float fx, float fz) const;
+	float GetHeight(float x, float z) const;
 	Vec3 GetHeightMapNormal(int x, int z) const;
 
 	const std::vector<float>& GetHeightMapPixels() const { return mHeightMapPixels; }
@@ -46,40 +48,26 @@ public:
 
 
 
-class HeightMapGridMesh : public Mesh {
-public:
-	HeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage);
-	virtual ~HeightMapGridMesh() = default;
-
-public:
-	virtual float OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage);
-	void Render() const;
-};
-
-
-
-
-
-class HeightMapTerrain : public Transform {
+// 전체 Terrain 관리
+class Terrain : public Transform {
 private:
 	sptr<HeightMapImage> mHeightMapImage{};
 
-	std::vector<sptr<TerrainBlock>> mTerrains{};
-	std::vector<TerrainBlock*> mBuffer{};
-	UINT mCurrBuffIdx{};
+	std::vector<sptr<TerrainBlock>> mTerrains{};	// all Blocks
+	std::vector<TerrainBlock*>		mBuffer{};		// 카메라에 보이는 Blocks (rendering buffer)
+	UINT							mCurrBuffIdx{};
 
 	sptr<TerrainShader> mShader{};
+	sptr<Material>		mMaterial{};		// default material (apply all textures)
+	sptr<Texture>		mTextureLayer[3];	// for texture splatting
+	sptr<Texture>		mSplatMap{};
 
-	sptr<Material> mMaterial{};
-	sptr<Texture> mTextureLayer[3];
-	sptr<Texture> mSplatMap{};
-
-	int mWidth{};
-	int mLength{};
+	int mWidth{};	// width  of entire Terrain
+	int mLength{};	// length of entire Terrain
 
 public:
-	HeightMapTerrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength);
-	virtual ~HeightMapTerrain() = default;
+	Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength);
+	virtual ~Terrain() = default;
 
 	int GetWidth() const { return mWidth; }
 	int GetLength() const { return mLength; }
@@ -91,11 +79,13 @@ public:
 
 public:
 	void Start();
-	virtual void Update() override;
+	// update all terrain block's grid index
 	void UpdateGrid();
+	// rendering terrain blocks that within [buffer]
 	void Render();
 
-	void PushObject(TerrainBlock* terrain);
+	// add terrain [block] to buffer
+	void PushObject(TerrainBlock* block);
 
 private:
 	void ResetBuffer() { mCurrBuffIdx = 0; }
@@ -105,26 +95,50 @@ private:
 
 
 
-class TerrainBlock : public GameObject {
-private:
-	HeightMapTerrain* mBuffer{};
-	sptr<HeightMapGridMesh> mMesh{};
-
-	bool mIsPushed{ false };
+// grid로 분할된 mesh
+class TerrainGridMesh : public Mesh {
+public:
+	// [xStart] : x of grid
+	// [zStart] : z of grid
+	// [width]  : width  of grid
+	// [length] : length of grid
+	TerrainGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage);
+	virtual ~TerrainGridMesh() = default;
 
 public:
-	TerrainBlock(rsptr<HeightMapGridMesh> mesh);
-	virtual ~TerrainBlock() = default;
+	void Render() const;
 
-	void SetTerrain(HeightMapTerrain* terrain) { mBuffer = terrain; }
+private:
+	// grid의 좌표(x, z)에 대한 정점의 높이를 반환한다.
+	virtual float OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage);
+};
+
+
+
+
+
+// grid로 분할된 각 Terrain의 일부 Block
+// 렌더링 시 Terrain 전체를 렌더링하는 것이 아닌 카메라에 보이는 부분만 렌더링 하기 위함이다.
+class TerrainBlock : public GameObject {
+private:
+	sptr<TerrainGridMesh>	mMesh{};	// Block마다 mesh를 보유한다.
+	Terrain*				mBuffer{};	// Terrain을 버퍼로 한다. Scene의 Grid에 속하며, 카메라에 보이면 Terrain의 버퍼에 추가된다.
+
+	bool mIsPushed{ false };			// rendering buffer에 추가되었는가?
+
+public:
+	TerrainBlock(rsptr<TerrainGridMesh> mesh, Terrain* terrain);
+	virtual ~TerrainBlock() = default;
 
 public:
 	virtual void Update() override { Reset(); };
-	virtual void Render() override;
+	virtual void Render() override { Push(); }
+	// render mesh and Reset()
 	void RenderMesh();
 
 private:
 	void Reset() { mIsPushed = false; }
+	// 이 Block을 rendering buffer에 추가한다.
 	void Push();
 };
 #pragma endregion

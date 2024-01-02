@@ -12,8 +12,6 @@ void Script_Billboard::Update()
 
 void Script_Billboard::UpdateSpriteVariable() const
 {
-	if (!Math::IsEqual(mScale, 1.f)) {
-		Matrix mtxScale = XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform()));
-		scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtxScale), 0);
-	}
+	Matrix mtxScale = XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform()));
+	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtxScale), 0);
 }

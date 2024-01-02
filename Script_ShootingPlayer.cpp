@@ -60,6 +60,7 @@ void Script_ShootingPlayer::SetDamage(float damage)
 void Script_ShootingPlayer::RenderBullets() const
 {
 	if (mBulletShader) {
+		mBulletShader->Set();
 		mBulletShader->Render();
 	}
 }
@@ -71,7 +72,7 @@ void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 
 	mBulletShader = std::make_shared<BulletShader>();
 	mBulletShader->Create();
-	mBulletShader->BuildObjects(100, bulletModel, mObject);
+	mBulletShader->BuildObjects(bulletModel, mObject);
 	mBulletShader->SetLifeTime(kBulletLifeTime);
 
 	constexpr Vec3 color{ 1.f, 1.f, 0.f };

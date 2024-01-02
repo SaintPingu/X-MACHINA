@@ -69,6 +69,8 @@ void DXGIMgr::Render()
 
 		// post processing
 		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
+
+		mPostProcessingShader->Set();
 		mPostProcessingShader->Render();
 	}
 
@@ -79,6 +81,7 @@ void DXGIMgr::Render()
 
 		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
 
+		mPostProcessingShader->Set();
 		mPostProcessingShader->Render();
 	}
 	break;

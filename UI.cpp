@@ -188,7 +188,7 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
-	mShader->Render();
+	mShader->Set();
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}

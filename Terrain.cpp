@@ -67,9 +67,10 @@ namespace {
 
 #pragma region HeightMapImage
 HeightMapImage::HeightMapImage(const std::wstring& fileName, int width, int length)
+	:
+	mWidth(width),
+	mLength(length * 2)	// [ERROR] '*2' 안하면 절반밖에 로딩이 안되는 문제
 {
-	mWidth = width;
-	mLength = length * 2; // [ERROR] *2 안하면 절반밖에 로딩이 안되는 문제
 	std::vector<uint16_t> pHeightMapPixels(mWidth * mLength);
 
 	//파일을 열고 읽는다. 높이 맵 이미지는 파일 헤더가 없는 RAW 이미지이다.
@@ -97,21 +98,19 @@ float HeightMapImage::GetHeight(float fx, float fz) const
 		return 0.f;
 	}
 	//높이 맵의 좌표의 정수 부분과 소수 부분을 계산한다.
-	int x = static_cast<int>(fx);
-	int z = static_cast<int>(fz);
-	float xPercent = fx - x;
-	float zPercent = fz - z;
+	const int x          = static_cast<int>(fx);
+	const int z          = static_cast<int>(fz);
+	const float xPercent = fx - x;
+	const float zPercent = fz - z;
 
-	/*fx = max(256, fx);
-	fz = max(256, fz);*/
-	float bottomLeft = static_cast<float>(mHeightMapPixels[x + (z * mWidth)]);
+	float bottomLeft  = static_cast<float>(mHeightMapPixels[x + (z * mWidth)]);
 	float bottomRight = static_cast<float>(mHeightMapPixels[(x + 1) + (z * mWidth)]);
-	float topLeft = static_cast<float>(mHeightMapPixels[x + ((z + 1) * mWidth)]);
-	float topRight = static_cast<float>(mHeightMapPixels[(x + 1) + ((z + 1) * mWidth)]);
+	float topLeft     = static_cast<float>(mHeightMapPixels[x + ((z + 1) * mWidth)]);
+	float topRight    = static_cast<float>(mHeightMapPixels[(x + 1) + ((z + 1) * mWidth)]);
 
 #ifdef _WITH_APPROXIMATE_OPPOSITE_CORNER
 	//z-좌표가 1, 3, 5, ...인 경우 인덱스가 오른쪽에서 왼쪽으로 나열된다.
-	bool isRightToLeft = ((z % 2) != 0);
+	const bool isRightToLeft = ((z % 2) != 0);
 	if (isRightToLeft)
 	{
 		/*지형의 삼각형들이 오른쪽에서 왼쪽 방향으로 나열되는 경우이다.
@@ -154,17 +153,17 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 	}
 
 	/*높이 맵에서 (x, z) 좌표의 픽셀 값과 인접한 두 개의 점 (x+1, z), (z, z+1)에 대한 픽셀 값을 사용하여 법선 벡터를 계산한다.*/
-	int heightMapIndex = x + (z * mWidth);
-	int xHeightMapAdd  = (x < (mWidth - 1)) ? 1 : -1;
-	int zHeightMapAdd  = (z < (mLength - 1)) ? mWidth : -mWidth;
+	const int heightMapIndex = x + (z * mWidth);
+	const int xHeightMapAdd  = (x < (mWidth - 1)) ? 1 : -1;
+	const int zHeightMapAdd  = (z < (mLength - 1)) ? mWidth : -mWidth;
 
-	float y1 = (float)mHeightMapPixels[heightMapIndex];
-	float y2 = (float)mHeightMapPixels[heightMapIndex + xHeightMapAdd];
-	float y3 = (float)mHeightMapPixels[heightMapIndex + zHeightMapAdd];
+	const float y1 = (float)mHeightMapPixels[heightMapIndex];
+	const float y2 = (float)mHeightMapPixels[heightMapIndex + xHeightMapAdd];
+	const float y3 = (float)mHeightMapPixels[heightMapIndex + zHeightMapAdd];
 
-	Vec3 edge1  = Vec3(0.f, y3 - y1, 1.f);
-	Vec3 edge2  = Vec3(1.f, y2 - y1, 0.f);
-	Vec3 normal = Vector3::CrossProduct(edge1, edge2, true);
+	const Vec3 edge1  = Vec3(0.f, y3 - y1, 1.f);
+	const Vec3 edge2  = Vec3(1.f, y2 - y1, 0.f);
+	const Vec3 normal = Vector3::CrossProduct(edge1, edge2, true);
 
 	return normal;
 }
@@ -174,8 +173,141 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 
 
-#pragma region HeightMapGridMesh
-HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage)
+#pragma region Terrain
+Terrain::Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength)
+	: mWidth(width), 
+	mLength(length)
+{
+	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
+
+	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
+	int xQuadsPerBlock = blockWidth - 1;
+	int zQuadsPerBlock = blockLength - 1;
+
+	//지형에서 가로 방향, 세로 방향으로 격자 메쉬가 몇 개가 있는 가를 나타낸다.
+	long xBlocks = (mWidth - 1) / xQuadsPerBlock;
+	long zBlocks = (mLength - 1) / zQuadsPerBlock;
+
+	mTerrains.resize(xBlocks * zBlocks);
+	mBuffer.resize(xBlocks * zBlocks);
+
+	float meshRadius = std::sqrtf((blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
+	MyBoundingSphere bs;
+	bs.Radius = meshRadius;
+
+	for (int z = 0, zStart = 0; z < zBlocks; z++)
+	{
+		for (int x = 0, xStart = 0; x < xBlocks; x++)
+		{
+			xStart = x * (blockWidth - 1);
+			zStart = z * (blockLength - 1);
+
+			// 각자 메쉬를 생성해 저장
+			int index = x + (z * xBlocks);
+
+			sptr<TerrainGridMesh> mesh = std::make_shared<TerrainGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
+			mTerrains[index]           = std::make_shared<TerrainBlock>(mesh, this);
+
+			Vec3 center = Vec3(xStart + blockWidth / 2, 0.f, zStart + blockLength / 2);
+			bs.Center   = center;
+			mTerrains[index]->SetPosition(center);
+			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
+		}
+	}
+
+	MaterialLoadInfo materialInfo{};
+	materialInfo.Emissive          = Vec4(0.f, 0.f, 0.f, 1.f);
+	materialInfo.Glossiness        = 0.1414213f;
+	materialInfo.Metallic          = 0.f;
+	materialInfo.SpecularHighlight = 1.f;
+	materialInfo.GlossyReflection  = 1.f;
+
+	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
+	mMaterial                           = std::make_shared<Material>();
+	mMaterial->SetMaterialColors(materialColors);
+
+	mTextureLayer[0] = scene->GetTexture("GrassUV01");
+	mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
+	mTextureLayer[2] = scene->GetTexture("Stone");
+	mSplatMap        = scene->GetTexture("Terrain_splatmap");
+
+	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
+	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
+	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
+	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
+
+	mShader = std::make_shared<TerrainShader>();
+	mShader->Create();
+}
+
+
+
+float Terrain::GetHeight(float x, float z) const
+{
+	return mHeightMapImage->GetHeight(x, z);
+}
+
+Vec3 Terrain::GetNormal(float x, float z) const
+{
+	return mHeightMapImage->GetHeightMapNormal(static_cast<int>(x), static_cast<int>(z));
+}
+
+int Terrain::GetHeightMapWidth() const
+{
+	return mHeightMapImage->GetHeightMapWidth();
+}
+int Terrain::GetHeightMapLength() const
+{
+	return mHeightMapImage->GetHeightMapLength();
+}
+
+void Terrain::PushObject(TerrainBlock* block)
+{
+	assert(mCurrBuffIdx < mBuffer.size());
+
+	mBuffer[mCurrBuffIdx++] = block;
+}
+
+void Terrain::Render()
+{
+	mShader->Set();
+
+	UpdateShaderVars();
+	mMaterial->UpdateShaderVars();
+
+	mTextureLayer[0]->UpdateShaderVars();
+	mTextureLayer[1]->UpdateShaderVars();
+	mTextureLayer[2]->UpdateShaderVars();
+	mSplatMap->UpdateShaderVars();
+
+	for (UINT i = 0; i < mCurrBuffIdx; ++i) {
+		mBuffer[i]->RenderMesh();
+	}
+
+	ResetBuffer();
+}
+
+void Terrain::Start()
+{
+	for (auto& terrain : mTerrains) {
+		terrain->Start();
+	}
+}
+
+void Terrain::UpdateGrid()
+{
+	for (auto& terrain : mTerrains) {
+		scene->UpdateObjectGrid(terrain.get());
+	}
+}
+#pragma endregion
+
+
+
+
+
+#pragma region TerrainGridMesh
+TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage)
 {
 	static constexpr float corr = 1.f / TERRAIN_LENGTH;	// for SplatMap
 	static constexpr float detailScale = 0.1f;
@@ -198,7 +330,7 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 		for (int x = xStart; x < (xStart + width); x++, i++) {
 
 			positions[i] = Vec3(x, OnGetHeight(x, z, heightMapImage), z);
-			normals[i]   = heightMapImage->GetHeightMapNormal(x, z);
+			normals[i] = heightMapImage->GetHeightMapNormal(x, z);
 
 			uvs0[i] = Vec2(float(x) * detailScale, float(z) * detailScale);
 			uvs1[i] = Vec2(float(x) * corr, float(z) * corr);
@@ -247,16 +379,15 @@ HeightMapGridMesh::HeightMapGridMesh(int xStart, int zStart, int width, int leng
 }
 
 
-//격자의 좌표가 (x, z)일 때 교점(정점)의 높이를 반환하는 함수이다.
-float HeightMapGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage)
+float TerrainGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage)
 {
 	const std::vector<float>& heightMapPixels = heightMapImage->GetHeightMapPixels();
-	const int width                           = heightMapImage->GetHeightMapWidth();
+	const int width = heightMapImage->GetHeightMapWidth();
 
 	return heightMapPixels[x + (z * width)];
 }
 
-void HeightMapGridMesh::Render() const
+void TerrainGridMesh::Render() const
 {
 	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
 
@@ -274,157 +405,13 @@ void HeightMapGridMesh::Render() const
 
 
 
-#pragma region HeightMapTerrain
-HeightMapTerrain::HeightMapTerrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength)
-	: mWidth(width), 
-	mLength(length)
-{
-	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
-
-	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
-	int xQuadsPerBlock = blockWidth - 1;
-	int zQuadsPerBlock = blockLength - 1;
-
-	//지형에서 가로 방향, 세로 방향으로 격자 메쉬가 몇 개가 있는 가를 나타낸다.
-	long xBlocks = (mWidth - 1) / xQuadsPerBlock;
-	long zBlocks = (mLength - 1) / zQuadsPerBlock;
-
-	mTerrains.resize(xBlocks * zBlocks);
-	mBuffer.resize(xBlocks * zBlocks);
-
-	float meshRadius = std::sqrtf((blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
-	MyBoundingSphere bs;
-	bs.Radius = meshRadius;
-
-	for (int z = 0, zStart = 0; z < zBlocks; z++)
-	{
-		for (int x = 0, xStart = 0; x < xBlocks; x++)
-		{
-			xStart = x * (blockWidth - 1);
-			zStart = z * (blockLength - 1);
-
-			// 각자 메쉬를 생성해 저장
-			int index = x + (z * xBlocks);
-
-			sptr<HeightMapGridMesh> mesh = std::make_shared<HeightMapGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
-			mTerrains[index]             = std::make_shared<TerrainBlock>(mesh);
-			mTerrains[index]->SetTerrain(this);
-
-			Vec3 center = Vec3(xStart + blockWidth / 2, 0.f, zStart + blockLength / 2);
-			bs.Center   = center;
-			mTerrains[index]->SetPosition(center);
-			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
-		}
-	}
-
-	MaterialLoadInfo materialInfo{};
-	materialInfo.Emissive          = Vec4(0.f, 0.f, 0.f, 1.f);
-	materialInfo.Glossiness        = 0.1414213f;
-	materialInfo.Metallic          = 0.f;
-	materialInfo.SpecularHighlight = 1.f;
-	materialInfo.GlossyReflection  = 1.f;
-
-	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
-	mMaterial                           = std::make_shared<Material>();
-	mMaterial->SetMaterialColors(materialColors);
-
-	mTextureLayer[0] = scene->GetTexture("GrassUV01");
-	mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
-	mTextureLayer[2] = scene->GetTexture("Stone");
-	mSplatMap        = scene->GetTexture("Terrain_splatmap");
-
-	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
-	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
-	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
-	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
-
-	mShader = std::make_shared<TerrainShader>();
-	mShader->Create();
-}
-
-
-
-float HeightMapTerrain::GetHeight(float x, float z) const
-{
-	return mHeightMapImage->GetHeight(x, z);
-}
-
-Vec3 HeightMapTerrain::GetNormal(float x, float z) const
-{
-	return mHeightMapImage->GetHeightMapNormal(static_cast<int>(x), static_cast<int>(z));
-}
-
-int HeightMapTerrain::GetHeightMapWidth() const
-{
-	return mHeightMapImage->GetHeightMapWidth();
-}
-int HeightMapTerrain::GetHeightMapLength() const
-{
-	return mHeightMapImage->GetHeightMapLength();
-}
-
-void HeightMapTerrain::PushObject(TerrainBlock* terrain)
-{
-	assert(mCurrBuffIdx < mBuffer.size());
-
-	mBuffer[mCurrBuffIdx++] = terrain;
-}
-
-void HeightMapTerrain::Render()
-{
-	mShader->Render();
-
-	UpdateShaderVars();
-	mMaterial->UpdateShaderVars();
-
-	mTextureLayer[0]->UpdateShaderVars();
-	mTextureLayer[1]->UpdateShaderVars();
-	mTextureLayer[2]->UpdateShaderVars();
-	mTextureLayer[3]->UpdateShaderVars();
-	mSplatMap->UpdateShaderVars();
-
-	for (UINT i = 0; i < mCurrBuffIdx; ++i) {
-		mBuffer[i]->RenderMesh();
-	}
-
-	ResetBuffer();
-}
-
-void HeightMapTerrain::Start()
-{
-	for (auto& terrain : mTerrains) {
-		terrain->Start();
-	}
-}
-
-void HeightMapTerrain::Update()
-{
-	UpdateGrid();
-}
-
-void HeightMapTerrain::UpdateGrid()
-{
-	for (auto& terrain : mTerrains) {
-		scene->UpdateObjectGrid(terrain.get());
-	}
-}
-#pragma endregion
-
-
-
-
-
 #pragma region TerrainBlock
-TerrainBlock::TerrainBlock(rsptr<HeightMapGridMesh> mesh) : GameObject()
+TerrainBlock::TerrainBlock(rsptr<TerrainGridMesh> mesh, Terrain* terrain)
+	:
+	mMesh(mesh),
+	mBuffer(terrain)
 {
-	mMesh = mesh;
-
 	SetTag(ObjectTag::Terrain);
-}
-
-void TerrainBlock::Render()
-{
-	Push();
 }
 
 void TerrainBlock::RenderMesh()

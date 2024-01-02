@@ -297,8 +297,8 @@ void Scene::BuildGlobalShader()
 	mWaterShader = std::make_shared<WaterShader>();
 	mWaterShader->Create();
 
-	mInstancingShader = std::make_shared<ObjectInstancingShader>();
-	mInstancingShader->Create();
+	mInstShader = std::make_shared<ObjectInstShader>();
+	mInstShader->Create();
 
 	mTransparentShader = std::make_shared<TransparentShader>();
 	mTransparentShader->Create();
@@ -347,7 +347,7 @@ void Scene::BuildTerrain()
 {
 	constexpr int terrainGridLength = (TERRAIN_LENGTH - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
 
-	mTerrain = std::make_shared<HeightMapTerrain>(_T("HeightMap.raw"), TERRAIN_LENGTH, TERRAIN_LENGTH, terrainGridLength, terrainGridLength);
+	mTerrain = std::make_shared<Terrain>(_T("HeightMap.raw"), TERRAIN_LENGTH, TERRAIN_LENGTH, terrainGridLength, terrainGridLength);
 
 	BuildGrid();
 }
@@ -632,7 +632,7 @@ void Scene::Render()
 
 	OnPrepareRender();
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
-	mGlobalShader->Render();
+	mGlobalShader->Set();
 
 	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects);
 	RenderEnvironments();
@@ -665,12 +665,12 @@ void Scene::RenderTerrain()
 
 void Scene::RenderTransparentObjects(const std::set<GameObject*>& transparentObjects)
 {
-	mTransparentShader->Render();
+	mTransparentShader->Set();
 	for (auto& object : transparentObjects) {
 		object->Render();
 	}
 	if (mWater) {
-		mWaterShader->Render();
+		mWaterShader->Set();
 		mWater->Render();
 	}
 }
@@ -718,7 +718,7 @@ void Scene::RenderGridObjects(std::set<GameObject*>& renderedObjects, std::set<G
 
 void Scene::RenderInstanceObjects()
 {
-	mInstancingShader->Render();
+	mInstShader->Set();
 	for (auto& buffer : mInstanceBuffers) {
 		buffer->Render();
 	}
@@ -727,9 +727,11 @@ void Scene::RenderInstanceObjects()
 void Scene::RenderFXObjects()
 {
 	if (mSmallExpFXShader) {
+		mSmallExpFXShader->Set();
 		mSmallExpFXShader->Render();
 	}
 	if (mBigExpFXShader) {
+		mBigExpFXShader->Set();
 		mBigExpFXShader->Render();
 	}
 }
@@ -760,7 +762,7 @@ bool Scene::RenderBounds(const std::set<GameObject*>& renderedObjects)
 
 	cmdList->IASetPrimitiveTopology(kBoundsPrimitiveTopology);
 
-	mBoundingShader->Render();
+	mBoundingShader->Set();
 	RenderObjectBounds(renderedObjects);
 	RenderGridBounds();
 
@@ -798,11 +800,11 @@ void Scene::RenderGridBounds()
 
 void Scene::RenderBillboards(const std::set<GameObject*>& billboards)
 {
-	mBillboardShader->Render();
+	mBillboardShader->Set();
 	for (auto& object : billboards) {
 		object->Render();
 	}
-	mSpriteShader->Render();
+	mSpriteShader->Set();
 	for (auto& object : mSpriteEffectObjects) {
 		object->Render();
 	}
@@ -909,7 +911,7 @@ void Scene::UpdateSprites()
 {
 	for (auto it = mSpriteEffectObjects.begin(); it != mSpriteEffectObjects.end(); ) {
 		auto& object = *it;
-		if (object->GetComponent<Script_Sprite>()->IsEnd()) {
+		if (object->GetComponent<Script_Sprite>()->IsEndAnimation()) {
 			it = mSpriteEffectObjects.erase(it);
 		}
 		else {

@@ -157,8 +157,8 @@ private:
 
 	std::vector<const Transform*>	mMergedTransform{};
 
-	ComPtr<ID3D12Resource>			mSB_Buffer{};
-	SB_StandardInst*				mSBMap_Buffer{};	
+	ComPtr<ID3D12Resource>			mSB_Inst{};		// StructuredBuffer for instance
+	SB_StandardInst*				mSBMap_Inst{};	// mapped StructuredBuffer
 
 public:
 	ObjectInstBuffer()          = default;

@@ -15,12 +15,13 @@ class MasterModel;
 class ModelObjectMesh;
 
 class Shader;
+class InstShader;
 class StaticShader;
 
 class Camera;
 class GameObject;
 class Material;
-class HeightMapTerrain;
+class Terrain;
 class Light;
 class Texture;
 class SkyBox;
@@ -62,7 +63,7 @@ private:
 	sptr<Shader> mWaterShader{};
 	sptr<Shader> mBillboardShader{};
 	sptr<Shader> mSpriteShader{};
-	sptr<Shader> mInstancingShader{};		// for InstObjects
+	sptr<Shader> mInstShader{};		// for InstObjects
 	sptr<Shader> mTransparentShader{};
 	sptr<StaticShader> mSmallExpFXShader{};	// bullet fragments, ...
 	sptr<StaticShader> mBigExpFXShader{};	// building fragments, ...
@@ -81,7 +82,7 @@ private:
 	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
 
 	/* Map */
-	sptr<HeightMapTerrain> mTerrain{};
+	sptr<Terrain> mTerrain{};
 	BoundingBox mMapBorder{};					// max scene range	(grid will be generated within this border)
 
 	/* Grid */
@@ -269,7 +270,7 @@ public:
 	void ChangeToNextPlayer();
 	void ChangeToPrevPlayer();
 
-	// update objects' grid info(indices)
+	// update objects' grid indices
 	void UpdateObjectGrid(GameObject* object, bool isCheckAdj = true);
 	void RemoveObjectFromGrid(GameObject* object);
 

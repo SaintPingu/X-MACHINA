@@ -14,6 +14,7 @@ class ModelObjectMesh;
 
 
 #pragma region Class
+// SkyBox ¹è°æ °´Ã¼ (not entity)
 class SkyBox : public Transform {
 private:
 	std::unique_ptr<ModelObjectMesh> mMesh{};

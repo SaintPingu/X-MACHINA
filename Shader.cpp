@@ -33,6 +33,8 @@ Shader::~Shader()
 
 void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
 {
+	assert(!mIsClosed);
+
 	mPipelineStateDesc.pRootSignature = scene->GetRootSignature().Get();
 	mPipelineStateDesc.VS = CreateVertexShader();
 	mPipelineStateDesc.PS = CreatePixelShader();
@@ -65,7 +67,7 @@ void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
 	}
 }
 
-void Shader::Render(int pipelineStateIndex)
+void Shader::Set(int pipelineStateIndex)
 {
 	SetPipelineState(pipelineStateIndex);
 	UpdateShaderVars();
@@ -284,20 +286,20 @@ D3D12_SHADER_BYTECODE WireShader::CreatePixelShader()
 
 
 
-#pragma region InstancingShader
-InstancingShader::~InstancingShader()
+#pragma region InstShader
+InstShader::~InstShader()
 {
 	ReleaseShaderVars();
 }
 
-void InstancingShader::SetColor(const Vec3& color)
+void InstShader::SetColor(const Vec3& color)
 {
 	for (size_t i = 0; i < mObjects.size(); ++i) {
-		mMappedObjects[i].Color = Vec4(color.x, color.y, color.z, 1.f);
+		mSBMap_Inst[i].Color = Vec4(color.x, color.y, color.z, 1.f);
 	}
 }
 
-void InstancingShader::Start()
+void InstShader::Start()
 {
 	for (auto& object : mObjects) {
 		object->Start();
@@ -305,7 +307,7 @@ void InstancingShader::Start()
 }
 
 
-void InstancingShader::Update()
+void InstShader::Update()
 {
 	for (auto& object : mObjects) {
 		if (object->IsActive()) {
@@ -313,17 +315,15 @@ void InstancingShader::Update()
 		}
 	}
 }
-void InstancingShader::Render()
+void InstShader::Render()
 {
-	Shader::Render();
-	UpdateShaderVars();
 	mMesh->RenderInstanced(mObjects.size());
 }
 
 
-void InstancingShader::BuildObjects(size_t instanceCount, rsptr<const Mesh> mesh)
+void InstShader::BuildObjects(size_t instCnt, rsptr<const Mesh> mesh)
 {
-	mObjects.resize(instanceCount);
+	mObjects.resize(instCnt);
 
 	for (auto& object : mObjects) {
 		object = std::make_shared<GameObject>();
@@ -333,35 +333,35 @@ void InstancingShader::BuildObjects(size_t instanceCount, rsptr<const Mesh> mesh
 	CreateShaderVars();
 }
 
-void InstancingShader::SetSRV()
+void InstShader::SetShaderResourceView()
 {
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuff->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Inst->GetGPUVirtualAddress());
 }
 
-void InstancingShader::CreateShaderVars()
+void InstShader::CreateShaderVars()
 {
-	D3DUtil::CreateBufferResource(NULL, sizeof(InstBuff) * mObjects.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mInstBuff);
-	mInstBuff->Map(0, NULL, (void**)&mMappedObjects);
+	D3DUtil::CreateBufferResource(NULL, sizeof(InstBuff) * mObjects.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mSB_Inst);
+	mSB_Inst->Map(0, NULL, (void**)&mSBMap_Inst);
 }
 
-void InstancingShader::UpdateShaderVars()
+void InstShader::UpdateShaderVars()
 {
-	SetSRV();
+	SetShaderResourceView();
 
 	for (int j = 0; j < mObjects.size(); j++) {
-		mMappedObjects[j].LocalTransform = Matrix4x4::Transpose(mObjects[j]->GetWorldTransform());
+		mSBMap_Inst[j].LocalTransform = Matrix4x4::Transpose(mObjects[j]->GetWorldTransform());
 	}
 }
 
-void InstancingShader::ReleaseShaderVars()
+void InstShader::ReleaseShaderVars()
 {
-	if (mInstBuff) {
-		mInstBuff->Unmap(0, NULL);
-		mInstBuff = nullptr;
+	if (mSB_Inst) {
+		mSB_Inst->Unmap(0, NULL);
+		mSB_Inst = nullptr;
 	}
 }
 
-D3D12_INPUT_LAYOUT_DESC InstancingShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC InstShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
@@ -374,7 +374,7 @@ D3D12_INPUT_LAYOUT_DESC InstancingShader::CreateInputLayout()
 	return inputLayoutDesc;
 }
 
-D3D12_SHADER_BYTECODE InstancingShader::CreateVertexShader()
+D3D12_SHADER_BYTECODE InstShader::CreateVertexShader()
 {
 #ifdef READ_COMPILED_SHADER
 	return Shader::ReadCompiledShaderFile(L"VShader_Instance.cso", mVSBlob);
@@ -383,7 +383,7 @@ D3D12_SHADER_BYTECODE InstancingShader::CreateVertexShader()
 #endif
 }
 
-D3D12_SHADER_BYTECODE InstancingShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE InstShader::CreatePixelShader()
 {
 #ifdef READ_COMPILED_SHADER
 	return Shader::ReadCompiledShaderFile(L"PShader_Instance.cso", mPSBlob);
@@ -399,18 +399,11 @@ D3D12_SHADER_BYTECODE InstancingShader::CreatePixelShader()
 
 
 #pragma region EffectShader
-void EffectShader::SetColor(size_t i, const Vec3& color)
-{
-	if (i < mObjects.size()) {
-		mObjectScripts[i]->SetColor(color);
-	}
-}
-
 void EffectShader::Update()
 {
 	for (auto& [begin, duration] : mActiveGroups) {
 		duration += DeltaTime();
-		if (duration >= mMaxDuration) {
+		if (duration >= mMaxLifeTime) {
 			mTimeOvers.emplace_back(begin);
 			continue;
 		}
@@ -430,8 +423,6 @@ void EffectShader::Update()
 
 void EffectShader::Render()
 {
-	Shader::Render();
-	UpdateShaderVars();
 	mMesh->RenderInstanced(mActiveGroups.size() * mCountPerGroup);
 }
 
@@ -479,17 +470,17 @@ void EffectShader::SetActive(const Vec3& pos)
 
 void EffectShader::UpdateShaderVars()
 {
-	SetSRV();
+	SetShaderResourceView();
 
 	size_t i = 0;
 	for (auto& [begin, duration] : mActiveGroups) {
 		size_t index = begin;
 		size_t end = begin + mCountPerGroup;
 		for (; index < end; ++index, ++i) {
-			mMappedObjects[i].LocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
+			mSBMap_Inst[i].LocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
 
 			Vec3 color = mObjectScripts[i]->GetColor();
-			mMappedObjects[i].Color = Vec4(color.x, color.y, color.z, 1.f);
+			mSBMap_Inst[i].Color = Vec4(color.x, color.y, color.z, 1.f);
 		}
 	}
 }
@@ -509,14 +500,14 @@ void TexturedEffectShader::Render()
 void TexturedEffectShader::UpdateShaderVars()
 {
 	mMaterial->UpdateShaderVars();
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuff->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Inst->GetGPUVirtualAddress());
 
 	size_t i = 0;
 	for (auto& [begin, duration] : mActiveGroups) {
 		size_t index = begin;
 		size_t end = begin + mCountPerGroup;
 		for (; index < end; ++index, ++i) {
-			mMappedObjects[i].LocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
+			mSBMap_Inst[i].LocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
 		}
 	}
 }
@@ -573,8 +564,8 @@ void SmallExpEffectShader::BuildObjects()
 	constexpr Vec3 RotationAxis{ 1.f,1.f,1.f };
 
 	std::uniform_int_distribution uid{ minSpeed, maxSpeed };
-	
-	SetDuration(duration);
+
+	SetLifeTime(duration);
 	SetMaterial(scene->GetMaterial("Metal02"));
 
 	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
@@ -616,7 +607,7 @@ void BigExpEffectShader::BuildObjects()
 
 	std::uniform_int_distribution uid{ minSpeed, maxSpeed };
 
-	SetDuration(duration);
+	SetLifeTime(duration);
 	SetMaterial(scene->GetMaterial("Metal02"));
 
 	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
@@ -648,13 +639,15 @@ void BigExpEffectShader::BuildObjects()
 
 
 #pragma region BulletShader
-void BulletShader::BuildObjects(size_t bufferSize, rsptr<const MasterModel> model, const Object* owner)
+void BulletShader::BuildObjects(rsptr<const MasterModel> model, const Object* owner)
 {
+	constexpr size_t kBufferSize = 100;
+
 	mMesh = model->GetMesh();
-	mObjects.resize(bufferSize);
+	mObjects.resize(kBufferSize);
 	mObjectScripts.resize(mObjects.size());
 
-	for (size_t i = 0; i < bufferSize; ++i) {
+	for (size_t i = 0; i < kBufferSize; ++i) {
 		mObjects[i] = std::make_shared<GameObject>();
 		mObjects[i]->SetModel(model);
 		mObjects[i]->AddComponent<Rigidbody>();
@@ -698,8 +691,6 @@ void BulletShader::Update()
 
 void BulletShader::Render()
 {
-	Shader::Render();
-	UpdateShaderVars();
 	mMesh->RenderInstanced(mBuffer.size());
 }
 
@@ -726,7 +717,7 @@ void BulletShader::FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, 
 
 void BulletShader::UpdateShaderVars()
 {
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mInstBuff->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Inst->GetGPUVirtualAddress());
 
 	int i{};
 	for (auto it = mBuffer.begin(); it != mBuffer.end(); ) {
@@ -736,7 +727,7 @@ void BulletShader::UpdateShaderVars()
 			continue;
 		}
 
-		mMappedObjects[i].LocalTransform = Matrix4x4::Transpose(object->GetWorldTransform());
+		mSBMap_Inst[i].LocalTransform = Matrix4x4::Transpose(object->GetWorldTransform());
 		++i;
 		++it;
 	}
@@ -782,8 +773,8 @@ D3D12_SHADER_BYTECODE TexturedShader::CreatePixelShader()
 
 
 
-#pragma region ObjectInstancingShader
-D3D12_SHADER_BYTECODE ObjectInstancingShader::CreateVertexShader()
+#pragma region ObjectInstShader
+D3D12_SHADER_BYTECODE ObjectInstShader::CreateVertexShader()
 {
 	return Shader::CompileShaderFile(L"VShader_StandardInstance.hlsl", "VS_StandardInstance", "vs_5_1", mVSBlob);
 }
@@ -1015,13 +1006,11 @@ PostProcessingShader::PostProcessingShader()
 
 void PostProcessingShader::CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
-	// texture resource를 생성하고 이에 대한 SRV와 RTV를 생성한다
 	CreateTextureResources();
 	CreateSrvs();
 	CreateRtvs(rtvHandle);
 }
 
-// 각 RTV의 handle을 받아와 Clear하고 이들을 OutputMerger에 Set한다.
 void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle)
 {
 	constexpr int renderTargetCnt = 1;
@@ -1054,13 +1043,14 @@ void PostProcessingShader::OnPostRenderTarget()
 
 void PostProcessingShader::Render()
 {
-	Shader::Render();
-
-	// SRV의 GPU Descriptor Handle의 시작 주소로 Set한다.
-	mTextures[0]->UpdateShaderVars();
-
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	cmdList->DrawInstanced(6, 1, 0, 0);
+}
+
+void PostProcessingShader::UpdateShaderVars()
+{
+	// SRV의 GPU Descriptor Handle을 Set한다.
+	mTextures[0]->UpdateShaderVars();
 }
 
 D3D12_DEPTH_STENCIL_DESC PostProcessingShader::CreateDepthStencilState()
@@ -1094,7 +1084,6 @@ D3D12_SHADER_BYTECODE PostProcessingShader::CreatePixelShader()
 	return Shader::CompileShaderFile(L"PShader_Post.hlsl", "PSPostProcessing", "ps_5_1", mPSBlob);
 }
 
-// texture resource를 생성한다 (ID3D12Resource)
 void PostProcessingShader::CreateTextureResources()
 {
 	mTextures.resize(mRtvCnt);
@@ -1108,7 +1097,6 @@ void PostProcessingShader::CreateTextureResources()
 	}
 }
 
-// resource의 SRV Descriptor를 생성한다. (ID3D12Device::CreateShaderResourceView)
 void PostProcessingShader::CreateSrvs()
 {
 	CreateShaderVars();
@@ -1119,7 +1107,6 @@ void PostProcessingShader::CreateSrvs()
 	}
 }
 
-// resource의 RTV Descriptor를 생성한다. (ID3D12Device::CreateRenderTargetView)
 void PostProcessingShader::CreateRtvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};

@@ -30,6 +30,6 @@ void SkyBox::Render()
 	
 	UpdateShaderVars();
 	mTexture->UpdateShaderVars();
-	mShader->Render();
+	mShader->Set();
 	mMesh->Render();
 }

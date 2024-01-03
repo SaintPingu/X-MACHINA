@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Texture.h"
 #include "DXGIMgr.h"
+#include "FileIO.h"
 
 #include "Scene.h"
 
@@ -25,18 +26,18 @@ D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 	{
 	case D3DResource::Texture2D: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 1)
 	case D3DResource::Texture2D_Array:
-		srvDesc.Format                        = resourceDesc.Format;
-		srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels           = -1;
-		srvDesc.Texture2D.MostDetailedMip     = 0;
-		srvDesc.Texture2D.PlaneSlice          = 0;
+		srvDesc.Format = resourceDesc.Format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = -1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.PlaneSlice = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
 		break;
 	case D3DResource::TextureCube: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 6)
-		srvDesc.Format                          = resourceDesc.Format;
-		srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels           = 1;
-		srvDesc.TextureCube.MostDetailedMip     = 0;
+		srvDesc.Format = resourceDesc.Format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MipLevels = 1;
+		srvDesc.TextureCube.MostDetailedMip = 0;
 		srvDesc.TextureCube.ResourceMinLODClamp = 0.f;
 		break;
 	default:
@@ -44,12 +45,6 @@ D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 		break;
 	}
 	return srvDesc;
-}
-
-void Texture::SetName(const std::string& name)
-{
-	std::string str = std::move(name);
-	mName.assign(str.begin(), str.end());
 }
 
 void Texture::ReleaseUploadBuffers()
@@ -71,39 +66,22 @@ void Texture::ReleaseShaderVars()
 }
 
 
-void Texture::LoadTexture(const std::string& fileName)
+void Texture::LoadTexture(const std::string& folder, const std::string& fileName)
 {
-	SetName(fileName);
-	std::wstring filePath = L"Models/Textures/" + mName + L".dds";
-	LoadTexture(filePath);
-}
+	mName = fileName;
 
-void Texture::LoadUITexture(const std::string& fileName)
-{
-	SetName(fileName);
-	std::wstring filePath = L"Models/UI/" + mName + L".dds";
-	LoadTexture(filePath);
-}
+	std::string filePath = folder + mName + ".dds";
+	std::wstring wfilePath;
+	wfilePath.assign(filePath.begin(), filePath.end());
 
+	D3DUtil::CreateTextureResourceFromDDSFile(wfilePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	scene->CreateShaderResourceView(this, 0);
 
-void Texture::LoadCubeTexture(const std::string& fileName)
-{
-	SetName(fileName);
-	std::wstring filePath = L"Models/Skybox/" + mName + L".dds";
-	LoadTexture(filePath);
+	mTextureMask |= MaterialMap::Albedo;
 }
 
 
 ComPtr<ID3D12Resource> Texture::CreateTextureResource(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
 {
 	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
-}
-
-
-void Texture::LoadTexture(const std::wstring& filePath)
-{
-	D3DUtil::CreateTextureResourceFromDDSFile(filePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	scene->CreateShaderResourceView(this, 0);
-
-	mTextureMask |= MaterialMap::Albedo;
 }

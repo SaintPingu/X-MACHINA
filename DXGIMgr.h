@@ -130,8 +130,12 @@ private:
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateSwapChain();
-	void CreateRTVs();
+	// swap chain의 RTV들을 생성한다.
+	void CreateSwapChainRTVs();
 	void CreateDSV();
+
+	void CreatePostProcessingShader();
+	void CreatePostProcessingRTVs();
 
 	// full screen on/off (resize swap chain buffer)
 	void ChangeSwapChainState();
@@ -139,6 +143,6 @@ private:
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
-	void BuildObjects();
+	void BuildScene();
 };
 #pragma endregion

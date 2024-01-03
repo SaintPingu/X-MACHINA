@@ -245,11 +245,11 @@ namespace D3DUtil {
 #pragma region Class
 void MyBoundingOrientedBox::Transform(const Vec4x4& transform)
 {
-	Matrix matrix = _MATRIX(transform);
-	Vector rotation = XMQuaternionRotationMatrix(_MATRIX(transform));
+	const Matrix kMatrix = _MATRIX(transform);
+	const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
 
-	XMStoreFloat4(&Orientation, rotation);
-	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), matrix));
+	XMStoreFloat4(&Orientation, kRotation);
+	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
 }
 
 void MyBoundingSphere::Transform(const Vec4x4& transform)
@@ -257,7 +257,8 @@ void MyBoundingSphere::Transform(const Vec4x4& transform)
 	Center = Matrix4x4::Multiply(transform, mOriginCenter);
 }
 
-bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const {
+bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const
+{
 	for (auto& box : boxes) {
 		if (Intersects(*box)) {
 			return true;

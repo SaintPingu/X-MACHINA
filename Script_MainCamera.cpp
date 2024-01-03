@@ -29,9 +29,9 @@ void Script_MainCamera::Update()
 	const Vec3 up      = mPlayer->GetUp();
 	const Vec3 look    = mPlayer->GetLook();
 
-	rotationMtx._11 = right.x; rotationMtx._21 = up.x; rotationMtx._31 = look.x;
-	rotationMtx._12 = right.y; rotationMtx._22 = up.y; rotationMtx._32 = look.y;
-	rotationMtx._13 = right.z; rotationMtx._23 = up.z; rotationMtx._33 = look.z;
+	std::memcpy(&rotationMtx._11, &right, sizeof(Vec3));
+	std::memcpy(&rotationMtx._21, &up,	  sizeof(Vec3));
+	std::memcpy(&rotationMtx._31, &look,  sizeof(Vec3));
 
 	const Vec3 offset   = Vector3::TransformCoord(mOffset, rotationMtx);
 	const Vec3 position = Vector3::Add(mPlayer->GetPosition(), offset);
@@ -63,15 +63,15 @@ void Script_MainCamera::Update()
 
 void Script_MainCamera::UpdateHeight()
 {
-	constexpr float minHeight = 2.0f;
+	constexpr float kMinHeight = 2.0f;
 
-	if (mObject->GetPosition().y <= minHeight) {
-		mObject->SetPositionY(minHeight);
+	if (mObject->GetPosition().y <= kMinHeight) {
+		mObject->SetPositionY(kMinHeight);
 		LookPlayer();
 	}
 
 	Vec3 camPos        = mObject->GetPosition();
-	const float height = scene->GetTerrainHeight(camPos.x, camPos.z) + minHeight;
+	const float height = scene->GetTerrainHeight(camPos.x, camPos.z) + kMinHeight;
 
 	if (camPos.y <= height) {
 		camPos.y = height;

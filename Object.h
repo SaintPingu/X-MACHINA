@@ -34,7 +34,7 @@ protected:
 	bool mIsInstancing{ false };	// 인스턴싱 객체인가?
 
 private:
-	bool mIsActive{ true };			// 활성화되어 있는가?
+	bool mIsActive{ true };			// 활성화되어 있는가? (Update, Render)
 	bool mIsFlyable{ false };		// 날 수 있는가?
 	bool mIsDrawBounding{ false };	// collision bounds를 그리는가?
 
@@ -90,11 +90,11 @@ public:
 	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
 	void ClearGridIndices() { mGridIndices.clear(); }
 
-	// frameName을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
+	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
 	Transform* FindFrame(const std::string& frameName);
 
 private:
-	// 객체를 지면에 붙인다.
+	// 객체의 위치(pos)를 지면에 붙인다.
 	void AttachToGround();
 	// 객체를 지면의 기울기에 맞게 붙도록 한다.
 	void TiltToGround();
@@ -117,7 +117,7 @@ private:
 
 	std::function<void()> mUpdateFunc{};
 
-	bool mIsPushed{ false };
+	bool mIsPushed{ false };	// buffer에 이 객체를 넣었는가?
 
 public:
 	InstObject()          = default;
@@ -132,7 +132,7 @@ public:
 private:
 	// 인스턴싱 버퍼에 이 객체를 추가한다.
 	void Push();
-	void Reset() { mIsPushed = false; }
+	void Pop() { mIsPushed = false; }
 
 	// 정적 객체 업데이트 (update 실행 x, 렌더링용)
 	void UpdateStatic();
@@ -165,8 +165,7 @@ public:
 	virtual ~ObjectInstBuffer() = default;
 
 	bool IsStatic() { return mIsStatic; }
-	int GetObjectCount() const { return mObjectCnt; }
-	int GetInstanceCount() const { return mCurrBuffIdx; }
+	int GetInstanceCnt() const { return mCurrBuffIdx; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 
 	void SetDynamic() { mIsStatic = false; }

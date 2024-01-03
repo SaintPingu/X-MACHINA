@@ -69,19 +69,19 @@ namespace {
 HeightMapImage::HeightMapImage(const std::wstring& fileName, int width, int length)
 	:
 	mWidth(width),
-	mLength(length * 2)	// [ERROR] '*2' 안하면 절반밖에 로딩이 안되는 문제
+	mLength(length)	// [ERROR] '*2' 안하면 절반밖에 로딩이 안되는 문제
 {
-	std::vector<uint16_t> pHeightMapPixels(mWidth * mLength);
+	std::vector<uint16_t> pHeightMapPixels(mWidth * length * 2);
 
 	//파일을 열고 읽는다. 높이 맵 이미지는 파일 헤더가 없는 RAW 이미지이다.
 	HANDLE hFile = ::CreateFile(fileName.data(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, nullptr);
 
 	DWORD dwBytesRead;
-	BOOL success = ::ReadFile(hFile, pHeightMapPixels.data(), (mWidth * mLength), &dwBytesRead, nullptr);
+	BOOL success = ::ReadFile(hFile, pHeightMapPixels.data(), (mWidth * length * 2), &dwBytesRead, nullptr);
 	::CloseHandle(hFile);
 
-	mHeightMapPixels.resize(mWidth * mLength);
-	for (int y = 0; y < mLength; y++)
+	mHeightMapPixels.resize(mWidth * length * 2);
+	for (int y = 0; y < length * 2; y++)
 	{
 		for (int x = 0; x < mWidth; x++)
 		{
@@ -148,7 +148,7 @@ float HeightMapImage::GetHeight(float fx, float fz) const
 Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 {
 	// x - 좌표와 z - 좌표가 높이 맵의 범위를 벗어나면 지형의 법선 벡터는 y - 축 방향 벡터이다.
-	if ((x < 0.f) || (z < 0.f) || (x >= mWidth) || (z >= mLength)) {
+	if ((x < 0.f) || (z < 0.f) || (x > mWidth) || (z > mLength)) {
 		return Vec3(0.f, 1.f, 0.f);
 	}
 
@@ -309,10 +309,10 @@ void Terrain::UpdateGrid()
 #pragma region TerrainGridMesh
 TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage)
 {
-	static constexpr float corr = 1.f / TERRAIN_LENGTH;	// for SplatMap
-	static constexpr float detailScale = 0.1f;
+	static constexpr float kCorr = 1.f / gkTerrainLength;	// for SplatMap
+	static constexpr float kDetailScale = 0.1f;
 
-	mVertexCount = width * length;
+	mVertexCnt = width * length;
 	std::vector<Vec3> positions;
 	std::vector<Vec3> normals;
 	std::vector<Vec2> uvs0;
@@ -332,8 +332,8 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 			positions[i] = Vec3(x, OnGetHeight(x, z, heightMapImage), z);
 			normals[i] = heightMapImage->GetHeightMapNormal(x, z);
 
-			uvs0[i] = Vec2(float(x) * detailScale, float(z) * detailScale);
-			uvs1[i] = Vec2(float(x) * corr, float(z) * corr);
+			uvs0[i] = Vec2(float(x) * kDetailScale, float(z) * kDetailScale);
+			uvs1[i] = Vec2(float(x) * kCorr, float(z) * kCorr);
 
 			if (height < minHeight) {
 				minHeight = height;
@@ -352,8 +352,8 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 	CreateVertexBufferViews();
 
 
-	mIndexCount = ((width * 2) * (length - 1)) + ((length - 1) - 1);
-	std::vector<UINT> indices(mIndexCount);
+	mIndexCnt = ((width * 2) * (length - 1)) + ((length - 1) - 1);
+	std::vector<UINT> indices(mIndexCnt);
 	for (int j = 0, z = 0; z < length - 1; z++) {
 		if ((z % 2) == 0) {
 			for (int x = 0; x < width; x++) {
@@ -393,10 +393,10 @@ void TerrainGridMesh::Render() const
 
 	if (mIndexBuffer) {
 		cmdList->IASetIndexBuffer(&mIndexBufferView);
-		cmdList->DrawIndexedInstanced(mIndexCount, 1, 0, 0, 0);
+		cmdList->DrawIndexedInstanced(mIndexCnt, 1, 0, 0, 0);
 	}
 	else {
-		cmdList->DrawInstanced(mVertexCount, 1, mOffset, 0);
+		cmdList->DrawInstanced(mVertexCnt, 1, mOffset, 0);
 	}
 }
 #pragma endregion

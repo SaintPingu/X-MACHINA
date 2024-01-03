@@ -193,12 +193,12 @@ private:
 	sptr<Material> mMaterial;	// has only one model material
 	
 public:
-	TexturedEffectShader()          = default;
+	TexturedEffectShader();
 	virtual ~TexturedEffectShader() = default;
 
-public:
-	void SetMaterial(rsptr<Material> material) { mMaterial = material; }
+	void SetTexture(rsptr<Texture> texture);
 
+public:
 	virtual void Render() override;
 
 protected:

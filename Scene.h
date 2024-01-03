@@ -20,7 +20,6 @@ class StaticShader;
 
 class Camera;
 class GameObject;
-class Material;
 class Terrain;
 class Light;
 class Texture;
@@ -46,13 +45,13 @@ private:
 	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
 
 	/* Model */
-	std::unordered_map<std::string, sptr<const MasterModel>> mModels;	// file에서 로드한 모델 객체 모음
+	std::unordered_map<std::string, sptr<const MasterModel>> mModels;	// model folder에서 로드한 모델 객체 모음
 
 	/* Light */
 	uptr<Light> mLight;
 
 	/* Textures */
-	std::unordered_map<std::string, sptr<Material>> mMaterialMap{};		// file에서 로드한 재질(텍스쳐) 모음
+	std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
 
 	/* SkyBox */
 	sptr<SkyBox> mSkyBox{};					// sky box object
@@ -115,8 +114,6 @@ public:
 	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
 	// return the first inserted player
 	rsptr<GameObject> GetPlayer() const { return mPlayers.front(); }
-	// [name]에 해당하는 Material 모델을 반환한다.
-	rsptr<Material> GetMaterial(const std::string& name) const;
 	// [name]에 해당하는 Texture 모델을 반환한다.
 	rsptr<Texture> GetTexture(const std::string& name) const;
 
@@ -132,11 +129,11 @@ public:
 public:
 	void ReleaseUploadBuffers();
 
-	/* [data]를 32BitConstants에 set한다. */
+	// [data]를 32BitConstants에 set한다.
 	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, __int32 data, UINT offset);
+	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
 
 	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
@@ -181,8 +178,6 @@ private:
 	void UpdateGridInfo();
 
 	/* Load */
-	// Texture 폴더에서 dss 텍스쳐 파일을 로드하고 각각에 대한 material을 생성한다.
-	void LoadMaterials();
 	// 씬 파일에서 모든 객체와 조명의 정보를 불러온다.
 	void LoadSceneObjects(const std::string& fileName);
 	// 씬 파일에서 모든 객체의 정보를 불러온다. - call from Scene::LoadSceneObjects()

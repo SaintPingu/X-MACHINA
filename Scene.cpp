@@ -89,7 +89,9 @@ Scene* Scene::Inst()
 #pragma region Getter
 float Scene::GetTerrainHeight(float x, float z) const
 {
-	return (mTerrain) ? mTerrain->GetHeight(x, z) : 0.f;
+	assert(mTerrain);
+
+	return mTerrain->GetHeight(x, z);
 }
 
 rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
@@ -99,22 +101,17 @@ rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
 	return mModels.at(modelName);
 }
 
-rsptr<Material> Scene::GetMaterial(const std::string& name) const
-{
-	assert(mMaterialMap.contains(name));
-	
-	return mMaterialMap.at(name);
-}
-
 rsptr<Texture> Scene::GetTexture(const std::string& name) const
 {
-	assert(mMaterialMap.contains(name));
+	assert(mTextureMap.contains(name));
 	
-	return mMaterialMap.at(name)->mTexture;
+	return mTextureMap.at(name);
 }
 
 RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
 {
+	assert(mGraphicsRootSignature);
+
 	return mGraphicsRootSignature->Get();
 }
 
@@ -141,26 +138,26 @@ void Scene::ReleaseUploadBuffers()
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
 {
-	constexpr UINT num32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
+	constexpr UINT kNum32Bit = 16U;
+	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
 {
-	constexpr UINT num32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
+	constexpr UINT kNum32Bit = 16U;
+	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
 {
-	constexpr UINT num32Bit = 4U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
+	constexpr UINT kNum32Bit = 4U;
+	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, __int32 data, UINT offset)
+void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
 {
-	constexpr UINT num32Bit = 1U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), num32Bit, &data, offset);
+	constexpr UINT kNum32Bit = 1U;
+	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
@@ -205,9 +202,9 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->PushTable(RootParam::Texture3,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::RenderTarget,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
 
-	mGraphicsRootSignature->AddAlias(RootParam::Texture,	RootParam::TerrainLayer0);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture1,	RootParam::TerrainLayer1);
-	mGraphicsRootSignature->AddAlias(RootParam::Texture2,	RootParam::TerrainLayer2);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture,	RootParam::TerrainLayer0);	// TerrainLayer0는 RootParam::Texture 의 SRV 사용
+	mGraphicsRootSignature->AddAlias(RootParam::Texture1,	RootParam::TerrainLayer1);	// TerrainLayer1는 RootParam::Texture1의 SRV 사용
+	mGraphicsRootSignature->AddAlias(RootParam::Texture2,	RootParam::TerrainLayer2);	// ...
 	mGraphicsRootSignature->AddAlias(RootParam::Texture3,	RootParam::SplatMap);
 
 	mGraphicsRootSignature->Create();
@@ -249,8 +246,8 @@ void Scene::BuildObjects()
 	assert(mGraphicsRootSignature);
 	CreateCbvSrvDescriptorHeaps(0, 1024);
 
-	// load textures
-	LoadMaterials();
+	// load materials
+	mTextureMap = FileIO::LoadTextures("Models/Textures/");
 
 	// load canvas (UI)
 	canvas->Init();
@@ -263,10 +260,11 @@ void Scene::BuildObjects()
 	BuildPlayers();
 	BuildTerrain();
 
-	// shader variables
+	// build & create shader variables
 	BuildShaders();
 	CreateShaderVars();
 
+	// build static meshes
 	MeshRenderer::BuildMeshes();
 
 	// skybox
@@ -338,23 +336,23 @@ void Scene::BuildPlayers()
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("Gunship"));
 
-	mPlayers.emplace_back(airplanePlayer);
+	mPlayers.push_back(airplanePlayer);
 
 	mPlayer = mPlayers.front();
 }
 
 void Scene::BuildTerrain()
 {
-	constexpr int terrainGridLength = (TERRAIN_LENGTH - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
+	constexpr int kTerrainGridLength = (gkTerrainLength - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
 
-	mTerrain = std::make_shared<Terrain>(_T("HeightMap.raw"), TERRAIN_LENGTH, TERRAIN_LENGTH, terrainGridLength, terrainGridLength);
+	mTerrain = std::make_shared<Terrain>(L"HeightMap.raw", gkTerrainLength, gkTerrainLength, kTerrainGridLength, kTerrainGridLength);
 
 	BuildGrid();
 }
 
 void Scene::BuildGrid()
 {
-	constexpr float maxHeight = 300.f;	// for 3D grid
+	constexpr float kMaxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
 	const int adjusted = Math::GetNearestMultiple(mMapBorder.Extents.x, mGridhWidth);
@@ -369,15 +367,15 @@ void Scene::BuildGrid()
 	mGrids.resize(gridCount);
 
 	// set grid bounds
-	float gridExtent = static_cast<float>(mGridhWidth) / 2.0f;
+	const float gridExtent = static_cast<float>(mGridhWidth) / 2.0f;
 	for (int y = 0; y < mGridCols; ++y) {
 		for (int x = 0; x < mGridCols; ++x) {
 			int gridX = (mGridhWidth * x) + (mGridhWidth / 2) + mGridStartPoint;
 			int gridZ = (mGridhWidth * y) + (mGridhWidth / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
-			bb.Center = Vec3(gridX, maxHeight / 2, gridZ);
-			bb.Extents = Vec3(gridExtent, maxHeight, gridExtent);
+			bb.Center = Vec3(gridX, kMaxHeight / 2, gridZ);
+			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
 
 			int index = (y * mGridCols) + x;
 			mGrids[index].Init(index, bb);
@@ -394,28 +392,6 @@ void Scene::UpdateGridInfo()
 	mTerrain->UpdateGrid();
 }
 
-void Scene::LoadMaterials()
-{
-	std::vector<std::string> textureNames;
-
-	FileIO::GetTextureNames(textureNames, "Models/Textures");
-
-	MaterialLoadInfo info{};
-	for (auto& textureName : textureNames) {
-		// load texture
-		sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
-		texture->LoadTexture(textureName);
-
-		// apply to material
-		sptr<Material> material = std::make_shared<Material>();
-		material->SetTexture(texture);
-
-		sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(info);
-		material->SetMaterialColors(materialColors);
-
-		mMaterialMap.insert(std::make_pair(textureName, material));
-	}
-}
 
 void Scene::LoadSceneObjects(const std::string& fileName)
 {
@@ -1133,8 +1109,7 @@ void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 
 		object->SetGridIndex(gridIndex);
 	}
-
-	// 1칸 이내의 인접한 그리드 충돌검사
+ 
 	// BoundingSphere가 Grid 내부에 완전히 포함되면 검사 X
 	const auto& collider = object->GetComponent<ObjectCollider>();
 	if (!collider) {
@@ -1143,18 +1118,19 @@ void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 
 	std::unordered_set<int> gridIndices{};
 	const auto& objectBS = collider->GetBS();
+	// 1칸 이내의 인접한 그리드와 충돌검사
 	if (isCheckAdj && mGrids[gridIndex].GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
-		int gridX = gridIndex % mGridCols;
-		int gridZ = gridIndex / mGridCols;
+		const int gridX = gridIndex % mGridCols;
+		const int gridZ = gridIndex / mGridCols;
 
 		for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
 			for (int offsetX = -1; offsetX <= 1; ++offsetX) {
-				int neighborX = gridX + offsetX;
-				int neighborZ = gridZ + offsetZ;
+				const int neighborX = gridX + offsetX;
+				const int neighborZ = gridZ + offsetZ;
 
 				// 인덱스가 전체 그리드 범위 내에 있는지 확인
 				if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
-					int neighborIndex = neighborZ * mGridCols + neighborX;
+					const int neighborIndex = neighborZ * mGridCols + neighborX;
 
 					if (mGrids[neighborIndex].GetBB().Intersects(objectBS)) {
 						mGrids[neighborIndex].AddObject(object);

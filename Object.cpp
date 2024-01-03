@@ -18,8 +18,10 @@
 
 #pragma region GameObject
 GameObject::GameObject()
+	:
+	mCollider(AddComponent<ObjectCollider>())
 {
-	mCollider = AddComponent<ObjectCollider>();
+
 }
 
 
@@ -34,6 +36,7 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	mMasterModel = model;
 	mMasterModel->CopyModelHierarchy(this);
 
+	// 모델의 이름에 따라 설정한다.
 	switch (Hash(mMasterModel->GetName())) {
 	case Hash("Apache"):
 		AddComponent<Script_Apache>();
@@ -45,6 +48,7 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 		break;
 	}
 
+	// 이 객체의 계층구조를 [mMergedTransform]에 저장한다 (캐싱)
 	Transform::MergeTransform(mMergedTransform, this);
 }
 
@@ -127,7 +131,6 @@ void GameObject::AttachToGround()
 }
 
 
-// 객체의 바닥 중심, 앞, 뒤, 좌, 우를 기준으로 하여 지면에 붙도록 한다.
 void GameObject::TiltToGround()
 {
 	AttachToGround();
@@ -204,12 +207,12 @@ void InstObject::Push()
 
 void InstObject::UpdateStatic()
 {
-	Reset();
+	Pop();
 }
 void InstObject::UpdateDynamic()
 {
 	base::Update();
-	Reset();
+	Pop();
 }
 #pragma endregion
 

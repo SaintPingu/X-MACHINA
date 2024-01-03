@@ -12,6 +12,6 @@ void Script_Billboard::Update()
 
 void Script_Billboard::UpdateSpriteVariable() const
 {
-	Matrix mtxScale = XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform()));
+	const Matrix mtxScale = XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform()));
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(mtxScale), 0);
 }

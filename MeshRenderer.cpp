@@ -11,13 +11,13 @@ uptr<ModelObjectMesh> MeshRenderer::mPlaneMesh;
 
 void MeshRenderer::Render(const BoundingBox& box)
 {
-	const Vec3 center = box.Center;
+	const Vec3 center  = box.Center;
 	const Vec3 extents = box.Extents;
 
-	const Matrix scaleMatrix = XMMatrixScaling(extents.x * 2, extents.y * 2, extents.z * 2);
-	const Matrix translateMatrix = XMMatrixTranslation(center.x, center.y, center.z);
+	const Matrix scaleMtx       = XMMatrixScaling(extents.x * 2, extents.y * 2, extents.z * 2);
+	const Matrix translationMtx = XMMatrixTranslation(center.x, center.y, center.z);
 
-	const Matrix matrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+	const Matrix matrix = XMMatrixMultiply(scaleMtx, translationMtx);		// (Scale * Translate)
 
 	Transform::UpdateShaderVars(matrix);
 	mBoxMesh->Render();
@@ -25,16 +25,16 @@ void MeshRenderer::Render(const BoundingBox& box)
 
 void MeshRenderer::Render(const BoundingOrientedBox& box)
 {
-	const Vec3 center = box.Center;
-	const Vec3 extents = box.Extents;
-	const Vec4 orientation = box.Orientation;
+	const Vec3 center       = box.Center;
+	const Vec3 extents      = box.Extents;
+	const Vec4 orientation  = box.Orientation;
 	const Vector quaternion = XMLoadFloat4(&orientation);
 
-	const Matrix scaleMatrix = XMMatrixScaling(extents.x * 2, extents.y * 2, extents.z * 2);
-	const Matrix rotationMatrix = XMMatrixRotationQuaternion(quaternion);
-	const Matrix translateMatrix = XMMatrixTranslation(center.x, center.y, center.z);
-
-	const Matrix matrix = XMMatrixMultiply(XMMatrixMultiply(scaleMatrix, rotationMatrix), translateMatrix);
+	const Matrix scaleMtx       = XMMatrixScaling(extents.x * 2, extents.y * 2, extents.z * 2);
+	const Matrix rotationMtx    = XMMatrixRotationQuaternion(quaternion);
+	const Matrix translationMtx = XMMatrixTranslation(center.x, center.y, center.z);
+	
+	const Matrix matrix = XMMatrixMultiply(XMMatrixMultiply(scaleMtx, rotationMtx), translationMtx);	// (Scale * Rotation) * Translate
 
 	Transform::UpdateShaderVars(matrix);
 	mBoxMesh->Render();
@@ -42,13 +42,13 @@ void MeshRenderer::Render(const BoundingOrientedBox& box)
 
 void MeshRenderer::Render(const BoundingSphere& bs)
 {
-	const Vec3 center = bs.Center;
+	const Vec3 center  = bs.Center;
 	const float radius = bs.Radius;
 
-	const Matrix scaleMatrix = XMMatrixScaling(radius / 2, radius / 2, radius / 2);
-	const Matrix translateMatrix = XMMatrixTranslation(center.x, center.y, center.z);
+	const Matrix scaleMtx       = XMMatrixScaling(radius / 2, radius / 2, radius / 2);
+	const Matrix translationMtx = XMMatrixTranslation(center.x, center.y, center.z);
 
-	const Matrix matrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+	const Matrix matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)
 
 	Transform::UpdateShaderVars(matrix);
 	mSphereMesh->Render();
@@ -56,10 +56,10 @@ void MeshRenderer::Render(const BoundingSphere& bs)
 
 void MeshRenderer::RenderPlane(const Vec3& pos, float width, float length)
 {
-	const Matrix scaleMatrix = XMMatrixScaling(width, 1, length);
-	const Matrix translateMatrix = XMMatrixTranslation(pos.x, pos.y, pos.z);
+	const Matrix scaleMtx       = XMMatrixScaling(width, 1, length);
+	const Matrix translationMtx = XMMatrixTranslation(pos.x, pos.y, pos.z);
 
-	const Matrix matrix = XMMatrixMultiply(scaleMatrix, translateMatrix);
+	const Matrix matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)
 
 	Transform::UpdateShaderVars(matrix);
 	mPlaneMesh->Render();
@@ -68,9 +68,9 @@ void MeshRenderer::RenderPlane(const Vec3& pos, float width, float length)
 
 void MeshRenderer::BuildMeshes()
 {
-	mBoxMesh = std::make_unique<ModelObjectMesh>();
+	mBoxMesh    = std::make_unique<ModelObjectMesh>();
 	mSphereMesh = std::make_unique<ModelObjectMesh>();
-	mPlaneMesh = std::make_unique< ModelObjectMesh>();
+	mPlaneMesh  = std::make_unique<ModelObjectMesh>();
 
 	mBoxMesh->CreateCubeMesh(1.f, 1.f, 1.f, false, true);
 	mSphereMesh->CreateSphereMesh(1.f, 12, true);
@@ -86,7 +86,7 @@ void MeshRenderer::ReleaseUploadBuffers()
 
 void MeshRenderer::Release()
 {
-	mBoxMesh = nullptr;
+	mBoxMesh    = nullptr;
 	mSphereMesh = nullptr;
-	mPlaneMesh = nullptr;
+	mPlaneMesh  = nullptr;
 }

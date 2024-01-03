@@ -491,6 +491,18 @@ void EffectShader::UpdateShaderVars()
 
 
 #pragma region TexturedEffectShader
+TexturedEffectShader::TexturedEffectShader()
+	: mMaterial(std::make_shared<Material>())
+{
+
+}
+
+void TexturedEffectShader::SetTexture(rsptr<Texture> texture)
+{
+	mMaterial->SetTexture(texture);
+}
+
+
 void TexturedEffectShader::Render()
 {
 	EffectShader::Render();
@@ -552,29 +564,29 @@ void StaticShader::Create()
 
 void SmallExpEffectShader::BuildObjects()
 {
-	constexpr int toFloat{ 10 };
+	constexpr int kToFloat{ 10 };
 
-	constexpr size_t groupCount{ 200 };
-	constexpr size_t countPerGroup{ 40 };
-	constexpr float duration{ 3.f };
-	constexpr float size{ 0.4f };
-	constexpr int minSpeed{ 10 * toFloat };
-	constexpr int maxSpeed{ 30 * toFloat };
-	constexpr float rotationSpeed{ 100.f };
-	constexpr Vec3 RotationAxis{ 1.f,1.f,1.f };
+	constexpr size_t kGroupCount{ 200 };
+	constexpr size_t kCntPerGroup{ 40 };
+	constexpr float kDuration{ 3.f };
+	constexpr float kSize{ 0.4f };
+	constexpr int kMinSpeed{ 10 * kToFloat };
+	constexpr int kMaxSpeed{ 30 * kToFloat };
+	constexpr float kRotationSpeed{ 100.f };
+	constexpr Vec3 kRotationAxis{ 1.f,1.f,1.f };
 
-	std::uniform_int_distribution uid{ minSpeed, maxSpeed };
+	std::uniform_int_distribution uid{ kMinSpeed, kMaxSpeed };
 
-	SetLifeTime(duration);
-	SetMaterial(scene->GetMaterial("Metal02"));
+	SetLifeTime(kDuration);
+	SetTexture(scene->GetTexture("Metal02"));
 
 	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
-	mesh->CreateCubeMesh(size, size, size, true);
-	EffectShader::BuildObjects(groupCount, countPerGroup, mesh);
+	mesh->CreateCubeMesh(kSize, kSize, kSize, true);
+	EffectShader::BuildObjects(kGroupCount, kCntPerGroup, mesh);
 
 	size_t i{};
 	for (auto& object : mObjects) {
-		float movingSpeed = static_cast<float>(uid(Math::dre)) / toFloat;
+		float movingSpeed = static_cast<float>(uid(Math::dre)) / kToFloat;
 		Vec3 movingDir{};
 		XMStoreFloat3(&movingDir, RandVectorOnSphere());
 		const auto& script = object->GetComponent<Script_Fragment>();
@@ -583,8 +595,8 @@ void SmallExpEffectShader::BuildObjects()
 		object->SetFlyable(true);
 		script->SetMovingDir(movingDir);
 		script->SetMovingSpeed(movingSpeed * 2.f);
-		script->SetRotationAxis(RotationAxis);
-		script->SetRotationSpeed(rotationSpeed);
+		script->SetRotationAxis(kRotationAxis);
+		script->SetRotationSpeed(kRotationSpeed);
 
 		++i;
 	}
@@ -594,29 +606,29 @@ void SmallExpEffectShader::BuildObjects()
 
 void BigExpEffectShader::BuildObjects()
 {
-	constexpr int toFloat{ 10 };
+	constexpr int kToFloat{ 10 };
 
-	constexpr size_t groupCount{ 150 };
-	constexpr size_t countPerGroup{ 200 };
-	constexpr float duration{ 6.f };
-	constexpr float size{ 2.f };
-	constexpr int minSpeed{ 5 * toFloat };
-	constexpr int maxSpeed{ 20 * toFloat };
-	constexpr float rotationSpeed{ 100.f };
-	constexpr Vec3 RotationAxis{ 1.f,1.f,1.f };
+	constexpr size_t kGroupCount{ 150 };
+	constexpr size_t kCntPerGroup{ 200 };
+	constexpr float kDuration{ 6.f };
+	constexpr float kSize{ 2.f };
+	constexpr int kMinSpeed{ 5 * kToFloat };
+	constexpr int kMaxSpeed{ 20 * kToFloat };
+	constexpr float kRotationSpeed{ 100.f };
+	constexpr Vec3 kRotationAxis{ 1.f,1.f,1.f };
 
-	std::uniform_int_distribution uid{ minSpeed, maxSpeed };
+	std::uniform_int_distribution uid{ kMinSpeed, kMaxSpeed };
 
-	SetLifeTime(duration);
-	SetMaterial(scene->GetMaterial("Metal02"));
+	SetLifeTime(kDuration);
+	SetTexture(scene->GetTexture("Metal02"));
 
 	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
-	mesh->CreateCubeMesh(size, size, size, true);
-	EffectShader::BuildObjects(groupCount, countPerGroup, mesh);
+	mesh->CreateCubeMesh(kSize, kSize, kSize, true);
+	EffectShader::BuildObjects(kGroupCount, kCntPerGroup, mesh);
 
 	size_t i{};
 	for (auto& object : mObjects) {
-		float movingSpeed = static_cast<float>(uid(Math::dre)) / toFloat;
+		float movingSpeed = static_cast<float>(uid(Math::dre)) / kToFloat;
 		Vec3 movingDir{};
 		XMStoreFloat3(&movingDir, RandVectorOnSphere());
 		const auto& script = object->GetComponent<Script_Fragment>();
@@ -625,8 +637,8 @@ void BigExpEffectShader::BuildObjects()
 		object->SetFlyable(true);
 		script->SetMovingDir(movingDir);
 		script->SetMovingSpeed(movingSpeed * 6.f);
-		script->SetRotationAxis(RotationAxis);
-		script->SetRotationSpeed(rotationSpeed);
+		script->SetRotationAxis(kRotationAxis);
+		script->SetRotationSpeed(kRotationSpeed);
 
 		++i;
 	}
@@ -1013,10 +1025,10 @@ void PostProcessingShader::CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDL
 
 void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle)
 {
-	constexpr int renderTargetCnt = 1;
+	constexpr int kRenderTargetCnt = 1;
 
 	int resourceCnt = mTextures.size();
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> allRtvHandle(renderTargetCnt + resourceCnt);
+	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> allRtvHandle(kRenderTargetCnt + resourceCnt);
 
 	// 후면 버퍼 (SV_TARGET[0])
 	allRtvHandle.front() = rtvHandles[0];
@@ -1028,10 +1040,10 @@ void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rt
 
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles[i];
 		cmdList->ClearRenderTargetView(rtvHandle, Colors::White, 0, NULL);
-		allRtvHandle[renderTargetCnt + i] = rtvHandle;
+		allRtvHandle[kRenderTargetCnt + i] = rtvHandle;
 	}
 
-	cmdList->OMSetRenderTargets(renderTargetCnt + resourceCnt, allRtvHandle.data(), FALSE, dsvHandle);
+	cmdList->OMSetRenderTargets(kRenderTargetCnt + resourceCnt, allRtvHandle.data(), FALSE, dsvHandle);
 }
 
 void PostProcessingShader::OnPostRenderTarget()

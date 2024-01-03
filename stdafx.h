@@ -287,7 +287,7 @@ template<class T>
 // copy src's data to end of dst
 inline void CopyBack(const std::vector<T>& src, std::vector<T>& dst)
 {
-	copy(src.begin(), src.end(), std::back_inserter(dst));
+	std::copy(src.begin(), src.end(), std::back_inserter(dst));
 }
 
 /* string to hash code. can use string in switch statement. */

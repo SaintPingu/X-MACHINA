@@ -11,7 +11,7 @@ enum class LightType {
 
 
 #pragma region Variable
-constexpr int gkMaxSceneLight = 32;
+constexpr int gkMaxSceneLight = 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
 #pragma endregion
 
 
@@ -86,9 +86,9 @@ private:
 	// 조명을 Sunlight로 설정한다.
 	void SetSunlight();
 
-	// 조명 모델을 불러온다.
+	// 조명 모델 폴더에서 조명 모델들을 불러온다.
 	void LoadLightModels();
-	// file에서 조명 모델을 불러오고 할당한다.
+	// [file]에서 조명 모델을 불러오고 할당한다.
 	void LoadLightObjects(FILE* file);
 };
 #pragma endregion

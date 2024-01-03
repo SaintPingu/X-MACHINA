@@ -85,7 +85,7 @@ void Object::ReleaseUploadBuffers()
 
 void Object::OnCollisionStay(Object& other)
 {
-	// 동일 프레임에 중복 호출된 경우 무시한다.
+	// 한 프레임 내에 중복 호출된 경우 무시한다.
 	if (mCollisionObjects.count(&other)) {
 		return;
 	}
@@ -141,7 +141,7 @@ namespace {
 	{
 		sptr<T> result = std::make_shared<T>(object);
 		rsptr<T> other = static_pointer_cast<T>(src);
-		*result        = *other;						// 복사 생성자 필요
+		*result        = *other;						// 복사 생성자를 각 Component내에서 구현해야 한다.
 		return result;
 	}
 }
@@ -150,6 +150,7 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 {
 	sptr<Component> result{};
 
+	// 복사 생성자가 오버로딩된 컴포넌트에 한해 컴포넌트 복사를 수행한다.
 	switch (component->GetID()) {
 	case BoxCollider::ID:
 		result = CopyComponent<BoxCollider>(component, this);

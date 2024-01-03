@@ -38,8 +38,12 @@ struct MaterialColors {
 public:
 	MaterialColors(const MaterialLoadInfo& materialInfo);
 
+	operator const Vec4x4& () const {
+		return *(Vec4x4*)(this);
+	}
+
 public:
-	Vec4 Ambient{};
+	Vec4 Ambient{ Vector4::One() };
 	Vec4 Diffuse{};
 	Vec4 Specular{};
 	Vec4 Emissive{};
@@ -55,7 +59,6 @@ public:
 	sptr<Texture> mTexture{};
 
 private:
-	bool mIsDiffused{ false };
 	sptr<MaterialColors> mMaterialColors{};
 
 public:
@@ -88,15 +91,11 @@ public:
 	void SetMaterials(const std::vector<sptr<Material>>& materials) { mMaterials = materials; }
 
 public:
-	// 이 Model의 trasnform 계층구조를 [object]에 복사한다.
-	void CopyModelHierarchy(GameObject* object) const;
+	// 이 Model의 trasnform 계층구조를 [object]에 복사 생성한다.
+	void CopyModelHierarchy(Object* object) const;
 
 	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
 	void MergeModel(MasterModel& out);
-
-private:
-	// [object]를 생성하며, 이 Model의 trasnform 구조를 [object]에 복사한다.
-	void CopyModelHierarchy(sptr<Object>& object) const;
 };
 
 

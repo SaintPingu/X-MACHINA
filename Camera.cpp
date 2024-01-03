@@ -29,13 +29,13 @@ void Camera::Release()
 
 void Camera::UpdateShaderVars()
 {
-	Vec4x4 viewMtx = Matrix4x4::Transpose(mViewTransform);
-	Vec4x4 projMtx = Matrix4x4::Transpose(mProjTransform);
-	Vec3   pos     = mObject->GetPosition();
+	const Vec4x4 kViewMtx = Matrix4x4::Transpose(mViewTransform);
+	const Vec4x4 kProjMtx = Matrix4x4::Transpose(mProjTransform);
+	const Vec3   kPos     = mObject->GetPosition();
 
-	::memcpy(&mCBMap_CameraInfo->View, &viewMtx, sizeof(Vec4x4));
-	::memcpy(&mCBMap_CameraInfo->Projection, &projMtx, sizeof(Vec4x4));
-	::memcpy(&mCBMap_CameraInfo->Position, &pos, sizeof(Vec3));
+	::memcpy(&mCBMap_CameraInfo->View,		 &kViewMtx, sizeof(Vec4x4));
+	::memcpy(&mCBMap_CameraInfo->Projection, &kProjMtx, sizeof(Vec4x4));
+	::memcpy(&mCBMap_CameraInfo->Position,	 &kPos, sizeof(Vec3));
 
 	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Camera), mCB_CameraInfo->GetGPUVirtualAddress());
 }
@@ -43,26 +43,26 @@ void Camera::UpdateShaderVars()
 
 void Camera::UpdateViewMtx()
 {
-	Vec3 pos   = mObject->GetPosition();
-	Vec3 right = mObject->GetRight();
-	Vec3 up    = mObject->GetUp();
-	Vec3 look  = mObject->GetLook();
+	const Vec3 kPos   = mObject->GetPosition();
+	const Vec3 kRight = mObject->GetRight();
+	const Vec3 kUp    = mObject->GetUp();
+	const Vec3 kLook  = mObject->GetLook();
 
-	mViewTransform._11 = right.x; mViewTransform._12 = up.x; mViewTransform._13 = look.x;
-	mViewTransform._21 = right.y; mViewTransform._22 = up.y; mViewTransform._23 = look.y;
-	mViewTransform._31 = right.z; mViewTransform._32 = up.z; mViewTransform._33 = look.z;
-	mViewTransform._41 = -Vector3::DotProduct(pos, right);
-	mViewTransform._42 = -Vector3::DotProduct(pos, up);
-	mViewTransform._43 = -Vector3::DotProduct(pos, look);
+	mViewTransform._11 = kRight.x; mViewTransform._12 = kUp.x; mViewTransform._13 = kLook.x;
+	mViewTransform._21 = kRight.y; mViewTransform._22 = kUp.y; mViewTransform._23 = kLook.y;
+	mViewTransform._31 = kRight.z; mViewTransform._32 = kUp.z; mViewTransform._33 = kLook.z;
+	mViewTransform._41 = -Vector3::DotProduct(kPos, kRight);
+	mViewTransform._42 = -Vector3::DotProduct(kPos, kUp);
+	mViewTransform._43 = -Vector3::DotProduct(kPos, kLook);
 
 	CalculateFrustumPlanes();
 }
 void Camera::SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float aspectRatio, float fovAngle)
 {
-	Matrix projMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovAngle), aspectRatio, nearPlaneDistance, farPlaneDistance);
-	XMStoreFloat4x4(&mProjTransform, projMtx);
+	const Matrix kProjMtx = XMMatrixPerspectiveFovLH(XMConvertToRadians(fovAngle), aspectRatio, nearPlaneDistance, farPlaneDistance);
+	XMStoreFloat4x4(&mProjTransform, kProjMtx);
 
-	BoundingFrustum::CreateFromMatrix(mFrustumView, projMtx);
+	BoundingFrustum::CreateFromMatrix(mFrustumView, kProjMtx);
 }
 
 
@@ -103,8 +103,8 @@ bool Camera::IsInFrustum(rsptr<const GameObject> object)
 
 void Camera::CreateShaderVars()
 {
-	const UINT cbByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_CameraInfo));
-	D3DUtil::CreateBufferResource(nullptr, cbByteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_CameraInfo);
+	const UINT kByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_CameraInfo));
+	D3DUtil::CreateBufferResource(nullptr, kByteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_CameraInfo);
 	mCB_CameraInfo->Map(0, nullptr, (void**)&mCBMap_CameraInfo);
 }
 

@@ -8,27 +8,28 @@
 namespace {
 	constexpr int gkSunLightIdx = 0;
 
-	std::set<std::string> lightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
+	std::set<std::string> gkLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 }
 
 
 
 
 Light::Light()
+	:
+	mLights(std::make_shared<SceneLight>())
 {
-	mLights = std::make_shared<SceneLight>();
 	XMStoreFloat4(&mLights->FogColor, Colors::Gray);
 }
 
 Light::~Light()
 {
 	for (auto& light : mLightModels) {
-		if (lightModelNames.contains(light.first)) {
+		if (gkLightModelNames.contains(light.first)) {
 			delete light.second;
 		}
 	}
 
-	lightModelNames.clear();
+	gkLightModelNames.clear();
 }
 
 const LightInfo* Light::GetLightModel(const std::string& modelName) const
@@ -45,24 +46,22 @@ void Light::BuildLights(FILE* file)
 	LoadLightObjects(file);
 	LoadLightModels();
 
-	mLights->Lights[gkSunLightIdx].IsEnable = true;
+	mLights->Lights[gkSunLightIdx].IsEnable = true;	// sunlight(전역조명)를 활성화한다.
 	SetSunlight();
 }
 
 
 void Light::CreateShaderVars()
 {
-	UINT cubeLightBytes = ((sizeof(SceneLight) + 255) & ~255); //256의 배수
-	D3DUtil::CreateBufferResource(nullptr, cubeLightBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_Lights);
+	const UINT cbBytes = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_Lights));
+	D3DUtil::CreateBufferResource(nullptr, cbBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_Lights);
 	mCB_Lights->Map(0, nullptr, (void**)&mCBMap_Lights);
 }
 
 void Light::UpdateShaderVars()
 {
-	::memcpy(mCBMap_Lights, mLights.get(), sizeof(SceneLight));
-
-	D3D12_GPU_VIRTUAL_ADDRESS cbLightsGpuVirtualAddress = mCB_Lights->GetGPUVirtualAddress();
-	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Light), cbLightsGpuVirtualAddress);
+	::memcpy(mCBMap_Lights, mLights.get(), sizeof(*mCBMap_Lights));
+	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Light), mCB_Lights->GetGPUVirtualAddress());
 }
 
 void Light::ReleaseShaderVars()
@@ -86,7 +85,7 @@ void Light::SetSunlight()
 
 void Light::LoadLightModels()
 {
-	for (auto& name : lightModelNames) {
+	for (auto& name : gkLightModelNames) {
 		LightInfo* light = new LightInfo;
 		FileIO::LoadLightFromFile("Models/Lights/" + name + ".bin", &light);
 		mLightModels.insert(std::make_pair(name, light));

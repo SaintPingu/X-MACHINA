@@ -10,7 +10,7 @@ struct VSOutput_Terrain {
 
 struct PSOutput_MRT {
     float4 Texture : SV_TARGET1;
-    float distance : SV_TARGET4;
+    float  Distance : SV_TARGET4;
 };
 
 #ifdef POST_PROCESSING
@@ -44,8 +44,8 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
 
     float4 texColor = normalize(layer0 + layer1 + layer2);
     
-    output.Texture = saturate(illumination * 0.5 + texColor * 0.5f);
-    output.distance = length(input.PositionW - gCameraPos);
+    output.Texture  = lerp(illumination, texColor, .5f);
+    output.Distance = length(input.PositionW - gCameraPos);
     
     return output;
 }

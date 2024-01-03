@@ -123,6 +123,7 @@ bool ObjectCollider::Intersects(const GameObject& a, const GameObject& b)
 	const auto& colliderA = a.GetCollider();
 	const auto& colliderB = b.GetCollider();
 
+	// 반드시 두 객체 모두 ObjectCollider를 가지고 있어야 한다.
 	if (!colliderA || !colliderB) {
 		return false;
 	}
@@ -130,6 +131,7 @@ bool ObjectCollider::Intersects(const GameObject& a, const GameObject& b)
 	const auto& bsA = colliderA->GetBS();
 	const auto& bsB = colliderB->GetBS();
 
+	// 두 객체간 Bounding Sphere 우선 검사
 	if (!bsA.Intersects(bsB)) {
 		return false;
 	}
@@ -140,10 +142,12 @@ bool ObjectCollider::Intersects(const GameObject& a, const GameObject& b)
 	const bool aHasOBB = !obbListA.empty();
 	const bool bHasOBB = !obbListB.empty();
 
+	// 한 객체라도 OBB를 가지고 있다면
 	if (aHasOBB || bHasOBB) {
-		if (aHasOBB && bHasOBB) {
+		if (aHasOBB && bHasOBB) {	 // 두 객체 모두 OBB를 가지고 있다면 OBB<->OBB 간 충돌검사
 			return ObjectCollider::Intersects(obbListA, obbListB);
 		}
+		// 하나의 객체만 OBB를 가지고 있다면 OBB<->BS 충돌검사
 		else if (aHasOBB) {
 			return ObjectCollider::Intersects(obbListA, bsB);
 		}
@@ -152,6 +156,7 @@ bool ObjectCollider::Intersects(const GameObject& a, const GameObject& b)
 		}
 	}
 
+	// 두 객체 모두 OBB가 없다면 충돌(true)
 	return true;
 }
 #pragma endregion

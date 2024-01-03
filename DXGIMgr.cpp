@@ -6,9 +6,11 @@
 SINGLETON_PATTERN_DEFINITION(DXGIMgr)
 
 DXGIMgr::DXGIMgr()
+	:
+	mClientWidth(gkFrameBufferWidth),
+	mClientHeight(gkFrameBufferHeight)
 {
-	mClientWidth  = gkFrameBufferWidth;
-	mClientHeight = gkFrameBufferHeight;
+
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -21,10 +23,13 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateRtvAndDsvDescriptorHeaps();
 
 	CreateSwapChain();
-	CreateRTVs();
+	CreateSwapChainRTVs();
 	CreateDSV();
 
-	BuildObjects();
+	BuildScene();
+
+	CreatePostProcessingShader();
+	CreatePostProcessingRTVs();
 }
 
 void DXGIMgr::Release()
@@ -233,49 +238,53 @@ void DXGIMgr::CreateCmdQueueAndList()
 
 void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc{};
-	d3dDescriptorHeapDesc.NumDescriptors = mSwapChainBuffCnt + mRtvCnt;
-	d3dDescriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	d3dDescriptorHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	d3dDescriptorHeapDesc.NodeMask       = 0;
-	HRESULT hResult                      = mDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, IID_PPV_ARGS(&mRtvHeap));
+	// Create RTV
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+	descriptorHeapDesc.NumDescriptors = mSwapChainBuffCnt + mRtvCnt;		// RTV는 (swap chain buffer 개수 + 추가 render target(for MRT) 개수)로 구성된다
+	descriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	descriptorHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descriptorHeapDesc.NodeMask       = 0;
+	HRESULT hResult                   = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mRtvHeap));
 	AssertHResult(hResult);
 
-	d3dDescriptorHeapDesc.NumDescriptors = 1;
-	d3dDescriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	hResult                              = mDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
+	// Create DSV
+	constexpr int kDepthStencilBuffCnt = 1; // Depth 버퍼는 1개만 사용한다.
+	descriptorHeapDesc.NumDescriptors = kDepthStencilBuffCnt;
+	descriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	hResult                           = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
 	AssertHResult(hResult);
 }
 
 
 void DXGIMgr::CreateSwapChain()
 {
+	// client의 screen rect를 OS로부터 받아와 설정한다.
 	RECT clientRect;
 	::GetClientRect(mWnd, &clientRect);
 	mClientWidth  = clientRect.right - clientRect.left;
 	mClientHeight = clientRect.bottom - clientRect.top;
 
-	DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDesc{};
-	dxgiSwapChainDesc.Width              = mClientWidth;
-	dxgiSwapChainDesc.Height             = mClientHeight;
-	dxgiSwapChainDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-	dxgiSwapChainDesc.SampleDesc.Count   = (mIsMsaa4xEnabled) ? 4 : 1;
-	dxgiSwapChainDesc.SampleDesc.Quality = (mIsMsaa4xEnabled) ? (mMsaa4xQualityLevels - 1) : 0;
-	dxgiSwapChainDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	dxgiSwapChainDesc.BufferCount        = mSwapChainBuffCnt;
-	dxgiSwapChainDesc.Scaling            = DXGI_SCALING_NONE;
-	dxgiSwapChainDesc.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	dxgiSwapChainDesc.AlphaMode          = DXGI_ALPHA_MODE_UNSPECIFIED;
-	dxgiSwapChainDesc.Flags              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
+	swapChainDesc.Width              = mClientWidth;
+	swapChainDesc.Height             = mClientHeight;
+	swapChainDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.SampleDesc.Count   = (mIsMsaa4xEnabled) ? 4 : 1;
+	swapChainDesc.SampleDesc.Quality = (mIsMsaa4xEnabled) ? (mMsaa4xQualityLevels - 1) : 0;
+	swapChainDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferCount        = mSwapChainBuffCnt;
+	swapChainDesc.Scaling            = DXGI_SCALING_NONE;
+	swapChainDesc.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.AlphaMode          = DXGI_ALPHA_MODE_UNSPECIFIED;
+	swapChainDesc.Flags              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	DXGI_SWAP_CHAIN_FULLSCREEN_DESC dxgiSwapChainFullScreenDesc{};
-	dxgiSwapChainFullScreenDesc.RefreshRate.Numerator   = 60;
-	dxgiSwapChainFullScreenDesc.RefreshRate.Denominator = 1;
-	dxgiSwapChainFullScreenDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	dxgiSwapChainFullScreenDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
-	dxgiSwapChainFullScreenDesc.Windowed                = TRUE;
+	DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapChainFullScreenDesc{};
+	swapChainFullScreenDesc.RefreshRate.Numerator   = 60;
+	swapChainFullScreenDesc.RefreshRate.Denominator = 1;
+	swapChainFullScreenDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainFullScreenDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
+	swapChainFullScreenDesc.Windowed                = TRUE;
 
-	HRESULT hResult   = mFactory->CreateSwapChainForHwnd(mCmdQueue.Get(), mWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1**)mSwapChain.GetAddressOf());
+	HRESULT hResult   = mFactory->CreateSwapChainForHwnd(mCmdQueue.Get(), mWnd, &swapChainDesc, &swapChainFullScreenDesc, NULL, (IDXGISwapChain1**)mSwapChain.GetAddressOf());
 	AssertHResult(hResult);
 
 	hResult           = mFactory->MakeWindowAssociation(mWnd, DXGI_MWA_NO_ALT_ENTER);
@@ -286,7 +295,7 @@ void DXGIMgr::CreateSwapChain()
 }
 
 
-void DXGIMgr::CreateRTVs()
+void DXGIMgr::CreateSwapChainRTVs()
 {
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	rtvDesc.Format               = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -295,6 +304,7 @@ void DXGIMgr::CreateRTVs()
 	rtvDesc.Texture2D.PlaneSlice = 0;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
+	// swap chain의 개수만큼 render target view를 생성한다.
 	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffers[i]));
 		mDevice->CreateRenderTargetView(mSwapChainBuffers[i].Get(), &rtvDesc, rtvHandle);
@@ -313,7 +323,7 @@ void DXGIMgr::CreateDSV()
 	resourceDesc.Height             = mClientHeight;
 	resourceDesc.DepthOrArraySize   = 1;
 	resourceDesc.MipLevels          = 1;
-	resourceDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	resourceDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;	// Depth buffer 24bit, stencil buffer 8bit
 	resourceDesc.SampleDesc.Count   = (mIsMsaa4xEnabled) ? 4 : 1;
 	resourceDesc.SampleDesc.Quality = (mIsMsaa4xEnabled) ? (mMsaa4xQualityLevels - 1) : 0;
 	resourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -339,6 +349,25 @@ void DXGIMgr::CreateDSV()
 }
 
 
+void DXGIMgr::CreatePostProcessingShader()
+{
+	mPostProcessingShader = std::make_shared<TextureToScreenShader>();
+	mPostProcessingShader->Create(DXGI_FORMAT_D32_FLOAT);
+}
+
+void DXGIMgr::CreatePostProcessingRTVs()
+{
+	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles.back();
+	rtvHandle.ptr += mRtvDescriptorIncSize;
+
+	mPostProcessingShader->CreateResourcesAndRtvsSrvs(rtvHandle); // SRV to render targets
+
+	// create SRV for DepthStencil buffer
+	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+}
+
+
 void DXGIMgr::ChangeSwapChainState()
 {
 	WaitForGpuComplete();
@@ -361,14 +390,14 @@ void DXGIMgr::ChangeSwapChainState()
 		mSwapChainBuffers[i] = nullptr;
 	}
 
-	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc{};
-	mSwapChain->GetDesc(&dxgiSwapChainDesc);
-	HRESULT hResult = mSwapChain->ResizeBuffers(mSwapChainBuffCnt, mClientWidth, mClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
+	mSwapChain->GetDesc(&swapChainDesc);
+	HRESULT hResult = mSwapChain->ResizeBuffers(mSwapChainBuffCnt, mClientWidth, mClientHeight, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags);
 	AssertHResult(hResult);
 
 	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
-	CreateRTVs();
+	CreateSwapChainRTVs();
 }
 
 void DXGIMgr::WaitForGpuComplete()
@@ -389,24 +418,12 @@ void DXGIMgr::MoveToNextFrame()
 	WaitForGpuComplete();
 }
 
-void DXGIMgr::BuildObjects()
+void DXGIMgr::BuildScene()
 {
 	StartCommand();
 
 	Scene::Create();
 	scene->BuildObjects();
-
-	mPostProcessingShader = std::make_shared<TextureToScreenShader>();
-	mPostProcessingShader->Create(DXGI_FORMAT_D32_FLOAT);
-
-	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles.back();
-	rtvHandle.ptr                        += mRtvDescriptorIncSize;
-
-	mPostProcessingShader->CreateResourcesAndRtvsSrvs(rtvHandle); // SRV to render targets
-
-	// create SRV for DepthStencil buffer
-	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
 	StopCommand();
 

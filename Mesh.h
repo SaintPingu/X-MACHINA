@@ -34,8 +34,8 @@ enum class VertexType : DWORD {
 // (계층 구조에서)한 프레임이 가지는 메쉬 정보
 struct FrameMeshInfo {
 	std::vector<sptr<Material>> Materials{};
-	std::vector<UINT>			IndexCounts{};	// sub mesh의 각 index 개수, guarantee Materials.size() == IndexCounts.size()
-	UINT						VertexCount{};	// 모든 mesh의 정점 개수
+	std::vector<UINT>			IndicesCnts{};	// sub mesh의 각 indices의 개수들, guarantee that Materials.size() == IndicesCnts.size() [반드시 각 메쉬마다 재질이 있어야 한다.
+	UINT						VertexCnt{};	// 모든 mesh의 정점 개수
 };
 
 // sub mesh의 각 정보들을 하나로 merge하기 위한 임시 버퍼
@@ -55,11 +55,11 @@ struct MeshLoadInfo {
 	DWORD		VertexType{};
 	std::string MeshName{};
 
-	int			VertexCount{};
+	int			VertexCnt{};
 	MeshBuffer	Buffer{};
 
-	int								SubMeshCount{};
-	std::vector<int>				SubSetIndexCounts{};
+	int								SubMeshCnt{};
+	std::vector<int>				SubSetIndexCnts{};
 	std::vector<std::vector<UINT>>	SubSetIndices{};
 };
 #pragma endregion
@@ -69,31 +69,31 @@ struct MeshLoadInfo {
 #pragma region Class
 class Mesh {
 protected:
-	UINT mVertexCount{};
+	UINT mVertexCnt{};
 	ComPtr<ID3D12Resource> mVertexBuffer{};
 	ComPtr<ID3D12Resource> mVertexUploadBuffer{};
 
-	UINT mNormals{};
+	UINT mNormalCnt{};
 	ComPtr<ID3D12Resource> mNormalBuffer{};
 	ComPtr<ID3D12Resource> mNormalUploadBuffer{};
 
-	UINT mUV0Count{};
+	UINT mUV0Cnt{};
 	ComPtr<ID3D12Resource> mUV0Buffer{};
 	ComPtr<ID3D12Resource> mUV0UploadBuffer{};
 
-	UINT mUV1Count{};
+	UINT mUV1Cnt{};
 	ComPtr<ID3D12Resource> mUV1Buffer{};
 	ComPtr<ID3D12Resource> mUV1UploadBuffer{};
 
-	UINT mTangentCount{};
+	UINT mTangentCnt{};
 	ComPtr<ID3D12Resource> mTangentBuffer{};
 	ComPtr<ID3D12Resource> mTangentUploadBuffer{};
 
-	UINT mBiTangentCount{};
+	UINT mBiTangentCnt{};
 	ComPtr<ID3D12Resource> mBiTangentBuffer{};
 	ComPtr<ID3D12Resource> mBiTangentUploadBuffer{};
 
-	UINT mIndexCount{};
+	UINT mIndexCnt{};
 	ComPtr<ID3D12Resource> mIndexBuffer{};
 	ComPtr<ID3D12Resource> mIndexUploadBuffer{};
 
@@ -111,7 +111,7 @@ public:
 	void ReleaseUploadBuffers();
 
 	virtual void Render() const;
-	virtual void RenderInstanced(UINT instanceCount) const;
+	virtual void RenderInstanced(UINT instanceCnt) const;
 
 protected:
 	void CreateVertexBufferViews();
@@ -130,6 +130,7 @@ public:
 public:
 	void CreateMeshFromOBB(const BoundingOrientedBox& box);
 
+	// isLine => D3D_PRIMITIVE_TOPOLOGY_LINELIST
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 	void CreateSkyBoxMesh(float width, float height, float depth);
 
@@ -148,7 +149,7 @@ class MergedMesh : public Mesh {
 private:
 	uptr<MeshBuffer> mMeshBuffer{};
 
-	std::vector<FrameMeshInfo> mFrameMeshInfo{};
+	std::vector<FrameMeshInfo> mFrameMeshInfo{};	// 각 프레임마다 메쉬의 정보(재질, 정점개수, ...)를 별도로 저장한다.
 
 public:
 	MergedMesh();
@@ -160,7 +161,7 @@ public:
 public:
 	
 	// merge all meshes to [mFrameMeshInfo] from [mesh] and [materials]
-	bool MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
+	void MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
 	// stop merge and create buffer resource
 	void StopMerge();
 
@@ -171,13 +172,13 @@ public:
 	// render sprite [object]
 	virtual void RenderSprite(const GameObject* object) const;
 
-	bool HasMesh(UINT index) const { return mFrameMeshInfo[index].VertexCount > 0; }
+	bool HasMesh(UINT index) const { return mFrameMeshInfo[index].VertexCnt > 0; }
 
 private:
 
 	// merge all sub meshes from (mesh)
 	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelInfo);
 
-	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCount = 1) const;
+	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt = 1) const;
 };
 #pragma endregion

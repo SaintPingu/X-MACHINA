@@ -18,8 +18,8 @@ namespace {
 
 void Script_Sprite::Start()
 {
-	const std::unordered_map<std::wstring, SpriteInfo> spriteMap{
-		{L"Explode_8x8", {8, 8}},
+	const std::unordered_map<std::string, SpriteInfo> spriteMap{
+		{"Explode_8x8", {8, 8}},
 	};
 
 	base::Start();

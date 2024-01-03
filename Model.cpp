@@ -29,37 +29,28 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 #pragma region Material
 void Material::UpdateShaderVars()
 {
-	constexpr RootParam param = RootParam::GameObjectInfo;
+	constexpr RootParam kRootParam = RootParam::GameObjectInfo;
 
+	// texture가 있다면, texture의 shader variables를 업데이트하고
+	//			 없다면, textureMask를 None으로 설정한다.
 	if (mTexture) {
 		mTexture->UpdateShaderVars();
 	}
 	else {
-		scene->SetGraphicsRoot32BitConstants(param, (WORD)MaterialMap::None, 32);
+		scene->SetGraphicsRoot32BitConstants(kRootParam, static_cast<DWORD>(MaterialMap::None), 32);
 	}
 
+	// material 색이 없다면, 무색(0,0,0=black)으로 설정한다.
 	if (!mMaterialColors) {
-		Vec4 ambient{}, diffuse{}, specular{}, emmisive{};
-
-		scene->SetGraphicsRoot32BitConstants(param, ambient, 16);
-		scene->SetGraphicsRoot32BitConstants(param, diffuse, 20);
-		scene->SetGraphicsRoot32BitConstants(param, specular, 24);
-		scene->SetGraphicsRoot32BitConstants(param, emmisive, 28);
-
+		scene->SetGraphicsRoot32BitConstants(kRootParam, Vec4x4{}, 16);
 		return;
 	}
 
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Diffuse, 20);
-
-	if (mIsDiffused) {
-		return;
-	}
-
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Ambient, 16);
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Specular, 24);
-	scene->SetGraphicsRoot32BitConstants(param, mMaterialColors->Emissive, 28);
+	// material의 색상 (Vec4x4 -> Ambient, Diffuse, Specular, Emissive)을 Set한다.
+	scene->SetGraphicsRoot32BitConstants(kRootParam, *mMaterialColors, 16);
 }
 
+// texture의 fileName을 읽어와 해당 texture를 scene을 통해 가져온다.
 void Material::LoadTextureFromFile(FILE* file)
 {
 	std::string textureName{};
@@ -75,54 +66,35 @@ void Material::LoadTextureFromFile(FILE* file)
 
 
 #pragma region Model
-void Model::CopyModelHierarchy(GameObject* object) const
+// 재귀함수
+void Model::CopyModelHierarchy(Object* object) const
 {
 	object->CopyComponents(*this);
 	object->SetLocalTransform(GetLocalTransform());
 	object->SetName(mName);
 
-
+	/* 각 계층 구조의 복사본(새 할당)을 받아 설정한다. */
 	if (mSibling) {
-		sptr<Object> sibling{};
-		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling);
+		sptr<Object> sibling = std::make_shared<Object>();
+		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling.get());
 		object->mSibling = sibling;
 	}
 	if (mChild) {
-		sptr<Object> child{};
-		mChild->GetObj<Model>()->CopyModelHierarchy(child);
+		sptr<Object> child = std::make_shared<Object>();
+		mChild->GetObj<Model>()->CopyModelHierarchy(child.get());
 		object->SetChild(child);
 	}
 }
 
 void Model::MergeModel(MasterModel& out)
 {
-	out.MergeMesh(mMeshInfo, mMaterials);
+	out.MergeMesh(mMeshInfo, mMaterials);	// mesh와 material을 out에 병합한다.
 
 	if (mSibling) {
 		mSibling->GetObj<Model>()->MergeModel(out);
 	}
 	if (mChild) {
 		mChild->GetObj<Model>()->MergeModel(out);
-	}
-}
-
-void Model::CopyModelHierarchy(sptr<Object>& object) const
-{
-	object = std::make_shared<Object>();
-
-	object->CopyComponents(*this);
-	object->SetLocalTransform(GetLocalTransform());
-	object->SetName(mName);
-
-	if (mSibling) {
-		sptr<Object> sibling{};
-		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling);
-		object->mSibling = sibling;
-	}
-	if (mChild) {
-		sptr<Object> child{};
-		mChild->GetObj<Model>()->CopyModelHierarchy(child);
-		object->SetChild(child);
 	}
 }
 #pragma endregion
@@ -146,8 +118,10 @@ void Model::CopyModelHierarchy(sptr<Object>& object) const
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 MasterModel::MasterModel()
+	:
+	mMesh(std::make_shared<MergedMesh>())
 {
-	mMesh = std::make_shared<MergedMesh>();
+	
 }
 
 rsptr<Texture> MasterModel::GetTexture() const

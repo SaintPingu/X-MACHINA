@@ -18,7 +18,7 @@ class TerrainBlock;
 
 
 #pragma region Variable
-constexpr int TERRAIN_LENGTH = 513;
+constexpr int gkTerrainLength = 513;
 #pragma endregion
 
 
@@ -131,13 +131,13 @@ public:
 	virtual ~TerrainBlock() = default;
 
 public:
-	virtual void Update() override { Reset(); };
+	virtual void Update() override { Pop(); };
 	virtual void Render() override { Push(); }
-	// render mesh and Reset()
+	// render mesh and Pop()
 	void RenderMesh();
 
 private:
-	void Reset() { mIsPushed = false; }
+	void Pop() { mIsPushed = false; }
 	// 이 Block을 rendering buffer에 추가한다.
 	void Push();
 };

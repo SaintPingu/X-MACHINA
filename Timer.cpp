@@ -34,12 +34,12 @@ float Timer::GetTotalTime() const
 
 const WCHAR* Timer::GetFrameRate() const
 {
-	constexpr int radix     = 10;
+	constexpr int kRadix    = 10;
 	constexpr int kBuffSize = 5;
 
 	static WCHAR buff[kBuffSize]{ L'\0' };
 
-	_itow_s(mCurrFrameRate, buff, kBuffSize, radix);
+	_itow_s(mCurrFrameRate, buff, kBuffSize, kRadix);
 
 	return buff;
 }

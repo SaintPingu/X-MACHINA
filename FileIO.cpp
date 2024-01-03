@@ -9,26 +9,8 @@
 #include "Texture.h"
 
 
-
-
-namespace FileIO {
-	void ReadString(FILE* file, std::string& token)
-	{
-		constexpr int kTokenBuffSize = 256;
-
-		BYTE length{};
-		token.resize(kTokenBuffSize);
-
-		::fread(&length, sizeof(BYTE), 1, file);
-		UINT nReads = (UINT)::fread(token.data(), sizeof(char), length, file);
-
-		if (nReads == 0) {
-			throw std::runtime_error("Failed to read a file!\n");
-		}
-
-		token.resize(length);
-	}
-
+namespace {
+	// Mesh 정보를 불러온다. (Positions, Normals, ...)
 	sptr<MeshLoadInfo> LoadMesh(FILE* file)
 	{
 		std::string token;
@@ -37,7 +19,7 @@ namespace FileIO {
 
 		sptr<MeshLoadInfo> meshInfo = std::make_shared<MeshLoadInfo>();
 
-		FileIO::ReadVal(file, meshInfo->VertexCount);
+		FileIO::ReadVal(file, meshInfo->VertexCnt);
 		FileIO::ReadString(file, meshInfo->MeshName);
 
 		bool isEOF{ false };
@@ -87,18 +69,18 @@ namespace FileIO {
 			break;
 			case Hash("<SubMeshes>:"):
 			{
-				FileIO::ReadVal(file, meshInfo->SubMeshCount);
-				if (meshInfo->SubMeshCount > 0) {
-					meshInfo->SubSetIndexCounts.resize(meshInfo->SubMeshCount);
-					meshInfo->SubSetIndices.resize(meshInfo->SubMeshCount);
+				FileIO::ReadVal(file, meshInfo->SubMeshCnt);
+				if (meshInfo->SubMeshCnt > 0) {
+					meshInfo->SubSetIndexCnts.resize(meshInfo->SubMeshCnt);
+					meshInfo->SubSetIndices.resize(meshInfo->SubMeshCnt);
 
-					for (int i = 0; i < meshInfo->SubMeshCount; i++) {
+					for (int i = 0; i < meshInfo->SubMeshCnt; i++) {
 						FileIO::ReadString(file, token);
 						if (token == "<SubMesh>:") {
 							int nIndex = FileIO::ReadVal<int>(file);
-							FileIO::ReadVal(file, meshInfo->SubSetIndexCounts[i]);
-							if (meshInfo->SubSetIndexCounts[i] > 0) {
-								FileIO::ReadRange(file, meshInfo->SubSetIndices[i], meshInfo->SubSetIndexCounts[i]);
+							FileIO::ReadVal(file, meshInfo->SubSetIndexCnts[i]);
+							if (meshInfo->SubSetIndexCnts[i] > 0) {
+								FileIO::ReadRange(file, meshInfo->SubSetIndices[i], meshInfo->SubSetIndexCnts[i]);
 							}
 						}
 					}
@@ -161,6 +143,8 @@ namespace FileIO {
 		return meshInfo;
 	}
 
+
+	// 재질의 정보를 불러온다. (Albedo, Emissive, ...)
 	std::vector<sptr<Material>> LoadMaterial(FILE* file)
 	{
 		std::string token;
@@ -246,7 +230,9 @@ namespace FileIO {
 		return result;
 	}
 
-	sptr<Model> LoadFrrameHierarchy(FILE* file)
+
+	// 한 프레임의 정보를 불러온다. (FrameName, Transform, BoundingBox, ...)
+	sptr<Model> LoadFrameHierarchy(FILE* file)
 	{
 		std::string token;
 
@@ -327,13 +313,13 @@ namespace FileIO {
 			break;
 			case Hash("<Mesh>:"):
 			{
-				model->SetMeshInfo(FileIO::LoadMesh(file));
+				model->SetMeshInfo(::LoadMesh(file));
 			}
 
 			break;
 			case Hash("<Materials>:"):
 			{
-				model->SetMaterials(FileIO::LoadMaterial(file));
+				model->SetMaterials(::LoadMaterial(file));
 			}
 
 			break;
@@ -342,7 +328,7 @@ namespace FileIO {
 				int nChilds = FileIO::ReadVal<int>(file);
 				if (nChilds > 0) {
 					for (int i = 0; i < nChilds; i++) {
-						sptr<Model> child = FileIO::LoadFrrameHierarchy(file);
+						sptr<Model> child = LoadFrameHierarchy(file);
 						if (child) {
 							model->SetChild(child);
 						}
@@ -364,6 +350,39 @@ namespace FileIO {
 		return model;
 	}
 
+
+	// [folder]에 있는 모든 텍스쳐의 이름을 불러온다.
+	void GetTextureNames(std::vector<std::string>& out, const std::string& folder)
+	{
+		for (const auto& file : std::filesystem::directory_iterator(folder)) {
+			out.emplace_back(file.path().filename().string());
+		}
+	}
+}
+
+
+
+
+
+namespace FileIO {
+	void ReadString(FILE* file, std::string& token)
+	{
+		constexpr int kTokenBuffSize = 256;
+
+		BYTE length{};
+		token.resize(kTokenBuffSize);
+
+		::fread(&length, sizeof(BYTE), 1, file);
+		UINT nReads = (UINT)::fread(token.data(), sizeof(char), length, file);
+
+		if (nReads == 0) {
+			throw std::runtime_error("Failed to read a file!\n");
+		}
+
+		token.resize(length);
+	}
+
+
 	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName)
 	{
 		FILE* file = nullptr;
@@ -381,7 +400,7 @@ namespace FileIO {
 
 			switch (Hash(token)) {
 			case Hash("<Hierarchy>:"):
-				model = FileIO::LoadFrrameHierarchy(file);
+				model = ::LoadFrameHierarchy(file);
 				break;
 			case Hash("</Hierarchy>"):
 				isEOF = true;
@@ -392,14 +411,11 @@ namespace FileIO {
 			}
 		}
 
-		sptr<MasterModel> masterModelB = std::make_shared<MasterModel>();
-
 		sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
 		masterModel->SetModel(model);
 
 		return masterModel;
 	}
-
 
 
 	void LoadLightFromFile(const std::string& fileName, LightInfo** out)
@@ -458,13 +474,24 @@ namespace FileIO {
 		light->Specular    = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	}
 
-
-	void GetTextureNames(std::vector<std::string>& out, const std::string& folder)
+	std::unordered_map<std::string, sptr<Texture>> LoadTextures(const std::string& folder)
 	{
-		for (const auto& file : std::filesystem::directory_iterator(folder)) {
-			std::string fileName = file.path().filename().string();
-			fileName.erase(fileName.size() - 4); // remove .dds
-			out.emplace_back(fileName);
+		std::unordered_map<std::string, sptr<Texture>> result{};
+
+		// get [textureNames] from [folder]
+		std::vector<std::string> textureNames{};
+		GetTextureNames(textureNames, folder);
+
+		// load textures
+		for (auto& textureName : textureNames) {
+			FileIO::RemoveExtension(textureName);
+
+			sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
+			texture->LoadTexture(folder, textureName);
+
+			result.insert(std::make_pair(textureName, texture));
 		}
+
+		return result;
 	}
 }

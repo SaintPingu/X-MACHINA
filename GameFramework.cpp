@@ -13,8 +13,10 @@
 SINGLETON_PATTERN_DEFINITION(Framework)
 
 Framework::Framework()
+	:
+	mTitle(L"LabProject")
 {
-	mTitle = _T("LabProject");
+
 }
 
 void Framework::Init(HINSTANCE hInstance, HWND hMainWnd)

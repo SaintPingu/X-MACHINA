@@ -7,6 +7,7 @@ struct MeshLoadInfo;
 class Model;
 class MasterModel;
 class Material;
+class Texture;
 #pragma endregion
 
 namespace FileIO {
@@ -37,16 +38,19 @@ namespace FileIO {
 		::fread(out.data(), sizeof(T), cnt, file);
 	}
 
-	/* Model */
-	std::vector<sptr<Material>> LoadMaterial(FILE* file);
-	sptr<MeshLoadInfo> LoadMesh(FILE* file);
-
-	sptr<Model> LoadFrrameHierarchy(FILE* file);
+	// fileName에 해당하는 모델을 불러온다. (계층구조)
 	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName);
 
-	/* Light */
+	// [fileName]에 해당하는 조명 모델을 불러온다. (Type, Color, Intensity, ...)
 	void LoadLightFromFile(const std::string& fileName, LightInfo** out);
 
-	/* Texture */
-	void GetTextureNames(std::vector<std::string>& out, const std::string& folder);
+	// [folder]의 모든 dds Texutre파일들을 로드한다.
+	// <texture name, Texture>
+	std::unordered_map<std::string, sptr<Texture>> LoadTextures(const std::string& folder);
+
+	// remove extension of [fileName]
+	inline void RemoveExtension(std::string& filename)
+	{
+		filename = filename.substr(0, filename.find_last_of('.'));
+	}
 }

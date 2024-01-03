@@ -70,8 +70,8 @@ void Font::Create(const Vec3& pos, float width, float height)
 
 void Font::UpdateShaderVarSprite(char ch) const
 {
-	constexpr float cols = 8.f;
-	constexpr float rows = 5.f;
+	constexpr float kCols = 8.f;
+	constexpr float kRows = 5.f;
 
 	if (isalpha(ch)) {
 		ch -= 'A';
@@ -79,15 +79,15 @@ void Font::UpdateShaderVarSprite(char ch) const
 	else if (isdigit(ch)) {
 		ch -= '0' - 26;
 	}
-	float col = ch % int(cols);
-	float row = int(ch / cols);
+	float col = ch % int(kCols);
+	float row = int(ch / kCols);
 
 	Vec4x4 spriteMtx = Matrix4x4::Identity();
 
-	spriteMtx._11 = 1.f / cols;
-	spriteMtx._22 = 1.f / rows;
-	spriteMtx._31 = col / cols;
-	spriteMtx._32 = row / rows;
+	spriteMtx._11 = 1.f / kCols;
+	spriteMtx._22 = 1.f / kRows;
+	spriteMtx._31 = col / kCols;
+	spriteMtx._32 = row / kRows;
 
 	scene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(spriteMtx), 0);
 }
@@ -195,15 +195,6 @@ void Canvas::Render() const
 
 void Canvas::LoadTextures()
 {
-	std::vector<std::string> textureNames{};
-	FileIO::GetTextureNames(textureNames, "Models/UI");
-
-	// load textures
-	for (auto& textureName : textureNames) {
-		sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
-		texture->LoadUITexture(textureName);
-
-		mTextureMap.insert(std::make_pair(textureName, texture));
-	}
+	mTextureMap = FileIO::LoadTextures("Models/UI/");
 }
 #pragma endregion

@@ -4,6 +4,7 @@ class Scene;
 class ModelObjectMesh;
 
 // bounds의 mesh를 렌더링하기 위한 클래스 (for debug)
+// texture(UV) 정보를 가지지 않는다.
 class MeshRenderer {
 	friend Scene;
 

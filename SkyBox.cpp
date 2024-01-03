@@ -15,7 +15,7 @@ SkyBox::SkyBox() : Transform(this)
 	mMesh->CreateSkyBoxMesh(20, 20, 20);
 
 	mTexture = std::make_unique<Texture>(D3DResource::TextureCube);
-	mTexture->LoadCubeTexture("SkyBox_0");
+	mTexture->LoadTexture("Models/Skybox/", "SkyBox_0");
 
 	mShader = std::make_unique<SkyBoxShader>();
 	mShader->Create();

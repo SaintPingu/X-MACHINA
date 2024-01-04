@@ -177,6 +177,9 @@
     <ClInclude Include="Singleton.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Instancing.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX12_Project.cpp">
@@ -291,6 +294,9 @@
       <Filter>소스 파일\Library</Filter>
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Instancing.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

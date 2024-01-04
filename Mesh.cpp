@@ -6,6 +6,7 @@
 #include "Model.h"
 #include "Shader.h"
 #include "Scene.h"
+#include "Instancing.h"
 
 
 #include "Script_Sprite.h"

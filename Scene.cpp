@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include "RootSignature.h"
 #include "DescriptorHeap.h"
+#include "Instancing.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"

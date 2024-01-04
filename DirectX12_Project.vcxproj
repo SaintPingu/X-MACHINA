@@ -143,6 +143,7 @@
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="InputMgr.h" />
+    <ClInclude Include="Instancing.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="InputMgr.cpp" />
+    <ClCompile Include="Instancing.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />

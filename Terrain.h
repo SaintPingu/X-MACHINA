@@ -78,7 +78,9 @@ public:
 	Vec3 GetNormal(float x, float z) const;
 
 public:
+	void Enable();
 	void Start();
+
 	// update all terrain block's grid index
 	void UpdateGrid();
 	// rendering terrain blocks that within [buffer]

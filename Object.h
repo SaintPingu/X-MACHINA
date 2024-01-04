@@ -8,7 +8,7 @@
 #pragma region ClassForwardDecl
 class MasterModel;
 class Texture;
-class ObjectInstBuffer;
+class ObjectPool;
 class ObjectCollider;
 #pragma endregion
 
@@ -22,19 +22,19 @@ class GameObject : public Object {
 	using base = Object;
 	using Transform::ReturnToPrevTransform;
 
-public:
+private:
 	sptr<const MasterModel> mMasterModel{};
 
 protected:
-	bool mIsInstancing{ false };	// 인스턴싱 객체인가?
+	bool mIsInstancing = false;	// 인스턴싱 객체인가?
 
 private:
-	bool mIsActive{ true };			// 활성화되어 있는가? (Update, Render)
-	bool mIsFlyable{ false };		// 날 수 있는가?
-	bool mIsDrawBounding{ false };	// collision bounds를 그리는가?
+	bool mIsActive       = true;	// 활성화되어 있는가? (Update, Render)
+	bool mIsFlyable      = false;	// 날 수 있는가?
+	bool mIsDrawBounding = false;	// collision bounds를 그리는가?
 
 	std::unordered_set<int> mGridIndices{};				// 인접 Grid indices (충돌됨)
-	int mCurrGridIndex{ -1 };							// 현재 위치의 Grid index
+	int mCurrGridIndex = -1;							// 현재 위치의 Grid index
 
 	std::vector<const Transform*> mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위해)
 
@@ -103,12 +103,13 @@ private:
 // 모델을 가지지 않는다.
 class InstObject : public GameObject {
 private:
+	int mPoolID{};
 	using base = GameObject;
 
 	using GameObject::Render;
 
 private:
-	sptr<ObjectInstBuffer> mBuffer{};
+	ObjectPool* mBuffer{};
 
 	std::function<void()> mUpdateFunc{};
 
@@ -118,11 +119,14 @@ public:
 	InstObject()          = default;
 	virtual ~InstObject() = default;
 
-	void SetBuffer(rsptr<ObjectInstBuffer> buffer);
+	int GetPoolID() { return mPoolID; }
+
+	void SetBuffer(ObjectPool* buffer, int id);
 
 public:
 	virtual void Render() override { Push(); }
 	virtual void Update() override { mUpdateFunc(); }
+	virtual void OnDestroy() override;
 
 private:
 	// 인스턴싱 버퍼에 이 객체를 추가한다.

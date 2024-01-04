@@ -15,14 +15,14 @@ class Texture;
 class Material;
 class MasterModel;
 class MergedMesh;
-class ObjectInstBuffer;
+class ObjectPool;
 #pragma endregion
 
 
 #pragma region Struct
 // file에서 읽은 material 정보를 담는 구조체
 struct MaterialLoadInfo {
-	Vec4 Albedo{ Vector4::One() };
+	Vec4 Albedo = Vector4::One();
 	Vec4 Emissive{};
 	Vec4 Specular{};
 
@@ -136,7 +136,7 @@ public:
 	// render single [object]
 	void Render(const GameObject* object) const { RenderFunc(object); }
 	// render instancing objects from [instBuffer]
-	void Render(const ObjectInstBuffer* instBuffer = nullptr) const;
+	void Render(const ObjectPool* instBuffer = nullptr) const;
 
 	// Model의 trasnform 계층구조를 [object]에 복사한다.
 	// call Model::CopyModelHierarchy()

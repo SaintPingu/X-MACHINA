@@ -23,7 +23,7 @@ class BoxCollider : public Collider {
 	COMPONENT(BoxCollider, Collider)
 
 public:
-	MyBoundingOrientedBox mBox;
+	MyBoundingOrientedBox mBox{};
 
 public:
 	BoxCollider& operator=(const BoxCollider& other);
@@ -41,7 +41,7 @@ class SphereCollider : public Collider {
 	COMPONENT(SphereCollider, Collider)
 
 public:
-	MyBoundingSphere mBS;
+	MyBoundingSphere mBS{};
 
 public:
 	SphereCollider& operator=(const SphereCollider& other);

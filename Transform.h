@@ -3,18 +3,18 @@
 // position, rotation of an object.
 // every object in a Scene has a Transform.
 // it's used to store and manipulate the position, rotation of the object.
-// every Transform can have a parent, sibling and child
+// every Transform can have a parent, child and sibling
 // transform can access to self Object
 class Transform {
 private:
-	Vec4x4 mWorldTransform	{ Matrix4x4::Identity() };	// transform of     affected by a parent (world)
-	Vec4x4 mLocalTransform	{ Matrix4x4::Identity() };	// transform of not affected by a parent (local)
-	Vec4x4 mPrevTransform	{ Matrix4x4::Identity() };	// transform of previous frame
+	Vec4x4 mWorldTransform = Matrix4x4::Identity();	// transform of     affected by a parent (world)
+	Vec4x4 mLocalTransform = Matrix4x4::Identity();	// transform of not affected by a parent (local)
+	Vec4x4 mPrevTransform  = Matrix4x4::Identity();	// transform of previous frame
 
-	Vec3 mPosition	{ Vector3::Zero() };		// local space position
-	Vec3 mRight		{ Vector3::Right() };		// right(x) axis in local space
-	Vec3 mUp		{ Vector3::Up() };			// up(y)    axis in local space
-	Vec3 mLook		{ Vector3::Forrward() };	// look(z)  axis in local space
+	Vec3 mPosition = Vector3::Zero();		// local space position
+	Vec3 mRight	   = Vector3::Right();		// right(x) axis in local space
+	Vec3 mUp	   = Vector3::Up();			// up(y)    axis in local space
+	Vec3 mLook	   = Vector3::Forrward();	// look(z)  axis in local space
 
 	void* mObject{};	// self Object
 

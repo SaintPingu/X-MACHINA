@@ -19,7 +19,8 @@ class Script_MainCamera : public Component {
 private:
 	CameraMode			mCameraMode{ CameraMode::None };
 	sptr<GameObject>	mPlayer{};
-	Vec3				mOffset{ Vec3(0.f, 15, -30.f) };
+	Vec3				mOffset = Vec3(0.f, 15, -30.f);
+
 	float				mTimeLag{};							// translate 지연시간 (자연스러운 움직임)
 
 public:

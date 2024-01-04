@@ -150,7 +150,7 @@ void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>
 	mMesh->MergeMesh(mesh, materials);
 }
 
-void MasterModel::Render(const ObjectInstBuffer* instBuffer) const
+void MasterModel::Render(const ObjectPool* instBuffer) const
 {
 	mMesh->Render(instBuffer);
 }

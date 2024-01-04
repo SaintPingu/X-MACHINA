@@ -61,26 +61,58 @@ void Object::CopyComponents(const Object& src)
 	}
 }
 
-void Object::Start()
+void Object::OnEnable()
 {
 	Transform::Update();
-	StartComponents();
+
+	ProcessComponents([](rsptr<Component> component) {
+		component->OnEnable();
+		});
+}
+
+void Object::OnDisable()
+{
+	ProcessComponents([](rsptr<Component> component) {
+		component->OnDisable();
+		});
+}
+
+void Object::Start()
+{
+	ProcessComponents([](rsptr<Component> component) {
+		component->Start();
+		});
 }
 
 void Object::Update()
 {
 	Transform::Update();
-	UpdateComponents();
+	
+	mCollisionObjects.clear();
+	ProcessComponents([](rsptr<Component> component) {
+		component->Update();
+		});
+}
+
+void Object::OnDestroy()
+{
+	ProcessComponents([](rsptr<Component> component) {
+		component->OnDestroy();
+		});
 }
 
 void Object::Release()
 {
-	ReleaseComponents();
+	ProcessComponents([](rsptr<Component> component) {
+		component->Release();
+		});
 }
 
 void Object::ReleaseUploadBuffers()
 {
-	ReleaseUploadBuffersComponents();
+	ProcessComponents([](rsptr<Component> component) {
+		component->ReleaseUploadBuffers();
+		});
 }
 
 void Object::OnCollisionStay(Object& other)
@@ -106,34 +138,6 @@ void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc
 	}
 }
 
-void Object::StartComponents()
-{
-	ProcessComponents([](rsptr<Component> component) {
-		component->Start();
-		});
-}
-
-void Object::UpdateComponents()
-{
-	mCollisionObjects.clear();
-	ProcessComponents([](rsptr<Component> component) {
-		component->Update();
-		});
-}
-
-void Object::ReleaseComponents()
-{
-	ProcessComponents([](rsptr<Component> component) {
-		component->Release();
-		});
-}
-
-void Object::ReleaseUploadBuffersComponents()
-{
-	ProcessComponents([](rsptr<Component> component) {
-		component->ReleaseUploadBuffers();
-		});
-}
 
 namespace {
 	template<class T>

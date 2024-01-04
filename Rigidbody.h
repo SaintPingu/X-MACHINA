@@ -11,14 +11,14 @@ class Rigidbody : public Component {
 	COMPONENT(Rigidbody, Component)
 
 private	:
-	bool mUseGravity	{ false };	// controls whether gravity affects this rigidbody.
-	float mGravityScale	{ 1.f };
+	bool mUseGravity	= false;	// controls whether gravity affects this rigidbody.
+	float mGravityScale	= 1.f;
 
-	float mMass		{ 1.f };
-	float mDrag		{ 1.f };
-	float mFriction	{ 1.f };
-	float mAcc		{ 1.f };
-	float mMaxSpeed	{ FLT_MAX };
+	float mMass		= 1.f;
+	float mDrag		= 1.f;
+	float mFriction	= 1.f;
+	float mAcc		= 1.f;
+	float mMaxSpeed	= FLT_MAX;
 	Vec3 mVelocity{};
 
 public:

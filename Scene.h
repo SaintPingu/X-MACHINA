@@ -26,7 +26,7 @@ class Texture;
 class SkyBox;
 class GraphicsRootSignature;
 class DescriptorHeap;
-class ObjectInstBuffer;
+class ObjectPool;
 #pragma endregion
 
 
@@ -50,7 +50,7 @@ private:
 	std::unordered_map<std::string, sptr<const MasterModel>> mModels{};	// model folder에서 로드한 모델 객체 모음
 
 	/* Light */
-	sptr<Light> mLight;
+	sptr<Light> mLight{};
 
 	/* Textures */
 	std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
@@ -75,7 +75,7 @@ private:
 	std::vector<sptr<GameObject>> mStaticObjects{};
 	std::list<sptr<GameObject>> mExplosiveObjects{};		// dynamic
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
-	std::vector<sptr<ObjectInstBuffer>> mInstanceBuffers{};
+	std::vector<sptr<ObjectPool>> mInstanceBuffers{};
 
 	/* Player */
 	std::vector<sptr<GameObject>> mPlayers{};
@@ -96,7 +96,7 @@ private:
 	sptr<DescriptorHeap> mDescriptorHeap{};
 
 	/* Others */
-	bool mIsRenderBounds{ false };
+	bool mIsRenderBounds = false;
 
 private:
 #pragma region C/Dtor

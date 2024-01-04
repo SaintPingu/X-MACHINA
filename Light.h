@@ -44,8 +44,8 @@ struct SceneLight {
 	Vec4	GlobalAmbient{};
 
 	Vec4	FogColor{};
-	float	FogStart{ 100.f };
-	float	FogRange{ 300.f };
+	float	FogStart = 100.f;
+	float	FogRange = 300.f;
 };
 #pragma endregion
 

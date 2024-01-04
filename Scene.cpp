@@ -401,7 +401,7 @@ void Scene::LoadGameObjects(FILE* file)
 
 	int sameObjectCount{};			// get one unique model from same object
 	sptr<MasterModel> model{};
-	sptr<ObjectInstBuffer> instBuffer{};
+	sptr<ObjectPool> instBuffer{};
 
 	bool isInstancing{};
 	ObjectTag tag{};
@@ -435,18 +435,14 @@ void Scene::LoadGameObjects(FILE* file)
 			FileIO::ReadVal(file, isInstancing);
 
 			if (isInstancing) {
-				instBuffer = std::make_shared<ObjectInstBuffer>();
-				instBuffer->CreateShaderVars(sameObjectCount);
-				instBuffer->SetModel(model);
-				if (GetObjectType(tag) == ObjectType::Dynamic) {
-					instBuffer->SetDynamic();
-				}
+				instBuffer = std::make_shared<ObjectPool>(model, sameObjectCount);
 				mInstanceBuffers.emplace_back(instBuffer);
 			}
 		}
 
 		if (isInstancing) {
-			object = std::make_shared<InstObject>();
+			// 인스턴싱 객체는 생성된 객체를 받아온다.
+			object = instBuffer->Get();
 		}
 		else {
 			object = std::make_shared<GameObject>();
@@ -460,16 +456,11 @@ void Scene::LoadGameObjects(FILE* file)
 			mWater = object;
 		}
 
-
 		object->SetModel(model);
 
 		Vec4x4 transform;
 		FileIO::ReadVal(file, transform);
 		object->SetWorldTransform(transform);
-
-		if (isInstancing) {
-			static_cast<InstObject*>(object.get())->SetBuffer(instBuffer);
-		}
 
 		--sameObjectCount;
 	}
@@ -781,10 +772,15 @@ void Scene::Start()
 {
 	mainCameraObject->Start();
 
+	mTerrain->Enable();
+	ProcessObjects([](sptr<GameObject> object) {
+		object->OnEnable();
+		});
+
+	mTerrain->Start();
 	ProcessObjects([](sptr<GameObject> object) {
 		object->Start();
 		});
-	mTerrain->Start();
 
 	if (mSmallExpFXShader) {
 		mSmallExpFXShader->Start();
@@ -956,6 +952,7 @@ void Scene::DeleteExplodedObjects()
 				mGrids[index].RemoveObject(object.get());
 			}
 
+			object->OnDestroy();
 			it = mExplosiveObjects.erase(it);
 		}
 		else {

@@ -287,12 +287,20 @@ void Terrain::Render()
 	ResetBuffer();
 }
 
+void Terrain::Enable()
+{
+	for (auto& terrain : mTerrains) {
+		terrain->OnEnable();
+	}
+}
+
 void Terrain::Start()
 {
 	for (auto& terrain : mTerrains) {
 		terrain->Start();
 	}
 }
+
 
 void Terrain::UpdateGrid()
 {

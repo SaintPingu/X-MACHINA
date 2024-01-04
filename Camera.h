@@ -36,8 +36,8 @@ class Camera : public Component {
 	COMPONENT(Camera, Component)
 
 private:
-	Vec4x4 mViewTransform { Matrix4x4::Identity() };
-	Vec4x4 mProjTransform { Matrix4x4::Identity() };
+	Vec4x4 mViewTransform = Matrix4x4::Identity();
+	Vec4x4 mProjTransform = Matrix4x4::Identity();
 
 	// Camera Constant Buffer
 	ComPtr<ID3D12Resource>	mCB_CameraInfo{};
@@ -48,8 +48,8 @@ private:
 	BoundingFrustum mFrustumView{};
 	BoundingFrustum mFrustumWorld{};
 
-	D3D12_VIEWPORT	mViewport    { 0.f, 0.f, gkFrameBufferWidth , gkFrameBufferHeight, 0.f, 1.f };
-	D3D12_RECT		mScissorRect { 0, 0, gkFrameBufferWidth , gkFrameBufferHeight };
+	D3D12_VIEWPORT	mViewport    = { 0.f, 0.f, gkFrameBufferWidth , gkFrameBufferHeight, 0.f, 1.f };
+	D3D12_RECT		mScissorRect = { 0, 0, gkFrameBufferWidth , gkFrameBufferHeight };
 
 public:
 	Vec3 GetOffset() const { return mOffset; }

@@ -12,7 +12,7 @@ class Texture;
 class Transform;
 class ModelObject;
 class GameObject;
-class ObjectInstBuffer;
+class ObjectPool;
 #pragma endregion
 
 
@@ -168,7 +168,7 @@ public:
 	// render [object] for this mesh
 	virtual void Render(const GameObject* object) const;
 	// render instanced objects from [instBuffer]
-	virtual void Render(const ObjectInstBuffer* instBuffer) const;
+	virtual void Render(const ObjectPool* instBuffer) const;
 	// render sprite [object]
 	virtual void RenderSprite(const GameObject* object) const;
 

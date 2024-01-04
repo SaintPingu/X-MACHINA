@@ -115,11 +115,20 @@ public:
 	virtual int GetID() const { return kNotID; }
 
 public:
-	// Update 호출 전 한 번 호출한다.
+	// 객체 활성화 시 호출된다.
+	virtual void OnEnable() {}
+
+	// 객체 비활성화 시 호출된다.
+	virtual void OnDisable() {}
+
+	// Update 호출 전 한 번 호출된다.
 	virtual void Start() {}
 
-	// 매 프레임 호출한다.
+	// 매 프레임 호출된다.
 	virtual void Update() {}
+
+	// 객체가 소멸될 시 호출된다.
+	virtual void OnDestroy() {}
 
 	// 동적 리소스를 해제한다.
 	virtual void Release() {}
@@ -227,8 +236,12 @@ public:
 	void CopyComponents(const Object& src);
 #pragma endregion
 
+	// OnEnable -> Start -> Update
+	virtual void OnEnable();
+	virtual void OnDisable();
 	virtual void Start();
 	virtual void Update() override;
+	virtual void OnDestroy();
 	virtual void Release();
 	virtual void ReleaseUploadBuffers();
 
@@ -238,18 +251,6 @@ public:
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.
 	void ProcessComponents(std::function<void(rsptr<Component>)> processFunc);
-
-	// 모든 component들의 Start() 실행
-	void StartComponents();
-
-	// 모든 component들의 Update() 실행
-	void UpdateComponents();
-
-	// 모든 component들의 Release() 실행
-	void ReleaseComponents();
-
-	// 모든 component들의 ReleaseUploadBuffers() 실행
-	void ReleaseUploadBuffersComponents();
 
 	// (component)의 복사본을 반환한다.
 	sptr<Component> GetCopyComponent(rsptr<Component> component);

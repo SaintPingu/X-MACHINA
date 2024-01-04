@@ -533,7 +533,7 @@ void MergedMesh::Render(const GameObject* object) const
 	Render(object->GetMergedTransform());
 }
 
-void MergedMesh::Render(const ObjectInstBuffer* instBuffer) const
+void MergedMesh::Render(const ObjectPool* instBuffer) const
 {
 	if (!instBuffer) {
 		return;

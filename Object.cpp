@@ -88,10 +88,14 @@ void GameObject::Enable(bool isUpdateObjectGrid)
 	if (isUpdateObjectGrid) {
 		scene->UpdateObjectGrid(this);
 	}
+
+	base::OnEnable();
 }
 
 void GameObject::Disable(bool isUpdateObjectGrid)
 {
+	base::OnDisable();
+
 	mIsActive = false;
 
 	if (isUpdateObjectGrid) {
@@ -180,10 +184,11 @@ void GameObject::TiltToGround()
 
 
 #pragma region InstObject
-void InstObject::SetBuffer(rsptr<ObjectInstBuffer> buffer)
+void InstObject::SetBuffer(ObjectPool* buffer, int id)
 {
 	SetInstancing();
 	mBuffer = buffer;
+	mPoolID = id;
 
 	switch (mType) {
 	case ObjectType::DynamicMove:
@@ -194,6 +199,13 @@ void InstObject::SetBuffer(rsptr<ObjectInstBuffer> buffer)
 		mUpdateFunc = [this]() { UpdateStatic(); };
 		break;
 	}
+}
+
+
+void InstObject::OnDestroy()
+{
+	base::OnDestroy();
+	mBuffer->Return(this);
 }
 
 void InstObject::Push()

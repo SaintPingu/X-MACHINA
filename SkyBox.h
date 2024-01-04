@@ -17,9 +17,9 @@ class ModelObjectMesh;
 // SkyBox ¹è°æ °´Ã¼ (not entity)
 class SkyBox : public Transform {
 private:
-	std::unique_ptr<ModelObjectMesh> mMesh{};
-	std::unique_ptr<SkyBoxShader>	 mShader{};
-	std::unique_ptr<Texture>		 mTexture{};
+	uptr<ModelObjectMesh> mMesh{};
+	uptr<SkyBoxShader>	 mShader{};
+	uptr<Texture>		 mTexture{};
 
 public:
 	SkyBox();

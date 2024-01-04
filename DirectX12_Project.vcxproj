@@ -162,6 +162,7 @@
     <ClInclude Include="Script_Player.h" />
     <ClInclude Include="Script_Sprite.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

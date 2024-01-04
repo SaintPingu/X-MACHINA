@@ -81,8 +81,8 @@ public:
 
 
 // Canvas 위에 UI를 그리도록 한다.
-class Canvas {
-	SINGLETON_PATTERN(Canvas)
+class Canvas : public Singleton<Canvas> {
+	friend class Singleton;
 
 private:
 	std::vector<sptr<UI>>	mUIs{};		// all UIs
@@ -91,10 +91,11 @@ private:
 
 	std::unordered_map<std::string, sptr<Texture>> mTextureMap{}; // UI folder에서 load한 모든 UI texture 모음
 
-public:
+private:
 	Canvas() = default;
 	virtual ~Canvas() = default;
 
+public:
 	rsptr<Texture> GetTexture(const std::string& name) const { return mTextureMap.at(name); }
 
 	void SetScore(int score);

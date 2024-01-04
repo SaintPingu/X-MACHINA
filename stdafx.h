@@ -119,6 +119,9 @@ public:
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <D3d12SDKLayers.h>
+
+/* Custom */
+#include "Singleton.h"
 #pragma endregion
 
 
@@ -145,26 +148,8 @@ public:
 #define _VECTOR(x)	XMLoadFloat3(&x)
 
 #define TO_STRING( x ) #x				// ex) TO_STRING(myVar) ==> "myVar"
-
-/* Singleton */
-#define SINGLETON_PATTERN(Type)				\
-private:									\
-   static Type* mInst;						\
-public:										\
-   static Type* Inst() {					\
-      return mInst;							\
-   }										\
-   static void Destroy() {					\
-      if (nullptr != mInst) {				\
-         delete mInst;						\
-         mInst = nullptr;					\
-      }										\
-   }
-
-#define SINGLETON_PATTERN_DEFINITION(Type)  \
-   Type* Type::mInst = new Type;
-
 #pragma endregion
+
 
 #pragma region Using
 /* DirectX */
@@ -188,8 +173,8 @@ template<class T>
 using sptr = std::shared_ptr<T>;
 template<class T>
 using rsptr = const sptr<T>&;
-template<class T>
-using uptr = std::unique_ptr<T>;
+template<class T, class Deleter = std::default_delete<T>>
+using uptr = std::unique_ptr<T, Deleter>;
 template<class T>
 using ruptr = const uptr<T>&;
 template<class T>
@@ -984,6 +969,10 @@ public:
 		return static_cast<const BoundingOrientedBox&>(*this);
 	}
 };
+
+
+
+
 
 class MyBoundingSphere : public BoundingSphere {
 private:

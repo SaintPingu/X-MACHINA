@@ -23,8 +23,8 @@ enum class DrawOption {
 
 #pragma region Class
 // device, swapchain 등 DXGI 전반 및 렌더링을 관리한다.
-class DXGIMgr {
-	SINGLETON_PATTERN(DXGIMgr)
+class DXGIMgr : public Singleton<DXGIMgr> {
+	friend class Singleton<DXGIMgr>;
 
 private:
 	// window
@@ -75,12 +75,13 @@ private:
 
 	DrawOption mDrawOption{};
 
-public:
+protected:
 #pragma region C/Dtor
 	DXGIMgr();
 	virtual ~DXGIMgr() = default;
 #pragma endregion
 
+public:
 #pragma region Getter
 	RComPtr<ID3D12Device> GetDevice() const { return mDevice; }
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const { return mCmdList; }

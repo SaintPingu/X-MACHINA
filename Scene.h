@@ -33,7 +33,9 @@ class ObjectInstBuffer;
 
 
 #pragma region Class
-class Scene {
+class Scene : public Singleton<Scene> {
+	friend class Singleton;
+
 public:
 	enum class FXType {
 		SmallExplosion = 0,
@@ -45,10 +47,10 @@ private:
 	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
 
 	/* Model */
-	std::unordered_map<std::string, sptr<const MasterModel>> mModels;	// model folder에서 로드한 모델 객체 모음
+	std::unordered_map<std::string, sptr<const MasterModel>> mModels{};	// model folder에서 로드한 모델 객체 모음
 
 	/* Light */
-	uptr<Light> mLight;
+	sptr<Light> mLight;
 
 	/* Textures */
 	std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
@@ -96,17 +98,18 @@ private:
 	/* Others */
 	bool mIsRenderBounds{ false };
 
-public:
+private:
 #pragma region C/Dtor
 	Scene();
-	~Scene() = default;
+	virtual ~Scene() = default;
 
-	static void Create();
-	static void Destroy();
-	static void Release();
-	static Scene* Inst();
+public:
+	void Release();
+
+private:
 #pragma endregion
 
+public:
 #pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
 

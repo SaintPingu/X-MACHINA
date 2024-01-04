@@ -237,7 +237,7 @@ public:
 
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.
-	void ProcessComponents(std::function<void(sptr<Component>)> processFunc);
+	void ProcessComponents(std::function<void(rsptr<Component>)> processFunc);
 
 	// 모든 component들의 Start() 실행
 	void StartComponents();

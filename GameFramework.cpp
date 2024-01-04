@@ -1,7 +1,3 @@
-//-----------------------------------------------------------------------------
-// File: Framework.cpp
-//-----------------------------------------------------------------------------
-
 #include "stdafx.h"
 #include "GameFramework.h"
 #include "DXGIMgr.h"
@@ -9,8 +5,6 @@
 
 #include "Timer.h"
 #include "Scene.h"
-
-SINGLETON_PATTERN_DEFINITION(Framework)
 
 Framework::Framework()
 	:
@@ -43,8 +37,6 @@ void Framework::Release()
 
 void Framework::BuildObjects()
 {
-	timer->Reset();
-
 	scene->Start();
 }
 

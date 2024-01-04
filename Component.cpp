@@ -98,7 +98,7 @@ void Object::OnCollisionStay(Object& other)
 
 
 
-void Object::ProcessComponents(std::function<void(sptr<Component>)> processFunc) {
+void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
 	for (auto& component : mComponents) {
 		if (component) {
 			processFunc(component);
@@ -108,7 +108,7 @@ void Object::ProcessComponents(std::function<void(sptr<Component>)> processFunc)
 
 void Object::StartComponents()
 {
-	ProcessComponents([](sptr<Component> component) {
+	ProcessComponents([](rsptr<Component> component) {
 		component->Start();
 		});
 }
@@ -116,21 +116,21 @@ void Object::StartComponents()
 void Object::UpdateComponents()
 {
 	mCollisionObjects.clear();
-	ProcessComponents([](sptr<Component> component) {
+	ProcessComponents([](rsptr<Component> component) {
 		component->Update();
 		});
 }
 
 void Object::ReleaseComponents()
 {
-	ProcessComponents([](sptr<Component> component) {
+	ProcessComponents([](rsptr<Component> component) {
 		component->Release();
 		});
 }
 
 void Object::ReleaseUploadBuffersComponents()
 {
-	ProcessComponents([](sptr<Component> component) {
+	ProcessComponents([](rsptr<Component> component) {
 		component->ReleaseUploadBuffers();
 		});
 }

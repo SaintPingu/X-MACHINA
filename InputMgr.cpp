@@ -4,8 +4,6 @@
 #include "Timer.h"
 #include "Scene.h"
 
-SINGLETON_PATTERN_DEFINITION(InputMgr)
-
 namespace {
 	// 사용할 키들 목록
 	constexpr int kKeyList[] =

@@ -142,8 +142,6 @@ void Font::ReleaseFontTexture()
 
 
 #pragma region Canvas
-SINGLETON_PATTERN_DEFINITION(Canvas)
-
 void Canvas::SetScore(int score)
 {
 	mFont->SetScore(std::to_string(score));

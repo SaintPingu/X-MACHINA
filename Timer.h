@@ -2,8 +2,8 @@
 
 #define timer Timer::Inst()
 
-class Timer {
-	SINGLETON_PATTERN(Timer)
+class Timer : public Singleton<Timer> {
+	friend class Singleton;
 
 private:
 	constexpr static ULONG kMaxSampleCnt = 50;		// Maximum frame time sample count
@@ -27,11 +27,11 @@ private:
 
 	bool			mIsStopped{};					// 일시정지 되었는가?
 
-public:
+private:
 	Timer();
 	virtual ~Timer() = default;
 
-	// 전체 경과 시간을 반환한다.
+public:
 	float GetTotalTime() const;
 	// 프레임 전환 시간를 반환한다.
 	float GetTimeElapsed() const { return mTimeElapsed; }
@@ -47,9 +47,6 @@ public:
 	// 타이머 일시 정지
 	void Stop();
 
-	// 타이머 초기화
-	void Reset();
-
 private:
 	void QueryPerformanceFrequency(__int64& freq)
 	{
@@ -59,6 +56,9 @@ private:
 	{
 		::QueryPerformanceCounter((LARGE_INTEGER*)&cnt);
 	}
+
+	// 타이머 초기화
+	void Reset();
 };
 
 // 이전 프레임에서 현재 프레임까지 경과 시간을 반환한다. (프레임 전환 시간)

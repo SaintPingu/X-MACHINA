@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Timer.h"
 
-SINGLETON_PATTERN_DEFINITION(Timer)
-
 
 float DeltaTime()
 {
@@ -17,10 +15,9 @@ Timer::Timer()
 	__int64	perfFreq{};
 
 	QueryPerformanceFrequency(perfFreq);
-	QueryPerformanceCounter(mLastPerfCnt);
 	mTimeScale = 1.0 / static_cast<double>(perfFreq);
 
-	mBasePerfCnt = mLastPerfCnt;
+	Reset();
 }
 
 float Timer::GetTotalTime() const

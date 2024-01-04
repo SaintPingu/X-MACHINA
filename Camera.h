@@ -110,11 +110,12 @@ public:
 
 
 /* main camera for scene rendering */
-class MainCameraObject : public CameraObject {
-	using base = CameraObject;
-	SINGLETON_PATTERN(MainCameraObject)
+class MainCameraObject : public Singleton<MainCameraObject>, public CameraObject {
+	friend class Singleton;
 
-public:
+	using base = CameraObject;
+
+private:
 	MainCameraObject() = default;
 	virtual ~MainCameraObject() = default;
 

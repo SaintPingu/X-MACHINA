@@ -27,8 +27,8 @@ struct KeyInfo {
 
 
 #pragma region Class
-class InputMgr {
-	SINGLETON_PATTERN(InputMgr)
+class InputMgr : public Singleton<InputMgr> {
+	friend class Singleton;
 
 private:
 	std::unordered_map<int, KeyInfo> mKeys{};
@@ -37,10 +37,11 @@ private:
 	Vec2 mMousePrevPos{};	// 이전 마우스 위치
 	Vec2 mMouseDir{};		// 이전->현재의 마우스 이동 방향
 
-public:
+private:
 	InputMgr();
 	virtual ~InputMgr() = default;
 
+public:
 	KeyState GetKeyState(int key) const { return mKeys.at(key).State; }
 
 	Vec2 GetMousePos() const { return mMousePos; }

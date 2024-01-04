@@ -117,7 +117,7 @@ namespace
 {
     struct handle_closer { void operator()(HANDLE h) { if (h) CloseHandle(h); } };
 
-    typedef public std::unique_ptr<void, handle_closer> ScopedHandle;
+    typedef public uptr<void, handle_closer> ScopedHandle;
 
     inline HANDLE safe_handle(HANDLE h) { return (h == INVALID_HANDLE_VALUE) ? 0 : h; }
 
@@ -150,7 +150,7 @@ namespace
     //--------------------------------------------------------------------------------------
     HRESULT LoadTextureDataFromFile(
         _In_z_ const wchar_t* fileName,
-        std::unique_ptr<uint8_t[]>& ddsData,
+        uptr<uint8_t[]>& ddsData,
         const DDS_HEADER** header,
         const uint8_t** bitData,
         size_t* bitSize)
@@ -1453,7 +1453,7 @@ HRESULT DirectX::LoadDDSTextureFromFile(
     ID3D12Device* d3dDevice,
     const wchar_t* fileName,
     ID3D12Resource** texture,
-    std::unique_ptr<uint8_t[]>& ddsData,
+    uptr<uint8_t[]>& ddsData,
     std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
     size_t maxsize,
     DDS_ALPHA_MODE* alphaMode,
@@ -1480,7 +1480,7 @@ HRESULT DirectX::LoadDDSTextureFromFileEx(
     D3D12_RESOURCE_FLAGS resFlags,
     unsigned int loadFlags,
     ID3D12Resource** texture,
-    std::unique_ptr<uint8_t[]>& ddsData,
+    uptr<uint8_t[]>& ddsData,
     std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
     DDS_ALPHA_MODE* alphaMode,
     bool* isCubeMap)

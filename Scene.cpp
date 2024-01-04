@@ -34,9 +34,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
 namespace {
-	uptr<Scene> sceneInstance{};
-
-
 	constexpr int kGridWidthCount = 20 ;						// all grid count = n*n
 	constexpr Vec3 kBorderPos      = Vec3(256, 200, 256);		// center of border
 	constexpr Vec3 kBorderExtents  = Vec3(1500, 500, 1500);		// extents of border
@@ -51,34 +48,20 @@ Scene::Scene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
 	mGridhWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
-	mLight(std::make_unique<Light>()),
+	mLight(std::make_shared<Light>()),
 	mDescriptorHeap(std::make_unique<DescriptorHeap>())
 {
 
 }
 
-void Scene::Create()
-{
-	sceneInstance = std::make_unique<Scene>();
-}
-
-void Scene::Destroy()
-{
-	sceneInstance = nullptr;
-}
-
 void Scene::Release()
 {
-	scene->ReleaseShaderVars();
+	ReleaseShaderVars();
 
 	mainCameraObject->Destroy();
 	canvas->Release();
-	Destroy();
-}
 
-Scene* Scene::Inst()
-{
-	return sceneInstance.get();
+	Destroy();
 }
 #pragma endregion
 

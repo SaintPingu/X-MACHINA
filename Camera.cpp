@@ -152,8 +152,6 @@ void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 
 
 #pragma region MainCameraObject
-SINGLETON_PATTERN_DEFINITION(MainCameraObject)
-
 void MainCameraObject::Start()
 {
 	SetPosition(0, 0, -1);	// must be non-zero

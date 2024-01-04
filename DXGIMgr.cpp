@@ -3,14 +3,12 @@
 #include "Scene.h"
 #include "Shader.h"
 
-SINGLETON_PATTERN_DEFINITION(DXGIMgr)
-
 DXGIMgr::DXGIMgr()
 	:
 	mClientWidth(gkFrameBufferWidth),
 	mClientHeight(gkFrameBufferHeight)
 {
-
+	
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -422,7 +420,6 @@ void DXGIMgr::BuildScene()
 {
 	StartCommand();
 
-	Scene::Create();
 	scene->BuildObjects();
 
 	StopCommand();

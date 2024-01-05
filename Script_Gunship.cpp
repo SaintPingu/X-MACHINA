@@ -9,7 +9,6 @@
 void Script_Gunship::Start()
 {
 	mGameObject = mObject->GetObj<GameObject>();
-	mGameObject->SetFlyable(true);
 	mMainRotor = mGameObject->FindFrame("Rotor");
 	mTailRotor = mGameObject->FindFrame("Back_Rotor");
 }

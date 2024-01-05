@@ -95,7 +95,7 @@ void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 }
 
 
-bool Camera::IsInFrustum(rsptr<const GameObject> object)
+bool Camera::IsInFrustum(rsptr<const GridObject> object)
 {
 	return object->GetCollider()->Intersects(mFrustumWorld);
 }

@@ -299,13 +299,13 @@ void InstShader::SetColor(const Vec3& color)
 	}
 }
 
-void InstShader::Start()
+void InstShader::Awake()
 {
 	for (auto& object : mObjects) {
-		object->Start();
+		object->AddComponent<Rigidbody>();
+		object->Awake();
 	}
 }
-
 
 void InstShader::Update()
 {
@@ -326,7 +326,7 @@ void InstShader::BuildObjects(size_t instCnt, rsptr<const Mesh> mesh)
 	mObjects.resize(instCnt);
 
 	for (auto& object : mObjects) {
-		object = std::make_shared<GameObject>();
+		object = std::make_shared<GridObject>();
 	}
 
 	mMesh = mesh;
@@ -437,7 +437,7 @@ void EffectShader::BuildObjects(size_t groupCount, size_t countPerGroup, rsptr<c
 	mObjects.resize(groupCount * countPerGroup);
 	mObjectScripts.resize(mObjects.size());
 	for (int i = 0; i < mObjects.size(); ++i) {
-		mObjects[i] = std::make_shared<GameObject>();
+		mObjects[i] = std::make_shared<GridObject>();
 		mObjectScripts[i] = mObjects[i]->AddComponent<Script_Fragment>();
 	}
 
@@ -589,10 +589,10 @@ void SmallExpEffectShader::BuildObjects()
 		float movingSpeed = static_cast<float>(uid(Math::dre)) / kToFloat;
 		Vec3 movingDir{};
 		XMStoreFloat3(&movingDir, RandVectorOnSphere());
+		object->AddComponent<Rigidbody>();
 		const auto& script = object->GetComponent<Script_Fragment>();
-		script->Start();
+		script->Awake();
 
-		object->SetFlyable(true);
 		script->SetMovingDir(movingDir);
 		script->SetMovingSpeed(movingSpeed * 2.f);
 		script->SetRotationAxis(kRotationAxis);
@@ -631,10 +631,10 @@ void BigExpEffectShader::BuildObjects()
 		float movingSpeed = static_cast<float>(uid(Math::dre)) / kToFloat;
 		Vec3 movingDir{};
 		XMStoreFloat3(&movingDir, RandVectorOnSphere());
+		object->AddComponent<Rigidbody>();
 		const auto& script = object->GetComponent<Script_Fragment>();
-		script->Start();
+		script->Awake();
 
-		object->SetFlyable(true);
 		script->SetMovingDir(movingDir);
 		script->SetMovingSpeed(movingSpeed * 6.f);
 		script->SetRotationAxis(kRotationAxis);
@@ -660,7 +660,7 @@ void BulletShader::BuildObjects(rsptr<const MasterModel> model, const Object* ow
 	mObjectScripts.resize(mObjects.size());
 
 	for (size_t i = 0; i < kBufferSize; ++i) {
-		mObjects[i] = std::make_shared<GameObject>();
+		mObjects[i] = std::make_shared<GridObject>();
 		mObjects[i]->SetModel(model);
 		mObjects[i]->AddComponent<Rigidbody>();
 
@@ -686,10 +686,10 @@ void BulletShader::SetDamage(float damage)
 }
 
 
-void BulletShader::Start()
+void BulletShader::Awake()
 {
 	for (auto& bullet : mObjects) {
-		bullet->Start();
+		bullet->Awake();
 	}
 }
 
@@ -708,7 +708,7 @@ void BulletShader::Render()
 
 void BulletShader::FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed)
 {
-	sptr<GameObject> bulletObject{};
+	sptr<GridObject> bulletObject{};
 	int idx{};
 	for (; idx < mObjects.size(); ++idx) {
 		if (!mObjects[idx]->IsActive()) {
@@ -723,7 +723,7 @@ void BulletShader::FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, 
 	}
 
 	mObjectScripts[idx]->Fire(pos, dir, up, speed);
-	mBuffer.emplace_back(bulletObject);
+	mBuffer.push_back(bulletObject);
 }
 
 

@@ -8,14 +8,18 @@
 
 
 
+void Script_ShootingPlayer::Awake()
+{
+	base::Awake();
+
+	if (mBulletShader) {
+		mBulletShader->Awake();
+	}
+}
 
 void Script_ShootingPlayer::Start()
 {
 	base::Start();
-
-	if (mBulletShader) {
-		mBulletShader->Start();
-	}
 }
 
 

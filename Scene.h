@@ -20,6 +20,7 @@ class StaticShader;
 
 class Camera;
 class GameObject;
+class GridObject;
 class Terrain;
 class Light;
 class Texture;
@@ -72,14 +73,14 @@ private:
 	/* Object */
 	sptr<GameObject> mWater{};
 	std::vector<sptr<GameObject>> mEnvironments{};
-	std::vector<sptr<GameObject>> mStaticObjects{};
-	std::list<sptr<GameObject>> mExplosiveObjects{};		// dynamic
+	std::vector<sptr<GridObject>> mStaticObjects{};
+	std::list<sptr<GridObject>> mExplosiveObjects{};		// dynamic
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>> mInstanceBuffers{};
 
 	/* Player */
-	std::vector<sptr<GameObject>> mPlayers{};
-	sptr<GameObject> mPlayer{};					// main player
+	std::vector<sptr<GridObject>> mPlayers{};
+	sptr<GridObject> mPlayer{};					// main player
 	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
 
 	/* Map */
@@ -116,7 +117,7 @@ public:
 	// [modelName]에 해당하는 MasterModel을 반환한다.
 	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
 	// return the first inserted player
-	rsptr<GameObject> GetPlayer() const { return mPlayers.front(); }
+	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); }
 	// [name]에 해당하는 Texture 모델을 반환한다.
 	rsptr<Texture> GetTexture(const std::string& name) const;
 
@@ -190,7 +191,7 @@ private:
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
-	void InitObjectByTag(const void* tag, sptr<GameObject> object);
+	void InitObjectByTag(const void* tag, sptr<GridObject> object);
 
 #pragma endregion
 
@@ -208,7 +209,7 @@ private:
 	// [renderedObjects]    : 렌더링된 모든 객체 (그리드에 포함된)
 	// [transparentObjects] : 투명 객체
 	// [billboardObjects]	: 빌보드 객체 (plane)
-	void RenderGridObjects(std::set<GameObject*>& renderedObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects);
+	void RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects);
 
 	void RenderEnvironments();
 	void RenderBullets();
@@ -216,17 +217,17 @@ private:
 	void RenderFXObjects();
 
 	// render [billboards]
-	void RenderBillboards(const std::set<GameObject*>& billboards);
+	void RenderBillboards(const std::set<GridObject*>& billboards);
 
 	void RenderTerrain();
 
 	// render [transparentObjects]
-	void RenderTransparentObjects(const std::set<GameObject*>& transparentObjects);
+	void RenderTransparentObjects(const std::set<GridObject*>& transparentObjects);
 	void RenderSkyBox();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
-	bool RenderBounds(const std::set<GameObject*>& renderedObjects);
-	void RenderObjectBounds(const std::set<GameObject*>& renderedObjects);
+	bool RenderBounds(const std::set<GridObject*>& renderedObjects);
+	void RenderObjectBounds(const std::set<GridObject*>& renderedObjects);
 	void RenderGridBounds();
 #pragma endregion
 
@@ -244,7 +245,7 @@ private:
 	// update all objects
 	void UpdateObjects();
 	// update each single object
-	void UpdateObject(GameObject* object);
+	void UpdateObject(GridObject* object);
 	// update effect objects (StaticShader)
 	void UpdateFXObjects();
 
@@ -269,12 +270,12 @@ public:
 	void ChangeToPrevPlayer();
 
 	// update objects' grid indices
-	void UpdateObjectGrid(GameObject* object, bool isCheckAdj = true);
-	void RemoveObjectFromGrid(GameObject* object);
+	void UpdateObjectGrid(GridObject* object, bool isCheckAdj = true);
+	void RemoveObjectFromGrid(GridObject* object);
 
 private:
 	// do [processFunc] for all objects
-	void ProcessObjects(std::function<void(sptr<GameObject>)> processFunc);
+	void ProcessObjects(std::function<void(sptr<GridObject>)> processFunc);
 
 	void CreateSpriteEffect(Vec3 pos, float speed, float scale = 1);
 	void CreateSmallExpFX(const Vec3& pos);

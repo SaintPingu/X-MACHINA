@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma region ClassForwardDecl
-class GameObject;
+class GridObject;
 #pragma endregion
 
 
@@ -12,10 +12,10 @@ private:
 
 	BoundingBox mBB{};
 
-	std::unordered_set<GameObject*> mObjects{};			// all objects (env, static, dynamic, ...)
-	std::unordered_set<GameObject*> mEnvObjects{};
-	std::unordered_set<GameObject*> mStaticObjects{};
-	std::unordered_set<GameObject*> mDynamicObjets{};
+	std::unordered_set<GridObject*> mObjects{};			// all objects (env, static, dynamic, ...)
+	std::unordered_set<GridObject*> mEnvObjects{};
+	std::unordered_set<GridObject*> mStaticObjects{};
+	std::unordered_set<GridObject*> mDynamicObjets{};
 
 public:
 	Grid()          = default;
@@ -33,9 +33,9 @@ public:
 	void Init(int index, const BoundingBox& bb);
 
 	// add [object] to gird
-	void AddObject(GameObject* object);
+	void AddObject(GridObject* object);
 	// remove [object] from gird
-	void RemoveObject(GameObject* object);
+	void RemoveObject(GridObject* object);
 
 	// collision check for objects contained in grid
 	void CheckCollisions();

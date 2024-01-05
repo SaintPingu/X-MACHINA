@@ -8,11 +8,10 @@
 #include "Collider.h"
 
 
-void Script_Bullet::Start()
+void Script_Bullet::Awake()
 {
 	mGameObject = mObject->GetObj<GameObject>();
 	mGameObject->SetTag(ObjectTag::Bullet);
-	mGameObject->SetFlyable(true);
 
 	mRigid = mObject->GetComponent<Rigidbody>();
 	mRigid->SetFriction(0.f);

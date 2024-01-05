@@ -6,7 +6,7 @@
 
 
 #pragma region ClassForwardDecl
-class GameObject;
+class GridObject;
 #pragma endregion
 
 
@@ -67,7 +67,7 @@ public:
 	const auto& GetOBBList() const { return mOBBList; }
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Update() override;
 
 public:
@@ -102,6 +102,6 @@ public:
 	}
 
 	// 두 객체의 충돌 여부를 반환한다.
-	static bool Intersects(const GameObject& a, const GameObject& b);
+	static bool Intersects(const GridObject& a, const GridObject& b);
 };
 #pragma endregion

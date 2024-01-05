@@ -33,7 +33,7 @@ public:
 	void SetMovingDir(const Vec3& dir) { mMovingDir = dir; }
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Update() override;
 
 public:

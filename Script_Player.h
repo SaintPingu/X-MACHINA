@@ -83,6 +83,7 @@ public:
 	void SetFireDelay(float fDelay) { mMaxFireDelay = fDelay; }
 
 public:
+	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
 

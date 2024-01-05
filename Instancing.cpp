@@ -34,7 +34,7 @@ sptr<InstObject> ObjectPool::Get() const
 
 	if (!mAvailableObjects.empty()) {
 		mAvailableObjects.erase(id);
-		mObjectPool[id]->Enable(true);
+		mObjectPool[id]->Enable();
 
 		return mObjectPool[id];
 	}
@@ -46,7 +46,7 @@ sptr<InstObject> ObjectPool::Get() const
 void ObjectPool::Return(InstObject* object)
 {
 	mAvailableObjects.insert(object->GetPoolID());
-	object->Disable(true);
+	object->Disable();
 }
 
 

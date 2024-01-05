@@ -106,6 +106,7 @@ protected:
 	Object* mObject{};	// 이 Component를 소유하는 객체
 
 private:
+	bool mIsActive = true;
 	static constexpr int kNotID = -1;
 
 public:
@@ -113,8 +114,14 @@ public:
 	virtual ~Component() = default;
 
 	virtual int GetID() const { return kNotID; }
+	bool IsActive() const { return mIsActive; }
+	
+	void SetActive(bool isActive) { mIsActive = isActive; }
 
 public:
+	// 최초 한 번 호출된다.
+	virtual void Awake() {}
+
 	// 객체 활성화 시 호출된다.
 	virtual void OnEnable() {}
 
@@ -150,6 +157,10 @@ protected:
 	ObjectLayer mLayer{};
 	ObjectType	mType{};
 
+	bool mIsAwake  = false;			// Awake()가 호출되었는가?
+	bool mIsStart  = false;			// Start()가 호출되었는가?
+	bool mIsActive = false;			// OnEnable()이 호출되었는가? (활성화 상태인가?)
+
 private:
 	std::vector<sptr<Component>> mComponents{};
 	std::unordered_set<const Object*> mCollisionObjects{};	// 한 프레임에서 충돌한 오브젝트 집합
@@ -166,6 +177,8 @@ public:
 	ObjectType GetType() const	 { return mType; }
 
 	const std::string& GetName() const { return mName; }
+
+	bool IsActive() const { return mIsActive; }
 #pragma endregion
 
 #pragma region Setter
@@ -236,7 +249,8 @@ public:
 	void CopyComponents(const Object& src);
 #pragma endregion
 
-	// OnEnable -> Start -> Update
+	// Awake -> OnEnable -> Start -> Update
+	virtual void Awake();
 	virtual void OnEnable();
 	virtual void OnDisable();
 	virtual void Start();

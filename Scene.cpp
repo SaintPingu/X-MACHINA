@@ -316,7 +316,7 @@ void Scene::BuildBillboardShader()
 void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
-	sptr<GameObject> airplanePlayer = std::make_shared<GameObject>();
+	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("Gunship"));
 
@@ -369,7 +369,7 @@ void Scene::BuildGrid()
 
 void Scene::UpdateGridInfo()
 {
-	ProcessObjects([this](sptr<GameObject> object) {
+	ProcessObjects([this](sptr<GridObject> object) {
 		UpdateObjectGrid(object.get());
 		});
 
@@ -408,7 +408,7 @@ void Scene::LoadGameObjects(FILE* file)
 	ObjectLayer layer{};
 
 	for (int i = 0; i < objectCount; ++i) {
-		sptr<GameObject> object{};
+		sptr<GridObject> object{};
 
 		if (sameObjectCount <= 0) {
 			FileIO::ReadString(file, token); //"<Tag>:"
@@ -445,7 +445,7 @@ void Scene::LoadGameObjects(FILE* file)
 			object = instBuffer->Get();
 		}
 		else {
-			object = std::make_shared<GameObject>();
+			object = std::make_shared<GridObject>();
 		}
 
 		InitObjectByTag(&tag, object);
@@ -483,7 +483,7 @@ void Scene::LoadModels()
 }
 
 
-void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
+void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
 {
 	ObjectTag tag = *(ObjectTag*)pTag;
 	object->SetTag(tag);
@@ -493,8 +493,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 		break;
 	case ObjectTag::ExplosiveSmall:
 	{
-		mExplosiveObjects.emplace_back(object);
-		object->SetFlyable(true);
+		mExplosiveObjects.push_back(object);
 
 		const auto& script = object->AddComponent<Script_ExplosiveObject>();
 		script->SetFX([&](const Vec3& pos) { CreateSmallExpFX(pos); });
@@ -506,7 +505,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 	case ObjectTag::Helicopter:
 	case ObjectTag::ExplosiveBig:
 	{
-		mExplosiveObjects.emplace_back(object);
+		mExplosiveObjects.push_back(object);
 
 		const auto& script = object->AddComponent<Script_ExplosiveObject>();
 		script->SetFX([&](const Vec3& pos) { CreateBigExpFX(pos); });
@@ -516,8 +515,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 	break;
 	case ObjectTag::Environment:
 	{
-		mEnvironments.emplace_back(object);
-		object->SetFlyable(true);
+		mEnvironments.push_back(object);
 		return;
 	}
 
@@ -525,14 +523,12 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 	case ObjectTag::Billboard:
 	{
 		object->AddComponent<Script_Billboard>();
-		object->SetFlyable(true);
 	}
 
 	break;
 	case ObjectTag::Sprite:
 	{
 		object->AddComponent<Script_Sprite>();
-		object->SetFlyable(true);
 		return;
 	}
 
@@ -542,7 +538,6 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GameObject> object)
 	}
 
 	mStaticObjects.emplace_back(object);
-	object->SetFlyable(true);
 }
 #pragma endregion
 
@@ -577,9 +572,9 @@ void Scene::OnPrepareRender()
 
 void Scene::Render()
 {
-	std::set<GameObject*> renderedObjects{};
-	std::set<GameObject*> transparentObjects{};
-	std::set<GameObject*> billboardObjects{};
+	std::set<GridObject*> renderedObjects{};
+	std::set<GridObject*> transparentObjects{};
+	std::set<GridObject*> billboardObjects{};
 
 	OnPrepareRender();
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
@@ -614,7 +609,7 @@ void Scene::RenderTerrain()
 	}
 }
 
-void Scene::RenderTransparentObjects(const std::set<GameObject*>& transparentObjects)
+void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObjects)
 {
 	mTransparentShader->Set();
 	for (auto& object : transparentObjects) {
@@ -633,7 +628,7 @@ void Scene::RenderSkyBox()
 }
 
 
-void Scene::RenderGridObjects(std::set<GameObject*>& renderedObjects, std::set<GameObject*>& transparentObjects, std::set<GameObject*>& billboardObjects)
+void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects)
 {
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -705,7 +700,7 @@ void Scene::RenderBullets()
 }
 
 
-bool Scene::RenderBounds(const std::set<GameObject*>& renderedObjects)
+bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 {
 	if (!mIsRenderBounds || !mBoundingShader) {
 		return false;
@@ -721,7 +716,7 @@ bool Scene::RenderBounds(const std::set<GameObject*>& renderedObjects)
 }
 
 
-void Scene::RenderObjectBounds(const std::set<GameObject*>& renderedObjects)
+void Scene::RenderObjectBounds(const std::set<GridObject*>& renderedObjects)
 {
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
@@ -749,7 +744,7 @@ void Scene::RenderGridBounds()
 	}
 }
 
-void Scene::RenderBillboards(const std::set<GameObject*>& billboards)
+void Scene::RenderBillboards(const std::set<GridObject*>& billboards)
 {
 	mBillboardShader->Set();
 	for (auto& object : billboards) {
@@ -772,23 +767,31 @@ void Scene::Start()
 {
 	mainCameraObject->Start();
 
-	mTerrain->Enable();
+	/* Awake */
+	mTerrain->Awake();
 	ProcessObjects([](sptr<GameObject> object) {
-		object->OnEnable();
+		object->Awake();
 		});
 
-	mTerrain->Start();
+	if (mSmallExpFXShader) {
+		mSmallExpFXShader->Awake();
+	}
+
+	if (mBigExpFXShader) {
+		mBigExpFXShader->Awake();
+	}
+
+	/* Enable */
+	mTerrain->Enable();
+	ProcessObjects([](sptr<GameObject> object) {
+		object->Enable();
+		});
+
+	/* Start */
 	ProcessObjects([](sptr<GameObject> object) {
 		object->Start();
 		});
 
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->Start();
-	}
-
-	if (mBigExpFXShader) {
-		mBigExpFXShader->Start();
-	}
 
 	UpdateGridInfo();
 }
@@ -830,7 +833,7 @@ void Scene::UpdatePlayerGrid()
 
 void Scene::UpdateObjects()
 {
-	ProcessObjects([this](sptr<GameObject> object) {
+	ProcessObjects([this](sptr<GridObject> object) {
 		UpdateObject(object.get());
 		});
 
@@ -838,7 +841,7 @@ void Scene::UpdateObjects()
 	UpdateSprites();
 }
 
-void Scene::UpdateObject(GameObject* object)
+void Scene::UpdateObject(GridObject* object)
 {
 	if (!object) {
 		return;
@@ -899,14 +902,15 @@ void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 	effect->SetModel(GetModel("sprite_explosion"));
 	effect->RemoveComponent<ObjectCollider>();
 	const auto& script = effect->AddComponent<Script_Sprite>();
-
 	script->SetSpeed(speed);
 	script->SetScale(scale);
 
 	pos.y += 2;	// 보정
 	effect->SetPosition(pos);
 
+	effect->Awake();
 	effect->Start();
+	effect->Enable();
 	mSpriteEffectObjects.emplace_back(effect);
 }
 
@@ -1012,7 +1016,7 @@ void Scene::ToggleDrawBoundings()
 {
 	mIsRenderBounds = !mIsRenderBounds;
 
-	ProcessObjects([](sptr<GameObject> object) {
+	ProcessObjects([](sptr<GridObject> object) {
 		object->ToggleDrawBoundings();
 		});
 }
@@ -1069,12 +1073,8 @@ void Scene::ChangeToPrevPlayer()
 }
 
 
-void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
+void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 {
-	if (!object->IsActive()) {
-		return;
-	}
-
 	const int gridIndex = GetGridIndexFromPos(object->GetPosition());
 
 	if (IsGridOutOfRange(gridIndex)) {
@@ -1093,7 +1093,7 @@ void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
  
 	// BoundingSphere가 Grid 내부에 완전히 포함되면 검사 X
 	const auto& collider = object->GetComponent<ObjectCollider>();
-	if (!collider) {
+	if (!collider || !collider->IsActive()) {
 		return;
 	}
 
@@ -1133,7 +1133,7 @@ void Scene::UpdateObjectGrid(GameObject* object, bool isCheckAdj)
 }
 
 
-void Scene::RemoveObjectFromGrid(GameObject* object)
+void Scene::RemoveObjectFromGrid(GridObject* object)
 {
 	for (const int index : object->GetGridIndices()) {
 		mGrids[index].RemoveObject(object);
@@ -1143,7 +1143,7 @@ void Scene::RemoveObjectFromGrid(GameObject* object)
 }
 
 
-void Scene::ProcessObjects(std::function<void(sptr<GameObject>)> processFunc)
+void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	for (auto& player : mPlayers) {
 		processFunc(player);

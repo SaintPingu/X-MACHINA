@@ -25,7 +25,6 @@ void Script_Sprite::Start()
 	base::Start();
 
 	GameObject* gameObject = mObject->GetObj<GameObject>();
-	gameObject->SetFlyable(true);
 
 	rsptr<Texture> texture = gameObject->GetTexture();
 	SpriteInfo info        = spriteMap.at(texture->GetName());

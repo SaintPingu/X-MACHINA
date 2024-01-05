@@ -294,10 +294,10 @@ void Terrain::Enable()
 	}
 }
 
-void Terrain::Start()
+void Terrain::Awake()
 {
 	for (auto& terrain : mTerrains) {
-		terrain->Start();
+		terrain->Awake();
 	}
 }
 

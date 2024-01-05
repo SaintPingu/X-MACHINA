@@ -4,6 +4,7 @@
 class ModelObjectMesh;
 class Mesh;
 class GameObject;
+class GridObject;
 class MasterModel;
 class Object;
 class Material;
@@ -107,7 +108,7 @@ private:
 	using InstBuff = SB_ColorInst;
 
 protected:
-	std::vector<sptr<GameObject>>	mObjects{};			// all objects
+	std::vector<sptr<GridObject>>	mObjects{};			// all objects
 	ComPtr<ID3D12Resource>			mSB_Inst{};			// StructuredBuffer for instance
 	InstBuff*						mSBMap_Inst{};		// mapped StructuredBuffer
 	sptr<const Mesh>				mMesh;				// has only one model mesh
@@ -120,7 +121,7 @@ public:
 	void SetColor(const Vec3& color);
 
 public:
-	virtual void Start();
+	virtual void Awake();
 	virtual void Update();
 	virtual void Render();
 
@@ -247,7 +248,7 @@ protected:
 	std::vector<sptr<Script_Bullet>> mObjectScripts{};
 
 private:
-	std::list<sptr<GameObject>> mBuffer{};	// 활성화된 객체 리스트 (배열로 변경 필요)
+	std::list<sptr<GridObject>> mBuffer{};	// 활성화된 객체 리스트 (배열로 변경 필요)
 
 public:
 	BulletShader()          = default;
@@ -259,7 +260,7 @@ public:
 	void SetDamage(float damage);
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void Render() override;
 

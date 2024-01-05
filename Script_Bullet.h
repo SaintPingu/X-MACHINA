@@ -35,7 +35,7 @@ public:
 	void SetLifeTime(float lifeTIme) { mMaxLifeTime = lifeTIme; }
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Update() override;
 
 	virtual void OnCollisionStay(Object& other) override;

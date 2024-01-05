@@ -61,8 +61,18 @@ void Object::CopyComponents(const Object& src)
 	}
 }
 
+void Object::Awake()
+{
+	mIsAwake = true;
+	ProcessComponents([](rsptr<Component> component) {
+		component->Awake();
+		});
+}
+
 void Object::OnEnable()
 {
+	mIsActive = true;
+
 	Transform::Update();
 
 	ProcessComponents([](rsptr<Component> component) {
@@ -72,6 +82,8 @@ void Object::OnEnable()
 
 void Object::OnDisable()
 {
+	mIsActive = false;
+
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDisable();
 		});
@@ -79,6 +91,7 @@ void Object::OnDisable()
 
 void Object::Start()
 {
+	mIsStart = true;
 	ProcessComponents([](rsptr<Component> component) {
 		component->Start();
 		});
@@ -90,7 +103,9 @@ void Object::Update()
 	
 	mCollisionObjects.clear();
 	ProcessComponents([](rsptr<Component> component) {
-		component->Update();
+		if (component->IsActive()) {
+			component->Update();
+		}
 		});
 }
 

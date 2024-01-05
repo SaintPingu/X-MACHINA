@@ -25,48 +25,24 @@ class GameObject : public Object {
 private:
 	sptr<const MasterModel> mMasterModel{};
 
-protected:
-	bool mIsInstancing = false;	// 인스턴싱 객체인가?
+	std::vector<const Transform*> mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위한 캐싱)
 
-private:
-	bool mIsActive       = true;	// 활성화되어 있는가? (Update, Render)
-	bool mIsFlyable      = false;	// 날 수 있는가?
-	bool mIsDrawBounding = false;	// collision bounds를 그리는가?
-
-	std::unordered_set<int> mGridIndices{};				// 인접 Grid indices (충돌됨)
-	int mCurrGridIndex = -1;							// 현재 위치의 Grid index
-
-	std::vector<const Transform*> mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위해)
-
-	sptr<ObjectCollider> mCollider{};
 
 public:
 #pragma region C/Dtor
-	GameObject();
+	GameObject() = default;
 	virtual ~GameObject() = default;
 #pragma endregion
 
 #pragma region Getter
-	int GetGridIndex() const { return mCurrGridIndex; }
-	const std::unordered_set<int>& GetGridIndices() const { return mGridIndices; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 
 	// 최상위(대표) 텍스쳐를 반환한다.
 	rsptr<Texture> GetTexture() const;
-
-	rsptr<ObjectCollider> GetCollider() const { return mCollider; }
 #pragma endregion
 
 #pragma region Setter
-	bool IsActive() const { return mIsActive; }
 	bool IsTransparent() const { return mLayer == ObjectLayer::Transparent; }
-	bool IsInstancing() const { return mIsInstancing; }
-
-	void SetInstancing() { mIsInstancing = true; }
-	void SetFlyable(bool isFlyable) { mIsFlyable = isFlyable; }
-
-	void SetGridIndex(int index) { mCurrGridIndex = index; }
-	void SetGridIndices(const std::unordered_set<int>& indices) { mGridIndices = indices; }
 
 	void SetModel(rsptr<const MasterModel> model);
 #pragma endregion
@@ -74,16 +50,10 @@ public:
 public:
 	virtual void Render();
 
-	// render collision bounds
-	virtual void RenderBounds();
-
 	virtual void Update();
 
-	virtual void Enable(bool isUpdateObjectGrid = true);
-	virtual void Disable(bool isUpdateObjectGrid = true);
-
-	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
-	void ClearGridIndices() { mGridIndices.clear(); }
+	virtual void Enable();
+	virtual void Disable();
 
 	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
 	Transform* FindFrame(const std::string& frameName);
@@ -91,8 +61,42 @@ public:
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.
 	void AttachToGround();
-	// 객체를 지면의 기울기에 맞게 붙도록 한다.
-	void TiltToGround();
+};
+
+
+
+
+
+class GridObject : public GameObject {
+	using base = GameObject;
+
+private:
+	std::unordered_set<int> mGridIndices{};				// 인접 Grid indices (충돌됨)
+	int mCurrGridIndex = -1;							// 현재 위치의 Grid index
+	sptr<ObjectCollider> mCollider{};
+
+	bool mIsDrawBounding = false;	// collision bounds를 그리는가?
+
+public:
+	GridObject();
+	virtual ~GridObject() = default;
+
+	int GetGridIndex() const { return mCurrGridIndex; }
+	rsptr<ObjectCollider> GetCollider() const { return mCollider; }
+	const std::unordered_set<int>& GetGridIndices() const { return mGridIndices; }
+
+	void SetGridIndex(int index) { mCurrGridIndex = index; }
+	void SetGridIndices(const std::unordered_set<int>& indices) { mGridIndices = indices; }
+
+public:
+	virtual void Enable() override;
+	virtual void Disable() override;
+
+	// render collision bounds
+	virtual void RenderBounds();
+
+	void ClearGridIndices() { mGridIndices.clear(); }
+	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
 };
 
 
@@ -101,12 +105,12 @@ private:
 
 // instanced GameObject
 // 모델을 가지지 않는다.
-class InstObject : public GameObject {
+class InstObject : public GridObject {
 private:
 	int mPoolID{};
-	using base = GameObject;
+	using base = GridObject;
 
-	using GameObject::Render;
+	using GridObject::Render;
 
 private:
 	ObjectPool* mBuffer{};

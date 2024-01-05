@@ -61,12 +61,12 @@ void SphereCollider::Render() const
 
 
 #pragma region ObjectCollider
-void ObjectCollider::Start()
+void ObjectCollider::Awake()
 {
-	// SphereCollider를 가져오고, 없으면 self(ObjectCollider)를 제거한다.
+	// SphereCollider를 가져오고, 없으면 비활성화한다.
 	mSphereCollider = mObject->GetComponent<SphereCollider>();
 	if (!mSphereCollider) {
-		mObject->RemoveComponent<ObjectCollider>();
+		SetActive(false);
 		return;
 	}
 
@@ -99,6 +99,10 @@ void ObjectCollider::Update()
 
 void ObjectCollider::Render() const
 {
+	if (!IsActive()) {
+		return;
+	}
+
 	for (auto& boxCollider : mBoxColliders) {
 		boxCollider->Render();
 	}
@@ -118,7 +122,7 @@ void ObjectCollider::Render() const
 // 2-2.  OBB <-> BS  : A만 있다면
 // 2-3.  BS  <-> OBB : B만 있다면
 // 3.       true     : 둘 다 없다면
-bool ObjectCollider::Intersects(const GameObject& a, const GameObject& b)
+bool ObjectCollider::Intersects(const GridObject& a, const GridObject& b)
 {
 	const auto& colliderA = a.GetCollider();
 	const auto& colliderB = b.GetCollider();

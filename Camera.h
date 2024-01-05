@@ -12,7 +12,7 @@
 
 
 #pragma region ClassForwardDecl
-class GameObject;
+class GridObject;
 #pragma endregion
 
 
@@ -75,7 +75,7 @@ public:
 	bool IsInFrustum(const BoundingBox& boundingBox)		 { return mFrustumWorld.Intersects(boundingBox); }
 	bool IsInFrustum(const BoundingOrientedBox& boundingBox) { return mFrustumWorld.Intersects(boundingBox); }
 	bool IsInFrustum(const BoundingSphere& boundingSphere)   { return mFrustumWorld.Intersects(boundingSphere); }
-	bool IsInFrustum(rsptr<const GameObject> object);
+	bool IsInFrustum(rsptr<const GridObject> object);
 
 private:
 	void CreateShaderVars();

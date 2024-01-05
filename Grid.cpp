@@ -7,7 +7,7 @@
 
 namespace {
 	// call collision function if collide
-	void ProcessCollision(GameObject* objectA, GameObject* objectB)
+	void ProcessCollision(GridObject* objectA, GridObject* objectB)
 	{
 		if (ObjectCollider::Intersects(*objectA, *objectB)) {
 			objectA->OnCollisionStay(*objectB);
@@ -16,13 +16,13 @@ namespace {
 	}
 
 	// check collision for each object in objects
-	void CheckCollisionObjects(std::unordered_set<GameObject*> objects)
+	void CheckCollisionObjects(std::unordered_set<GridObject*> objects)
 	{
 		for (auto a = objects.begin(); a != std::prev(objects.end()); ++a) {
-			GameObject* objectA = *a;
+			GridObject* objectA = *a;
 
 			for (auto b = std::next(a); b != objects.end(); ++b) {
-				GameObject* objectB = *b;
+				GridObject* objectB = *b;
 
 				ProcessCollision(objectA, objectB);
 			}
@@ -30,13 +30,13 @@ namespace {
 	}
 
 	// check collision for (each objectsA) <-> (each objectsB)
-	void CheckCollisionObjects(std::unordered_set<GameObject*> objectsA, std::unordered_set<GameObject*> objectsB)
+	void CheckCollisionObjects(std::unordered_set<GridObject*> objectsA, std::unordered_set<GridObject*> objectsB)
 	{
 		for (auto a = objectsA.begin(); a != objectsA.end(); ++a) {
-			GameObject* objectA = *a;
+			GridObject* objectA = *a;
 
 			for (auto b = objectsB.begin(); b != objectsB.end(); ++b) {
-				GameObject* objectB = *b;
+				GridObject* objectB = *b;
 
 				ProcessCollision(objectA, objectB);
 			}
@@ -52,7 +52,7 @@ void Grid::Init(int index, const BoundingBox& bb)
 	mBB    = bb;
 }
 
-void Grid::AddObject(GameObject* object)
+void Grid::AddObject(GridObject* object)
 {
 	mObjects.insert(object);
 
@@ -69,7 +69,7 @@ void Grid::AddObject(GameObject* object)
 	}
 }
 
-void Grid::RemoveObject(GameObject* object)
+void Grid::RemoveObject(GridObject* object)
 {
 	mObjects.erase(object);
 

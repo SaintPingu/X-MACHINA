@@ -22,8 +22,6 @@ private:
 	float mYaw{};		// euler angle of current y local rotation
 	float mRoll{};		// euler angle of current z local rotation
 
-	bool mIsUpdated{};	// Update()함수 호출 시 true로 전환됨, UpdateTransform() 함수 호출 시 false로 전환됨. ([prevTransform]을 기록하기 위함)
-
 public:
 	Transform*		mParent{};
 	sptr<Transform> mChild{};
@@ -149,7 +147,7 @@ private:
 	// set axis vectors from local transform
 	void UpdateAxis(bool isComputeWorldTransform = true);
 	// set local transform from axis vectors
-	void UpdateTransform(bool isComputeWorldTransform = true);
+	void UpdateLocalTransform(bool isComputeWorldTransform = true);
 
 	// 부모의 world transform을 적용한 transform을 반환
 	void RequestTransform(Vec4x4& transform);
@@ -161,7 +159,9 @@ public:
 #pragma endregion
 
 	/* Others */
-	virtual void Update();
+	virtual void Awake();
+	void BeforeUpdateTransform();
+	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
 	virtual void UpdateShaderVars() const;
 

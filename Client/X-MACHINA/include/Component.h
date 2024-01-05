@@ -134,6 +134,9 @@ public:
 	// 매 프레임 호출된다.
 	virtual void Update() {}
 
+	// 매 프레임 호출된다.
+	virtual void Animate() {}
+
 	// 객체가 소멸될 시 호출된다.
 	virtual void OnDestroy() {}
 
@@ -247,18 +250,19 @@ public:
 	void CopyComponents(const Object& src);
 #pragma endregion
 
-	// Awake -> OnEnable -> Start -> Update
-	virtual void Awake();
+	// Awake -> OnEnable -> Start -> Update -> Animate
+	virtual void Awake() override;
 	virtual void OnEnable();
 	virtual void OnDisable();
 	virtual void Start();
-	virtual void Update() override;
+	virtual void Update();
+	virtual void Animate();
 	virtual void OnDestroy();
 	virtual void Release();
 	virtual void ReleaseUploadBuffers();
 
 	// 객체(other)와 충돌 시 호출된다.
-	void OnCollisionStay(Object& other);
+	virtual void OnCollisionStay(Object& other);
 
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.

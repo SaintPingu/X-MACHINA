@@ -792,11 +792,18 @@ void Scene::Update()
 	UpdateLights();
 	UpdateCamera();
 	canvas->Update();
+
+	Animate();
 }
 
 void Scene::Animate()
 {
+	ProcessObjects([this](sptr<GridObject> object) {
+		object->Animate();
+		});
 
+	UpdateFXObjects();
+	UpdateSprites();
 }
 
 
@@ -822,20 +829,8 @@ void Scene::UpdatePlayerGrid()
 void Scene::UpdateObjects()
 {
 	ProcessObjects([this](sptr<GridObject> object) {
-		UpdateObject(object.get());
+		object->Update();
 		});
-
-	UpdateFXObjects();
-	UpdateSprites();
-}
-
-void Scene::UpdateObject(GridObject* object)
-{
-	if (!object) {
-		return;
-	}
-
-	object->Update();
 }
 
 void Scene::UpdateFXObjects()

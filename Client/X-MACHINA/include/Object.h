@@ -38,7 +38,6 @@ public:
 	void SetModel(rsptr<const MasterModel> model);
 
 public:
-	virtual void Update();
 	virtual void Render();
 
 	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
@@ -138,9 +137,9 @@ private:
 	void Pop() { mIsPushed = false; }
 
 	// 정적 객체 업데이트 (update 실행 x, 렌더링용)
-	void UpdateStatic();
+	void UpdateStatic() { Pop(); }
 	// 동적 객체 업데이트 (update 실행 o)
-	void UpdateDynamic();
+	void UpdateDynamic() { base::Update(); Pop(); }
 };
 
 

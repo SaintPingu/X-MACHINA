@@ -41,11 +41,6 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 }
 
 
-void GameObject::Update()
-{
-	base::Update();
-}
-
 void GameObject::Render()
 {
 	if (mMasterModel) {
@@ -184,16 +179,6 @@ void InstObject::PushRender()
 
 	mIsPushed = true;
 	mObjectPool->PushRender(this);
-}
-
-void InstObject::UpdateStatic()
-{
-	Pop();
-}
-void InstObject::UpdateDynamic()
-{
-	base::Update();
-	Pop();
 }
 #pragma endregion
 

@@ -58,7 +58,7 @@ class ObjectCollider : public Component {
 	COMPONENT(ObjectCollider, Component)
 
 private:
-	std::shared_ptr<SphereCollider>		mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
+	sptr<SphereCollider>				mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
 	std::vector<MyBoundingOrientedBox*> mOBBList{};			// 전체 bounding box
 	std::vector<sptr<BoxCollider>>		mBoxColliders{};	// 전체 box collider
 

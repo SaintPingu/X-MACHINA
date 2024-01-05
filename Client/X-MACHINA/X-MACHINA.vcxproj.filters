@@ -55,6 +55,9 @@
     <Filter Include="소스 파일\Shaders\PS">
       <UniqueIdentifier>{c1828665-c5ef-43fc-a08d-78502ab6dc70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Dummy">
+      <UniqueIdentifier>{1e2a33d2-c04c-491b-91a0-0d911f712140}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -201,25 +204,16 @@
     <ClInclude Include="include\Component.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\d3dx12.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\DDSTextureLoader12.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\DescriptorHeap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\DirectX12_Project.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\DXGIMgr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\FileIO.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\framework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\GameFramework.h">
@@ -291,16 +285,10 @@
     <ClInclude Include="include\Shader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Singleton.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\SkyBox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Terrain.h">
@@ -318,8 +306,23 @@
     <ClInclude Include="include\UI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Singleton.h">
+      <Filter>소스 파일\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="include\d3dx12.h">
+      <Filter>헤더 파일\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectX12_Project.h">
+      <Filter>헤더 파일\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="include\framework.h">
+      <Filter>헤더 파일\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="include\targetver.h">
+      <Filter>헤더 파일\Dummy</Filter>
+    </ClInclude>
     <ClInclude Include="include\X-MACHINA.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Dummy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

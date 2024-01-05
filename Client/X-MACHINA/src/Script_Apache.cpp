@@ -12,7 +12,7 @@ void Script_Apache::Start()
 	mTailRotor = gameObject->FindFrame("tail_rotor");
 }
 
-void Script_Apache::Update()
+void Script_Apache::Animate()
 {
 	if (mMainRotor) {
 		const float rotorSpeed = 360.f * 7.0f * DeltaTime();

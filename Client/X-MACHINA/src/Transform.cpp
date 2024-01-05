@@ -39,7 +39,7 @@ void Transform::SetPosition(float x, float y, float z)
 	mPosition.y = y;
 	mPosition.z = z;
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::SetPosition(const Vec3& pos)
@@ -51,7 +51,7 @@ void Transform::SetPosition(const Vector& pos)
 {
 	XMStoreFloat3(&mPosition, pos);
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::SetPositionX(float x)
@@ -71,11 +71,11 @@ void Transform::SetPositionZ(float z)
 
 void Transform::SetAxis(const Vec3& look, const Vec3& up, const Vec3& right)
 {
-	mLook  = look;
-	mUp    = up;
+	mLook = look;
+	mUp = up;
 	mRight = right;
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::SetAxis(const Vec4x4& axisMatrix)
@@ -88,28 +88,28 @@ void Transform::SetAxis(const Vec4x4& axisMatrix)
 void Transform::SetRight(const Vec3& right)
 {
 	mRight = Vector3::Normalize(right);
-	mUp    = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
-	mLook  = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
+	mUp = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
+	mLook = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::SetLook(const Vec3& look)
 {
-	mLook  = Vector3::Normalize(look);
-	mUp    = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
+	mLook = Vector3::Normalize(look);
+	mUp = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
 	mRight = Vector3::Normalize(Vector3::CrossProduct(mLook, mUp));
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::SetUp(const Vec3& up)
 {
-	mUp    = Vector3::Normalize(up);
+	mUp = Vector3::Normalize(up);
 	mRight = Vector3::Normalize(Vector3::CrossProduct(mLook, mUp));
-	mLook  = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
+	mLook = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::SetChild(rsptr<Transform> child)
@@ -138,7 +138,7 @@ void Transform::SetChild(rsptr<Transform> child)
 void Transform::SetLocalTransform(const Vec4x4& transform)
 {
 	mLocalTransform = transform;
-	mPrevTransform  = transform;
+	mPrevTransform = transform;
 	UpdateAxis(false);
 }
 #pragma endregion
@@ -155,7 +155,7 @@ void Transform::Translate(const Vec3& translation)
 
 	mPosition = Vector3::Add(mPosition, translation);
 
-	UpdateTransform();
+	UpdateLocalTransform();
 }
 
 void Transform::Translate(const Vec3& direction, float distance)
@@ -173,8 +173,8 @@ void Transform::Translate(float x, float y, float z)
 void Transform::MoveLocal(const Vec3& translation)
 {
 	Vec3 right = Vector3::ScalarProduct(mRight, translation.x);
-	Vec3 up    = Vector3::ScalarProduct(mUp, translation.y);
-	Vec3 left  = Vector3::ScalarProduct(mLook, translation.z);
+	Vec3 up = Vector3::ScalarProduct(mUp, translation.y);
+	Vec3 left = Vector3::ScalarProduct(mLook, translation.z);
 
 	Translate(Vector3::Add(right, up, left));
 }
@@ -215,7 +215,7 @@ void Transform::Rotate(float pitch, float yaw, float roll)
 	}
 
 	Matrix mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll));
-	mLocalTransform  = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
+	mLocalTransform = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
 
 	UpdateAxis();
 }
@@ -229,8 +229,8 @@ void Transform::Rotate(const Vec3& axis, float angle)
 void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 {
 	Vec4x4 mtxTranslateToOrigin = Matrix4x4::Translate(-offset.x, -offset.y, -offset.z);
-	Vec4x4 mtxRotate            = Matrix4x4::RotationAxis(axis, angle);
-	Vec4x4 mtxTranslateBack     = Matrix4x4::Translate(offset.x, offset.y, offset.z);
+	Vec4x4 mtxRotate = Matrix4x4::RotationAxis(axis, angle);
+	Vec4x4 mtxTranslateBack = Matrix4x4::Translate(offset.x, offset.y, offset.z);
 
 	mLocalTransform = Matrix4x4::Multiply(mtxTranslateToOrigin, mLocalTransform);
 	mLocalTransform = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
@@ -255,7 +255,7 @@ void Transform::SetWorldTransform(const Vec4x4& transform)
 {
 	::memcpy(&mWorldTransform, &transform, sizeof(Vec4x4));
 	::memcpy(&mLocalTransform, &transform, sizeof(Vec4x4));
-	::memcpy(&mPrevTransform,  &transform, sizeof(Vec4x4));
+	::memcpy(&mPrevTransform, &transform, sizeof(Vec4x4));
 
 	UpdateAxis();
 }
@@ -271,9 +271,9 @@ void Transform::ReturnToPrevTransform()
 
 void Transform::UpdateAxis(bool isComputeWorldTransform)
 {
-	::memcpy(&mRight,	 &mLocalTransform._11, sizeof(Vec3));
-	::memcpy(&mUp,		 &mLocalTransform._21, sizeof(Vec3));
-	::memcpy(&mLook,	 &mLocalTransform._31, sizeof(Vec3));
+	::memcpy(&mRight, &mLocalTransform._11, sizeof(Vec3));
+	::memcpy(&mUp, &mLocalTransform._21, sizeof(Vec3));
+	::memcpy(&mLook, &mLocalTransform._31, sizeof(Vec3));
 	::memcpy(&mPosition, &mLocalTransform._41, sizeof(Vec3));
 
 	if (isComputeWorldTransform) {
@@ -281,13 +281,8 @@ void Transform::UpdateAxis(bool isComputeWorldTransform)
 	}
 }
 
-void Transform::UpdateTransform(bool isComputeWorldTransform)
+void Transform::UpdateLocalTransform(bool isComputeWorldTransform)
 {
-	if (mIsUpdated) {
-		XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
-		mIsUpdated = false;
-	}
-
 	::memcpy(&mLocalTransform._11, &mRight, sizeof(Vec3));
 	::memcpy(&mLocalTransform._21, &mUp, sizeof(Vec3));
 	::memcpy(&mLocalTransform._31, &mLook, sizeof(Vec3));
@@ -334,10 +329,14 @@ void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
 	}
 }
 
-void Transform::Update()
+void Transform::Awake()
 {
-	mIsUpdated = true;
 	ComputeWorldTransform();
+}
+
+void Transform::BeforeUpdateTransform()
+{
+	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 }
 
 void Transform::UpdateShaderVars() const
@@ -347,11 +346,11 @@ void Transform::UpdateShaderVars() const
 
 void Transform::NormalizeAxis()
 {
-	mLook  = Vector3::Normalize(mLook);
+	mLook = Vector3::Normalize(mLook);
 	mRight = Vector3::CrossProduct(mUp, mLook, true);
-	mUp    = Vector3::CrossProduct(mLook, mRight, true);
+	mUp = Vector3::CrossProduct(mLook, mRight, true);
 
-	UpdateTransform(false);
+	UpdateLocalTransform(false);
 }
 
 

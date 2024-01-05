@@ -5,7 +5,16 @@
 #include "Timer.h"
 #include "Scene.h"
 
-namespace {
+
+
+InputMgr::InputMgr()
+{
+	Init();
+}
+
+
+void InputMgr::Init()
+{
 	// 사용할 키들 목록
 	constexpr int kKeyList[] =
 	{
@@ -23,17 +32,7 @@ namespace {
 
 		VK_LBUTTON, VK_RBUTTON, VK_MBUTTON,
 	};
-}
 
-InputMgr::InputMgr()
-{
-	Init();
-}
-
-
-
-void InputMgr::Init()
-{
 	// 각 키들의 목록을 불러온다.
 	for (int key : kKeyList) {
 		mKeys[key] = KeyInfo{ KeyState::None, false };

@@ -12,7 +12,7 @@ void Script_Gunship::Start()
 	mTailRotor = gameObject->FindFrame("Back_Rotor");
 }
 
-void Script_Gunship::Update()
+void Script_Gunship::Animate()
 {
 	if (mMainRotor) {
 		const float rotorSpeed = 360.f * 7.0f * DeltaTime();

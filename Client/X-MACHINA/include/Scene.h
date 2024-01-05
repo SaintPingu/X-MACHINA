@@ -247,8 +247,6 @@ private:
 
 	// update all objects
 	void UpdateObjects();
-	// update each single object
-	void UpdateObject(GridObject* object);
 	// update effect objects
 	void UpdateFXObjects();
 
@@ -256,7 +254,6 @@ private:
 	// for dynamic(movable) lights
 	void UpdateLights();
 	void UpdateCamera();
-
 #pragma endregion
 
 public:

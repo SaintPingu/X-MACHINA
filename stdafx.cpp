@@ -35,7 +35,7 @@ Vector RandVectorOnDom()
 
 #pragma region Namespace
 namespace D3DUtil {
-	void CreateBufferResource(const void* data, UINT byteSize, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES resourceStates, ComPtr<ID3D12Resource>& uploadBuffer, ComPtr<ID3D12Resource>& buffer)
+	void CreateBufferResource(const void* data, size_t byteSize, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES resourceStates, ComPtr<ID3D12Resource>& uploadBuffer, ComPtr<ID3D12Resource>& buffer)
 	{
 		D3D12_HEAP_PROPERTIES heapProperties{};
 		heapProperties.Type                 = heapType;
@@ -47,7 +47,7 @@ namespace D3DUtil {
 		D3D12_RESOURCE_DESC resourceDesc{};
 		resourceDesc.Dimension          = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment          = 0;
-		resourceDesc.Width              = byteSize;
+		resourceDesc.Width              = static_cast<UINT64>(byteSize);
 		resourceDesc.Height             = 1;
 		resourceDesc.DepthOrArraySize   = 1;
 		resourceDesc.MipLevels          = 1;

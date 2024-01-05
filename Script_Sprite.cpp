@@ -44,8 +44,8 @@ void Script_Sprite::Update()
 
 	mTextureMtx._11 = 1.f / mRows;
 	mTextureMtx._22 = 1.f / mCols;
-	mTextureMtx._31 = mCol / mCols;
-	mTextureMtx._32 = mRow / mRows;
+	mTextureMtx._31 = (float)mCol / mCols;
+	mTextureMtx._32 = (float)mRow / mRows;
 
 	if (mElapsedTime == 0.f)
 	{

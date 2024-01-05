@@ -62,10 +62,6 @@ public:
 /*---------------------------------------*/
 
 #pragma region Pragma
-#pragma warning(disable : 4018) // signed/unsigned mismatch
-#pragma warning(disable : 4244) // 'conversion': 'type1'에서 'type2'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-#pragma warning(disable : 4267) // 'var' : 'size_t'에서 'type'으로 변환하면서 데이터가 손실될 수 있습니다.
-
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -402,7 +398,7 @@ namespace D3DUtil {
 	// create buffer resource from data
 	void CreateBufferResource(
 		const void* data,
-		UINT byteSize,
+		size_t byteSize,
 		D3D12_HEAP_TYPE heapType,
 		D3D12_RESOURCE_STATES resourceStates,
 		ComPtr<ID3D12Resource>& uploadBuffer,
@@ -411,7 +407,7 @@ namespace D3DUtil {
 	// upload buffer can be nullptr
 	inline void CreateBufferResource(
 		const void* data,
-		UINT byteSize,
+		size_t byteSize,
 		D3D12_HEAP_TYPE heapType,
 		D3D12_RESOURCE_STATES resourceStates,
 		ID3D12Resource** uploadBuffer,
@@ -451,7 +447,7 @@ namespace D3DUtil {
 		assert(vertexBuffer);
 		vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 		vertexBufferView.StrideInBytes = sizeof(DataType);
-		vertexBufferView.SizeInBytes = sizeof(DataType) * vertexCount;
+		vertexBufferView.SizeInBytes = (UINT)(sizeof(DataType) * vertexCount);
 	}
 
 
@@ -460,7 +456,7 @@ namespace D3DUtil {
 		assert(indexBuffer);
 		IndexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 		IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-		IndexBufferView.SizeInBytes = sizeof(UINT) * indexCount;
+		IndexBufferView.SizeInBytes = (UINT)(sizeof(UINT) * indexCount);
 	}
 
 

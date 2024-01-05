@@ -31,7 +31,7 @@ namespace {
 		}
 
 		// BoundingSphere 반지름 설정
-		float radius = std::sqrt(maxDistanceSq);
+		const float radius = std::sqrt(maxDistanceSq);
 
 		MyBoundingSphere result{};
 		result.SetOrigin(center);
@@ -44,7 +44,6 @@ namespace {
 	MyBoundingSphere CalculateBoundingSphere(const std::vector<Vec3>& positions)
 	{
 		Vec3 center{ 0.f, 0.f, 0.f };
-		float maxDistanceSq = 0.f;
 
 		// 모든 정점 위치에 대한 평균 중심 위치 계산
 		for (const auto& position : positions) {
@@ -52,7 +51,7 @@ namespace {
 			center.y += position.y;
 			center.z += position.z;
 		}
-		int vertexCount = positions.size();
+		const size_t vertexCount = positions.size();
 		center.x /= vertexCount;
 		center.y /= vertexCount;
 		center.z /= vertexCount;
@@ -78,14 +77,18 @@ HeightMapImage::HeightMapImage(const std::wstring& fileName, int width, int leng
 
 	DWORD dwBytesRead;
 	BOOL success = ::ReadFile(hFile, pHeightMapPixels.data(), (mWidth * length * 2), &dwBytesRead, nullptr);
+	if (!success) {
+		throw std::runtime_error("terrain file does not exist!");
+	}
 	::CloseHandle(hFile);
 
-	mHeightMapPixels.resize(mWidth * length * 2);
+	mHeightMapPixels.resize((size_t)mWidth * length * 2);
 	for (int y = 0; y < length * 2; y++)
 	{
 		for (int x = 0; x < mWidth; x++)
 		{
-			mHeightMapPixels[x + (y * mWidth)] = uint16ToFloat(pHeightMapPixels[x + (y * mWidth)]);
+			const size_t index = (size_t)x + ((size_t)y * mWidth);
+			mHeightMapPixels[index] = uint16ToFloat(pHeightMapPixels[index]);
 		}
 	}
 }
@@ -98,15 +101,15 @@ float HeightMapImage::GetHeight(float fx, float fz) const
 		return 0.f;
 	}
 	//높이 맵의 좌표의 정수 부분과 소수 부분을 계산한다.
-	const int x          = static_cast<int>(fx);
-	const int z          = static_cast<int>(fz);
+	const size_t x       = (size_t)fx;
+	const size_t z       = (size_t)fz;
 	const float xPercent = fx - x;
 	const float zPercent = fz - z;
 
-	float bottomLeft  = static_cast<float>(mHeightMapPixels[x + (z * mWidth)]);
-	float bottomRight = static_cast<float>(mHeightMapPixels[(x + 1) + (z * mWidth)]);
-	float topLeft     = static_cast<float>(mHeightMapPixels[x + ((z + 1) * mWidth)]);
-	float topRight    = static_cast<float>(mHeightMapPixels[(x + 1) + ((z + 1) * mWidth)]);
+	float bottomLeft  = (float)mHeightMapPixels[x       + (z * mWidth)];
+	float bottomRight = (float)mHeightMapPixels[(x + 1) + (z * mWidth)];
+	float topLeft     = (float)mHeightMapPixels[x       + ((z + 1) * mWidth)];
+	float topRight    = (float)mHeightMapPixels[(x + 1) + ((z + 1) * mWidth)];
 
 #ifdef _WITH_APPROXIMATE_OPPOSITE_CORNER
 	//z-좌표가 1, 3, 5, ...인 경우 인덱스가 오른쪽에서 왼쪽으로 나열된다.
@@ -139,9 +142,9 @@ float HeightMapImage::GetHeight(float fx, float fz) const
 #endif
 
 	//사각형의 네 점을 보간하여 높이(픽셀 값)를 계산한다.
-	float topHeight = topLeft * (1 - xPercent) + topRight * xPercent;
-	float bottomHeight = bottomLeft * (1 - xPercent) + bottomRight * xPercent;
-	float height = bottomHeight * (1 - zPercent) + topHeight * zPercent;
+	const float topHeight    = topLeft * (1 - xPercent) + topRight * xPercent;
+	const float bottomHeight = bottomLeft * (1 - xPercent) + bottomRight * xPercent;
+	const float height       = bottomHeight * (1 - zPercent) + topHeight * zPercent;
 	return height;
 }
 
@@ -154,12 +157,12 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 	/*높이 맵에서 (x, z) 좌표의 픽셀 값과 인접한 두 개의 점 (x+1, z), (z, z+1)에 대한 픽셀 값을 사용하여 법선 벡터를 계산한다.*/
 	const int heightMapIndex = x + (z * mWidth);
-	const int xHeightMapAdd  = (x < (mWidth - 1)) ? 1 : -1;
+	const int xHeightMapAdd  = (x < (mWidth - 1))  ? 1 : -1;
 	const int zHeightMapAdd  = (z < (mLength - 1)) ? mWidth : -mWidth;
 
-	const float y1 = (float)mHeightMapPixels[heightMapIndex];
-	const float y2 = (float)mHeightMapPixels[heightMapIndex + xHeightMapAdd];
-	const float y3 = (float)mHeightMapPixels[heightMapIndex + zHeightMapAdd];
+	const float y1 = (float)mHeightMapPixels[(size_t)heightMapIndex];
+	const float y2 = (float)mHeightMapPixels[(size_t)heightMapIndex + xHeightMapAdd];
+	const float y3 = (float)mHeightMapPixels[(size_t)heightMapIndex + zHeightMapAdd];
 
 	const Vec3 edge1  = Vec3(0.f, y3 - y1, 1.f);
 	const Vec3 edge2  = Vec3(1.f, y2 - y1, 0.f);
@@ -181,34 +184,33 @@ Terrain::Terrain(const std::wstring& fileName, int width, int length, int blockW
 	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
 
 	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
-	int xQuadsPerBlock = blockWidth - 1;
-	int zQuadsPerBlock = blockLength - 1;
+	const int xQuadsPerBlock = blockWidth - 1;
+	const int zQuadsPerBlock = blockLength - 1;
 
 	//지형에서 가로 방향, 세로 방향으로 격자 메쉬가 몇 개가 있는 가를 나타낸다.
-	long xBlocks = (mWidth - 1) / xQuadsPerBlock;
-	long zBlocks = (mLength - 1) / zQuadsPerBlock;
+	const size_t xBlocks = (size_t)(mWidth - 1) / xQuadsPerBlock;
+	const size_t zBlocks = (size_t)(mLength - 1) / zQuadsPerBlock;
 
 	mTerrains.resize(xBlocks * zBlocks);
 	mBuffer.resize(xBlocks * zBlocks);
 
-	float meshRadius = std::sqrtf((blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
+	// 메쉬 Bounding Sphere 반지름 = 대각선 길이 * n(보정값)
 	MyBoundingSphere bs;
-	bs.Radius = meshRadius;
+	bs.Radius = std::sqrtf((float)(blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
 
+	// 격자마다 메쉬를 생성해 TerrainBlock에 저장
 	for (int z = 0, zStart = 0; z < zBlocks; z++)
 	{
 		for (int x = 0, xStart = 0; x < xBlocks; x++)
 		{
-			xStart = x * (blockWidth - 1);
-			zStart = z * (blockLength - 1);
+			xStart             = x * (blockWidth - 1);
+			zStart             = z * (blockLength - 1);
+			const size_t index = x + (xBlocks * z);
 
-			// 각자 메쉬를 생성해 저장
-			int index = x + (z * xBlocks);
+			const sptr<TerrainGridMesh> mesh = std::make_shared<TerrainGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
+			mTerrains[index]                 = std::make_shared<TerrainBlock>(mesh, this);
 
-			sptr<TerrainGridMesh> mesh = std::make_shared<TerrainGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
-			mTerrains[index]           = std::make_shared<TerrainBlock>(mesh, this);
-
-			Vec3 center = Vec3(xStart + blockWidth / 2, 0.f, zStart + blockLength / 2);
+			const Vec3 center = Vec3(xStart + (float)blockWidth / 2, 0.f, zStart + (float)blockLength / 2);
 			bs.Center   = center;
 			mTerrains[index]->SetPosition(center);
 			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
@@ -325,10 +327,10 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 	std::vector<Vec3> normals;
 	std::vector<Vec2> uvs0;
 	std::vector<Vec2> uvs1;
-	positions.resize(width * length);
-	normals.resize(width * length);
-	uvs0.resize(width * length);
-	uvs1.resize(width * length);
+	positions.resize((size_t)width * length);
+	normals.resize((size_t)width * length);
+	uvs0.resize((size_t)width * length);
+	uvs1.resize((size_t)width * length);
 
 	float height = 0.f;
 	float minHeight = FLT_MAX;
@@ -337,11 +339,11 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 	for (int i = 0, z = zStart; z < (zStart + length); z++) {
 		for (int x = xStart; x < (xStart + width); x++, i++) {
 
-			positions[i] = Vec3(x, OnGetHeight(x, z, heightMapImage), z);
+			positions[i] = Vec3((float)x, OnGetHeight(x, z, heightMapImage), (float)z);
 			normals[i] = heightMapImage->GetHeightMapNormal(x, z);
 
-			uvs0[i] = Vec2(float(x) * kDetailScale, float(z) * kDetailScale);
-			uvs1[i] = Vec2(float(x) * kCorr, float(z) * kCorr);
+			uvs0[i] = Vec2((float)x * kDetailScale, (float)z * kDetailScale);
+			uvs1[i] = Vec2((float)x * kCorr,		(float)z * kCorr);
 
 			if (height < minHeight) {
 				minHeight = height;
@@ -392,12 +394,12 @@ float TerrainGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMap
 	const std::vector<float>& heightMapPixels = heightMapImage->GetHeightMapPixels();
 	const int width = heightMapImage->GetHeightMapWidth();
 
-	return heightMapPixels[x + (z * width)];
+	return heightMapPixels[(size_t)x + ((size_t)z * width)];
 }
 
 void TerrainGridMesh::Render() const
 {
-	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
+	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 
 	if (mIndexBuffer) {
 		cmdList->IASetIndexBuffer(&mIndexBufferView);

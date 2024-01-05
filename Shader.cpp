@@ -21,10 +21,6 @@
 
 
 
-
-
-
-
 #pragma region Shader
 Shader::~Shader()
 {
@@ -35,21 +31,21 @@ void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
 {
 	assert(!mIsClosed);
 
-	mPipelineStateDesc.pRootSignature = scene->GetRootSignature().Get();
-	mPipelineStateDesc.VS = CreateVertexShader();
-	mPipelineStateDesc.PS = CreatePixelShader();
-	mPipelineStateDesc.RasterizerState = CreateRasterizerState();
-	mPipelineStateDesc.BlendState = CreateBlendState();
-	mPipelineStateDesc.DepthStencilState = CreateDepthStencilState();
-	mPipelineStateDesc.InputLayout = CreateInputLayout();
-	mPipelineStateDesc.SampleMask = UINT_MAX;
+	mPipelineStateDesc.pRootSignature        = scene->GetRootSignature().Get();
+	mPipelineStateDesc.VS                    = CreateVertexShader();
+	mPipelineStateDesc.PS                    = CreatePixelShader();
+	mPipelineStateDesc.RasterizerState       = CreateRasterizerState();
+	mPipelineStateDesc.BlendState            = CreateBlendState();
+	mPipelineStateDesc.DepthStencilState     = CreateDepthStencilState();
+	mPipelineStateDesc.InputLayout           = CreateInputLayout();
+	mPipelineStateDesc.SampleMask            = UINT_MAX;
 	mPipelineStateDesc.PrimitiveTopologyType = GetPrimitiveType();
-	mPipelineStateDesc.DSVFormat = dsvFormat;
-	mPipelineStateDesc.SampleDesc.Count = 1;
-	mPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	mPipelineStateDesc.DSVFormat             = dsvFormat;
+	mPipelineStateDesc.SampleDesc.Count      = 1;
+	mPipelineStateDesc.Flags                 = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	const auto& rtvFormats = dxgi->GetRtvFormats();
-	mPipelineStateDesc.NumRenderTargets = rtvFormats.size();
+	mPipelineStateDesc.NumRenderTargets = (UINT)rtvFormats.size();
 	for (UINT i = 0; i < mPipelineStateDesc.NumRenderTargets; ++i) {
 		mPipelineStateDesc.RTVFormats[i] = rtvFormats[i];
 	}
@@ -93,17 +89,17 @@ D3D12_INPUT_LAYOUT_DESC Shader::CreateInputLayout()
 D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FillMode              = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode              = D3D12_CULL_MODE_BACK;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
-	rasterizerDesc.DepthBias = 0;
-	rasterizerDesc.DepthBiasClamp = 0.f;
-	rasterizerDesc.SlopeScaledDepthBias = 0.f;
-	rasterizerDesc.DepthClipEnable = TRUE;
-	rasterizerDesc.MultisampleEnable = FALSE;
+	rasterizerDesc.DepthBias             = 0;
+	rasterizerDesc.DepthBiasClamp        = 0.f;
+	rasterizerDesc.SlopeScaledDepthBias  = 0.f;
+	rasterizerDesc.DepthClipEnable       = TRUE;
+	rasterizerDesc.MultisampleEnable     = FALSE;
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
-	rasterizerDesc.ForcedSampleCount = 0;
-	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	rasterizerDesc.ForcedSampleCount     = 0;
+	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	return rasterizerDesc;
 }
@@ -111,20 +107,20 @@ D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 D3D12_DEPTH_STENCIL_DESC Shader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable = TRUE;
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	depthStencilDesc.StencilEnable = FALSE;
-	depthStencilDesc.StencilReadMask = 0x00;
-	depthStencilDesc.StencilWriteMask = 0x00;
-	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.DepthEnable                  = TRUE;
+	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS;
+	depthStencilDesc.StencilEnable                = FALSE;
+	depthStencilDesc.StencilReadMask              = 0x00;
+	depthStencilDesc.StencilWriteMask             = 0x00;
+	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
-	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_NEVER;
+	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_NEVER;
 
 	return depthStencilDesc;
 }
@@ -132,17 +128,17 @@ D3D12_DEPTH_STENCIL_DESC Shader::CreateDepthStencilState()
 D3D12_BLEND_DESC Shader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable = FALSE;
-	blendDesc.IndependentBlendEnable = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable = FALSE;
-	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable                 = FALSE;
+	blendDesc.IndependentBlendEnable                = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable           = FALSE;
+	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
@@ -198,13 +194,14 @@ D3D12_SHADER_BYTECODE Shader::ReadCompiledShaderFile(const std::wstring& fileNam
 	D3D12_SHADER_BYTECODE shaderByteCode{};
 	if (!shaderBlob) {
 		HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
+		AssertHResult(hResult);
 		::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
-		shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
+		shaderByteCode.BytecodeLength  = shaderBlob->GetBufferSize();
 		shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
 		delete[] byteCode;
 	}
 	else {
-		shaderByteCode.BytecodeLength = byteSize;
+		shaderByteCode.BytecodeLength  = byteSize;
 		shaderByteCode.pShaderBytecode = byteCode;
 	}
 
@@ -244,17 +241,17 @@ D3D12_INPUT_LAYOUT_DESC WireShader::CreateInputLayout()
 D3D12_RASTERIZER_DESC WireShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	rasterizerDesc.FillMode              = D3D12_FILL_MODE_WIREFRAME;
+	rasterizerDesc.CullMode              = D3D12_CULL_MODE_NONE;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
-	rasterizerDesc.DepthBias = 0;
-	rasterizerDesc.DepthBiasClamp = 0.f;
-	rasterizerDesc.SlopeScaledDepthBias = 0.f;
-	rasterizerDesc.DepthClipEnable = TRUE;
-	rasterizerDesc.MultisampleEnable = FALSE;
+	rasterizerDesc.DepthBias             = 0;
+	rasterizerDesc.DepthBiasClamp        = 0.f;
+	rasterizerDesc.SlopeScaledDepthBias  = 0.f;
+	rasterizerDesc.DepthClipEnable       = TRUE;
+	rasterizerDesc.MultisampleEnable     = FALSE;
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
-	rasterizerDesc.ForcedSampleCount = 0;
-	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	rasterizerDesc.ForcedSampleCount     = 0;
+	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	return rasterizerDesc;
 }
@@ -294,7 +291,7 @@ D3D12_INPUT_LAYOUT_DESC ColorInstShader::CreateInputLayout()
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = nInputElementDescs;
+	inputLayoutDesc.NumElements        = nInputElementDescs;
 	return inputLayoutDesc;
 }
 
@@ -333,7 +330,7 @@ D3D12_INPUT_LAYOUT_DESC TexturedEffectShader::CreateInputLayout()
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = nInputElementDescs;
+	inputLayoutDesc.NumElements        = nInputElementDescs;
 	return inputLayoutDesc;
 }
 
@@ -363,9 +360,9 @@ D3D12_INPUT_LAYOUT_DESC TexturedShader::CreateInputLayout()
 	inputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = nInputElementDescs;
+	inputLayoutDesc.NumElements        = nInputElementDescs;
 
 	return inputLayoutDesc;
 }
@@ -401,38 +398,38 @@ D3D12_SHADER_BYTECODE ObjectInstShader::CreateVertexShader()
 #pragma region TransparentShader
 D3D12_DEPTH_STENCIL_DESC TransparentShader::CreateDepthStencilState()
 {
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc;
-	depthStencilDesc.DepthEnable = TRUE;
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	depthStencilDesc.StencilEnable = FALSE;
-	depthStencilDesc.StencilReadMask = 0xff;
-	depthStencilDesc.StencilWriteMask = 0xff;
-	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	depthStencilDesc.DepthEnable                  = TRUE;
+	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS;
+	depthStencilDesc.StencilEnable                = FALSE;
+	depthStencilDesc.StencilReadMask              = 0xff;
+	depthStencilDesc.StencilWriteMask             = 0xff;
+	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return depthStencilDesc;
 }
 D3D12_BLEND_DESC TransparentShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable = TRUE;
-	blendDesc.IndependentBlendEnable = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable                 = TRUE;
+	blendDesc.IndependentBlendEnable                = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable           = TRUE;
+	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
@@ -454,7 +451,7 @@ D3D12_INPUT_LAYOUT_DESC TerrainShader::CreateInputLayout()
 	inputElementDescs[2] = { "UVA", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[3] = { "UVB", 0, DXGI_FORMAT_R32G32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = nInputElementDescs;
 
@@ -467,17 +464,17 @@ D3D12_RASTERIZER_DESC TerrainShader::CreateRasterizerState()
 
 	// WIREFRAME //
 	//D3D12_RASTERIZER_DESC rasterizerDesc{};
-	//rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	//rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	//rasterizerDesc.FillMode              = D3D12_FILL_MODE_WIREFRAME;
+	//rasterizerDesc.CullMode              = D3D12_CULL_MODE_NONE;
 	//rasterizerDesc.FrontCounterClockwise = FALSE;
-	//rasterizerDesc.DepthBias = 0;
-	//rasterizerDesc.DepthBiasClamp = 0.f;
-	//rasterizerDesc.SlopeScaledDepthBias = 0.f;
-	//rasterizerDesc.DepthClipEnable = TRUE;
-	//rasterizerDesc.MultisampleEnable = FALSE;
+	//rasterizerDesc.DepthBias             = 0;
+	//rasterizerDesc.DepthBiasClamp        = 0.f;
+	//rasterizerDesc.SlopeScaledDepthBias  = 0.f;
+	//rasterizerDesc.DepthClipEnable       = TRUE;
+	//rasterizerDesc.MultisampleEnable     = FALSE;
 	//rasterizerDesc.AntialiasedLineEnable = FALSE;
-	//rasterizerDesc.ForcedSampleCount = 0;
-	//rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	//rasterizerDesc.ForcedSampleCount     = 0;
+	//rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	//return rasterizerDesc;
 }
@@ -506,7 +503,7 @@ D3D12_INPUT_LAYOUT_DESC SkyBoxShader::CreateInputLayout()
 
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = nInputElementDescs;
 
@@ -515,21 +512,21 @@ D3D12_INPUT_LAYOUT_DESC SkyBoxShader::CreateInputLayout()
 
 D3D12_DEPTH_STENCIL_DESC SkyBoxShader::CreateDepthStencilState()
 {
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc;
-	depthStencilDesc.DepthEnable = TRUE;
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	depthStencilDesc.StencilEnable = FALSE;
-	depthStencilDesc.StencilReadMask = 0xff;
-	depthStencilDesc.StencilWriteMask = 0xff;
-	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	depthStencilDesc.DepthEnable                  = TRUE;
+	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	depthStencilDesc.StencilEnable                = FALSE;
+	depthStencilDesc.StencilReadMask              = 0xff;
+	depthStencilDesc.StencilWriteMask             = 0xff;
+	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return depthStencilDesc;
 }
@@ -554,17 +551,17 @@ D3D12_SHADER_BYTECODE SkyBoxShader::CreatePixelShader()
 D3D12_BLEND_DESC WaterShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable = FALSE;
-	blendDesc.IndependentBlendEnable = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable                 = FALSE;
+	blendDesc.IndependentBlendEnable                = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable           = TRUE;
+	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
@@ -572,21 +569,21 @@ D3D12_BLEND_DESC WaterShader::CreateBlendState()
 
 D3D12_DEPTH_STENCIL_DESC WaterShader::CreateDepthStencilState()
 {
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc;
-	depthStencilDesc.DepthEnable = TRUE;
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	depthStencilDesc.StencilEnable = FALSE;
-	depthStencilDesc.StencilReadMask = 0xff;
-	depthStencilDesc.StencilWriteMask = 0xff;
-	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	depthStencilDesc.DepthEnable                  = TRUE;
+	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS;
+	depthStencilDesc.StencilEnable                = FALSE;
+	depthStencilDesc.StencilReadMask              = 0xff;
+	depthStencilDesc.StencilWriteMask             = 0xff;
+	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return depthStencilDesc;
 }
@@ -612,7 +609,7 @@ D3D12_SHADER_BYTECODE WaterShader::CreatePixelShader()
 #pragma region PostProcessingShader
 PostProcessingShader::PostProcessingShader()
 {
-	mRtvCnt = dxgi->GetRtvFormats().size() - 1;
+	mRtvCnt     = (UINT)dxgi->GetRtvFormats().size() - 1;
 	mRtvFormats = dxgi->GetRtvFormats().data() + 1;
 }
 
@@ -632,9 +629,9 @@ void PostProcessingShader::CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDL
 
 void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle)
 {
-	constexpr int kRenderTargetCnt = 1;
+	constexpr size_t kRenderTargetCnt = 1;
 
-	int resourceCnt = mTextures.size();
+	size_t resourceCnt = mTextures.size();
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> allRtvHandle(kRenderTargetCnt + resourceCnt);
 
 	// 후면 버퍼 (SV_TARGET[0])
@@ -642,7 +639,7 @@ void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rt
 	cmdList->ClearRenderTargetView(rtvHandles[0], Colors::White, 0, NULL);
 
 	// (SV_TARGET[1] ~ SV_TARGET[n])
-	for (int i = 0; i < resourceCnt; ++i) {
+	for (size_t i = 0; i < resourceCnt; ++i) {
 		D3DUtil::ResourceTransition(mTextures[i]->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles[i];
@@ -650,7 +647,7 @@ void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rt
 		allRtvHandle[kRenderTargetCnt + i] = rtvHandle;
 	}
 
-	cmdList->OMSetRenderTargets(kRenderTargetCnt + resourceCnt, allRtvHandle.data(), FALSE, dsvHandle);
+	cmdList->OMSetRenderTargets((UINT)(kRenderTargetCnt + resourceCnt), allRtvHandle.data(), FALSE, dsvHandle);
 }
 
 void PostProcessingShader::OnPostRenderTarget()
@@ -670,20 +667,20 @@ void PostProcessingShader::Render()
 D3D12_DEPTH_STENCIL_DESC PostProcessingShader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable = FALSE;
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	depthStencilDesc.StencilEnable = FALSE;
-	depthStencilDesc.StencilReadMask = 0x00;
-	depthStencilDesc.StencilWriteMask = 0x00;
-	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.DepthEnable                  = FALSE;
+	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.StencilEnable                = FALSE;
+	depthStencilDesc.StencilReadMask              = 0x00;
+	depthStencilDesc.StencilWriteMask             = 0x00;
+	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
-	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_NEVER;
+	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_NEVER;
 
 	return depthStencilDesc;
 }
@@ -763,17 +760,17 @@ D3D12_SHADER_BYTECODE TextureToScreenShader::CreatePixelShader()
 D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FillMode              = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode              = D3D12_CULL_MODE_BACK;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
-	rasterizerDesc.DepthBias = -8000;
-	rasterizerDesc.DepthBiasClamp = 0.f;
-	rasterizerDesc.SlopeScaledDepthBias = 0.f;
-	rasterizerDesc.DepthClipEnable = TRUE;
-	rasterizerDesc.MultisampleEnable = FALSE;
+	rasterizerDesc.DepthBias             = -8000;
+	rasterizerDesc.DepthBiasClamp        = 0.f;
+	rasterizerDesc.SlopeScaledDepthBias  = 0.f;
+	rasterizerDesc.DepthClipEnable       = TRUE;
+	rasterizerDesc.MultisampleEnable     = FALSE;
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
-	rasterizerDesc.ForcedSampleCount = 0;
-	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	rasterizerDesc.ForcedSampleCount     = 0;
+	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	return rasterizerDesc;
 }
@@ -781,17 +778,17 @@ D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable = FALSE;
-	blendDesc.IndependentBlendEnable = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable = FALSE;
-	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable                 = FALSE;
+	blendDesc.IndependentBlendEnable                = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable           = FALSE;
+	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
@@ -838,17 +835,17 @@ D3D12_INPUT_LAYOUT_DESC CanvasShader::CreateInputLayout()
 D3D12_RASTERIZER_DESC CanvasShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FillMode              = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode              = D3D12_CULL_MODE_BACK;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
-	rasterizerDesc.DepthBias = 0.f;
-	rasterizerDesc.DepthBiasClamp = 0.f;
-	rasterizerDesc.SlopeScaledDepthBias = 0.f;
-	rasterizerDesc.DepthClipEnable = TRUE;
-	rasterizerDesc.MultisampleEnable = FALSE;
+	rasterizerDesc.DepthBias             = 0;
+	rasterizerDesc.DepthBiasClamp        = 0.f;
+	rasterizerDesc.SlopeScaledDepthBias  = 0.f;
+	rasterizerDesc.DepthClipEnable       = TRUE;
+	rasterizerDesc.MultisampleEnable     = FALSE;
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
-	rasterizerDesc.ForcedSampleCount = 0;
-	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	rasterizerDesc.ForcedSampleCount     = 0;
+	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	return rasterizerDesc;
 }
@@ -856,17 +853,17 @@ D3D12_RASTERIZER_DESC CanvasShader::CreateRasterizerState()
 D3D12_BLEND_DESC CanvasShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable = TRUE;
-	blendDesc.IndependentBlendEnable = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable                 = TRUE;
+	blendDesc.IndependentBlendEnable                = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable           = TRUE;
+	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;

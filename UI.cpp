@@ -79,8 +79,8 @@ void Font::UpdateShaderVarSprite(char ch) const
 	else if (isdigit(ch)) {
 		ch -= '0' - 26;
 	}
-	float col = ch % int(kCols);
-	float row = int(ch / kCols);
+	const float col = (float)(ch % int(kCols));
+	const float row = (float)(int(ch / kCols));
 
 	Vec4x4 spriteMtx = Matrix4x4::Identity();
 

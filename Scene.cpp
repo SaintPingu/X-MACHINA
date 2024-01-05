@@ -340,8 +340,8 @@ void Scene::BuildGrid()
 	constexpr float kMaxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	const int adjusted = Math::GetNearestMultiple(mMapBorder.Extents.x, mGridhWidth);
-	mMapBorder.Extents = Vec3(adjusted, mMapBorder.Extents.y, adjusted);
+	const int adjusted = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridhWidth);
+	mMapBorder.Extents = Vec3((float)adjusted, mMapBorder.Extents.y, (float)adjusted);
 
 	// set grid start pos
 	mGridStartPoint = mMapBorder.Center.x - mMapBorder.Extents.x / 2;
@@ -352,11 +352,11 @@ void Scene::BuildGrid()
 	mGrids.resize(gridCount);
 
 	// set grid bounds
-	const float gridExtent = static_cast<float>(mGridhWidth) / 2.0f;
+	const float gridExtent = (float)mGridhWidth / 2.0f;
 	for (int y = 0; y < mGridCols; ++y) {
 		for (int x = 0; x < mGridCols; ++x) {
-			int gridX = (mGridhWidth * x) + (mGridhWidth / 2) + mGridStartPoint;
-			int gridZ = (mGridhWidth * y) + (mGridhWidth / 2) + mGridStartPoint;
+			float gridX = (mGridhWidth * x) + ((float)mGridhWidth / 2) + mGridStartPoint;
+			float gridZ = (mGridhWidth * y) + ((float)mGridhWidth / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
 			bb.Center = Vec3(gridX, kMaxHeight / 2, gridZ);
@@ -733,7 +733,7 @@ void Scene::RenderGridBounds()
 		constexpr float kGirdHeight = 30.f;
 		Vec3 pos = grid.GetBB().Center;
 		pos.y = kGirdHeight;
-		MeshRenderer::RenderPlane(pos, mGridhWidth, mGridhWidth);
+		MeshRenderer::RenderPlane(pos, (float)mGridhWidth, (float)mGridhWidth);
 #endif
 	}
 }

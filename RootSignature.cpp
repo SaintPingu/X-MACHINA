@@ -89,7 +89,7 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 
 	// description
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.NumParameters     = mParams.size();
+	rootSignatureDesc.NumParameters     = (UINT)mParams.size();
 	rootSignatureDesc.pParameters       = mParams.data();
 	rootSignatureDesc.NumStaticSamplers = _countof(samplerDescs);
 	rootSignatureDesc.pStaticSamplers   = samplerDescs;
@@ -110,5 +110,5 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 
 void GraphicsRootSignature::ParamMapping(RootParam param)
 {
-	mParamMap[param] = mParams.size() - 1;
+	mParamMap[param] = (UINT)mParams.size() - 1;
 }

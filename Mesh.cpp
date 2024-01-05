@@ -30,7 +30,7 @@ void Mesh::ReleaseUploadBuffers()
 
 void Mesh::Render() const
 {
-	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
+	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 
 	if (mIndexBuffer) {
 		cmdList->IASetIndexBuffer(&mIndexBufferView);
@@ -47,7 +47,7 @@ void Mesh::RenderInstanced(UINT instanceCnt) const
 		return;
 	}
 
-	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
+	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 
 	if (mIndexBuffer) {
 		cmdList->IASetIndexBuffer(&mIndexBufferView);
@@ -473,7 +473,7 @@ void MergedMesh::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>
 	modelMeshInfo.Materials = std::move(materials);
 
 	// set vertexCnt
-	modelMeshInfo.VertexCnt = mesh->Buffer.Vertices.size();
+	modelMeshInfo.VertexCnt = (UINT)mesh->Buffer.Vertices.size();
 	mVertexCnt             += modelMeshInfo.VertexCnt;
 
 	// copy vertices info to [mMeshBuffer]
@@ -557,7 +557,7 @@ void MergedMesh::RenderSprite(const GameObject* object) const
 		return;
 	}
 
-	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
+	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 	cmdList->IASetIndexBuffer(&mIndexBufferView);
 
 	constexpr UINT kTransformIndex{ 0 };
@@ -574,12 +574,12 @@ void MergedMesh::RenderSprite(const GameObject* object) const
 // -> 각 indices의 내용과 그 개수를 저장해 사용하도록 한다.
 void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelMeshInfo)
 {
-	const UINT subMeshCnt = mesh->SubMeshCnt;
+	const int subMeshCnt = mesh->SubMeshCnt;
 	modelMeshInfo.IndicesCnts.resize(subMeshCnt);
 
 	for (int i = 0; i < subMeshCnt; ++i) {
 		std::vector<UINT>& indices = mesh->SubSetIndices[i];
-		modelMeshInfo.IndicesCnts[i] = indices.size();
+		modelMeshInfo.IndicesCnts[i] = (UINT)indices.size();
 		CopyBack(indices, mMeshBuffer->Indices);
 	}
 
@@ -590,14 +590,14 @@ void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelMe
 
 void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt) const
 {
-	cmdList->IASetVertexBuffers(mSlot, mVertexBufferViews.size(), mVertexBufferViews.data());
+	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 	cmdList->IASetIndexBuffer(&mIndexBufferView);
 
 	UINT indexLocation{ 0 };
 	UINT vertexLocation{ 0 };
-	const UINT transformCnt = mergedTransform.size();
+	const UINT transformCnt = (UINT)mergedTransform.size();
 
-	for (int transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
+	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
 		if (!HasMesh(transformIndex)) {
 			continue;
 		}

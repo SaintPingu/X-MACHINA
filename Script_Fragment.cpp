@@ -6,12 +6,12 @@
 
 void Script_Fragment::Awake()
 {
-	mRigid = mObject->GetComponent<Rigidbody>();
-	mRigid->SetGravity(true);
-	mRigid->SetGravityScale(3.f);
-	mRigid->SetFriction(.2f);
-	mRigid->SetMass(5.f);
-	mRigid->SetDrag(1.f);
+	const auto& rigid = mObject->GetComponent<Rigidbody>();
+	rigid->SetGravity(true);
+	rigid->SetGravityScale(3.f);
+	rigid->SetFriction(.2f);
+	rigid->SetMass(5.f);
+	rigid->SetDrag(1.f);
 }
 
 void Script_Fragment::Update()
@@ -22,11 +22,13 @@ void Script_Fragment::Update()
 void Script_Fragment::Active(const Vec3& pos)
 {
 	mObject->SetPosition(pos);
-	mRigid->Stop();
 
+	const auto& rigid = mObject->GetComponent<Rigidbody>();
+
+	rigid->Stop();
 	// 위 방향 + 설정된 [mMovingDir] 방향으로 즉시 힘을 가한다.
-	mRigid->AddForce(Vector3::Up(), mMovingSpeed, ForceMode::Impulse);
-	mRigid->AddForce(mMovingDir, mMovingSpeed, ForceMode::Impulse);
+	rigid->AddForce(Vector3::Up(), mMovingSpeed, ForceMode::Impulse);
+	rigid->AddForce(mMovingDir, mMovingSpeed, ForceMode::Impulse);
 
 	mObject->OnEnable();
 }

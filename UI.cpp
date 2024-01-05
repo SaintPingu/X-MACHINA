@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "UI.h"
-#include "DXGIMgr.h"
 
-#include "Camera.h"
 #include "Scene.h"
 #include "Shader.h"
 #include "Texture.h"

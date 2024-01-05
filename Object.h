@@ -30,7 +30,7 @@ public:
 	GameObject() = default;
 	virtual ~GameObject() = default;
 
-	bool IsTransparent() const										{ return mLayer == ObjectLayer::Transparent; }
+	bool IsTransparent() const										{ return GetLayer() == ObjectLayer::Transparent; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 	// 최상위(대표) 텍스쳐를 반환한다.
 	rsptr<Texture> GetTexture() const;

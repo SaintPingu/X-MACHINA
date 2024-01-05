@@ -6,9 +6,12 @@
 #include "Rigidbody.h"
 #include "UI.h"
 
+
 namespace {
 	BoundingBox border = { Vec3(256, 100, 256), Vec3(2400, 1100, 2400) };
 }
+
+
 
 void Script_Player::SetSpawn(const Vec3& pos)
 {

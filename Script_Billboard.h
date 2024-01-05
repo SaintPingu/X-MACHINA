@@ -5,11 +5,6 @@
 #pragma endregion
 
 
-#pragma region ClassForwardDecl
-class CameraObject;
-#pragma endregion
-
-
 #pragma region Class
 // 매 업데이트마다 카메라를 향해 회전한다.
 class Script_Billboard : public Component {

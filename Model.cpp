@@ -3,12 +3,9 @@
 #include "DXGIMgr.h"
 
 #include "Object.h"
-#include "Camera.h"
 #include "Mesh.h"
-#include "Collider.h"
 #include "Texture.h"
 #include "Scene.h"
-#include "Shader.h"
 #include "FileIO.h"
 
 
@@ -71,7 +68,7 @@ void Model::CopyModelHierarchy(Object* object) const
 {
 	object->CopyComponents(*this);
 	object->SetLocalTransform(GetLocalTransform());
-	object->SetName(mName);
+	object->SetName(GetName());
 
 	/* 각 계층 구조의 복사본(새 할당)을 받아 설정한다. */
 	if (mSibling) {

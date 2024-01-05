@@ -18,7 +18,9 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 
 void Script_MainCamera::Start()
 {
+	constexpr Vec3 initOffset = Vec3(0, 5, -10);
 	mPlayer = scene->GetPlayer();
+	mObject->SetPosition(Vector3::Add(mPlayer->GetPosition(), initOffset));
 	ChangeCameraMode(CameraMode::Third);
 }
 
@@ -53,7 +55,7 @@ void Script_MainCamera::Update()
 	}
 
 	if (distance > 0) {
-		mainCameraObject->Translate(dir, distance);
+		mObject->Translate(dir, distance);
 		UpdateHeight();
 		LookPlayer();
 		mainCamera->UpdateViewMtx();

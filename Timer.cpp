@@ -15,7 +15,8 @@ Timer::Timer()
 	__int64	perfFreq{};
 
 	QueryPerformanceFrequency(perfFreq);
-	mTimeScale = 1.0 / static_cast<double>(perfFreq);
+	mDefaultTimeScale = 1.0 / static_cast<double>(perfFreq);
+	mTimeScale        = mDefaultTimeScale;
 
 	Reset();
 }
@@ -105,6 +106,11 @@ void Timer::Stop()
 		QueryPerformanceCounter(mStopPerfCnt);
 		mIsStopped = true;
 	}
+}
+
+void Timer::SetTimeScale(double scale)
+{
+	mTimeScale = mDefaultTimeScale * scale;
 }
 
 

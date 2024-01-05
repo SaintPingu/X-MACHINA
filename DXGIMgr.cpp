@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DXGIMgr.h"
+
 #include "Scene.h"
 #include "Shader.h"
 

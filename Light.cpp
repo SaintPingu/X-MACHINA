@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Light.h"
-#include "DXGIMgr.h"
 
 #include "Scene.h"
 #include "FileIO.h"
@@ -61,7 +60,7 @@ void Light::CreateShaderVars()
 void Light::UpdateShaderVars()
 {
 	::memcpy(mCBMap_Lights, mLights.get(), sizeof(*mCBMap_Lights));
-	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Light), mCB_Lights->GetGPUVirtualAddress());
+	scene->SetGraphicsRootConstantBufferView(RootParam::Light, mCB_Lights->GetGPUVirtualAddress());
 }
 
 void Light::ReleaseShaderVars()

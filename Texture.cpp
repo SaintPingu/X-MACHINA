@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Texture.h"
 #include "DXGIMgr.h"
-#include "FileIO.h"
 
 #include "Scene.h"
 

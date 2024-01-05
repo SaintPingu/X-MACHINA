@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "SkyBox.h"
+
 #include "Camera.h"
 #include "Scene.h"
-#include "DXGIMgr.h"
 
 #include "Texture.h"
 #include "Mesh.h"

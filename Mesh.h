@@ -1,12 +1,8 @@
 #pragma once
 
-#pragma region Include
-#include "Collider.h"
-#pragma endregion
 
 
 #pragma region ClassForwardDecl
-class Scene;
 class Material;
 class Texture;
 class Transform;

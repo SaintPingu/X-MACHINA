@@ -5,15 +5,13 @@
 #include "Timer.h"
 #include "Scene.h"
 #include "Rigidbody.h"
-#include "Collider.h"
 
 
 void Script_Bullet::Awake()
 {
 	mGameObject = mObject->GetObj<GameObject>();
 
-	mRigid = mObject->GetComponent<Rigidbody>();
-	mRigid->SetFriction(0.f);
+	mObject->GetComponent<Rigidbody>()->SetFriction(0.f);
 
 	Reset();
 }
@@ -53,8 +51,9 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float
 	mObject->LookTo(dir, up);
 	mObject->SetPosition(pos);
 
-	mRigid->Stop();
-	mRigid->AddForce(dir, speed, ForceMode::Impulse);
+	const auto& rigid = mObject->GetComponent<Rigidbody>();
+	rigid->Stop();
+	rigid->AddForce(dir, speed, ForceMode::Impulse);
 }
 
 void Script_Bullet::Explode()

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Transform.h"
-#include "DXGIMgr.h"
 
 #include "Scene.h"
 

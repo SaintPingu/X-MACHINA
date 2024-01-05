@@ -2,18 +2,9 @@
 #include "Shader.h"
 #include "DXGIMgr.h"
 
-#include "Model.h"
-#include "Object.h"
-#include "Camera.h"
-#include "Mesh.h"
 #include "Scene.h"
-#include "Timer.h"
-#include "Collider.h"
 #include "Texture.h"
 
-#include "Script_Fragment.h"
-#include "Script_Bullet.h"
-#include "Rigidbody.h"
 
 //#define READ_COMPILED_SHADER
 

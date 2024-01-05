@@ -8,8 +8,9 @@ class Timer : public Singleton<Timer> {
 private:
 	constexpr static ULONG kMaxSampleCnt = 50;		// Maximum frame time sample count
 
-	double			mTimeScale{};		// 시간 속도
-	float			mTimeElapsed{};		// 이전 프레임에서 현재 프레임까지 경과 시간 (프레임 전환 시간)
+	double			mDefaultTimeScale{};	// 기본 시간 속도
+	double			mTimeScale{};			// 현재 시간 속도
+	float			mTimeElapsed{};			// 이전 프레임에서 현재 프레임까지 경과 시간 (프레임 전환 시간)
 
 	/* performance count */
 	__int64			mBasePerfCnt{};
@@ -46,6 +47,8 @@ public:
 	void Start();
 	// 타이머 일시 정지
 	void Stop();
+
+	void SetTimeScale(double scale);
 
 private:
 	void QueryPerformanceFrequency(__int64& freq)

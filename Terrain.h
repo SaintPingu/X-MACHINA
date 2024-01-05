@@ -107,9 +107,6 @@ public:
 	TerrainGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage);
 	virtual ~TerrainGridMesh() = default;
 
-public:
-	void Render() const;
-
 private:
 	// grid의 좌표(x, z)에 대한 정점의 높이를 반환한다.
 	virtual float OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage);

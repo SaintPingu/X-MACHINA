@@ -1,13 +1,8 @@
 #include "stdafx.h"
 #include "Object.h"
-#include "DXGIMgr.h"
 
 #include "Model.h"
-#include "Terrain.h"
-#include "Mesh.h"
-#include "Camera.h"
 #include "Scene.h"
-#include "Timer.h"
 #include "Collider.h"
 #include "ObjectPool.h"
 
@@ -60,7 +55,7 @@ void GameObject::Render()
 
 Transform* GameObject::FindFrame(const std::string& frameName)
 {
-	if (mName == frameName) {
+	if (GetName() == frameName) {
 		return this;
 	}
 
@@ -164,7 +159,7 @@ void InstObject::OnDestroy()
 
 void InstObject::SetUpdateFunc()
 {
-	switch (mType) {
+	switch (GetType()) {
 	case ObjectType::DynamicMove:
 		mUpdateFunc = [this]() { UpdateDynamic(); };
 		break;

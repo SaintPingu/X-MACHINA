@@ -75,19 +75,22 @@ void Object::Awake()
 
 void Object::OnEnable()
 {
-	if (!mIsStart) {
-		Start();
-	}
 	if (mIsEnable) {
 		return;
 	}
+	if (!mIsAwake) {
+		Awake();
+	}
 	mIsEnable = true;
-
-	Transform::Update();
 
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnEnable();
 		});
+	Transform::Update();
+
+	if (!mIsStart) {
+		Start();
+	}
 }
 
 void Object::OnDisable()
@@ -107,27 +110,23 @@ void Object::Start()
 	if (mIsStart) {
 		return;
 	}
-
-	if (!mIsAwake) {
-		Awake();
-	}
 	mIsStart = true;
 
 	ProcessComponents([](rsptr<Component> component) {
 		component->Start();
 		});
+	Transform::Update();
 }
 
 void Object::Update()
 {
-	Transform::Update();
-	
 	mCollisionObjects.clear();
 	ProcessComponents([](rsptr<Component> component) {
 		if (component->IsActive()) {
 			component->Update();
 		}
 		});
+	Transform::Update();
 }
 
 void Object::OnDestroy()

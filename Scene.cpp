@@ -9,13 +9,11 @@
 #include "Terrain.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "Mesh.h"
 #include "MeshRenderer.h"
 #include "Timer.h"
 #include "FileIO.h"
 #include "Light.h"
 #include "Collider.h"
-#include "InputMgr.h"
 #include "SkyBox.h"
 #include "Texture.h"
 #include "RootSignature.h"
@@ -142,6 +140,16 @@ void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offs
 {
 	constexpr UINT kNum32Bit = 1U;
 	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void Scene::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
+{
+	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(param), gpuAddr);
+}
+
+void Scene::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
+{
+	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(param), gpuAddr);
 }
 
 void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
@@ -759,26 +767,19 @@ void Scene::RenderBillboards(const std::set<GridObject*>& billboards)
 #pragma region Update
 void Scene::Start()
 {
-	mainCameraObject->Start();
-
 	/* Awake */
+	mainCameraObject->Awake();
 	mTerrain->Awake();
 	ProcessObjects([](sptr<GameObject> object) {
 		object->Awake();
 		});
 
-
-	/* Enable */
+	/* Enable & Start */
 	mTerrain->OnEnable();
 	ProcessObjects([](sptr<GameObject> object) {
 		object->OnEnable();
 		});
-
-	/* Start */
-	ProcessObjects([](sptr<GameObject> object) {
-		object->Start();
-		});
-
+	mainCameraObject->OnEnable();
 
 	UpdateGridInfo();
 }
@@ -885,8 +886,6 @@ void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 	pos.y += 2;	// º¸Á¤
 	effect->SetPosition(pos);
 
-	effect->Awake();
-	effect->Start();
 	effect->OnEnable();
 	mSpriteEffectObjects.emplace_back(effect);
 }

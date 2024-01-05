@@ -13,9 +13,9 @@
 
 
 #pragma region Camera
-void Camera::Start()
+void Camera::Awake()
 {
-	base::Start();
+	base::Awake();
 
 	CreateShaderVars();
 }
@@ -95,12 +95,6 @@ void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 }
 
 
-bool Camera::IsInFrustum(rsptr<const GridObject> object)
-{
-	return object->GetCollider()->Intersects(mFrustumWorld);
-}
-
-
 void Camera::CreateShaderVars()
 {
 	const UINT kByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_CameraInfo));
@@ -152,11 +146,11 @@ void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 
 
 #pragma region MainCameraObject
-void MainCameraObject::Start()
+void MainCameraObject::Awake()
 {
-	SetPosition(0, 0, -1);	// must be non-zero
-	AddComponent<Script_MainCamera>();
+	base::Awake();
 
-	base::Start();
+	SetPosition(1, 2, 3);	// must be non-zero
+	AddComponent<Script_MainCamera>();
 }
 #pragma endregion

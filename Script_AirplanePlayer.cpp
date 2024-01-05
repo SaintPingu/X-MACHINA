@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Script_Player.h"
+
 #include "Scene.h"
-#include "Shader.h"
 #include "Object.h"
 #include "InputMgr.h"
 #include "Timer.h"

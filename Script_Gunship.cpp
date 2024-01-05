@@ -5,12 +5,11 @@
 #include "Timer.h"
 
 
-
 void Script_Gunship::Start()
 {
-	mGameObject = mObject->GetObj<GameObject>();
-	mMainRotor = mGameObject->FindFrame("Rotor");
-	mTailRotor = mGameObject->FindFrame("Back_Rotor");
+	const auto& gameObject = mObject->GetObj<GameObject>();
+	mMainRotor = gameObject->FindFrame("Rotor");
+	mTailRotor = gameObject->FindFrame("Back_Rotor");
 }
 
 void Script_Gunship::Update()

@@ -1,11 +1,9 @@
 #include "stdafx.h"
 #include "Terrain.h"
-#include "DXGIMgr.h"
 
 #include "Model.h"
 #include "Shader.h"
 #include "Mesh.h"
-#include "Camera.h"
 #include "Scene.h"
 #include "Texture.h"
 
@@ -395,19 +393,6 @@ float TerrainGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMap
 	const int width = heightMapImage->GetHeightMapWidth();
 
 	return heightMapPixels[(size_t)x + ((size_t)z * width)];
-}
-
-void TerrainGridMesh::Render() const
-{
-	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
-
-	if (mIndexBuffer) {
-		cmdList->IASetIndexBuffer(&mIndexBufferView);
-		cmdList->DrawIndexedInstanced(mIndexCnt, 1, 0, 0, 0);
-	}
-	else {
-		cmdList->DrawInstanced(mVertexCnt, 1, mOffset, 0);
-	}
 }
 #pragma endregion
 

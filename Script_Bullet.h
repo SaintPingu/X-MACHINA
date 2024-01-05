@@ -8,7 +8,6 @@
 
 #pragma region ClassForwardDecl
 class GameObject;
-class Rigidbody;
 #pragma endregion
 
 
@@ -20,7 +19,6 @@ class Script_Bullet : public Component {
 
 private:
 	GameObject*		mGameObject{};	// self GameObject
-	sptr<Rigidbody> mRigid{};
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
 
 	float mDamage{};				// damage of bullet

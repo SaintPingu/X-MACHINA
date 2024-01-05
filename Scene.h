@@ -12,11 +12,9 @@
 #pragma region ClassForwardDecl
 class Model;
 class MasterModel;
-class ModelObjectMesh;
 
 class Shader;
 class InstShader;
-class StaticShader;
 
 class Camera;
 class GameObject;
@@ -132,11 +130,17 @@ public:
 public:
 	void ReleaseUploadBuffers();
 
-	// [data]를 32BitConstants에 set한다.
+	// [data]를 32BitConstants에 Set한다.
 	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
+
+	// gpuAddr에 있는 CBV를 Set한다.
+	void SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
+
+	// gpuAddr에 있는 SRV를 Set한다.
+	void SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
 
 	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
@@ -245,7 +249,7 @@ private:
 	void UpdateObjects();
 	// update each single object
 	void UpdateObject(GridObject* object);
-	// update effect objects (StaticShader)
+	// update effect objects
 	void UpdateFXObjects();
 
 	void UpdateSprites();

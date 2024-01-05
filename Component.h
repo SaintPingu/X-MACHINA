@@ -151,7 +151,7 @@ public:
 
 
 class Object : public Transform {
-protected:
+private:
 	std::string	mName{};
 	ObjectTag	mTag{};
 	ObjectLayer mLayer{};

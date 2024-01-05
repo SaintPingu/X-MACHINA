@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Script_ExplosiveObject.h"
 
-#include "Scene.h"
 #include "Object.h"
+#include "Scene.h"
 
 #include "Script_Player.h"
 

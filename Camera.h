@@ -57,7 +57,7 @@ public:
 	void SetOffset(const Vec3& offset) { mOffset = offset; }
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Release() override;
 
 public:
@@ -75,7 +75,6 @@ public:
 	bool IsInFrustum(const BoundingBox& boundingBox)		 { return mFrustumWorld.Intersects(boundingBox); }
 	bool IsInFrustum(const BoundingOrientedBox& boundingBox) { return mFrustumWorld.Intersects(boundingBox); }
 	bool IsInFrustum(const BoundingSphere& boundingSphere)   { return mFrustumWorld.Intersects(boundingSphere); }
-	bool IsInFrustum(rsptr<const GridObject> object);
 
 private:
 	void CreateShaderVars();
@@ -120,6 +119,6 @@ private:
 	virtual ~MainCameraObject() = default;
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 };
 #pragma endregion

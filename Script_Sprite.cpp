@@ -5,8 +5,6 @@
 #include "Timer.h"
 #include "Object.h"
 #include "Texture.h"
-#include "Collider.h"
-#include "GameFramework.h"
 #include "Scene.h"
 
 namespace {

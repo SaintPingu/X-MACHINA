@@ -2,8 +2,6 @@
 #include "Script_Player.h"
 #include "InputMgr.h"
 
-#include "Camera.h"
-#include "Shader.h"
 #include "Model.h"
 #include "Timer.h"
 #include "Object.h"
@@ -56,7 +54,7 @@ void Script_ShootingPlayer::RenderBullets() const
 
 void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 {
-	constexpr int kBulletPoolSize = 10;
+	constexpr int kBulletPoolSize = 100;
 
 	mBulletPool = std::make_shared<ObjectPool>(bulletModel, kBulletPoolSize, sizeof(SB_ColorInst));
 	mBulletPool->CreateObjects<InstBulletObject>([this](rsptr<InstObject> object) { InitBullet(object); });

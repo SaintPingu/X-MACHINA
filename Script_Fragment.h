@@ -5,9 +5,6 @@
 #pragma endregion
 
 
-#pragma region ClassForwardDecl
-class Rigidbody;
-#pragma endregion
 
 
 #pragma region Class
@@ -16,17 +13,12 @@ class Script_Fragment : public Component {
 	COMPONENT(Script_Fragment, Component)
 
 private:
-	sptr<Rigidbody> mRigid{};
-	Vec3 mColor{};
 	Vec3 mRotationAxis{ Vector3::Up() };
 	Vec3 mMovingDir{};
 	float mMovingSpeed{};
 	float mRotationSpeed{};
 
 public:
-	const Vec3& GetColor() const { return mColor; }
-
-	void SetColor(const Vec3& color) { mColor = color; }
 	void SetRotationAxis(const Vec3& rotationAxis) { mRotationAxis = Vector3::Normalize(rotationAxis); }
 	void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
 	void SetMovingSpeed(float speed) { mMovingSpeed = speed; }

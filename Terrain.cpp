@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Scene.h"
 #include "Texture.h"
+#include "Collider.h"
 
 #define _WITH_APPROXIMATE_OPPOSITE_CORNER
 

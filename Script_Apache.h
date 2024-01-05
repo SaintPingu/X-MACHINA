@@ -4,10 +4,6 @@
 #include "Component.h"
 #pragma endregion
 
-#pragma region ClassForwardDecl
-class GameObject;
-#pragma endregion
-
 
 #pragma region Class
 // Apache¸¦ ¸ðµ¨·Î ÇÏ´Â °´Ã¼
@@ -18,8 +14,6 @@ class Script_Apache : public Component {
 private:
 	Transform* mMainRotor{};
 	Transform* mTailRotor{};
-
-	GameObject* mGameObject{};
 
 public:
 	virtual void Start() override;

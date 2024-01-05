@@ -10,7 +10,8 @@
 class GameObject;
 class MasterModel;
 class Rigidbody;
-class BulletShader;
+class InstObject;
+class ObjectPool;
 #pragma endregion
 
 
@@ -70,21 +71,21 @@ class Script_ShootingPlayer : public Script_Player {
 	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
 
 protected:
-	sptr<BulletShader>	mBulletShader{};
-	float				mBulletSpeed{ 1.f };
+	sptr<ObjectPool> mBulletPool{};
 
 private:
+	float mBulletDamage{};
+	float mBulletSpeed{};
 	float mMaxFireDelay{};		// 총알 발사 딜레이
 	float mCurrFireDelay{};		// 현재 발사 딜레이
 	bool  mIsShooting{};		// 발사중인가?
 
 public:
-	void SetDamage(float damage);
+	void SetBulletDamage(float damage) { mBulletDamage = damage; }
+	void SetBulletSpeed(float speed) { mBulletSpeed = speed; }
 	void SetFireDelay(float fDelay) { mMaxFireDelay = fDelay; }
 
 public:
-	virtual void Awake() override;
-	virtual void Start() override;
 	virtual void Update() override;
 
 public:
@@ -98,6 +99,11 @@ public:
 
 	// [bulletModel]에 대한 BulletShader를 생성한다.
 	void CreateBullets(rsptr<const MasterModel> bulletModel);
+
+protected:
+	void FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up);
+
+	void InitBullet(rsptr<InstObject> object);
 };
 
 

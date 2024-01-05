@@ -159,7 +159,7 @@ protected:
 
 	bool mIsAwake  = false;			// Awake()가 호출되었는가?
 	bool mIsStart  = false;			// Start()가 호출되었는가?
-	bool mIsActive = false;			// OnEnable()이 호출되었는가? (활성화 상태인가?)
+	bool mIsEnable = false;			// OnEnable()이 호출되었는가? (활성화 상태인가?)
 
 private:
 	std::vector<sptr<Component>> mComponents{};
@@ -172,20 +172,18 @@ public:
 #pragma endregion
 
 #pragma region Getter
-	ObjectTag GetTag() const	 { return mTag; }
-	ObjectLayer GetLayer() const { return mLayer; }
-	ObjectType GetType() const	 { return mType; }
+	const std::string& GetName() const	{ return mName; }
+	ObjectTag GetTag() const			{ return mTag; }
+	ObjectLayer GetLayer() const		{ return mLayer; }
+	ObjectType GetType() const			{ return mType; }
 
-	const std::string& GetName() const { return mName; }
-
-	bool IsActive() const { return mIsActive; }
+	bool IsActive() const				{ return mIsEnable; }
 #pragma endregion
 
 #pragma region Setter
 	void SetTag(ObjectTag tag);
-	void SetLayer(ObjectLayer layer) { mLayer = layer; }
-
-	void SetName(const std::string& name) { mName = name; }
+	void SetName(const std::string& name)	{ mName = name; }
+	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
 #pragma endregion
 
 

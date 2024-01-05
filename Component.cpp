@@ -63,7 +63,11 @@ void Object::CopyComponents(const Object& src)
 
 void Object::Awake()
 {
+	if (mIsAwake) {
+		return;
+	}
 	mIsAwake = true;
+
 	ProcessComponents([](rsptr<Component> component) {
 		component->Awake();
 		});
@@ -71,7 +75,13 @@ void Object::Awake()
 
 void Object::OnEnable()
 {
-	mIsActive = true;
+	if (!mIsStart) {
+		Start();
+	}
+	if (mIsEnable) {
+		return;
+	}
+	mIsEnable = true;
 
 	Transform::Update();
 
@@ -82,7 +92,10 @@ void Object::OnEnable()
 
 void Object::OnDisable()
 {
-	mIsActive = false;
+	if (!mIsEnable) {
+		return;
+	}
+	mIsEnable = false;
 
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDisable();
@@ -91,7 +104,15 @@ void Object::OnDisable()
 
 void Object::Start()
 {
+	if (mIsStart) {
+		return;
+	}
+
+	if (!mIsAwake) {
+		Awake();
+	}
 	mIsStart = true;
+
 	ProcessComponents([](rsptr<Component> component) {
 		component->Start();
 		});
@@ -111,6 +132,7 @@ void Object::Update()
 
 void Object::OnDestroy()
 {
+	OnDisable();
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDestroy();
 		});
@@ -146,7 +168,8 @@ void Object::OnCollisionStay(Object& other)
 
 
 void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
-	for (auto& component : mComponents) {
+	std::vector<sptr<Component>> components = mComponents;
+	for (auto& component : components) {
 		if (component) {
 			processFunc(component);
 		}

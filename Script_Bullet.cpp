@@ -11,7 +11,6 @@
 void Script_Bullet::Awake()
 {
 	mGameObject = mObject->GetObj<GameObject>();
-	mGameObject->SetTag(ObjectTag::Bullet);
 
 	mRigid = mObject->GetComponent<Rigidbody>();
 	mRigid->SetFriction(0.f);
@@ -25,6 +24,7 @@ void Script_Bullet::Update()
 
 	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
+		mGameObject->OnDestroy();
 	}
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
 		Explode();
@@ -55,8 +55,6 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float
 
 	mRigid->Stop();
 	mRigid->AddForce(dir, speed, ForceMode::Impulse);
-
-	mGameObject->Enable();
 }
 
 void Script_Bullet::Explode()
@@ -68,13 +66,14 @@ void Script_Bullet::Explode()
 	Reset();
 
 	scene->CreateFX(Scene::FXType::SmallExplosion, mObject->GetPosition());
+
+	mGameObject->OnDestroy();
 }
 
 
 void Script_Bullet::Reset()
 {
 	mCurrLifeTime = 0.f;
-	mGameObject->Disable();
 }
 
 bool Script_Bullet::IntersectTerrain()

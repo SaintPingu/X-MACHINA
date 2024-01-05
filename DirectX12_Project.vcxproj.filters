@@ -177,7 +177,7 @@
     <ClInclude Include="Singleton.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Instancing.h">
+    <ClInclude Include="ObjectPool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -296,8 +296,8 @@
     <ClCompile Include="MeshRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Instancing.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="ObjectPool.cpp">
+      <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -21,10 +21,9 @@ public:
 	Grid()          = default;
 	virtual ~Grid() = default;
 
-	const BoundingBox& GetBB() const { return mBB; }
-
+	const BoundingBox& GetBB() const	{ return mBB; }
 	// return all objects
-	const auto& GetObjects() const { return mObjects; }
+	const auto& GetObjects() const		{ return mObjects; }
 
 public:
 	bool Empty() const { return mObjects.empty(); }

@@ -982,7 +982,7 @@ public:
 	MyBoundingSphere() = default;
 	virtual ~MyBoundingSphere() = default;
 
-	Vec3 GetOrigin() const { return mOriginCenter; }
+	Vec3 GetOrigin() const	{ return mOriginCenter; }
 
 	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
 

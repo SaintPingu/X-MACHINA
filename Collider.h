@@ -63,8 +63,8 @@ private:
 	std::vector<sptr<BoxCollider>>		mBoxColliders{};	// ÀüÃ¼ box collider
 
 public:
-	const MyBoundingSphere& GetBS() const { return mSphereCollider->mBS; }
-	const auto& GetOBBList() const { return mOBBList; }
+	const MyBoundingSphere& GetBS() const	{ return mSphereCollider->mBS; }
+	const auto& GetOBBList() const			{ return mOBBList; }
 
 public:
 	virtual void Awake() override;

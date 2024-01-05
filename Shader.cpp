@@ -70,7 +70,6 @@ void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
 void Shader::Set(int pipelineStateIndex)
 {
 	SetPipelineState(pipelineStateIndex);
-	UpdateShaderVars();
 }
 
 
@@ -285,83 +284,8 @@ D3D12_SHADER_BYTECODE WireShader::CreatePixelShader()
 
 
 
-
-#pragma region InstShader
-InstShader::~InstShader()
-{
-	ReleaseShaderVars();
-}
-
-void InstShader::SetColor(const Vec3& color)
-{
-	for (size_t i = 0; i < mObjects.size(); ++i) {
-		mSBMap_Inst[i].Color = Vec4(color.x, color.y, color.z, 1.f);
-	}
-}
-
-void InstShader::Awake()
-{
-	for (auto& object : mObjects) {
-		object->AddComponent<Rigidbody>();
-		object->Awake();
-	}
-}
-
-void InstShader::Update()
-{
-	for (auto& object : mObjects) {
-		if (object->IsActive()) {
-			object->Update();
-		}
-	}
-}
-void InstShader::Render()
-{
-	mMesh->RenderInstanced(mObjects.size());
-}
-
-
-void InstShader::BuildObjects(size_t instCnt, rsptr<const Mesh> mesh)
-{
-	mObjects.resize(instCnt);
-
-	for (auto& object : mObjects) {
-		object = std::make_shared<GridObject>();
-	}
-
-	mMesh = mesh;
-	CreateShaderVars();
-}
-
-void InstShader::SetShaderResourceView()
-{
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Inst->GetGPUVirtualAddress());
-}
-
-void InstShader::CreateShaderVars()
-{
-	D3DUtil::CreateBufferResource(NULL, sizeof(InstBuff) * mObjects.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mSB_Inst);
-	mSB_Inst->Map(0, NULL, (void**)&mSBMap_Inst);
-}
-
-void InstShader::UpdateShaderVars()
-{
-	SetShaderResourceView();
-
-	for (int j = 0; j < mObjects.size(); j++) {
-		mSBMap_Inst[j].LocalTransform = Matrix4x4::Transpose(mObjects[j]->GetWorldTransform());
-	}
-}
-
-void InstShader::ReleaseShaderVars()
-{
-	if (mSB_Inst) {
-		mSB_Inst->Unmap(0, NULL);
-		mSB_Inst = nullptr;
-	}
-}
-
-D3D12_INPUT_LAYOUT_DESC InstShader::CreateInputLayout()
+#pragma region ColorInstShader
+D3D12_INPUT_LAYOUT_DESC ColorInstShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
@@ -374,7 +298,7 @@ D3D12_INPUT_LAYOUT_DESC InstShader::CreateInputLayout()
 	return inputLayoutDesc;
 }
 
-D3D12_SHADER_BYTECODE InstShader::CreateVertexShader()
+D3D12_SHADER_BYTECODE ColorInstShader::CreateVertexShader()
 {
 #ifdef READ_COMPILED_SHADER
 	return Shader::ReadCompiledShaderFile(L"VShader_Instance.cso", mVSBlob);
@@ -383,7 +307,7 @@ D3D12_SHADER_BYTECODE InstShader::CreateVertexShader()
 #endif
 }
 
-D3D12_SHADER_BYTECODE InstShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE ColorInstShader::CreatePixelShader()
 {
 #ifdef READ_COMPILED_SHADER
 	return Shader::ReadCompiledShaderFile(L"PShader_Instance.cso", mPSBlob);
@@ -398,132 +322,7 @@ D3D12_SHADER_BYTECODE InstShader::CreatePixelShader()
 
 
 
-#pragma region EffectShader
-void EffectShader::Update()
-{
-	for (auto& [begin, duration] : mActiveGroups) {
-		duration += DeltaTime();
-		if (duration >= mMaxLifeTime) {
-			mTimeOvers.emplace_back(begin);
-			continue;
-		}
-
-		size_t index = begin;
-		size_t end = begin + mCountPerGroup;
-		for (; index < end; ++index) {
-			mObjects[index]->Update();
-		}
-	}
-
-	for (size_t index : mTimeOvers) {
-		mActiveGroups.erase(index);
-	}
-	mTimeOvers.clear();
-}
-
-void EffectShader::Render()
-{
-	mMesh->RenderInstanced(mActiveGroups.size() * mCountPerGroup);
-}
-
-
-void EffectShader::BuildObjects(size_t groupCount, size_t countPerGroup, rsptr<const ModelObjectMesh> mesh)
-{
-	mGroupSize = groupCount;
-	mCountPerGroup = countPerGroup;
-	mActiveGroups.reserve(mGroupSize);
-	mTimeOvers.reserve(mGroupSize);
-
-	mObjects.resize(groupCount * countPerGroup);
-	mObjectScripts.resize(mObjects.size());
-	for (int i = 0; i < mObjects.size(); ++i) {
-		mObjects[i] = std::make_shared<GridObject>();
-		mObjectScripts[i] = mObjects[i]->AddComponent<Script_Fragment>();
-	}
-
-	mMesh = mesh;
-	CreateShaderVars();
-}
-
-void EffectShader::SetActive(const Vec3& pos)
-{
-	if (mActiveGroups.size() >= mGroupSize) {
-		return;
-	}
-
-	for (size_t i = 0; i < mGroupSize; ++i) {
-		size_t index = i * mCountPerGroup;
-
-		if (mActiveGroups.find(index) == mActiveGroups.end()) {
-			mActiveGroups.insert(std::make_pair(index, 0.f));
-
-			size_t end = index + mCountPerGroup;
-			for (; index < end; ++index) {
-				mObjectScripts[index]->Active(pos);
-			}
-
-			return;
-		}
-	}
-}
-
-
-void EffectShader::UpdateShaderVars()
-{
-	SetShaderResourceView();
-
-	size_t i = 0;
-	for (auto& [begin, duration] : mActiveGroups) {
-		size_t index = begin;
-		size_t end = begin + mCountPerGroup;
-		for (; index < end; ++index, ++i) {
-			mSBMap_Inst[i].LocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
-
-			Vec3 color = mObjectScripts[i]->GetColor();
-			mSBMap_Inst[i].Color = Vec4(color.x, color.y, color.z, 1.f);
-		}
-	}
-}
-#pragma endregion
-
-
-
-
-
 #pragma region TexturedEffectShader
-TexturedEffectShader::TexturedEffectShader()
-	: mMaterial(std::make_shared<Material>())
-{
-
-}
-
-void TexturedEffectShader::SetTexture(rsptr<Texture> texture)
-{
-	mMaterial->SetTexture(texture);
-}
-
-
-void TexturedEffectShader::Render()
-{
-	EffectShader::Render();
-}
-
-
-void TexturedEffectShader::UpdateShaderVars()
-{
-	mMaterial->UpdateShaderVars();
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Inst->GetGPUVirtualAddress());
-
-	size_t i = 0;
-	for (auto& [begin, duration] : mActiveGroups) {
-		size_t index = begin;
-		size_t end = begin + mCountPerGroup;
-		for (; index < end; ++index, ++i) {
-			mSBMap_Inst[i].LocalTransform = Matrix4x4::Transpose(mObjects[index]->GetWorldTransform());
-		}
-	}
-}
-
 D3D12_INPUT_LAYOUT_DESC TexturedEffectShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 2;
@@ -548,204 +347,6 @@ D3D12_SHADER_BYTECODE TexturedEffectShader::CreatePixelShader()
 	return Shader::CompileShaderFile(L"PShader_TextureInstance.hlsl", "PSTextureInstancing", "ps_5_1", mPSBlob);
 }
 #pragma endregion
-
-
-
-
-
-#pragma region StaticShader
-void StaticShader::Create()
-{
-	Shader::Create();
-	BuildObjects();
-}
-
-
-
-void SmallExpEffectShader::BuildObjects()
-{
-	constexpr int kToFloat{ 10 };
-
-	constexpr size_t kGroupCount{ 200 };
-	constexpr size_t kCntPerGroup{ 40 };
-	constexpr float kDuration{ 3.f };
-	constexpr float kSize{ 0.4f };
-	constexpr int kMinSpeed{ 10 * kToFloat };
-	constexpr int kMaxSpeed{ 30 * kToFloat };
-	constexpr float kRotationSpeed{ 100.f };
-	constexpr Vec3 kRotationAxis{ 1.f,1.f,1.f };
-
-	std::uniform_int_distribution uid{ kMinSpeed, kMaxSpeed };
-
-	SetLifeTime(kDuration);
-	SetTexture(scene->GetTexture("Metal02"));
-
-	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
-	mesh->CreateCubeMesh(kSize, kSize, kSize, true);
-	EffectShader::BuildObjects(kGroupCount, kCntPerGroup, mesh);
-
-	size_t i{};
-	for (auto& object : mObjects) {
-		float movingSpeed = static_cast<float>(uid(Math::dre)) / kToFloat;
-		Vec3 movingDir{};
-		XMStoreFloat3(&movingDir, RandVectorOnSphere());
-		object->AddComponent<Rigidbody>();
-		const auto& script = object->GetComponent<Script_Fragment>();
-		script->Awake();
-
-		script->SetMovingDir(movingDir);
-		script->SetMovingSpeed(movingSpeed * 2.f);
-		script->SetRotationAxis(kRotationAxis);
-		script->SetRotationSpeed(kRotationSpeed);
-
-		++i;
-	}
-}
-
-
-
-void BigExpEffectShader::BuildObjects()
-{
-	constexpr int kToFloat{ 10 };
-
-	constexpr size_t kGroupCount{ 150 };
-	constexpr size_t kCntPerGroup{ 200 };
-	constexpr float kDuration{ 6.f };
-	constexpr float kSize{ 2.f };
-	constexpr int kMinSpeed{ 5 * kToFloat };
-	constexpr int kMaxSpeed{ 20 * kToFloat };
-	constexpr float kRotationSpeed{ 100.f };
-	constexpr Vec3 kRotationAxis{ 1.f,1.f,1.f };
-
-	std::uniform_int_distribution uid{ kMinSpeed, kMaxSpeed };
-
-	SetLifeTime(kDuration);
-	SetTexture(scene->GetTexture("Metal02"));
-
-	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
-	mesh->CreateCubeMesh(kSize, kSize, kSize, true);
-	EffectShader::BuildObjects(kGroupCount, kCntPerGroup, mesh);
-
-	size_t i{};
-	for (auto& object : mObjects) {
-		float movingSpeed = static_cast<float>(uid(Math::dre)) / kToFloat;
-		Vec3 movingDir{};
-		XMStoreFloat3(&movingDir, RandVectorOnSphere());
-		object->AddComponent<Rigidbody>();
-		const auto& script = object->GetComponent<Script_Fragment>();
-		script->Awake();
-
-		script->SetMovingDir(movingDir);
-		script->SetMovingSpeed(movingSpeed * 6.f);
-		script->SetRotationAxis(kRotationAxis);
-		script->SetRotationSpeed(kRotationSpeed);
-
-		++i;
-	}
-}
-#pragma endregion
-
-
-
-
-
-
-#pragma region BulletShader
-void BulletShader::BuildObjects(rsptr<const MasterModel> model, const Object* owner)
-{
-	constexpr size_t kBufferSize = 100;
-
-	mMesh = model->GetMesh();
-	mObjects.resize(kBufferSize);
-	mObjectScripts.resize(mObjects.size());
-
-	for (size_t i = 0; i < kBufferSize; ++i) {
-		mObjects[i] = std::make_shared<GridObject>();
-		mObjects[i]->SetModel(model);
-		mObjects[i]->AddComponent<Rigidbody>();
-
-		mObjectScripts[i] = mObjects[i]->AddComponent<Script_Bullet>();
-		mObjectScripts[i]->SetOwner(owner);
-	}
-
-	CreateShaderVars();
-}
-
-void BulletShader::SetLifeTime(float bulletLifeTime)
-{
-	for (auto& script : mObjectScripts) {
-		script->SetLifeTime(bulletLifeTime);
-	}
-}
-
-void BulletShader::SetDamage(float damage)
-{
-	for (auto& script : mObjectScripts) {
-		script->SetDamage(damage);
-	}
-}
-
-
-void BulletShader::Awake()
-{
-	for (auto& bullet : mObjects) {
-		bullet->Awake();
-	}
-}
-
-void BulletShader::Update()
-{
-	for (auto& bullet : mBuffer) {
-		bullet->Update();
-		scene->UpdateObjectGrid(bullet.get(), false);
-	}
-}
-
-void BulletShader::Render()
-{
-	mMesh->RenderInstanced(mBuffer.size());
-}
-
-void BulletShader::FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed)
-{
-	sptr<GridObject> bulletObject{};
-	int idx{};
-	for (; idx < mObjects.size(); ++idx) {
-		if (!mObjects[idx]->IsActive()) {
-			bulletObject = mObjects[idx];
-			break;
-		}
-	}
-
-	if (!bulletObject)
-	{
-		return;
-	}
-
-	mObjectScripts[idx]->Fire(pos, dir, up, speed);
-	mBuffer.push_back(bulletObject);
-}
-
-
-void BulletShader::UpdateShaderVars()
-{
-	cmdList->SetGraphicsRootShaderResourceView(scene->GetRootParamIndex(RootParam::Instancing), mSB_Inst->GetGPUVirtualAddress());
-
-	int i{};
-	for (auto it = mBuffer.begin(); it != mBuffer.end(); ) {
-		auto& object = *it;
-		if (!object->IsActive()) {
-			it = mBuffer.erase(it);
-			continue;
-		}
-
-		mSBMap_Inst[i].LocalTransform = Matrix4x4::Transpose(object->GetWorldTransform());
-		++i;
-		++it;
-	}
-}
-#pragma endregion
-
 
 
 
@@ -1015,6 +616,12 @@ PostProcessingShader::PostProcessingShader()
 	mRtvFormats = dxgi->GetRtvFormats().data() + 1;
 }
 
+void PostProcessingShader::Set(int pipelineStateIndex)
+{
+	Shader::Set(pipelineStateIndex);
+	// SRV의 GPU Descriptor Handle을 Set한다.
+	mTextures[0]->UpdateShaderVars();
+}
 
 void PostProcessingShader::CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
@@ -1059,11 +666,6 @@ void PostProcessingShader::Render()
 	cmdList->DrawInstanced(6, 1, 0, 0);
 }
 
-void PostProcessingShader::UpdateShaderVars()
-{
-	// SRV의 GPU Descriptor Handle을 Set한다.
-	mTextures[0]->UpdateShaderVars();
-}
 
 D3D12_DEPTH_STENCIL_DESC PostProcessingShader::CreateDepthStencilState()
 {
@@ -1111,8 +713,6 @@ void PostProcessingShader::CreateTextureResources()
 
 void PostProcessingShader::CreateSrvs()
 {
-	CreateShaderVars();
-
 	for (UINT i = 0; i < mRtvCnt; ++i) {
 		scene->CreateShaderResourceView(mTextures[i].get(), 0);
 		mTextures[i]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::RenderTarget));

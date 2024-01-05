@@ -43,11 +43,9 @@ private:
 
 public:
 	KeyState GetKeyState(int key) const { return mKeys.at(key).State; }
-
-	Vec2 GetMousePos() const { return mMousePos; }
-	Vec2 GetMouseDir() const { return mMouseDir; }
-
-	Vec2 GetMouseDelta() const { return Vec2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y); }
+	Vec2 GetMousePos() const			{ return mMousePos; }
+	Vec2 GetMouseDir() const			{ return mMouseDir; }
+	Vec2 GetMouseDelta() const			{ return Vec2(mMousePos.x - mMousePrevPos.x, mMousePos.y - mMousePrevPos.y); }
 
 public:
 

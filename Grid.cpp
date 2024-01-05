@@ -54,6 +54,10 @@ void Grid::Init(int index, const BoundingBox& bb)
 
 void Grid::AddObject(GridObject* object)
 {
+	if (mObjects.count(object)) {
+		return;
+	}
+
 	mObjects.insert(object);
 
 	switch (object->GetType()) {
@@ -71,6 +75,10 @@ void Grid::AddObject(GridObject* object)
 
 void Grid::RemoveObject(GridObject* object)
 {
+	if (!mObjects.count(object)) {
+		return;
+	}
+
 	mObjects.erase(object);
 
 	switch (object->GetType()) {

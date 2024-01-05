@@ -24,13 +24,13 @@ void Script_AirplanePlayer::Start()
 
 	SetSpawn(Vec3(50.f, 100.f, 50.f));
 	SetHP(150.f);
-	SetDamage(10.f);
-	mObject->GetComponent<Rigidbody>()->SetMass(100.f);
-	mObject->GetComponent<Rigidbody>()->SetFriction(30.f);
+	SetBulletDamage(10.f);
+	SetBulletSpeed(300.f);
 
+	mRigid->SetMass(100.f);
+	mRigid->SetFriction(30.f);
 	mRigid->SetAcc(5000.f);
 	mRigid->SetMaxSpeed(100.f);
-	mBulletSpeed = 300.f;
 }
 
 
@@ -97,11 +97,11 @@ void Script_AirplanePlayer::Rotate(DWORD rotationDir, float angle)
 void Script_AirplanePlayer::FireBullet()
 {
 	if (mGunFirePos) {
-		Vec3 position = mGunFirePos->GetPosition();
+		Vec3 pos = mGunFirePos->GetPosition();
 		Vec3 dir = mGunFirePos->GetLook();
-		Vec3 up = mGunFirePos->GetUp();
+		Vec3 up  = mGunFirePos->GetUp();
 
-		mBulletShader->FireBullet(position, dir, up, mBulletSpeed);
+		base::FireBullet(pos, dir, up);
 	}
 }
 

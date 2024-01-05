@@ -15,13 +15,7 @@ class Script_Bullet;
 #pragma endregion
 
 
-#pragma region Struct
-// Color를 가지는 객체의 인스턴싱 StructuredBuffer
-struct SB_ColorInst {
-	Vec4x4	LocalTransform{};
-	Vec4	Color{};
-};
-#pragma endregion
+
 
 
 #pragma region Class
@@ -58,10 +52,6 @@ protected:
 
 	// [pipelineStateIndex] 의 PipelineState를 설정한다.
 	void SetPipelineState(int pipelineStateIndex = 0);
-
-	virtual void CreateShaderVars() {};
-	virtual void UpdateShaderVars() {};
-	virtual void ReleaseShaderVars() {};
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
@@ -103,173 +93,33 @@ protected:
 
 
 // for rendering instancing GameObjects
-class InstShader : public Shader {
-private:
-	using InstBuff = SB_ColorInst;
+class ColorInstShader : public Shader {
+public:
+	ColorInstShader() = default;
+	virtual ~ColorInstShader() = default;
 
 protected:
-	std::vector<sptr<GridObject>>	mObjects{};			// all objects
-	ComPtr<ID3D12Resource>			mSB_Inst{};			// StructuredBuffer for instance
-	InstBuff*						mSBMap_Inst{};		// mapped StructuredBuffer
-	sptr<const Mesh>				mMesh;				// has only one model mesh
-
-public:
-	InstShader() = default;
-	virtual ~InstShader();
-
-	// set color for all objects
-	void SetColor(const Vec3& color);
-
-public:
-	virtual void Awake();
-	virtual void Update();
-	virtual void Render();
-
-	// create object pool as mush as [instCnt] and set model mesh to [mesh]
-	void BuildObjects(size_t instCnt, rsptr<const Mesh> mesh);
-
-protected:
-	// set SRV that instancing StructuredBuffer
-	void SetShaderResourceView();
-
-	virtual void CreateShaderVars() override;
-	virtual void UpdateShaderVars() override;
-	virtual void ReleaseShaderVars() override;
-
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
-
-
-
-
-
-
-// for rendering 3d effect GameObjects
-class EffectShader : public InstShader {
-
-protected:
-	// mObjects를 그룹으로 나눈다.
-	// 활성화된 그룹
-	// <시작 인덱스(begin), 현재 수명 시간(lifeTime)>
-	std::unordered_map<size_t, float> mActiveGroups{};
-	size_t mGroupSize{};
-	size_t mCountPerGroup{};
-
-	std::vector<sptr<Script_Fragment>> mObjectScripts{};
-
-private:
-	float mMaxLifeTime{};
-
-	std::vector<size_t> mTimeOvers{};	// [mActiveGroups]에서 시간을 초과한 객체의 <시작 인덱스(bgein)>
-
-public:
-	EffectShader()          = default;
-	virtual ~EffectShader() = default;
-
-	void SetLifeTime(float lifeTime) { mMaxLifeTime = lifeTime; }
-
-public:
-	virtual void Update() override;
-	virtual void Render() override;
-
-	void BuildObjects(size_t groupCount, size_t countPerGroup, rsptr<const ModelObjectMesh> mesh);
-
-	// create effect at [pos]
-	void SetActive(const Vec3& pos);
-
-protected:
-	virtual void UpdateShaderVars() override;
-};
-
 
 
 
 
 
 // for rendering 3d effect GameObjects that has texture
-class TexturedEffectShader : public EffectShader {
-private:
-	sptr<Material> mMaterial;	// has only one model material
-	
+class TexturedEffectShader : public ColorInstShader {
 public:
-	TexturedEffectShader();
+	TexturedEffectShader() = default;
 	virtual ~TexturedEffectShader() = default;
 
-	void SetTexture(rsptr<Texture> texture);
-
-public:
-	virtual void Render() override;
-
 protected:
-	virtual void UpdateShaderVars() override;
-
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
-
-
-
-#pragma region StaticShader
-// 이펙트의 형식이 미리 정의된 쉐이더
-// Create 시 이펙트 객체 pool을 자동으로 생성한다.
-class StaticShader abstract : public TexturedEffectShader {
-private:
-	virtual void BuildObjects() abstract;
-
-public:
-	virtual void Create();
-};
-
-// small explosion
-class SmallExpEffectShader : public StaticShader {
-private:
-	virtual void BuildObjects() override;
-};
-
-// big explosion
-class BigExpEffectShader : public StaticShader {
-private:
-	virtual void BuildObjects() override;
-};
-#pragma endregion
-
-
-
-
-
-
-// for bullet GameObjects
-class BulletShader : public InstShader {
-protected:
-	std::vector<sptr<Script_Bullet>> mObjectScripts{};
-
-private:
-	std::list<sptr<GridObject>> mBuffer{};	// 활성화된 객체 리스트 (배열로 변경 필요)
-
-public:
-	BulletShader()          = default;
-	virtual ~BulletShader() = default;
-
-	// create object buffer(pool). set [model], [owner]
-	void BuildObjects(rsptr<const MasterModel> model, const Object* owner);
-	void SetLifeTime(float bulletLifeTime);
-	void SetDamage(float damage);
-
-public:
-	virtual void Awake() override;
-	virtual void Update() override;
-	virtual void Render() override;
-
-	// [pos] 위치에 생성하고 [dir, up]에 따라 look 방향을 결정하고, look 방향으로 [speed]의 속도로 이동하도록 한다.
-	void FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed);
-
-protected:
-	virtual void UpdateShaderVars() override;
-};
 
 
 
@@ -392,6 +242,8 @@ public:
 	virtual ~PostProcessingShader() = default;
 
 public:
+	virtual void Set(int pipelineStateIndex = 0) override;
+
 	// texture resource를 생성하고 이에 대한 SRV와 RTV를 생성한다
 	virtual void CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 
@@ -402,9 +254,6 @@ public:
 
 	// 2D plane을 렌더링한다.
 	virtual void Render();
-
-protected:
-	virtual void UpdateShaderVars() override;
 
 private:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;

@@ -20,7 +20,7 @@
 #include "Texture.h"
 #include "RootSignature.h"
 #include "DescriptorHeap.h"
-#include "Instancing.h"
+#include "ObjectPool.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -35,14 +35,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
 namespace {
-	constexpr int kGridWidthCount = 20 ;						// all grid count = n*n
-	constexpr Vec3 kBorderPos      = Vec3(256, 200, 256);		// center of border
-	constexpr Vec3 kBorderExtents  = Vec3(1500, 500, 1500);		// extents of border
+	constexpr int kGridWidthCount = 20;						// all grid count = n*n
+	constexpr Vec3 kBorderPos = Vec3(256, 200, 256);		// center of border
+	constexpr Vec3 kBorderExtents = Vec3(1500, 500, 1500);		// extents of border
 
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology      = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	constexpr D3D12_PRIMITIVE_TOPOLOGY kTerrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology  = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+	constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 }
 
 Scene::Scene()
@@ -88,7 +88,7 @@ rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
 rsptr<Texture> Scene::GetTexture(const std::string& name) const
 {
 	assert(mTextureMap.contains(name));
-	
+
 	return mTextureMap.at(name);
 }
 
@@ -147,12 +147,12 @@ void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offs
 void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format                        = srvFormat;
-	srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels           = 1;
-	srvDesc.Texture2D.MostDetailedMip     = 0;
-	srvDesc.Texture2D.PlaneSlice          = 0;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = srvFormat;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.PlaneSlice = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
 
 	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
@@ -160,7 +160,7 @@ void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORM
 
 void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
 {
-	ComPtr<ID3D12Resource> resource         = texture->GetResource();
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
 
 	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
@@ -172,24 +172,24 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::GameObjectInfo,		D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	0, D3D12_SHADER_VISIBILITY_ALL,		33);
-	mGraphicsRootSignature->Push(RootParam::Camera,				D3D12_ROOT_PARAMETER_TYPE_CBV,				1, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Light,				D3D12_ROOT_PARAMETER_TYPE_CBV,				2, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->Push(RootParam::GameInfo,			D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	3, D3D12_SHADER_VISIBILITY_ALL,		1);
-	mGraphicsRootSignature->Push(RootParam::SpriteInfo,			D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,	4, D3D12_SHADER_VISIBILITY_VERTEX,	16);
+	mGraphicsRootSignature->Push(RootParam::GameObjectInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, D3D12_SHADER_VISIBILITY_ALL, 33);
+	mGraphicsRootSignature->Push(RootParam::Camera, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Light, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->Push(RootParam::GameInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, D3D12_SHADER_VISIBILITY_ALL, 1);
+	mGraphicsRootSignature->Push(RootParam::SpriteInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 4, D3D12_SHADER_VISIBILITY_VERTEX, 16);
 
-	mGraphicsRootSignature->Push(RootParam::Instancing,			D3D12_ROOT_PARAMETER_TYPE_SRV,				0, D3D12_SHADER_VISIBILITY_VERTEX);
+	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
-	mGraphicsRootSignature->PushTable(RootParam::Texture,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture1,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture2,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture3,		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::RenderTarget,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture3, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::RenderTarget, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
 
-	mGraphicsRootSignature->AddAlias(RootParam::Texture,	RootParam::TerrainLayer0);	// TerrainLayer0는 RootParam::Texture 의 SRV 사용
-	mGraphicsRootSignature->AddAlias(RootParam::Texture1,	RootParam::TerrainLayer1);	// TerrainLayer1는 RootParam::Texture1의 SRV 사용
-	mGraphicsRootSignature->AddAlias(RootParam::Texture2,	RootParam::TerrainLayer2);	// ...
-	mGraphicsRootSignature->AddAlias(RootParam::Texture3,	RootParam::SplatMap);
+	mGraphicsRootSignature->AddAlias(RootParam::Texture, RootParam::TerrainLayer0);	// TerrainLayer0는 RootParam::Texture 의 SRV 사용
+	mGraphicsRootSignature->AddAlias(RootParam::Texture1, RootParam::TerrainLayer1);	// TerrainLayer1는 RootParam::Texture1의 SRV 사용
+	mGraphicsRootSignature->AddAlias(RootParam::Texture2, RootParam::TerrainLayer2);	// ...
+	mGraphicsRootSignature->AddAlias(RootParam::Texture3, RootParam::SplatMap);
 
 	mGraphicsRootSignature->Create();
 }
@@ -284,6 +284,9 @@ void Scene::BuildGlobalShader()
 
 	mTransparentShader = std::make_shared<TransparentShader>();
 	mTransparentShader->Create();
+
+	mBulletShader = std::make_shared<ColorInstShader>();
+	mBulletShader->Create();
 }
 
 void Scene::BuildBoundingShader()
@@ -294,14 +297,12 @@ void Scene::BuildBoundingShader()
 
 void Scene::BuildSmallExpFXShader()
 {
-	mSmallExpFXShader = std::make_shared<SmallExpEffectShader>();
-	mSmallExpFXShader->Create();
+
 }
 
 void Scene::BuildBigExpFXShader()
 {
-	mBigExpFXShader = std::make_shared<BigExpEffectShader>();
-	mBigExpFXShader->Create();
+
 }
 
 void Scene::BuildBillboardShader()
@@ -401,7 +402,7 @@ void Scene::LoadGameObjects(FILE* file)
 
 	int sameObjectCount{};			// get one unique model from same object
 	sptr<MasterModel> model{};
-	sptr<ObjectPool> instBuffer{};
+	sptr<ObjectPool> objectPool{};
 
 	bool isInstancing{};
 	ObjectTag tag{};
@@ -435,14 +436,15 @@ void Scene::LoadGameObjects(FILE* file)
 			FileIO::ReadVal(file, isInstancing);
 
 			if (isInstancing) {
-				instBuffer = std::make_shared<ObjectPool>(model, sameObjectCount);
-				mInstanceBuffers.emplace_back(instBuffer);
+				objectPool = std::make_shared<ObjectPool>(model, sameObjectCount, sizeof(SB_StandardInst));
+				objectPool->CreateObjects<InstObject>();
+				mObjectPools.emplace_back(objectPool);
 			}
 		}
 
 		if (isInstancing) {
 			// 인스턴싱 객체는 생성된 객체를 받아온다.
-			object = instBuffer->Get();
+			object = objectPool->Get(false);
 		}
 		else {
 			object = std::make_shared<GridObject>();
@@ -649,8 +651,6 @@ void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<G
 
 		switch (object->GetTag())
 		{
-		case ObjectTag::Bullet:
-			break;
 		case ObjectTag::Billboard:
 		case ObjectTag::Sprite:
 			billboardObjects.insert(object);
@@ -665,21 +665,14 @@ void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<G
 void Scene::RenderInstanceObjects()
 {
 	mInstShader->Set();
-	for (auto& buffer : mInstanceBuffers) {
+	for (auto& buffer : mObjectPools) {
 		buffer->Render();
 	}
 }
 
 void Scene::RenderFXObjects()
 {
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->Set();
-		mSmallExpFXShader->Render();
-	}
-	if (mBigExpFXShader) {
-		mBigExpFXShader->Set();
-		mBigExpFXShader->Render();
-	}
+
 }
 
 void Scene::RenderEnvironments()
@@ -692,6 +685,7 @@ void Scene::RenderEnvironments()
 
 void Scene::RenderBullets()
 {
+	mBulletShader->Set();
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
 			player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
@@ -773,18 +767,11 @@ void Scene::Start()
 		object->Awake();
 		});
 
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->Awake();
-	}
-
-	if (mBigExpFXShader) {
-		mBigExpFXShader->Awake();
-	}
 
 	/* Enable */
-	mTerrain->Enable();
+	mTerrain->OnEnable();
 	ProcessObjects([](sptr<GameObject> object) {
-		object->Enable();
+		object->OnEnable();
 		});
 
 	/* Start */
@@ -848,21 +835,11 @@ void Scene::UpdateObject(GridObject* object)
 	}
 
 	object->Update();
-
-	if (object->GetType() == ObjectType::DynamicMove) {
-		UpdateObjectGrid(object);
-	}
 }
 
 void Scene::UpdateFXObjects()
 {
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->Update();
-	}
 
-	if (mBigExpFXShader) {
-		mBigExpFXShader->Update();
-	}
 }
 
 
@@ -910,26 +887,18 @@ void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 
 	effect->Awake();
 	effect->Start();
-	effect->Enable();
+	effect->OnEnable();
 	mSpriteEffectObjects.emplace_back(effect);
 }
 
 void Scene::CreateSmallExpFX(const Vec3& pos)
 {
-	if (mSmallExpFXShader) {
-		mSmallExpFXShader->SetActive(pos);
-	}
-
 	CreateSpriteEffect(pos, 0.0001f);
 }
 
 
 void Scene::CreateBigExpFX(const Vec3& pos)
 {
-	if (mBigExpFXShader) {
-		mBigExpFXShader->SetActive(pos);
-	}
-
 	CreateSpriteEffect(pos, 0.025f, 5.f);
 }
 
@@ -1084,59 +1053,63 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 		return;
 	}
 
-	// from grid to another grid
+	// remove object from current grid if move to another grid
 	if (gridIndex != object->GetGridIndex()) {
 		RemoveObjectFromGrid(object);
-
-		object->SetGridIndex(gridIndex);
-	}
- 
-	// BoundingSphere가 Grid 내부에 완전히 포함되면 검사 X
-	const auto& collider = object->GetComponent<ObjectCollider>();
-	if (!collider || !collider->IsActive()) {
-		return;
 	}
 
-	std::unordered_set<int> gridIndices{};
-	const auto& objectBS = collider->GetBS();
-	// 1칸 이내의 인접한 그리드와 충돌검사
-	if (isCheckAdj && mGrids[gridIndex].GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
-		const int gridX = gridIndex % mGridCols;
-		const int gridZ = gridIndex / mGridCols;
 
-		for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
-			for (int offsetX = -1; offsetX <= 1; ++offsetX) {
-				const int neighborX = gridX + offsetX;
-				const int neighborZ = gridZ + offsetZ;
+	// ObjectCollider가 활성화된 경우
+	// 1칸 이내의 "인접 그리드(8개)와 충돌검사"
+	const auto& collider = object->GetCollider();
+	if(collider) {
+		std::unordered_set<int> gridIndices{};
+		const auto& objectBS = collider->GetBS();
 
-				// 인덱스가 전체 그리드 범위 내에 있는지 확인
-				if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
-					const int neighborIndex = neighborZ * mGridCols + neighborX;
+		// BoundingSphere가 Grid 내부에 완전히 포함되면 "인접 그리드 충돌검사" X
+		if (isCheckAdj && mGrids[gridIndex].GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
+			const int gridX = gridIndex % mGridCols;
+			const int gridZ = gridIndex / mGridCols;
 
-					if (mGrids[neighborIndex].GetBB().Intersects(objectBS)) {
-						mGrids[neighborIndex].AddObject(object);
-						gridIndices.insert(neighborIndex);
-					}
-					else {
-						mGrids[neighborIndex].RemoveObject(object);
+			for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
+				for (int offsetX = -1; offsetX <= 1; ++offsetX) {
+					const int neighborX = gridX + offsetX;
+					const int neighborZ = gridZ + offsetZ;
+
+					// 인덱스가 전체 그리드 범위 내에 있는지 확인
+					if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
+						const int neighborIndex = neighborZ * mGridCols + neighborX;
+
+						if (neighborIndex == gridIndex) {
+							continue;
+						}
+
+						if (mGrids[neighborIndex].GetBB().Intersects(objectBS)) {
+							mGrids[neighborIndex].AddObject(object);
+							gridIndices.insert(neighborIndex);
+						}
+						else {
+							mGrids[neighborIndex].RemoveObject(object);
+						}
 					}
 				}
 			}
+
+			object->SetGridIndices(gridIndices);
 		}
 	}
-	else {
-		gridIndices.insert(gridIndex);
-		mGrids[gridIndex].AddObject(object);
-	}
 
-	object->SetGridIndices(gridIndices);
+	object->SetGridIndex(gridIndex);
+	mGrids[gridIndex].AddObject(object);
 }
 
 
 void Scene::RemoveObjectFromGrid(GridObject* object)
 {
-	for (const int index : object->GetGridIndices()) {
-		mGrids[index].RemoveObject(object);
+	for (const int gridIndex : object->GetGridIndices()) {
+		if (!IsGridOutOfRange(gridIndex)) {
+			mGrids[gridIndex].RemoveObject(object);
+		}
 	}
 
 	object->ClearGridIndices();

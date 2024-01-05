@@ -14,8 +14,8 @@ public:
 	GraphicsRootSignature();
 	virtual ~GraphicsRootSignature() = default;
 
-	RComPtr<ID3D12RootSignature> Get() const { return mRootSignature; }
-	UINT GetRootParamIndex(RootParam param) const { return mParamMap.at(param); }
+	RComPtr<ID3D12RootSignature> Get() const		{ return mRootSignature; }
+	UINT GetRootParamIndex(RootParam param) const	{ return mParamMap.at(param); }
 
 public:
 	// 별칭을 추가해 하나의 root parameter를 여러 이름으로 접근할 수 있게 한다.

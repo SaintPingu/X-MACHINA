@@ -287,7 +287,7 @@ void Terrain::Render()
 	ResetBuffer();
 }
 
-void Terrain::Enable()
+void Terrain::OnEnable()
 {
 	for (auto& terrain : mTerrains) {
 		terrain->OnEnable();

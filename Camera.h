@@ -98,7 +98,7 @@ public:
 	virtual ~CameraObject() = default;
 
 	rsptr<Camera> GetCamera() const { return mCamera; }
-	float GetMovingSpeed() const { return mMovingSpeed; }
+	float GetMovingSpeed() const	{ return mMovingSpeed; }
 
 	void SetMovingSpeed(float speed) { mMovingSpeed = speed; }
 

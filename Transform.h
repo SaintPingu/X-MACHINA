@@ -41,17 +41,17 @@ public:
 #pragma region Getter
 	/* Position */
 	// gets the position in world space 
-	Vec3 GetPosition()      const { return Vec3(mWorldTransform._41, mWorldTransform._42, mWorldTransform._43); }
+	Vec3 GetPosition()      const	{ return Vec3(mWorldTransform._41, mWorldTransform._42, mWorldTransform._43); }
 	// gets the position in local space 
-	Vec3 GetLocalPosition() const { return mPosition; }
+	Vec3 GetLocalPosition() const	{ return mPosition; }
 
 	/* Axis */
 	// returns a right(x) axis in world space
-	Vec3 GetRight() const { return Vector3::Normalize(Vec3(mWorldTransform._11, mWorldTransform._12, mWorldTransform._13)); }
+	Vec3 GetRight() const			{ return Vector3::Normalize(Vec3(mWorldTransform._11, mWorldTransform._12, mWorldTransform._13)); }
 	// returns a up(y) axis in world space
-	Vec3 GetUp()    const { return Vector3::Normalize(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
+	Vec3 GetUp()    const			{ return Vector3::Normalize(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
 	// returns a look(z) axis in world space
-	Vec3 GetLook()  const { return Vector3::Normalize(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
+	Vec3 GetLook()  const			{ return Vector3::Normalize(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
 	// [dwDirection]에 따른 이 Transform의 diretion을 반환한다.
 	// [dwDirection]=Right&Front ==> return mRight + mLook
 	Vec3 GetDirection(DWORD dwDirection, float distance = 1.f) const;
@@ -59,12 +59,12 @@ public:
 	/* Transform */
 	const Vec4x4& GetWorldTransform() const { return mWorldTransform; }
 	const Vec4x4& GetLocalTransform() const { return mLocalTransform; }
-	float GetPitch() const { return mPitch; }
-	float GetYaw()   const { return mYaw; }
-	float GetRoll()  const { return mRoll; }
+	float GetPitch() const					{ return mPitch; }
+	float GetYaw()   const					{ return mYaw; }
+	float GetRoll()  const					{ return mRoll; }
 
 	/* Others */
-	Transform* GetParent() const { return mParent; }
+	Transform* GetParent() const			{ return mParent; }
 #pragma endregion
 
 #pragma region Setter

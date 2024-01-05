@@ -67,8 +67,7 @@ private:
 	sptr<Shader> mSpriteShader{};
 	sptr<Shader> mInstShader{};		// for InstObjects
 	sptr<Shader> mTransparentShader{};
-	sptr<StaticShader> mSmallExpFXShader{};	// bullet fragments, ...
-	sptr<StaticShader> mBigExpFXShader{};	// building fragments, ...
+	sptr<Shader> mBulletShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};
@@ -76,7 +75,7 @@ private:
 	std::vector<sptr<GridObject>> mStaticObjects{};
 	std::list<sptr<GridObject>> mExplosiveObjects{};		// dynamic
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
-	std::vector<sptr<ObjectPool>> mInstanceBuffers{};
+	std::vector<sptr<ObjectPool>> mObjectPools{};
 
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};

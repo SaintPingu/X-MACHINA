@@ -83,12 +83,12 @@ protected:
 
 public:
 #pragma region Getter
-	RComPtr<ID3D12Device> GetDevice() const { return mDevice; }
-	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const { return mCmdList; }
-	HWND GetHwnd() const { return mWnd; }
-	const auto& GetRtvFormats() const { return mRtvFormats; }
-	UINT GetCbvSrvDescriptorIncSize() const { return mCbvSrvDescriptorIncSize; }
-	UINT GetRtvDescriptorIncSize() const { return mRtvDescriptorIncSize; }
+	HWND GetHwnd() const									{ return mWnd; }
+	RComPtr<ID3D12Device> GetDevice() const					{ return mDevice; }
+	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const	{ return mCmdList; }
+	const auto& GetRtvFormats() const						{ return mRtvFormats; }
+	UINT GetCbvSrvDescriptorIncSize() const					{ return mCbvSrvDescriptorIncSize; }
+	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
 #pragma endregion
 
 #pragma region Setter

@@ -25,8 +25,8 @@ public:
 	DescriptorHeap()          = default;
 	virtual ~DescriptorHeap() = default;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() const { return mHeap->GetCPUDescriptorHandleForHeapStart(); }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const { return mHeap->GetGPUDescriptorHandleForHeapStart(); }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() const		 { return mHeap->GetCPUDescriptorHandleForHeapStart(); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const		 { return mHeap->GetGPUDescriptorHandleForHeapStart(); }
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUCbvStartHandle() const { return mCbvHandle.CpuStart; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvStartHandle() const { return mCbvHandle.GpuStart; }

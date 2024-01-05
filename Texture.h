@@ -34,9 +34,9 @@ public:
 	Texture(D3DResource resourceType);
 	virtual ~Texture() = default;
 
-	const std::string& GetName() const { return mName; }
-	ComPtr<ID3D12Resource> GetResource() const { return mTexture; }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle() const { return mSrvDescriptorHandle; }
+	const std::string& GetName() const							{ return mName; }
+	ComPtr<ID3D12Resource> GetResource() const					{ return mTexture; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle() const  { return mSrvDescriptorHandle; }
 	// 현재 resource에 따른 SRV_DESC을 반환한다.
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc() const;
 

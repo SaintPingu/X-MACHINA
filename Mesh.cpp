@@ -6,7 +6,7 @@
 #include "Model.h"
 #include "Shader.h"
 #include "Scene.h"
-#include "Instancing.h"
+#include "ObjectPool.h"
 
 
 #include "Script_Sprite.h"
@@ -533,20 +533,20 @@ void MergedMesh::Render(const GameObject* object) const
 	Render(object->GetMergedTransform());
 }
 
-void MergedMesh::Render(const ObjectPool* instBuffer) const
+void MergedMesh::Render(const ObjectPool* objectPool) const
 {
-	if (!instBuffer) {
+	if (!objectPool) {
 		return;
 	}
 
-	UINT instanceCnt = instBuffer->GetInstanceCnt();
+	UINT instanceCnt = objectPool->GetInstanceCnt();
 	if (instanceCnt <= 0) {
 		return;
 	}
 
-	instBuffer->UpdateShaderVars();
+	objectPool->UpdateShaderVars();
 
-	Render(instBuffer->GetMergedTransform(), instanceCnt);
+	Render(objectPool->GetMergedTransform(), instanceCnt);
 }
 
 

@@ -9,7 +9,7 @@
 #include "Scene.h"
 #include "Timer.h"
 #include "Collider.h"
-#include "Instancing.h"
+#include "ObjectPool.h"
 
 #include "Script_Apache.h"
 #include "Script_Gunship.h"
@@ -17,7 +17,7 @@
 
 
 
-#pragma region GameObjec
+#pragma region GameObject
 rsptr<Texture> GameObject::GetTexture() const
 {
 	return mMasterModel->GetTexture();
@@ -46,36 +46,17 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 }
 
 
+void GameObject::Update()
+{
+	base::Update();
+}
+
 void GameObject::Render()
 {
 	if (mMasterModel) {
 		mMasterModel->Render(this);
 	}
 }
-
-void GameObject::Update()
-{
-	if (!IsActive()) {
-		return;
-	}
-
-	base::Update();
-}
-
-void GameObject::Enable()
-{
-	mIsActive = true;
-
-	base::OnEnable();
-}
-
-void GameObject::Disable()
-{
-	base::OnDisable();
-
-	mIsActive = false;
-}
-
 
 Transform* GameObject::FindFrame(const std::string& frameName)
 {
@@ -116,19 +97,26 @@ void GameObject::AttachToGround()
 #pragma region GridObject
 GridObject::GridObject()
 	:
-	mCollider(AddComponent<ObjectCollider>())
+	mCollider(AddComponent<ObjectCollider>().get())
 {
 
 }
 
-void GridObject::Enable()
+void GridObject::Update()
 {
-	scene->UpdateObjectGrid(this);
+	base::Update();
 
+	UpdateGrid();
+}
+
+void GridObject::OnEnable()
+{
 	base::OnEnable();
+
+	UpdateGrid();
 }
 
-void GridObject::Disable()
+void GridObject::OnDisable()
 {
 	base::OnDisable();
 
@@ -137,9 +125,20 @@ void GridObject::Disable()
 
 void GridObject::RenderBounds()
 {
-	if (mIsDrawBounding) {
+	if (mIsDrawBounding && mCollider) {
 		GetComponent<ObjectCollider>()->Render();
 	}
+}
+
+void GridObject::UpdateGrid()
+{
+	scene->UpdateObjectGrid(this);
+}
+
+void GridObject::RemoveCollider()
+{
+	RemoveComponent<ObjectCollider>();
+	mCollider = nullptr;
 }
 #pragma endregion
 
@@ -148,11 +147,23 @@ void GridObject::RenderBounds()
 
 
 #pragma region InstObject
-void InstObject::SetBuffer(ObjectPool* buffer, int id)
+InstObject::InstObject(ObjectPool* pool, int id)
+	:
+	mObjectPool(pool),
+	mPoolID(id)
 {
-	mBuffer = buffer;
-	mPoolID = id;
+	
+}
 
+
+void InstObject::OnDestroy()
+{
+	base::OnDestroy();
+	mObjectPool->Return(this);
+}
+
+void InstObject::SetUpdateFunc()
+{
 	switch (mType) {
 	case ObjectType::DynamicMove:
 		mUpdateFunc = [this]() { UpdateDynamic(); };
@@ -164,21 +175,20 @@ void InstObject::SetBuffer(ObjectPool* buffer, int id)
 	}
 }
 
-
-void InstObject::OnDestroy()
+void InstObject::PushFunc(void* structuredBuffer) const
 {
-	base::OnDestroy();
-	mBuffer->Return(this);
+	SB_StandardInst* data = static_cast<SB_StandardInst*>(structuredBuffer);
+	XMStoreFloat4x4(&data->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
 }
 
-void InstObject::Push()
+void InstObject::PushRender()
 {
 	if (mIsPushed) {
 		return;
 	}
 
 	mIsPushed = true;
-	mBuffer->PushObject(this);
+	mObjectPool->PushRender(this);
 }
 
 void InstObject::UpdateStatic()
@@ -189,5 +199,23 @@ void InstObject::UpdateDynamic()
 {
 	base::Update();
 	Pop();
+}
+#pragma endregion
+
+
+
+
+
+#pragma region InstBulletObject
+void InstBulletObject::PushFunc(void* structuredBuffer) const
+{
+	SB_ColorInst* buffer = static_cast<SB_ColorInst*>(structuredBuffer);
+	XMStoreFloat4x4(&buffer->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
+	buffer->Color = Vec4(1, 1, 0, 1);
+}
+
+void InstBulletObject::UpdateGrid()
+{
+	scene->UpdateObjectGrid(this, false);
 }
 #pragma endregion

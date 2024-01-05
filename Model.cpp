@@ -150,9 +150,9 @@ void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>
 	mMesh->MergeMesh(mesh, materials);
 }
 
-void MasterModel::Render(const ObjectPool* instBuffer) const
+void MasterModel::Render(const ObjectPool* objectPool) const
 {
-	mMesh->Render(instBuffer);
+	mMesh->Render(objectPool);
 }
 
 void MasterModel::CopyModelHierarchy(GameObject* object) const

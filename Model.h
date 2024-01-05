@@ -116,9 +116,9 @@ public:
 	MasterModel();
 	virtual ~MasterModel() = default;
 
-	const Transform* GetTransform() const { return mModel.get(); }
-	const std::string& GetName() const { return mModel->GetName(); }
-	rsptr<MergedMesh> GetMesh() const { return mMesh; }
+	const Transform* GetTransform() const	{ return mModel.get(); }
+	const std::string& GetName() const		{ return mModel->GetName(); }
+	rsptr<MergedMesh> GetMesh() const		{ return mMesh; }
 	rsptr<Texture> GetTexture() const;
 
 	// 모델을 스프라이트로 설정한다.
@@ -135,8 +135,8 @@ public:
 
 	// render single [object]
 	void Render(const GameObject* object) const { RenderFunc(object); }
-	// render instancing objects from [instBuffer]
-	void Render(const ObjectPool* instBuffer = nullptr) const;
+	// render instancing objects from [objectPool]
+	void Render(const ObjectPool* objectPool = nullptr) const;
 
 	// Model의 trasnform 계층구조를 [object]에 복사한다.
 	// call Model::CopyModelHierarchy()

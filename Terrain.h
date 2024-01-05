@@ -69,8 +69,8 @@ public:
 	Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength);
 	virtual ~Terrain() = default;
 
-	int GetWidth() const { return mWidth; }
-	int GetLength() const { return mLength; }
+	int GetWidth() const	{ return mWidth; }
+	int GetLength() const	{ return mLength; }
 	int GetHeightMapWidth() const;
 	int GetHeightMapLength() const;
 
@@ -78,7 +78,7 @@ public:
 	Vec3 GetNormal(float x, float z) const;
 
 public:
-	void Enable();
+	void OnEnable();
 	void Awake();
 
 	// update all terrain block's grid index

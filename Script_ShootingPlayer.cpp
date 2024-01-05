@@ -1,34 +1,27 @@
 #include "stdafx.h"
 #include "Script_Player.h"
+#include "InputMgr.h"
+
 #include "Camera.h"
 #include "Shader.h"
 #include "Model.h"
 #include "Timer.h"
-#include "InputMgr.h"
+#include "Object.h"
+#include "Rigidbody.h"
+#include "ObjectPool.h"
 
+#include "Script_Bullet.h"
 
-
-void Script_ShootingPlayer::Awake()
-{
-	base::Awake();
-
-	if (mBulletShader) {
-		mBulletShader->Awake();
-	}
-}
-
-void Script_ShootingPlayer::Start()
-{
-	base::Start();
-}
 
 
 void Script_ShootingPlayer::Update()
 {
 	base::Update();
 
-	if (mBulletShader) {
-		mBulletShader->Update();
+	if (mBulletPool) {
+		mBulletPool->DoActiveObjects([this](rsptr<InstObject> object) {
+			object->Update();
+			});
 
 		mCurrFireDelay += DeltaTime();
 		if (mIsShooting) {
@@ -53,32 +46,37 @@ void Script_ShootingPlayer::ProcessInput()
 }
 
 
-void Script_ShootingPlayer::SetDamage(float damage)
-{
-	if (mBulletShader) {
-		mBulletShader->SetDamage(damage);
-	}
-}
-
-
 void Script_ShootingPlayer::RenderBullets() const
 {
-	if (mBulletShader) {
-		mBulletShader->Set();
-		mBulletShader->Render();
+	if (mBulletPool) {
+		mBulletPool->Render();
 	}
 }
 
 
 void Script_ShootingPlayer::CreateBullets(rsptr<const MasterModel> bulletModel)
 {
-	static constexpr float kBulletLifeTime = 10.f;
+	constexpr int kBulletPoolSize = 10;
 
-	mBulletShader = std::make_shared<BulletShader>();
-	mBulletShader->Create();
-	mBulletShader->BuildObjects(bulletModel, mObject);
-	mBulletShader->SetLifeTime(kBulletLifeTime);
+	mBulletPool = std::make_shared<ObjectPool>(bulletModel, kBulletPoolSize, sizeof(SB_ColorInst));
+	mBulletPool->CreateObjects<InstBulletObject>([this](rsptr<InstObject> object) { InitBullet(object); });
+}
 
-	constexpr Vec3 kColor{ 1.f, 1.f, 0.f };
-	mBulletShader->SetColor(Vec3(kColor.x, kColor.y, kColor.z));
+void Script_ShootingPlayer::InitBullet(rsptr<InstObject> object)
+{
+	constexpr float kBulletLifeTime = 3.f;
+
+	object->SetTag(ObjectTag::Bullet);
+	object->AddComponent<Rigidbody>();
+	const auto& script_bullet = object->AddComponent<Script_Bullet>();
+	script_bullet->SetOwner(mObject);
+	script_bullet->SetLifeTime(kBulletLifeTime);
+}
+
+void Script_ShootingPlayer::FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up)
+{
+	const auto& bullet = mBulletPool->Get();
+	if (bullet) {
+		bullet->GetComponent<Script_Bullet>()->Fire(pos, dir, up, mBulletSpeed);
+	}
 }

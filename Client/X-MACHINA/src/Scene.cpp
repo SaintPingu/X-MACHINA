@@ -338,7 +338,7 @@ void Scene::BuildTerrain()
 {
 	constexpr int kTerrainGridLength = (gkTerrainLength - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
 
-	mTerrain = std::make_shared<Terrain>(L"HeightMap.raw", gkTerrainLength, gkTerrainLength, kTerrainGridLength, kTerrainGridLength);
+	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap.raw", gkTerrainLength, gkTerrainLength, kTerrainGridLength, kTerrainGridLength);
 
 	BuildGrid();
 }

@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "DirectX12_Project.h"
+#include "X-MACHINA.h"
 #include "GameFramework.h"
 #include "InputMgr.h"
 
@@ -35,12 +35,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	HACCEL hAccelTable;
 
 	::LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	::LoadString(hInstance, IDC_DIRECTX12PROJECT, szWindowClass, MAX_LOADSTRING);
+	::LoadString(hInstance, IDC_XMACHINA, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
 	if (!InitInstance(hInstance, nCmdShow)) return FALSE;
 
-	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DIRECTX12PROJECT));
+	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_XMACHINA));
 
 #if defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -85,7 +85,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DIRECTX12PROJECT));
+	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_XMACHINA));
 	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;//MAKEINTRESOURCE(IDC_DIRECTX12PROJECT);

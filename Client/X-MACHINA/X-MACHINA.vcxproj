@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{169ac606-9470-4e8e-9701-a669bd880ab0}</ProjectGuid>
-    <RootNamespace>DirectX12Project</RootNamespace>
+    <ProjectGuid>{abc42c96-9724-4155-b1f5-324509599365}</ProjectGuid>
+    <RootNamespace>XMACHINA</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -106,6 +112,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,6 +129,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,98 +139,101 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Collider.h" />
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="DDSTextureLoader12.h" />
-    <ClInclude Include="DescriptorHeap.h" />
-    <ClInclude Include="DirectX12_Project.h" />
-    <ClInclude Include="DXGIMgr.h" />
-    <ClInclude Include="FileIO.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="GameFramework.h" />
-    <ClInclude Include="Grid.h" />
-    <ClInclude Include="InputMgr.h" />
-    <ClInclude Include="ObjectPool.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshRenderer.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="Rigidbody.h" />
-    <ClInclude Include="RootSignature.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Script_Apache.h" />
-    <ClInclude Include="Script_Billboard.h" />
-    <ClInclude Include="Script_Bullet.h" />
-    <ClInclude Include="Script_ExplosiveObject.h" />
-    <ClInclude Include="Script_Fragment.h" />
-    <ClInclude Include="Script_Gunship.h" />
-    <ClInclude Include="Script_MainCamera.h" />
-    <ClInclude Include="Script_Player.h" />
-    <ClInclude Include="Script_Sprite.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Singleton.h" />
-    <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="Terrain.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Transform.h" />
-    <ClInclude Include="UI.h" />
+    <ResourceCompile Include="X-MACHINA.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Collider.cpp" />
-    <ClCompile Include="Component.cpp" />
-    <ClCompile Include="DDSTextureLoader12.cpp" />
-    <ClCompile Include="DescriptorHeap.cpp" />
-    <ClCompile Include="DirectX12_Project.cpp" />
-    <ClCompile Include="DXGIMgr.cpp" />
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="GameFramework.cpp" />
-    <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="InputMgr.cpp" />
-    <ClCompile Include="ObjectPool.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshRenderer.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Rigidbody.cpp" />
-    <ClCompile Include="RootSignature.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Script_AirplanePlayer.cpp" />
-    <ClCompile Include="Script_Apache.cpp" />
-    <ClCompile Include="Script_Billboard.cpp" />
-    <ClCompile Include="Script_Bullet.cpp" />
-    <ClCompile Include="Script_ExplosiveObject.cpp" />
-    <ClCompile Include="Script_Fragment.cpp" />
-    <ClCompile Include="Script_Gunship.cpp" />
-    <ClCompile Include="Script_MainCamera.cpp" />
-    <ClCompile Include="Script_Player.cpp" />
-    <ClCompile Include="Script_ShootingPlayer.cpp" />
-    <ClCompile Include="Script_Sprite.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SkyBox.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <Image Include="small.ico" />
+    <Image Include="X-MACHINA.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Collider.cpp" />
+    <ClCompile Include="src\Component.cpp" />
+    <ClCompile Include="src\DDSTextureLoader12.cpp" />
+    <ClCompile Include="src\DescriptorHeap.cpp" />
+    <ClCompile Include="src\DXGIMgr.cpp" />
+    <ClCompile Include="src\FileIO.cpp" />
+    <ClCompile Include="src\GameFramework.cpp" />
+    <ClCompile Include="src\Grid.cpp" />
+    <ClCompile Include="src\InputMgr.cpp" />
+    <ClCompile Include="src\Light.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\MeshRenderer.cpp" />
+    <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\ObjectPool.cpp" />
+    <ClCompile Include="src\Rigidbody.cpp" />
+    <ClCompile Include="src\RootSignature.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\Script_AirplanePlayer.cpp" />
+    <ClCompile Include="src\Script_Apache.cpp" />
+    <ClCompile Include="src\Script_Billboard.cpp" />
+    <ClCompile Include="src\Script_Bullet.cpp" />
+    <ClCompile Include="src\Script_ExplosiveObject.cpp" />
+    <ClCompile Include="src\Script_Fragment.cpp" />
+    <ClCompile Include="src\Script_Gunship.cpp" />
+    <ClCompile Include="src\Script_MainCamera.cpp" />
+    <ClCompile Include="src\Script_Player.cpp" />
+    <ClCompile Include="src\Script_ShootingPlayer.cpp" />
+    <ClCompile Include="src\Script_Sprite.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\SkyBox.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="UI.cpp" />
+    <ClCompile Include="src\Terrain.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
+    <ClCompile Include="src\UI.cpp" />
+    <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="DirectX12_Project.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="DirectX12_Project.ico" />
-    <Image Include="small.ico" />
+    <ClInclude Include="header\stdafx.h" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Collider.h" />
+    <ClInclude Include="include\Component.h" />
+    <ClInclude Include="include\d3dx12.h" />
+    <ClInclude Include="include\DDSTextureLoader12.h" />
+    <ClInclude Include="include\DescriptorHeap.h" />
+    <ClInclude Include="include\DirectX12_Project.h" />
+    <ClInclude Include="include\DXGIMgr.h" />
+    <ClInclude Include="include\FileIO.h" />
+    <ClInclude Include="include\framework.h" />
+    <ClInclude Include="include\GameFramework.h" />
+    <ClInclude Include="include\Grid.h" />
+    <ClInclude Include="include\InputMgr.h" />
+    <ClInclude Include="include\Light.h" />
+    <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\MeshRenderer.h" />
+    <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\Object.h" />
+    <ClInclude Include="include\ObjectPool.h" />
+    <ClInclude Include="include\Resource.h" />
+    <ClInclude Include="include\Rigidbody.h" />
+    <ClInclude Include="include\RootSignature.h" />
+    <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\Script_Apache.h" />
+    <ClInclude Include="include\Script_Billboard.h" />
+    <ClInclude Include="include\Script_Bullet.h" />
+    <ClInclude Include="include\Script_ExplosiveObject.h" />
+    <ClInclude Include="include\Script_Fragment.h" />
+    <ClInclude Include="include\Script_Gunship.h" />
+    <ClInclude Include="include\Script_MainCamera.h" />
+    <ClInclude Include="include\Script_Player.h" />
+    <ClInclude Include="include\Script_Sprite.h" />
+    <ClInclude Include="include\Shader.h" />
+    <ClInclude Include="include\Singleton.h" />
+    <ClInclude Include="include\SkyBox.h" />
+    <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\Terrain.h" />
+    <ClInclude Include="include\Texture.h" />
+    <ClInclude Include="include\Timer.h" />
+    <ClInclude Include="include\Transform.h" />
+    <ClInclude Include="include\UI.h" />
+    <ClInclude Include="include\X-MACHINA.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Light.hlsl">

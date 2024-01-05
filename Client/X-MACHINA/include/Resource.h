@@ -1,17 +1,17 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
-// 다음에서 사용 DirectX12_Project.rc
+// 다음에서 사용 X-MACHINA.rc
 
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_DIRECTX12PROJECT_DIALOG	102
+#define IDD_XMACHINA_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_DIRECTX12PROJECT			107
+#define IDI_XMACHINA			107
 #define IDI_SMALL				108
-#define IDC_DIRECTX12PROJECT			109
+#define IDC_XMACHINA			109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1

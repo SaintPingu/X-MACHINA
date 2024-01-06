@@ -7,6 +7,8 @@
 #include "Light.h"
 #include "Collider.h"
 #include "Texture.h"
+#include "AnimationClip.h"
+#include "AnimationController.h"
 
 
 namespace {
@@ -132,8 +134,8 @@ namespace {
 			break;
 			case Hash("</Mesh>"):
 				isEOF = true;
-				break;
 
+			break;
 			default:
 				assert(0);
 				break;
@@ -317,6 +319,17 @@ namespace {
 			}
 
 			break;
+			case Hash("<SkinMesh>:"):
+			{
+				sptr<MeshLoadInfo> meshInfo = ::LoadMesh(file);
+
+				sptr<SkinMesh> skinMesh = std::make_shared<SkinMesh>();
+				skinMesh->LoadSkinMesh(file);
+
+				model->SetMeshInfo(meshInfo);
+			}
+
+			break;
 			case Hash("<Materials>:"):
 			{
 				model->SetMaterials(::LoadMaterial(file));
@@ -415,6 +428,44 @@ namespace FileIO {
 		masterModel->SetModel(model);
 
 		return masterModel;
+	}
+
+
+	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
+	{
+		std::string token;
+		FileIO::ReadString(file, token);	// <AnimationClips>:
+		int clipCnt = FileIO::ReadVal<int>(file);
+		animationInfo->mAnimationClips.resize(clipCnt);
+		for (int i = 0; i < clipCnt; ++i) {
+			FileIO::ReadString(file, token);	// Animation Clip Name
+			animationInfo->mAnimationClips[i] = FileIO::LoadAnimationClip(token);
+		}
+	}
+
+
+	sptr<AnimationClip> LoadAnimationClip(const std::string& fileName)
+	{
+		FILE* file = nullptr;
+		::fopen_s(&file, fileName.c_str(), "rb");
+		::rewind(file);
+
+		std::string clipName;
+		FileIO::ReadString(file, clipName); //Animation Set Name
+
+		float length    = FileIO::ReadVal<float>(file);
+		int frameRate   = FileIO::ReadVal<int>(file);
+		int keyFrameCnt = FileIO::ReadVal<int>(file);
+		int boneCnt		= FileIO::ReadVal<int>(file);
+
+		sptr<AnimationClip> clip = std::make_shared<AnimationClip>(length, frameRate, keyFrameCnt, boneCnt, clipName);
+
+		for (int i = 0; i < keyFrameCnt; i++) {
+			FileIO::ReadVal(file, clip->mKeyFrameTimes[i]);
+			FileIO::ReadRange(file, clip->mKeyFrameTransforms[i], clip->mBoneCnt);
+		}
+
+		return clip;
 	}
 
 

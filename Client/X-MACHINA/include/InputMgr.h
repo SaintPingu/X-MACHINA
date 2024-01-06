@@ -28,7 +28,7 @@ struct KeyInfo {
 
 #pragma region Class
 class InputMgr : public Singleton<InputMgr> {
-	friend class Singleton;
+	friend Singleton;
 
 private:
 	std::unordered_map<int, KeyInfo> mKeys{};

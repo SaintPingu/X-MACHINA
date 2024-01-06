@@ -1,7 +1,9 @@
 #pragma once
 
 // usage :
-// class SampleClass : public Singleton<SampleClass> { ...
+// class SampleClass : public Singleton<SampleClass> {
+//		friend Singleton
+// };
 template<class T>
 class Singleton {
 private:
@@ -19,12 +21,12 @@ private:
 protected:
 	Singleton() { std::atexit(CheckDestroy); }
 	~Singleton() = default;
-
+		
 public:
-	Singleton(const Singleton&) = delete;
-	Singleton(Singleton&&) = delete;
-	Singleton& operator=(const Singleton&) = delete;
-	Singleton& operator=(Singleton&&) = delete;
+	Singleton(const Singleton&)				= delete;
+	Singleton(Singleton&&)					= delete;
+	Singleton& operator=(const Singleton&)	= delete;
+	Singleton& operator=(Singleton&&)		= delete;
 
 public:
 	static T* Inst()

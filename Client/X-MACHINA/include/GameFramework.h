@@ -3,7 +3,7 @@
 #define framework Framework::Inst()
 
 class Framework : public Singleton<Framework> {
-	friend class Singleton;
+	friend Singleton;
 
 private:
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열

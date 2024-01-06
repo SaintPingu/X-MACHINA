@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #pragma region ClassForwardDecl
 class Material;
 class Texture;
@@ -22,9 +20,11 @@ enum class VertexType : DWORD {
 	BiTangent = 0x10,
 	UV0       = 0x20,
 	UV1       = 0x40,
+	Weight    = 0x80,
 };
 #pragma endregion
 
+constexpr int gkSkinBoneSize = 128;
 
 #pragma region Struct
 // (계층 구조에서)한 프레임이 가지는 메쉬 정보
@@ -69,23 +69,18 @@ protected:
 	ComPtr<ID3D12Resource> mVertexBuffer{};
 	ComPtr<ID3D12Resource> mVertexUploadBuffer{};
 
-	UINT mNormalCnt{};
 	ComPtr<ID3D12Resource> mNormalBuffer{};
 	ComPtr<ID3D12Resource> mNormalUploadBuffer{};
 
-	UINT mUV0Cnt{};
 	ComPtr<ID3D12Resource> mUV0Buffer{};
 	ComPtr<ID3D12Resource> mUV0UploadBuffer{};
 
-	UINT mUV1Cnt{};
 	ComPtr<ID3D12Resource> mUV1Buffer{};
 	ComPtr<ID3D12Resource> mUV1UploadBuffer{};
 
-	UINT mTangentCnt{};
 	ComPtr<ID3D12Resource> mTangentBuffer{};
 	ComPtr<ID3D12Resource> mTangentUploadBuffer{};
 
-	UINT mBiTangentCnt{};
 	ComPtr<ID3D12Resource> mBiTangentBuffer{};
 	ComPtr<ID3D12Resource> mBiTangentUploadBuffer{};
 
@@ -176,5 +171,53 @@ private:
 	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelInfo);
 
 	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt = 1) const;
+};
+
+
+
+
+
+class SkinMesh : public Mesh {
+public:
+	SkinMesh() = default;
+	virtual ~SkinMesh() = default;
+
+protected:
+	static constexpr int kBonesPerVertex = 4;
+
+	std::vector<XMINT4> mBoneIndices;
+	std::vector<Vec4> mBoneWeights;
+
+	ComPtr<ID3D12Resource>		mBoneIndexBuffer{};
+	ComPtr<ID3D12Resource>		mBoneIndexUploadBuffer{};
+	D3D12_VERTEX_BUFFER_VIEW	mBoneIndexBufferView{};
+
+	ComPtr<ID3D12Resource>		mBoneWeightBuffer{};
+	ComPtr<ID3D12Resource>		mBoneWeightUploadBuffer{};
+	D3D12_VERTEX_BUFFER_VIEW	mBoneWeightBufferView{};
+
+public:
+	int							mSkinBoneCount = 0;
+
+	std::vector<std::string> mBoneNames;
+	std::vector<GameObject*> mBoneFrames{}; //[mSkinBoneCount]
+
+	std::vector<Vec4x4> mBindPoseBoneOffsets{}; //Transposed
+
+	ComPtr<ID3D12Resource> mCB_BindPoseBoneOffsets{};
+	Vec4x4* mCBMap_BindPoseBoneOffsets{};
+
+	ComPtr<ID3D12Resource> mCB_BoneTransforms{}; //Pointer Only
+	Vec4x4* mCBMap_BoneTransforms{};
+
+public:
+	void PrepareSkinning(GameObject* model);
+	void LoadSkinMesh(FILE* file);
+
+	virtual void UpdateShaderVariables();
+
+	virtual void ReleaseUploadBuffers();
+
+	virtual void OnPreRender();
 };
 #pragma endregion

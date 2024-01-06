@@ -5,9 +5,11 @@
 #include "Grid.h"
 #pragma endregion
 
+
 #pragma region Define
 #define scene Scene::Inst()
 #pragma endregion
+
 
 #pragma region ClassForwardDecl
 class Model;
@@ -33,7 +35,7 @@ class ObjectPool;
 
 #pragma region Class
 class Scene : public Singleton<Scene> {
-	friend class Singleton;
+	friend Singleton;
 
 public:
 	enum class FXType {

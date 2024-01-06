@@ -621,4 +621,149 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 }
 #pragma endregion
 
+
+
+
+
+
+
+
+
+
+
+
+void SkinMesh::UpdateShaderVariables()
+{
+	if (mCB_BindPoseBoneOffsets)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneOffsetsGpuVirtualAddress = mCB_BindPoseBoneOffsets->GetGPUVirtualAddress();
+		cmdList->SetGraphicsRootConstantBufferView(11, d3dcbBoneOffsetsGpuVirtualAddress); //Skinned Bone Offsets
+	}
+
+	if (mCB_BoneTransforms)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneTransformsGpuVirtualAddress = mCB_BoneTransforms->GetGPUVirtualAddress();
+		cmdList->SetGraphicsRootConstantBufferView(12, d3dcbBoneTransformsGpuVirtualAddress); //Skinned Bone Transforms
+
+		for (int j = 0; j < mSkinBoneCount; j++)
+		{
+			XMStoreFloat4x4(&mCBMap_BoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&mBoneFrames[j]->GetWorldTransform())));
+		}
+	}
+}
+
+void SkinMesh::ReleaseUploadBuffers()
+{
+	//CStandardMesh::ReleaseUploadBuffers();
+	Mesh::ReleaseUploadBuffers();
+	mBoneIndexUploadBuffer = nullptr;
+	mBoneWeightUploadBuffer = nullptr;
+}
+
+void SkinMesh::PrepareSkinning(GameObject* model)
+{
+	for (int j = 0; j < mSkinBoneCount; j++) {
+		mBoneFrames[j] = model->FindFrame(mBoneNames[j])->GetObj<GameObject>();
+	}
+}
+
+#include "FileIO.h"
+void SkinMesh::LoadSkinMesh(FILE* file)
+{
+	std::string tokoen;
+
+	//FileIO::ReadString(file, m_pstrMeshName);
+
+	bool isEOF = false;
+	while (!isEOF) {
+		FileIO::ReadString(file, tokoen);
+
+		switch (Hash(tokoen)) {
+			//case Hash("<BonesPerVertex>:"):
+			//case Hash("<Bounds>:"):
+		case Hash("<BoneNames>:"):
+		{
+			FileIO::ReadVal(file, mSkinBoneCount);
+			if (mSkinBoneCount > 0) {
+				mBoneFrames.resize(mSkinBoneCount);
+				for (int i = 0; i < mSkinBoneCount; i++)
+				{
+					FileIO::ReadString(file, mBoneNames[i]);
+				}
+			}
+		}
+
+		break;
+		case Hash("<BoneOffsets>:"):
+		{
+			FileIO::ReadVal(file, mSkinBoneCount);
+			if (mSkinBoneCount > 0) {
+				mBindPoseBoneOffsets.resize(mSkinBoneCount);
+				FileIO::ReadVal(file, mBindPoseBoneOffsets);
+
+				size_t byteSize = (((sizeof(XMFLOAT4X4) * gkSkinBoneSize) + 255) & ~255); //256ÀÇ ¹è¼ö
+				D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_BindPoseBoneOffsets);
+				mCB_BindPoseBoneOffsets->Map(0, NULL, (void**)&mCBMap_BindPoseBoneOffsets);
+
+				for (int i = 0; i < mSkinBoneCount; i++)
+				{
+					XMStoreFloat4x4(&mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(XMLoadFloat4x4(&mBindPoseBoneOffsets[i])));
+				}
+			}
+		}
+
+		break;
+		case Hash("<BoneIndices>:"):
+		{
+			FileIO::ReadVal(file, mVertexCnt);
+			if (mVertexCnt > 0)
+			{
+				mBoneIndices.resize(mVertexCnt);
+
+				FileIO::ReadRange(file, mBoneIndices, mVertexCnt);
+				D3DUtil::CreateBufferResource(mBoneIndices.data(), sizeof(XMINT4) * mVertexCnt, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, mBoneIndexUploadBuffer, mBoneIndexBuffer);
+
+				mBoneIndexBufferView.BufferLocation = mBoneIndexBuffer->GetGPUVirtualAddress();
+				mBoneIndexBufferView.StrideInBytes = sizeof(XMINT4);
+				mBoneIndexBufferView.SizeInBytes = sizeof(XMINT4) * mVertexCnt;
+			}
+		}
+
+		break;
+		case Hash("<BoneWeights>:"):
+		{
+			FileIO::ReadVal(file, mVertexCnt);
+			if (mVertexCnt > 0)
+			{
+				mBoneWeights.resize(mVertexCnt);
+
+				FileIO::ReadRange(file, mBoneWeights, mVertexCnt);
+				D3DUtil::CreateBufferResource(mBoneWeights.data(), sizeof(Vec4) * mVertexCnt, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, mBoneWeightUploadBuffer, mBoneWeightBuffer);
+
+				mBoneWeightBufferView.BufferLocation = mBoneWeightBuffer->GetGPUVirtualAddress();
+				mBoneWeightBufferView.StrideInBytes = sizeof(XMFLOAT4);
+				mBoneWeightBufferView.SizeInBytes = sizeof(XMFLOAT4) * mVertexCnt;
+			}
+		}
+
+		break;
+		case Hash("</SkinningInfo>"):
+			isEOF = true;
+
+		break;
+		default:
+			assert(0);
+			break;
+		}
+	}
+
+
+}
+
+void SkinMesh::OnPreRender()
+{
+	/*D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[7] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView, m_d3dNormalBufferView, m_d3dTangentBufferView, m_d3dBiTangentBufferView, mBoneIndexBufferView, mBoneWeightBufferView };
+	cmdList->IASetVertexBuffers(0, 7, pVertexBufferViews);*/
+	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
+}
 #pragma endregion

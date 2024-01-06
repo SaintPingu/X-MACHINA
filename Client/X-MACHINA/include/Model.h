@@ -76,7 +76,7 @@ public:
 
 
 
-// (각 계층구조)객체의 원본이 되는 모델
+// (각 계층구조 프레임)객체의 원본이 되는 모델
 // mesh와 material 정보를 갖는다.
 class Model : public Object {
 private:

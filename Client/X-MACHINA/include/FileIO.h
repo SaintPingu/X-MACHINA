@@ -3,11 +3,13 @@
 #pragma region ClassForwardDecl
 struct LightInfo;
 struct MeshLoadInfo;
+struct AnimationLoadInfo;
 
 class Model;
 class MasterModel;
 class Material;
 class Texture;
+class AnimationClip;
 #pragma endregion
 
 namespace FileIO {
@@ -40,6 +42,9 @@ namespace FileIO {
 
 	// fileName에 해당하는 모델을 불러온다. (계층구조)
 	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName);
+
+	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo);
+	sptr<AnimationClip> LoadAnimationClip(const std::string& fileName);
 
 	// [fileName]에 해당하는 조명 모델을 불러온다. (Type, Color, Intensity, ...)
 	void LoadLightFromFile(const std::string& fileName, LightInfo** out);

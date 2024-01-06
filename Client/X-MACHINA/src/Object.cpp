@@ -167,8 +167,8 @@ void InstObject::SetUpdateFunc()
 
 void InstObject::PushFunc(void* structuredBuffer) const
 {
-	SB_StandardInst* data = static_cast<SB_StandardInst*>(structuredBuffer);
-	XMStoreFloat4x4(&data->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
+	SB_StandardInst* buffer = static_cast<SB_StandardInst*>(structuredBuffer);
+	XMStoreFloat4x4(&buffer->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
 }
 
 void InstObject::PushRender()

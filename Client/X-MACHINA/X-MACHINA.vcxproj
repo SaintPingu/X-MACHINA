@@ -146,6 +146,8 @@
     <Image Include="X-MACHINA.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AnimationClip.cpp" />
+    <ClCompile Include="src\AnimationController.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\Component.cpp" />
@@ -190,7 +192,9 @@
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\stdafx.h" />
+    <ClInclude Include="include\AnimationClip.h" />
+    <ClInclude Include="include\AnimationController.h" />
+    <ClInclude Include="include\AnimationTrack.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Collider.h" />
     <ClInclude Include="include\Component.h" />

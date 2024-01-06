@@ -190,11 +190,14 @@
     <ClCompile Include="src\X-MACHINA.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="src\AnimationClip.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimationController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\stdafx.h">
-      <Filter>소스 파일\PCH</Filter>
-    </ClInclude>
     <ClInclude Include="include\Camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -288,9 +291,6 @@
     <ClInclude Include="include\SkyBox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Terrain.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -323,6 +323,18 @@
     </ClInclude>
     <ClInclude Include="include\X-MACHINA.h">
       <Filter>헤더 파일\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stdafx.h">
+      <Filter>소스 파일\PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimationClip.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimationController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimationTrack.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

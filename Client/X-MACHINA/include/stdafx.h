@@ -905,6 +905,44 @@ namespace Matrix4x4 {
 		}
 		return result;
 	}
+
+
+	inline Vec4x4 Interpolate(const Vec4x4& matrix1, const Vec4x4& matrix2, float t)
+	{
+		Vec4x4 result;
+
+		XMVECTOR S0, R0, T0, S1, R1, T1;
+		XMMatrixDecompose(&S0, &R0, &T0, _MATRIX(matrix1));
+		XMMatrixDecompose(&S1, &R1, &T1, _MATRIX(matrix2));
+
+		XMVECTOR S = XMVectorLerp(S0, S1, t);
+		XMVECTOR T = XMVectorLerp(T0, T1, t);
+		XMVECTOR R = XMQuaternionSlerp(R0, R1, t);
+		XMStoreFloat4x4(&result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+
+		return result;
+	}
+
+	inline Vec4x4 Add(const Vec4x4& matrix1, Vec4x4& matrix2)
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, _MATRIX(matrix1) + _MATRIX(matrix2));
+		return result;
+	}
+
+	inline Vec4x4 Scale(const Vec4x4& matrix, float scale)
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, _MATRIX(matrix) * scale);
+		return result;
+	}
+
+	inline Vec4x4 Zero()
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, XMMatrixSet(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f));
+		return result;
+	}
 }
 
 namespace XMMatrix

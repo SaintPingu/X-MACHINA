@@ -20,6 +20,8 @@
 #include "DescriptorHeap.h"
 #include "ObjectPool.h"
 
+#include "AnimationController.h"
+
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
 #include "Script_Billboard.h"
@@ -261,6 +263,9 @@ void Scene::BuildObjects()
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
+
+	// Animation
+	sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/LandingLight2Guns.bin");
 }
 
 void Scene::ReleaseObjects()

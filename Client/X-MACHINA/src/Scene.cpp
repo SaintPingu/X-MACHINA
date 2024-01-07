@@ -190,9 +190,12 @@ void Scene::CreateGraphicsRootSignature()
 
 	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
+	mGraphicsRootSignature->Push(RootParam::BoneOffset, D3D12_ROOT_PARAMETER_TYPE_CBV, 7, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::BoneTransform, D3D12_ROOT_PARAMETER_TYPE_CBV, 8, D3D12_SHADER_VISIBILITY_ALL);
+
 	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	//mGraphicsRootSignature->PushTable(RootParam::Texture1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	//mGraphicsRootSignature->PushTable(RootParam::Texture2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::Texture3, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::RenderTarget, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
 
@@ -265,7 +268,12 @@ void Scene::BuildObjects()
 	mSkyBox = std::make_shared<SkyBox>();
 
 	// Animation
-	sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/LandingLight2Guns.bin");
+	//sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/LandingLight2Guns.bin");
+	testObject = std::make_shared<GameObject>();
+	sptr<MasterModel> model = FileIO::LoadGeometryFromFile("Models/Meshes/EliteTrooper_Army-Ragdoll-Variant.bin");
+	testObject->SetModel(model);
+	testObject->SetPosition(100, 100, 100);
+	testObject->Rotate(0, 180, 0);
 }
 
 void Scene::ReleaseObjects()
@@ -595,6 +603,7 @@ void Scene::Render()
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	mGlobalShader->Set();
 
+	testObject->Render();
 	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects);
 	RenderEnvironments();
 	RenderBullets();
@@ -787,6 +796,8 @@ void Scene::Start()
 	mainCameraObject->OnEnable();
 
 	UpdateGridInfo();
+
+	testObject->OnEnable();
 }
 
 void Scene::Update()

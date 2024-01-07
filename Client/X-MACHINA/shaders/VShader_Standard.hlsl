@@ -6,6 +6,8 @@ struct VSInput_Standard {
     float2 UV : UV;
     float3 Tangent : TANGENT;
     float3 BiTangent : BITANGENT;
+    int4 Indices : BONEINDEX;
+    float4 Weights : BONEWEIGHT;
 };
 
 struct VSOutput_Standard {

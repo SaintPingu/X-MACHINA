@@ -10,14 +10,14 @@ class SkinMesh;
 
 struct AnimationLoadInfo {
 
-	GameObject*							mModel{};
-	std::vector<sptr<SkinMesh>>			mSkinMeshes{}; //[SkinMeshes], Skinned Mesh Cache
-	std::vector<sptr<AnimationClip>>	mAnimationClips{};
+	GameObject*							Model{};
+	std::vector<sptr<SkinMesh>>			SkinMeshes{}; //[SkinMeshes], Skinned Mesh Cache
+	std::vector<sptr<AnimationClip>>	AnimationClips{};
 };
 
 class AnimationController {
 public:
-	AnimationController(int animationTrackCount, AnimationLoadInfo* model);
+	AnimationController(int animationTrackCount, rsptr<AnimationLoadInfo> animationInfo);
 	~AnimationController();
 
 public:

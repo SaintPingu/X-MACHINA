@@ -30,6 +30,18 @@ cbuffer cbSpriteInfo : register(b4) {
     matrix gMtxSprite : packoffset(c0);
 };
 
+#define MAX_VERTEX_INFLUENCES			4
+#define SKINNED_ANIMATION_BONES			128
+cbuffer cbBoneOffsets : register(b7)
+{
+    float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
+};
+
+cbuffer cbBoneTransforms : register(b8)
+{
+    float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
+};
+
 struct SB_StandardInst {
     matrix MtxObject;
 };

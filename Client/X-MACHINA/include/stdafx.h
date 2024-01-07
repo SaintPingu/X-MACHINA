@@ -214,6 +214,8 @@ enum class RootParam {
 	Light,
 	GameInfo,
 	SpriteInfo,
+	BoneOffset,
+	BoneTransform,
 
 	Instancing,
 
@@ -247,6 +249,8 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> UV1Buffer{};
 	ComPtr<ID3D12Resource> TangentBuffer{};
 	ComPtr<ID3D12Resource> BiTangentBuffer{};
+	ComPtr<ID3D12Resource> BoneIndexBuffer{};
+	ComPtr<ID3D12Resource> BoneWeightBuffer{};
 };
 #pragma endregion
 

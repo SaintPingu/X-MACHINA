@@ -105,9 +105,11 @@ public:
 // 모델의 계층 구조 정보를 하나로 병합해 관리하는 객체
 // 모델의 모든 메쉬와 재질 정보를 가지고 있다.
 // 이 클래스를 통해 모델을 가지는 게임 객체를 렌더링 한다.
+struct AnimationLoadInfo;
 class MasterModel {
 private:
 	sptr<MergedMesh> mMesh{};
+	sptr<AnimationLoadInfo>	mAnimationInfo{};
 	sptr<Model> mModel{};
 
 	bool mMerged{ false };
@@ -123,6 +125,9 @@ public:
 
 	// 모델을 스프라이트로 설정한다.
 	void SetSprite() { RenderFunc = std::bind(&MasterModel::RenderSprite, this, std::placeholders::_1); }
+
+	sptr<AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }
+	void SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo) { mAnimationInfo = animationInfo; }
 
 public:
 	void ReleaseUploadBuffers();

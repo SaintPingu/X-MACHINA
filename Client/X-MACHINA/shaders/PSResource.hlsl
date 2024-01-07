@@ -2,8 +2,8 @@ TextureCube gSkyBoxTexture : register(t2);
 
 Texture2D gAlbedoTexture : register(t2);
 Texture2D gTerrainTextureLayer0 : register(t2);
-Texture2D gTerrainTextureLayer1 : register(t3);
-Texture2D gTerrainTextureLayer2 : register(t4);
+//Texture2D gTerrainTextureLayer1 : register(t3);
+//Texture2D gTerrainTextureLayer2 : register(t4);
 Texture2D gTerrainSplatMap : register(t5);
 
 Texture2D gRT1_Texture : register(t6);

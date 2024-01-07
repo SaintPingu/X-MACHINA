@@ -24,5 +24,5 @@ public:
 	void SetPosition(float position) { mPosition = position; }
 	void UpdatePosition(float elapsedPosition);
 
-	Vec4x4 GetSRT(int nBone);
+	Vec4x4 GetSRT(int boneIndex);
 };

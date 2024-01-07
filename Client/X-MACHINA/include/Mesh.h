@@ -28,10 +28,12 @@ constexpr int gkSkinBoneSize = 128;
 
 #pragma region Struct
 // (계층 구조에서)한 프레임이 가지는 메쉬 정보
+class SkinMesh;
 struct FrameMeshInfo {
 	std::vector<sptr<Material>> Materials{};
 	std::vector<UINT>			IndicesCnts{};	// sub mesh의 각 indices의 개수들, guarantee that Materials.size() == IndicesCnts.size() [반드시 각 메쉬마다 재질이 있어야 한다.
 	UINT						VertexCnt{};	// 모든 mesh의 정점 개수
+	sptr<SkinMesh>				SkinMesh{};
 };
 
 // sub mesh의 각 정보들을 하나로 merge하기 위한 임시 버퍼
@@ -42,6 +44,8 @@ struct MeshBuffer {
 	std::vector<Vec3> BiTangents{};
 	std::vector<Vec2> UVs0{};
 	std::vector<Vec2> UVs1{};
+	std::vector<XMINT4> BoneIndices;
+	std::vector<Vec4> BoneWeights;
 
 	std::vector<UINT> Indices{};
 };
@@ -57,6 +61,8 @@ struct MeshLoadInfo {
 	int								SubMeshCnt{};
 	std::vector<int>				SubSetIndexCnts{};
 	std::vector<std::vector<UINT>>	SubSetIndices{};
+
+	sptr<SkinMesh>	SkinMesh{};
 };
 #pragma endregion
 
@@ -84,6 +90,12 @@ protected:
 	ComPtr<ID3D12Resource> mBiTangentBuffer{};
 	ComPtr<ID3D12Resource> mBiTangentUploadBuffer{};
 
+	ComPtr<ID3D12Resource> mBoneIndexBuffer{};
+	ComPtr<ID3D12Resource> mBoneIndexUploadBuffer{};
+
+	ComPtr<ID3D12Resource> mBoneWeightBuffer{};
+	ComPtr<ID3D12Resource> mBoneWeightUploadBuffer{};
+
 	UINT mIndexCnt{};
 	ComPtr<ID3D12Resource> mIndexBuffer{};
 	ComPtr<ID3D12Resource> mIndexUploadBuffer{};
@@ -106,7 +118,7 @@ public:
 
 protected:
 	void CreateVertexBufferViews();
-	void CreateIndexBuffer(const std::vector<UINT>& indices);
+	void CreateIndexBufferView(const std::vector<UINT>& indices);
 };
 
 
@@ -185,17 +197,6 @@ public:
 protected:
 	static constexpr int kBonesPerVertex = 4;
 
-	std::vector<XMINT4> mBoneIndices;
-	std::vector<Vec4> mBoneWeights;
-
-	ComPtr<ID3D12Resource>		mBoneIndexBuffer{};
-	ComPtr<ID3D12Resource>		mBoneIndexUploadBuffer{};
-	D3D12_VERTEX_BUFFER_VIEW	mBoneIndexBufferView{};
-
-	ComPtr<ID3D12Resource>		mBoneWeightBuffer{};
-	ComPtr<ID3D12Resource>		mBoneWeightUploadBuffer{};
-	D3D12_VERTEX_BUFFER_VIEW	mBoneWeightBufferView{};
-
 public:
 	int							mSkinBoneCount = 0;
 
@@ -212,12 +213,7 @@ public:
 
 public:
 	void PrepareSkinning(GameObject* model);
-	void LoadSkinMesh(FILE* file);
 
 	virtual void UpdateShaderVariables();
-
-	virtual void ReleaseUploadBuffers();
-
-	virtual void OnPreRender();
 };
 #pragma endregion

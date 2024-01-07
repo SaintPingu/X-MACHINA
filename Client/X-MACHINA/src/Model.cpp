@@ -8,7 +8,7 @@
 #include "Scene.h"
 #include "FileIO.h"
 
-
+#include "AnimationController.h"
 
 
 #pragma region MaterialColors
@@ -130,6 +130,7 @@ void MasterModel::ReleaseUploadBuffers()
 {
 	mMesh->ReleaseUploadBuffers();
 }
+
 
 void MasterModel::SetModel(const rsptr<Model> model)
 {

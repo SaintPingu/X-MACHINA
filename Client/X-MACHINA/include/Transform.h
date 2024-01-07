@@ -7,6 +7,7 @@
 // transform can access to self Object
 class Transform {
 private:
+	int mIndex{};
 	Vec4x4 mWorldTransform = Matrix4x4::Identity();	// transform of     affected by a parent (world)
 	Vec4x4 mLocalTransform = Matrix4x4::Identity();	// transform of not affected by a parent (local)
 	Vec4x4 mPrevTransform  = Matrix4x4::Identity();	// transform of previous frame

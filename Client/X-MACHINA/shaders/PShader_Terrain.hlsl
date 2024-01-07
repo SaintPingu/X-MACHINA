@@ -33,13 +33,13 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
     }
     if (splatColor.g > 0.f)
     {
-        layer1 = gTerrainTextureLayer1.Sample(gSamplerState, input.UV0);
-        layer1 *= splatColor.g;
+        //layer1 = gTerrainTextureLayer1.Sample(gSamplerState, input.UV0);
+        //layer1 *= splatColor.g;
     }
     if (splatColor.b > 0.f)
     {
-        layer2 = gTerrainTextureLayer2.Sample(gSamplerState, input.UV0);
-        layer2 *= splatColor.b;
+        //layer2 = gTerrainTextureLayer2.Sample(gSamplerState, input.UV0);
+        //layer2 *= splatColor.b;
     }
 
     float4 texColor = normalize(layer0 + layer1 + layer2);

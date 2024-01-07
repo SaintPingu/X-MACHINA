@@ -146,6 +146,91 @@ namespace {
 	}
 
 
+
+	sptr<SkinMesh> LoadSkinMesh(FILE* file, sptr<MeshLoadInfo>& meshInfo)
+	{
+		sptr<SkinMesh> mesh = std::make_shared<SkinMesh>();
+		std::string token;
+
+		//FileIO::ReadString(file, m_pstrMeshName);
+
+		bool isEOF = false;
+		while (!isEOF) {
+			FileIO::ReadString(file, token);
+
+			switch (Hash(token)) {
+			case Hash("<BoneNames>:"):
+			{
+				FileIO::ReadVal(file, mesh->mSkinBoneCount);
+				if (mesh->mSkinBoneCount > 0) {
+					mesh->mBoneNames.resize(mesh->mSkinBoneCount);
+					mesh->mBoneFrames.resize(mesh->mSkinBoneCount);
+					for (int i = 0; i < mesh->mSkinBoneCount; i++)
+					{
+						FileIO::ReadString(file, mesh->mBoneNames[i]);
+					}
+				}
+			}
+
+			break;
+			case Hash("<BoneOffsets>:"):
+			{
+				FileIO::ReadVal(file, mesh->mSkinBoneCount);
+				if (mesh->mSkinBoneCount > 0) {
+					mesh->mBindPoseBoneOffsets.resize(mesh->mSkinBoneCount);
+					FileIO::ReadRange(file, mesh->mBindPoseBoneOffsets, mesh->mSkinBoneCount);
+
+					size_t byteSize = (((sizeof(XMFLOAT4X4) * gkSkinBoneSize) + 255) & ~255); //256의 배수
+					D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mesh->mCB_BindPoseBoneOffsets);
+					mesh->mCB_BindPoseBoneOffsets->Map(0, NULL, (void**)&mesh->mCBMap_BindPoseBoneOffsets);
+
+					for (int i = 0; i < mesh->mSkinBoneCount; i++)
+					{
+						XMStoreFloat4x4(&mesh->mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(XMLoadFloat4x4(&mesh->mBindPoseBoneOffsets[i])));
+					}
+				}
+			}
+
+			break;
+			case Hash("<BoneIndices>:"):
+			{
+				int vertexCnt = FileIO::ReadVal<int>(file);
+				if (vertexCnt > 0)
+				{
+					auto& boneIndices = meshInfo->Buffer.BoneIndices;
+					boneIndices.resize(vertexCnt);
+
+					FileIO::ReadRange(file, boneIndices, vertexCnt);
+				}
+			}
+
+			break;
+			case Hash("<BoneWeights>:"):
+			{
+				int vertexCnt = FileIO::ReadVal<int>(file);
+				if (vertexCnt > 0)
+				{
+					auto& boneWeights = meshInfo->Buffer.BoneWeights;
+					boneWeights.resize(vertexCnt);
+
+					FileIO::ReadRange(file, boneWeights, vertexCnt);
+				}
+			}
+
+			break;
+			case Hash("</SkinMesh>"):
+				isEOF = true;
+
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+
+		return mesh;
+	}
+
 	// 재질의 정보를 불러온다. (Albedo, Emissive, ...)
 	std::vector<sptr<Material>> LoadMaterial(FILE* file)
 	{
@@ -234,7 +319,7 @@ namespace {
 
 
 	// 한 프레임의 정보를 불러온다. (FrameName, Transform, BoundingBox, ...)
-	sptr<Model> LoadFrameHierarchy(FILE* file)
+	sptr<Model> LoadFrameHierarchy(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
 	{
 		std::string token;
 
@@ -242,6 +327,7 @@ namespace {
 		int nTextures = 0;
 
 		sptr<Model> model{};
+		sptr<MeshLoadInfo> meshInfo{};
 
 		bool isEOF{ false };
 		while (!isEOF) {
@@ -315,18 +401,16 @@ namespace {
 			break;
 			case Hash("<Mesh>:"):
 			{
-				model->SetMeshInfo(::LoadMesh(file));
+				meshInfo = ::LoadMesh(file);
 			}
 
 			break;
 			case Hash("<SkinMesh>:"):
 			{
-				sptr<MeshLoadInfo> meshInfo = ::LoadMesh(file);
-
-				sptr<SkinMesh> skinMesh = std::make_shared<SkinMesh>();
-				skinMesh->LoadSkinMesh(file);
-
-				model->SetMeshInfo(meshInfo);
+				FileIO::ReadString(file, token);	// <Mesh>:
+				meshInfo = ::LoadMesh(file);
+				meshInfo->SkinMesh = ::LoadSkinMesh(file, meshInfo);
+				animationInfo->SkinMeshes.push_back(meshInfo->SkinMesh);
 			}
 
 			break;
@@ -341,7 +425,7 @@ namespace {
 				int nChilds = FileIO::ReadVal<int>(file);
 				if (nChilds > 0) {
 					for (int i = 0; i < nChilds; i++) {
-						sptr<Model> child = LoadFrameHierarchy(file);
+						sptr<Model> child = LoadFrameHierarchy(file, animationInfo);
 						if (child) {
 							model->SetChild(child);
 						}
@@ -360,6 +444,7 @@ namespace {
 			}
 		}
 
+		model->SetMeshInfo(meshInfo);
 		return model;
 	}
 
@@ -372,6 +457,17 @@ namespace {
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -404,7 +500,7 @@ namespace FileIO {
 
 		sptr<Model> model = std::make_shared<Model>();
 		sptr<MasterModel> masterModelA = std::make_shared<MasterModel>();
-
+		sptr<AnimationLoadInfo> animationInfo{};
 		std::string token;
 
 		bool isEOF{ false };
@@ -412,12 +508,18 @@ namespace FileIO {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
+			case Hash("<AnimationClips>:"):
+				animationInfo = std::make_shared<AnimationLoadInfo>();
+				FileIO::LoadAnimation(file, animationInfo);
+				break;
+
 			case Hash("<Hierarchy>:"):
-				model = ::LoadFrameHierarchy(file);
+				model = ::LoadFrameHierarchy(file, animationInfo);
 				break;
 			case Hash("</Hierarchy>"):
 				isEOF = true;
 				break;
+
 			default:
 				assert(0);
 				break;
@@ -426,6 +528,7 @@ namespace FileIO {
 
 		sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
 		masterModel->SetModel(model);
+		masterModel->SetAnimationInfo(animationInfo);
 
 		return masterModel;
 	}
@@ -434,12 +537,12 @@ namespace FileIO {
 	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
 	{
 		std::string token;
-		FileIO::ReadString(file, token);	// <AnimationClips>:
+
 		int clipCnt = FileIO::ReadVal<int>(file);
-		animationInfo->mAnimationClips.resize(clipCnt);
+		animationInfo->AnimationClips.resize(clipCnt);
 		for (int i = 0; i < clipCnt; ++i) {
 			FileIO::ReadString(file, token);	// Animation Clip Name
-			animationInfo->mAnimationClips[i] = FileIO::LoadAnimationClip(token);
+			animationInfo->AnimationClips[i] = FileIO::LoadAnimationClip("Models/AnimationClips/" + token + ".bin");
 		}
 	}
 

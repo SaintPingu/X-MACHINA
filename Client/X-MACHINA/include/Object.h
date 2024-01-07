@@ -18,6 +18,7 @@ class ObjectCollider;
 
 #pragma region Class
 // base class for all entities in Scene
+class AnimationController;
 class GameObject : public Object {
 	using base = Object;
 	using Transform::ReturnToPrevTransform;
@@ -25,6 +26,7 @@ class GameObject : public Object {
 private:
 	sptr<const MasterModel>		  mMasterModel{};		// ·»´õ¸µ ¸ðµ¨
 	std::vector<const Transform*> mMergedTransform{};	// ¸ðµç °èÃþÀÇ transfom (ºü¸¥ Á¢±ÙÀ» À§ÇÑ Ä³½Ì)
+	sptr<AnimationController>	  mAnimationController{};
 
 public:
 	GameObject() = default;

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Object.h"
 
+#include "Mesh.h"
 #include "Model.h"
 #include "Scene.h"
 #include "Collider.h"
@@ -9,7 +10,7 @@
 #include "Script_Apache.h"
 #include "Script_Gunship.h"
 
-
+#include "AnimationController.h"
 
 
 #pragma region GameObject
@@ -23,6 +24,11 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 {
 	mMasterModel = model;
 	mMasterModel->CopyModelHierarchy(this);
+
+	sptr<AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
+	if (animationInfo) {
+		mAnimationController = std::make_shared<AnimationController>(1, animationInfo);
+	}
 
 	// 모델의 이름에 따라 설정한다.
 	switch (Hash(mMasterModel->GetName())) {

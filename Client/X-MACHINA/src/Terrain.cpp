@@ -233,8 +233,8 @@ Terrain::Terrain(const std::wstring& fileName, int width, int length, int blockW
 	mSplatMap        = scene->GetTexture("Terrain_splatmap");
 
 	mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
-	mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
-	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
+	/*mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
+	mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));*/
 	mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
 
 	mShader = std::make_shared<TerrainShader>();
@@ -384,7 +384,7 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 		}
 	}
 
-	CreateIndexBuffer(indices);
+	CreateIndexBufferView(indices);
 }
 
 

@@ -7,13 +7,13 @@
 #include "Transform.h"
 
 
-AnimationController::AnimationController(int animationTrackCount, AnimationLoadInfo* model)
+AnimationController::AnimationController(int animationTrackCount, rsptr<AnimationLoadInfo> animationInfo)
 {
 	mAnimationTracks.resize(animationTrackCount);
 
-	mAnimationClips = model->mAnimationClips;
+	mAnimationClips = animationInfo->AnimationClips;
 
-	mSkinMeshes = model->mSkinMeshes;
+	mSkinMeshes = animationInfo->SkinMeshes;
 	const size_t skinMeshCount = mSkinMeshes.size();
 
 	mBoneTransforms.resize(skinMeshCount);

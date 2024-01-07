@@ -98,6 +98,8 @@ private:
 	/* Others */
 	bool mIsRenderBounds = false;
 
+	sptr<GameObject> testObject{};
+
 private:
 #pragma region C/Dtor
 	Scene();

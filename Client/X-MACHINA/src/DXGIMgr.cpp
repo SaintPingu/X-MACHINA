@@ -4,6 +4,11 @@
 #include "Scene.h"
 #include "Shader.h"
 
+#pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
+#include "../Imgui/ImguiMgr.h"
+#pragma endregion
+
+
 DXGIMgr::DXGIMgr()
 	:
 	mClientWidth(gkFrameBufferWidth),
@@ -90,6 +95,10 @@ void DXGIMgr::Render()
 	}
 	break;
 	}
+#pragma region Imgui - 장재문 - Dxgi Present 전에 최종 RenderTarget 위에 그리기 때문에 여기다가 넣었어요..
+	imgui->Present();
+#pragma endregion
+
 
 	// set after barrier (render target -> present)
 	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

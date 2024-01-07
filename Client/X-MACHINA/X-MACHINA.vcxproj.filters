@@ -58,6 +58,15 @@
     <Filter Include="헤더 파일\Dummy">
       <UniqueIdentifier>{1e2a33d2-c04c-491b-91a0-0d911f712140}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{127cea7f-2717-442c-a4e2-dcd0cc7d0da7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Imgui">
+      <UniqueIdentifier>{ade47052-bd8e-43ee-88c2-440e86f60288}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Imgui\ImguiCode">
+      <UniqueIdentifier>{6000ed2b-6000-4c87-8344-ee1acb5b9ca7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -189,6 +198,33 @@
     </ClCompile>
     <ClCompile Include="src\X-MACHINA.cpp">
       <Filter>소스 파일\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui_demo.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui_draw.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui_impl_dx12.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui_impl_win32.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui_tables.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiCode\imgui_widgets.cpp">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImguiMgr.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Log\LogMgr.cpp">
+      <Filter>Log</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -323,6 +359,36 @@
     </ClInclude>
     <ClInclude Include="include\X-MACHINA.h">
       <Filter>헤더 파일\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imconfig.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imgui.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imgui_impl_dx12.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imgui_impl_win32.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imgui_internal.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imstb_rectpack.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imstb_textedit.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h">
+      <Filter>Imgui\ImguiCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImguiMgr.h">
+      <Filter>Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Log\LogMgr.h">
+      <Filter>Log</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

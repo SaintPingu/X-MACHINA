@@ -332,4 +332,13 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
+
+
+
+
+// for rendering UI (2D plane)
+class SkinMeshShader : public TexturedShader {
+public:
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+};
 #pragma endregion

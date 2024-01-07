@@ -65,6 +65,7 @@ void Script_MainCamera::Update()
 
 void Script_MainCamera::UpdateHeight()
 {
+	return;
 	constexpr float kMinHeight = 2.0f;
 
 	if (mObject->GetPosition().y <= kMinHeight) {

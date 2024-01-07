@@ -9,7 +9,7 @@ public:
 	float 							mSpeed          = 1.0f;
 	float 							mPosition       = 0.0f;
 	float 							mWeight         = 1.0f;
-	int 							mClipIndex = 0;
+	int 							mClipIndex = 2;
 
 public:
 	void SetAnimationSet(int clipIndex) { mClipIndex = clipIndex; }

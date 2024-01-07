@@ -184,6 +184,8 @@ namespace {
 					D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mesh->mCB_BindPoseBoneOffsets);
 					mesh->mCB_BindPoseBoneOffsets->Map(0, NULL, (void**)&mesh->mCBMap_BindPoseBoneOffsets);
 
+					// 오프셋부터 제대로 읽자
+					// bind pose는 고정이기 때문에 최초 1회만 값을 저장한다.
 					for (int i = 0; i < mesh->mSkinBoneCount; i++)
 					{
 						XMStoreFloat4x4(&mesh->mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(XMLoadFloat4x4(&mesh->mBindPoseBoneOffsets[i])));
@@ -563,9 +565,9 @@ namespace FileIO {
 
 		sptr<AnimationClip> clip = std::make_shared<AnimationClip>(length, frameRate, keyFrameCnt, boneCnt, clipName);
 
-		for (int i = 0; i < keyFrameCnt; i++) {
+		for (int i = 0; i < keyFrameCnt; ++i) {
 			FileIO::ReadVal(file, clip->mKeyFrameTimes[i]);
-			FileIO::ReadRange(file, clip->mKeyFrameTransforms[i], clip->mBoneCnt);
+			FileIO::ReadRange(file, clip->mKeyFrameTransforms[i], boneCnt);
 		}
 
 		return clip;

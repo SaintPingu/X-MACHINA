@@ -13,7 +13,7 @@ public:
 
 	float	mLength = 0.0f;
 	int		mFrameRate = 0; //m_fTicksPerSecond
-	int		mBoneCnt = 0;
+	int		mTransformCnt = 0;
 
 	std::vector<float> mKeyFrameTimes{};
 	std::vector<std::vector<Vec4x4>> mKeyFrameTransforms{};

@@ -68,6 +68,7 @@ private:
 	sptr<Shader> mInstShader{};		// for InstObjects
 	sptr<Shader> mTransparentShader{};
 	sptr<Shader> mBulletShader{};
+	sptr<Shader> mSkinnedMeshShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};

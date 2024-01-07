@@ -27,6 +27,8 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 
 	sptr<AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
 	if (animationInfo) {
+		animationInfo->Model = this;
+		animationInfo->PrepareSkinning();
 		mAnimationController = std::make_shared<AnimationController>(1, animationInfo);
 	}
 
@@ -46,9 +48,20 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	Transform::MergeTransform(mMergedTransform, this);
 }
 
+void GameObject::Update()
+{
+	base::Update();
+
+	if (mAnimationController) {
+		mAnimationController->AdvanceTime();
+	}
+}
 
 void GameObject::Render()
 {
+	if (mAnimationController) {
+		mAnimationController->UpdateShaderVariables();
+	}
 	if (mMasterModel) {
 		mMasterModel->Render(this);
 	}

@@ -620,12 +620,12 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		const Transform* transform = mergedTransform[transformIndex];
 
 		transform->UpdateShaderVars();
-
-		UINT vertexCnt = modelMeshInfo.VertexCnt;
-		UINT mat{ 0 };
 		if (modelMeshInfo.SkinMesh) {
 			modelMeshInfo.SkinMesh->UpdateShaderVariables();
 		}
+
+		UINT vertexCnt = modelMeshInfo.VertexCnt;
+		UINT mat{ 0 };
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
 			modelMeshInfo.Materials[mat++]->UpdateShaderVars();
 			cmdList->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
@@ -650,22 +650,22 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 void SkinMesh::UpdateShaderVariables()
 {
-	//if (mCB_BindPoseBoneOffsets)
-	//{
-	//	D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneOffsetsGpuVirtualAddress = mCB_BindPoseBoneOffsets->GetGPUVirtualAddress();
-	//	cmdList->SetGraphicsRootConstantBufferView(11, d3dcbBoneOffsetsGpuVirtualAddress); //Skinned Bone Offsets
-	//}
+	if (mCB_BindPoseBoneOffsets)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneOffsetsGpuVirtualAddress = mCB_BindPoseBoneOffsets->GetGPUVirtualAddress();
+		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneOffset), d3dcbBoneOffsetsGpuVirtualAddress); //Skinned Bone Offsets
+	}
 
-	//if (mCB_BoneTransforms)
-	//{
-	//	D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneTransformsGpuVirtualAddress = mCB_BoneTransforms->GetGPUVirtualAddress();
-	//	cmdList->SetGraphicsRootConstantBufferView(12, d3dcbBoneTransformsGpuVirtualAddress); //Skinned Bone Transforms
+	if (mCB_BoneTransforms)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneTransformsGpuVirtualAddress = mCB_BoneTransforms->GetGPUVirtualAddress();
+		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneTransform), d3dcbBoneTransformsGpuVirtualAddress); //Skinned Bone Transforms
 
-	//	for (int j = 0; j < mSkinBoneCount; j++)
-	//	{
-	//		XMStoreFloat4x4(&mCBMap_BoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&mBoneFrames[j]->GetWorldTransform())));
-	//	}
-	//}
+		for (int j = 0; j < mSkinBoneCount; j++)
+		{
+			XMStoreFloat4x4(&mCBMap_BoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&mBoneFrames[j]->GetWorldTransform())));
+		}
+	}
 }
 
 void SkinMesh::PrepareSkinning(GameObject* model)

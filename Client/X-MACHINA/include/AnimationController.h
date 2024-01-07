@@ -13,6 +13,8 @@ struct AnimationLoadInfo {
 	GameObject*							Model{};
 	std::vector<sptr<SkinMesh>>			SkinMeshes{}; //[SkinMeshes], Skinned Mesh Cache
 	std::vector<sptr<AnimationClip>>	AnimationClips{};
+
+	void PrepareSkinning();
 };
 
 class AnimationController {
@@ -25,12 +27,12 @@ public:
 	std::vector<AnimationTrack> mAnimationTracks{};
 
 	std::vector<sptr<AnimationClip>> mAnimationClips{};
-	std::vector<Transform*> mBoneFrames{}; //[m_nAnimatedBoneFrames]
+	std::vector<Transform*> mAninmatedBoneFrames{}; //[m_nAnimatedBoneFrames]
 
 	std::vector<sptr<SkinMesh>> mSkinMeshes{}; //[SkinMeshes], Skinned Mesh Cache
 
-	std::vector<ComPtr<ID3D12Resource>> mBoneTransforms{}; //[SkinMeshes]
-	std::vector<Vec4x4*> mMap_BoneTransforms{}; //[SkinMeshes]
+	std::vector<ComPtr<ID3D12Resource>> mCB_BoneTransforms{}; //[SkinMeshes]
+	std::vector<Vec4x4*> mCBMap_BoneTransforms{}; //[SkinMeshes]
 
 public:
 	void UpdateShaderVariables();
@@ -42,7 +44,7 @@ public:
 	void SetTrackSpeed(int trackIndex, float speed);
 	void SetTrackWeight(int trackIndex, float weight);
 
-	void AdvanceTime(GameObject* model);
+	void AdvanceTime();
 
 	sptr<AnimationClip> GetClip(int trackIndex)
 	{

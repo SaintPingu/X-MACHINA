@@ -2,17 +2,17 @@
 #include "AnimationClip.h"
 
 
-AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int boneCnt, const std::string& name)
+AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int transformCnt, const std::string& name)
 	:
 	mLength(length),
 	mFrameRate(frameRate),
-	mBoneCnt(boneCnt),
+	mTransformCnt(transformCnt),
 	mName(name),
 	mKeyFrameTimes(keyFrameCnt),
 	mKeyFrameTransforms(keyFrameCnt)
 {
 	for (auto& transforms : mKeyFrameTransforms) {
-		transforms.resize(keyFrameCnt);
+		transforms.resize(transformCnt);
 	}
 }
 

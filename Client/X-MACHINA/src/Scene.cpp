@@ -268,11 +268,11 @@ void Scene::BuildObjects()
 	mSkyBox = std::make_shared<SkyBox>();
 
 	// Animation
-	//sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/LandingLight2Guns.bin");
+	sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/GoToMountHippLayingLeftUnarmed.bin");
 	testObject = std::make_shared<GameObject>();
 	sptr<MasterModel> model = FileIO::LoadGeometryFromFile("Models/Meshes/EliteTrooper_Army-Ragdoll-Variant.bin");
 	testObject->SetModel(model);
-	testObject->SetPosition(100, 100, 100);
+	testObject->SetPosition(60, 105, 60);
 	testObject->Rotate(0, 180, 0);
 }
 
@@ -308,6 +308,9 @@ void Scene::BuildGlobalShader()
 
 	mBulletShader = std::make_shared<ColorInstShader>();
 	mBulletShader->Create();
+
+	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
+	mSkinnedMeshShader->Create();
 }
 
 void Scene::BuildBoundingShader()
@@ -601,9 +604,11 @@ void Scene::Render()
 
 	OnPrepareRender();
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
+	mSkinnedMeshShader->Set();
+	testObject->Render();
+
 	mGlobalShader->Set();
 
-	testObject->Render();
 	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects);
 	RenderEnvironments();
 	RenderBullets();
@@ -844,6 +849,7 @@ void Scene::UpdatePlayerGrid()
 
 void Scene::UpdateObjects()
 {
+	testObject->Update();
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->Update();
 		});

@@ -45,7 +45,7 @@ void Script_AirplanePlayer::Update()
 	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 
 	if (pos.y < terrainHeight) {
-		Explode();
+		//Explode();
 	}
 }
 

@@ -872,3 +872,8 @@ D3D12_SHADER_BYTECODE CanvasShader::CreatePixelShader()
 	return Shader::CompileShaderFile(L"PShader_Canvas.hlsl", "PSCanvas", "ps_5_1", mPSBlob);
 }
 #pragma endregion
+
+D3D12_SHADER_BYTECODE SkinMeshShader::CreateVertexShader()
+{
+	return Shader::CompileShaderFile(L"VShader_SkinnedMesh.hlsl", "VS_SkinnedMesh", "vs_5_1", mVSBlob);;
+}

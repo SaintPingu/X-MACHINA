@@ -6,6 +6,11 @@
 #include "GameFramework.h"
 #include "InputMgr.h"
 
+#pragma region Imgui - 장재문 -
+#include "../Imgui/ImguiCode/imgui.h"
+#pragma endregion
+
+
 #define MAX_LOADSTRING 100
 
 HINSTANCE						ghAppInstance;
@@ -118,8 +123,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
+#pragma region Imgui - 장재문 - 
+/*
+	extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	...
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+			return true;
+	이 두 문장 넣었어요..
+
+	이 두 문장을 넣어야 Imgui 클릭이 됩니다. ( Hover , Drag , Click 등등.. )
+*/
+#pragma endregion
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;

@@ -6,6 +6,13 @@
 #include "Timer.h"
 #include "Scene.h"
 
+#pragma region  - 장재문 -
+#include "../Imgui/ImguiMgr.h"
+#include "../Log/LogMgr.h"
+#pragma endregion
+
+
+
 Framework::Framework()
 	:
 	mTitle(L"LabProject")
@@ -18,6 +25,16 @@ void Framework::Init(HINSTANCE hInstance, HWND hMainWnd)
 	dxgi->Init(hInstance, hMainWnd);
 
 	BuildObjects();
+
+#pragma region Imgui - 장재문 - 
+	imgui->Init();
+#pragma endregion
+
+#pragma region Log - 장재문 -
+	LOG_MGR->Init("Sample"); // 이름을 지을 수 있다. 
+#pragma endregion
+
+
 }
 
 void Framework::Release()
@@ -27,6 +44,11 @@ void Framework::Release()
 	timer->Destroy();
 	InputMgr::Inst()->Destroy();
 	scene->Release();
+
+#pragma region Imgui,Log - 장재문 -
+	imgui->Destroy();
+	LOG_MGR->Destroy();
+#pragma endregion
 
 	dxgi->Release();
 
@@ -55,6 +77,11 @@ void Framework::FrameAdvance()
 
 	// update scene
 	scene->Update();
+
+#pragma region Imgui - 장재문 - 
+	imgui->RenderPrepare();
+	imgui->Render();
+#pragma endregion
 
 	// rendering
 	dxgi->Render();

@@ -25,11 +25,9 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	mMasterModel = model;
 	mMasterModel->CopyModelHierarchy(this);
 
-	sptr<AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
+	sptr<const AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
 	if (animationInfo) {
-		animationInfo->Model = this;
-		animationInfo->PrepareSkinning();
-		mAnimationController = std::make_shared<AnimationController>(1, animationInfo);
+		mAnimationController = std::make_shared<AnimationController>(1, animationInfo, this);
 	}
 
 	// 모델의 이름에 따라 설정한다.
@@ -48,12 +46,12 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	Transform::MergeTransform(mMergedTransform, this);
 }
 
-void GameObject::Update()
+void GameObject::Animate()
 {
-	base::Update();
+	base::Animate();
 
 	if (mAnimationController) {
-		mAnimationController->AdvanceTime();
+		mAnimationController->Animate();
 	}
 }
 

@@ -18,11 +18,5 @@ public:
 	std::vector<float> mKeyFrameTimes{};
 	std::vector<std::vector<Vec4x4>> mKeyFrameTransforms{};
 
-	float 							mPosition = 0.0f;
-
-
-	void SetPosition(float position) { mPosition = position; }
-	void UpdatePosition(float elapsedPosition);
-
-	Vec4x4 GetSRT(int boneIndex);
+	Vec4x4 GetSRT(int boneIndex, float position) const;
 };

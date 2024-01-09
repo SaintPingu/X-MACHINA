@@ -250,6 +250,7 @@ void Scene::BuildObjects()
 	canvas->Init();
 
 	// load models
+	LoadAnimationClips();
 	LoadSceneObjects("Models/Scene.bin");
 	LoadModels();
 
@@ -268,12 +269,18 @@ void Scene::BuildObjects()
 	mSkyBox = std::make_shared<SkyBox>();
 
 	// Animation
-	sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/GoToMountHippLayingLeftUnarmed.bin");
-	testObject = std::make_shared<GameObject>();
-	sptr<MasterModel> model = FileIO::LoadGeometryFromFile("Models/Meshes/EliteTrooper_Army-Ragdoll-Variant.bin");
-	testObject->SetModel(model);
-	testObject->SetPosition(60, 105, 60);
-	testObject->Rotate(0, 180, 0);
+	//sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/GoToMountHippLayingLeftUnarmed.bin");
+	sptr<MasterModel> model = FileIO::LoadGeometryFromFile("Models/Meshes/SK_Ingenalvus.bin");
+	testObjects.resize(2);
+	testObjects[0] = std::make_shared<GameObject>();
+	testObjects[0]->SetModel(model);
+	testObjects[0]->SetPosition(60, 105, 60);
+	testObjects[0]->Rotate(0, 180, 0);
+
+	testObjects[1] = std::make_shared<GameObject>();
+	testObjects[1]->SetModel(model);
+	testObjects[1]->SetPosition(100, 105, 60);
+	testObjects[1]->Rotate(0, 135, 0);
 }
 
 void Scene::ReleaseObjects()
@@ -404,7 +411,7 @@ void Scene::UpdateGridInfo()
 
 void Scene::LoadSceneObjects(const std::string& fileName)
 {
-	FILE* file = NULL;
+	FILE* file = nullptr;
 	::fopen_s(&file, fileName.c_str(), "rb");
 	assert(file);
 	::rewind(file);
@@ -508,6 +515,21 @@ void Scene::LoadModels()
 	}
 }
 
+void Scene::LoadAnimationClips()
+{
+	const std::string rootFolder = "Models/AnimationClips/";
+	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
+		std::string clipFolderName = clipFolder.path().filename().string();
+
+		std::vector<sptr<const AnimationClip>> animationClips{};
+		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
+			const std::string fileName = file.path().filename().string();
+			animationClips.emplace_back(FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName));
+		}
+		mAnimationClipMap.insert(std::make_pair(clipFolderName, animationClips));
+	}
+}
+
 
 void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
 {
@@ -605,7 +627,9 @@ void Scene::Render()
 	OnPrepareRender();
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	mSkinnedMeshShader->Set();
-	testObject->Render();
+	for (const auto& testObject : testObjects) {
+		testObject->Render();
+	}
 
 	mGlobalShader->Set();
 
@@ -802,7 +826,9 @@ void Scene::Start()
 
 	UpdateGridInfo();
 
-	testObject->OnEnable();
+	for (auto& testObject : testObjects) {
+		testObject->OnEnable();
+	}
 }
 
 void Scene::Update()
@@ -819,6 +845,9 @@ void Scene::Update()
 
 void Scene::Animate()
 {
+	for (auto& testObject : testObjects) {
+		testObject->Animate();
+	}
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->Animate();
 		});
@@ -849,7 +878,9 @@ void Scene::UpdatePlayerGrid()
 
 void Scene::UpdateObjects()
 {
-	testObject->Update();
+	for (auto& testObject : testObjects) {
+		testObject->Update();
+	}
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->Update();
 		});

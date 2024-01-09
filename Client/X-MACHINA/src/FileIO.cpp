@@ -2,6 +2,7 @@
 #include "FileIO.h"
 #include "DXGIMgr.h"
 
+#include "Scene.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Light.h"
@@ -161,11 +162,12 @@ namespace {
 			switch (Hash(token)) {
 			case Hash("<BoneNames>:"):
 			{
-				FileIO::ReadVal(file, mesh->mSkinBoneCount);
-				if (mesh->mSkinBoneCount > 0) {
-					mesh->mBoneNames.resize(mesh->mSkinBoneCount);
-					mesh->mBoneFrames.resize(mesh->mSkinBoneCount);
-					for (int i = 0; i < mesh->mSkinBoneCount; i++)
+				int skinBoneCnt{};
+				FileIO::ReadVal(file, skinBoneCnt);
+				if (skinBoneCnt > 0) {
+					mesh->mBoneNames.resize(skinBoneCnt);
+					mesh->mBoneFrames.resize(skinBoneCnt);
+					for (int i = 0; i < skinBoneCnt; i++)
 					{
 						FileIO::ReadString(file, mesh->mBoneNames[i]);
 					}
@@ -175,19 +177,18 @@ namespace {
 			break;
 			case Hash("<BoneOffsets>:"):
 			{
-				FileIO::ReadVal(file, mesh->mSkinBoneCount);
-				if (mesh->mSkinBoneCount > 0) {
-					mesh->mBindPoseBoneOffsets.resize(mesh->mSkinBoneCount);
-					FileIO::ReadRange(file, mesh->mBindPoseBoneOffsets, mesh->mSkinBoneCount);
+				int skinBoneCnt{};
+				FileIO::ReadVal(file, skinBoneCnt);
+				if (skinBoneCnt > 0) {
+					mesh->mBindPoseBoneOffsets.resize(skinBoneCnt);
+					FileIO::ReadRange(file, mesh->mBindPoseBoneOffsets, skinBoneCnt);
 
 					size_t byteSize = (((sizeof(XMFLOAT4X4) * gkSkinBoneSize) + 255) & ~255); //256의 배수
 					D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mesh->mCB_BindPoseBoneOffsets);
-					mesh->mCB_BindPoseBoneOffsets->Map(0, NULL, (void**)&mesh->mCBMap_BindPoseBoneOffsets);
+					mesh->mCB_BindPoseBoneOffsets->Map(0, nullptr, (void**)&mesh->mCBMap_BindPoseBoneOffsets);
 
-					// 오프셋부터 제대로 읽자
 					// bind pose는 고정이기 때문에 최초 1회만 값을 저장한다.
-					for (int i = 0; i < mesh->mSkinBoneCount; i++)
-					{
+					for (int i = 0; i < skinBoneCnt; i++) {
 						XMStoreFloat4x4(&mesh->mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(XMLoadFloat4x4(&mesh->mBindPoseBoneOffsets[i])));
 					}
 				}
@@ -510,7 +511,7 @@ namespace FileIO {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
-			case Hash("<AnimationClips>:"):
+			case Hash("<AnimationClipFolder>:"):
 				animationInfo = std::make_shared<AnimationLoadInfo>();
 				FileIO::LoadAnimation(file, animationInfo);
 				break;
@@ -530,7 +531,13 @@ namespace FileIO {
 
 		sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
 		masterModel->SetModel(model);
-		masterModel->SetAnimationInfo(animationInfo);
+
+		if (animationInfo) {
+			std::sort(animationInfo->SkinMeshes.begin(), animationInfo->SkinMeshes.end(), [](rsptr<SkinMesh> first, rsptr<SkinMesh> second) {
+				return first->mBoneFrames.size() > second->mBoneFrames.size();
+				});
+			masterModel->SetAnimationInfo(animationInfo);
+		}
 
 		return masterModel;
 	}
@@ -538,14 +545,9 @@ namespace FileIO {
 
 	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
 	{
-		std::string token;
-
-		int clipCnt = FileIO::ReadVal<int>(file);
-		animationInfo->AnimationClips.resize(clipCnt);
-		for (int i = 0; i < clipCnt; ++i) {
-			FileIO::ReadString(file, token);	// Animation Clip Name
-			animationInfo->AnimationClips[i] = FileIO::LoadAnimationClip("Models/AnimationClips/" + token + ".bin");
-		}
+		std::string folderName;
+		FileIO::ReadString(file, folderName);
+		animationInfo->AnimationClips = scene->GetAnimationClips(folderName);
 	}
 
 

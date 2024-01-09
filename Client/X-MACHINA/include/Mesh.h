@@ -198,17 +198,15 @@ protected:
 	static constexpr int kBonesPerVertex = 4;
 
 public:
-	int							mSkinBoneCount = 0;
-
 	std::vector<std::string> mBoneNames;
-	std::vector<GameObject*> mBoneFrames{}; //[mSkinBoneCount]
+	std::vector<GameObject*> mBoneFrames{};
 
-	std::vector<Vec4x4> mBindPoseBoneOffsets{}; //Transposed
+	std::vector<Vec4x4> mBindPoseBoneOffsets{};
 
 	ComPtr<ID3D12Resource> mCB_BindPoseBoneOffsets{};
 	Vec4x4* mCBMap_BindPoseBoneOffsets{};
 
-	ComPtr<ID3D12Resource> mCB_BoneTransforms{}; //Pointer Only
+	ComPtr<ID3D12Resource> mCB_BoneTransforms{};
 	Vec4x4* mCBMap_BoneTransforms{};
 
 public:

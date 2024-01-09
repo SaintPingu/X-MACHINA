@@ -28,6 +28,8 @@ class SkyBox;
 class GraphicsRootSignature;
 class DescriptorHeap;
 class ObjectPool;
+
+class AnimationClip;
 #pragma endregion
 
 
@@ -99,7 +101,9 @@ private:
 	/* Others */
 	bool mIsRenderBounds = false;
 
-	sptr<GameObject> testObject{};
+	/* test-animation */
+	std::unordered_map<std::string, std::vector<sptr<const AnimationClip>>> mAnimationClipMap{};
+	std::vector<sptr<GameObject>> testObjects{};
 
 private:
 #pragma region C/Dtor
@@ -122,6 +126,8 @@ public:
 	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); }
 	// [name]에 해당하는 Texture 모델을 반환한다.
 	rsptr<Texture> GetTexture(const std::string& name) const;
+
+	std::vector<sptr<const AnimationClip>> GetAnimationClips(const std::string& folderName) const { return mAnimationClipMap.at(folderName); }
 
 	RComPtr<ID3D12RootSignature> GetRootSignature() const;
 
@@ -196,6 +202,8 @@ private:
 	void LoadGameObjects(FILE* file);
 	// 유니티 씬에 없는(별도로 생성해야 하는) 동적 객체 모델을 불러온다.
 	void LoadModels();
+
+	void LoadAnimationClips();
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)

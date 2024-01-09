@@ -126,7 +126,7 @@ public:
 	// 모델을 스프라이트로 설정한다.
 	void SetSprite() { RenderFunc = std::bind(&MasterModel::RenderSprite, this, std::placeholders::_1); }
 
-	sptr<AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }
+	sptr<const AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }
 	void SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo) { mAnimationInfo = animationInfo; }
 
 public:

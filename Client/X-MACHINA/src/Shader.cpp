@@ -629,14 +629,14 @@ void PostProcessingShader::OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rt
 
 	// 후면 버퍼 (SV_TARGET[0])
 	allRtvHandle.front() = rtvHandles[0];
-	cmdList->ClearRenderTargetView(rtvHandles[0], Colors::White, 0, NULL);
+	cmdList->ClearRenderTargetView(rtvHandles[0], Colors::White, 0, nullptr);
 
 	// (SV_TARGET[1] ~ SV_TARGET[n])
 	for (size_t i = 0; i < resourceCnt; ++i) {
 		D3DUtil::ResourceTransition(mTextures[i]->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles[i];
-		cmdList->ClearRenderTargetView(rtvHandle, Colors::White, 0, NULL);
+		cmdList->ClearRenderTargetView(rtvHandle, Colors::White, 0, nullptr);
 		allRtvHandle[kRenderTargetCnt + i] = rtvHandle;
 	}
 

@@ -868,7 +868,7 @@ namespace Matrix4x4 {
 	inline Vec4x4 Inverse(const Vec4x4& matrix) noexcept
 	{
 		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixInverse(NULL, _MATRIX(matrix)));
+		XMStoreFloat4x4(&result, XMMatrixInverse(nullptr, _MATRIX(matrix)));
 		return result;
 	}
 

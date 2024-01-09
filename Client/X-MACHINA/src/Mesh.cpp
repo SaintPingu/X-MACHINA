@@ -661,17 +661,20 @@ void SkinMesh::UpdateShaderVariables()
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneTransformsGpuVirtualAddress = mCB_BoneTransforms->GetGPUVirtualAddress();
 		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneTransform), d3dcbBoneTransformsGpuVirtualAddress); //Skinned Bone Transforms
 
-		for (int j = 0; j < mSkinBoneCount; j++)
-		{
-			XMStoreFloat4x4(&mCBMap_BoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&mBoneFrames[j]->GetWorldTransform())));
+		int i{};
+		for (auto& boneFrame : mBoneFrames) {
+			XMStoreFloat4x4(&mCBMap_BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&boneFrame->GetWorldTransform())));
+			++i;
 		}
 	}
 }
 
 void SkinMesh::PrepareSkinning(GameObject* model)
 {
-	for (int j = 0; j < mSkinBoneCount; j++) {
-		mBoneFrames[j] = model->FindFrame(mBoneNames[j])->GetObj<GameObject>();
+	int i{};
+	for (auto& boneFrame : mBoneNames) {
+		mBoneFrames[i] = model->FindFrame(mBoneNames[i])->GetObj<GameObject>();
+		++i;
 	}
 }
 #pragma endregion

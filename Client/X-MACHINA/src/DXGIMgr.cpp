@@ -40,7 +40,7 @@ void DXGIMgr::Release()
 void DXGIMgr::Terminate()
 {
 	BOOL isFullScreenState = FALSE;
-	mSwapChain->GetFullscreenState(&isFullScreenState, NULL);
+	mSwapChain->GetFullscreenState(&isFullScreenState, nullptr);
 
 	if (isFullScreenState) {
 		ChangeSwapChainState();
@@ -72,7 +72,7 @@ void DXGIMgr::Render()
 		mPostProcessingShader->OnPostRenderTarget();
 
 		// post processing
-		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
+		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, nullptr);
 
 		mPostProcessingShader->Set();
 		mPostProcessingShader->Render();
@@ -83,7 +83,7 @@ void DXGIMgr::Render()
 	{
 		scene->OnPrepareRender();
 
-		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
+		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, nullptr);
 
 		mPostProcessingShader->Set();
 		mPostProcessingShader->Render();
@@ -109,22 +109,22 @@ void DXGIMgr::ToggleFullScreen()
 
 void DXGIMgr::ClearDepth()
 {
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, NULL);
+	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 }
 void DXGIMgr::ClearStencil()
 {
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, NULL);
+	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 }
 void DXGIMgr::ClearDepthStencil()
 {
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, NULL);
+	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 }
 
 
 
 void DXGIMgr::StartCommand()
 {
-	mCmdList->Reset(mCmdAllocator.Get(), NULL);
+	mCmdList->Reset(mCmdAllocator.Get(), nullptr);
 }
 
 void DXGIMgr::StopCommand()
@@ -197,7 +197,7 @@ void DXGIMgr::CreateFence()
 	for (UINT i = 0; i < mFenceValues.size(); i++) {
 		mFenceValues[i] = 0;
 	}
-	mFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+	mFenceEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
 
@@ -228,7 +228,7 @@ void DXGIMgr::CreateCmdQueueAndList()
 
 	hResult = mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCmdAllocator));
 	AssertHResult(hResult);
-	hResult = mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCmdAllocator.Get(), NULL, IID_PPV_ARGS(&mCmdList));
+	hResult = mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCmdAllocator.Get(), nullptr, IID_PPV_ARGS(&mCmdList));
 	AssertHResult(hResult);
 	hResult = mCmdList->Close();
 	AssertHResult(hResult);
@@ -283,7 +283,7 @@ void DXGIMgr::CreateSwapChain()
 	swapChainFullScreenDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapChainFullScreenDesc.Windowed                = TRUE;
 
-	HRESULT hResult   = mFactory->CreateSwapChainForHwnd(mCmdQueue.Get(), mWnd, &swapChainDesc, &swapChainFullScreenDesc, NULL, (IDXGISwapChain1**)mSwapChain.GetAddressOf());
+	HRESULT hResult   = mFactory->CreateSwapChainForHwnd(mCmdQueue.Get(), mWnd, &swapChainDesc, &swapChainFullScreenDesc, nullptr, (IDXGISwapChain1**)mSwapChain.GetAddressOf());
 	AssertHResult(hResult);
 
 	hResult           = mFactory->MakeWindowAssociation(mWnd, DXGI_MWA_NO_ALT_ENTER);
@@ -344,7 +344,7 @@ void DXGIMgr::CreateDSV()
 	AssertHResult(hResult);
 
 	mDsvHandle = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
-	mDevice->CreateDepthStencilView(mDepthStencilBuff.Get(), NULL, mDsvHandle);
+	mDevice->CreateDepthStencilView(mDepthStencilBuff.Get(), nullptr, mDsvHandle);
 }
 
 
@@ -372,8 +372,8 @@ void DXGIMgr::ChangeSwapChainState()
 	WaitForGpuComplete();
 
 	BOOL isFullScreenState = FALSE;
-	mSwapChain->GetFullscreenState(&isFullScreenState, NULL);
-	mSwapChain->SetFullscreenState(!isFullScreenState, NULL);
+	mSwapChain->GetFullscreenState(&isFullScreenState, nullptr);
+	mSwapChain->SetFullscreenState(!isFullScreenState, nullptr);
 
 	DXGI_MODE_DESC dxgiTargetParameters{};
 	dxgiTargetParameters.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;

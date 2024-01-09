@@ -48,19 +48,17 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 #endif
 
 
-	while (1)
-	{
-		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT) break;
-			if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-			{
+	while (true) {
+		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT) {
+				break;
+			}
+			if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
 		}
-		else
-		{
+		else {
 			framework->FrameAdvance();
 		}
 	}
@@ -88,7 +86,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_XMACHINA));
 	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;//MAKEINTRESOURCE(IDC_DIRECTX12PROJECT);
+	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -104,7 +102,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
 
-	if (!hMainWnd) return FALSE;
+	if (!hMainWnd) {
+		return FALSE;
+	}
 
 	framework->Init(hInstance, hMainWnd);
 

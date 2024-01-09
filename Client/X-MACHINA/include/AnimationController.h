@@ -8,31 +8,27 @@ class SkinMesh;
 #include "AnimationClip.h"
 #include "AnimationTrack.h"
 
+// 한 모델(MasterModel)의 파일(정보)을 읽을 때의 Animation 정보
 struct AnimationLoadInfo {
-
-	GameObject*							Model{};
-	std::vector<sptr<SkinMesh>>			SkinMeshes{}; //[SkinMeshes], Skinned Mesh Cache
-	std::vector<sptr<AnimationClip>>	AnimationClips{};
-
-	void PrepareSkinning();
+	std::vector<sptr<SkinMesh>>				SkinMeshes{};
+	std::vector<sptr<const AnimationClip>>	AnimationClips{};
 };
 
+// Animation의 재생 및 상태 전이 등의 전반을 관리한다.
 class AnimationController {
 public:
-	AnimationController(int animationTrackCount, rsptr<AnimationLoadInfo> animationInfo);
+	AnimationController(int animationTrackCount, rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 	~AnimationController();
 
 public:
-	float 							m_fTime = 0.0f;
-	std::vector<AnimationTrack> mAnimationTracks{};
+	std::vector<AnimationTrack>				mAnimationTracks{};
+	std::vector<sptr<const AnimationClip>> mAnimationClips{};
 
-	std::vector<sptr<AnimationClip>> mAnimationClips{};
-	std::vector<Transform*> mAninmatedBoneFrames{}; //[m_nAnimatedBoneFrames]
+	std::vector<Transform*>		mAninmatedBoneFrames{};
+	std::vector<sptr<SkinMesh>> mSkinMeshes{};
 
-	std::vector<sptr<SkinMesh>> mSkinMeshes{}; //[SkinMeshes], Skinned Mesh Cache
-
-	std::vector<ComPtr<ID3D12Resource>> mCB_BoneTransforms{}; //[SkinMeshes]
-	std::vector<Vec4x4*> mCBMap_BoneTransforms{}; //[SkinMeshes]
+	std::vector<ComPtr<ID3D12Resource>> mCB_BoneTransforms{};
+	std::vector<Vec4x4*>				mCBMap_BoneTransforms{};
 
 public:
 	void UpdateShaderVariables();
@@ -40,20 +36,18 @@ public:
 	void SetTrackAnimationClip(int trackIndex, int clipIndex);
 
 	void SetTrackEnable(int trackIndex, bool isEnable);
-	void SetTrackPosition(int trackIndex, float position);
 	void SetTrackSpeed(int trackIndex, float speed);
 	void SetTrackWeight(int trackIndex, float weight);
 
-	void AdvanceTime();
+	void Animate();
 
-	sptr<AnimationClip> GetClip(int trackIndex)
+	sptr<const AnimationClip> GetClip(int trackIndex) const
 	{
-		return mAnimationClips[mAnimationTracks[trackIndex].mClipIndex];
+		return mAnimationClips[mAnimationTracks[trackIndex].GetClipIndex()];
 	}
 
-	sptr<AnimationClip> GetClip(const AnimationTrack& track)
+	sptr<const AnimationClip> GetClip(const AnimationTrack& track) const
 	{
-		return mAnimationClips[track.mClipIndex];
+		return mAnimationClips[track.GetClipIndex()];
 	}
 };
-

@@ -40,7 +40,7 @@ public:
 	void SetModel(rsptr<const MasterModel> model);
 
 public:
-	virtual void Update();
+	virtual void Animate() override;
 	virtual void Render();
 
 	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)

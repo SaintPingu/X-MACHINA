@@ -16,28 +16,20 @@ AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int t
 	}
 }
 
-void AnimationClip::UpdatePosition(float elapsedPosition)
-{
-	mPosition += elapsedPosition;
-	if (mPosition > mLength) {
-		mPosition = 0.f;
-	}
-}
-
-Vec4x4 AnimationClip::GetSRT(int boneIndex)
+Vec4x4 AnimationClip::GetSRT(int boneIndex, float position) const
 {
 	Vec4x4 result = Matrix4x4::Identity();
 
 	const size_t keyFrameCnt = mKeyFrameTimes.size();
 	for (size_t i = 0; i < (keyFrameCnt - 1); ++i) {
-		if ((mKeyFrameTimes[i] <= mPosition) && (mPosition < mKeyFrameTimes[i + 1])) {
-			const float t = (mPosition - mKeyFrameTimes[i]) / (mKeyFrameTimes[i + 1] - mKeyFrameTimes[i]);
+		if ((mKeyFrameTimes[i] <= position) && (position < mKeyFrameTimes[i + 1])) {
+			const float t = (position - mKeyFrameTimes[i]) / (mKeyFrameTimes[i + 1] - mKeyFrameTimes[i]);
 			result = Matrix4x4::Interpolate(mKeyFrameTransforms[i][boneIndex], mKeyFrameTransforms[i + 1][boneIndex], t);
 			break;
 		}
 	}
 
-	if (mPosition >= mKeyFrameTimes[keyFrameCnt - 1]) {
+	if (position >= mKeyFrameTimes[keyFrameCnt - 1]) {
 		result = mKeyFrameTransforms[keyFrameCnt - 1][boneIndex];
 	}
 

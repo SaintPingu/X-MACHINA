@@ -1,22 +1,31 @@
 #pragma once
+
+// AnimationClip의 재생을 관리한다.
 class AnimationTrack {
+private:
+	bool 	mIsEnable  = true;
+	float 	mSpeed     = 3.f;
+	float 	mPosition  = 0.0f;
+	float 	mWeight    = 1.0f;
+	int 	mClipIndex = 0;
+
 public:
 	AnimationTrack() = default;
 	~AnimationTrack() = default;
 
-public:
-	bool 							mIsEnable       = true;
-	float 							mSpeed          = 1.0f;
-	float 							mPosition       = 0.0f;
-	float 							mWeight         = 1.0f;
-	int 							mClipIndex = 2;
+	float GetPosition() const { return mPosition; }
+	float GetWeight() const { return mWeight; }
+	int GetClipIndex() const { return mClipIndex; }
+	bool IsEnable() const { return mIsEnable; }
 
-public:
-	void SetAnimationSet(int clipIndex) { mClipIndex = clipIndex; }
-
+	void SetClip(int clipIndex) { mClipIndex = clipIndex; }
 	void SetEnable(bool isEnable) { mIsEnable = isEnable; }
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetWeight(float weight) { mWeight = weight; }
-	void SetPosition(float position) { mPosition = position; }
+
+public:
+	void Init();
+
+	void Animate(float maxLength);
 };
 

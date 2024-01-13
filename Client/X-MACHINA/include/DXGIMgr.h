@@ -60,14 +60,22 @@ private:
 	ComPtr<ID3D12Resource>			mDepthStencilBuff{};
 	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};
 
+	// frame resource
+	static constexpr UINT mFrameResourceCount = 1;
+	static constexpr UINT mMaxObjectCount = 1000;
+	std::vector<uptr<struct FrameResource>>		mFrameResources;
+	FrameResource*								mCurrFrameResource{};		// 현재 프레임의 프레임 리소스
+	int											mCurrFrameResourceIndex{};	// 현재 프레임의 프레임 리소스 인덱스
+
 	// command
 	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
 	ComPtr<ID3D12CommandQueue>			mCmdQueue{};
 	ComPtr<ID3D12GraphicsCommandList>	mCmdList{};
 
 	// fence
+	// fence array -> single object
 	ComPtr<ID3D12Fence>						mFence{};
-	std::array<UINT64, mSwapChainBuffCnt>	mFenceValues{};
+	UINT32									mFenceValues{};
 	HANDLE									mFenceEvent{};
 
 	// others
@@ -102,6 +110,9 @@ public:
 	// 강제종료
 	void Terminate();
 
+	// update dxgi
+	void Update();
+
 	// render scene
 	void Render();
 
@@ -113,11 +124,13 @@ public:
 	void ClearDepthStencil();
 
 private:
-	// reset command
-	void StartCommand();
+	// reset command 
+	// rename StartCommand -> RenderBegin
+	void RenderBegin();
 
 	// close command
-	void StopCommand();
+	// rename StopCommand -> RenderEnd
+	void RenderEnd();
 
 	// for CreateDirect3DDevice
 	void CreateFactory();
@@ -129,6 +142,9 @@ private:
 	void CreateDirect3DDevice();
 	void CreateCmdQueueAndList();
 	void CreateRtvAndDsvDescriptorHeaps();
+
+	// frame resource를 생성한다.
+	void CreateFrameResources();
 
 	void CreateSwapChain();
 	// swap chain의 RTV들을 생성한다.

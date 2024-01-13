@@ -81,7 +81,7 @@ public:
 #include <tchar.h>
 #include <math.h>
 #include <crtdbg.h>
-
+#include <comdef.h>
 #include <wrl.h>
 #include <shellapi.h>
 
@@ -144,6 +144,15 @@ public:
 #define _VECTOR(x)	XMLoadFloat3(&x)
 
 #define TO_STRING( x ) #x				// ex) TO_STRING(myVar) ==> "myVar"
+
+// DirectX 함수 hFunctionCall 함수를 평가하여 hResult가 실패했다면 예외를 발생시킨다.
+#define THROW_IF_FAILED(hFunctionCall)															\
+{																								\
+    HRESULT hResult = (hFunctionCall);															\
+    std::wstring fileName = AnsiToWString(__FILE__);											\
+    if(FAILED(hResult)) { throw DxException(hResult, L#hFunctionCall, fileName, __LINE__); }	\
+}
+
 #pragma endregion
 
 
@@ -293,6 +302,14 @@ constexpr unsigned int Hash(const std::wstring& str) noexcept
 inline void AssertHResult(HRESULT hResult)
 {
 	assert(SUCCEEDED(hResult));
+}
+
+// string 형식의 ANSI 문자열을 wstring으로 변환
+inline std::wstring AnsiToWString(const std::string& str)
+{
+	WCHAR buffer[512];
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
+	return std::wstring(buffer);
 }
 
 #pragma region EnumOperator_DWORD
@@ -490,7 +507,7 @@ namespace D3DUtil {
 	}
 }
 
-	#pragma region DirectXMath
+#pragma region DirectXMath
 namespace Vector3 {
 
 	inline Vec3 ScalarProduct(const Vec3& vector, float scalar, bool normalize = true) noexcept
@@ -945,6 +962,34 @@ namespace XMMatrix
 
 
 #pragma region Class
+class DxException {
+public:
+	HRESULT mErrorCode = S_OK;
+	std::wstring mFunctionName{};
+	std::wstring mFilename{};
+	int mLineNumber = -1;
+
+public:
+	DxException() = default;
+	DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& fileName, int lineNumber);
+
+	std::wstring ToString()const;
+};
+
+// 복사를 방지하기 위한 기본 클래스로 컴파일 시간에 복사 방지가 가능하다.
+// 복사하고 싶지 않은 객체가 있다면 이 클래스를 상속받는다.
+class UnCopyable {
+protected:
+	// 생성과 소멸은 허용한다.
+	UnCopyable() = default;
+	~UnCopyable() = default;
+
+private:
+	// 정의를 두지 않았으며 복사는 허용하지 않는다.
+	UnCopyable(const UnCopyable&);
+	UnCopyable& operator=(const UnCopyable&);
+};
+
 class MyBoundingOrientedBox : public BoundingOrientedBox {
 private:
 	Vec3 mOriginCenter{};	// 모델좌표계 Center
@@ -965,10 +1010,6 @@ public:
 		return static_cast<const BoundingOrientedBox&>(*this);
 	}
 };
-
-
-
-
 
 class MyBoundingSphere : public BoundingSphere {
 private:

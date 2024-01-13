@@ -61,12 +61,12 @@ void UI::DeleteUIMesh()
 
 
 #pragma region Font
-void Font::Create(const Vec3& pos, float width, float height)
+void MyFont::Create(const Vec3& pos, float width, float height)
 {
 	UI::Create(nullptr, pos, width, height);
 }
 
-void Font::UpdateShaderVarSprite(char ch) const
+void MyFont::UpdateShaderVarSprite(char ch) const
 {
 	constexpr float kCols = 8.f;
 	constexpr float kRows = 5.f;
@@ -90,7 +90,7 @@ void Font::UpdateShaderVarSprite(char ch) const
 	scene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(spriteMtx), 0);
 }
 
-void Font::Render()
+void MyFont::Render()
 {
 	mTexture->UpdateShaderVars();
 
@@ -121,12 +121,12 @@ void Font::Render()
 	SetPosition(originPos);
 }
 
-void Font::CreateFontTexture()
+void MyFont::CreateFontTexture()
 {
 	mTexture = canvas->GetTexture("Alphabet");
 }
 
-void Font::ReleaseFontTexture()
+void MyFont::ReleaseFontTexture()
 {
 	mTexture = nullptr;
 }
@@ -166,7 +166,7 @@ void Canvas::Release()
 
 void Canvas::BuildUIs()
 {
-	mFont = std::make_shared<Font>();
+	mFont = std::make_shared<MyFont>();
 	mFont->Create(Vec3(-600, 900, 0), 100, 100);
 	mFont->CreateFontTexture();
 	mFont->SetText("YOUR SCORE IS ");

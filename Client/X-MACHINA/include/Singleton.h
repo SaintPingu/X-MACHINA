@@ -7,8 +7,7 @@
 template<class T>
 class Singleton {
 private:
-	struct Deleter
-	{
+	struct Deleter {
 		void operator()(T* instance)
 		{
 			delete instance;

@@ -28,14 +28,13 @@ VSOutput_Standard VS_SkinnedMesh(VSInput_Standard input)
     for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
     {
         mtxVertexToBoneWorld += input.Weights[i] * mul(gpmtxBoneOffsets[input.Indices[i]], gpmtxBoneTransforms[input.Indices[i]]);
-        //mtxVertexToBoneWorld += input.Weights[i] * gpmtxBoneOffsets[input.Indices[i]];
     }
 
     output.PositionW = (float3) mul(float4(input.Position, 1.f), mtxVertexToBoneWorld);
+    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.NormalW = mul(input.Normal, (float3x3) mtxVertexToBoneWorld);
     output.TangentW = (float3) mul(float4(input.Tangent, 1.f), mtxVertexToBoneWorld);
     output.BiTangentW = (float3) mul(float4(input.BiTangent, 1.f), mtxVertexToBoneWorld);
-    output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = input.UV;
     
     if (gTextureMask > 0)

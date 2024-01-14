@@ -42,9 +42,7 @@ public:
 public:
 	virtual void Animate() override;
 	virtual void Render();
-
-	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
-	Transform* FindFrame(const std::string& frameName);
+	rsptr<AnimationController> GetAnimationController() const { return mAnimationController; }
 
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.

@@ -87,7 +87,7 @@ void Object::OnEnable()
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnEnable();
 		});
-	Transform::UpdateTransform();
+	Transform::ComputeWorldTransform();
 
 	if (!mIsStart) {
 		Start();
@@ -116,7 +116,7 @@ void Object::Start()
 	ProcessComponents([](rsptr<Component> component) {
 		component->Start();
 		});
-	Transform::UpdateTransform();
+	Transform::ComputeWorldTransform();
 }
 
 void Object::Update()
@@ -128,7 +128,7 @@ void Object::Update()
 			component->Update();
 		}
 		});
-	Transform::UpdateTransform();
+	Transform::ComputeWorldTransform();
 }
 
 void Object::Animate()
@@ -138,7 +138,7 @@ void Object::Animate()
 			component->Animate();
 		}
 		});
-	Transform::UpdateTransform();
+	Transform::ComputeWorldTransform();
 }
 
 void Object::OnDestroy()
@@ -177,6 +177,26 @@ void Object::OnCollisionStay(Object& other)
 }
 
 
+Transform* Object::FindFrame(const std::string& frameName)
+{
+	if (GetName() == frameName) {
+		return this;
+	}
+
+	Transform* transform{};
+	if (mSibling) {
+		if (transform = mSibling->GetObj<Object>()->FindFrame(frameName)) {
+			return transform;
+		}
+	}
+	if (mChild) {
+		if (transform = mChild->GetObj<Object>()->FindFrame(frameName)) {
+			return transform;
+		}
+	}
+
+	return nullptr;
+}
 
 void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
 	std::vector<sptr<Component>> components = mComponents;

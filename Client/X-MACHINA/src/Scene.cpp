@@ -271,7 +271,7 @@ void Scene::BuildObjects()
 	// Animation
 	//sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/GoToMountHippLayingLeftUnarmed.bin");
 	sptr<MasterModel> model = FileIO::LoadGeometryFromFile("Models/Meshes/SK_Ingenalvus.bin");
-	testObjects.resize(2);
+	testObjects.resize(3);
 	testObjects[0] = std::make_shared<GameObject>();
 	testObjects[0]->SetModel(model);
 	testObjects[0]->SetPosition(60, 105, 60);
@@ -279,8 +279,15 @@ void Scene::BuildObjects()
 
 	testObjects[1] = std::make_shared<GameObject>();
 	testObjects[1]->SetModel(model);
-	testObjects[1]->SetPosition(100, 105, 60);
-	testObjects[1]->Rotate(0, 135, 0);
+	testObjects[1]->SetPosition(110, 105, 60);
+	testObjects[1]->Rotate(0, 180, 0);
+	testObjects[1]->GetAnimationController()->SetTrackSpeed(0, 3.f);
+				
+	testObjects[2] = std::make_shared<GameObject>();
+	testObjects[2]->SetModel(model);
+	testObjects[2]->SetPosition(160, 105, 60);
+	testObjects[2]->Rotate(0, 180, 0);
+	testObjects[2]->GetAnimationController()->SetTrackAnimationClip(0, 1);
 }
 
 void Scene::ReleaseObjects()
@@ -950,7 +957,7 @@ void Scene::CreateBigExpFX(const Vec3& pos)
 }
 
 
-int Scene::GetGridIndexFromPos(Vec3 pos)
+int Scene::GetGridIndexFromPos(Vec3 pos) const
 {
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;

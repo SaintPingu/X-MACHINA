@@ -4,7 +4,7 @@
 class AnimationTrack {
 private:
 	bool 	mIsEnable  = true;
-	float 	mSpeed     = 3.f;
+	float 	mSpeed     = 1.f;
 	float 	mPosition  = 0.0f;
 	float 	mWeight    = 1.0f;
 	int 	mClipIndex = 0;

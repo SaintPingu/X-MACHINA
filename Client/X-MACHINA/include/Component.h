@@ -92,7 +92,7 @@ enum class ObjectType {
 // 유니티의 tag 문자열을 ObjectTag로 변환한다.
 ObjectTag GetTagByString(const std::string& tag);
 
-// 유니티의 Layer 번호를 ObjectLayer로 변환한다.
+// 유니티의 Layer 번호[num]를 ObjectLayer로 변환한다.
 ObjectLayer GetLayerByNum(int num);
 
 // ObjectTag에 따른 ObjectType을 반환한다.
@@ -263,6 +263,9 @@ public:
 
 	// 객체(other)와 충돌 시 호출된다.
 	virtual void OnCollisionStay(Object& other);
+
+	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
+	Transform* FindFrame(const std::string& frameName);
 
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.

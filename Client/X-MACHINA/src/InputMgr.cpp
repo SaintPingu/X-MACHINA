@@ -15,7 +15,7 @@ InputMgr::InputMgr()
 
 void InputMgr::Init()
 {
-	// 사용할 키들 목록
+	// 사용할 키들 목록ss
 	constexpr int kKeyList[] =
 	{
 		VK_ESCAPE, VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12,

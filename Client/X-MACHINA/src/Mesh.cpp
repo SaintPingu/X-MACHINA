@@ -641,19 +641,23 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 
 
+#pragma region SkinMesh
+void SkinMesh::CreateBufferResource(const std::vector<Vec4x4>& boneOffsets)
+{
+	size_t byteSize = D3DUtil::CalcConstantBuffSize(sizeof(Vec4x4) * gkSkinBoneSize);
+	D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_BindPoseBoneOffsets);
+	mCB_BindPoseBoneOffsets->Map(0, nullptr, (void**)&mCBMap_BindPoseBoneOffsets);
 
-
-
-
-
-
+	// bind pose는 고정이기 때문에 최초 1회만 값을 저장한다.
+	for (int i = 0; i < boneOffsets.size(); i++) {
+		XMStoreFloat4x4(&mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(_MATRIX(boneOffsets[i])));
+	}
+}
 
 void SkinMesh::UpdateShaderVariables()
 {
-	if (mCB_BindPoseBoneOffsets)
-	{
-		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneOffsetsGpuVirtualAddress = mCB_BindPoseBoneOffsets->GetGPUVirtualAddress();
-		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneOffset), d3dcbBoneOffsetsGpuVirtualAddress); //Skinned Bone Offsets
+	if (mCB_BindPoseBoneOffsets) {
+		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneOffset), mCB_BindPoseBoneOffsets->GetGPUVirtualAddress()); //Skinned Bone Offsets
 	}
 
 	if (mCB_BoneTransforms)
@@ -661,20 +665,10 @@ void SkinMesh::UpdateShaderVariables()
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneTransformsGpuVirtualAddress = mCB_BoneTransforms->GetGPUVirtualAddress();
 		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneTransform), d3dcbBoneTransformsGpuVirtualAddress); //Skinned Bone Transforms
 
-		int i{};
-		for (auto& boneFrame : mBoneFrames) {
-			XMStoreFloat4x4(&mCBMap_BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&boneFrame->GetWorldTransform())));
-			++i;
+		for (int j = 0; j < (*mBoneFrames).size(); j++)
+		{
+			XMStoreFloat4x4(&mCBMap_BoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&(*mBoneFrames)[j]->GetWorldTransform())));
 		}
-	}
-}
-
-void SkinMesh::PrepareSkinning(GameObject* model)
-{
-	int i{};
-	for (auto& boneFrame : mBoneNames) {
-		mBoneFrames[i] = model->FindFrame(mBoneNames[i])->GetObj<GameObject>();
-		++i;
 	}
 }
 #pragma endregion

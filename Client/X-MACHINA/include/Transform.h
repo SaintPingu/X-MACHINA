@@ -144,6 +144,9 @@ public:
 	// set local transform to previous transform
 	void ReturnToPrevTransform();
 
+	// 부모의 world transform과 내 local transform을 곱해 내 world transform을 계산한다.
+	void ComputeWorldTransform(const Vec4x4* parentTransform = nullptr);
+
 private:
 	// set axis vectors from local transform
 	void UpdateAxis(bool isComputeWorldTransform = true);
@@ -153,16 +156,12 @@ private:
 	// 부모의 world transform을 적용한 transform을 반환
 	void RequestTransform(Vec4x4& transform);
 
-	// 부모의 world transform과 내 local transform을 곱해 내 world transform을 계산한다.
-	void ComputeWorldTransform(const Vec4x4* parentTransform = nullptr);
-
 public:
 #pragma endregion
 
 	/* Others */
 	virtual void Awake();
 	void BeforeUpdateTransform();
-	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
 	virtual void UpdateShaderVars() const;
 

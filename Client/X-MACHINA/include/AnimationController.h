@@ -16,19 +16,19 @@ struct AnimationLoadInfo {
 
 // Animation의 재생 및 상태 전이 등의 전반을 관리한다.
 class AnimationController {
-public:
-	AnimationController(int animationTrackCount, rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
-	~AnimationController();
-
-public:
+private:
 	std::vector<AnimationTrack>				mAnimationTracks{};
 	std::vector<sptr<const AnimationClip>> mAnimationClips{};
 
-	std::vector<Transform*>		mAninmatedBoneFrames{};
+	std::vector<std::vector<Transform*>>	mBoneFramesList{};
 	std::vector<sptr<SkinMesh>> mSkinMeshes{};
 
 	std::vector<ComPtr<ID3D12Resource>> mCB_BoneTransforms{};
 	std::vector<Vec4x4*>				mCBMap_BoneTransforms{};
+
+public:
+	AnimationController(int animationTrackCount, rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
+	~AnimationController();
 
 public:
 	void UpdateShaderVariables();
@@ -41,6 +41,7 @@ public:
 
 	void Animate();
 
+private:
 	sptr<const AnimationClip> GetClip(int trackIndex) const
 	{
 		return mAnimationClips[mAnimationTracks[trackIndex].GetClipIndex()];

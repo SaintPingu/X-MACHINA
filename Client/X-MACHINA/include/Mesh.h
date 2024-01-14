@@ -7,6 +7,7 @@ class Transform;
 class ModelObject;
 class GameObject;
 class ObjectPool;
+class Object;
 #pragma endregion
 
 
@@ -191,27 +192,23 @@ private:
 
 class SkinMesh : public Mesh {
 public:
-	SkinMesh() = default;
-	virtual ~SkinMesh() = default;
-
-protected:
-	static constexpr int kBonesPerVertex = 4;
-
-public:
 	std::vector<std::string> mBoneNames;
-	std::vector<GameObject*> mBoneFrames{};
-
-	std::vector<Vec4x4> mBindPoseBoneOffsets{};
-
-	ComPtr<ID3D12Resource> mCB_BindPoseBoneOffsets{};
-	Vec4x4* mCBMap_BindPoseBoneOffsets{};
 
 	ComPtr<ID3D12Resource> mCB_BoneTransforms{};
 	Vec4x4* mCBMap_BoneTransforms{};
+	std::vector<Transform*>* mBoneFrames;
+
+private:
+	ComPtr<ID3D12Resource>	mCB_BindPoseBoneOffsets{};
+	Vec4x4*					mCBMap_BindPoseBoneOffsets{};
 
 public:
-	void PrepareSkinning(GameObject* model);
+	SkinMesh() = default;
+	virtual ~SkinMesh() = default;
 
-	virtual void UpdateShaderVariables();
+public:
+	void CreateBufferResource(const std::vector<Vec4x4>& boneOffsets);
+
+	void UpdateShaderVariables();
 };
 #pragma endregion

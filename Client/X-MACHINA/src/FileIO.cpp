@@ -166,7 +166,6 @@ namespace {
 				FileIO::ReadVal(file, skinBoneCnt);
 				if (skinBoneCnt > 0) {
 					mesh->mBoneNames.resize(skinBoneCnt);
-					mesh->mBoneFrames.resize(skinBoneCnt);
 					for (int i = 0; i < skinBoneCnt; i++)
 					{
 						FileIO::ReadString(file, mesh->mBoneNames[i]);
@@ -180,17 +179,10 @@ namespace {
 				int skinBoneCnt{};
 				FileIO::ReadVal(file, skinBoneCnt);
 				if (skinBoneCnt > 0) {
-					mesh->mBindPoseBoneOffsets.resize(skinBoneCnt);
-					FileIO::ReadRange(file, mesh->mBindPoseBoneOffsets, skinBoneCnt);
+					std::vector<Vec4x4> boneOffsets(skinBoneCnt);
+					FileIO::ReadRange(file, boneOffsets, skinBoneCnt);
 
-					size_t byteSize = (((sizeof(XMFLOAT4X4) * gkSkinBoneSize) + 255) & ~255); //256의 배수
-					D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mesh->mCB_BindPoseBoneOffsets);
-					mesh->mCB_BindPoseBoneOffsets->Map(0, nullptr, (void**)&mesh->mCBMap_BindPoseBoneOffsets);
-
-					// bind pose는 고정이기 때문에 최초 1회만 값을 저장한다.
-					for (int i = 0; i < skinBoneCnt; i++) {
-						XMStoreFloat4x4(&mesh->mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(XMLoadFloat4x4(&mesh->mBindPoseBoneOffsets[i])));
-					}
+					mesh->CreateBufferResource(boneOffsets);
 				}
 			}
 
@@ -533,9 +525,6 @@ namespace FileIO {
 		masterModel->SetModel(model);
 
 		if (animationInfo) {
-			std::sort(animationInfo->SkinMeshes.begin(), animationInfo->SkinMeshes.end(), [](rsptr<SkinMesh> first, rsptr<SkinMesh> second) {
-				return first->mBoneFrames.size() > second->mBoneFrames.size();
-				});
 			masterModel->SetAnimationInfo(animationInfo);
 		}
 

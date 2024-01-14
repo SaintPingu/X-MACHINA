@@ -65,27 +65,6 @@ void GameObject::Render()
 	}
 }
 
-Transform* GameObject::FindFrame(const std::string& frameName)
-{
-	if (GetName() == frameName) {
-		return this;
-	}
-
-	Transform* transform{};
-	if (mSibling) {
-		if (transform = mSibling->GetObj<GameObject>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-	if (mChild) {
-		if (transform = mChild->GetObj<GameObject>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-
-	return nullptr;
-}
-
 
 void GameObject::AttachToGround()
 {

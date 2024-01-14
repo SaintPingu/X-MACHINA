@@ -927,7 +927,7 @@ namespace Matrix4x4 {
 		return result;
 	}
 
-	inline Vec4x4 Add(const Vec4x4& matrix1, Vec4x4& matrix2)
+	inline Vec4x4 Add(const Vec4x4& matrix1, const Vec4x4& matrix2)
 	{
 		Vec4x4 result;
 		XMStoreFloat4x4(&result, _MATRIX(matrix1) + _MATRIX(matrix2));

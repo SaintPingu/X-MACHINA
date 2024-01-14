@@ -294,7 +294,7 @@ private:
 	void CreateSmallExpFX(const Vec3& pos);
 	void CreateBigExpFX(const Vec3& pos);
 
-	int GetGridIndexFromPos(Vec3 pos);
+	int GetGridIndexFromPos(Vec3 pos) const;
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
 
 	void DeleteExplodedObjects();

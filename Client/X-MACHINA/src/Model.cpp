@@ -126,6 +126,11 @@ rsptr<Texture> MasterModel::GetTexture() const
 	return mMesh->GetTexture();
 }
 
+void MasterModel::SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo)
+{
+	mAnimationInfo = animationInfo;
+}
+
 void MasterModel::ReleaseUploadBuffers()
 {
 	mMesh->ReleaseUploadBuffers();
@@ -141,7 +146,7 @@ void MasterModel::SetModel(const rsptr<Model> model)
 	mMerged = true;
 }
 
-void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials)
+void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials) const
 {
 	assert(!mMerged);
 

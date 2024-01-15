@@ -384,6 +384,11 @@ namespace Math {
 		return min + ((float)rand() / (float)RAND_MAX) * (max - min);
 	}
 
+	constexpr float uint16ToFloat(std::uint16_t value)
+	{
+		return static_cast<float>(value) / 65535.0f * 255.0f;
+	}
+
 	constexpr int Sign(float x)
 	{
 		return (x >= FLT_EPSILON) ? 1 : -1;

@@ -18,22 +18,24 @@ class TerrainBlock;
 
 
 #pragma region Variable
-constexpr int gkTerrainLength = 513;
+constexpr int gkTerrainLength = 1024;
 #pragma endregion
 
 
 #pragma region Class
 // 2D height map 정보를 읽고 저장한다.
+// 하이트맵이 16비트인지 32비트인지에 따라 처리하기 위함
 class HeightMapImage {
 private:
-	std::vector<float> mHeightMapPixels{};
+	std::vector<float>	mHeightMapPixels{};
 
 	int mWidth{};
 	int mLength{};
 
 public:
 	// [fileName]의 파일을 [width * height]만큼 읽어 저장한다.
-	HeightMapImage(const std::wstring& fileName, int width, int length);
+	HeightMapImage(const std::wstring& fileName);
+
 	virtual ~HeightMapImage() = default;
 
 	float GetHeight(float x, float z) const;
@@ -42,6 +44,33 @@ public:
 	const std::vector<float>& GetHeightMapPixels() const { return mHeightMapPixels; }
 	int GetHeightMapWidth() const { return mWidth; }
 	int GetHeightMapLength() const { return mLength; }
+
+private:
+	template<typename T>
+	void LoadHeightMap(const std::wstring& fileName) {
+		std::vector<T> pHeightMapPixels((size_t)mWidth * mLength);
+
+		std::ifstream in{ fileName, std::ios::binary };
+		in.read(reinterpret_cast<char*>(pHeightMapPixels.data()), mWidth * mLength * sizeof(T));
+
+		// float 타입일 경우 빠르게 이동
+		if constexpr (std::is_same_v<T, float>) {
+			mHeightMapPixels = std::move(pHeightMapPixels);
+			return;
+		}
+
+		mHeightMapPixels.resize((size_t)mWidth * mLength);
+
+		// uint16_t 타입일 경우 변환 진행
+		for (int y = 0; y < mLength; y++) {
+			for (int x = 0; x < mWidth; x++) {
+				const size_t index = (size_t)x + ((size_t)y * mWidth);
+				if constexpr (std::is_same_v<T, uint16_t>) {
+					mHeightMapPixels[index] = Math::uint16ToFloat(pHeightMapPixels[index]);
+				}
+			}
+		}
+	}
 };
 
 
@@ -66,7 +95,7 @@ private:
 	int mLength{};	// length of entire Terrain
 
 public:
-	Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength);
+	Terrain(const std::wstring& fileName);
 	virtual ~Terrain() = default;
 
 	int GetWidth() const	{ return mWidth; }

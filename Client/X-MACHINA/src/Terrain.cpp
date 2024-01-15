@@ -11,10 +11,7 @@
 #define _WITH_APPROXIMATE_OPPOSITE_CORNER
 
 namespace {
-	float uint16ToFloat(std::uint16_t value)
-	{
-		return static_cast<float>(value) / 65535.0f * 255.0f;
-	}
+	// 템플릿 함수에서 사용하기 위해 uint16ToFloat 함수를 stdafx.h => Math 네임 스페이스로 이동
 
 	// 중심점(center)을 기준으로 정점들의 위치를 순회하며 BoundingSphere를 계산
 	MyBoundingSphere CalculateBoundingSphere(const Vec3& center, const std::vector<Vec3>& positions)
@@ -64,32 +61,40 @@ namespace {
 
 
 #pragma region HeightMapImage
-HeightMapImage::HeightMapImage(const std::wstring& fileName, int width, int length)
-	:
-	mWidth(width),
-	mLength(length)	// [ERROR] '*2' 안하면 절반밖에 로딩이 안되는 문제
+HeightMapImage::HeightMapImage(const std::wstring& fileName)
 {
-	std::vector<uint16_t> pHeightMapPixels(mWidth * length * 2);
+#pragma region Extract
+	// HeightMap name example : "HeightMap_513x513_R16.raw"
+	size_t underScorePos = fileName.find(L"HeightMap_") + std::wstring{ L"HeightMap_" }.length() - 1;
+	size_t fileExtPos = fileName.find(std::filesystem::path(fileName).extension());
 
-	//파일을 열고 읽는다. 높이 맵 이미지는 파일 헤더가 없는 RAW 이미지이다.
-	HANDLE hFile = ::CreateFile(fileName.data(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, nullptr);
+	// desiredPart name example : "513x513_R16"
+	std::wstring desiredPart = (underScorePos != std::wstring::npos && fileExtPos != std::wstring::npos)
+		? fileName.substr(underScorePos + 1, fileExtPos - underScorePos - 1) : L"";
 
-	DWORD dwBytesRead;
-	BOOL success = ::ReadFile(hFile, pHeightMapPixels.data(), (mWidth * length * 2), &dwBytesRead, nullptr);
-	if (!success) {
-		throw std::runtime_error("terrain file does not exist!");
-	}
-	::CloseHandle(hFile);
+	// fileFormat name example : "R16", "R32"
+	underScorePos = desiredPart.find(L"_");
+	std::wstring fileFormat = desiredPart.substr(underScorePos + 1);
 
-	mHeightMapPixels.resize((size_t)mWidth * length * 2);
-	for (int y = 0; y < length * 2; y++)
+	// extract width, length
+	size_t xPos = desiredPart.find(L"x");
+	mWidth = std::stoi(desiredPart.substr(0, xPos));
+	mLength = std::stoi(desiredPart.substr(xPos + 1));
+#pragma endregion
+
+#pragma region Load
+	switch (Hash(fileFormat))
 	{
-		for (int x = 0; x < mWidth; x++)
-		{
-			const size_t index = (size_t)x + ((size_t)y * mWidth);
-			mHeightMapPixels[index] = uint16ToFloat(pHeightMapPixels[index]);
-		}
+	case Hash("R16"):
+		LoadHeightMap<uint16_t>(fileName);
+		break;
+	case Hash("R32"):
+		LoadHeightMap<float>(fileName);
+		break;
+	default:
+		break;
 	}
+#pragma endregion
 }
 
 
@@ -176,11 +181,15 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 
 #pragma region Terrain
-Terrain::Terrain(const std::wstring& fileName, int width, int length, int blockWidth, int blockLength) : Transform(this),
-	mWidth(width), 
-	mLength(length)
+Terrain::Terrain(const std::wstring& fileName) : Transform(this)
 {
-	mHeightMapImage = std::make_shared<HeightMapImage>(fileName, width, length);
+	mHeightMapImage = std::make_shared<HeightMapImage>(fileName);
+
+	mWidth = mHeightMapImage->GetHeightMapWidth();
+	mLength = mHeightMapImage->GetHeightMapLength();
+
+	int blockWidth = (mWidth - 1) / 8 + 1;
+	int blockLength = (mLength - 1) / 8 + 1;
 
 	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
 	const int xQuadsPerBlock = blockWidth - 1;

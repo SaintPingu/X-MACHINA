@@ -336,9 +336,12 @@ void Scene::BuildPlayers()
 
 void Scene::BuildTerrain()
 {
-	constexpr int kTerrainGridLength = (gkTerrainLength - 1) / 8 + 1; // (512 / 8) = 64, 64 + 1 = 65
+	// HeightMap List
+	// HeightMap_512x1024_R32
+	// HeightMap_513x513_R16
+	// HeightMap_1024x1024_R32
 
-	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap.raw", gkTerrainLength, gkTerrainLength, kTerrainGridLength, kTerrainGridLength);
+	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap_512x1024_R32.raw");
 
 	BuildGrid();
 }

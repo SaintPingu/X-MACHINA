@@ -51,14 +51,15 @@ public:
 
 
 // for render font
-class Font : public UI {
+// comdef.h의 Font와 중복되어 이름 변경 Font -> MyFont
+class MyFont : public UI {
 private:
 	std::string mText{};	// "YOUR SCORE IS "
 	std::string mScore{};
 
 public:
-	Font() = default;
-	virtual ~Font() = default;
+	MyFont() = default;
+	virtual ~MyFont() = default;
 
 	void SetText(const std::string& text) { mText = text; }
 	void SetScore(const std::string& score) { mScore = score; }
@@ -86,7 +87,7 @@ class Canvas : public Singleton<Canvas> {
 
 private:
 	std::vector<sptr<UI>>	mUIs{};		// all UIs
-	sptr<Font>				mFont{};
+	sptr<MyFont>			mFont{};
 	sptr<CanvasShader>		mShader{};
 
 	std::unordered_map<std::string, sptr<Texture>> mTextureMap{}; // UI folder에서 load한 모든 UI texture 모음

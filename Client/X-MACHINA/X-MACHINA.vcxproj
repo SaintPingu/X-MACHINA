@@ -183,6 +183,7 @@
     <ClCompile Include="src\DescriptorHeap.cpp" />
     <ClCompile Include="src\DXGIMgr.cpp" />
     <ClCompile Include="src\FileIO.cpp" />
+    <ClCompile Include="src\FrameResource.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\Grid.cpp" />
     <ClCompile Include="src\InputMgr.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="include\DirectX12_Project.h" />
     <ClInclude Include="include\DXGIMgr.h" />
     <ClInclude Include="include\FileIO.h" />
+    <ClInclude Include="include\FrameResource.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
     <ClInclude Include="include\Grid.h" />
@@ -272,6 +274,7 @@
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\UI.h" />
+    <ClInclude Include="include\UploadBuffer.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>

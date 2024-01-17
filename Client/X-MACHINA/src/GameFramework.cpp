@@ -75,6 +75,9 @@ void Framework::FrameAdvance()
 	// update input
 	InputMgr::Inst()->Update();
 
+	// update dxgi
+	dxgi->Update();
+
 	// update scene
 	scene->Update();
 

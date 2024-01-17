@@ -268,3 +268,21 @@ bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>&
 	return false;
 }
 #pragma endregion
+
+DxException::DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& fileName, int lineNumber)
+	:
+	mErrorCode(hr),
+	mFunctionName(functionName),
+	mFilename(fileName),
+	mLineNumber(lineNumber)
+{
+
+}
+
+std::wstring DxException::ToString() const
+{
+	_com_error err(mErrorCode);
+	std::wstring msg = err.ErrorMessage();
+
+	return mFunctionName + L" failed in " + mFilename + L"; line " + std::to_wstring(mLineNumber) + L"; error: " + msg;
+}

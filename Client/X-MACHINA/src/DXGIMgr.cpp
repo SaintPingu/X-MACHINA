@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DXGIMgr.h"
+#include "FrameResource.h"
 
 #include "Scene.h"
 #include "Shader.h"
@@ -30,6 +31,8 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateSwapChainRTVs();
 	CreateDSV();
 
+	CreateFrameResources();
+
 	BuildScene();
 
 	CreatePostProcessingShader();
@@ -52,11 +55,29 @@ void DXGIMgr::Terminate()
 	}
 }
 
+void DXGIMgr::Update()
+{
+	// 프레임마다 프레임 리소스를 순환하여 현재의 프레임 리소스를 저장한다.
+	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % mFrameResourceCount;
+	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
+
+	// 프레임 리소스 개수만큼의 순환이 끝났음에도 GPU가 첫 프레임의 리소스를 처리하지 않았다면 동기화 해야 한다.
+	if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
+	{
+		HANDLE eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+		THROW_IF_FAILED(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+}
 
 void DXGIMgr::Render()
 {
-	mCmdAllocator->Reset();
-	StartCommand();
+	// 현재 프레임의 명령 할당자를 가져온다.
+	auto cmdAllocator = mCurrFrameResource->CmdAllocator;
+
+	cmdAllocator->Reset();
+	RenderBegin();
 
 	// set before barrier (present -> render target)
 	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -103,7 +124,7 @@ void DXGIMgr::Render()
 	// set after barrier (render target -> present)
 	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-	StopCommand();
+	RenderEnd();
 
 	mSwapChain->Present(0, 0);
 
@@ -131,18 +152,20 @@ void DXGIMgr::ClearDepthStencil()
 
 
 
-void DXGIMgr::StartCommand()
+void DXGIMgr::RenderBegin()
 {
-	mCmdList->Reset(mCmdAllocator.Get(), NULL);
-}
+	auto cmdAllocator = mCurrFrameResource->CmdAllocator;
 
-void DXGIMgr::StopCommand()
+	mCmdList->Reset(cmdAllocator.Get(), NULL);
+}
+void DXGIMgr::RenderEnd()
 {
 	mCmdList->Close();
 	ID3D12CommandList* cmdLists[] = { mCmdList.Get() };
 	mCmdQueue->ExecuteCommandLists(1, cmdLists);
 
-	WaitForGpuComplete();
+	// 다음 프레임으로 넘어갈 때 동기화를 하지 않는다.
+	//WaitForGpuComplete();
 }
 
 
@@ -203,9 +226,6 @@ void DXGIMgr::CreateFence()
 {
 	HRESULT hResult = mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence));
 	AssertHResult(hResult);
-	for (UINT i = 0; i < mFenceValues.size(); i++) {
-		mFenceValues[i] = 0;
-	}
 	mFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
@@ -300,6 +320,15 @@ void DXGIMgr::CreateSwapChain()
 
 	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
+}
+
+
+void DXGIMgr::CreateFrameResources()
+{
+	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
+	for (int i = 0; i < mFrameResourceCount; ++i) {
+		mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), mMaxObjectCount));
+	}
 }
 
 
@@ -410,7 +439,7 @@ void DXGIMgr::ChangeSwapChainState()
 
 void DXGIMgr::WaitForGpuComplete()
 {
-	UINT64 fenceValue = ++mFenceValues[mSwapChainBuffCurrIdx];
+	UINT64 fenceValue = ++mFenceValues;
 	mCmdQueue->Signal(mFence.Get(), fenceValue);
 
 	if (mFence->GetCompletedValue() < fenceValue) {
@@ -421,18 +450,26 @@ void DXGIMgr::WaitForGpuComplete()
 
 void DXGIMgr::MoveToNextFrame()
 {
+	// 다음 프레임으로 넘어갈 때 동기화를 하지 않는다.
 	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
-	WaitForGpuComplete();
+	mCurrFrameResource->Fence = ++mFenceValues;
+	mCmdQueue->Signal(mFence.Get(), mFenceValues);
 }
 
 void DXGIMgr::BuildScene()
 {
-	StartCommand();
+	// 처음 빌드할때는 프레임 리소스의 명령 할당자가 아니어야 한다.
+	mCmdList->Reset(mCmdAllocator.Get(), nullptr);
 
 	scene->BuildObjects();
 
-	StopCommand();
+	mCmdList->Close();
+	ID3D12CommandList* cmdsLists[] = { mCmdList.Get() };
+	mCmdQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	// GPU의 모든 실행이 끝난 후 업로드 버퍼를 해제해야 한다.
+	WaitForGpuComplete();
 
 	scene->ReleaseUploadBuffers();
 }

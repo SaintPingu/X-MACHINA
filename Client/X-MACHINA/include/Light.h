@@ -11,42 +11,12 @@ enum class LightType {
 
 
 #pragma region Variable
-constexpr int gkMaxSceneLight = 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
+// move to stdafx.h
 #pragma endregion
 
 
 #pragma region Struct
-// must be matched with Light.hlsl LightInfo
-struct LightInfo {
-	Vec4	Ambient{};
-	Vec4	Diffuse{};
-	Vec4	Specular{};
-
-	Vec3	Position{};
-	float	Falloff{};
-
-	Vec3	Direction{};
-	float	Theta{};
-
-	Vec3	Attenuation{};
-	float	Phi{};
-
-	float	Range{};
-	float	Padding{};
-	int		Type{};
-	bool	IsEnable{};
-};
-
-// must be matched with Light.hlsl cbLights
-struct SceneLight {
-	std::array<LightInfo, gkMaxSceneLight> Lights{};
-
-	Vec4	GlobalAmbient{};
-
-	Vec4	FogColor{};
-	float	FogStart = 100.f;
-	float	FogRange = 300.f;
-};
+// move to stdafx.h
 #pragma endregion
 
 
@@ -55,8 +25,6 @@ class Light {
 private:
 	sptr<SceneLight> mLights{};	// all lights in scene
 
-	ComPtr<ID3D12Resource>	mCB_Lights{};
-	SceneLight*				mCBMap_Lights{};
 	size_t					mCurrLightCnt{};	// count of allocated light in scene
 
 	std::unordered_map<std::string, const LightInfo*> mLightModels{};	// 하나의 조명 모델에 대해 여러 조명을 동적으로 생성 가능한 모델 목록
@@ -69,6 +37,8 @@ public:
 	const LightInfo* GetLightModel(const std::string& modelName) const;
 	// [index]에 따른 LightInfo를 반환한다.
 	LightInfo* GetLight(int index) const { return &mLights->Lights[index]; }
+	// 전체 조명을 반환한다.
+	rsptr<SceneLight> GetSceneLights() const { return mLights; }
 
 public:
 
@@ -76,10 +46,6 @@ public:
 	void InsertLightModel(const std::string& name, const LightInfo* light) { mLightModels.insert(std::make_pair(name, light)); }
 
 	void BuildLights(FILE* file);
-
-	void CreateShaderVars();
-	void UpdateShaderVars();
-	void ReleaseShaderVars();
 
 private:
 

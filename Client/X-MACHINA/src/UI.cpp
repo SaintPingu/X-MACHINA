@@ -7,6 +7,8 @@
 #include "Mesh.h"
 #include "FileIO.h"
 
+#include "DXGIMgr.h"
+#include "FrameResource.h"
 
 
 #pragma region UI
@@ -32,8 +34,11 @@ void UI::Update()
 
 void UI::UpdateShaderVars() const
 {
-	Matrix scaling = XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform()));
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(scaling), 0);
+	ObjectConstants objectConstants;
+	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
+	frmResMgr->CopyData(mObjCBIdx, objectConstants);
+
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIdx));
 }
 
 void UI::Render()
@@ -64,9 +69,10 @@ void UI::DeleteUIMesh()
 void MyFont::Create(const Vec3& pos, float width, float height)
 {
 	UI::Create(nullptr, pos, width, height);
+	mObjCBIdxes = std::vector<int>(30, -1);
 }
 
-void MyFont::UpdateShaderVarSprite(char ch) const
+void MyFont::UpdateShaderVars(char ch, int cnt) const
 {
 	constexpr float kCols = 8.f;
 	constexpr float kRows = 5.f;
@@ -86,8 +92,22 @@ void MyFont::UpdateShaderVarSprite(char ch) const
 	spriteMtx._22 = 1.f / kRows;
 	spriteMtx._31 = col / kCols;
 	spriteMtx._32 = row / kRows;
+	
+	// 객체를 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없기 때문에 렌더링을 해야 하는 경우에만 set하도록 변경
+	ObjectConstants objectConstants;
+	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
+	objectConstants.MtxSprite = XMMatrix::Transpose(spriteMtx);
 
-	scene->SetGraphicsRoot32BitConstants(RootParam::SpriteInfo, XMMatrix::Transpose(spriteMtx), 0);
+	// -1로 초기화 되어 있는 mObjCBIdxes에 가용 인덱스를 저장하고 해당 배열에 있는 인덱스로만 set을 한다.
+	frmResMgr->CopyData(mObjCBIdxes[cnt], objectConstants);
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIdxes[cnt]));
+}
+
+void MyFont::OnDisable()
+{
+	for (const auto objCBIdx : mObjCBIdxes) {
+		frmResMgr->ReturnObjCBIdx(mObjCBIdx);
+	}
 }
 
 void MyFont::Render()
@@ -97,10 +117,11 @@ void MyFont::Render()
 	Vec3 originPos = GetPosition();
 	Vec3 fontPos = GetPosition();
 
+	int cnt{};
 	for (char ch : mText) {
-		UpdateShaderVars();
+		// 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없다.
 		if (ch != ' ') {
-			UpdateShaderVarSprite(ch);
+			UpdateShaderVars(ch, cnt++);
 			mMesh->Render();
 		}
 
@@ -108,9 +129,8 @@ void MyFont::Render()
 		SetPosition(fontPos);
 	}
 	for (char ch : mScore) {
-		UpdateShaderVars();
 		if (ch != ' ') {
-			UpdateShaderVarSprite(ch);
+			UpdateShaderVars(ch, cnt++);
 			mMesh->Render();
 		}
 
@@ -160,7 +180,7 @@ void Canvas::Release()
 {
 	UI::DeleteUIMesh();
 	mFont->ReleaseFontTexture();
-
+	mFont->OnDisable();
 	Destroy();
 }
 

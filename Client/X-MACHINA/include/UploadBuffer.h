@@ -4,12 +4,6 @@
 class Transform;
 #pragma endregion
 
-#pragma region Struct
-struct ObjectConstants {
-    Matrix MtxWorld{};
-};
-#pragma endregion
-
 // 여러개의 상수 버퍼를 한 번에 관리하기 위한 클래스
 // 복사가 되지 않아야 한다.
 template<typename T>
@@ -83,7 +77,7 @@ public:
     }
 
     // 매핑된 메모리에 데이터를 복사하는 함수
-    void CopyData(int& elementIndex, const T& data) {
+    void CopyData(int elementIndex, const T& data) {
         memcpy(&mMappedData[elementIndex * mElementByteSize], &data, sizeof(T));
     }
 };

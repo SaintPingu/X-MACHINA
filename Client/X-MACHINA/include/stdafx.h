@@ -224,12 +224,12 @@ enum class CameraMode {
 // 32BitConstant => scene->SetGraphicsRoot32BitConstants(RootParam, ...);
 enum class RootParam {
 	GameObjectInfo = 0,
-	Camera,
-	Light,
-	GameInfo,
-	SpriteInfo,
-
-	GameObject, // 구현중
+	Object,
+	Pass,
+	//Light,
+	//Camera,
+	//GameInfo,
+	//SpriteInfo,
 
 	Instancing,
 
@@ -253,6 +253,7 @@ enum class RootParam {
 #pragma region Variable
 constexpr short gkFrameBufferWidth  = 1280;
 constexpr short gkFrameBufferHeight = 960;
+constexpr int	gkMaxSceneLight = 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
 #pragma endregion
 
 
@@ -264,6 +265,38 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> UV1Buffer{};
 	ComPtr<ID3D12Resource> TangentBuffer{};
 	ComPtr<ID3D12Resource> BiTangentBuffer{};
+};
+
+// must be matched with Light.hlsl LightInfo
+struct LightInfo {
+	Vec4	Ambient{};
+	Vec4	Diffuse{};
+	Vec4	Specular{};
+
+	Vec3	Position{};
+	float	Falloff{};
+
+	Vec3	Direction{};
+	float	Theta{};
+
+	Vec3	Attenuation{};
+	float	Phi{};
+
+	float	Range{};
+	float	Padding{};
+	int		Type{};
+	bool	IsEnable{};
+};
+
+// must be matched with Light.hlsl cbLights
+struct SceneLight {
+	std::array<LightInfo, gkMaxSceneLight> Lights{};
+
+	Vec4	GlobalAmbient{};
+
+	Vec4	FogColor{};
+	float	FogStart = 100.f;
+	float	FogRange = 300.f;
 };
 #pragma endregion
 

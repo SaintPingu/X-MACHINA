@@ -10,7 +10,7 @@
 class Script_Billboard : public Component {
 	COMPONENT(Script_Billboard, Component)
 
-private:
+protected:
 	float mScale{ 1.f };
 
 public:
@@ -18,6 +18,7 @@ public:
 
 public:
 	virtual void Update() override;
+	virtual void OnDestroy() override;
 
 public:
 	virtual void UpdateSpriteVariable() const;

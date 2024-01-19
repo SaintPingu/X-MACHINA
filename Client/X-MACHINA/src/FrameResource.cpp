@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "FrameResource.h"
 
-FrameResource::FrameResource(ID3D12Device* pDevice, UINT objectCount)
+FrameResource::FrameResource(ID3D12Device* pDevice, UINT passCount, UINT objectCount)
 {
 	THROW_IF_FAILED(pDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(CmdAllocator.GetAddressOf())));
 
+	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, passCount, true);
 	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, objectCount, true);
 }
 
@@ -18,16 +19,28 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 {
 }
 
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr() const
+{
+	const auto& passCB = mCurrFrameResource->PassCB;
+	return passCB->Resource()->GetGPUVirtualAddress();
+}
+
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetObjCBGpuAddr(int elementIndex) const
+{
+	const auto& objectCB = mCurrFrameResource->ObjectCB;
+	return objectCB->Resource()->GetGPUVirtualAddress() + elementIndex * objectCB->GetElementByteSize();
+}
+
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 현재 사용중이지 않은 버퍼의 인덱스를 담은 큐를 최대 개수만큼 초기화한다. (현재 : 0~999)
-	for (int i = 0; i < mMaxObjectCount; ++i) {
+	for (int i = 0; i < mObjectCount; ++i) {
 		mAvailableObjCBIdxes.push(i);
 	}
 
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
 	for (int i = 0; i < mFrameResourceCount; ++i) {
-		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mMaxObjectCount));
+		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mObjectCount));
 	}
 
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
@@ -74,5 +87,10 @@ void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
 
 	// 매핑된 메모리에 데이터 복사
 	mCurrFrameResource->ObjectCB->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(const PassConstants& data)
+{
+	mCurrFrameResource->PassCB->CopyData(0, data);
 }
 

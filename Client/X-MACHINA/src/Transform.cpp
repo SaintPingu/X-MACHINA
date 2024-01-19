@@ -361,7 +361,7 @@ void Transform::UpdateShaderVars() const
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
 	frmResMgr->CopyData(mObjCBIdx, objectConstants);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::GameObject, frmResMgr->GetObjCBGpuAddr(mObjCBIdx));
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIdx));
 }
 
 void Transform::NormalizeAxis()

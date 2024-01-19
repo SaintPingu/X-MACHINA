@@ -70,6 +70,7 @@ public:
 
 	/* ObjectCB Index */
 	const int GetObjCBIdx() const			{ return mObjCBIdx; }
+	const bool GetUseObjCB() const			{ return mUseObjCB; }
 
 #pragma endregion
 
@@ -111,6 +112,7 @@ public:
 
 	void SetLocalTransform(const Vec4x4& transform);
 
+	void SetObjCBIdx(int val) const { mObjCBIdx = val; }
 	void SetUseObjCB(bool val) const { mUseObjCB = val; }
 #pragma endregion
 

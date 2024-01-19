@@ -226,11 +226,14 @@
     <ClCompile Include="Log\LogMgr.cpp">
       <Filter>Log</Filter>
     </ClCompile>
+    <ClCompile Include="src\FrameResource.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UploadBuffer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\stdafx.h">
-      <Filter>소스 파일\PCH</Filter>
-    </ClInclude>
     <ClInclude Include="include\Camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -390,6 +393,12 @@
     <ClInclude Include="Log\LogMgr.h">
       <Filter>Log</Filter>
     </ClInclude>
+    <ClInclude Include="include\FrameResource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UploadBuffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\PShader_Billboard.hlsl">
@@ -474,6 +483,9 @@
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\Light.hlsl">
+      <Filter>소스 파일\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Common.hlsl">
       <Filter>소스 파일\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

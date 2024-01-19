@@ -15,10 +15,6 @@ struct VSOutput_Water {
     float2 UV : UV;
 };
 
-cbuffer cbGameInfo : register(b3) {
-    float gDeltaTime : packoffset(c0);
-};
-
 VSOutput_Water VSWater(VSInput_Water input)
 {
     VSOutput_Water output;

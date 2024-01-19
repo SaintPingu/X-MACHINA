@@ -1,0 +1,2 @@
+[ DEBUG ]	LogMgr.cpp::Sample(82) : 파일에만 로그 작성
+[ DEBUG ]	LogMgr.cpp::Sample(83) : 콘솔창 과 파일 둘다 로그 작성

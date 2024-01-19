@@ -16,30 +16,11 @@
 void Camera::Awake()
 {
 	base::Awake();
-
-	CreateShaderVars();
 }
 void Camera::Release()
 {
 	base::Release();
-
-	ReleaseShaderVars();
 }
-
-
-void Camera::UpdateShaderVars()
-{
-	const Vec4x4 kViewMtx = Matrix4x4::Transpose(mViewTransform);
-	const Vec4x4 kProjMtx = Matrix4x4::Transpose(mProjTransform);
-	const Vec3   kPos     = mObject->GetPosition();
-
-	::memcpy(&mCBMap_CameraInfo->View,		 &kViewMtx, sizeof(Vec4x4));
-	::memcpy(&mCBMap_CameraInfo->Projection, &kProjMtx, sizeof(Vec4x4));
-	::memcpy(&mCBMap_CameraInfo->Position,	 &kPos, sizeof(Vec3));
-
-	cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::Camera), mCB_CameraInfo->GetGPUVirtualAddress());
-}
-
 
 void Camera::UpdateViewMtx()
 {
@@ -92,22 +73,6 @@ void Camera::SetViewportsAndScissorRects()
 void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 {
 	mObject->SetAxis(Matrix4x4::LookAtLH(mObject->GetPosition(), lookAt, upVector, true));
-}
-
-
-void Camera::CreateShaderVars()
-{
-	const UINT kByteSize = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_CameraInfo));
-	D3DUtil::CreateBufferResource(nullptr, kByteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_CameraInfo);
-	mCB_CameraInfo->Map(0, nullptr, (void**)&mCBMap_CameraInfo);
-}
-
-void Camera::ReleaseShaderVars()
-{
-	if (mCB_CameraInfo) {
-		mCB_CameraInfo->Unmap(0, nullptr);
-		mCB_CameraInfo = nullptr;
-	}
 }
 
 void Camera::CalculateFrustumPlanes()

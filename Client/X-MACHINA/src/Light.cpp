@@ -38,8 +38,6 @@ const LightInfo* Light::GetLightModel(const std::string& modelName) const
 	return mLightModels.at(modelName);
 }
 
-
-
 void Light::BuildLights(FILE* file)
 {
 	LoadLightObjects(file);
@@ -48,29 +46,6 @@ void Light::BuildLights(FILE* file)
 	mLights->Lights[gkSunLightIdx].IsEnable = true;	// sunlight(전역조명)를 활성화한다.
 	SetSunlight();
 }
-
-
-void Light::CreateShaderVars()
-{
-	const UINT cbBytes = D3DUtil::CalcConstantBuffSize(sizeof(*mCBMap_Lights));
-	D3DUtil::CreateBufferResource(nullptr, cbBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_Lights);
-	mCB_Lights->Map(0, nullptr, (void**)&mCBMap_Lights);
-}
-
-void Light::UpdateShaderVars()
-{
-	::memcpy(mCBMap_Lights, mLights.get(), sizeof(*mCBMap_Lights));
-	scene->SetGraphicsRootConstantBufferView(RootParam::Light, mCB_Lights->GetGPUVirtualAddress());
-}
-
-void Light::ReleaseShaderVars()
-{
-	if (mCB_Lights) {
-		mCB_Lights->Unmap(0, nullptr);
-	}
-}
-
-
 
 void Light::SetSunlight()
 {

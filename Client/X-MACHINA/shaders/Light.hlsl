@@ -1,48 +1,6 @@
 #include "VSResource.hlsl"
 #include "PSResource.hlsl"
 
-#define _WITH_LOCAL_VIEWER_HIGHLIGHT
-#define _WITH_THETA_PHI_CONES
-#define _WITH_REFLECT
-
-#define gkMaxSceneLight         32
-#define LightType_Spot          0
-#define LightType_Directional   1
-#define LightType_Point         2
-
-struct LightInfo {
-    float4 Ambient;
-    float4 Diffuse;
-    float4 Sepcular;
-    
-    float3 Position;
-    float Falloff;
-    
-    float3 Direction;
-    float Theta; //cos(Theta)
-    
-    float3 Attenuation;
-    float Phi; //cos(Phi)
-    
-    float Range;
-    float Padding;
-    int Type;
-    bool Enable;
-};
-
-cbuffer cbLights : register(b2) {
-    LightInfo gLights[gkMaxSceneLight];
-    float4 gGlobalAmbient;
-    
-    float4 gFogColor;
-    float gFogStart;
-    float gFogRange;
-};
-
-
-
-
-
 float4 DirectionalLight(int index, float3 vNormal, float3 vToCamera)
 {
     float3 vToLight = -gLights[index].Direction;

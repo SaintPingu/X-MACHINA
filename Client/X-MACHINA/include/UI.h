@@ -48,14 +48,14 @@ public:
 
 
 
-
-
 // for render font
 // comdef.h의 Font와 중복되어 이름 변경 Font -> MyFont
 class MyFont : public UI {
 private:
 	std::string mText{};	// "YOUR SCORE IS "
 	std::string mScore{};
+
+	mutable std::vector<int> mObjCBIdxes{};
 
 public:
 	MyFont() = default;
@@ -68,9 +68,12 @@ public:
 	// [pos]위치에 [width * height] 크기의 UI를 생성한다.
 	void Create(const Vec3& pos, float width, float height);
 
-	// 하나의 이미지에서 특정 문자를 지정하는 matrix를 추출해 set(SetGraphicsRoot32BitConstants)한다.
-	void UpdateShaderVarSprite(char ch) const;
+	// 하나의 이미지에서 특정 문자를 지정하는 matrix를 추출해 set(SetGraphicsRoot32BitConstants)한다. (x)
+	// 상수 버퍼 뷰에 set 하기 위해서 방식을 변경하였다.
+	// mObjCBIdxes에 있는 인덱스를 참고하여 set(SetGraphicsRootConstantBufferView)한다.
+	void UpdateShaderVars(char ch, int cnt) const;
 
+	virtual void OnDisable() override;
 	virtual void Render() override;
 
 	void CreateFontTexture();

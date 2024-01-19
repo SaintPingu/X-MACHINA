@@ -4,12 +4,13 @@
 #define dxgi DXGIMgr::Inst()
 #define device dxgi->GetDevice()
 #define cmdList dxgi->GetCmdList()
+#define frmResMgr dxgi->GetFrameResourceMgr()
 #pragma endregion
 
 #pragma region ClassForwardDecl
 class PostProcessingShader;
+class FrameResourceMgr;
 #pragma endregion
-
 
 #pragma region EnumClass
 enum class DrawOption {
@@ -60,13 +61,6 @@ private:
 	ComPtr<ID3D12Resource>			mDepthStencilBuff{};
 	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};
 
-	// frame resource
-	static constexpr UINT mFrameResourceCount = 1;
-	static constexpr UINT mMaxObjectCount = 1000;
-	std::vector<uptr<struct FrameResource>>		mFrameResources;
-	FrameResource*								mCurrFrameResource{};		// 현재 프레임의 프레임 리소스
-	int											mCurrFrameResourceIndex{};	// 현재 프레임의 프레임 리소스 인덱스
-
 	// command
 	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
 	ComPtr<ID3D12CommandQueue>			mCmdQueue{};
@@ -77,6 +71,9 @@ private:
 	ComPtr<ID3D12Fence>						mFence{};
 	UINT32									mFenceValues{};
 	HANDLE									mFenceEvent{};
+
+	// frameResource
+	uptr<FrameResourceMgr>	mFrameResourceMgr;
 
 	// others
 	sptr<PostProcessingShader>	mPostProcessingShader{};
@@ -97,6 +94,8 @@ public:
 	const auto& GetRtvFormats() const						{ return mRtvFormats; }
 	UINT GetCbvSrvDescriptorIncSize() const					{ return mCbvSrvDescriptorIncSize; }
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
+	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
+
 #pragma endregion
 
 #pragma region Setter
@@ -143,16 +142,14 @@ private:
 	void CreateCmdQueueAndList();
 	void CreateRtvAndDsvDescriptorHeaps();
 
-	// frame resource를 생성한다.
-	void CreateFrameResources();
-
 	void CreateSwapChain();
 	// swap chain의 RTV들을 생성한다.
 	void CreateSwapChainRTVs();
 	void CreateDSV();
-
 	void CreatePostProcessingShader();
 	void CreatePostProcessingRTVs();
+
+	void CreateFrameResources();
 
 	// full screen on/off (resize swap chain buffer)
 	void ChangeSwapChainState();

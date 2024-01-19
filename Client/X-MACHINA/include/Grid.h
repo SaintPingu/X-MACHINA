@@ -17,11 +17,13 @@ private:
 	std::unordered_set<GridObject*> mStaticObjects{};
 	std::unordered_set<GridObject*> mDynamicObjets{};
 
+
 public:
 	Grid()          = default;
 	virtual ~Grid() = default;
 
 	const BoundingBox& GetBB() const	{ return mBB; }
+
 	// return all objects
 	const auto& GetObjects() const		{ return mObjects; }
 

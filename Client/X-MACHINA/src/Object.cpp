@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Object.h"
 
+#include "DXGIMgr.h"
+#include "FrameResource.h"
 #include "Model.h"
 #include "Scene.h"
 #include "Collider.h"
@@ -144,7 +146,6 @@ InstObject::InstObject(ObjectPool* pool, int id)
 {
 	
 }
-
 
 void InstObject::OnDestroy()
 {

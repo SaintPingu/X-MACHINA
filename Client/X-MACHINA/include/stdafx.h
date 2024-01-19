@@ -104,6 +104,7 @@ public:
 #include <bitset>
 #include <unordered_set>
 #include <unordered_map>
+#include <queue>
 
 /* DirectX */
 #include <d3d12.h>
@@ -228,7 +229,10 @@ enum class RootParam {
 	GameInfo,
 	SpriteInfo,
 
+	GameObject, // ±¸ÇöÁß
+
 	Instancing,
+
 
 	Texture,
 	Texture1,

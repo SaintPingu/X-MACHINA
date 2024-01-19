@@ -24,8 +24,8 @@ VSOutput_Water VSWater(VSInput_Water input)
     VSOutput_Water output;
     input.Position.y += sin(gDeltaTime * 1.35f + input.Position.x * 1.35f) * 1.95f + cos(gDeltaTime * 1.30f + input.Position.z * 1.35f) * 1.05f;
 
-    output.PositionW = (float3) mul(float4(input.Position, 1.f), gMtxWorld);
-    output.NormalW = mul(input.Normal, (float3x3) gMtxWorld);
+    output.PositionW = (float3) mul(float4(input.Position, 1.f), gWorld);
+    output.NormalW = mul(input.Normal, (float3x3) gWorld);
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = input.UV * 5.0f;
 

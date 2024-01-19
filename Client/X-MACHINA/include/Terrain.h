@@ -51,6 +51,9 @@ private:
 		std::vector<T> pHeightMapPixels((size_t)mWidth * mLength);
 
 		std::ifstream in{ fileName, std::ios::binary };
+		if (!in) {
+			throw std::runtime_error("terrain file dose not exist!");
+		}
 		in.read(reinterpret_cast<char*>(pHeightMapPixels.data()), mWidth * mLength * sizeof(T));
 
 		// float 타입일 경우 빠르게 이동

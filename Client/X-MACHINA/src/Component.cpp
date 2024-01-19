@@ -101,6 +101,7 @@ void Object::OnDisable()
 	}
 	mIsEnable = false;
 
+	Transform::OnDisable();
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDisable();
 		});

@@ -1,25 +1,35 @@
 #pragma once
-#include "stdafx.h"
+
+#pragma region ClassForwardDecl
+class Transform;
+#pragma endregion
+
+#pragma region Struct
+struct ObjectConstants {
+    Matrix MtxWorld{};
+};
+#pragma endregion
 
 // 여러개의 상수 버퍼를 한 번에 관리하기 위한 클래스
 // 복사가 되지 않아야 한다.
 template<typename T>
-class UploadBuffer : private UnCopyable {
+class UploadBuffer  {
 private:
-    ComPtr<ID3D12Resource> mUploadBuffer;
-    BYTE* mMappedData = nullptr;
+    ComPtr<ID3D12Resource>  mUploadBuffer{};
+    BYTE* mMappedData{};
 
-    size_t mElementByteSize = 0;
-    bool mIsConstantBuffer = false;
+    int     mElementCount{};
+    size_t  mElementByteSize{};
+    bool    mIsConstantBuffer{};
 
 public:
     // mElementByteSize * mElementCount 만큼의 버퍼를 사용한다.
-    UploadBuffer(ID3D12Device* pDevice, UINT mElementCount, bool isConstantBuffer)
+    UploadBuffer(ID3D12Device* pDevice, int elementCount, bool isConstantBuffer)
         :
-        mIsConstantBuffer(isConstantBuffer)
+        mIsConstantBuffer(isConstantBuffer),
+        mElementCount(elementCount),
+        mElementByteSize(sizeof(T))
     {
-        mElementByteSize = sizeof(T);
-
         // 상수 버퍼로 사용할 경우 256의 배수가 되도록 한다.
         if (isConstantBuffer)
             mElementByteSize = D3DUtil::CalcConstantBuffSize(sizeof(T));
@@ -64,11 +74,19 @@ public:
     }
 
 public:
+    const size_t GetElementByteSize() const {
+        return mElementByteSize;
+    }
+
     ID3D12Resource* Resource()const {
         return mUploadBuffer.Get();
     }
 
-    void CopyData(int elementIndex, const T& data) {
+    // 매핑된 메모리에 데이터를 복사하는 함수
+    void CopyData(int& elementIndex, const T& data) {
         memcpy(&mMappedData[elementIndex * mElementByteSize], &data, sizeof(T));
     }
 };
+
+
+

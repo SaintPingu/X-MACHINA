@@ -22,10 +22,10 @@ VSOutput_Standard VS_Standard(VSInput_Standard input)
 {
     VSOutput_Standard output;
 
-    output.PositionW = (float3) mul(float4(input.Position, 1.f), gMtxWorld);
-    output.NormalW = mul(input.Normal, (float3x3) gMtxWorld);
-    output.TangentW = (float3) mul(float4(input.Tangent, 1.f), gMtxWorld);
-    output.BiTangentW = (float3) mul(float4(input.BiTangent, 1.f), gMtxWorld);
+    output.PositionW = (float3) mul(float4(input.Position, 1.f), gWorld);
+    output.NormalW = mul(input.Normal, (float3x3) gWorld);
+    output.TangentW = (float3) mul(float4(input.Tangent, 1.f), gWorld);
+    output.BiTangentW = (float3) mul(float4(input.BiTangent, 1.f), gWorld);
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = input.UV;
     

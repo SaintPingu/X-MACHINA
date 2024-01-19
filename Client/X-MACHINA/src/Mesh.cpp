@@ -14,8 +14,6 @@
 
 
 
-
-
 #pragma region Mesh
 void Mesh::ReleaseUploadBuffers()
 {
@@ -598,13 +596,14 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const UINT transformCnt = (UINT)mergedTransform.size();
 
 	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
+		const Transform* transform = mergedTransform[transformIndex];
+		transform->SetUseObjCB(true);
+
 		if (!HasMesh(transformIndex)) {
 			continue;
 		}
 
 		const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
-		const Transform* transform = mergedTransform[transformIndex];
-
 		transform->UpdateShaderVars();
 
 		UINT vertexCnt = modelMeshInfo.VertexCnt;

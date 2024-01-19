@@ -57,24 +57,13 @@ void DXGIMgr::Terminate()
 
 void DXGIMgr::Update()
 {
-	// 프레임마다 프레임 리소스를 순환하여 현재의 프레임 리소스를 저장한다.
-	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % mFrameResourceCount;
-	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
-
-	// 프레임 리소스 개수만큼의 순환이 끝났음에도 GPU가 첫 프레임의 리소스를 처리하지 않았다면 동기화 해야 한다.
-	if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
-	{
-		HANDLE eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
-		THROW_IF_FAILED(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
-		WaitForSingleObject(eventHandle, INFINITE);
-		CloseHandle(eventHandle);
-	}
+	mFrameResourceMgr->Update();
 }
 
 void DXGIMgr::Render()
 {
 	// 현재 프레임의 명령 할당자를 가져온다.
-	auto cmdAllocator = mCurrFrameResource->CmdAllocator;
+	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 
 	cmdAllocator->Reset();
 	RenderBegin();
@@ -154,7 +143,7 @@ void DXGIMgr::ClearDepthStencil()
 
 void DXGIMgr::RenderBegin()
 {
-	auto cmdAllocator = mCurrFrameResource->CmdAllocator;
+	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
 }
@@ -322,16 +311,6 @@ void DXGIMgr::CreateSwapChain()
 
 }
 
-
-void DXGIMgr::CreateFrameResources()
-{
-	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
-	for (int i = 0; i < mFrameResourceCount; ++i) {
-		mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), mMaxObjectCount));
-	}
-}
-
-
 void DXGIMgr::CreateSwapChainRTVs()
 {
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
@@ -404,6 +383,11 @@ void DXGIMgr::CreatePostProcessingRTVs()
 	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
+void DXGIMgr::CreateFrameResources()
+{
+	mFrameResourceMgr = std::make_unique<FrameResourceMgr>(mFence.Get());
+	mFrameResourceMgr->CreateFrameResources(mDevice.Get());
+}
 
 void DXGIMgr::ChangeSwapChainState()
 {
@@ -453,7 +437,8 @@ void DXGIMgr::MoveToNextFrame()
 	// 다음 프레임으로 넘어갈 때 동기화를 하지 않는다.
 	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
-	mCurrFrameResource->Fence = ++mFenceValues;
+	mFrameResourceMgr->GetCurrFrameResource()->Fence = ++mFenceValues;
+
 	mCmdQueue->Signal(mFence.Get(), mFenceValues);
 }
 

@@ -14,6 +14,10 @@ struct MaterialInfo {
     float4 Emissive;
 };
 
+cbuffer cbGameObject : register(b5) {
+    matrix gWorld : packoffset(c0);
+};
+
 cbuffer cbGameObjectInfo : register(b0) {
     matrix gMtxWorld : packoffset(c0);
     MaterialInfo gMaterial : packoffset(c4);

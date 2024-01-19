@@ -22,6 +22,10 @@ private:
 	float mYaw{};		// euler angle of current y local rotation
 	float mRoll{};		// euler angle of current z local rotation
 
+protected:
+	mutable bool	mUseObjCB{ false };	// 오브젝트 당 상수 버퍼를 사용하는지 확인하는 변수
+	mutable int		mObjCBIdx{ -1 };	// 오브젝트 당 상수 버퍼에서 자신의 위치 처음에 유효하지 않은 값을 줘야한다.
+	
 public:
 	Transform*		mParent{};
 	sptr<Transform> mChild{};
@@ -63,6 +67,10 @@ public:
 
 	/* Others */
 	Transform* GetParent() const			{ return mParent; }
+
+	/* ObjectCB Index */
+	const int GetObjCBIdx() const			{ return mObjCBIdx; }
+
 #pragma endregion
 
 #pragma region Setter
@@ -102,6 +110,8 @@ public:
 	void SetChild(rsptr<Transform> child);
 
 	void SetLocalTransform(const Vec4x4& transform);
+
+	void SetUseObjCB(bool val) const { mUseObjCB = val; }
 #pragma endregion
 
 public:
@@ -160,10 +170,16 @@ public:
 
 	/* Others */
 	virtual void Awake();
+	virtual void OnDisable();
+	
+	// 오브젝트 상수 버퍼 인덱스를 반환
+	void ReturnObjCBIdx();
+
 	void BeforeUpdateTransform();
 	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
 	virtual void UpdateShaderVars() const;
+
 
 	void NormalizeAxis();
 

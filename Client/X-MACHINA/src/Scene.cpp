@@ -19,6 +19,7 @@
 #include "RootSignature.h"
 #include "DescriptorHeap.h"
 #include "ObjectPool.h"
+#include "FrameResource.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -185,9 +186,13 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->Push(RootParam::Light, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->Push(RootParam::GameInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, D3D12_SHADER_VISIBILITY_ALL, 1);
 	mGraphicsRootSignature->Push(RootParam::SpriteInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 4, D3D12_SHADER_VISIBILITY_VERTEX, 16);
+	
+	// Test : 2024-01-18
+	mGraphicsRootSignature->Push(RootParam::GameObject, D3D12_ROOT_PARAMETER_TYPE_CBV, 5, D3D12_SHADER_VISIBILITY_ALL);
 
 	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-
+	
+	
 	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::Texture1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::Texture2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -341,7 +346,7 @@ void Scene::BuildTerrain()
 	// HeightMap_513x513_R16
 	// HeightMap_1024x1024_R32
 
-	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap_512x1024_R32.raw");
+	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap_513x513_R16.raw");
 
 	BuildGrid();
 }
@@ -1012,6 +1017,7 @@ void Scene::BlowAllExplosiveObjects()
 		for (int index : object->GetGridIndices()) {
 			mGrids[index].RemoveObject(object.get());
 		}
+		object->OnDestroy();
 	}
 	mExplosiveObjects.clear();
 }

@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "Transform.h"
 
+#include "DXGIMgr.h"
 #include "Scene.h"
-
-
-
-
-
+#include "FrameResource.h"
+#include "Object.h"
 
 
 
@@ -334,6 +332,24 @@ void Transform::Awake()
 	ComputeWorldTransform();
 }
 
+void Transform::OnDisable()
+{
+	if (mUseObjCB)
+		ReturnObjCBIdx();
+}
+
+void Transform::ReturnObjCBIdx()
+{
+	frmResMgr->ReturnObjCBIdx(mObjCBIdx);
+
+	if (mSibling) {
+		mSibling->ReturnObjCBIdx();
+	}
+	if (mChild) {
+		mChild->ReturnObjCBIdx();
+	}
+}
+
 void Transform::BeforeUpdateTransform()
 {
 	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
@@ -341,7 +357,11 @@ void Transform::BeforeUpdateTransform()
 
 void Transform::UpdateShaderVars() const
 {
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(_MATRIX(GetWorldTransform())), 0);
+	ObjectConstants objectConstants;
+	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
+	frmResMgr->CopyData(mObjCBIdx, objectConstants);
+
+	scene->SetGraphicsRootConstantBufferView(RootParam::GameObject, frmResMgr->GetObjCBGpuAddr(mObjCBIdx));
 }
 
 void Transform::NormalizeAxis()
@@ -352,8 +372,6 @@ void Transform::NormalizeAxis()
 
 	UpdateLocalTransform(false);
 }
-
-
 
 void Transform::MergeTransform(std::vector<const Transform*>& out, const Transform* transform)
 {

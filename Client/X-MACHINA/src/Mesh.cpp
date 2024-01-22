@@ -520,11 +520,11 @@ void MergedMesh::StopMerge()
 	mMeshBuffer = nullptr;
 }
 
-void MergedMesh::CopyData()
+void MergedMesh::UpdateMaterialBuffer()
 {
 	for (const auto& meshInfo : mFrameMeshInfo) {
 		for (const auto& material : meshInfo.Materials) {
-			material->CopyData();
+			material->UpdateMaterialBuffer();
 		}
 	}
 }
@@ -537,11 +537,13 @@ void UpdateShaderVars(const Vec4x4& transform)
 
 void MergedMesh::Render(const GameObject* object) const
 {
+	// copy
 	Render(object->GetMergedTransform());
 }
 
 void MergedMesh::Render(const ObjectPool* objectPool) const
 {
+	// copy
 	if (!objectPool) {
 		return;
 	}
@@ -616,10 +618,8 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 		UINT vertexCnt = modelMeshInfo.VertexCnt;
 		UINT mat{ 0 };
-
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
-			transform->UpdateShaderVars(modelMeshInfo.Materials[mat++]->mMatSBIdx);
-
+			transform->UpdateShaderVars(mat, modelMeshInfo.Materials[mat++]->mMatSBIdx);
 			cmdList->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
 			indexLocation += indexCnt;
 		}

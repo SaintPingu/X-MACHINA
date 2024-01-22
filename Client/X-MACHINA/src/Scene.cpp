@@ -56,8 +56,6 @@ Scene::Scene()
 
 void Scene::Release()
 {
-	ReleaseShaderVars();
-
 	mainCameraObject->Destroy();
 	canvas->Release();
 
@@ -212,17 +210,12 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->Create();
 }
 
-
-void Scene::CreateShaderVars()
-{
-}
-
 void Scene::UpdateShaderVars()
 {
-	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture2D), mDescriptorHeap->GetGPUHandle());
-
+	// TODO : AnimateMaterials(); 
+	UpdateObjectCBs();
 	UpdateMainPassCB();
-	UpdateMaterialSB();
+	UpdateMaterialBuffer();
 }
 
 void Scene::UpdateMainPassCB()
@@ -238,20 +231,19 @@ void Scene::UpdateMainPassCB()
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 
 	frmResMgr->CopyData(passConstants);
-	scene->SetGraphicsRootConstantBufferView(RootParam::Pass, frmResMgr->GetPassCBGpuAddr());
 }
 
-void Scene::UpdateMaterialSB()
+void Scene::UpdateObjectCBs()
+{
+
+}
+
+void Scene::UpdateMaterialBuffer()
 {
 	// TODO : Update only if the numFramesDirty is greater than 0
 	for (auto& model : mModels) {
-		model.second->GetMesh()->CopyData();
+		model.second->GetMesh()->UpdateMaterialBuffer();
 	}
-	scene->SetGraphicsRootShaderResourceView(RootParam::Material, frmResMgr->GetMatSBGpuAddr());
-}
-
-void Scene::ReleaseShaderVars()
-{
 }
 
 void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
@@ -287,10 +279,8 @@ void Scene::BuildObjects()
 	BuildPlayers();
 	BuildTerrain();
 
-	// build & create shader variables
-	BuildShaders();
-	CreateShaderVars();
-
+	// build 
+ 	BuildShaders();
 	// build static meshes
 	MeshRenderer::BuildMeshes();
 
@@ -604,13 +594,18 @@ namespace {
 
 void Scene::OnPrepareRender()
 {
+
 	cmdList->SetGraphicsRootSignature(GetRootSignature().Get());
 
 	mainCamera->SetViewportsAndScissorRects();
 
 	mDescriptorHeap->Set();
 
-	UpdateShaderVars();
+
+	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
+	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatSBGpuAddr());
+	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture2D), mDescriptorHeap->GetGPUHandle());
+
 }
 
 void Scene::Render()
@@ -827,6 +822,8 @@ void Scene::Update()
 	canvas->Update();
 
 	Animate();
+
+	UpdateShaderVars();
 }
 
 void Scene::Animate()
@@ -838,7 +835,6 @@ void Scene::Animate()
 	UpdateFXObjects();
 	UpdateSprites();
 }
-
 
 void Scene::CheckCollisions()
 {

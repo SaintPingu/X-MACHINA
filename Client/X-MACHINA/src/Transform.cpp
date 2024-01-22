@@ -355,15 +355,15 @@ void Transform::BeforeUpdateTransform()
 	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 }
 
-void Transform::UpdateShaderVars(const int matSBIdx) const
+void Transform::UpdateShaderVars(const int cnt, const int materialSBIndex) const
 {
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
-	objectConstants.MatSBIdx = matSBIdx;
+	objectConstants.MatSBIdx = materialSBIndex;
+	
+	frmResMgr->CopyData(mObjectCBIndices[cnt], objectConstants);
 
-	frmResMgr->CopyData(mObjCBIdx, objectConstants);
-
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIdx));
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjectCBIndices[cnt]));
 }
 
 void Transform::NormalizeAxis()

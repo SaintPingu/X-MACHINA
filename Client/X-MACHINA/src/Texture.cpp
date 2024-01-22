@@ -57,7 +57,6 @@ void Texture::UpdateShaderVars()
 		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvDescriptorHandle);
 		scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, static_cast<float>(mTextureMask), 32);
 	}
-
 }
 
 void Texture::ReleaseShaderVars()

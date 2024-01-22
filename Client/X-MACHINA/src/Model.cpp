@@ -25,7 +25,7 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 
 
 #pragma region Material
-void Material::CopyData()
+void Material::UpdateMaterialBuffer()
 {
 	MaterialData materialData;
 	materialData.Ambient = mMaterialColors->Ambient;

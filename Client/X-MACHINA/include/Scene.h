@@ -151,11 +151,10 @@ private:
 	void CreateGraphicsRootSignature();
 	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount);
 
-	void CreateShaderVars();
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
-	void UpdateMaterialSB();
-	void ReleaseShaderVars();
+	void UpdateObjectCBs();
+	void UpdateMaterialBuffer();
 
 #pragma endregion
 

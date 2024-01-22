@@ -161,7 +161,8 @@ public:
 	// stop merge and create buffer resource
 	void StopMerge();
 
-	void CopyData();
+	// update frame resource of material buffer
+	void UpdateMaterialBuffer();
 
 	// render [object] for this mesh
 	virtual void Render(const GameObject* object) const;

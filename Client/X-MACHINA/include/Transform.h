@@ -23,9 +23,10 @@ private:
 	float mRoll{};		// euler angle of current z local rotation
 
 protected:
-	mutable bool	mUseObjCB{ false };	// 오브젝트 당 상수 버퍼를 사용하는지 확인하는 변수
-	mutable int		mObjCBIdx{ -1 };	// 오브젝트 당 상수 버퍼에서 자신의 위치 처음에 유효하지 않은 값을 줘야한다.
-	
+	mutable bool				mUseObjCB{ false };	// 오브젝트 당 상수 버퍼를 사용하는지 확인하는 변수
+	mutable int					mObjCBIdx{ -1 };	// 오브젝트 당 상수 버퍼에서 자신의 위치 처음에 유효하지 않은 값을 줘야한다.
+	mutable std::vector<int>	mObjectCBIndices = std::vector<int>(30, -1);
+
 public:
 	Transform*		mParent{};
 	sptr<Transform> mChild{};
@@ -69,8 +70,9 @@ public:
 	Transform* GetParent() const			{ return mParent; }
 
 	/* ObjectCB Index */
-	const int GetObjCBIdx() const			{ return mObjCBIdx; }
-	const bool GetUseObjCB() const			{ return mUseObjCB; }
+	bool GetUseObjCB() const				{ return mUseObjCB; }
+	int GetObjCBIdx() const					{ return mObjCBIdx; }
+	int GetObjectCBIndex(int index) const	{ return mObjectCBIndices[index]; }
 
 #pragma endregion
 
@@ -180,7 +182,7 @@ public:
 	void BeforeUpdateTransform();
 	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
-	virtual void UpdateShaderVars(const int matSBIdx) const;
+	virtual void UpdateShaderVars(const int cnt = 0, const int materialSBIndex = 0) const;
 
 
 	void NormalizeAxis();

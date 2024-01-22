@@ -282,7 +282,7 @@ void Terrain::Render()
 {
 	mShader->Set();
 
-	UpdateShaderVars(mMaterial->mMatSBIdx);
+	UpdateShaderVars(0, mMaterial->mMatSBIdx);
 	mMaterial->UpdateShaderVars();
 
 	mTextureLayer[0]->UpdateShaderVars();

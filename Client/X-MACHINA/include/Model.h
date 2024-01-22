@@ -70,7 +70,7 @@ public:
 	void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
 
 public:
-	void CopyData();
+	void UpdateMaterialBuffer();
 	void UpdateShaderVars();
 	void LoadTextureFromFile(FILE* file);
 };

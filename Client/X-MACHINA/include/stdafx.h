@@ -233,6 +233,7 @@ enum class RootParam {
 
 	Instancing,
 
+	Material, // 구현중
 
 	Texture,
 	Texture1,
@@ -246,6 +247,9 @@ enum class RootParam {
 	TerrainLayer2,
 	TerrainLayer3,
 	SplatMap,
+
+	Texture2D, // 구현중
+
 };
 #pragma endregion
 

@@ -38,6 +38,9 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvLastHandle() const;	// CPU의 SRV 마지막 주소 핸들값을 반환한다. (next 이전값)
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvLastHandle() const;	// GPU의 SRV 마지막 주소 핸들값을 반환한다. (next 이전값)
 
+	UINT GetGPUCbvLastHandleIndex() const; 
+	UINT GetGPUSrvLastHandleIndex() const; 
+
 public:
 	// descriptor heap을 생성하고 핸들값들을 설정한다.
 	void Create(int cbvCount, int srvCount);

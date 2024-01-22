@@ -173,7 +173,8 @@ void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
 
 	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
-	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
+
+	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
 }
 
 void Scene::CreateGraphicsRootSignature()
@@ -181,15 +182,15 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::GameObjectInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, D3D12_SHADER_VISIBILITY_ALL, 33);
-	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::GameObjectInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 33);
+	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
 	//mGraphicsRootSignature->Push(RootParam::SpriteInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, D3D12_SHADER_VISIBILITY_VERTEX, 16);
 	//mGraphicsRootSignature->Push(RootParam::Light, D3D12_ROOT_PARAMETER_TYPE_CBV, 3, D3D12_SHADER_VISIBILITY_PIXEL);
 	//mGraphicsRootSignature->Push(RootParam::Camera, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, D3D12_SHADER_VISIBILITY_ALL);
 	//mGraphicsRootSignature->Push(RootParam::GameInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, D3D12_SHADER_VISIBILITY_ALL, 1);
 	
-	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 	
 	
 	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -198,10 +199,15 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->PushTable(RootParam::Texture3, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	mGraphicsRootSignature->PushTable(RootParam::RenderTarget, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
 
+
+
 	mGraphicsRootSignature->AddAlias(RootParam::Texture, RootParam::TerrainLayer0);	// TerrainLayer0는 RootParam::Texture 의 SRV 사용
 	mGraphicsRootSignature->AddAlias(RootParam::Texture1, RootParam::TerrainLayer1);	// TerrainLayer1는 RootParam::Texture1의 SRV 사용
 	mGraphicsRootSignature->AddAlias(RootParam::Texture2, RootParam::TerrainLayer2);	// ...
 	mGraphicsRootSignature->AddAlias(RootParam::Texture3, RootParam::SplatMap);
+
+	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture2D, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 16, 100, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	mGraphicsRootSignature->Create();
 }
@@ -213,10 +219,13 @@ void Scene::CreateShaderVars()
 
 void Scene::UpdateShaderVars()
 {
-	UpdatePassConstants();
+	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture2D), mDescriptorHeap->GetGPUHandle());
+
+	UpdateMainPassCB();
+	UpdateMaterialSB();
 }
 
-void Scene::UpdatePassConstants()
+void Scene::UpdateMainPassCB()
 {
 	static float timeElapsed{};
 	timeElapsed += DeltaTime();
@@ -230,6 +239,15 @@ void Scene::UpdatePassConstants()
 
 	frmResMgr->CopyData(passConstants);
 	scene->SetGraphicsRootConstantBufferView(RootParam::Pass, frmResMgr->GetPassCBGpuAddr());
+}
+
+void Scene::UpdateMaterialSB()
+{
+	// TODO : Update only if the numFramesDirty is greater than 0
+	for (auto& model : mModels) {
+		model.second->GetMesh()->CopyData();
+	}
+	scene->SetGraphicsRootShaderResourceView(RootParam::Material, frmResMgr->GetMatSBGpuAddr());
 }
 
 void Scene::ReleaseShaderVars()

@@ -8,7 +8,7 @@ GraphicsRootSignature::GraphicsRootSignature()
 	mRanges.resize(kMaxRangeSize);
 }
 
-void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues, UINT registerSpace)
+void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, UINT registerSpace, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues)
 {
 	assert(paramType != D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
 

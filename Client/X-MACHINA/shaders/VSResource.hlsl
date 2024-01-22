@@ -1,14 +1,16 @@
 #include "Common.hlsl"
 
 cbuffer cbGameObjectInfo : register(b0) {
-    matrix gMtxWorld : packoffset(c0);
-    MaterialInfo gMaterial : packoffset(c4);
-    uint gTextureMask : packoffset(c8);
+    matrix          gMtxWorld : packoffset(c0);
+    MaterialInfo    gMaterial : packoffset(c4);
+    uint            gTextureMask : packoffset(c8);
 };
 
 cbuffer cbObject : register(b1) {
-    matrix gWorld : packoffset(c0);
-    matrix gMtxSprite : packoffset(c4);
+    matrix      gWorld;
+    matrix      gMtxSprite;
+    int         gMatSBIdx;
+    float3      gPadding;
 };
 
 cbuffer cbPass : register(b2) {
@@ -36,3 +38,4 @@ struct SB_ColorInst {
 };
 StructuredBuffer<SB_ColorInst> colorInstBuffer : register(t0);
 
+StructuredBuffer<TestMaterial> materialBuffer : register(t4, space1);

@@ -227,10 +227,7 @@
       <Filter>Log</Filter>
     </ClCompile>
     <ClCompile Include="src\FrameResource.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\UploadBuffer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Framework\Device</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -488,5 +485,11 @@
     <FxCompile Include="shaders\Common.hlsl">
       <Filter>소스 파일\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\TempLight.hlsl">
+      <Filter>소스 파일\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

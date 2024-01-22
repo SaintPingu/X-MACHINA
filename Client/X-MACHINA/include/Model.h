@@ -56,7 +56,8 @@ public:
 #pragma region Class
 class Material {
 public:
-	sptr<Texture> mTexture{};
+	sptr<Texture>	mTexture{};
+	int				mMatSBIdx{ -1 };
 
 private:
 	sptr<MaterialColors> mMaterialColors{};
@@ -69,6 +70,7 @@ public:
 	void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
 
 public:
+	void CopyData();
 	void UpdateShaderVars();
 	void LoadTextureFromFile(FILE* file);
 };

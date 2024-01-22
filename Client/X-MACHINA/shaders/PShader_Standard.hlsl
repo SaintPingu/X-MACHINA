@@ -1,4 +1,5 @@
-#include "Light.hlsl"
+//#include "Light.hlsl"
+#include "TempLight.hlsl"
 
 struct VSOutput_Standard {
     float4 Position : SV_POSITION;
@@ -12,17 +13,17 @@ struct VSOutput_Standard {
 
 float4 PS_Standard(VSOutput_Standard input) : SV_TARGET
 {
-    if (input.IsTexture) {
-        float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV);
+    //if (input.IsTexture) {
+    //    float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV);
     
-        float3 normalW = normalize(input.NormalW);
-        float4 illumination = Lighting(input.PositionW, normalW);
+    //    float3 normalW = normalize(input.NormalW);
+    //    float4 illumination = Lighting(materialBuffer[gMatSBIdx], input.PositionW, normalW);
         
-        return Fog(lerp(color, illumination, 0.5f), input.PositionW);
-    }
-    else {
+    //    return Fog(lerp(color, illumination, 0.5f), input.PositionW);
+    //}
+    //else {
         float3 normalW = normalize(input.NormalW);
-        float4 color = Lighting(input.PositionW, normalW);
+        float4 color = Lighting(materialBuffer[gMatSBIdx], input.PositionW, normalW);
         return color;
-    }
+    //}
 }

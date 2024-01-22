@@ -19,6 +19,14 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUSrvLastHandle() const
 {
 	return { mSrvHandle.GpuNext.ptr - dxgi->GetCbvSrvDescriptorIncSize() };
 }
+UINT DescriptorHeap::GetGPUCbvLastHandleIndex() const
+{
+	return { static_cast<UINT>((GetGPUCbvLastHandle().ptr - mCbvHandle.GpuStart.ptr) / dxgi->GetCbvSrvDescriptorIncSize()) };
+}
+UINT DescriptorHeap::GetGPUSrvLastHandleIndex() const
+{
+	return { static_cast<UINT>((GetGPUSrvLastHandle().ptr - mSrvHandle.GpuStart.ptr) / dxgi->GetCbvSrvDescriptorIncSize()) };
+}
 
 
 void DescriptorHeap::Create(int cbvCount, int srvCount)

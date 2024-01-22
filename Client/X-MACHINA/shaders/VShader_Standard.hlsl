@@ -29,14 +29,14 @@ VSOutput_Standard VS_Standard(VSInput_Standard input)
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = input.UV;
     
-    if (gTextureMask > 0)
-    {
-        output.IsTexture = true;
-    }
-    else
-    {
-        output.IsTexture = false;
-    }
+    //if (gTextureMask > 0)
+    //{
+    //    output.IsTexture = true;
+    //}
+    //else
+    //{
+    //    output.IsTexture = false;
+    //}
 
     return output;
 }

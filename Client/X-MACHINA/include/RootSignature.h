@@ -22,7 +22,7 @@ public:
 	void AddAlias(RootParam origin, RootParam alias) { mParamMap[alias] = mParamMap[origin]; }
 
 	// add root parameter
-	void Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues = 0, UINT registerSpace = 0);
+	void Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, UINT registerSpace, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues = 0);
 	// add root parameter with descriptor table and range
 	void PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility);
 

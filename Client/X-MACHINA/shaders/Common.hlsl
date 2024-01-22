@@ -41,10 +41,27 @@ struct LightInfo {
 };
 
 struct MaterialInfo {
-    float4 Ambient;
-    float4 Diffuse;
-    float4 Sepcular; //a = power
-    float4 Emissive;
+    float4  Ambient;
+    float4  Diffuse;
+    float4  Sepcular; //a = power
+    float4  Emissive;
+    
+    //int     DiffuseMapIndex;
+    //int     NormalMapIndex;
+    //int     RoughnessMapIndex;
+    //int     HeightMapIndex;
+};
+
+struct TestMaterial {
+    float4  Ambient;
+    float4  Diffuse;
+    float4  Sepcular; //a = power
+    float4  Emissive;
+    
+    int DiffuseMapIndex;
+    int NormalMapIndex;
+    int RoughnessMapIndex;
+    int HeightMapIndex;
 };
 
 bool IsWhite(float4 color)

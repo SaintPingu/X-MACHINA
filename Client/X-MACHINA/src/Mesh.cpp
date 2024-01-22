@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Mesh.h"
 #include "DXGIMgr.h"
+#include "FrameResource.h"
 
 #include "Object.h"
 #include "Model.h"
@@ -10,7 +11,6 @@
 
 
 #include "Script_Sprite.h"
-
 
 
 
@@ -520,6 +520,15 @@ void MergedMesh::StopMerge()
 	mMeshBuffer = nullptr;
 }
 
+void MergedMesh::CopyData()
+{
+	for (const auto& meshInfo : mFrameMeshInfo) {
+		for (const auto& material : meshInfo.Materials) {
+			material->CopyData();
+		}
+	}
+}
+
 void UpdateShaderVars(const Vec4x4& transform)
 {
 	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
@@ -604,12 +613,12 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		}
 
 		const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
-		transform->UpdateShaderVars();
 
 		UINT vertexCnt = modelMeshInfo.VertexCnt;
 		UINT mat{ 0 };
+
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
-			modelMeshInfo.Materials[mat++]->UpdateShaderVars();
+			transform->UpdateShaderVars(modelMeshInfo.Materials[mat++]->mMatSBIdx);
 
 			cmdList->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
 			indexLocation += indexCnt;

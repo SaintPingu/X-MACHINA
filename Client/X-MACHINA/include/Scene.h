@@ -153,7 +153,8 @@ private:
 
 	void CreateShaderVars();
 	void UpdateShaderVars();
-	void UpdatePassConstants();
+	void UpdateMainPassCB();
+	void UpdateMaterialSB();
 	void ReleaseShaderVars();
 
 #pragma endregion

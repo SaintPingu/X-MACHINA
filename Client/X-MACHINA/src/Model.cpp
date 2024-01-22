@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Model.h"
 #include "DXGIMgr.h"
+#include "FrameResource.h"
 
 #include "Object.h"
 #include "Mesh.h"
@@ -24,6 +25,20 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 
 
 #pragma region Material
+void Material::CopyData()
+{
+	MaterialData materialData;
+	materialData.Ambient = mMaterialColors->Ambient;
+	materialData.Diffuse = mMaterialColors->Diffuse;
+	materialData.Specular = mMaterialColors->Specular;
+	materialData.Emissive = mMaterialColors->Emissive;
+
+	if (mTexture)
+		materialData.DiffuseMapIndex = mTexture->GetGpuDescriptorHandleIndex();
+
+	frmResMgr->CopyData(mMatSBIdx, materialData);
+}
+
 void Material::UpdateShaderVars()
 {
 	constexpr RootParam kRootParam = RootParam::GameObjectInfo;

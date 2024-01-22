@@ -15,3 +15,5 @@ Texture2D gRT4_Distance : register(t9);
 Texture2D gRT5_Depth : register(t10);
 
 SamplerState gSamplerState : register(s0);
+
+Texture2D gTextureMap[100] : register(t16);

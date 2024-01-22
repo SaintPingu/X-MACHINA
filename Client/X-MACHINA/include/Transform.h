@@ -180,7 +180,7 @@ public:
 	void BeforeUpdateTransform();
 	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
-	virtual void UpdateShaderVars() const;
+	virtual void UpdateShaderVars(const int matSBIdx) const;
 
 
 	void NormalizeAxis();

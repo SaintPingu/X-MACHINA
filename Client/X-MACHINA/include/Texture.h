@@ -26,6 +26,7 @@ private:
 
 	std::string mName{};
 
+	UINT mSrvDescriptorHandleIndex{};
 	D3D12_GPU_DESCRIPTOR_HANDLE mSrvDescriptorHandle{};	// SRV의 핸들값 (이 descriptor heap 위치에 resource가 있다)
 	
 	UINT mRootParamIndex{};
@@ -37,11 +38,16 @@ public:
 	const std::string& GetName() const							{ return mName; }
 	ComPtr<ID3D12Resource> GetResource() const					{ return mTexture; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle() const  { return mSrvDescriptorHandle; }
+	UINT GetGpuDescriptorHandleIndex() const					{ return mSrvDescriptorHandleIndex; }
+
 	// 현재 resource에 따른 SRV_DESC을 반환한다.
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc() const;
 
 	void SetRootParamIndex(UINT index) { mRootParamIndex = index; }
-	void SetGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle) { mSrvDescriptorHandle = srvGpuDescriptorHandle ; }
+	void SetGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle, UINT index) {
+		mSrvDescriptorHandle = srvGpuDescriptorHandle; 
+		mSrvDescriptorHandleIndex = index;
+	}
 
 public:
 	void ReleaseUploadBuffers();

@@ -161,6 +161,8 @@ public:
 	// stop merge and create buffer resource
 	void StopMerge();
 
+	void CopyData();
+
 	// render [object] for this mesh
 	virtual void Render(const GameObject* object) const;
 	// render instanced objects from [objectPool]

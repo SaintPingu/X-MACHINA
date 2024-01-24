@@ -1,5 +1,4 @@
-#include "PSResource.hlsl"
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct PSOutput_MRT {
     float4 Texture : SV_TARGET1;
@@ -16,7 +15,8 @@ struct VSOutput_Billboard {
 #ifdef POST_PROCESSING
 PSOutput_MRT PSBillboard(VSOutput_Billboard input)
 {
-    float4 color = float4(gAlbedoTexture.Sample(gSamplerState, input.UV));
+    MaterialInfo mat = materialBuffer[gMatIndex];
+    float4 color = float4(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV));
     if(color.a < 0.9f)
     {
         discard;

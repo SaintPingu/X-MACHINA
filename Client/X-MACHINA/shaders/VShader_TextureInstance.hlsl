@@ -1,5 +1,4 @@
-#include "VSResource.hlsl"
-
+#include "Common.hlsl"
 
 struct VSInput_TexInst {
     float3 Position : POSITION;

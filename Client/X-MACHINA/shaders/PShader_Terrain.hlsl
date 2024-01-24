@@ -17,28 +17,29 @@ struct PSOutput_MRT {
 PSOutput_MRT PSTerrain(VSOutput_Terrain input)
 {
     PSOutput_MRT output;
+    MaterialInfo mat = materialBuffer[gMatIndex];
     
-    float4 illumination = Lighting(input.PositionW, input.NormalW);
+    float4 illumination = Lighting(mat, input.PositionW, input.NormalW);
     
-    float4 splatColor = gTerrainSplatMap.Sample(gSamplerState, input.UV1);
+    float4 splatColor = gTextureMap[mat.DiffuseMap3Index].Sample(gSamplerState, input.UV1);
     float4 layer0 = float4(0, 0, 0, 0);
     float4 layer1 = float4(0, 0, 0, 0);
     float4 layer2 = float4(0, 0, 0, 0);
     
     if (splatColor.r > 0.f)
     {
-        layer0 = gTerrainTextureLayer0.Sample(gSamplerState, input.UV0);
+        layer0 = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV0);
         layer0 *= splatColor.r;
 
     }
     if (splatColor.g > 0.f)
     {
-        layer1 = gTerrainTextureLayer1.Sample(gSamplerState, input.UV0);
+        layer1 = gTextureMap[mat.DiffuseMap1Index].Sample(gSamplerState, input.UV0);
         layer1 *= splatColor.g;
     }
     if (splatColor.b > 0.f)
     {
-        layer2 = gTerrainTextureLayer2.Sample(gSamplerState, input.UV0);
+        layer2 = gTextureMap[mat.DiffuseMap2Index].Sample(gSamplerState, input.UV0);
         layer2 *= splatColor.b;
     }
 

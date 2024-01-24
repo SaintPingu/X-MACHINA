@@ -1,6 +1,20 @@
 #include "stdafx.h"
 #include "FrameResource.h"
 
+#pragma region PassConstants
+PassConstants::PassConstants()
+{
+	MRTTsIndices.fill(-1);
+}
+#pragma endregion
+
+#pragma region MaterialData
+MaterialData::MaterialData()
+{
+	MapIndices.fill(-1);
+}
+#pragma endregion
+
 #pragma region FrameResource
 FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int materialCount)
 {
@@ -78,10 +92,13 @@ void FrameResourceMgr::Update()
 	}
 }
 
-void FrameResourceMgr::ReturnObjCBIdx(int elementIndex)
+void FrameResourceMgr::ReturnObjCBIndex(int elementIndex)
 {
-	if (mActiveObjCBIdxes.erase(elementIndex)) {
-		mAvailableObjCBIdxes.push(elementIndex);
+	// 모든 오브젝트 인덱스를 -1로 초기화하였다.
+	if (elementIndex != -1) {
+		if (mActiveObjCBIdxes.erase(elementIndex)) {
+			mAvailableObjCBIdxes.push(elementIndex);
+		}
 	}
 }
 
@@ -127,4 +144,3 @@ void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
 }
 
 #pragma endregion
-

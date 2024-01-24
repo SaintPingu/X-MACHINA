@@ -33,6 +33,6 @@ public:
 	virtual void Update() override;
 
 public:
-	virtual void UpdateSpriteVariable() const override;
+	virtual void UpdateSpriteVariable(const int matIndex) const override;
 };
 #pragma endregion

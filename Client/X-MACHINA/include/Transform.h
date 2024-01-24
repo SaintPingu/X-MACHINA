@@ -23,9 +23,8 @@ private:
 	float mRoll{};		// euler angle of current z local rotation
 
 protected:
-	mutable bool				mUseObjCB{ false };	// 오브젝트 당 상수 버퍼를 사용하는지 확인하는 변수
-	mutable int					mObjCBIdx{ -1 };	// 오브젝트 당 상수 버퍼에서 자신의 위치 처음에 유효하지 않은 값을 줘야한다.
-	mutable std::vector<int>	mObjectCBIndices = std::vector<int>(30, -1);
+	mutable bool				mUseObjCB{};		// 오브젝트 상수 버퍼 사용 플래그
+	mutable std::vector<int>	mObjCBIndices{};	// 서브 메쉬를 가진 객체는 여러 개의 인덱스들을 가져야 한다.
 
 public:
 	Transform*		mParent{};
@@ -36,7 +35,7 @@ public:
 #pragma region C/Dtor
 	// guarantee that transform can access to self Object
 	template <typename T, typename = std::enable_if_t<std::is_base_of<Transform, T>::value>>
-	Transform(T* object) { mObject = object; }
+	Transform(T* object) : mObjCBIndices(30, -1) { mObject = object; }
 
 	virtual ~Transform() = default;
 #pragma endregion
@@ -71,8 +70,7 @@ public:
 
 	/* ObjectCB Index */
 	bool GetUseObjCB() const				{ return mUseObjCB; }
-	int GetObjCBIdx() const					{ return mObjCBIdx; }
-	int GetObjectCBIndex(int index) const	{ return mObjectCBIndices[index]; }
+	int GetObjCBIndex(int index = 0) const	{ return mObjCBIndices[index]; }
 
 #pragma endregion
 
@@ -114,7 +112,7 @@ public:
 
 	void SetLocalTransform(const Vec4x4& transform);
 
-	void SetObjCBIdx(int val) const { mObjCBIdx = val; }
+	void SetObjCBIndex(int val, int index = 0) const { mObjCBIndices[index] = val; mUseObjCB = true; }
 	void SetUseObjCB(bool val) const { mUseObjCB = val; }
 #pragma endregion
 
@@ -174,15 +172,15 @@ public:
 
 	/* Others */
 	virtual void Awake();
-	virtual void OnDisable();
+	virtual void OnDestroy();
 	
 	// 오브젝트 상수 버퍼 인덱스를 반환
-	void ReturnObjCBIdx();
+	void ReturnObjCBIndex();
 
 	void BeforeUpdateTransform();
 	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
-	virtual void UpdateShaderVars(const int cnt = 0, const int materialSBIndex = 0) const;
+	virtual void UpdateShaderVars(const int cnt = 0, const int matIndex = 0) const;
 
 
 	void NormalizeAxis();

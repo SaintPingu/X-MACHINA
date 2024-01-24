@@ -48,7 +48,6 @@ public:
 	Vec4 Specular{};
 	Vec4 Emissive{};
 };
-
 #pragma endregion
 
 
@@ -56,8 +55,8 @@ public:
 #pragma region Class
 class Material {
 public:
-	sptr<Texture>	mTexture{};
-	int				mMatSBIdx{ -1 };
+	std::array<sptr<Texture>, TextureMapCount>	mTextures{}; // 머티리얼이 여러 개의 텍스처를 가질 수 있도록 변경
+	int	mMatIndex = -1;
 
 private:
 	sptr<MaterialColors> mMaterialColors{};
@@ -67,11 +66,11 @@ public:
 	virtual ~Material() = default;
 
 	void SetMaterialColors(rsptr<MaterialColors> pMaterialColors) { mMaterialColors = pMaterialColors; }
-	void SetTexture(rsptr<Texture> texture) { mTexture = texture; }
+	void SetTexture(TextureMap map, rsptr<Texture> texture) { mTextures[static_cast<UINT8>(map)] = texture; }
 
 public:
 	void UpdateMaterialBuffer();
-	void UpdateShaderVars();
+	//void UpdateShaderVars();
 	void LoadTextureFromFile(FILE* file);
 };
 

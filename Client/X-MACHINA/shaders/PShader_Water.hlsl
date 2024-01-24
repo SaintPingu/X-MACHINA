@@ -16,9 +16,11 @@ struct PSOutput_MRT {
 #ifdef POST_PROCESSING
 PSOutput_MRT PSWater(VSOutput_Water input)
 {
+    MaterialInfo mat = materialBuffer[gMatIndex];
+    
     PSOutput_MRT output;
-    float4 color = gAlbedoTexture.Sample(gSamplerState, input.UV - float2(gDeltaTime * 0.06f, 0));
-    float4 illumination = Lighting(input.PositionW, input.NormalW);
+    float4 color = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV - float2(gDeltaTime * 0.06f, 0));
+    float4 illumination = Lighting(mat, input.PositionW, input.NormalW);
     
     output.Texture = lerp(color, illumination, 0.5f);
     output.Distance = input.PositionW;

@@ -1,39 +1,38 @@
-#include "VSResource.hlsl"
-#include "PSResource.hlsl"
+#include "Common.hlsl"
 
-float4 DirectionalLight(int index, float3 vNormal, float3 vToCamera)
+bool IsWhite(float4 color)
+{
+    return color.rgb == float3(1.f, 1.f, 1.f) && color.a == 1.f;
+}
+
+float4 DirectionalLight(int index, MaterialInfo mat, float3 vNormal, float3 vToCamera)
 {
     float3 vToLight = -gLights[index].Direction;
     float diffuseFactor = dot(vToLight, vNormal);
     float specularFactor = 0.f;
     if (diffuseFactor > 0.f)
     {
-        if (gMaterial.Sepcular.a != 0.f)
+        if (mat.Sepcular.a != 0.f)
         {
 #ifdef _WITH_REFLECT
             float3 vReflect = reflect(-vToLight, vNormal);
-            specularFactor = pow(max(dot(vReflect, vToCamera), 0.f), gMaterial.Sepcular.a);
+            specularFactor = pow(max(dot(vReflect, vToCamera), 0.f), mat.Sepcular.a);
 #else
 #ifdef _WITH_LOCAL_VIEWER_HIGHLIGHT
             float3 vHalf = normalize(vToCamera + vToLight);
 #else
 float3 vHalf = float3(0.f, 1.f, 0.f);
 #endif
-            specularFactor = pow(max(dot(vHalf, vNormal), 0.f), gMaterial.Sepcular.a);
+            specularFactor = pow(max(dot(vHalf, vNormal), 0.f), mat.Sepcular.a);
 #endif
         }
     }
-    return ((gLights[index].Ambient * gMaterial.Ambient) +
-            (gLights[index].Diffuse * diffuseFactor * gMaterial.Diffuse) +
-            (gLights[index].Sepcular * specularFactor * gMaterial.Sepcular));
+    return ((gLights[index].Ambient * mat.Ambient) +
+            (gLights[index].Diffuse * diffuseFactor * mat.Diffuse) +
+            (gLights[index].Sepcular * specularFactor * mat.Sepcular));
 }
 
-
-
-
-
-
-float4 PointLight(int index, float3 vPosition, float3 vNormal, float3 vToCamera)
+float4 PointLight(int index, MaterialInfo mat, float3 vPosition, float3 vNormal, float3 vToCamera)
 {
     float3 vToLight = gLights[index].Position - vPosition;
     float distance = length(vToLight);
@@ -44,19 +43,19 @@ float4 PointLight(int index, float3 vPosition, float3 vNormal, float3 vToCamera)
         float diffuseFactor = dot(vToLight, vNormal);
         if (diffuseFactor > 0.f)
         {
-            if (gMaterial.Sepcular.a != 0.f)
+            if (mat.Sepcular.a != 0.f)
             {
 #ifdef _WITH_REFLECT
 float3 vReflect = reflect(-vToLight, vNormal);
 specularFactor = pow(max(dot(vReflect, vToCamera), 0.f),
-gMaterial.Sepcular.a);
+mat.Sepcular.a);
 #else
 #ifdef _WITH_LOCAL_VIEWER_HIGHLIGHT
                 float3 vHalf = normalize(vToCamera + vToLight);
 #else
 float3 vHalf = float3(0.f, 1.f, 0.f);
 #endif
-                specularFactor = pow(max(dot(vHalf, vNormal), 0.f), gMaterial.Sepcular.a);
+                specularFactor = pow(max(dot(vHalf, vNormal), 0.f), mat.Sepcular.a);
 #endif
             }
         }
@@ -72,9 +71,9 @@ float3 vHalf = float3(0.f, 1.f, 0.f);
         attenuationFactor *= far;
         attenuationFactor = max(0.f, attenuationFactor);
         
-        return (((gLights[index].Ambient * gMaterial.Ambient) +
-                (gLights[index].Diffuse * diffuseFactor * gMaterial.Diffuse) +
-                (gLights[index].Sepcular * specularFactor * gMaterial.Sepcular)) * attenuationFactor);
+        return (((gLights[index].Ambient * mat.Ambient) +
+                (gLights[index].Diffuse * diffuseFactor * mat.Diffuse) +
+                (gLights[index].Sepcular * specularFactor * mat.Sepcular)) * attenuationFactor);
     }
     return float4(0.f, 0.f, 0.f, 0.f);
 }
@@ -84,7 +83,7 @@ float3 vHalf = float3(0.f, 1.f, 0.f);
 
 
 
-float4 SpotLight(int index, float3 vPosition, float3 vNormal, float3 vToCamera)
+float4 SpotLight(int index, MaterialInfo mat, float3 vPosition, float3 vNormal, float3 vToCamera)
 {
     float3 vToLight = gLights[index].Position - vPosition;
     float distance = length(vToLight);
@@ -95,12 +94,12 @@ float4 SpotLight(int index, float3 vPosition, float3 vNormal, float3 vToCamera)
         float diffuseFactor = dot(vToLight, vNormal);
         if (diffuseFactor > 0.f)
         {
-            if (gMaterial.Sepcular.a != 0.f)
+            if (mat.Sepcular.a != 0.f)
             {
 #ifdef _WITH_REFLECT
                 
     float3 vReflect = reflect(-vToLight, vNormal);
-    specularFactor = pow(max(dot(vReflect, vToCamera), 0.f), gMaterial.Sepcular.a);
+    specularFactor = pow(max(dot(vReflect, vToCamera), 0.f), mat.Sepcular.a);
                 
 #else
 #ifdef _WITH_LOCAL_VIEWER_HIGHLIGHT
@@ -108,7 +107,7 @@ float4 SpotLight(int index, float3 vPosition, float3 vNormal, float3 vToCamera)
 #else
         float3 vHalf = float3(0.f, 1.f, 0.f);
 #endif
-                specularFactor = pow(max(dot(vHalf, vNormal), 0.f), gMaterial.Sepcular.a);
+                specularFactor = pow(max(dot(vHalf, vNormal), 0.f), mat.Sepcular.a);
 #endif
             }
         }
@@ -133,9 +132,9 @@ float4 SpotLight(int index, float3 vPosition, float3 vNormal, float3 vToCamera)
         attenuationFactor *= far;
         attenuationFactor = max(0.f, attenuationFactor);
         
-        return (((gLights[index].Ambient * gMaterial.Ambient) +
-                (gLights[index].Diffuse * diffuseFactor * gMaterial.Diffuse) +
-                (gLights[index].Sepcular * specularFactor * gMaterial.Sepcular)) * attenuationFactor * fSpotFactor);
+        return (((gLights[index].Ambient * mat.Ambient) +
+                (gLights[index].Diffuse * diffuseFactor * mat.Diffuse) +
+                (gLights[index].Sepcular * specularFactor * mat.Sepcular)) * attenuationFactor * fSpotFactor);
     }
     return float4(0.f, 0.f, 0.f, 0.f);
 }
@@ -159,7 +158,7 @@ float4 FogDistance(float4 color, float3 distance)
 }
 
 
-float4 Lighting(float3 vPosition, float3 vNormal)
+float4 Lighting(MaterialInfo mat, float3 vPosition, float3 vNormal)
 {
     float3 vCameraPosition = float3(gCameraPos.x, gCameraPos.y, gCameraPos.z);
     float3 vToCamera = normalize(vCameraPosition - vPosition);
@@ -171,22 +170,22 @@ float4 Lighting(float3 vPosition, float3 vNormal)
         {
             if (gLights[i].Type == LightType_Directional)
             {
-                color += DirectionalLight(i, vNormal, vToCamera);
+                color += DirectionalLight(i, mat, vNormal, vToCamera);
             }
             else if (gLights[i].Type == LightType_Point)
             {
-                color += PointLight(i, vPosition, vNormal, vToCamera);
+                color += PointLight(i, mat, vPosition, vNormal, vToCamera);
             }
             else if (gLights[i].Type == LightType_Spot)
             {
-                color += SpotLight(i, vPosition, vNormal, vToCamera);
+                color += SpotLight(i, mat, vPosition, vNormal, vToCamera);
             }
         }
     }
     
-    color += (gGlobalAmbient * gMaterial.Ambient);
-    color += gMaterial.Emissive;
-    color.a = gMaterial.Diffuse.a;
+    color += (gGlobalAmbient * mat.Ambient);
+    color += mat.Emissive;
+    color.a = mat.Diffuse.a;
 
     return color;
 }

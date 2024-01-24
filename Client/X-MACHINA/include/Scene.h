@@ -178,6 +178,7 @@ private:
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
+	void BuildSkyBox();
 
 	/* Grid */
 	// generate grids

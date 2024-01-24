@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSOutput_Canvas {
     float4 Position : SV_POSITION;
@@ -57,7 +57,7 @@ VSOutput_Canvas VSCanvas(uint vertexID : SV_VertexID)
             break;
     }
     
-    output.Position = mul(output.Position, gWorld);
+    output.Position = mul(output.Position, gMtxWorld);
     output.UV = mul(float3(output.UV, 1.f), (float3x3) (gMtxSprite)).xy;
     
     return output;

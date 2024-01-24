@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSInput_Skybox {
     float3 Position : POSITION;
@@ -14,7 +14,7 @@ VSOutput_Skybox VSSkyBox(VSInput_Skybox input)
 {
     VSOutput_Skybox output;
 
-    output.Position = mul(mul(mul(float4(input.Position, 1.f), gWorld), gMtxView), gMtxProj).xyww;
+    output.Position = mul(mul(mul(float4(input.Position, 1.f), gMtxWorld), gMtxView), gMtxProj).xyww;
     output.PositionL = input.Position;
 
     return output;

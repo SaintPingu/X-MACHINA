@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSInput_Standard {
     float3 Position : POSITION;
@@ -20,7 +20,7 @@ VSOutput_Billboard VSBillboard(VSInput_Standard input)
 {
     VSOutput_Billboard output;
     
-    output.PositionW = mul(float4(input.Position, 1.f), gWorld).xyz;
+    output.PositionW = mul(float4(input.Position, 1.f), gMtxWorld).xyz;
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = input.UV;
     
@@ -31,7 +31,7 @@ VSOutput_Billboard VSSprite(VSInput_Standard input)
 {
     VSOutput_Billboard output;
 
-    output.PositionW = mul(float4(input.Position, 1.f), gWorld).xyz;
+    output.PositionW = mul(float4(input.Position, 1.f), gMtxWorld).xyz;
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = mul(float3(input.UV, 1.f), (float3x3) (gMtxSprite)).xy;
 

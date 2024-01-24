@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSOutput_Inst {
     float4 Position : SV_POSITION;

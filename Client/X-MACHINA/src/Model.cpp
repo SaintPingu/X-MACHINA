@@ -28,40 +28,43 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 void Material::UpdateMaterialBuffer()
 {
 	MaterialData materialData;
-	materialData.Ambient = mMaterialColors->Ambient;
-	materialData.Diffuse = mMaterialColors->Diffuse;
-	materialData.Specular = mMaterialColors->Specular;
-	materialData.Emissive = mMaterialColors->Emissive;
+	materialData.Ambient			= mMaterialColors->Ambient;
+	materialData.Diffuse			= mMaterialColors->Diffuse;
+	materialData.Specular			= mMaterialColors->Specular;
+	materialData.Emissive			= mMaterialColors->Emissive;
 
-	if (mTexture)
-		materialData.DiffuseMapIndex = mTexture->GetGpuDescriptorHandleIndex();
+	for (UINT8 i = 0; i < TextureMapCount; ++i) {
+		if (mTextures[i]) {
+			materialData.MapIndices[i] = mTextures[i]->GetGpuDescriptorHandleIndex();
+		}
+	}
 
-	frmResMgr->CopyData(mMatSBIdx, materialData);
+	frmResMgr->CopyData(mMatIndex, materialData);
 }
 
-void Material::UpdateShaderVars()
-{
-	constexpr RootParam kRootParam = RootParam::GameObjectInfo;
-
-	// texture가 있다면, texture의 shader variables를 업데이트하고
-	//			 없다면, textureMask를 None으로 설정한다.
-	if (mTexture) {
-		mTexture->UpdateShaderVars();
-	}
-	else {
-		scene->SetGraphicsRoot32BitConstants(kRootParam, static_cast<DWORD>(MaterialMap::None), 32);
-	}
-
-	// material 색이 없다면, 무색(0,0,0=black)으로 설정한다.
-	if (!mMaterialColors) {
-		scene->SetGraphicsRoot32BitConstants(kRootParam, Vec4x4{}, 16);
-		return;
-	}
-
-	// material의 색상 (Vec4x4 -> Ambient, Diffuse, Specular, Emissive)을 Set한다.
-	scene->SetGraphicsRoot32BitConstants(kRootParam, *mMaterialColors, 16);
-}
-
+//void Material::UpdateShaderVars()
+//{
+//	constexpr RootParam kRootParam = RootParam::GameObjectInfo;
+//
+//	// texture가 있다면, texture의 shader variables를 업데이트하고
+//	//			 없다면, textureMask를 None으로 설정한다.
+//	if (mTextures[TextureMap::DiffuseMap0]) {
+//		mTextures[TextureMap::DiffuseMap0]->UpdateShaderVars();
+//	}
+//	else {
+//		scene->SetGraphicsRoot32BitConstants(kRootParam, static_cast<DWORD>(MaterialMap::None), 32);
+//	}
+//
+//	// material 색이 없다면, 무색(0,0,0=black)으로 설정한다.
+//	if (!mMaterialColors) {
+//		scene->SetGraphicsRoot32BitConstants(kRootParam, Vec4x4{}, 16);
+//		return;
+//	}
+//
+//	// material의 색상 (Vec4x4 -> Ambient, Diffuse, Specular, Emissive)을 Set한다.
+//	scene->SetGraphicsRoot32BitConstants(kRootParam, *mMaterialColors, 16);
+//}
+// 
 // texture의 fileName을 읽어와 해당 texture를 scene을 통해 가져온다.
 void Material::LoadTextureFromFile(FILE* file)
 {
@@ -72,7 +75,7 @@ void Material::LoadTextureFromFile(FILE* file)
 		return;
 	}
 
-	mTexture = scene->GetTexture(textureName);
+	mTextures[TextureMap::DiffuseMap0] = scene->GetTexture(textureName);
 }
 #pragma endregion
 

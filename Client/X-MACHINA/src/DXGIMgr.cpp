@@ -18,6 +18,11 @@ DXGIMgr::DXGIMgr()
 	
 }
 
+void DXGIMgr::SetMRTTsPassConstants(PassConstants& passConstants)
+{
+	mPostProcessingShader->SetMRTTsPassConstants(passConstants);
+}
+
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 {
 	mInstance = hInstance;

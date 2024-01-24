@@ -1,5 +1,4 @@
-#include "PSResource.hlsl"
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct PSOutput_MRT {
     float4 Texture : SV_TARGET1;
@@ -15,8 +14,10 @@ struct VSOutput_TexInst {
 #ifdef POST_PROCESSING
 PSOutput_MRT PSTextureInstancing(VSOutput_TexInst input)
 {
+    MaterialInfo mat = materialBuffer[gMatIndex];
+    
     PSOutput_MRT output;
-    output.Texture = gAlbedoTexture.Sample(gSamplerState, input.UV);
+    output.Texture = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV);
     output.Distance = length(input.PositionW - gCameraPos);
     
     return output;

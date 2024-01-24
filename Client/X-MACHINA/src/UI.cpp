@@ -24,6 +24,8 @@ void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
 	mWidth = width / gkFrameBufferWidth;
 	mHeight = height / gkFrameBufferHeight;
 
+	// 오브젝트 상수 버퍼 사용 플래그는 직접 설정할 수 있다.
+	SetUseObjCB(true);
 	SetPosition(pos);
 }
 
@@ -36,9 +38,9 @@ void UI::UpdateShaderVars() const
 {
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
-	frmResMgr->CopyData(mObjCBIdx, objectConstants);
+	frmResMgr->CopyData(mObjCBIndices.front(), objectConstants);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIdx));
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
 void UI::Render()
@@ -69,7 +71,6 @@ void UI::DeleteUIMesh()
 void MyFont::Create(const Vec3& pos, float width, float height)
 {
 	UI::Create(nullptr, pos, width, height);
-	mObjCBIdxes = std::vector<int>(30, -1);
 }
 
 void MyFont::UpdateShaderVars(char ch, int cnt) const
@@ -93,31 +94,22 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	spriteMtx._31 = col / kCols;
 	spriteMtx._32 = row / kRows;
 	
-	// 객체를 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없기 때문에 렌더링을 해야 하는 경우에만 set하도록 변경
+	// 머티리얼을 사용하지 않는 경우 MatIndex에 텍스처 인덱스를 넣어준다.
 	ObjectConstants objectConstants;
-	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
-	objectConstants.MtxSprite = XMMatrix::Transpose(spriteMtx);
+	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
+	objectConstants.MtxSprite	= XMMatrix::Transpose(spriteMtx);
+	objectConstants.MatIndex	= mTexture->GetGpuDescriptorHandleIndex(); 
 
-	// -1로 초기화 되어 있는 mObjCBIdxes에 가용 인덱스를 저장하고 해당 배열에 있는 인덱스로만 set을 한다.
-	frmResMgr->CopyData(mObjCBIdxes[cnt], objectConstants);
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIdxes[cnt]));
-}
-
-void MyFont::OnDisable()
-{
-	for (const auto objCBIdx : mObjCBIdxes) {
-		frmResMgr->ReturnObjCBIdx(mObjCBIdx);
-	}
+	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void MyFont::Render()
 {
-	mTexture->UpdateShaderVars();
-
 	Vec3 originPos = GetPosition();
 	Vec3 fontPos = GetPosition();
 
-	int cnt{};
+	int cnt{ 0 };
 	for (char ch : mText) {
 		// 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없다.
 		if (ch != ' ') {
@@ -180,7 +172,7 @@ void Canvas::Release()
 {
 	UI::DeleteUIMesh();
 	mFont->ReleaseFontTexture();
-	mFont->OnDisable();
+	mFont->OnDestroy();
 	Destroy();
 }
 

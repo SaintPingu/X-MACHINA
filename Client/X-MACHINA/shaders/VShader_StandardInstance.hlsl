@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSInput_Standard {
     float3 Position : POSITION;
@@ -15,7 +15,6 @@ struct VSOutput_Standard {
     float3 TangentW : TANGENT;
     float3 BiTangentW : BITANGENT;
     float2 UV : UV;
-    bool IsTexture : ISTEXTURE;
 };
 
 
@@ -26,19 +25,12 @@ VSOutput_Standard VS_StandardInstance(VSInput_Standard input, uint nInstanceID :
     VSOutput_Standard output;
 
     matrix mtxWorld = instBuffer[nInstanceID].MtxObject;
-    output.PositionW = mul(mul(float4(input.Position, 1.f), gWorld), mtxWorld).xyz;
+    output.PositionW = mul(mul(float4(input.Position, 1.f), gMtxWorld), mtxWorld).xyz;
     output.NormalW = mul(input.Normal, (float3x3) mtxWorld);
     output.TangentW = (float3) mul(float4(input.Tangent, 1.f), mtxWorld);
     output.BiTangentW = (float3) mul(float4(input.BiTangent, 1.f), mtxWorld);
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
     output.UV = input.UV;
-    
-    if (gTextureMask > 0) {
-        output.IsTexture = true;
-    }
-    else {
-        output.IsTexture = false;
-    }
 
     return output;
 }

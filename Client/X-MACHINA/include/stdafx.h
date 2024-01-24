@@ -223,34 +223,40 @@ enum class CameraMode {
 // index = scene->GetRootParamIndex(RootParam);
 // 32BitConstant => scene->SetGraphicsRoot32BitConstants(RootParam, ...);
 enum class RootParam {
-	GameObjectInfo = 0,
-	Object,
-	Pass,
-	//Light,
-	//Camera,
-	//GameInfo,
-	//SpriteInfo,
-
+	Object = 1,
 	Instancing,
-
-	Material, // 구현중
-
+	Material,
+	SkyBox,
 	Texture,
-	Texture1,
-	Texture2,
-	Texture3,
-	Texture4,
-	RenderTarget,
-
-	TerrainLayer0,
-	TerrainLayer1,
-	TerrainLayer2,
-	TerrainLayer3,
-	SplatMap,
-
-	Texture2D, // 구현중
-
+	Pass,
+	Collider,
 };
+
+enum TextureMap : UINT8 {
+	DiffuseMap0 = 0,
+	DiffuseMap1,
+	DiffuseMap2,
+	DiffuseMap3,
+
+	NormalMap,
+	HeightMap,
+	ShadowMap,
+	RoughnessMap,
+
+	_count
+};
+enum { TextureMapCount = static_cast<UINT8>(TextureMap::_count) };
+
+enum class MRT : UINT8 {
+	Texture,
+	UI,
+	Normal,
+	Distance,
+	Depth,
+
+	_count
+};
+enum { MRTCount = static_cast<UINT8>(MRT::_count) };
 #pragma endregion
 
 

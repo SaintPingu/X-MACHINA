@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSInput_Terrain {
     float3 Position : POSITION;
@@ -19,9 +19,9 @@ VSOutput_Terrain VSTerrain(VSInput_Terrain input)
 {
     VSOutput_Terrain output;
 
-    output.PositionW = (float3) mul(float4(input.Position, 1.f), gWorld);
+    output.PositionW = (float3) mul(float4(input.Position, 1.f), gMtxWorld);
     output.Position = mul(mul(float4(output.PositionW, 1.f), gMtxView), gMtxProj);
-    output.NormalW = mul(input.Normal, (float3x3) gWorld);
+    output.NormalW = mul(input.Normal, (float3x3) gMtxWorld);
     output.UV0 = input.UV0;
     output.UV1 = input.UV1;
 

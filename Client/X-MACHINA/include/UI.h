@@ -55,8 +55,6 @@ private:
 	std::string mText{};	// "YOUR SCORE IS "
 	std::string mScore{};
 
-	mutable std::vector<int> mObjCBIdxes{};
-
 public:
 	MyFont() = default;
 	virtual ~MyFont() = default;
@@ -73,7 +71,6 @@ public:
 	// mObjCBIdxes에 있는 인덱스를 참고하여 set(SetGraphicsRootConstantBufferView)한다.
 	void UpdateShaderVars(char ch, int cnt) const;
 
-	virtual void OnDisable() override;
 	virtual void Render() override;
 
 	void CreateFontTexture();

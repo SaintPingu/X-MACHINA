@@ -10,7 +10,14 @@ Texture::Texture(D3DResource resourceType)
 	mResourceType(resourceType),
 	mRootParamIndex(scene->GetRootParamIndex(RootParam::Texture))
 {
-
+	switch (resourceType)
+	{
+	case D3DResource::TextureCube:
+		mRootParamIndex = scene->GetRootParamIndex(RootParam::SkyBox); // Textrue2D와 다른 루트 파라미터를 사용해야 함
+		break;
+	default:
+		break;
+	}
 }
 
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
@@ -55,7 +62,6 @@ void Texture::UpdateShaderVars()
 {
 	if (mSrvDescriptorHandle.ptr) {
 		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvDescriptorHandle);
-		scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, static_cast<float>(mTextureMask), 32);
 	}
 }
 

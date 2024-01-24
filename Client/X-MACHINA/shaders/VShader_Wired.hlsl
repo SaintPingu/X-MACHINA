@@ -1,4 +1,4 @@
-#include "VSResource.hlsl"
+#include "Common.hlsl"
 
 struct VSInput {
     float3 Position : POSITION;
@@ -14,7 +14,7 @@ VSOutput VSWired(VSInput input)
 {
     VSOutput output;
 
-    output.Position = mul(mul(mul(float4(input.Position, 1.f), gMtxWorld), gMtxView), gMtxProj);
+    output.Position = mul(mul(mul(float4(input.Position, 1.f), gMtxWorldCollider), gMtxView), gMtxProj);
     output.Color = float4(1.f, 0.f, 0.f, 1.f);
 
     return output;

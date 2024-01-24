@@ -9,9 +9,9 @@ class MasterModel;
 class Object;
 class Material;
 class Texture;
-
 class Script_Fragment;
 class Script_Bullet;
+struct PassConstants;
 #pragma endregion
 
 
@@ -242,6 +242,9 @@ public:
 	virtual ~PostProcessingShader() = default;
 
 public:
+	// set multiple render target textures of pass constants buffer
+	void SetMRTTsPassConstants(PassConstants& passConstants);
+	
 	virtual void Set(int pipelineStateIndex = 0) override;
 
 	// texture resource를 생성하고 이에 대한 SRV와 RTV를 생성한다

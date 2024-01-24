@@ -18,9 +18,8 @@ public:
 
 public:
 	virtual void Update() override;
-	virtual void OnDestroy() override;
 
 public:
-	virtual void UpdateSpriteVariable() const;
+	virtual void UpdateSpriteVariable(const int matIndex) const;
 };
 #pragma endregion

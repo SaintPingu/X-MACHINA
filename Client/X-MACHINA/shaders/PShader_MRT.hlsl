@@ -1,5 +1,4 @@
-//#include "Light.hlsl"
-#include "TempLight.hlsl"
+#include "Light.hlsl"
 
 struct PSOutput_MRT {
     float4 Texture : SV_TARGET1;
@@ -13,17 +12,15 @@ struct VSOutput_Standard {
     float3 TangentW : TANGENT;
     float3 BiTangentW : BITANGENT;
     float2 UV : UV;
-    bool   IsTexture : ISTEXTURE;
 };
 
 #ifdef POST_PROCESSING
 PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
 {
     PSOutput_MRT output;
+    MaterialInfo mat = materialBuffer[gMatIndex];
     
     input.NormalW = normalize(input.NormalW);
-   
-    TestMaterial mat = materialBuffer[gMatSBIdx];
     
     float4 illumination = Lighting(mat, input.PositionW, input.NormalW);
     
@@ -31,19 +28,10 @@ PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
     //output.normal = float4(input.NormalW.xyz * 0.5f + 0.5f, 1.f);
     output.Distance = length(input.PositionW - gCameraPos);
     
-    if (mat.DiffuseMapIndex != -1)
-        output.Texture = gTextureMap[mat.DiffuseMapIndex].Sample(gSamplerState, input.UV) * illumination;
+    if (mat.DiffuseMap0Index != -1)
+        output.Texture = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV) * illumination;
     else 
         output.Texture = illumination;
-    
-    //if (input.IsTexture)
-    //{
-    //    //output.Texture = gAlbedoTexture.Sample(gSamplerState, input.UV) * illumination;
-    //}
-    //else
-    //{
-    //    output.Texture = illumination;
-    //}
     
     return output;
 }

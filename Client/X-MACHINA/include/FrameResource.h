@@ -6,30 +6,37 @@
 
 #pragma region Struct
 struct PassConstants {
+public:
     Matrix      MtxView{};
     Matrix      MtxProj{};
     Vec3        EyeW{};
     float       DeltaTime{};
     SceneLight  Lights{};
+    
+    std::array<int, MRTCount> MRTTsIndices{};
+    Vec3 Padding{};
+
+public:
+    PassConstants();
 };
 
 struct ObjectConstants {
     Matrix      MtxWorld{};
     Matrix      MtxSprite{};
-    int         MatSBIdx{};
+    int         MatIndex{};
     Vec3        Padding{};
 };
 
 struct MaterialData {
-    Vec4        Ambient{ Vector4::One() };
-    Vec4        Diffuse{};
-    Vec4        Specular{};
-    Vec4        Emissive{};
+    Vec4 Ambient{ Vector4::One() };
+    Vec4 Diffuse{};
+    Vec4 Specular{};
+    Vec4 Emissive{};
 
-    int         DiffuseMapIndex{ -1 };
-    int         NormalMapIndex{ -1 };
-    int         RoughnessMapIndex{ -1 };
-    int         HeightMapIndex{ -1 };
+    std::array<int, TextureMapCount> MapIndices;
+
+public:
+    MaterialData();
 };
 #pragma endregion
 
@@ -88,7 +95,7 @@ public:
     void Update();
 
     // 객체 소멸시 사용하지 않는 상수 버퍼 인덱스를 반환하는 함수
-    void ReturnObjCBIdx(int elementIndex);
+    void ReturnObjCBIndex(int elementIndex);
 
     // 패스 당 상수 버퍼에 데이터 복사
     void CopyData(const PassConstants& data);

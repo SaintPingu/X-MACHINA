@@ -437,9 +437,6 @@
     <FxCompile Include="shaders\PShader_Wired.hlsl">
       <Filter>소스 파일\Shaders\PS</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PSResource.hlsl">
-      <Filter>소스 파일\Shaders\PS</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\VShader_Billboard.hlsl">
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
@@ -476,16 +473,10 @@
     <FxCompile Include="shaders\VShader_Wired.hlsl">
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\VSResource.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\Light.hlsl">
-      <Filter>소스 파일\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\Common.hlsl">
       <Filter>소스 파일\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\TempLight.hlsl">
+    <FxCompile Include="shaders\Light.hlsl">
       <Filter>소스 파일\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

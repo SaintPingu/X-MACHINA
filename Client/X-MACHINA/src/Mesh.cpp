@@ -452,7 +452,7 @@ MergedMesh::MergedMesh()
 
 rsptr<Texture> MergedMesh::GetTexture() const
 {
-	return mFrameMeshInfo.front().Materials.front()->mTexture;
+	return mFrameMeshInfo.front().Materials.front()->mTextures[TextureMap::DiffuseMap0];
 }
 
 // mMeshBuffer와 mFrameMeshInfo에 [mesh] 및 [materials] 정보들을 추가(병합)한다.
@@ -477,7 +477,7 @@ void MergedMesh::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>
 	// copy vertices info to [mMeshBuffer]
 	CopyBack(mesh->Buffer.Vertices, mMeshBuffer->Vertices);
 	CopyBack(mesh->Buffer.Normals,  mMeshBuffer->Normals);
-	if (modelMeshInfo.Materials.front()->mTexture) {				// texture가 있다면, Tangents, BiTangents, UVs를 가져온다
+	if (modelMeshInfo.Materials.front()->mTextures[TextureMap::DiffuseMap0]) {	// texture가 있다면, Tangents, BiTangents, UVs를 가져온다
 		CopyBack(mesh->Buffer.Tangents,	  mMeshBuffer->Tangents);
 		CopyBack(mesh->Buffer.BiTangents, mMeshBuffer->BiTangents);
 		CopyBack(mesh->Buffer.UVs0,		  mMeshBuffer->UVs0);
@@ -529,10 +529,10 @@ void MergedMesh::UpdateMaterialBuffer()
 	}
 }
 
-void UpdateShaderVars(const Vec4x4& transform)
-{
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
-}
+//void UpdateShaderVars(const Vec4x4& transform)
+//{
+//	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
+//}
 
 
 void MergedMesh::Render(const GameObject* object) const
@@ -572,8 +572,7 @@ void MergedMesh::RenderSprite(const GameObject* object) const
 	constexpr UINT kTransformIndex{ 0 };
 	const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[kTransformIndex];
 
-	modelMeshInfo.Materials.front()->UpdateShaderVars();
-	object->GetComponent<Script_Sprite>()->UpdateSpriteVariable();
+	object->GetComponent<Script_Sprite>()->UpdateSpriteVariable(modelMeshInfo.Materials.front()->mMatIndex);
 
 	constexpr UINT kIndexCnt{ 6 };
 	cmdList->DrawIndexedInstanced(kIndexCnt, 1, 0, 0, 0);
@@ -607,6 +606,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const UINT transformCnt = (UINT)mergedTransform.size();
 
 	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
+		// 최상위 부모의 mUseObjCB가 true여야 객체 파괴시 오브젝트 인덱스 반환 가능
 		const Transform* transform = mergedTransform[transformIndex];
 		transform->SetUseObjCB(true);
 
@@ -619,7 +619,10 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		UINT vertexCnt = modelMeshInfo.VertexCnt;
 		UINT mat{ 0 };
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
-			transform->UpdateShaderVars(mat, modelMeshInfo.Materials[mat++]->mMatSBIdx);
+			// 서브 메쉬에 대하여 각각의 머티리얼 인덱스를 오브젝트 상수 버퍼에 설정해야 한다.
+			// 때문에 transform의 데이터를 여러 번 설정하되 머티리얼은 설정하지 않는다. 
+			transform->UpdateShaderVars(mat, modelMeshInfo.Materials[mat++]->mMatIndex);
+
 			cmdList->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
 			indexLocation += indexCnt;
 		}

@@ -180,32 +180,19 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::GameObjectInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 33);
-	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
-	//mGraphicsRootSignature->Push(RootParam::SpriteInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, D3D12_SHADER_VISIBILITY_VERTEX, 16);
-	//mGraphicsRootSignature->Push(RootParam::Light, D3D12_ROOT_PARAMETER_TYPE_CBV, 3, D3D12_SHADER_VISIBILITY_PIXEL);
-	//mGraphicsRootSignature->Push(RootParam::Camera, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, D3D12_SHADER_VISIBILITY_ALL);
-	//mGraphicsRootSignature->Push(RootParam::GameInfo, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, D3D12_SHADER_VISIBILITY_ALL, 1);
-	
+	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
 	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	
+	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
+	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 100, D3D12_SHADER_VISIBILITY_PIXEL);
 	
-	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture3, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::RenderTarget, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 6, 5, D3D12_SHADER_VISIBILITY_PIXEL);
-
-
-
-	mGraphicsRootSignature->AddAlias(RootParam::Texture, RootParam::TerrainLayer0);	// TerrainLayer0는 RootParam::Texture 의 SRV 사용
-	mGraphicsRootSignature->AddAlias(RootParam::Texture1, RootParam::TerrainLayer1);	// TerrainLayer1는 RootParam::Texture1의 SRV 사용
-	mGraphicsRootSignature->AddAlias(RootParam::Texture2, RootParam::TerrainLayer2);	// ...
-	mGraphicsRootSignature->AddAlias(RootParam::Texture3, RootParam::SplatMap);
-
-	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 4, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture2D, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 16, 100, D3D12_SHADER_VISIBILITY_PIXEL);
+	// GameObjectInfo를 Collider로 변경, 충돌 박스만 그려주는 용도
+	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
 
 	mGraphicsRootSignature->Create();
 }
@@ -228,6 +215,8 @@ void Scene::UpdateMainPassCB()
 	passConstants.MtxProj	= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
 	passConstants.EyeW		= mainCamera->GetPosition();
 	passConstants.DeltaTime = timeElapsed;
+	dxgi->SetMRTTsPassConstants(passConstants);
+	
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 
 	frmResMgr->CopyData(passConstants);
@@ -594,18 +583,16 @@ namespace {
 
 void Scene::OnPrepareRender()
 {
-
 	cmdList->SetGraphicsRootSignature(GetRootSignature().Get());
 
 	mainCamera->SetViewportsAndScissorRects();
 
 	mDescriptorHeap->Set();
 
-
+	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
 	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
 	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatSBGpuAddr());
-	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture2D), mDescriptorHeap->GetGPUHandle());
-
+	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 }
 
 void Scene::Render()

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Shader.h"
 #include "DXGIMgr.h"
+#include "FrameResource.h"
 
 #include "Scene.h"
 #include "Texture.h"
@@ -604,11 +605,18 @@ PostProcessingShader::PostProcessingShader()
 	mRtvFormats = dxgi->GetRtvFormats().data() + 1;
 }
 
+void PostProcessingShader::SetMRTTsPassConstants(PassConstants& passConstants)
+{
+	for (UINT i = 0; i < mRtvCnt; ++i) {
+		passConstants.MRTTsIndices[i] = mTextures[i]->GetGpuDescriptorHandleIndex();
+	}
+}
+
 void PostProcessingShader::Set(int pipelineStateIndex)
 {
 	Shader::Set(pipelineStateIndex);
 	// SRV의 GPU Descriptor Handle을 Set한다.
-	mTextures[0]->UpdateShaderVars();
+	//mTextures[0]->UpdateShaderVars();
 }
 
 void PostProcessingShader::CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
@@ -703,7 +711,7 @@ void PostProcessingShader::CreateSrvs()
 {
 	for (UINT i = 0; i < mRtvCnt; ++i) {
 		scene->CreateShaderResourceView(mTextures[i].get(), 0);
-		mTextures[i]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::RenderTarget));
+		//mTextures[i]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::RenderTarget));
 	}
 }
 

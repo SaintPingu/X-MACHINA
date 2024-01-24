@@ -6,6 +6,7 @@
 #include "FrameResource.h"
 #include "Object.h"
 
+#include <iostream>
 
 
 #pragma region Getter
@@ -332,21 +333,25 @@ void Transform::Awake()
 	ComputeWorldTransform();
 }
 
-void Transform::OnDisable()
+void Transform::OnDestroy()
 {
-	if (mUseObjCB)
-		ReturnObjCBIdx();
+	// 객체 파괴시 사용한 모든 오브젝트 상수 버퍼 인덱스를 반환한다.
+	if (mUseObjCB) {
+		ReturnObjCBIndex();
+	}
 }
 
-void Transform::ReturnObjCBIdx()
+void Transform::ReturnObjCBIndex()
 {
-	frmResMgr->ReturnObjCBIdx(mObjCBIdx);
+	for (const int index : mObjCBIndices) {
+		frmResMgr->ReturnObjCBIndex(index);
+	}
 
 	if (mSibling) {
-		mSibling->ReturnObjCBIdx();
+		mSibling->ReturnObjCBIndex();
 	}
 	if (mChild) {
-		mChild->ReturnObjCBIdx();
+		mChild->ReturnObjCBIndex();
 	}
 }
 
@@ -355,15 +360,15 @@ void Transform::BeforeUpdateTransform()
 	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 }
 
-void Transform::UpdateShaderVars(const int cnt, const int materialSBIndex) const
+void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 {
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
-	objectConstants.MatSBIdx = materialSBIndex;
+	objectConstants.MatIndex = matIndex;
 	
-	frmResMgr->CopyData(mObjectCBIndices[cnt], objectConstants);
+	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjectCBIndices[cnt]));
+	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void Transform::NormalizeAxis()
@@ -389,5 +394,5 @@ void Transform::MergeTransform(std::vector<const Transform*>& out, const Transfo
 
 void Transform::UpdateShaderVars(const Matrix& matrix)
 {
-	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrixTranspose(matrix), 0);
+	scene->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
 }

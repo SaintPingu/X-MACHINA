@@ -57,22 +57,22 @@ void Script_Sprite::Update()
 	}
 }
 
-void Script_Sprite::UpdateSpriteVariable() const
+void Script_Sprite::UpdateSpriteVariable(const int matIndex) const
 {
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mScale, mScale, 1.f), _MATRIX(mObject->GetWorldTransform())));
 	objectConstants.MtxSprite = XMMatrix::Transpose(mTextureMtx);
+	objectConstants.MatIndex = matIndex;
 
 	// 현재 물고 있는 오브젝트의 상수 버퍼 인덱스를 복사한다.
-	int objCBIdx = mObject->GetObjCBIdx();
+	int objCBIdx = mObject->GetObjCBIndex();
 
 	// 상수 버퍼에 매핑하고 objCBIdx에 사용할 상수 버퍼 인덱스를 저장한다.
 	frmResMgr->CopyData(objCBIdx, objectConstants);
 
 	// 현재 오브젝트의 상수 버퍼 인덱스가 설정되지 않은 경우에만 새롭게 설정한다.
 	if (!mObject->GetUseObjCB()) {
-		mObject->SetUseObjCB(true);
-		mObject->SetObjCBIdx(objCBIdx);
+		mObject->SetObjCBIndex(objCBIdx);
 	}
 
 	// 상수 버퍼 뷰 Set

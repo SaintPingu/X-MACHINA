@@ -101,7 +101,6 @@ void Object::OnDisable()
 	}
 	mIsEnable = false;
 
-	Transform::OnDisable();
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDisable();
 		});
@@ -148,6 +147,7 @@ void Object::OnDestroy()
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDestroy();
 		});
+	Transform::OnDestroy();
 }
 
 void Object::Release()

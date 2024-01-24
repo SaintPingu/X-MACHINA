@@ -10,6 +10,7 @@
 #pragma region ClassForwardDecl
 class PostProcessingShader;
 class FrameResourceMgr;
+struct PassConstants;
 #pragma endregion
 
 #pragma region EnumClass
@@ -46,7 +47,7 @@ private:
 
 	// swap chain
 	static constexpr UINT mSwapChainBuffCnt = 2;
-	static constexpr UINT mRtvCnt			= 5;
+	static constexpr UINT mRtvCnt			= MRTCount;
 	static constexpr std::array<DXGI_FORMAT, mRtvCnt>			mRtvFormats = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };	// formats of multi render target
 	std::array<D3D12_CPU_DESCRIPTOR_HANDLE, mSwapChainBuffCnt>	mRtvHandles{};
 
@@ -100,6 +101,7 @@ public:
 
 #pragma region Setter
 	void SetDrawOption(DrawOption option) { mDrawOption = option; }
+	void SetMRTTsPassConstants(PassConstants& passConstants);
 #pragma endregion
 
 public:

@@ -25,14 +25,14 @@ void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE para
 	ParamMapping(param);
 }
 
-void GraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility)
+void GraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT registerSpace, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility)
 {
 	D3D12_DESCRIPTOR_RANGE range{};
 
 	range.RangeType                         = rangeType;
 	range.NumDescriptors                    = numDescriptors;
 	range.BaseShaderRegister                = shaderRegister;
-	range.RegisterSpace                     = 0;
+	range.RegisterSpace						= registerSpace;
 	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	mRanges.push_back(range);

@@ -16,12 +16,6 @@ class TerrainShader;
 class TerrainBlock;
 #pragma endregion
 
-
-#pragma region Variable
-constexpr int gkTerrainLength = 1024;
-#pragma endregion
-
-
 #pragma region Class
 // 2D height map 정보를 읽고 저장한다.
 // 하이트맵이 16비트인지 32비트인지에 따라 처리하기 위함

@@ -333,8 +333,8 @@ void Terrain::UpdateGrid()
 #pragma region TerrainGridMesh
 TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, rsptr<HeightMapImage> heightMapImage)
 {
-	static constexpr float kCorr = 1.f / gkTerrainLength;	// for SplatMap
-	static constexpr float kDetailScale = 0.1f;
+	const float kCorr = 1.f / heightMapImage->GetHeightMapLength();	// for SplatMap
+	const float kDetailScale = 0.1f;
 
 	mVertexCnt = width * length;
 	std::vector<Vec3> positions;

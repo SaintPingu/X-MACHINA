@@ -591,7 +591,7 @@ void Scene::OnPrepareRender()
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
 	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatSBGpuAddr());
+	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
 	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 }
 

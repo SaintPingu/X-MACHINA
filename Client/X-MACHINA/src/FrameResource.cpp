@@ -24,7 +24,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCou
 
 	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, passCount, true);
 	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, objectCount, true);
-	MaterialSB = std::make_unique<UploadBuffer<MaterialData>>(pDevice, materialCount, false);
+	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, materialCount, false);
 }
 #pragma endregion
 
@@ -33,11 +33,25 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCou
 FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence),
-	mFrameResourceCount(3),
+	mFrameResourceCount(1),
 	mPassCount(1),
-	mObjectCount(1000),
+	mObjectCount(2000),
 	mMaterialCount(500)
 {
+	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
+	for (int i = 0; i < mPassCount; ++i) {
+		mAvailableIndices[static_cast<int>(BufferType::Pass)].push(i);
+	}
+
+	mActiveIndices[static_cast<int>(BufferType::Object)].reserve(mObjectCount);
+	for (int i = 0; i < mObjectCount; ++i) {
+		mAvailableIndices[static_cast<int>(BufferType::Object)].push(i);
+	}
+
+	mActiveIndices[static_cast<int>(BufferType::Material)].reserve(mMaterialCount);
+	for (int i = 0; i < mMaterialCount; ++i) {
+		mAvailableIndices[static_cast<int>(BufferType::Material)].push(i);
+	}
 }
 
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr() const
@@ -46,9 +60,9 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr() const
 	return passCB->Resource()->GetGPUVirtualAddress();
 }
 
-const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatSBGpuAddr() const
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr() const
 {
-	const auto& materialSB = mCurrFrameResource->MaterialSB;
+	const auto& materialSB = mCurrFrameResource->MaterialBuffer;
 	return materialSB->Resource()->GetGPUVirtualAddress();
 }
 
@@ -60,14 +74,6 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetObjCBGpuAddr(int elementInd
 
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
-	// 사용 가능한 버퍼 인덱스를 설정
-	for (int i = 0; i < mObjectCount; ++i) {
-		mAvailableObjCBIdxes.push(i);
-	}
-	for (int i = 0; i < mMaterialCount; ++i) {
-		mAvailableMaterialSBIdxes.push(i);
-	}
-
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
 	for (int i = 0; i < mFrameResourceCount; ++i) {
 		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mObjectCount, mMaterialCount));
@@ -85,19 +91,21 @@ void FrameResourceMgr::Update()
 	// 프레임 리소스 개수만큼의 순환이 끝났음에도 GPU가 첫 프레임의 리소스를 처리하지 않았다면 동기화 해야 한다.
 	if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
 	{
-		HANDLE eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		THROW_IF_FAILED(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
 }
 
-void FrameResourceMgr::ReturnObjCBIndex(int elementIndex)
+void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
 {
+	const UINT& type = static_cast<UINT>(bufferType);
+
 	// 모든 오브젝트 인덱스를 -1로 초기화하였다.
 	if (elementIndex != -1) {
-		if (mActiveObjCBIdxes.erase(elementIndex)) {
-			mAvailableObjCBIdxes.push(elementIndex);
+		if (mActiveIndices[type].erase(elementIndex)) {
+			mAvailableIndices[type].push(elementIndex);
 		}
 	}
 }
@@ -109,18 +117,19 @@ void FrameResourceMgr::CopyData(const PassConstants& data)
 
 void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
 {
+	const UINT& type = static_cast<UINT>(BufferType::Object);
 	// 사용중인 인덱스 집합에서 elementIndex를 찾지 못한 경우
-	if (mActiveObjCBIdxes.find(elementIndex) == mActiveObjCBIdxes.end()) {
+	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
 
 		// 사용 가능한 인덱스가 없을 경우 메모리를 복사하지 않는다.
-		if (mAvailableObjCBIdxes.empty()) {
+		if (mAvailableIndices[type].empty()) {
 			return;
 		}
 
 		// 사용 가능한 인덱스 큐에서 맨 앞의 인덱스를 가져오고 삭제한다.
-		elementIndex = mAvailableObjCBIdxes.front();
-		mAvailableObjCBIdxes.pop();
-		mActiveObjCBIdxes.insert(elementIndex);
+		elementIndex = mAvailableIndices[type].front();
+		mAvailableIndices[type].pop();
+		mActiveIndices[type].insert(elementIndex);
 	}
 
 	// 매핑된 메모리에 데이터 복사
@@ -129,18 +138,19 @@ void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
 
 void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
 {
-	if (mActiveMaterialSBIdxes.find(elementIndex) == mActiveMaterialSBIdxes.end()) {
+	const UINT& type = static_cast<UINT>(BufferType::Material);
+	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
 
-		if (mAvailableMaterialSBIdxes.empty()) {
+		if (mAvailableIndices[type].empty()) {
 			return;
 		}
 
-		elementIndex = mAvailableMaterialSBIdxes.front();
-		mAvailableMaterialSBIdxes.pop();
-		mActiveMaterialSBIdxes.insert(elementIndex);
+		elementIndex = mAvailableIndices[type].front();
+		mAvailableIndices[type].pop();
+		mActiveIndices[type].insert(elementIndex);
 	}
 
-	mCurrFrameResource->MaterialSB->CopyData(elementIndex, data);
+	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
 }
 
 #pragma endregion

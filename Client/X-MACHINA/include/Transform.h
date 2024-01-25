@@ -24,6 +24,7 @@ private:
 
 protected:
 	mutable bool				mUseObjCB{};		// 오브젝트 상수 버퍼 사용 플래그
+	mutable int					mObjCBCount{};		// 몇 개의 오브젝트 인덱스를 사용하였는가
 	mutable std::vector<int>	mObjCBIndices{};	// 서브 메쉬를 가진 객체는 여러 개의 인덱스들을 가져야 한다.
 
 public:
@@ -112,8 +113,9 @@ public:
 
 	void SetLocalTransform(const Vec4x4& transform);
 
-	void SetObjCBIndex(int val, int index = 0) const { mObjCBIndices[index] = val; mUseObjCB = true; }
-	void SetUseObjCB(bool val) const { mUseObjCB = val; }
+	// 상수 버퍼 인덱스를 한 번이라도 설정 하였다면 오브젝트 카운트는 최소 1이다.
+	void SetObjCBIndex(int val, int index = 0) const { mObjCBIndices[index] = val; SetUseObjCB(true); }
+	void SetUseObjCB(bool val) const { mUseObjCB = val; mObjCBCount = 1; }
 #pragma endregion
 
 public:

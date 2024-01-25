@@ -4,6 +4,19 @@
 #include "UploadBuffer.h"
 #pragma endregion
 
+#pragma region EnumClass
+enum class BufferType : UINT {
+    Pass = 0,
+    Object,
+    Material,
+    _count
+};
+
+enum {
+    BufferTypeCount = static_cast<UINT>(BufferType::_count)
+};
+#pragma endregion
+
 #pragma region Struct
 struct PassConstants {
 public:
@@ -49,7 +62,7 @@ public:
     uptr<UploadBuffer<PassConstants>>   PassCB{};       // 패스 상수 버퍼
     uptr<UploadBuffer<ObjectConstants>> ObjectCB{};     // 오브젝트 상수 버퍼
 
-    uptr<UploadBuffer<MaterialData>>    MaterialSB{}; // 머티리얼 구조적 버퍼
+    uptr<UploadBuffer<MaterialData>>    MaterialBuffer{};   // 머티리얼 버퍼
 
 public:
 #pragma region C/Dtor
@@ -71,11 +84,8 @@ private:
     FrameResource*                              mCurrFrameResource{};       // 현재 프레임 리소스
     int											mCurrFrameResourceIndex{};	// 현재 프레임 인덱스
 
-    std::unordered_set<int>                     mActiveObjCBIdxes{};        // 사용중인 오브젝트 상수 버퍼 인덱스
-    std::queue<int>                             mAvailableObjCBIdxes{};     // 사용 가능한 오브젝트 상수 버퍼 인덱스
-    
-    std::unordered_set<int>                     mActiveMaterialSBIdxes{};        // 사용중인 머티리얼 버퍼 인덱스
-    std::queue<int>                             mAvailableMaterialSBIdxes{};     // 사용 가능한 머티리얼 버퍼 인덱스
+    std::array<std::unordered_set<int>, BufferTypeCount>   mActiveIndices{};       // 사용중인 인덱스 집합
+    std::array<std::queue<int>, BufferTypeCount>           mAvailableIndices{};    // 사용가능 인덱스 큐
 
 public:
 #pragma region C/Dtor
@@ -87,22 +97,21 @@ public:
 #pragma region Getter
     FrameResource* GetCurrFrameResource() const { return mCurrFrameResource; }
     const D3D12_GPU_VIRTUAL_ADDRESS GetPassCBGpuAddr() const;
-    const D3D12_GPU_VIRTUAL_ADDRESS GetMatSBGpuAddr() const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetObjCBGpuAddr(int elementIndex) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr() const;
 #pragma endregion
-
     void CreateFrameResources(ID3D12Device* pDevice);
+
+    // 프레임 리소스 배열을 순환하며 사용 가능 프레임 리소스를 얻어온다.
     void Update();
 
-    // 객체 소멸시 사용하지 않는 상수 버퍼 인덱스를 반환하는 함수
-    void ReturnObjCBIndex(int elementIndex);
+    // 객체 소멸시 사용하지 않는 버퍼 인덱스를 반환하는 함수
+    void ReturnIndex(int elementIndex, BufferType bufferType);
 
     // 패스 당 상수 버퍼에 데이터 복사
     void CopyData(const PassConstants& data);
-
     // 오브젝트 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ObjectConstants& data);
-
     // 머티리얼 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const MaterialData& data);
 };

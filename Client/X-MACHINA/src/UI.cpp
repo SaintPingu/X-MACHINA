@@ -94,6 +94,10 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	spriteMtx._31 = col / kCols;
 	spriteMtx._32 = row / kRows;
 	
+	if (mObjCBCount <= cnt) {
+		mObjCBCount = cnt + 1;
+	}
+
 	// 머티리얼을 사용하지 않는 경우 MatIndex에 텍스처 인덱스를 넣어준다.
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));

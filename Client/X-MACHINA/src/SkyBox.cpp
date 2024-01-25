@@ -28,7 +28,7 @@ void SkyBox::Render()
 	Vec3 pos = mainCameraObject->GetPosition();
 	SetPosition(pos.x, pos.y, pos.z);
 	
-	//mTexture->UpdateShaderVars();
+	mTexture->UpdateShaderVars();
 	UpdateShaderVars();
 
 	mShader->Set();

@@ -242,16 +242,6 @@ Terrain::Terrain(const std::wstring& fileName) : Transform(this)
 	mMaterial->SetTexture(TextureMap::DiffuseMap2, scene->GetTexture("Stone"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap3, scene->GetTexture("Terrain_splatmap"));
 
-	//mTextureLayer[0] = scene->GetTexture("GrassUV01");
-	//mTextureLayer[1] = scene->GetTexture("Detail_Texture_6");
-	//mTextureLayer[2] = scene->GetTexture("Stone");
-	//mSplatMap        = scene->GetTexture("Terrain_splatmap");
-
-	//mTextureLayer[0]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer0));
-	//mTextureLayer[1]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer1));
-	//mTextureLayer[2]->SetRootParamIndex(scene->GetRootParamIndex(RootParam::TerrainLayer2));
-	//mSplatMap->SetRootParamIndex(scene->GetRootParamIndex(RootParam::SplatMap));
-
 	mShader = std::make_shared<TerrainShader>();
 	mShader->Create();
 }
@@ -290,11 +280,6 @@ void Terrain::Render()
 
 	mMaterial->UpdateMaterialBuffer();
 	UpdateShaderVars(0, mMaterial->mMatIndex);
-
-	//mTextureLayer[0]->UpdateShaderVars();
-	//mTextureLayer[1]->UpdateShaderVars();
-	//mTextureLayer[2]->UpdateShaderVars();
-	//mSplatMap->UpdateShaderVars();
 
 	for (UINT i = 0; i < mCurrBuffIdx; ++i) {
 		mBuffer[i]->RenderMesh();

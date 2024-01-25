@@ -1,12 +1,8 @@
 #include "stdafx.h"
 #include "Transform.h"
-
 #include "DXGIMgr.h"
-#include "Scene.h"
 #include "FrameResource.h"
-#include "Object.h"
-
-#include <iostream>
+#include "Scene.h"
 
 
 #pragma region Getter
@@ -343,8 +339,10 @@ void Transform::OnDestroy()
 
 void Transform::ReturnObjCBIndex()
 {
+	// 실제 사용 횟수만큼만 인덱스를 반환한다.
+	mObjCBIndices.resize(mObjCBCount);
 	for (const int index : mObjCBIndices) {
-		frmResMgr->ReturnObjCBIndex(index);
+		frmResMgr->ReturnIndex(index, BufferType::Object);
 	}
 
 	if (mSibling) {
@@ -362,6 +360,11 @@ void Transform::BeforeUpdateTransform()
 
 void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 {
+	// 실제 사용 횟수를 저장한다.
+	if (mObjCBCount <= cnt) {
+		mObjCBCount = cnt + 1;
+	}
+
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
 	objectConstants.MatIndex = matIndex;

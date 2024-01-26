@@ -1,8 +1,8 @@
 #include "Common.hlsl"
 
 struct VSOutput_Inst {
-    float4 Position : SV_POSITION;
-    float3 PositionW : POSITIONW;
+    float4 PosH  : SV_POSITION;
+    float3 PosW  : POSITIONW;
     float4 Color : COLOR;
 };
 

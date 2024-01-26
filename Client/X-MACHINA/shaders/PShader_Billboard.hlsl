@@ -1,9 +1,9 @@
 #include "Common.hlsl"
 
 struct VSOutput_Billboard {
-    float4 Position : SV_POSITION;
-    float3 PositionW : POSITIONW;
-    float2 UV : UV;
+    float4 PosH : SV_POSITION;
+    float3 PosW : POSITION;
+    float2 UV   : UV;
 };
 
 float4 PSBillboard(VSOutput_Billboard input) : SV_TARGET

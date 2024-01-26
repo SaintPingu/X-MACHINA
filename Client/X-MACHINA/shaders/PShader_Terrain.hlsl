@@ -1,15 +1,15 @@
 #include "Light.hlsl"
 
 struct VSOutput_Terrain {
-    float4 Position : SV_POSITION;
-    float3 PositionW : POSITION;
+    float4 PosH    : SV_POSITION;
+    float3 PosW    : POSITION;
     float3 NormalW : NORMAL;
-    float2 UV0 : UVA;
-    float2 UV1 : UVB;
+    float2 UV0     : UVA;
+    float2 UV1     : UVB;
 };
 
 struct PSOutput_MRT {
-    float4 Texture : SV_TARGET1;
+    float4 Texture  : SV_TARGET1;
     float  Distance : SV_TARGET4;
 };
 
@@ -19,7 +19,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
     PSOutput_MRT output;
     MaterialInfo mat = materialBuffer[gMatIndex];
     
-    float4 illumination = Lighting(mat, input.PositionW, input.NormalW);
+    float4 illumination = Lighting(mat, input.PosW, input.NormalW);
     
     float4 splatColor = gTextureMap[mat.DiffuseMap3Index].Sample(gSamplerState, input.UV1);
     float4 layer0 = float4(0, 0, 0, 0);
@@ -46,7 +46,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
     float4 texColor = normalize(layer0 + layer1 + layer2);
     
     output.Texture  = lerp(illumination, texColor, .5f);
-    output.Distance = length(input.PositionW - gCameraPos);
+    output.Distance = length(input.PosW - gCameraPos);
     
     return output;
 }

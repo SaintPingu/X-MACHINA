@@ -28,6 +28,8 @@ void SkyBox::Render()
 	Vec3 pos = mainCameraObject->GetPosition();
 	SetPosition(pos.x, pos.y, pos.z);
 	
+	// 오직 스카이 박스 텍스처만 해당 함수를 사용해야 한다. 
+	// 나머지 다른 텍스처들은 모두 씬의 Update에서 한 번만 설정하기 때문이다.
 	mTexture->UpdateShaderVars();
 	UpdateShaderVars();
 

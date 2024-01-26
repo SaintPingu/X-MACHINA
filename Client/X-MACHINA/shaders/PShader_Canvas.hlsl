@@ -5,7 +5,7 @@ struct VSOutput_Tex {
     float2 UV : UV;
 };
 
-float4 PSCanvas(VSOutput_Tex input) : SV_Target2
+float4 PSCanvas(VSOutput_Tex input) : SV_Target
 {
     // 머티리얼을 사용하지 않는 경우 MaterialIndex에 바로 텍스처 인덱스를 Set할 것
     float4 color = gTextureMap[gMatIndex].Sample(gSamplerState, input.UV);

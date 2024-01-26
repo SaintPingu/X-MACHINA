@@ -5,11 +5,13 @@
 #define device dxgi->GetDevice()
 #define cmdList dxgi->GetCmdList()
 #define frmResMgr dxgi->GetFrameResourceMgr()
+#define mrt dxgi->GetMRT()
 #pragma endregion
 
 #pragma region ClassForwardDecl
 class PostProcessingShader;
 class FrameResourceMgr;
+class MultipleRenderTarget;
 struct PassConstants;
 #pragma endregion
 
@@ -74,10 +76,10 @@ private:
 	HANDLE									mFenceEvent{};
 
 	// frameResource
-	uptr<FrameResourceMgr>	mFrameResourceMgr;
+	uptr<FrameResourceMgr>		mFrameResourceMgr;
 
-	// others
-	sptr<PostProcessingShader>	mPostProcessingShader{};
+	// MRT
+	sptr<MultipleRenderTarget>	mMRT{};
 
 	DrawOption mDrawOption{};
 
@@ -96,7 +98,7 @@ public:
 	UINT GetCbvSrvDescriptorIncSize() const					{ return mCbvSrvDescriptorIncSize; }
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
-
+	rsptr<MultipleRenderTarget> GetMRT() const				{ return mMRT; }
 #pragma endregion
 
 #pragma region Setter
@@ -148,8 +150,7 @@ private:
 	// swap chain의 RTV들을 생성한다.
 	void CreateSwapChainRTVs();
 	void CreateDSV();
-	void CreatePostProcessingShader();
-	void CreatePostProcessingRTVs();
+	void CreateMRT();
 
 	void CreateFrameResources();
 

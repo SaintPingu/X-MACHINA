@@ -33,7 +33,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCou
 FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence),
-	mFrameResourceCount(1),
+	mFrameResourceCount(3),
 	mPassCount(1),
 	mObjectCount(2000),
 	mMaterialCount(500)
@@ -54,22 +54,22 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	}
 }
 
-const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr() const
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr(int elementIndex) const
 {
 	const auto& passCB = mCurrFrameResource->PassCB;
-	return passCB->Resource()->GetGPUVirtualAddress();
-}
-
-const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr() const
-{
-	const auto& materialSB = mCurrFrameResource->MaterialBuffer;
-	return materialSB->Resource()->GetGPUVirtualAddress();
+	return passCB->Resource()->GetGPUVirtualAddress() + elementIndex * passCB->GetElementByteSize();
 }
 
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetObjCBGpuAddr(int elementIndex) const
 {
 	const auto& objectCB = mCurrFrameResource->ObjectCB;
 	return objectCB->Resource()->GetGPUVirtualAddress() + elementIndex * objectCB->GetElementByteSize();
+}
+
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr(int elementIndex) const
+{
+	const auto& materialBuffer = mCurrFrameResource->MaterialBuffer;
+	return materialBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * materialBuffer->GetElementByteSize();
 }
 
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
@@ -112,12 +112,13 @@ void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
 
 void FrameResourceMgr::CopyData(const PassConstants& data)
 {
+	// 패스 당 상수 버퍼는 메인 패스 한 개만 존재하며 나중에 추가될 수 있다.
 	mCurrFrameResource->PassCB->CopyData(0, data);
 }
 
 void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
 {
-	const UINT& type = static_cast<UINT>(BufferType::Object);
+	constexpr UINT type = static_cast<UINT>(BufferType::Object);
 	// 사용중인 인덱스 집합에서 elementIndex를 찾지 못한 경우
 	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
 
@@ -138,7 +139,7 @@ void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
 
 void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
 {
-	const UINT& type = static_cast<UINT>(BufferType::Material);
+	constexpr UINT type = static_cast<UINT>(BufferType::Material);
 	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
 
 		if (mAvailableIndices[type].empty()) {

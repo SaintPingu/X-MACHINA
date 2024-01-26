@@ -228,48 +228,18 @@ protected:
 
 // for post processing
 class PostProcessingShader : public Shader {
-protected:
-	std::vector<sptr<Texture>> mTextures{};
-
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> mRtvHandles{};
-
-private:
-	UINT mRtvCnt{};
-	const DXGI_FORMAT* mRtvFormats{};
-
 public:
-	PostProcessingShader();
+	PostProcessingShader()			= default;
 	virtual ~PostProcessingShader() = default;
 
 public:
-	// set multiple render target textures of pass constants buffer
-	void SetMRTTsPassConstants(PassConstants& passConstants);
-	
 	virtual void Set(int pipelineStateIndex = 0) override;
 
-	// texture resource를 생성하고 이에 대한 SRV와 RTV를 생성한다
-	virtual void CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
-
-	// 각 RTV의 handle을 OutputMerger에 Set한다.
-	virtual void OnPrepareRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle);
-	// 렌더링 후 리소스의 상태를 전이한다. (ResourceBarrier)
-	virtual void OnPostRenderTarget();
-
-	// 2D plane을 렌더링한다.
-	virtual void Render();
-
-private:
+protected:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
-
-	// texture resource를 생성한다 (ID3D12Resource)
-	void CreateTextureResources();
-	// resource의 SRV Descriptor를 생성한다. (ID3D12Device::CreateShaderResourceView)
-	void CreateSrvs();
-	// resource의 RTV Descriptor를 생성한다. (ID3D12Device::CreateRenderTargetView)
-	void CreateRtvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 };
 
 

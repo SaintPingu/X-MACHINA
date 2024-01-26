@@ -4,6 +4,7 @@
 
 #include "Scene.h"
 #include "Shader.h"
+#include "MultipleRenderTarget.h"
 
 #pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
 #include "../Imgui/ImguiMgr.h"
@@ -20,7 +21,7 @@ DXGIMgr::DXGIMgr()
 
 void DXGIMgr::SetMRTTsPassConstants(PassConstants& passConstants)
 {
-	mPostProcessingShader->SetMRTTsPassConstants(passConstants);
+	mMRT->SetMRTTsPassConstants(passConstants);
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -40,8 +41,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 
 	BuildScene();
 
-	CreatePostProcessingShader();
-	CreatePostProcessingRTVs();
+	CreateMRT();
 }
 
 void DXGIMgr::Release()
@@ -82,38 +82,46 @@ void DXGIMgr::Render()
 		// clear DSV
 		ClearDepthStencil();
 
-		// OMSetRenderTarget
-		mPostProcessingShader->OnPrepareRenderTarget(&mRtvHandles[mSwapChainBuffCurrIdx], &mDsvHandle);
+#pragma region Shadow
+		scene->RenderShadow();
+#pragma endregion
 
-		// render scene
-		scene->Render();
+#pragma region Deferred
+		// clear RTV & set output merge
+		mMRT->OnPrepareRenderTargets(&mRtvHandles[mSwapChainBuffCurrIdx], &mDsvHandle);
+		scene->RenderDeferred();
 
 		// for ResourceTransition
-		mPostProcessingShader->OnPostRenderTarget();
+		mMRT->OnPostRenderTarget();
+#pragma endregion
 
-		// post processing
-		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
+#pragma region Lights
+		scene->RenderLights();
+#pragma endregion
 
-		mPostProcessingShader->Set();
-		mPostProcessingShader->Render();
+#pragma region Forward
+		// render to back buffer
+		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], FALSE, &mDsvHandle);
+		scene->RenderFinal();
+
+		scene->RenderForward();
+#pragma endregion
 	}
-
 	break;
 	default:
 	{
-		scene->OnPrepareRender();
+		//scene->OnPrepareRender();
 
-		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
+		//mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
 
-		mPostProcessingShader->Set();
-		mPostProcessingShader->Render();
+		//mPostProcessingShader->Set();
+		//mMRT->Render();
 	}
 	break;
 	}
 #pragma region Imgui - 장재문 - Dxgi Present 전에 최종 RenderTarget 위에 그리기 때문에 여기다가 넣었어요..
 	imgui->Present();
 #pragma endregion
-
 
 	// set after barrier (render target -> present)
 	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -370,19 +378,15 @@ void DXGIMgr::CreateDSV()
 }
 
 
-void DXGIMgr::CreatePostProcessingShader()
+void DXGIMgr::CreateMRT()
 {
-	mPostProcessingShader = std::make_shared<TextureToScreenShader>();
-	mPostProcessingShader->Create(DXGI_FORMAT_D32_FLOAT);
-}
+	mMRT = std::make_shared<MultipleRenderTarget>();
 
-void DXGIMgr::CreatePostProcessingRTVs()
-{
 	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles.back();
 	rtvHandle.ptr += mRtvDescriptorIncSize;
 
-	mPostProcessingShader->CreateResourcesAndRtvsSrvs(rtvHandle); // SRV to render targets
+	mMRT->CreateResourcesAndRtvsSrvs(rtvHandle);
 
 	// create SRV for DepthStencil buffer
 	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);

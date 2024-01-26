@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include "DXGIMgr.h"
+#include "MultipleRenderTarget.h"
+#include "FrameResource.h"
 
 #include "UI.h"
 #include "Object.h"
@@ -19,7 +21,6 @@
 #include "RootSignature.h"
 #include "DescriptorHeap.h"
 #include "ObjectPool.h"
-#include "FrameResource.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -200,7 +201,6 @@ void Scene::CreateGraphicsRootSignature()
 void Scene::UpdateShaderVars()
 {
 	// TODO : AnimateMaterials(); 
-	UpdateObjectCBs();
 	UpdateMainPassCB();
 	UpdateMaterialBuffer();
 }
@@ -215,16 +215,10 @@ void Scene::UpdateMainPassCB()
 	passConstants.MtxProj	= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
 	passConstants.EyeW		= mainCamera->GetPosition();
 	passConstants.DeltaTime = timeElapsed;
-	dxgi->SetMRTTsPassConstants(passConstants);
-	
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
+	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
+	dxgi->SetMRTTsPassConstants(passConstants); // MRT텍스처들의 인덱스 가져오기
 
 	frmResMgr->CopyData(passConstants);
-}
-
-void Scene::UpdateObjectCBs()
-{
-
 }
 
 void Scene::UpdateMaterialBuffer()
@@ -291,6 +285,7 @@ void Scene::BuildShaders()
 	BuildSmallExpFXShader();
 	BuildBigExpFXShader();
 	BuildBillboardShader();
+	BuildFinalShader();
 }
 
 void Scene::BuildGlobalShader()
@@ -334,6 +329,12 @@ void Scene::BuildBillboardShader()
 
 	mSpriteShader = std::make_shared<SpriteShader>();
 	mSpriteShader->Create();
+}
+
+void Scene::BuildFinalShader()
+{
+	mFinalShader = std::make_shared<TextureToScreenShader>();
+	mFinalShader->Create(DXGI_FORMAT_D32_FLOAT);
 }
 
 void Scene::BuildPlayers()
@@ -591,36 +592,72 @@ void Scene::OnPrepareRender()
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
 	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
+	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
 	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 }
 
-void Scene::Render()
+void Scene::RenderShadow()
 {
-	std::set<GridObject*> renderedObjects{};
-	std::set<GridObject*> transparentObjects{};
-	std::set<GridObject*> billboardObjects{};
+	// 추후에 그림자를 렌더링하는 함수
+	// 그림자용 카메라를 기준으로 모든 오브젝트의 깊이 값을 렌더링한다. 
+	// 깊이 값이 저장된 그림자 맵이 생성된 상태일 것이다.
+}
 
+void Scene::RenderDeferred()
+{
+	// 추후에 디퍼드 렌더링 구현시 물체의 깊이 정보를 저장하고 조명 계산에 활용해야 한다.
+	// 현재는 MRT에서 조명을 처리하고 있는데 이후에 Final이나 Canvas에서 전달 받은 메쉬에 대해서만 조명 처리를 해야한다.
+	// Directional 조명은 화면 전체 크기의 사각형 볼륨 메쉬, Point, Spot 조명은 조명의 길이의 반지름을 가진 구 볼륨 메쉬를 가진다.
+	// 블렌딩을 사용한 투명(반투명) 객체는 깊이 버퍼에 깊이 값을 저장할 수 없기 때문에 포워드 렌더링에서 처리해야만 한다.
+	// 따라서 deferred -> light(volume mesh) -> final(canvas) -> forward 순서로 렌더링을 처리해야 한다.
+#pragma region PrepareRender
+	mRenderedObjects.clear();
+	mTransparentObjects.clear();
+	mBillboardObjects.clear();
 	OnPrepareRender();
-	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
+#pragma endregion
+
 	mGlobalShader->Set();
 
-	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects);
-	RenderEnvironments();
-	RenderBullets();
+	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
+	RenderGridObjects();	
+	RenderEnvironments();	
 	RenderInstanceObjects();
-	RenderFXObjects();
-	RenderBillboards(billboardObjects);
 
 	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
 	RenderTerrain();
+}
+
+void Scene::RenderLights()
+{
+	// 포지션, 노말, 컬러 등의 모든 결과 텍스처를 샘플링하여 조명 처리를 진행한다.
+	// 이때 그림자 맵도 샘플링하고 현재 픽셀 값이 그림자 맵보다 큰 경우에 어둡게 렌더링한다.
+	// 결과 값인 diffuse와 specular를 각각의 타겟 텍스처에 출력한다.
+}
+
+void Scene::RenderFinal()
+{
+	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
+	mFinalShader->Set();
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmdList->DrawInstanced(6, 1, 0, 0);
+}
+
+void Scene::RenderForward()
+{
+	// 렌더 타겟 텍스처에 렌더링하는 것이 아닌 후면 버퍼에 바로 렌더링한다.
+	// forward 쉐이더를 사용하는 오브젝트가 조명을 사용하고자 한다면 
+	// 바로 해당 쉐이더에서 lighting 연산을 수행한다.
+	RenderBullets(); 
+	RenderFXObjects(); 
+	RenderBillboards();
+
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
-
-	RenderTransparentObjects(transparentObjects);
-
+	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
 
-	if (RenderBounds(renderedObjects)) {
+	if (RenderBounds(mRenderedObjects)) {
 		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
 	}
 
@@ -653,7 +690,7 @@ void Scene::RenderSkyBox()
 }
 
 
-void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects)
+void Scene::RenderGridObjects()
 {
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -662,13 +699,13 @@ void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<G
 
 		if (mainCamera->IsInFrustum(grid.GetBB())) {
 			auto& objects = grid.GetObjects();
-			renderedObjects.insert(objects.begin(), objects.end());
+			mRenderedObjects.insert(objects.begin(), objects.end());
 		}
 	}
 
-	for (auto& object : renderedObjects) {
+	for (auto& object : mRenderedObjects) {
 		if (object->IsTransparent()) {
-			transparentObjects.insert(object);
+			mTransparentObjects.insert(object);
 			continue;
 		}
 
@@ -676,7 +713,7 @@ void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<G
 		{
 		case ObjectTag::Billboard:
 		case ObjectTag::Sprite:
-			billboardObjects.insert(object);
+			mBillboardObjects.insert(object);
 			break;
 		default:
 			object->Render();
@@ -761,10 +798,10 @@ void Scene::RenderGridBounds()
 	}
 }
 
-void Scene::RenderBillboards(const std::set<GridObject*>& billboards)
+void Scene::RenderBillboards()
 {
 	mBillboardShader->Set();
-	for (auto& object : billboards) {
+	for (auto& object : mBillboardObjects) {
 		object->Render();
 	}
 	mSpriteShader->Set();

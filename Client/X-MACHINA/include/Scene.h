@@ -66,6 +66,7 @@ private:
 	sptr<Shader> mInstShader{};		// for InstObjects
 	sptr<Shader> mTransparentShader{};
 	sptr<Shader> mBulletShader{};
+	sptr<Shader> mFinalShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};
@@ -74,6 +75,10 @@ private:
 	std::list<sptr<GridObject>> mExplosiveObjects{};		// dynamic
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>> mObjectPools{};
+
+	std::set<GridObject*> mRenderedObjects{};
+	std::set<GridObject*> mTransparentObjects{};
+	std::set<GridObject*> mBillboardObjects{};
 
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};
@@ -153,7 +158,6 @@ private:
 
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
-	void UpdateObjectCBs();
 	void UpdateMaterialBuffer();
 
 #pragma endregion
@@ -174,11 +178,11 @@ private:
 	void BuildSmallExpFXShader();
 	void BuildBigExpFXShader();
 	void BuildBillboardShader();
+	void BuildFinalShader();
 
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
-	void BuildSkyBox();
 
 	/* Grid */
 	// generate grids
@@ -206,7 +210,11 @@ public:
 	// root signature, descriptor heap 등의 기본 정보를 설정한다.
 	void OnPrepareRender();
 	// render scene
-	void Render();
+	void RenderShadow();
+	void RenderDeferred();
+	void RenderLights();
+	void RenderFinal();
+	void RenderForward();
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.
@@ -214,7 +222,7 @@ private:
 	// [renderedObjects]    : 렌더링된 모든 객체 (그리드에 포함된)
 	// [transparentObjects] : 투명 객체
 	// [billboardObjects]	: 빌보드 객체 (plane)
-	void RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects);
+	void RenderGridObjects();
 
 	void RenderEnvironments();
 	void RenderBullets();
@@ -222,7 +230,7 @@ private:
 	void RenderFXObjects();
 
 	// render [billboards]
-	void RenderBillboards(const std::set<GridObject*>& billboards);
+	void RenderBillboards();
 
 	void RenderTerrain();
 

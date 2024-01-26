@@ -199,6 +199,7 @@
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\MeshRenderer.cpp" />
     <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\MultipleRenderTarget.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\ObjectPool.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\MeshRenderer.h" />
     <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\MultipleRenderTarget.h" />
     <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\ObjectPool.h" />
     <ClInclude Include="include\Resource.h" />
@@ -398,9 +400,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

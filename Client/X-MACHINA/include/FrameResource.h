@@ -96,9 +96,9 @@ public:
 public:
 #pragma region Getter
     FrameResource* GetCurrFrameResource() const { return mCurrFrameResource; }
-    const D3D12_GPU_VIRTUAL_ADDRESS GetPassCBGpuAddr() const;
-    const D3D12_GPU_VIRTUAL_ADDRESS GetObjCBGpuAddr(int elementIndex) const;
-    const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr() const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetPassCBGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetObjCBGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
 #pragma endregion
     void CreateFrameResources(ID3D12Device* pDevice);
 

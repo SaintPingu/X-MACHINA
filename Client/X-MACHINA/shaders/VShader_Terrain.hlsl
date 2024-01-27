@@ -19,9 +19,9 @@ VSOutput_Terrain VSTerrain(VSInput_Terrain input)
 {
     VSOutput_Terrain output;
 
-    output.PosW = (float3) mul(float4(input.PosL, 1.f), gMtxWorld);
-    output.PosH = mul(mul(float4(output.PosW, 1.f), gMtxView), gMtxProj);
-    output.NormalW = mul(input.NormalL, (float3x3) gMtxWorld);
+    output.PosW = (float3) mul(float4(input.PosL, 1.f), gObjectCB.MtxWorld);
+    output.PosH = mul(mul(float4(output.PosW, 1.f), gPassCB.MtxView), gPassCB.MtxProj);
+    output.NormalW = mul(input.NormalL, (float3x3) gObjectCB.MtxWorld);
     output.UV0 = input.UV0;
     output.UV1 = input.UV1;
 

@@ -15,9 +15,9 @@ struct VSOutput_Inst {
 VSOutput_Inst VSInstancing(VSInput_Inst input, uint instanceID : SV_InstanceID)
 {
     VSOutput_Inst output;
-    output.PosW = mul(float4(input.PosL, 1.f), colorInstBuffer[instanceID].MtxObject).xyz;
-    output.PosH = mul(mul(float4(output.PosW, 1.f), gMtxView), gMtxProj);
-    output.Color = colorInstBuffer[instanceID].Color;
+    output.PosW = mul(float4(input.PosL, 1.f), gColorInstBuffer[instanceID].MtxObject).xyz;
+    output.PosH = mul(mul(float4(output.PosW, 1.f), gPassCB.MtxView), gPassCB.MtxProj);
+    output.Color = gColorInstBuffer[instanceID].Color;
     
     return output;
 }

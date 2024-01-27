@@ -57,8 +57,8 @@ VSOutput_Canvas VSCanvas(uint vertexID : SV_VertexID)
             break;
     }
     
-    output.PosH = mul(output.PosH, gMtxWorld);
-    output.UV = mul(float3(output.UV, 1.f), (float3x3) (gMtxSprite)).xy;
+    output.PosH = mul(output.PosH, gObjectCB.MtxWorld);
+    output.UV = mul(float3(output.UV, 1.f), (float3x3) (gObjectCB.MtxSprite)).xy;
     
     return output;
 }

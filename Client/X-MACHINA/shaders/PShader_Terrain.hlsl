@@ -17,7 +17,7 @@ struct PSOutput_MRT {
 PSOutput_MRT PSTerrain(VSOutput_Terrain input)
 {
     PSOutput_MRT output;
-    MaterialInfo mat = materialBuffer[gMatIndex];
+    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
     
     float4 illumination = Lighting(mat, input.PosW, input.NormalW);
     
@@ -46,7 +46,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
     float4 texColor = normalize(layer0 + layer1 + layer2);
     
     output.Texture  = lerp(illumination, texColor, .5f);
-    output.Distance = length(input.PosW - gCameraPos);
+    output.Distance = length(input.PosW - gPassCB.CameraPos);
     
     return output;
 }

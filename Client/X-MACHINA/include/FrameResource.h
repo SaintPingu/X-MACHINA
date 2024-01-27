@@ -27,7 +27,7 @@ public:
     SceneLight  Lights{};
     
     std::array<int, MRTCount> MRTTsIndices{};
-    Vec3 Padding{};
+    float Padding{};
 
 public:
     PassConstants();

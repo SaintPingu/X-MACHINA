@@ -66,7 +66,7 @@ void Material::UpdateMaterialBuffer()
 //}
 // 
 // texture의 fileName을 읽어와 해당 texture를 scene을 통해 가져온다.
-void Material::LoadTextureFromFile(FILE* file)
+void Material::LoadTextureFromFile(TextureMap map, FILE* file)
 {
 	std::string textureName{};
 	FileIO::ReadString(file, textureName);
@@ -75,7 +75,7 @@ void Material::LoadTextureFromFile(FILE* file)
 		return;
 	}
 
-	mTextures[TextureMap::DiffuseMap0] = scene->GetTexture(textureName);
+	mTextures[map] = scene->GetTexture(textureName);
 }
 #pragma endregion
 

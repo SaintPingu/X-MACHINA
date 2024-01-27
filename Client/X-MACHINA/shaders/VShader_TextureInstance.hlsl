@@ -15,7 +15,7 @@ VSOutput_TexInst VSTextureInstancing(VSInput_TexInst input, uint nInstanceID : S
 {
     VSOutput_TexInst output;
     output.PosW = mul(float4(input.PosL, 1.f), colorInstBuffer[nInstanceID].MtxObject).xyz;
-    output.PosH = mul(mul(float4(output.PosW, 1.f), gMtxView), gMtxProj);
+    output.PosH = mul(mul(float4(output.PosW, 1.f), gPassCB.MtxView), gPassCB.MtxProj);
     output.UV = input.UV;
     return output;
 }

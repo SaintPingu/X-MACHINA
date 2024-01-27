@@ -9,5 +9,5 @@ float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
 {
     float4 color = gSkyBoxTexture.Sample(gSamplerState, input.PosL);
 
-    return lerp(color, gFogColor, 0.9f);
+    return lerp(color, gPassCB.FogColor, 0.9f);
 }

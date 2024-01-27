@@ -56,7 +56,7 @@ public:
 class Material {
 public:
 	std::array<sptr<Texture>, TextureMapCount>	mTextures{}; // 머티리얼이 여러 개의 텍스처를 가질 수 있도록 변경
-	int	mMatIndex = -1;
+	int	mMatIndex = -1; // 쉐이더에서 해당 인덱스 값이 유효한지 확인하기 위해서 -1 값을 초기값으로 설정한다.
 
 private:
 	sptr<MaterialColors> mMaterialColors{};
@@ -71,7 +71,8 @@ public:
 public:
 	void UpdateMaterialBuffer();
 	//void UpdateShaderVars();
-	void LoadTextureFromFile(FILE* file);
+
+	void LoadTextureFromFile(TextureMap map, FILE* file);
 };
 
 

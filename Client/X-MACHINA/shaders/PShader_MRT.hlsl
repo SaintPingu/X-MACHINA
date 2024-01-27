@@ -18,7 +18,7 @@ struct VSOutput_Standard {
 PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
 {
     PSOutput_MRT output;
-    MaterialInfo mat = materialBuffer[gMatIndex];
+    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
     
     input.NormalW = normalize(input.NormalW);
     
@@ -26,7 +26,7 @@ PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
     
     //output.Position = float4(input.PositionW, 1.f);
     //output.normal = float4(input.NormalW.xyz * 0.5f + 0.5f, 1.f);
-    output.Distance = length(input.PosW - gCameraPos);
+    output.Distance = length(input.PosW - gPassCB.CameraPos);
     
     if (mat.DiffuseMap0Index != -1)
         output.Texture = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV) * illumination;

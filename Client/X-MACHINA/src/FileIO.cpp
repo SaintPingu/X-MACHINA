@@ -208,8 +208,21 @@ namespace {
 				FileIO::ReadVal(file, matInfo->GlossyReflection);
 				break;
 
+				// 여러 텍스처를 로드할 수 있도록 변경
 			case Hash("<AlbedoMap>:"):
-				material->LoadTextureFromFile(file);
+				material->LoadTextureFromFile(TextureMap::DiffuseMap0, file);
+				break;
+
+			case Hash("<NormalMap>:"):
+				material->LoadTextureFromFile(TextureMap::NormalMap, file);
+				break;
+
+			case Hash("<HeightMap>:"):
+				material->LoadTextureFromFile(TextureMap::HeightMap, file);
+				break;
+
+			case Hash("<RoughnessMap>:"):
+				material->LoadTextureFromFile(TextureMap::RoughnessMap, file);
 				break;
 
 			case Hash("</Materials>"):

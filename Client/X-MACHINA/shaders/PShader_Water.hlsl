@@ -9,12 +9,12 @@ struct VSOutput_Water {
 
 float4 PSWater(VSOutput_Water input) : SV_TARGET
 {
-    MaterialInfo mat = materialBuffer[gMatIndex];
+    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
 
-    float4 color = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV - float2(gDeltaTime * 0.06f, 0));
+    float4 color = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV - float2(gPassCB.DeltaTime * 0.06f, 0));
     float4 illumination = Lighting(mat, input.PosW, input.NormalW);
     
-    color = FogDistance(color, length(input.PosW - gCameraPos));
+    color = FogDistance(color, length(input.PosW - gPassCB.CameraPos));
     
     return lerp(color, illumination, 0.5f);
 }

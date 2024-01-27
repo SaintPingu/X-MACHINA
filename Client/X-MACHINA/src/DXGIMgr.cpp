@@ -120,7 +120,7 @@ void DXGIMgr::Render()
 	break;
 	}
 #pragma region Imgui - 장재문 - Dxgi Present 전에 최종 RenderTarget 위에 그리기 때문에 여기다가 넣었어요..
-	imgui->Present();
+	//imgui->Present();
 #pragma endregion
 
 	// set after barrier (render target -> present)

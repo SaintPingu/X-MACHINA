@@ -11,7 +11,7 @@ struct VSOutput_Standard {
 
 float4 PS_Standard(VSOutput_Standard input) : SV_TARGET
 {
-    MaterialInfo mat = materialBuffer[gMatIndex];
+    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
     
     if (mat.DiffuseMap0Index != -1)
     {

@@ -14,7 +14,7 @@ float4 PSScreenRectSamplingTextured(VSOutput_Tex input) : SV_TARGET
     //    return uiColor;
     //}
     
-    float4 color = gTextureMap[gRT1_TextureIndex].Load(uint3((uint) input.PosH.x, (uint) input.PosH.y, 0));
+    float4 color = gTextureMap[gPassCB.RT1_TextureIndex].Load(uint3((uint) input.PosH.x, (uint) input.PosH.y, 0));
     float4 white = float4(1.f, 1.f, 1.f, 1.f);
     if (IsWhite(color))
     {
@@ -25,7 +25,7 @@ float4 PSScreenRectSamplingTextured(VSOutput_Tex input) : SV_TARGET
         discard;
     }
     
-    float distance = gTextureMap[gRT4_DistanceIndex].Load(uint3((uint) input.PosH.x, (uint) input.PosH.y, 0));
+    float distance = gTextureMap[gPassCB.RT4_DistanceIndex].Load(uint3((uint) input.PosH.x, (uint) input.PosH.y, 0));
     color = FogDistance(color, distance);
 
     return color;

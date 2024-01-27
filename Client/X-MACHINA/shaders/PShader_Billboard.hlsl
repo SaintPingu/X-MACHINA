@@ -8,7 +8,7 @@ struct VSOutput_Billboard {
 
 float4 PSBillboard(VSOutput_Billboard input) : SV_TARGET
 {
-    MaterialInfo mat = materialBuffer[gMatIndex];
+    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
     float4 color = float4(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV));
     if(color.a < 0.9f)
     {

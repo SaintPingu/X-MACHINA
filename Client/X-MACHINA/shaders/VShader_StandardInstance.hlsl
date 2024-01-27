@@ -23,12 +23,12 @@ VSOutput_Standard VS_StandardInstance(VSInput_Standard input, uint nInstanceID :
 {
     VSOutput_Standard output;
 
-    matrix mtxWorld = instBuffer[nInstanceID].MtxObject;
+    matrix mtxWorld = gInstBuffer[nInstanceID].MtxObject;
     output.PosW = mul(float4(input.PosL, 1.f), mtxWorld).xyz;
     output.NormalW = mul(input.NormalL, (float3x3) mtxWorld);
     output.TangentW = (float3) mul(float4(input.TangentL, 1.f), mtxWorld);
     output.BiTangentW = (float3) mul(float4(input.BiTangentL, 1.f), mtxWorld);
-    output.PosH = mul(mul(float4(output.PosW, 1.f), gMtxView), gMtxProj);
+    output.PosH = mul(mul(float4(output.PosW, 1.f), gPassCB.MtxView), gPassCB.MtxProj);
     output.UV = input.UV;
 
     return output;

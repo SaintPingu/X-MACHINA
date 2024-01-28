@@ -67,6 +67,12 @@
     <Filter Include="Imgui\ImguiCode">
       <UniqueIdentifier>{6000ed2b-6000-4c87-8344-ee1acb5b9ca7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\PostProcessing">
+      <UniqueIdentifier>{d8b201cf-6796-4558-ae19-9f62bac3b2a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shaders\CS">
+      <UniqueIdentifier>{68cd4ff5-98b2-43c6-8ada-72d142bdc938}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -231,6 +237,9 @@
     </ClCompile>
     <ClCompile Include="src\MultipleRenderTarget.cpp">
       <Filter>소스 파일\Framework\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BlurFilter.cpp">
+      <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -402,6 +411,9 @@
     <ClInclude Include="include\MultipleRenderTarget.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\BlurFilter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\PShader_Billboard.hlsl">
@@ -484,6 +496,9 @@
     </FxCompile>
     <FxCompile Include="shaders\Light.hlsl">
       <Filter>소스 파일\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CShader_Blur.hlsl">
+      <Filter>소스 파일\Shaders\CS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

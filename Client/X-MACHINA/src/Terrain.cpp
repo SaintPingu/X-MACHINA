@@ -278,7 +278,7 @@ void Terrain::Render()
 {
 	mShader->Set();
 
-	mMaterial->UpdateMaterialBuffer();
+	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);
 
 	for (UINT i = 0; i < mCurrBuffIdx; ++i) {

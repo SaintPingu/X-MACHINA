@@ -9,6 +9,7 @@
 #define LightType_Spot          0
 #define LightType_Directional   1
 #define LightType_Point         2
+#define gkMaxTexture            100
 #define gkMaxSceneLight         32
 
 struct LightInfo {
@@ -34,7 +35,7 @@ struct LightInfo {
 struct MaterialInfo {
     float4  Ambient;
     float4  Diffuse;
-    float4  Sepcular; //a = power
+    float4  Sepcular;
     float4  Emissive;
     
     int DiffuseMap0Index;
@@ -90,16 +91,16 @@ struct SB_ColorInst {
     float4 Color;
 };
 
-ConstantBuffer<ObjectInfo>      gObjectCB : register(b0);
-ConstantBuffer<PassInfo>        gPassCB : register(b1);
-ConstantBuffer<ColliderInfo>    gColliderCB : register(b2);
+ConstantBuffer<ObjectInfo> gObjectCB     : register(b0);
+ConstantBuffer<PassInfo> gPassCB         : register(b1);
+ConstantBuffer<ColliderInfo> gColliderCB : register(b2);
 
-StructuredBuffer<SB_StandardInst>   gInstBuffer : register(t0);
-StructuredBuffer<SB_ColorInst>      gColorInstBuffer : register(t0);
-StructuredBuffer<MaterialInfo>      gMaterialBuffer : register(t0, space1);
+StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
+StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
+StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);
 
-TextureCube     gSkyBoxTexture : register(t1);
-Texture2D       gTextureMap[100] : register(t2); // t2, t3, t4...
-SamplerState    gSamplerState : register(s0);
+TextureCube     gSkyBoxTexture            : register(t1);
+Texture2D       gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
+SamplerState    gSamplerState             : register(s0);
 
 #endif

@@ -235,6 +235,59 @@ namespace D3DUtil {
 		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		cmdList->ResourceBarrier(1, &resourceBarrier);
 	}
+
+	D3D12_SHADER_BYTECODE CompileShaderFile(const std::wstring& fileName, LPCSTR shaderName, LPCSTR shaderProfile, ComPtr<ID3DBlob>& shaderBlob)
+	{
+		std::wstring path = L"shaders/" + fileName;
+		UINT nCompileFlags = 0;
+#if defined(_DEBUG)
+		nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+		ComPtr<ID3DBlob> errMsg{};
+		::D3DCompileFromFile(path.data(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, shaderName, shaderProfile, nCompileFlags, 0, &shaderBlob, &errMsg);
+
+#if defined(_DEBUG)
+		//PrintErrorBlob(errMsg);
+#endif
+
+		D3D12_SHADER_BYTECODE shaderByteCode{};
+		shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
+		shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
+
+		return shaderByteCode;
+	}
+
+	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob)
+	{
+		std::wstring filePath = L"shaders/cso/" + fileName;
+
+		FILE* file{};
+		::_wfopen_s(&file, filePath.data(), L"rb");
+		::fseek(file, 0, SEEK_END);
+		int fileSize = ::ftell(file);
+
+		BYTE* byteCode = new BYTE[fileSize];
+		::rewind(file);
+		UINT byteSize = (UINT)::fread(byteCode, sizeof(BYTE), fileSize, file);
+		::fclose(file);
+
+		D3D12_SHADER_BYTECODE shaderByteCode{};
+		if (!shaderBlob) {
+			HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
+			AssertHResult(hResult);
+			::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
+			shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
+			shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
+			delete[] byteCode;
+		}
+		else {
+			shaderByteCode.BytecodeLength = byteSize;
+			shaderByteCode.pShaderBytecode = byteCode;
+		}
+
+		return shaderByteCode;
+	}
 }
 #pragma endregion
 

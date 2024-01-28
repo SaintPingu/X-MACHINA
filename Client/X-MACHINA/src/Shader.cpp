@@ -23,7 +23,7 @@ void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
 {
 	assert(!mIsClosed);
 
-	mPipelineStateDesc.pRootSignature        = scene->GetRootSignature().Get();
+	mPipelineStateDesc.pRootSignature        = scene->GetGraphicsRootSignature().Get();
 	mPipelineStateDesc.VS                    = CreateVertexShader();
 	mPipelineStateDesc.PS                    = CreatePixelShader();
 	mPipelineStateDesc.RasterizerState       = CreateRasterizerState();
@@ -146,60 +146,6 @@ D3D12_SHADER_BYTECODE Shader::CreatePixelShader()
 	throw std::runtime_error("not assigned pixel shader!");
 }
 
-
-D3D12_SHADER_BYTECODE Shader::CompileShaderFile(const std::wstring& fileName, LPCSTR shaderName, LPCSTR shaderProfile, ComPtr<ID3DBlob>& shaderBlob)
-{
-	std::wstring path = L"shaders/" + fileName;
-	UINT nCompileFlags = 0;
-#if defined(_DEBUG)
-	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-	ComPtr<ID3DBlob> errMsg{};
-	::D3DCompileFromFile(path.data(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, shaderName, shaderProfile, nCompileFlags, 0, &shaderBlob, &errMsg);
-
-#if defined(_DEBUG)
-	//PrintErrorBlob(errMsg);
-#endif
-
-	D3D12_SHADER_BYTECODE shaderByteCode{};
-	shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
-	shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
-
-	return shaderByteCode;
-}
-
-D3D12_SHADER_BYTECODE Shader::ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob)
-{
-	std::wstring filePath = L"shaders/cso/" + fileName;
-
-	FILE* file{};
-	::_wfopen_s(&file, filePath.data(), L"rb");
-	::fseek(file, 0, SEEK_END);
-	int fileSize = ::ftell(file);
-
-	BYTE* byteCode = new BYTE[fileSize];
-	::rewind(file);
-	UINT byteSize = (UINT)::fread(byteCode, sizeof(BYTE), fileSize, file);
-	::fclose(file);
-
-	D3D12_SHADER_BYTECODE shaderByteCode{};
-	if (!shaderBlob) {
-		HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
-		AssertHResult(hResult);
-		::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
-		shaderByteCode.BytecodeLength  = shaderBlob->GetBufferSize();
-		shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
-		delete[] byteCode;
-	}
-	else {
-		shaderByteCode.BytecodeLength  = byteSize;
-		shaderByteCode.pShaderBytecode = byteCode;
-	}
-
-	return shaderByteCode;
-}
-
 void Shader::Close()
 {
 	mIsClosed = true;
@@ -252,9 +198,9 @@ D3D12_SHADER_BYTECODE WireShader::CreateVertexShader()
 {
 #ifdef READ_COMPILED_SHADER
 	//return Shader::ReadCompiledShaderFile(L"VShader_Wired.cso", mVSBlob);
-	return Shader::CompileShaderFile(L"VShader_Wired.hlsl", "VSWired", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Wired.hlsl", "VSWired", "vs_5_1", mVSBlob);
 #else
-	return Shader::CompileShaderFile(L"VShader_Wired.hlsl", "VSWired", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Wired.hlsl", "VSWired", "vs_5_1", mVSBlob);
 #endif
 }
 
@@ -262,9 +208,9 @@ D3D12_SHADER_BYTECODE WireShader::CreatePixelShader()
 {
 #ifdef READ_COMPILED_SHADER
 	//return Shader::ReadCompiledShaderFile(L"PShader_Wired.cso", mPSBlob);
-	return Shader::CompileShaderFile(L"PShader_Wired.hlsl", "PSWired", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Wired.hlsl", "PSWired", "ps_5_1", mPSBlob);
 #else
-	return Shader::CompileShaderFile(L"PShader_Wired.hlsl", "PSWired", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Wired.hlsl", "PSWired", "ps_5_1", mPSBlob);
 #endif  
 #pragma endregion
 
@@ -290,18 +236,18 @@ D3D12_INPUT_LAYOUT_DESC ColorInstShader::CreateInputLayout()
 D3D12_SHADER_BYTECODE ColorInstShader::CreateVertexShader()
 {
 #ifdef READ_COMPILED_SHADER
-	return Shader::ReadCompiledShaderFile(L"VShader_Instance.cso", mVSBlob);
+	return D3DUtil::ReadCompiledShaderFile(L"VShader_Instance.cso", mVSBlob);
 #else
-	return Shader::CompileShaderFile(L"VShader_Instance.hlsl", "VSInstancing", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Instance.hlsl", "VSInstancing", "vs_5_1", mVSBlob);
 #endif
 }
 
 D3D12_SHADER_BYTECODE ColorInstShader::CreatePixelShader()
 {
 #ifdef READ_COMPILED_SHADER
-	return Shader::ReadCompiledShaderFile(L"PShader_Instance.cso", mPSBlob);
+	return D3DUtil::ReadCompiledShaderFile(L"PShader_Instance.cso", mPSBlob);
 #else
-	return Shader::CompileShaderFile(L"PShader_Instance.hlsl", "PSInstancing", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Instance.hlsl", "PSInstancing", "ps_5_1", mPSBlob);
 #endif
 }
 #pragma endregion
@@ -328,12 +274,12 @@ D3D12_INPUT_LAYOUT_DESC TexturedEffectShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE TexturedEffectShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_TextureInstance.hlsl", "VSTextureInstancing", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_TextureInstance.hlsl", "VSTextureInstancing", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE TexturedEffectShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_TextureInstance.hlsl", "PSTextureInstancing", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_TextureInstance.hlsl", "PSTextureInstancing", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -361,13 +307,13 @@ D3D12_INPUT_LAYOUT_DESC TexturedShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE TexturedShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Standard.hlsl", "VS_Standard", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Standard.hlsl", "VS_Standard", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE TexturedShader::CreatePixelShader()
 {
 	//return Shader::CompileShaderFile(L"PShader_Standard.hlsl", "PS_Standard", "ps_5_1", mPSBlob);
-	return Shader::CompileShaderFile(L"PShader_MRT.hlsl", "PSTexturedLightingToMultipleRTs", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_MRT.hlsl", "PSTexturedLightingToMultipleRTs", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -378,7 +324,7 @@ D3D12_SHADER_BYTECODE TexturedShader::CreatePixelShader()
 #pragma region ObjectInstShader
 D3D12_SHADER_BYTECODE ObjectInstShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_StandardInstance.hlsl", "VS_StandardInstance", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_StandardInstance.hlsl", "VS_StandardInstance", "vs_5_1", mVSBlob);
 }
 #pragma endregion
 
@@ -473,13 +419,13 @@ D3D12_RASTERIZER_DESC TerrainShader::CreateRasterizerState()
 
 D3D12_SHADER_BYTECODE TerrainShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Terrain.hlsl", "VSTerrain", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Terrain.hlsl", "VSTerrain", "vs_5_1", mVSBlob);
 }
 
 
 D3D12_SHADER_BYTECODE TerrainShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Terrain.hlsl", "PSTerrain", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Terrain.hlsl", "PSTerrain", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -525,12 +471,12 @@ D3D12_DEPTH_STENCIL_DESC SkyBoxShader::CreateDepthStencilState()
 
 D3D12_SHADER_BYTECODE SkyBoxShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Skybox.hlsl", "VSSkyBox", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Skybox.hlsl", "VSSkyBox", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE SkyBoxShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Skybox.hlsl", "PSSkyBox", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Skybox.hlsl", "PSSkyBox", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -583,13 +529,13 @@ D3D12_DEPTH_STENCIL_DESC WaterShader::CreateDepthStencilState()
 
 D3D12_SHADER_BYTECODE WaterShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Water.hlsl", "VSWater", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Water.hlsl", "VSWater", "vs_5_1", mVSBlob);
 }
 
 
 D3D12_SHADER_BYTECODE WaterShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Water.hlsl", "PSWater", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Water.hlsl", "PSWater", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -628,12 +574,12 @@ D3D12_DEPTH_STENCIL_DESC PostProcessingShader::CreateDepthStencilState()
 
 D3D12_SHADER_BYTECODE PostProcessingShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Post.hlsl", "VSPostProcessing", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Post.hlsl", "VSPostProcessing", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE PostProcessingShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Post.hlsl", "PSPostProcessing", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Post.hlsl", "PSPostProcessing", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -644,12 +590,12 @@ D3D12_SHADER_BYTECODE PostProcessingShader::CreatePixelShader()
 #pragma region TextureToScreenShader
 D3D12_SHADER_BYTECODE TextureToScreenShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Rect.hlsl", "VSScreen", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Rect.hlsl", "VSScreen", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE TextureToScreenShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Rect.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Rect.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -698,12 +644,12 @@ D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 
 D3D12_SHADER_BYTECODE BillboardShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Billboard.hlsl", "VSBillboard", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Billboard.hlsl", "VSBillboard", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Billboard.hlsl", "PSBillboard", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Billboard.hlsl", "PSBillboard", "ps_5_1", mPSBlob);
 }
 
 
@@ -711,7 +657,7 @@ D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader()
 
 D3D12_SHADER_BYTECODE SpriteShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Billboard.hlsl", "VSSprite", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Billboard.hlsl", "VSSprite", "vs_5_1", mVSBlob);
 }
 #pragma endregion
 
@@ -773,11 +719,77 @@ D3D12_BLEND_DESC CanvasShader::CreateBlendState()
 
 D3D12_SHADER_BYTECODE CanvasShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_Canvas.hlsl", "VSCanvas", "vs_5_1", mVSBlob);
+	return D3DUtil::CompileShaderFile(L"VShader_Canvas.hlsl", "VSCanvas", "vs_5_1", mVSBlob);
 }
 
 D3D12_SHADER_BYTECODE CanvasShader::CreatePixelShader()
 {
-	return Shader::CompileShaderFile(L"PShader_Canvas.hlsl", "PSCanvas", "ps_5_1", mPSBlob);
+	return D3DUtil::CompileShaderFile(L"PShader_Canvas.hlsl", "PSCanvas", "ps_5_1", mPSBlob);
 }
 #pragma endregion
+
+
+
+
+// [ ComputeShader ] //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#pragma region ComputeShader
+ComputeShader::~ComputeShader()
+{
+	assert(mIsClosed);
+}
+
+void ComputeShader::Create(bool isClose)
+{
+	assert(!mIsClosed);
+	
+	mPipelineStateDesc.pRootSignature = scene->GetComputeRootSignature().Get();
+	mPipelineStateDesc.CS = CreateComputeShader();
+	mPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	HRESULT hResult = device->CreateComputePipelineState(&mPipelineStateDesc, IID_PPV_ARGS(&mPipelineState));
+	AssertHResult(hResult);
+
+	mIsClosed = false;
+	if (isClose) {
+		Close();
+	}
+}
+
+void ComputeShader::Set()
+{
+	cmdList->SetPipelineState(mPipelineState.Get());
+}
+
+D3D12_SHADER_BYTECODE ComputeShader::CreateComputeShader()
+{
+	throw std::runtime_error("not assigned compute shader!");
+}
+
+void ComputeShader::Close()
+{
+	mIsClosed = true;
+	mCSBlob = nullptr;
+}
+#pragma endregion
+
+
+
+
+#pragma region BlurShader
+D3D12_SHADER_BYTECODE HorzBlurShader::CreateComputeShader()
+{
+	return D3DUtil::CompileShaderFile(L"CShader_Blur.hlsl", "HorzBlurCS", "cs_5_1", mCSBlob);
+}
+
+D3D12_SHADER_BYTECODE VertBlurShader::CreateComputeShader()
+{
+	return D3DUtil::CompileShaderFile(L"CShader_Blur.hlsl", "VertBlurCS", "cs_5_1", mCSBlob);
+}
+#pragma endregion
+
+

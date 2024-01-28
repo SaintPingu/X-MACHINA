@@ -24,6 +24,7 @@ class Light;
 class Texture;
 class SkyBox;
 class GraphicsRootSignature;
+class ComputeRootSignature;
 class DescriptorHeap;
 class ObjectPool;
 #pragma endregion
@@ -44,6 +45,7 @@ public:
 private:
 	/* DirectX */
 	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
+	sptr<ComputeRootSignature>  mComputeRootSignature{};
 
 	/* Model */
 	std::unordered_map<std::string, sptr<const MasterModel>> mModels{};	// model folder에서 로드한 모델 객체 모음
@@ -123,7 +125,10 @@ public:
 	// [name]에 해당하는 Texture 모델을 반환한다.
 	rsptr<Texture> GetTexture(const std::string& name) const;
 
-	RComPtr<ID3D12RootSignature> GetRootSignature() const;
+	rsptr<DescriptorHeap> GetDescHeap() const;
+
+	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
+	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
 
 	// [param]에 해당하는 root parameter index를 반환한다.
 	UINT GetRootParamIndex(RootParam param) const;
@@ -154,7 +159,8 @@ public:
 
 private:
 	void CreateGraphicsRootSignature();
-	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount);
+	void CreateComputeRootSignature();
+	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount);
 
 	void UpdateShaderVars();
 	void UpdateMainPassCB();

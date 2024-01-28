@@ -90,11 +90,25 @@ rsptr<Texture> Scene::GetTexture(const std::string& name) const
 	return mTextureMap.at(name);
 }
 
-RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
+rsptr<DescriptorHeap> Scene::GetDescHeap() const
+{
+	assert(mDescriptorHeap);
+
+	return mDescriptorHeap;
+}
+
+RComPtr<ID3D12RootSignature> Scene::GetGraphicsRootSignature() const
 {
 	assert(mGraphicsRootSignature);
 
 	return mGraphicsRootSignature->Get();
+}
+
+RComPtr<ID3D12RootSignature> Scene::GetComputeRootSignature() const
+{
+	assert(mComputeRootSignature);
+
+	return mComputeRootSignature->Get();
 }
 
 UINT Scene::GetRootParamIndex(RootParam param) const
@@ -190,12 +204,28 @@ void Scene::CreateGraphicsRootSignature()
 	
 	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
 	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 100, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
 	
 	// GameObjectInfo를 Collider로 변경, 충돌 박스만 그려주는 용도
 	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
 
 	mGraphicsRootSignature->Create();
+}
+
+void Scene::CreateComputeRootSignature()
+{
+	mComputeRootSignature = std::make_shared<ComputeRootSignature>();
+
+	// 가중치 루트 상수 (b0)
+	mComputeRootSignature->Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
+
+	// 읽기 전용 SRV 서술자 테이블 (t0)
+	mComputeRootSignature->PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 쓰기 전용 UAV 서술자 테이블 (u0)
+	mComputeRootSignature->PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	mComputeRootSignature->Create();
 }
 
 void Scene::UpdateShaderVars()
@@ -229,9 +259,9 @@ void Scene::UpdateMaterialBuffer()
 	}
 }
 
-void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
+void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount)
 {
-	mDescriptorHeap->Create(cbvCount, srvCount);
+	mDescriptorHeap->Create(cbvCount, srvCount, uavCount);
 }
 #pragma endregion
 
@@ -244,9 +274,10 @@ void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount)
 void Scene::BuildObjects()
 {
 	CreateGraphicsRootSignature();
+	CreateComputeRootSignature();
 
 	assert(mGraphicsRootSignature);
-	CreateCbvSrvDescriptorHeaps(0, 1024);
+	CreateCbvSrvDescriptorHeaps(0, 1024, 256);
 
 	// load materials
 	mTextureMap = FileIO::LoadTextures("Models/Textures/");
@@ -584,7 +615,7 @@ namespace {
 
 void Scene::OnPrepareRender()
 {
-	cmdList->SetGraphicsRootSignature(GetRootSignature().Get());
+	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
 
 	mainCamera->SetViewportsAndScissorRects();
 

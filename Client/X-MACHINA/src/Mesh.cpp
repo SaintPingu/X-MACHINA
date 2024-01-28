@@ -452,7 +452,7 @@ MergedMesh::MergedMesh()
 
 rsptr<Texture> MergedMesh::GetTexture() const
 {
-	return mFrameMeshInfo.front().Materials.front()->mTextures[TextureMap::DiffuseMap0];
+	return mFrameMeshInfo.front().Materials.front()->mTextures[static_cast<UINT8>(TextureMap::DiffuseMap0)];
 }
 
 // mMeshBuffer와 mFrameMeshInfo에 [mesh] 및 [materials] 정보들을 추가(병합)한다.
@@ -477,7 +477,7 @@ void MergedMesh::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>
 	// copy vertices info to [mMeshBuffer]
 	CopyBack(mesh->Buffer.Vertices, mMeshBuffer->Vertices);
 	CopyBack(mesh->Buffer.Normals,  mMeshBuffer->Normals);
-	if (modelMeshInfo.Materials.front()->mTextures[TextureMap::DiffuseMap0]) {	// texture가 있다면, Tangents, BiTangents, UVs를 가져온다
+	if (modelMeshInfo.Materials.front()->mTextures[static_cast<UINT8>(TextureMap::DiffuseMap0)]) {	// texture가 있다면, Tangents, BiTangents, UVs를 가져온다
 		CopyBack(mesh->Buffer.Tangents,	  mMeshBuffer->Tangents);
 		CopyBack(mesh->Buffer.BiTangents, mMeshBuffer->BiTangents);
 		CopyBack(mesh->Buffer.UVs0,		  mMeshBuffer->UVs0);
@@ -524,7 +524,7 @@ void MergedMesh::UpdateMaterialBuffer()
 {
 	for (const auto& meshInfo : mFrameMeshInfo) {
 		for (const auto& material : meshInfo.Materials) {
-			material->UpdateMaterialBuffer();
+			material->UpdateShaderVars();
 		}
 	}
 }

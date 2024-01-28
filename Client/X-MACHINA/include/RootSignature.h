@@ -1,9 +1,17 @@
 #pragma once
 
+#pragma region EnumClass
+enum class RootSignatureType {
+	Graphics,
+	Compute,
+};
+#pragma endregion
+
 // util of ID3D12RootSignature
 // root parameter를 매핑하여 간편하게 사용하도록 하고 오류를 최소화한다.
-class GraphicsRootSignature {
-private:
+class RootSignature {
+protected:
+	RootSignatureType mType{};
 	ComPtr<ID3D12RootSignature> mRootSignature{};
 
 	std::vector<D3D12_ROOT_PARAMETER>	mParams{};		// all root parameters
@@ -11,11 +19,11 @@ private:
 	std::unordered_map<RootParam, UINT> mParamMap{};	// [mPrams]의 인덱스 맵
 
 public:
-	GraphicsRootSignature();
-	virtual ~GraphicsRootSignature() = default;
+	RootSignature();
+	virtual ~RootSignature() = default;
 
-	RComPtr<ID3D12RootSignature> Get() const		{ return mRootSignature; }
-	UINT GetRootParamIndex(RootParam param) const	{ return mParamMap.at(param); }
+	RComPtr<ID3D12RootSignature> Get() const { return mRootSignature; }
+	UINT GetRootParamIndex(RootParam param) const { return mParamMap.at(param); }
 
 public:
 	// 별칭을 추가해 하나의 root parameter를 여러 이름으로 접근할 수 있게 한다.
@@ -27,9 +35,32 @@ public:
 	void PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT registerSpace, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility);
 
 	// ID3D12Device::CreateRootSignature
-	RComPtr<ID3D12RootSignature> Create();
+	virtual RComPtr<ID3D12RootSignature> Create() abstract;
 
-private:
+protected:
 	// [mPrams]의 인덱스를 매핑한다.
 	void ParamMapping(RootParam param);
+};
+
+
+// for rendering
+class GraphicsRootSignature : public RootSignature {
+public:
+	GraphicsRootSignature();
+	virtual ~GraphicsRootSignature() = default;
+
+public:
+	// ID3D12Device::CreateRootSignature
+	virtual RComPtr<ID3D12RootSignature> Create() override;
+};
+
+// for computing
+class ComputeRootSignature : public RootSignature {
+public:
+	ComputeRootSignature();
+	virtual ~ComputeRootSignature() = default;
+
+public:
+	// ID3D12Device::CreateRootSignature
+	virtual RComPtr<ID3D12RootSignature> Create() override;
 };

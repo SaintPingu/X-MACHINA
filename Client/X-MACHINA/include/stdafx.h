@@ -223,16 +223,22 @@ enum class CameraMode {
 // index = scene->GetRootParamIndex(RootParam);
 // 32BitConstant => scene->SetGraphicsRoot32BitConstants(RootParam, ...);
 enum class RootParam {
-	Object = 1,
+	// Compute RootParam
+	Object = 0,
+	Pass,
 	Instancing,
 	Material,
 	SkyBox,
 	Texture,
-	Pass,
 	Collider,
+
+	// Compute RootParam
+	Weight = 0,
+	Read,
+	Write,
 };
 
-enum TextureMap : UINT8 {
+enum class TextureMap : UINT8 {
 	DiffuseMap0 = 0,
 	DiffuseMap1,
 	DiffuseMap2,
@@ -263,7 +269,9 @@ enum { MRTCount = static_cast<UINT8>(MRT::_count) };
 #pragma region Variable
 constexpr short gkFrameBufferWidth  = 1280;
 constexpr short gkFrameBufferHeight = 960;
-constexpr int	gkMaxSceneLight = 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
+
+constexpr int	gkMaxTexture		= 100;	// 씬에 존재할 수 있는 텍스처의 최대 개수. Common.hlsl과 동일해야 한다.
+constexpr int	gkMaxSceneLight		= 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
 #pragma endregion
 
 
@@ -540,7 +548,6 @@ namespace D3DUtil {
 		D3D12_RESOURCE_STATES resourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
 	ComPtr<ID3D12Resource> CreateTexture2DResource(
-
 		UINT width,
 		UINT height,
 		UINT elements,
@@ -554,6 +561,16 @@ namespace D3DUtil {
 		RComPtr<ID3D12Resource> resource,
 		D3D12_RESOURCE_STATES stateBefore,
 		D3D12_RESOURCE_STATES stateAfter);
+
+	D3D12_SHADER_BYTECODE CompileShaderFile(
+		const std::wstring& fileName,
+		LPCSTR shaderName,
+		LPCSTR shaderProfile,
+		ComPtr<ID3DBlob>& shaderBlob);
+
+	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(
+		const std::wstring& fileName,
+		ComPtr<ID3DBlob>& shaderBlob);
 
 	inline UINT CalcConstantBuffSize(UINT byteSize)
 	{

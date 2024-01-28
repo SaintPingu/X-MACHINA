@@ -69,8 +69,7 @@ public:
 	void SetTexture(TextureMap map, rsptr<Texture> texture) { mTextures[static_cast<UINT8>(map)] = texture; }
 
 public:
-	void UpdateMaterialBuffer();
-	//void UpdateShaderVars();
+	void UpdateShaderVars();
 
 	void LoadTextureFromFile(TextureMap map, FILE* file);
 };

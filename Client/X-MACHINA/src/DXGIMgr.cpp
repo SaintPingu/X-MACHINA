@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Shader.h"
 #include "MultipleRenderTarget.h"
+#include "BlurFilter.h"
 
 #pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
 #include "../Imgui/ImguiMgr.h"
@@ -16,7 +17,7 @@ DXGIMgr::DXGIMgr()
 	mClientWidth(gkFrameBufferWidth),
 	mClientHeight(gkFrameBufferHeight)
 {
-	
+	mFilterOption = FilterOption::Blur;
 }
 
 void DXGIMgr::SetMRTTsPassConstants(PassConstants& passConstants)
@@ -42,6 +43,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	BuildScene();
 
 	CreateMRT();
+	CreateFilter();
 }
 
 void DXGIMgr::Release()
@@ -76,6 +78,7 @@ void DXGIMgr::Render()
 	// set before barrier (present -> render target)
 	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
+#pragma region MainRender Pass
 	switch (mDrawOption) {
 	case DrawOption::Main:
 	{
@@ -108,23 +111,32 @@ void DXGIMgr::Render()
 #pragma endregion
 	}
 	break;
-	default:
+	}
+#pragma endregion
+
+#pragma region PostProcessing Pass
+	switch (mFilterOption)
 	{
-		//scene->OnPrepareRender();
+	case FilterOption::None:
+	{
+		//imgui->Present();
+		D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	}
+	break;
+	case FilterOption::Blur:
+	{
+		// 필터 실행 후 후면 버퍼의 리소스 상태는 COPY_SOURCE이다.
+		mBlurFilter->Execute(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), 4);
 
-		//mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], TRUE, NULL);
+		// 흐리기 작업이 완료된 블러의 리소스를 다시 후면 버퍼에 복사
+		mBlurFilter->CopyResource(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get());
 
-		//mPostProcessingShader->Set();
-		//mMRT->Render();
+		//imgui->Present();
+		D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
 	}
 	break;
 	}
-#pragma region Imgui - 장재문 - Dxgi Present 전에 최종 RenderTarget 위에 그리기 때문에 여기다가 넣었어요..
-	//imgui->Present();
 #pragma endregion
-
-	// set after barrier (render target -> present)
-	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	RenderEnd();
 
@@ -234,8 +246,8 @@ void DXGIMgr::CreateFence()
 
 void DXGIMgr::SetIncrementSize()
 {
-	mCbvSrvDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	mRtvDescriptorIncSize    = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	mCbvSrvUavDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	mRtvDescriptorIncSize		= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 }
 
 
@@ -428,6 +440,15 @@ void DXGIMgr::ChangeSwapChainState()
 	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 	CreateSwapChainRTVs();
+
+	// 윈도우 사이즈가 변경되면 필터도 다시 생성해야 한다.
+	mBlurFilter->OnResize(mClientWidth, mClientHeight);
+}
+
+void DXGIMgr::CreateFilter()
+{
+	mBlurFilter = std::make_unique<BlurFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
+	mBlurFilter->Create();
 }
 
 void DXGIMgr::WaitForGpuComplete()

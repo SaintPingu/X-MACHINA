@@ -12,6 +12,8 @@
 class PostProcessingShader;
 class FrameResourceMgr;
 class MultipleRenderTarget;
+class BlurFilter;
+
 struct PassConstants;
 #pragma endregion
 
@@ -21,6 +23,11 @@ enum class DrawOption {
 	Texture,
 	Normal,
 	Depth,
+};
+
+enum class FilterOption {
+	None = 0,
+	Blur,
 };
 #pragma endregion
 
@@ -57,7 +64,7 @@ private:
 	UINT													mSwapChainBuffCurrIdx{};	// current swap chain buffer index
 
 	// view (descriptor)
-	UINT mCbvSrvDescriptorIncSize{};
+	UINT mCbvSrvUavDescriptorIncSize{};
 	UINT mRtvDescriptorIncSize{};
 	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};
 	ComPtr<ID3D12DescriptorHeap>	mDsvHeap{};
@@ -81,7 +88,11 @@ private:
 	// MRT
 	sptr<MultipleRenderTarget>	mMRT{};
 
-	DrawOption mDrawOption{};
+	// filter
+	FilterOption		mFilterOption{};
+	uptr<BlurFilter>	mBlurFilter;
+
+	DrawOption		mDrawOption{};
 
 protected:
 #pragma region C/Dtor
@@ -95,7 +106,7 @@ public:
 	RComPtr<ID3D12Device> GetDevice() const					{ return mDevice; }
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const	{ return mCmdList; }
 	const auto& GetRtvFormats() const						{ return mRtvFormats; }
-	UINT GetCbvSrvDescriptorIncSize() const					{ return mCbvSrvDescriptorIncSize; }
+	UINT GetCbvSrvUavDescriptorIncSize() const				{ return mCbvSrvUavDescriptorIncSize; }
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
 	rsptr<MultipleRenderTarget> GetMRT() const				{ return mMRT; }
@@ -157,9 +168,12 @@ private:
 	// full screen on/off (resize swap chain buffer)
 	void ChangeSwapChainState();
 
+	void CreateFilter();
+
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
 	void BuildScene();
+
 };
 #pragma endregion

@@ -17,13 +17,9 @@ struct PassConstants;
 
 
 
-
 #pragma region Class
-/* Shader의 Render() 함수를 모두 제거하고 별도로 관리하도록 재구현할 예정 */
-/* Shader는 주로 PipelineState를 설정하는 용도로 사용하기 위함		      */
-
-
 // Pipeline State 객체들을 가지는 클래스
+#pragma region GraphicsShader
 class Shader {
 private:
 	bool mIsClosed{ false };	// PipelineState생성을 종료하고 불필요 메모리를 해제했는가?
@@ -61,13 +57,9 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 
-	D3D12_SHADER_BYTECODE CompileShaderFile(const std::wstring& fileName, LPCSTR shaderName, LPCSTR shaderProfile, ComPtr<ID3DBlob>& shaderBlob);
-	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob);
-
 	// PipelineState 생성을 중단하고, 생성 과정에 발생한 불필요한 메모리를 해제한다.
 	void Close();
 };
-
 
 
 
@@ -91,7 +83,6 @@ protected:
 
 
 
-
 // for rendering instancing GameObjects
 class ColorInstShader : public Shader {
 public:
@@ -107,7 +98,6 @@ protected:
 
 
 
-
 // for rendering 3d effect GameObjects that has texture
 class TexturedEffectShader : public ColorInstShader {
 public:
@@ -119,8 +109,6 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
-
-
 
 
 
@@ -141,7 +129,6 @@ protected:
 
 
 
-
 // for rendering instancing GameObjects that has texture
 class ObjectInstShader : public TexturedShader {
 public:
@@ -151,7 +138,6 @@ public:
 protected:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 };
-
 
 
 
@@ -166,7 +152,6 @@ protected:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 	virtual D3D12_BLEND_DESC CreateBlendState() override;
 };
-
 
 
 
@@ -189,7 +174,6 @@ protected:
 
 
 
-
 // for rendering SkyBox
 class SkyBoxShader : public Shader {
 public:
@@ -207,7 +191,6 @@ protected:
 
 
 
-
 // for rendering instancing GameObjects
 class WaterShader : public TexturedShader {
 public:
@@ -221,7 +204,6 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
-
 
 
 
@@ -245,7 +227,6 @@ protected:
 
 
 
-
 // for rendering 2D texture to screen
 class TextureToScreenShader : public PostProcessingShader {
 public:
@@ -256,7 +237,6 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
-
 
 
 
@@ -290,7 +270,6 @@ protected:
 
 
 
-
 // for rendering UI (2D plane)
 class CanvasShader : public TexturedShader {
 public:
@@ -305,4 +284,59 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
+#pragma endregion
+
+
+
+
+#pragma region ComputeShader
+class ComputeShader {
+private:
+	bool mIsClosed{ false };
+
+protected:
+	ComPtr<ID3D12PipelineState>			mPipelineState{};
+	D3D12_COMPUTE_PIPELINE_STATE_DESC	mPipelineStateDesc{};
+
+	ComPtr<ID3DBlob> mCSBlob{};
+
+public:
+	ComputeShader() = default;
+	virtual ~ComputeShader();
+
+public:
+	virtual void Create(bool isClose = true);
+	virtual void Set();
+
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateComputeShader();
+	void Close();
+};
+
+
+
+
+// 수평 흐리기 쉐이더
+class HorzBlurShader : public ComputeShader {
+public:
+	HorzBlurShader()		  = default;
+	virtual ~HorzBlurShader() = default;
+
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
+};
+
+// 수직 흐리기 쉐이더
+class VertBlurShader : public ComputeShader {
+public:
+	VertBlurShader()		  = default;
+	virtual ~VertBlurShader() = default;
+
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
+};
+
+#pragma endregion
+
+
 #pragma endregion

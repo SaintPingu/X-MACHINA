@@ -25,7 +25,7 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 
 
 #pragma region Material
-void Material::UpdateMaterialBuffer()
+void Material::UpdateShaderVars()
 {
 	MaterialData materialData;
 	materialData.Ambient			= mMaterialColors->Ambient;
@@ -42,30 +42,6 @@ void Material::UpdateMaterialBuffer()
 	frmResMgr->CopyData(mMatIndex, materialData);
 }
 
-//void Material::UpdateShaderVars()
-//{
-//	constexpr RootParam kRootParam = RootParam::GameObjectInfo;
-//
-//	// texture가 있다면, texture의 shader variables를 업데이트하고
-//	//			 없다면, textureMask를 None으로 설정한다.
-//	if (mTextures[TextureMap::DiffuseMap0]) {
-//		mTextures[TextureMap::DiffuseMap0]->UpdateShaderVars();
-//	}
-//	else {
-//		scene->SetGraphicsRoot32BitConstants(kRootParam, static_cast<DWORD>(MaterialMap::None), 32);
-//	}
-//
-//	// material 색이 없다면, 무색(0,0,0=black)으로 설정한다.
-//	if (!mMaterialColors) {
-//		scene->SetGraphicsRoot32BitConstants(kRootParam, Vec4x4{}, 16);
-//		return;
-//	}
-//
-//	// material의 색상 (Vec4x4 -> Ambient, Diffuse, Specular, Emissive)을 Set한다.
-//	scene->SetGraphicsRoot32BitConstants(kRootParam, *mMaterialColors, 16);
-//}
-// 
-// texture의 fileName을 읽어와 해당 texture를 scene을 통해 가져온다.
 void Material::LoadTextureFromFile(TextureMap map, FILE* file)
 {
 	std::string textureName{};
@@ -75,7 +51,7 @@ void Material::LoadTextureFromFile(TextureMap map, FILE* file)
 		return;
 	}
 
-	mTextures[map] = scene->GetTexture(textureName);
+	mTextures[static_cast<UINT8>(map)] = scene->GetTexture(textureName);
 }
 #pragma endregion
 

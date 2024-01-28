@@ -2,13 +2,14 @@
 #include "RootSignature.h"
 #include "DXGIMgr.h"
 
-GraphicsRootSignature::GraphicsRootSignature()
+#pragma region RootSignature
+RootSignature::RootSignature()
 {
 	constexpr int kMaxRangeSize = 32;
 	mRanges.resize(kMaxRangeSize);
 }
 
-void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, UINT registerSpace, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues)
+void RootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, UINT shaderRegister, UINT registerSpace, D3D12_SHADER_VISIBILITY visibility, UINT num32BitValues)
 {
 	assert(paramType != D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
 
@@ -25,7 +26,7 @@ void GraphicsRootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE para
 	ParamMapping(param);
 }
 
-void GraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT registerSpace, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility)
+void RootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT registerSpace, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility)
 {
 	D3D12_DESCRIPTOR_RANGE range{};
 
@@ -43,11 +44,38 @@ void GraphicsRootSignature::PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TY
 	rootParam.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParam.DescriptorTable.NumDescriptorRanges = 1;
 	rootParam.DescriptorTable.pDescriptorRanges   = &mRanges.back();
-	rootParam.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	switch (mType)
+	{
+	case RootSignatureType::Graphics:
+		rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		break;
+	case RootSignatureType::Compute:
+		rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		break;
+	default:
+		assert(1);
+		break;
+	}
 
 	mParams.push_back(rootParam);
 
 	ParamMapping(param);
+}
+
+void RootSignature::ParamMapping(RootParam param)
+{
+	mParamMap[param] = (UINT)mParams.size() - 1;
+}
+#pragma endregion
+
+
+
+
+#pragma region GraphicsRootSignature
+GraphicsRootSignature::GraphicsRootSignature()
+{
+	mType = RootSignatureType::Graphics;
 }
 
 RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
@@ -106,9 +134,40 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 
 	return mRootSignature;
 }
+#pragma endregion
 
 
-void GraphicsRootSignature::ParamMapping(RootParam param)
+
+
+#pragma region ComputeRootSignature
+ComputeRootSignature::ComputeRootSignature()
 {
-	mParamMap[param] = (UINT)mParams.size() - 1;
+	mType = RootSignatureType::Compute;
 }
+
+RComPtr<ID3D12RootSignature> ComputeRootSignature::Create()
+{
+	// flags
+	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+	// description
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+	rootSignatureDesc.NumParameters     = (UINT)mParams.size();
+	rootSignatureDesc.pParameters       = mParams.data();
+	rootSignatureDesc.NumStaticSamplers = 0;
+	rootSignatureDesc.pStaticSamplers   = nullptr;
+	rootSignatureDesc.Flags             = rootSignatureFlags;
+
+	// serialize
+	ComPtr<ID3DBlob> signatureBlob{};
+	ComPtr<ID3DBlob> errBlob{};
+	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errBlob);
+	PrintErrorBlob(errBlob);
+
+	// create
+	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
+
+	return mRootSignature;
+}
+#pragma endregion

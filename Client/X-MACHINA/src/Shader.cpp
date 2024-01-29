@@ -5,12 +5,9 @@
 
 #include "Scene.h"
 #include "Texture.h"
-
+#include "MultipleRenderTarget.h"
 
 //#define READ_COMPILED_SHADER
-
-
-
 
 
 #pragma region Shader
@@ -19,7 +16,7 @@ Shader::~Shader()
 	assert(mIsClosed);
 }
 
-void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
+void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 {
 	assert(!mIsClosed);
 
@@ -36,10 +33,25 @@ void Shader::Create(DXGI_FORMAT dsvFormat, bool isClose)
 	mPipelineStateDesc.SampleDesc.Count      = 1;
 	mPipelineStateDesc.Flags                 = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-	const auto& rtvFormats = dxgi->GetRtvFormats();
-	mPipelineStateDesc.NumRenderTargets = (UINT)rtvFormats.size();
-	for (UINT i = 0; i < mPipelineStateDesc.NumRenderTargets; ++i) {
-		mPipelineStateDesc.RTVFormats[i] = rtvFormats[i];
+	mPipelineStateDesc.NumRenderTargets = MultipleRenderTarget::mMaxRtCnt;
+
+	// 쉐이더 타입에 따라서 RTV 포맷을 다르게 한다. 기본은 Forward이다.
+	switch (shaderType)
+	{
+	case ShaderType::Forward:
+		mPipelineStateDesc.NumRenderTargets = 1;
+		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		break;
+	case ShaderType::Deferred:
+		mPipelineStateDesc.NumRenderTargets = GBufferCount;
+		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[4] = DXGI_FORMAT_R32_FLOAT;
+		break;
+	default:
+		break;
 	}
 
 	if (mPipelineStates.empty()) {

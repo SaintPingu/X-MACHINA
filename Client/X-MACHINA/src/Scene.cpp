@@ -180,7 +180,7 @@ void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORM
 	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
 }
 
-void Scene::CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex)
+void Scene::CreateShaderResourceView(Texture* texture)
 {
 	ComPtr<ID3D12Resource> resource = texture->GetResource();
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
@@ -245,9 +245,13 @@ void Scene::UpdateMainPassCB()
 	passConstants.MtxProj	= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
 	passConstants.EyeW		= mainCamera->GetPosition();
 	passConstants.DeltaTime = timeElapsed;
+	passConstants.RT1_TextureIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Texture)->GetGpuDescriptorHandleIndex();
+	passConstants.RT2_UIIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::UI)->GetGpuDescriptorHandleIndex();
+	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
+	passConstants.RT4_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
+	passConstants.RT5_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
-	dxgi->SetMRTTsPassConstants(passConstants); // MRT텍스처들의 인덱스 가져오기
-
+	
 	frmResMgr->CopyData(passConstants);
 }
 
@@ -311,61 +315,45 @@ void Scene::ReleaseObjects()
 
 void Scene::BuildShaders()
 {
-	BuildGlobalShader();
-	BuildBoundingShader();
-	BuildSmallExpFXShader();
-	BuildBigExpFXShader();
-	BuildBillboardShader();
-	BuildFinalShader();
+	BuildDeferredShader();
+	BuildForwardShader();
 }
 
-void Scene::BuildGlobalShader()
+void Scene::BuildForwardShader()
 {
-	mGlobalShader = std::make_shared<TexturedShader>();
-	mGlobalShader->Create();
+	ShaderType shaderType = ShaderType::Forward;
 
 	mWaterShader = std::make_shared<WaterShader>();
-	mWaterShader->Create();
+	mWaterShader->Create(shaderType);
 
-	mInstShader = std::make_shared<ObjectInstShader>();
-	mInstShader->Create();
-
-	mTransparentShader = std::make_shared<TransparentShader>();
-	mTransparentShader->Create();
-
-	mBulletShader = std::make_shared<ColorInstShader>();
-	mBulletShader->Create();
-}
-
-void Scene::BuildBoundingShader()
-{
 	mBoundingShader = std::make_shared<WireShader>();
-	mBoundingShader->Create();
-}
+	mBoundingShader->Create(shaderType);
 
-void Scene::BuildSmallExpFXShader()
-{
-
-}
-
-void Scene::BuildBigExpFXShader()
-{
-
-}
-
-void Scene::BuildBillboardShader()
-{
 	mBillboardShader = std::make_shared<BillboardShader>();
-	mBillboardShader->Create();
+	mBillboardShader->Create(shaderType);
 
 	mSpriteShader = std::make_shared<SpriteShader>();
-	mSpriteShader->Create();
+	mSpriteShader->Create(shaderType);
+
+	mFinalShader = std::make_shared<TextureToScreenShader>();
+	mFinalShader->Create(shaderType, DXGI_FORMAT_D32_FLOAT);
 }
 
-void Scene::BuildFinalShader()
+void Scene::BuildDeferredShader()
 {
-	mFinalShader = std::make_shared<TextureToScreenShader>();
-	mFinalShader->Create(DXGI_FORMAT_D32_FLOAT);
+	ShaderType shaderType = ShaderType::Deferred;
+
+	mGlobalShader = std::make_shared<TexturedShader>();
+	mGlobalShader->Create(shaderType);
+
+	mInstShader = std::make_shared<ObjectInstShader>();
+	mInstShader->Create(shaderType);
+
+	mTransparentShader = std::make_shared<TransparentShader>();
+	mTransparentShader->Create(shaderType);
+
+	mBulletShader = std::make_shared<ColorInstShader>();
+	mBulletShader->Create(shaderType);
 }
 
 void Scene::BuildPlayers()

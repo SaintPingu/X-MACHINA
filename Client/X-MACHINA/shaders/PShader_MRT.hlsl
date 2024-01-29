@@ -1,7 +1,7 @@
 #include "Light.hlsl"
 
 struct PSOutput_MRT {
-    float4 Texture  : SV_TARGET1;
+    float4 Texture  : SV_TARGET0;
     float  Distance : SV_TARGET4;
 };
 

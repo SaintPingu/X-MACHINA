@@ -155,7 +155,7 @@ public:
 	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
 	// texture의 SRV 리소스를 생성한다.
-	void CreateShaderResourceView(Texture* texture, UINT descriptorHeapIndex);
+	void CreateShaderResourceView(Texture* texture);
 
 private:
 	void CreateGraphicsRootSignature();
@@ -179,12 +179,9 @@ private:
 	// build all scene's shaders
 	void BuildShaders();
 
-	void BuildGlobalShader();
-	void BuildBoundingShader();
-	void BuildSmallExpFXShader();
-	void BuildBigExpFXShader();
-	void BuildBillboardShader();
-	void BuildFinalShader();
+	/* Shader */
+	void BuildDeferredShader();
+	void BuildForwardShader();
 
 	/* Object */
 	void BuildPlayers();

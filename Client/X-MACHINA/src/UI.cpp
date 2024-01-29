@@ -164,7 +164,7 @@ void Canvas::SetScore(int score)
 void Canvas::Init()
 {
 	mShader = std::make_shared<CanvasShader>();
-	mShader->Create();
+	mShader->Create(ShaderType::Forward);
 	LoadTextures();
 
 	UI::CreateUIMesh();

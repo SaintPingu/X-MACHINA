@@ -5,7 +5,6 @@
 #define device dxgi->GetDevice()
 #define cmdList dxgi->GetCmdList()
 #define frmResMgr dxgi->GetFrameResourceMgr()
-#define mrt dxgi->GetMRT()
 #pragma endregion
 
 #pragma region ClassForwardDecl
@@ -56,17 +55,11 @@ private:
 
 	// swap chain
 	static constexpr UINT mSwapChainBuffCnt = 2;
-	static constexpr UINT mRtvCnt			= MRTCount;
-	static constexpr std::array<DXGI_FORMAT, mRtvCnt>			mRtvFormats = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };	// formats of multi render target
-	std::array<D3D12_CPU_DESCRIPTOR_HANDLE, mSwapChainBuffCnt>	mRtvHandles{};
-
-	std::array<ComPtr<ID3D12Resource>, mSwapChainBuffCnt>	mSwapChainBuffers{};
-	UINT													mSwapChainBuffCurrIdx{};	// current swap chain buffer index
+	UINT mCurrBackBufferIdx{}; // current swap chain buffer index
 
 	// view (descriptor)
 	UINT mCbvSrvUavDescriptorIncSize{};
 	UINT mRtvDescriptorIncSize{};
-	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};
 	ComPtr<ID3D12DescriptorHeap>	mDsvHeap{};
 	ComPtr<ID3D12Resource>			mDepthStencilBuff{};
 	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};
@@ -86,7 +79,7 @@ private:
 	uptr<FrameResourceMgr>		mFrameResourceMgr;
 
 	// MRT
-	sptr<MultipleRenderTarget>	mMRT{};
+	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount>	mMRTs{};
 
 	// filter
 	FilterOption		mFilterOption{};
@@ -105,16 +98,14 @@ public:
 	HWND GetHwnd() const									{ return mWnd; }
 	RComPtr<ID3D12Device> GetDevice() const					{ return mDevice; }
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const	{ return mCmdList; }
-	const auto& GetRtvFormats() const						{ return mRtvFormats; }
 	UINT GetCbvSrvUavDescriptorIncSize() const				{ return mCbvSrvUavDescriptorIncSize; }
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
-	rsptr<MultipleRenderTarget> GetMRT() const				{ return mMRT; }
+	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
 #pragma endregion
 
 #pragma region Setter
 	void SetDrawOption(DrawOption option) { mDrawOption = option; }
-	void SetMRTTsPassConstants(PassConstants& passConstants);
 #pragma endregion
 
 public:
@@ -158,10 +149,8 @@ private:
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateSwapChain();
-	// swap chain의 RTV들을 생성한다.
-	void CreateSwapChainRTVs();
 	void CreateDSV();
-	void CreateMRT();
+	void CreateMRTs();
 
 	void CreateFrameResources();
 

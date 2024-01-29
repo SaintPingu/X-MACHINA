@@ -243,7 +243,7 @@ Terrain::Terrain(const std::wstring& fileName) : Transform(this)
 	mMaterial->SetTexture(TextureMap::DiffuseMap3, scene->GetTexture("Terrain_splatmap"));
 
 	mShader = std::make_shared<TerrainShader>();
-	mShader->Create();
+	mShader->Create(ShaderType::Deferred);
 }
 
 

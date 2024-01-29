@@ -60,6 +60,7 @@ void Texture::ReleaseUploadBuffers()
 
 void Texture::UpdateShaderVars()
 {
+	// 스카이 박스 전용이고 나머지는 Scene에서 한 프레임 당 한 번씩만 연결한다.
 	if (mSrvDescriptorHandle.ptr) {
 		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvDescriptorHandle);
 	}
@@ -79,13 +80,18 @@ void Texture::LoadTexture(const std::string& folder, const std::string& fileName
 	wfilePath.assign(filePath.begin(), filePath.end());
 
 	D3DUtil::CreateTextureResourceFromDDSFile(wfilePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	scene->CreateShaderResourceView(this, 0);
+	scene->CreateShaderResourceView(this);
 
 	mTextureMask |= MaterialMap::Albedo;
 }
 
 
-ComPtr<ID3D12Resource> Texture::CreateTextureResource(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
+ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
 {
-	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearValue);
+	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
+}
+
+ComPtr<ID3D12Resource> Texture::CreateTextureFromResource(ComPtr<ID3D12Resource> resource)
+{
+	return mTexture = resource;
 }

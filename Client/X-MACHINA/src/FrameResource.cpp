@@ -1,13 +1,6 @@
 #include "stdafx.h"
 #include "FrameResource.h"
 
-#pragma region PassConstants
-PassConstants::PassConstants()
-{
-	MRTTsIndices.fill(-1);
-}
-#pragma endregion
-
 #pragma region MaterialData
 MaterialData::MaterialData()
 {

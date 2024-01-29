@@ -194,9 +194,19 @@ namespace D3DUtil {
 		D3DUtil::ResourceTransition(texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, resourceStates);
 	}
 
-	ComPtr<ID3D12Resource> CreateTexture2DResource(UINT width, UINT height, UINT elements, UINT mipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourceFlags, D3D12_RESOURCE_STATES resourceStates, D3D12_CLEAR_VALUE* clearValue)
+	ComPtr<ID3D12Resource> CreateTexture2DResource(UINT width, UINT height, UINT elements, UINT mipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourceFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
 	{
 		ComPtr<ID3D12Resource> texture{};
+
+		D3D12_CLEAR_VALUE optimizedClearValue{};
+		D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr;
+
+		// add depth buffer
+		if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+			float color[4] = { clearColor.x, clearColor.y, clearColor.z, clearColor.w };
+			optimizedClearValue = CD3DX12_CLEAR_VALUE(dxgiFormat, color);
+			pOptimizedClearValue = &optimizedClearValue;
+		}
 
 		D3D12_HEAP_PROPERTIES heapProperties{};
 		heapProperties.Type                 = D3D12_HEAP_TYPE_DEFAULT;
@@ -218,13 +228,13 @@ namespace D3DUtil {
 		textureResourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		textureResourceDesc.Flags              = resourceFlags;
 
-		HRESULT hResult = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureResourceDesc, resourceStates, clearValue, IID_PPV_ARGS(&texture));
+		HRESULT hResult = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureResourceDesc, resourceStates, pOptimizedClearValue, IID_PPV_ARGS(&texture));
 		AssertHResult(hResult);
 
 		return texture;
 	}
 
-	void ResourceTransition(RComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
+	D3D12_RESOURCE_BARRIER ResourceTransition(RComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
 	{
 		D3D12_RESOURCE_BARRIER resourceBarrier{};
 		resourceBarrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -234,6 +244,7 @@ namespace D3DUtil {
 		resourceBarrier.Transition.StateAfter  = stateAfter;
 		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		cmdList->ResourceBarrier(1, &resourceBarrier);
+		return resourceBarrier;
 	}
 
 	D3D12_SHADER_BYTECODE CompileShaderFile(const std::wstring& fileName, LPCSTR shaderName, LPCSTR shaderProfile, ComPtr<ID3DBlob>& shaderBlob)

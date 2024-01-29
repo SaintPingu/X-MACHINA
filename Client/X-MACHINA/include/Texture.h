@@ -38,7 +38,7 @@ public:
 	const std::string& GetName() const							{ return mName; }
 	ComPtr<ID3D12Resource> GetResource() const					{ return mTexture; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle() const  { return mSrvDescriptorHandle; }
-	UINT GetGpuDescriptorHandleIndex() const					{ return mSrvDescriptorHandleIndex; }
+	const UINT GetGpuDescriptorHandleIndex() const				{ return mSrvDescriptorHandleIndex; }
 
 	// 현재 resource에 따른 SRV_DESC을 반환한다.
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc() const;
@@ -61,12 +61,16 @@ public:
 	void LoadTexture(const std::string& folder, const std::string& fileName);
 
 	// ID3D12Device::CreateCommittedResource
-	ComPtr<ID3D12Resource> CreateTextureResource (
+	ComPtr<ID3D12Resource> CreateTexture(
 		UINT					width,
 		UINT					height,
 		DXGI_FORMAT				dxgiFormat,
 		D3D12_RESOURCE_FLAGS	resourcecFlags,
 		D3D12_RESOURCE_STATES	resourceStates,
-		D3D12_CLEAR_VALUE*		clearValue);
+		Vec4					clearColor = Vec4{ 1.f, 1.f, 1.f, 1.f });
+
+	// 이미 생성된 리소스(backBuffers, depthStencilBuffers)로부터 텍스처를 생성하는 함수
+	ComPtr<ID3D12Resource> CreateTextureFromResource(
+		ComPtr<ID3D12Resource>	resource);
 };
 #pragma endregion

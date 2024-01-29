@@ -116,6 +116,7 @@ public:
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <D3d12SDKLayers.h>
+#include <d3dx12.h>
 
 /* Custom */
 #include "Singleton.h"
@@ -253,7 +254,7 @@ enum class TextureMap : UINT8 {
 };
 enum { TextureMapCount = static_cast<UINT8>(TextureMap::_count) };
 
-enum class MRT : UINT8 {
+enum class GBuffer : UINT8 {
 	Texture,
 	UI,
 	Normal,
@@ -262,7 +263,15 @@ enum class MRT : UINT8 {
 
 	_count
 };
-enum { MRTCount = static_cast<UINT8>(MRT::_count) };
+enum { GBufferCount = static_cast<UINT8>(GBuffer::_count) };
+
+enum class GroupType : UINT8 {
+	SwapChain = 0,
+	GBuffer,
+
+	_count
+};
+enum { MRTGroupTypeCount = static_cast<UINT8>(GroupType::_count) };
 #pragma endregion
 
 
@@ -555,9 +564,9 @@ namespace D3DUtil {
 		DXGI_FORMAT dxgiFormat,
 		D3D12_RESOURCE_FLAGS resourceFlags,
 		D3D12_RESOURCE_STATES resourceStates,
-		D3D12_CLEAR_VALUE* clearValue);
+		Vec4 clearValue);
 
-	void ResourceTransition(
+	D3D12_RESOURCE_BARRIER ResourceTransition(
 		RComPtr<ID3D12Resource> resource,
 		D3D12_RESOURCE_STATES stateBefore,
 		D3D12_RESOURCE_STATES stateAfter);

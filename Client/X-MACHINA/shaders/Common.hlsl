@@ -69,13 +69,12 @@ struct PassInfo {
     
     float       FogStart;
     float       FogRange;
+    
     int         RT1_TextureIndex;
     int         RT2_UIIndex;
-    
     int         RT3_NormalIndex;
     int         RT4_DistanceIndex;
     int         RT5_DepthIndex;
-    float       Padding;
 };
 
 struct ColliderInfo {

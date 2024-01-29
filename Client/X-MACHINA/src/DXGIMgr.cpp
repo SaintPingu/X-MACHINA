@@ -4,6 +4,7 @@
 
 #include "Scene.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "MultipleRenderTarget.h"
 #include "BlurFilter.h"
 
@@ -17,12 +18,7 @@ DXGIMgr::DXGIMgr()
 	mClientWidth(gkFrameBufferWidth),
 	mClientHeight(gkFrameBufferHeight)
 {
-	mFilterOption = FilterOption::Blur;
-}
-
-void DXGIMgr::SetMRTTsPassConstants(PassConstants& passConstants)
-{
-	mMRT->SetMRTTsPassConstants(passConstants);
+	mFilterOption = FilterOption::None;
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -35,14 +31,13 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateRtvAndDsvDescriptorHeaps();
 
 	CreateSwapChain();
-	CreateSwapChainRTVs();
 	CreateDSV();
 
 	CreateFrameResources();
 
 	BuildScene();
 
-	CreateMRT();
+	CreateMRTs();
 	CreateFilter();
 }
 
@@ -71,68 +66,65 @@ void DXGIMgr::Render()
 {
 	// 현재 프레임의 명령 할당자를 가져온다.
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
-
 	cmdAllocator->Reset();
+
 	RenderBegin();
 
-	// set before barrier (present -> render target)
-	D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+#pragma region ClearRTVs
+	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
+	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
+	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
+#pragma endregion
 
-#pragma region MainRender Pass
+#pragma region MainRender
 	switch (mDrawOption) {
 	case DrawOption::Main:
 	{
-		// clear DSV
-		ClearDepthStencil();
-
-#pragma region Shadow
+		// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
 		scene->RenderShadow();
-#pragma endregion
 
-#pragma region Deferred
-		// clear RTV & set output merge
-		mMRT->OnPrepareRenderTargets(&mRtvHandles[mSwapChainBuffCurrIdx], &mDsvHandle);
+		// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
+		GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
 		scene->RenderDeferred();
+		GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
-		// for ResourceTransition
-		mMRT->OnPostRenderTarget();
-#pragma endregion
-
-#pragma region Lights
+		// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
 		scene->RenderLights();
-#pragma endregion
 
-#pragma region Forward
-		// render to back buffer
-		mCmdList->OMSetRenderTargets(1, &mRtvHandles[mSwapChainBuffCurrIdx], FALSE, &mDsvHandle);
+		// 후면 버퍼를 렌더 타겟으로 설정하고 포워드 렌더링
+		GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 		scene->RenderFinal();
-
 		scene->RenderForward();
-#pragma endregion
 	}
 	break;
 	}
 #pragma endregion
 
-#pragma region PostProcessing Pass
+#pragma region PostProcessing
 	switch (mFilterOption)
 	{
 	case FilterOption::None:
 	{
-		//imgui->Present();
-		D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		// 현재 후면 버퍼 텍스처 리소스를 가져온다.
+		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
+
+		// 필터가 없는 경우 리소스 상태를 렌더 타겟 상태에서 제시 상태로 변경한다.
+		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 	}
 	break;
 	case FilterOption::Blur:
 	{
-		// 필터 실행 후 후면 버퍼의 리소스 상태는 COPY_SOURCE이다.
-		mBlurFilter->Execute(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), 4);
+		// 현재 후면 버퍼 텍스처 리소스를 가져온다.
+		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
 
-		// 흐리기 작업이 완료된 블러의 리소스를 다시 후면 버퍼에 복사
-		mBlurFilter->CopyResource(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get());
+		// 후면 버퍼를 필터 리소스에 복사하여 블러 필터를 실행한다.
+		mBlurFilter->Execute(backBuffer.Get(), 4);
 
-		//imgui->Present();
-		D3DUtil::ResourceTransition(mSwapChainBuffers[mSwapChainBuffCurrIdx].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
+		// 완료된 필터 리소스를 후면 버퍼에 복사한다.
+		mBlurFilter->CopyResource(backBuffer.Get());
+
+		// 후면 버퍼를 복사하였기 때문에 리소스 상태를 COPY_DEST에서 PRESENT로 변경한다.
+		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
 	}
 	break;
 	}
@@ -164,8 +156,6 @@ void DXGIMgr::ClearDepthStencil()
 	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, NULL);
 }
 
-
-
 void DXGIMgr::RenderBegin()
 {
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
@@ -177,9 +167,6 @@ void DXGIMgr::RenderEnd()
 	mCmdList->Close();
 	ID3D12CommandList* cmdLists[] = { mCmdList.Get() };
 	mCmdQueue->ExecuteCommandLists(1, cmdLists);
-
-	// 다음 프레임으로 넘어갈 때 동기화를 하지 않는다.
-	//WaitForGpuComplete();
 }
 
 
@@ -280,20 +267,16 @@ void DXGIMgr::CreateCmdQueueAndList()
 
 void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
 {
-	// Create RTV
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = mSwapChainBuffCnt + mRtvCnt;		// RTV는 (swap chain buffer 개수 + 추가 render target(for MRT) 개수)로 구성된다
-	descriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	descriptorHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descriptorHeapDesc.NodeMask       = 0;
-	HRESULT hResult                   = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mRtvHeap));
-	AssertHResult(hResult);
-
 	// Create DSV
 	constexpr int kDepthStencilBuffCnt = 1; // Depth 버퍼는 1개만 사용한다.
+
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = kDepthStencilBuffCnt;
-	descriptorHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	hResult                           = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
+	descriptorHeapDesc.Type			  = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	descriptorHeapDesc.Flags		  = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descriptorHeapDesc.NodeMask		  = 0;
+
+	HRESULT hResult = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
 	AssertHResult(hResult);
 }
 
@@ -332,28 +315,9 @@ void DXGIMgr::CreateSwapChain()
 	hResult           = mFactory->MakeWindowAssociation(mWnd, DXGI_MWA_NO_ALT_ENTER);
 	AssertHResult(hResult);
 
-	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
+	mCurrBackBufferIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 }
-
-void DXGIMgr::CreateSwapChainRTVs()
-{
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format               = DXGI_FORMAT_R8G8B8A8_UNORM;
-	rtvDesc.ViewDimension        = D3D12_RTV_DIMENSION_TEXTURE2D;
-	rtvDesc.Texture2D.MipSlice   = 0;
-	rtvDesc.Texture2D.PlaneSlice = 0;
-
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
-	// swap chain의 개수만큼 render target view를 생성한다.
-	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
-		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffers[i]));
-		mDevice->CreateRenderTargetView(mSwapChainBuffers[i].Get(), &rtvDesc, rtvHandle);
-		mRtvHandles[i] = rtvHandle;
-		rtvHandle.ptr += mRtvDescriptorIncSize;
-	}
-}
-
 
 void DXGIMgr::CreateDSV()
 {
@@ -390,15 +354,53 @@ void DXGIMgr::CreateDSV()
 }
 
 
-void DXGIMgr::CreateMRT()
+void DXGIMgr::CreateMRTs()
 {
-	mMRT = std::make_shared<MultipleRenderTarget>();
+#pragma region SwapChain
+	{
+		std::vector<RenderTarget> rts(mSwapChainBuffCnt);
 
-	// 마지막으로 생성한 RTV 다음 위치에 새로운 RTV를 생성한다.
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = mRtvHandles.back();
-	rtvHandle.ptr += mRtvDescriptorIncSize;
+		// 후면 버퍼 리소스를 MRT 타겟에 설정한다. 
+		for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
+			ComPtr<ID3D12Resource> resource;
+			mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
+			rts[i].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+			rts[i].Target->CreateTextureFromResource(resource);
+		}
 
-	mMRT->CreateResourcesAndRtvsSrvs(rtvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::SwapChain)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
+	}
+#pragma endregion
+
+#pragma region GBuffer
+	{
+		std::vector<RenderTarget> rts(GBufferCount);
+
+		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		rts[3].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[3].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		rts[4].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[4].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDsvHandle);
+	}
+#pragma endregion
 
 	// create SRV for DepthStencil buffer
 	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
@@ -414,6 +416,8 @@ void DXGIMgr::ChangeSwapChainState()
 {
 	WaitForGpuComplete();
 
+	mCmdList->Reset(mCmdAllocator.Get(), nullptr);
+
 	BOOL isFullScreenState = FALSE;
 	mSwapChain->GetFullscreenState(&isFullScreenState, NULL);
 	mSwapChain->SetFullscreenState(!isFullScreenState, NULL);
@@ -428,21 +432,39 @@ void DXGIMgr::ChangeSwapChainState()
 	dxgiTargetParameters.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	mSwapChain->ResizeTarget(&dxgiTargetParameters);
 
-	for (int i = 0; i < mSwapChainBuffers.size(); i++) {
-		mSwapChainBuffers[i] = nullptr;
-	}
+	// 렌더 타겟을 모두 해제한다.
+	GetMRT(GroupType::SwapChain)->ReleaseRenderTargets();
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	mSwapChain->GetDesc(&swapChainDesc);
-	HRESULT hResult = mSwapChain->ResizeBuffers(mSwapChainBuffCnt, mClientWidth, mClientHeight, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags);
+	HRESULT hResult = mSwapChain->ResizeBuffers(
+		mSwapChainBuffCnt, 
+		mClientWidth, 
+		mClientHeight, 
+		swapChainDesc.BufferDesc.Format, 
+		swapChainDesc.Flags);
 	AssertHResult(hResult);
 
-	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
+	mCurrBackBufferIdx = mSwapChain->GetCurrentBackBufferIndex();
 
-	CreateSwapChainRTVs();
+	// 텍스처와 MRT를 새로 생성한다.
+	std::vector<RenderTarget> rts(mSwapChainBuffCnt);
+	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
+		ComPtr<ID3D12Resource> resource;
+		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
+		rts[i].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[i].Target->CreateTextureFromResource(resource);
+	}
+	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
 
 	// 윈도우 사이즈가 변경되면 필터도 다시 생성해야 한다.
 	mBlurFilter->OnResize(mClientWidth, mClientHeight);
+
+	mCmdList->Close();
+	ID3D12CommandList* cmdsLists[] = { mCmdList.Get() };
+	mCmdQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	WaitForGpuComplete();
 }
 
 void DXGIMgr::CreateFilter()
@@ -465,7 +487,7 @@ void DXGIMgr::WaitForGpuComplete()
 void DXGIMgr::MoveToNextFrame()
 {
 	// 다음 프레임으로 넘어갈 때 동기화를 하지 않는다.
-	mSwapChainBuffCurrIdx = mSwapChain->GetCurrentBackBufferIndex();
+	mCurrBackBufferIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 	mFrameResourceMgr->GetCurrFrameResource()->Fence = ++mFenceValues;
 

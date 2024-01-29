@@ -5,40 +5,65 @@ class Texture;
 struct PassConstants;
 #pragma endregion
 
+
+#pragma region Struct
+struct RenderTarget {
+	sptr<Texture>				Target{};
+	std::array<float, 4>		ClearColor{ 1.f, 1.f, 1.f, 1.f };
+	D3D12_CPU_DESCRIPTOR_HANDLE	RtvHandle{};
+};
+#pragma endregion
+
 #pragma region Class
 class MultipleRenderTarget
 {
-private:
-	std::vector<sptr<Texture>> mTextures{};
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> mRtvHandles{};
+public:
+	static constexpr UINT mMaxRtCnt = 8;
 
-	UINT mRtvCnt{};
-	const DXGI_FORMAT* mRtvFormats{};
+private:
+	GroupType mGroupType{};
+
+	UINT mRtCnt{};
+	std::vector<RenderTarget> mRts{};
+
+	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};							// RTV 힙
+	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};						// DSV 핸들
+	D3D12_CPU_DESCRIPTOR_HANDLE		mRtvHeapBegin{};					// RTV 핸들(시작 주소)
+
+	std::array<D3D12_RESOURCE_BARRIER, mMaxRtCnt> mTargetToResource{};	// 렌더 타겟에서 리소스로
+	std::array<D3D12_RESOURCE_BARRIER, mMaxRtCnt> mResourceToTarget{};	// 리소스에서 렌더 타겟으로
 
 public:
-	MultipleRenderTarget();
+#pragma region C/Dtor
+	MultipleRenderTarget()			= default;
 	virtual ~MultipleRenderTarget() = default;
+#pragma endregion
 
 public:
-	// set multiple render target textures of pass constants buffer
-	void SetMRTTsPassConstants(PassConstants& passConstants);
+#pragma region Getter
+	rsptr<Texture> GetTexture(UINT index) const;
+	rsptr<Texture> GetTexture(GBuffer index) const;
+#pragma endregion
 
-	// texture resource를 생성하고 이에 대한 SRV와 RTV를 생성한다
-	void CreateResourcesAndRtvsSrvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+public:
+	void Create(GroupType groupType, std::vector<RenderTarget>&& rts, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle);
 
-	// 각 RTV의 handle을 OutputMerger에 Set한다.
-	void OnPrepareRenderTargets(D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle);
-	
-	// 렌더링 후 리소스의 상태를 전이한다. (ResourceBarrier)
-	void OnPostRenderTarget();
+	// set render targets
+	void OMSetRenderTargets();
+	void OMSetRenderTargets(UINT count, UINT index);
 
-private:
-	// texture resource를 생성한다 (ID3D12Resource)
-	void CreateTextureResources();
-	// resource의 SRV Descriptor를 생성한다. (ID3D12Device::CreateShaderResourceView)
-	void CreateSrvs();
-	// resource의 RTV Descriptor를 생성한다. (ID3D12Device::CreateRenderTargetView)
-	void CreateRtvs(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+	// clear RTVs
+	void ClearRenderTargetView();
+	void ClearRenderTargetView(UINT index);
+
+	// resource barrier for only render target
+	void WaitTargetToResource();
+	void WaitResourceToTarget();
+	void WaitTargetToResource(UINT index);
+	void WaitResourceToTarget(UINT index);
+
+	// clear render targets vec
+	void ReleaseRenderTargets();
 
 };
 #pragma endregion

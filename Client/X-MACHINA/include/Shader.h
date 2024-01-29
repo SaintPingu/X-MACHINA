@@ -14,8 +14,13 @@ class Script_Bullet;
 struct PassConstants;
 #pragma endregion
 
-
-
+#pragma region EnumClass
+enum class ShaderType : UINT8
+{
+	Forward = 0,
+	Deferred,
+};
+#pragma endregion
 
 #pragma region Class
 // Pipeline State 객체들을 가지는 클래스
@@ -25,6 +30,8 @@ private:
 	bool mIsClosed{ false };	// PipelineState생성을 종료하고 불필요 메모리를 해제했는가?
 
 protected:
+	ShaderType mShaderType{};
+
 	std::vector<ComPtr<ID3D12PipelineState>>	mPipelineStates{};
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC			mPipelineStateDesc{};	// 마지막으로 설정된 PipelineStateDesc
 
@@ -32,12 +39,12 @@ protected:
 	ComPtr<ID3DBlob> mPSBlob{};
 
 public:
-	Shader() = default;
+	Shader() : mShaderType(ShaderType::Forward) {};
 	virtual ~Shader();
 
 public:
 	// [mPipelineStateDesc]를 설정하고 PipelineState를 생성한다.
-	virtual void Create(DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT, bool isClose = true);
+	virtual void Create(ShaderType shaderType = ShaderType::Forward, DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT, bool isClose = true);
 
 	// [pipelineStateIndex]의 PipelineState를 설정하고 쉐이더 변수를 업데이트한다.
 	// 렌더링 전 반드시 이 함수를 호출해야한다.

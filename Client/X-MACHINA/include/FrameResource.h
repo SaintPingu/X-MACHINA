@@ -19,18 +19,17 @@ enum {
 
 #pragma region Struct
 struct PassConstants {
-public:
     Matrix      MtxView{};
     Matrix      MtxProj{};
     Vec3        EyeW{};
     float       DeltaTime{};
     SceneLight  Lights{};
     
-    std::array<int, MRTCount> MRTTsIndices{};
-    float Padding{};
-
-public:
-    PassConstants();
+    int         RT1_TextureIndex    = -1;
+    int         RT2_UIIndex         = -1;
+    int         RT3_NormalIndex     = -1;
+    int         RT4_DistanceIndex   = -1;
+    int         RT5_DepthIndex      = -1;
 };
 
 struct ObjectConstants {

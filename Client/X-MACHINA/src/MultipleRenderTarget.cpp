@@ -47,7 +47,18 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		rtvDesc.Texture2D.PlaneSlice = 0;
 		rtvDesc.Format = mRts[i].Target->GetResource()->GetDesc().Format;
 
-		scene->CreateShaderResourceView(mRts[i].Target.get());
+		// 후면 버퍼일 경우 SRV를 생성하지 않는다.
+		switch (groupType)
+		{
+		case GroupType::SwapChain:
+			break;
+		case GroupType::GBuffer:	
+			scene->CreateShaderResourceView(mRts[i].Target.get());
+			break;
+		default:
+			break;
+		}
+
 		device->CreateRenderTargetView(mRts[i].Target->GetResource().Get(), &rtvDesc, mRts[i].RtvHandle);
 	}
 

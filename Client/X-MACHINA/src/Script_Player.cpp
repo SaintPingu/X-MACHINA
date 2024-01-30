@@ -5,7 +5,7 @@
 #include "Scene.h"
 #include "Rigidbody.h"
 #include "UI.h"
-
+#include <iostream>
 
 namespace {
 	BoundingBox border = { Vec3(256, 100, 256), Vec3(2400, 1100, 2400) };
@@ -29,6 +29,7 @@ void Script_Player::Start()
 void Script_Player::Update()
 {
 	Vec3 pos = mObject->GetPosition();
+
 	if (!border.Contains(_VECTOR(pos))) {
 		mObject->ReturnToPrevTransform();
 	}

@@ -6,26 +6,19 @@ struct VSOutput_Inst {
     float4 Color : COLOR;
 };
 
-
-/*
-// WITH_POSTPROCESSING - has error (color isn't apply)
-
 struct PSOutput_MRT {
-    float4 Texture : SV_TARGET1;
+    float4 Texture : SV_TARGET0;
     float  Distance : SV_TARGET4;
 };
 
 PSOutput_MRT PSInstancing(VSOutput_Inst input)
 {
+    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
+    
     PSOutput_MRT output;
+    //output.Texture = mat.Diffuse; // 해당 값이 실제 모델의 머티리얼 정보 값이다.
     output.Texture = input.Color;
-    output.Distance = input.PositionW;
+    output.Distance = input.PosW;
     
     return output;
-}
-*/
-
-float4 PSInstancing(VSOutput_Inst input) : SV_TARGET
-{
-    return input.Color;
 }

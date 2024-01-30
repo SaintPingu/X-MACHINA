@@ -248,8 +248,8 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT1_TextureIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Texture)->GetGpuDescriptorHandleIndex();
 	passConstants.RT2_UIIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::UI)->GetGpuDescriptorHandleIndex();
 	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
-	passConstants.RT4_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
-	passConstants.RT5_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
+	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
+	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
 	
 	frmResMgr->CopyData(passConstants);
@@ -642,6 +642,7 @@ void Scene::RenderDeferred()
 	RenderGridObjects();	
 	RenderEnvironments();	
 	RenderInstanceObjects();
+	RenderBullets();
 
 	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
 	RenderTerrain();
@@ -668,7 +669,6 @@ void Scene::RenderForward()
 	// 렌더 타겟 텍스처에 렌더링하는 것이 아닌 후면 버퍼에 바로 렌더링한다.
 	// forward 쉐이더를 사용하는 오브젝트가 조명을 사용하고자 한다면 
 	// 바로 해당 쉐이더에서 lighting 연산을 수행한다.
-	RenderBullets(); 
 	RenderFXObjects(); 
 	RenderBillboards();
 

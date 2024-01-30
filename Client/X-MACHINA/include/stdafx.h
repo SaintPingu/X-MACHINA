@@ -132,6 +132,14 @@ public:
 // 메모리 누수 검사, new를 하고 delete를 하지 않은 경우 그 위치를 보여준다.
 #define _CRTDBG_MAP_ALLOC
 
+#ifdef _DEBUG
+#ifdef UNICODE                                                                                      
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
+#else                                                                                                    
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")   
+#endif                                                                                                   
+#endif        
+
 #pragma region Imgui - 장재문 -
 //#define new new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #pragma endregion
@@ -255,11 +263,11 @@ enum class TextureMap : UINT8 {
 enum { TextureMapCount = static_cast<UINT8>(TextureMap::_count) };
 
 enum class GBuffer : UINT8 {
-	Texture,
+	Texture = 0,
 	UI,
 	Normal,
-	Distance,
 	Depth,
+	Distance,
 
 	_count
 };

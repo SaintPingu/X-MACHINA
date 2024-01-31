@@ -29,9 +29,9 @@ PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
     output.Distance = length(input.PosW - gPassCB.CameraPos);
     
     if (mat.DiffuseMap0Index != -1)
-        output.Texture = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV) * illumination;
+        output.Texture = GammaDecoding(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV)) * illumination;
     else 
-        output.Texture = illumination;
+        output.Texture = GammaDecoding(illumination);
     
     return output;
 }

@@ -102,4 +102,16 @@ TextureCube     gSkyBoxTexture            : register(t1);
 Texture2D       gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
 SamplerState    gSamplerState             : register(s0);
 
+// 감마 보정을 적용하는 함수
+float4 GammaEncoding(float4 color)
+{
+    return float4(pow(color.rgb, 1 / 2.2f), color.a);
+}
+
+// 감마 보정을 해제하는 함수
+float4 GammaDecoding(float4 color)
+{
+    return float4(pow(color.rgb, 2.2f), color.a);
+}
+
 #endif

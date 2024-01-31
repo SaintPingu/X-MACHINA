@@ -28,24 +28,24 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain input)
     
     if (splatColor.r > 0.f)
     {
-        layer0 = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV0);
+        layer0 = GammaDecoding(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV0));
         layer0 *= splatColor.r;
 
     }
     if (splatColor.g > 0.f)
     {
-        layer1 = gTextureMap[mat.DiffuseMap1Index].Sample(gSamplerState, input.UV0);
+        layer1 = GammaDecoding(gTextureMap[mat.DiffuseMap1Index].Sample(gSamplerState, input.UV0));
         layer1 *= splatColor.g;
     }
     if (splatColor.b > 0.f)
     {
-        layer2 = gTextureMap[mat.DiffuseMap2Index].Sample(gSamplerState, input.UV0);
+        layer2 = GammaDecoding(gTextureMap[mat.DiffuseMap2Index].Sample(gSamplerState, input.UV0));
         layer2 *= splatColor.b;
     }
 
     float4 texColor = normalize(layer0 + layer1 + layer2);
     
-    output.Texture  = lerp(illumination, texColor, .5f);
+    output.Texture  = texColor * illumination;
     output.Distance = length(input.PosW - gPassCB.CameraPos);
     
     return output;

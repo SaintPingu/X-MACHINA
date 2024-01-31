@@ -9,17 +9,17 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
-float4 PS_Standard(VSOutput_Standard input) : SV_TARGET
+float4 PSStandard(VSOutput_Standard input) : SV_TARGET
 {
     MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
     
     if (mat.DiffuseMap0Index != -1)
     {
-        float4 color        = gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV);
+        float4 color        = GammaDecoding(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV));
         float3 normalW      = normalize(input.NormalW);
         float4 illumination = Lighting(mat, input.PosW, normalW);
         
-        return Fog(lerp(color, illumination, 0.5f), input.PosW);
+        return Fog(GammaEncoding(color * illumination), input.PosW);
     }
     else
     {

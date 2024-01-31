@@ -102,12 +102,14 @@ TextureCube     gSkyBoxTexture            : register(t1);
 Texture2D       gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
 SamplerState    gSamplerState             : register(s0);
 
+// 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding하여 출력한다.
+// 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding되어 저장된다.
+// 따라서 빛, 조명과 관련된 연산은 비선형 공간이 아닌 선형 공간에서 처리해야 한다.
 // 감마 보정을 적용하는 함수
 float4 GammaEncoding(float4 color)
 {
     return float4(pow(color.rgb, 1 / 2.2f), color.a);
 }
-
 // 감마 보정을 해제하는 함수
 float4 GammaDecoding(float4 color)
 {

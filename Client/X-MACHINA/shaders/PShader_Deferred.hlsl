@@ -15,7 +15,7 @@ struct VSOutput_Standard {
 };
 
 #ifdef POST_PROCESSING
-PSOutput_MRT PSTexturedLightingToMultipleRTs(VSOutput_Standard input)
+PSOutput_MRT PSDeferred(VSOutput_Standard input)
 {
     PSOutput_MRT output;
     MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];

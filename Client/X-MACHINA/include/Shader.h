@@ -68,30 +68,24 @@ protected:
 	void Close();
 };
 
-
-
-
-// for rendering wireframe
-class WireShader : public Shader {
+// [ DeferredShader ] //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class DeferredShader : public Shader {
 public:
-	WireShader()          = default;
-	virtual ~WireShader() = default;
+	DeferredShader()          = default;
+	virtual ~DeferredShader() = default;
 
 protected:
-	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const override { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; }
-
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
-
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+
 };
 
-
-
-
 // for rendering instancing GameObjects
-class ColorInstShader : public Shader {
+class ColorInstShader : public DeferredShader {
 public:
 	ColorInstShader() = default;
 	virtual ~ColorInstShader() = default;
@@ -102,42 +96,8 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
-
-
-
-// for rendering 3d effect GameObjects that has texture
-class TexturedEffectShader : public ColorInstShader {
-public:
-	TexturedEffectShader() = default;
-	virtual ~TexturedEffectShader() = default;
-
-protected:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
-};
-
-
-
-
-// for rendering GameObjects that has texture
-class TexturedShader : public Shader {
-public:
-	TexturedShader()          = default;
-	virtual ~TexturedShader() = default;
-
-protected:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
-
-};
-
-
-
-
 // for rendering instancing GameObjects that has texture
-class ObjectInstShader : public TexturedShader {
+class ObjectInstShader : public DeferredShader {
 public:
 	ObjectInstShader()          = default;
 	virtual ~ObjectInstShader() = default;
@@ -146,25 +106,8 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 };
 
-
-
-
-// for rendering transparent GameObjects
-class TransparentShader : public TexturedShader {
-public:
-	TransparentShader()          = default;
-	virtual ~TransparentShader() = default;
-
-protected:
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
-	virtual D3D12_BLEND_DESC CreateBlendState() override;
-};
-
-
-
-
 // for rendering Terrain
-class TerrainShader : public Shader {
+class TerrainShader : public DeferredShader {
 public:
 	TerrainShader()          = default;
 	virtual ~TerrainShader() = default;
@@ -178,28 +121,8 @@ protected:
 
 };
 
-
-
-
-// for rendering SkyBox
-class SkyBoxShader : public Shader {
-public:
-	SkyBoxShader()          = default;
-	virtual ~SkyBoxShader() = default;
-
-protected:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
-};
-
-
-
-
 // for rendering instancing GameObjects
-class WaterShader : public TexturedShader {
+class WaterShader : public DeferredShader {
 public:
 	WaterShader()          = default;
 	virtual ~WaterShader() = default;
@@ -212,45 +135,78 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
-
-
-
-// for post processing
-class PostProcessingShader : public Shader {
+// [ ForwardShader ] //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class ForwardShader : public Shader {
 public:
-	PostProcessingShader()			= default;
-	virtual ~PostProcessingShader() = default;
-
-public:
-	virtual void Set(int pipelineStateIndex = 0) override;
+	ForwardShader() = default;
+	virtual ~ForwardShader() = default;
 
 protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+
+};
+
+// for rendering wireframe
+class WireShader : public ForwardShader {
+public:
+	WireShader() = default;
+	virtual ~WireShader() = default;
+
+protected:
+	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const override { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; }
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+};
+
+// for rendering 3d effect GameObjects that has texture
+class TexturedEffectShader : public ForwardShader {
+public:
+	TexturedEffectShader() = default;
+	virtual ~TexturedEffectShader() = default;
+
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+};
+
+// for rendering transparent GameObjects
+class TransparentShader : public ForwardShader {
+public:
+	TransparentShader() = default;
+	virtual ~TransparentShader() = default;
+
+protected:
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
+	virtual D3D12_BLEND_DESC CreateBlendState() override;
+};
+
+// for rendering SkyBox
+class SkyBoxShader : public Shader {
+public:
+	SkyBoxShader() = default;
+	virtual ~SkyBoxShader() = default;
+
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
-
-
-
-// for rendering 2D texture to screen
-class TextureToScreenShader : public PostProcessingShader {
-public:
-	TextureToScreenShader()          = default;
-	virtual ~TextureToScreenShader() = default;
-
-protected:
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
-};
-
-
-
-
 #pragma region BillboardShader
 // for rendering billboard GameObjects
-class BillboardShader : public TexturedShader {
+class BillboardShader : public ForwardShader {
 public:
 	BillboardShader()          = default;
 	virtual ~BillboardShader() = default;
@@ -274,11 +230,8 @@ protected:
 };
 #pragma endregion
 
-
-
-
 // for rendering UI (2D plane)
-class CanvasShader : public TexturedShader {
+class CanvasShader : public ForwardShader {
 public:
 	CanvasShader()          = default;
 	virtual ~CanvasShader() = default;
@@ -291,11 +244,29 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
+
+// for post processing
+class FinalShader : public ForwardShader {
+public:
+	FinalShader() = default;
+	virtual ~FinalShader() = default;
+
+public:
+	virtual void Set(int pipelineStateIndex = 0) override;
+
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+};
 #pragma endregion
 
-
-
-
+// [ ComputeShader ] //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region ComputeShader
 class ComputeShader {
 private:
@@ -320,9 +291,6 @@ protected:
 	void Close();
 };
 
-
-
-
 // ºˆ∆Ú »Â∏Æ±‚ Ω¶¿Ã¥ı
 class HorzBlurShader : public ComputeShader {
 public:
@@ -342,8 +310,5 @@ public:
 protected:
 	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
 };
-
 #pragma endregion
-
-
 #pragma endregion

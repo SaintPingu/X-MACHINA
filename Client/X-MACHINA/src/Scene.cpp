@@ -335,7 +335,7 @@ void Scene::BuildForwardShader()
 	mSpriteShader = std::make_shared<SpriteShader>();
 	mSpriteShader->Create(shaderType);
 
-	mFinalShader = std::make_shared<TextureToScreenShader>();
+	mFinalShader = std::make_shared<FinalShader>();
 	mFinalShader->Create(shaderType, DXGI_FORMAT_D32_FLOAT);
 }
 
@@ -343,7 +343,7 @@ void Scene::BuildDeferredShader()
 {
 	ShaderType shaderType = ShaderType::Deferred;
 
-	mGlobalShader = std::make_shared<TexturedShader>();
+	mGlobalShader = std::make_shared<DeferredShader>();
 	mGlobalShader->Create(shaderType);
 
 	mInstShader = std::make_shared<ObjectInstShader>();

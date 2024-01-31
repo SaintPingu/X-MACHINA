@@ -8,6 +8,7 @@ struct VSOutput_Skybox {
 float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
 {
     float4 color = gSkyBoxTexture.Sample(gSamplerState, input.PosL);
-
-    return lerp(color, gPassCB.FogColor, 0.9f);
+    
+    return color;
+    //return lerp(color, gPassCB.FogColor, 0.9f);
 }

@@ -310,5 +310,16 @@ public:
 protected:
 	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
 };
+
+// Look-Up-Table Ω¶¿Ã¥ı
+class LUTShader : public ComputeShader {
+public:
+	LUTShader()			 = default;
+	virtual ~LUTShader() = default;
+
+protected:
+	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
+};
+
 #pragma endregion
 #pragma endregion

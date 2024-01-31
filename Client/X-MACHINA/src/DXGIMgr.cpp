@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "MultipleRenderTarget.h"
 #include "BlurFilter.h"
+#include "LUTFilter.h"
 
 #pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
 #include "../Imgui/ImguiMgr.h"
@@ -18,7 +19,7 @@ DXGIMgr::DXGIMgr()
 	mClientWidth(gkFrameBufferWidth),
 	mClientHeight(gkFrameBufferHeight)
 {
-	mFilterOption = FilterOption::None;
+	mFilterOption = FilterOption::LUT;
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -122,6 +123,21 @@ void DXGIMgr::Render()
 
 		// 완료된 필터 리소스를 후면 버퍼에 복사한다.
 		mBlurFilter->CopyResource(backBuffer.Get());
+
+		// 후면 버퍼를 복사하였기 때문에 리소스 상태를 COPY_DEST에서 PRESENT로 변경한다.
+		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
+	}
+	break;
+	case FilterOption::LUT:
+	{
+		// 현재 후면 버퍼 텍스처 리소스를 가져온다.
+		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
+
+		// 후면 버퍼를 필터 리소스에 복사하여 블러 필터를 실행한다.
+		mLUTFilter->Execute(backBuffer.Get());
+
+		// 완료된 필터 리소스를 후면 버퍼에 복사한다.
+		mLUTFilter->CopyResource(backBuffer.Get());
 
 		// 후면 버퍼를 복사하였기 때문에 리소스 상태를 COPY_DEST에서 PRESENT로 변경한다.
 		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
@@ -471,6 +487,9 @@ void DXGIMgr::CreateFilter()
 {
 	mBlurFilter = std::make_unique<BlurFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
 	mBlurFilter->Create();
+
+	mLUTFilter = std::make_unique<LUTFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
+	mLUTFilter->Create();
 }
 
 void DXGIMgr::WaitForGpuComplete()

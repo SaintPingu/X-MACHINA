@@ -770,3 +770,7 @@ D3D12_SHADER_BYTECODE VertBlurShader::CreateComputeShader()
 }
 #pragma endregion
 
+D3D12_SHADER_BYTECODE LUTShader::CreateComputeShader()
+{
+	return D3DUtil::CompileShaderFile(L"CShader_LUT.hlsl", "LUTCS", "cs_5_1", mCSBlob);
+}

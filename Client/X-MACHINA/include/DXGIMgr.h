@@ -12,6 +12,7 @@ class PostProcessingShader;
 class FrameResourceMgr;
 class MultipleRenderTarget;
 class BlurFilter;
+class LUTFilter;
 
 struct PassConstants;
 #pragma endregion
@@ -24,9 +25,11 @@ enum class DrawOption {
 	Depth,
 };
 
+// 추후에 DWORD를 상속받을 변경할 예정
 enum class FilterOption {
 	None = 0,
 	Blur,
+	LUT,
 };
 #pragma endregion
 
@@ -84,6 +87,7 @@ private:
 	// filter
 	FilterOption		mFilterOption{};
 	uptr<BlurFilter>	mBlurFilter;
+	uptr<LUTFilter>		mLUTFilter;
 
 	DrawOption		mDrawOption{};
 

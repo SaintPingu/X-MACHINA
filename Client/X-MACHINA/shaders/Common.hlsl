@@ -116,4 +116,9 @@ float4 GammaDecoding(float4 color)
     return float4(pow(color.rgb, 2.2f), color.a);
 }
 
+float4 Mix(float4 colorA, float4 colorB, float t)
+{
+    return colorA * (1 - t) + colorB * t;
+}
+
 #endif

@@ -244,6 +244,8 @@ enum class RootParam {
 	// Compute RootParam
 	Weight = 0,
 	Read,
+	LUT0,
+	LUT1,
 	Write,
 };
 

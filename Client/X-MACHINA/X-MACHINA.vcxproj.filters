@@ -247,6 +247,9 @@
     <ClCompile Include="src\BlurFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
+    <ClCompile Include="src\LUTFilter.cpp">
+      <Filter>소스 파일\PostProcessing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -420,6 +423,9 @@
     <ClInclude Include="include\BlurFilter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\LUTFilter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\VShader_Billboard.hlsl">
@@ -429,9 +435,6 @@
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Instance.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\VShader_Post.hlsl">
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Rect.hlsl">
@@ -476,15 +479,6 @@
     <FxCompile Include="shaders\PShader_Instance.hlsl">
       <Filter>소스 파일\Shaders\PS\Forward</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PShader_MRT.hlsl">
-      <Filter>소스 파일\Shaders\PS\Deferred</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_Post.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_Rect.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\PShader_Skybox.hlsl">
       <Filter>소스 파일\Shaders\PS\Forward</Filter>
     </FxCompile>
@@ -505,6 +499,15 @@
     </FxCompile>
     <FxCompile Include="shaders\PShader_Wired.hlsl">
       <Filter>소스 파일\Shaders\PS\Forward</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Deferred.hlsl">
+      <Filter>소스 파일\Shaders\PS\Deferred</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Final.hlsl">
+      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CShader_LUT.hlsl">
+      <Filter>소스 파일\Shaders\CS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

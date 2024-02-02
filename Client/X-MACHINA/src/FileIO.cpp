@@ -8,8 +8,10 @@
 #include "Light.h"
 #include "Collider.h"
 #include "Texture.h"
+#include "Animator.h"
 #include "AnimationClip.h"
-#include "AnimationController.h"
+#include "AnimatorState.h"
+#include "AnimatorController.h"
 
 
 namespace {
@@ -487,10 +489,10 @@ namespace FileIO {
 	}
 
 
-	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName)
+	sptr<MasterModel> LoadGeometryFromFile(const std::string& filePath)
 	{
 		FILE* file = nullptr;
-		::fopen_s(&file, fileName.c_str(), "rb");
+		::fopen_s(&file, filePath.c_str(), "rb");
 		::rewind(file);
 
 		sptr<Model> model = std::make_shared<Model>();
@@ -503,7 +505,7 @@ namespace FileIO {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
-			case Hash("<AnimationClipFolder>:"):
+			case Hash("<Controller>:"):
 				animationInfo = std::make_shared<AnimationLoadInfo>();
 				FileIO::LoadAnimation(file, animationInfo);
 				break;
@@ -534,16 +536,14 @@ namespace FileIO {
 
 	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
 	{
-		std::string folderName;
-		FileIO::ReadString(file, folderName);
-		animationInfo->AnimationClips = scene->GetAnimationClips(folderName);
+		FileIO::ReadString(file, animationInfo->AnimatorControllerFile);
 	}
 
 
-	sptr<AnimationClip> LoadAnimationClip(const std::string& fileName)
+	sptr<AnimationClip> LoadAnimationClip(const std::string& filePath)
 	{
 		FILE* file = nullptr;
-		::fopen_s(&file, fileName.c_str(), "rb");
+		::fopen_s(&file, filePath.c_str(), "rb");
 		::rewind(file);
 
 		std::string clipName;
@@ -564,13 +564,104 @@ namespace FileIO {
 		return clip;
 	}
 
+	sptr<AnimatorController> LoadAnimatorController(const std::string& filePath)
+	{
+		std::string token{};
+		FILE* file = nullptr;
+		::fopen_s(&file, filePath.c_str(), "rb");
+		::rewind(file);
 
-	void LoadLightFromFile(const std::string& fileName, LightInfo** out)
+		// Params //
+		std::vector<AnimatorParameter> params{};
+
+		FileIO::ReadString(file, token);	// <Params>:
+		int paramSize = FileIO::ReadVal<int>(file);
+		params.resize(paramSize);
+
+		for (auto& param : params) {
+			FileIO::ReadString(file, param.name);
+
+			// Set param type and default value
+			std::string paramType;
+			FileIO::ReadString(file, paramType);
+			switch (Hash(paramType)) {
+			case Hash("Float"):
+				param.type = AnimatorParameter::Type::Float;
+				FileIO::ReadVal(file, param.val.f);
+				break;
+			case Hash("Int"):
+				param.type = AnimatorParameter::Type::Int;
+				FileIO::ReadVal(file, param.val.i);
+				break;
+			case Hash("Bool"):
+				param.type = AnimatorParameter::Type::Bool;
+				FileIO::ReadVal(file, param.val.b);
+				break;
+			case Hash("Trigger"):
+				param.type = AnimatorParameter::Type::Trigger;
+				param.val.b = false;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+
+		// States //
+		std::vector<sptr<AnimatorState>> states{};
+
+		FileIO::ReadString(file, token);	// <States>:
+		int stateSize = FileIO::ReadVal<int>(file);
+		states.resize(stateSize);
+
+		for (auto& state : states) {
+			// AnimationClip
+			std::string clipFolder, clipName;
+			FileIO::ReadString(file, clipFolder);
+			FileIO::ReadString(file, clipName);
+			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
+
+			// State
+			std::string stateName;
+			FileIO::ReadString(file, stateName);
+
+			std::vector<AnimatorTransition> transitions{};
+			int transitionSize = FileIO::ReadVal<int>(file);
+			transitions.resize(transitionSize);
+
+			for (auto& transition : transitions) {
+				FileIO::ReadString(file, transition.Destination);
+				int conditionSize = FileIO::ReadVal<int>(file);
+				transition.Conditions.resize(conditionSize);
+
+				for (auto& condition : transition.Conditions) {
+					FileIO::ReadString(file, condition.mode);
+					FileIO::ReadString(file, condition.param);
+
+					switch (Hash(condition.mode)) {
+					case Hash("If"):
+					case Hash("IfNot"):
+					case Hash("Trigger"):
+						break;
+					default:
+						FileIO::ReadVal(file, condition.threshold);
+						break;
+					}
+				}
+			}
+
+			state = std::make_shared<AnimatorState>(stateName, clip, transitions);
+		}
+
+		return std::make_shared<AnimatorController>(params, states);
+	}
+
+	void LoadLightFromFile(const std::string& filePath, LightInfo** out)
 	{
 		LightInfo* light = *out;
 
 		FILE* file = nullptr;
-		::fopen_s(&file, fileName.c_str(), "rb");
+		::fopen_s(&file, filePath.c_str(), "rb");
 		assert(file);
 		::rewind(file);
 

@@ -10,7 +10,7 @@
 #include "Script_Apache.h"
 #include "Script_Gunship.h"
 
-#include "AnimationController.h"
+#include "Animator.h"
 
 
 #pragma region GameObject
@@ -27,7 +27,8 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 
 	sptr<const AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
 	if (animationInfo) {
-		mAnimationController = std::make_shared<AnimationController>(1, animationInfo, this);
+		mIsSkinMesh = true;
+		mAnimator = std::make_shared<Animator>(animationInfo, this);
 	}
 
 	// 모델의 이름에 따라 설정한다.
@@ -50,15 +51,15 @@ void GameObject::Animate()
 {
 	base::Animate();
 
-	if (mAnimationController) {
-		mAnimationController->Animate();
+	if (mAnimator) {
+		mAnimator->Animate();
 	}
 }
 
 void GameObject::Render()
 {
-	if (mAnimationController) {
-		mAnimationController->UpdateShaderVariables();
+	if (mAnimator) {
+		mAnimator->UpdateShaderVariables();
 	}
 	if (mMasterModel) {
 		mMasterModel->Render(this);
@@ -92,7 +93,9 @@ void GridObject::Update()
 {
 	base::Update();
 
-	UpdateGrid();
+	if (IsActive()) {
+		UpdateGrid();
+	}
 }
 
 void GridObject::OnEnable()

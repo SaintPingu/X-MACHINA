@@ -30,6 +30,7 @@ class DescriptorHeap;
 class ObjectPool;
 
 class AnimationClip;
+class AnimatorController;
 #pragma endregion
 
 
@@ -101,9 +102,9 @@ private:
 	/* Others */
 	bool mIsRenderBounds = false;
 
-	/* test-animation */
-	std::unordered_map<std::string, std::vector<sptr<const AnimationClip>>> mAnimationClipMap{};
-	std::vector<sptr<GameObject>> testObjects{};
+	/* Animation */
+	std::unordered_map<std::string, std::unordered_map<std::string, sptr<const AnimationClip>>>	mAnimationClipMap{};
+	std::unordered_map<std::string, sptr<AnimatorController>>	mAnimatorControllerMap{};
 
 private:
 #pragma region C/Dtor
@@ -127,7 +128,8 @@ public:
 	// [name]에 해당하는 Texture 모델을 반환한다.
 	rsptr<Texture> GetTexture(const std::string& name) const;
 
-	std::vector<sptr<const AnimationClip>> GetAnimationClips(const std::string& folderName) const { return mAnimationClipMap.at(folderName); }
+	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
+	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;
 
 	RComPtr<ID3D12RootSignature> GetRootSignature() const;
 
@@ -204,6 +206,7 @@ private:
 	void LoadModels();
 
 	void LoadAnimationClips();
+	void LoadAnimatorControllers();
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
@@ -225,7 +228,8 @@ private:
 	// [renderedObjects]    : 렌더링된 모든 객체 (그리드에 포함된)
 	// [transparentObjects] : 투명 객체
 	// [billboardObjects]	: 빌보드 객체 (plane)
-	void RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects);
+	void RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects, std::set<GridObject*>& skinMeshObjects);
+	void RenderSkinMeshObjects(std::set<GridObject*>& skinMeshObjects);
 
 	void RenderEnvironments();
 	void RenderBullets();

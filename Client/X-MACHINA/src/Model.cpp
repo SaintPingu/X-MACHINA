@@ -8,7 +8,7 @@
 #include "Scene.h"
 #include "FileIO.h"
 
-#include "AnimationController.h"
+#include "Animator.h"
 
 
 #pragma region MaterialColors

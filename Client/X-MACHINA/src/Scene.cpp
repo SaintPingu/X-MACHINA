@@ -20,7 +20,8 @@
 #include "DescriptorHeap.h"
 #include "ObjectPool.h"
 
-#include "AnimationController.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -90,6 +91,11 @@ rsptr<Texture> Scene::GetTexture(const std::string& name) const
 	assert(mTextureMap.contains(name));
 
 	return mTextureMap.at(name);
+}
+
+sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
+{
+	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
 }
 
 RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
@@ -251,6 +257,7 @@ void Scene::BuildObjects()
 
 	// load models
 	LoadAnimationClips();
+	LoadAnimatorControllers();
 	LoadSceneObjects("Models/Scene.bin");
 	LoadModels();
 
@@ -267,27 +274,6 @@ void Scene::BuildObjects()
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
-
-	// Animation
-	//sptr<AnimationClip> clip = FileIO::LoadAnimationClip("Models/AnimationClips/GoToMountHippLayingLeftUnarmed.bin");
-	sptr<MasterModel> model = FileIO::LoadGeometryFromFile("Models/Meshes/SK_Ingenalvus.bin");
-	testObjects.resize(3);
-	testObjects[0] = std::make_shared<GameObject>();
-	testObjects[0]->SetModel(model);
-	testObjects[0]->SetPosition(60, 105, 60);
-	testObjects[0]->Rotate(0, 180, 0);
-
-	testObjects[1] = std::make_shared<GameObject>();
-	testObjects[1]->SetModel(model);
-	testObjects[1]->SetPosition(110, 105, 60);
-	testObjects[1]->Rotate(0, 180, 0);
-	testObjects[1]->GetAnimationController()->SetTrackSpeed(0, 3.f);
-				
-	testObjects[2] = std::make_shared<GameObject>();
-	testObjects[2]->SetModel(model);
-	testObjects[2]->SetPosition(160, 105, 60);
-	testObjects[2]->Rotate(0, 180, 0);
-	testObjects[2]->GetAnimationController()->SetTrackAnimationClip(0, 1);
 }
 
 void Scene::ReleaseObjects()
@@ -357,7 +343,8 @@ void Scene::BuildPlayers()
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
-	airplanePlayer->SetModel(GetModel("Gunship"));
+	airplanePlayer->SetModel(GetModel("EliteTrooper"));
+	// airplanePlayer->GetAnimator()->mController->mCrntState = airplanePlayer->GetAnimator()->mController->mStates.back();
 
 	mPlayers.push_back(airplanePlayer);
 
@@ -528,15 +515,24 @@ void Scene::LoadAnimationClips()
 	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
 		std::string clipFolderName = clipFolder.path().filename().string();
 
-		std::vector<sptr<const AnimationClip>> animationClips{};
 		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
-			const std::string fileName = file.path().filename().string();
-			animationClips.emplace_back(FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName));
+			std::string fileName = file.path().filename().string();
+			sptr<const AnimationClip> clip = FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
+
+			FileIO::RemoveExtension(fileName);
+			mAnimationClipMap[clipFolderName].insert(std::make_pair(fileName, clip));
 		}
-		mAnimationClipMap.insert(std::make_pair(clipFolderName, animationClips));
 	}
 }
 
+void Scene::LoadAnimatorControllers()
+{
+	const std::string rootFolder = "Models/AnimatorControllers/";
+	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = file.path().filename().string();
+		mAnimatorControllerMap.insert(std::make_pair(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName)));
+	}
+}
 
 void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
 {
@@ -630,22 +626,21 @@ void Scene::Render()
 	std::set<GridObject*> renderedObjects{};
 	std::set<GridObject*> transparentObjects{};
 	std::set<GridObject*> billboardObjects{};
+	std::set<GridObject*> skinMeshObjects{};
 
 	OnPrepareRender();
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	mSkinnedMeshShader->Set();
-	for (const auto& testObject : testObjects) {
-		testObject->Render();
-	}
 
 	mGlobalShader->Set();
 
-	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects);
+	RenderGridObjects(renderedObjects, transparentObjects, billboardObjects, skinMeshObjects);
 	RenderEnvironments();
 	RenderBullets();
 	RenderInstanceObjects();
 	RenderFXObjects();
 	RenderBillboards(billboardObjects);
+	RenderSkinMeshObjects(skinMeshObjects);
 
 	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
 	RenderTerrain();
@@ -688,7 +683,7 @@ void Scene::RenderSkyBox()
 }
 
 
-void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects)
+void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<GridObject*>& transparentObjects, std::set<GridObject*>& billboardObjects, std::set<GridObject*>& skinMeshObjects)
 {
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -714,9 +709,21 @@ void Scene::RenderGridObjects(std::set<GridObject*>& renderedObjects, std::set<G
 			billboardObjects.insert(object);
 			break;
 		default:
+			if (object->IsSkinMesh()) {
+				skinMeshObjects.insert(object);
+				break;
+			}
 			object->Render();
 			break;
 		}
+	}
+}
+
+void Scene::RenderSkinMeshObjects(std::set<GridObject*>& skinMeshObjects)
+{
+	mSkinnedMeshShader->Set();
+	for (auto& object : skinMeshObjects) {
+		object->Render();
 	}
 }
 
@@ -832,10 +839,6 @@ void Scene::Start()
 	mainCameraObject->OnEnable();
 
 	UpdateGridInfo();
-
-	for (auto& testObject : testObjects) {
-		testObject->OnEnable();
-	}
 }
 
 void Scene::Update()
@@ -852,9 +855,6 @@ void Scene::Update()
 
 void Scene::Animate()
 {
-	for (auto& testObject : testObjects) {
-		testObject->Animate();
-	}
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->Animate();
 		});
@@ -885,11 +885,12 @@ void Scene::UpdatePlayerGrid()
 
 void Scene::UpdateObjects()
 {
-	for (auto& testObject : testObjects) {
-		testObject->Update();
-	}
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->Update();
+		});
+
+	ProcessObjects([this](sptr<GridObject> object) {
+		object->Animate();
 		});
 }
 
@@ -1117,7 +1118,7 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	// 1칸 이내의 "인접 그리드(8개)와 충돌검사"
 	const auto& collider = object->GetCollider();
 	if(collider) {
-		std::unordered_set<int> gridIndices{};
+		std::unordered_set<int> gridIndices{ gridIndex };
 		const auto& objectBS = collider->GetBS();
 
 		// BoundingSphere가 Grid 내부에 완전히 포함되면 "인접 그리드 충돌검사" X

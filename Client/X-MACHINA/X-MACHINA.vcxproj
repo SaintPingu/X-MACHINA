@@ -147,8 +147,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AnimationClip.cpp" />
-    <ClCompile Include="src\AnimationController.cpp" />
-    <ClCompile Include="src\AnimationTrack.cpp">
+    <ClCompile Include="src\AnimatorController.cpp" />
+    <ClCompile Include="src\Animator.cpp" />
+    <ClCompile Include="src\AnimatorState.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
@@ -197,8 +198,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AnimationClip.h" />
-    <ClInclude Include="include\AnimationController.h" />
-    <ClInclude Include="include\AnimationTrack.h" />
+    <ClInclude Include="include\AnimatorController.h" />
+    <ClInclude Include="include\Animator.h" />
+    <ClInclude Include="include\AnimatorState.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Collider.h" />
     <ClInclude Include="include\Component.h" />

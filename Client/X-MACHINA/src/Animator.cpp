@@ -56,6 +56,11 @@ void Animator::Animate()
 	}
 }
 
+void Animator::SetBool(const std::string& name, bool value)
+{
+	mController->SetBool(name, value);
+}
+
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 {
 	mController = scene->GetAnimatorController(animationInfo->AnimatorControllerFile);

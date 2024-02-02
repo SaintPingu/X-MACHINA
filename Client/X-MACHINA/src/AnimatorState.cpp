@@ -4,10 +4,10 @@
 #include "AnimationClip.h"
 #include "Timer.h"
 
-AnimatorState::AnimatorState(const std::string name, rsptr<const AnimationClip> clip, const std::vector<AnimatorTransition>& transitions)
+AnimatorState::AnimatorState(rsptr<const AnimationClip> clip, const std::vector<AnimatorTransition>& transitions)
 	:
-	mName(name),
 	mClip(clip),
+	mName(clip->mName),
 	mTransitions(transitions)
 {
 
@@ -20,7 +20,6 @@ Vec4x4 AnimatorState::GetSRT(int boneIndex) const
 
 void AnimatorState::Init()
 {
-	mNextTrack = nullptr;
 	mCrntLength = 0.f;
 }
 
@@ -36,6 +35,35 @@ int AnimatorState::Animate()
 	return -1;
 }
 
+
+std::string AnimatorState::CheeckTransition(const std::string& param, float value)
+{
+	for (const auto& transition : mTransitions) {
+		for (const auto& condition : transition.Conditions) {
+			if (condition.param != param) {
+				continue;
+			}
+
+			switch (Hash(condition.mode)) {
+			case Hash("If"):	// == true
+				if (Math::IsEqual(value, 1.f)) {
+					return transition.Destination;
+				}
+				break;
+			case Hash("IfNot"):	// == false
+				if (Math::IsEqual(value, 0.f)) {
+					return transition.Destination;
+				}
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+	}
+
+	return "";
+}
 
 
 bool AnimatorState::IsEndAnimation()

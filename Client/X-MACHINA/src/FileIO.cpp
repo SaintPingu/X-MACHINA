@@ -572,14 +572,15 @@ namespace FileIO {
 		::rewind(file);
 
 		// Params //
-		std::vector<AnimatorParameter> params{};
+		std::unordered_map<std::string, AnimatorParameter> params{};
 
 		FileIO::ReadString(file, token);	// <Params>:
 		int paramSize = FileIO::ReadVal<int>(file);
-		params.resize(paramSize);
 
-		for (auto& param : params) {
-			FileIO::ReadString(file, param.name);
+		for (int i = 0; i < paramSize; ++i) {
+			AnimatorParameter param{};
+			std::string paramName;
+			FileIO::ReadString(file, paramName);
 
 			// Set param type and default value
 			std::string paramType;
@@ -605,16 +606,17 @@ namespace FileIO {
 				assert(0);
 				break;
 			}
+
+			params.insert(std::make_pair(paramName, param));
 		}
 
 		// States //
-		std::vector<sptr<AnimatorState>> states{};
+		std::unordered_map<std::string, sptr<AnimatorState>> states{};
 
 		FileIO::ReadString(file, token);	// <States>:
 		int stateSize = FileIO::ReadVal<int>(file);
-		states.resize(stateSize);
 
-		for (auto& state : states) {
+		for (int i = 0; i < stateSize; ++i) {
 			// AnimationClip
 			std::string clipFolder, clipName;
 			FileIO::ReadString(file, clipFolder);
@@ -622,9 +624,6 @@ namespace FileIO {
 			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
 
 			// State
-			std::string stateName;
-			FileIO::ReadString(file, stateName);
-
 			std::vector<AnimatorTransition> transitions{};
 			int transitionSize = FileIO::ReadVal<int>(file);
 			transitions.resize(transitionSize);
@@ -650,7 +649,8 @@ namespace FileIO {
 				}
 			}
 
-			state = std::make_shared<AnimatorState>(stateName, clip, transitions);
+			sptr<AnimatorState> state = std::make_shared<AnimatorState>(clip, transitions);
+			states.insert(std::make_pair(state->GetName(), state));
 		}
 
 		return std::make_shared<AnimatorController>(params, states);

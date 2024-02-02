@@ -5,12 +5,12 @@
 #include "AnimatorState.h"
 #include "Scene.h"
 
-AnimatorController::AnimatorController(const std::vector<AnimatorParameter>& parameters, const std::vector<sptr<AnimatorState>>& states)
+AnimatorController::AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, const std::unordered_map<std::string, sptr<AnimatorState>>& states)
 	:
 	mParameters(parameters),
 	mStates(states)
 {
-	mCrntState = mStates.front();
+	mCrntState = mStates.begin()->second;
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
@@ -43,4 +43,18 @@ void AnimatorController::Animate()
 Vec4x4 AnimatorController::GetTransform(int boneIndex)
 {
 	return Matrix4x4::Scale(mCrntState->GetSRT(boneIndex), mCrntState->GetWeight());
+}
+
+void AnimatorController::SetBool(const std::string& name, bool value)
+{
+	if (!mParameters.contains(name)) {
+		return;
+	}
+
+	mParameters[name].val.b = value;
+
+	std::string destination = mCrntState->CheeckTransition(name, value);
+	if (destination != "") {
+		mCrntState = mStates[destination];
+	}
 }

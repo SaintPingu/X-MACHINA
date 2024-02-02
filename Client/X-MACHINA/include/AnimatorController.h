@@ -11,7 +11,6 @@ struct AnimatorParameter {
 		Trigger
 	};
 
-	std::string name{};
 	Type type{};
 	union value {
 		bool b;
@@ -22,13 +21,13 @@ struct AnimatorParameter {
 
 class AnimatorController {
 private:
-	std::vector<AnimatorParameter> mParameters{};
+	std::unordered_map<std::string, AnimatorParameter> mParameters{};
 
-	std::vector<sptr<AnimatorState>> mStates{};
+	std::unordered_map<std::string, sptr<AnimatorState>> mStates{};
 	sptr<AnimatorState>				 mCrntState{};
 
 public:
-	AnimatorController(const std::vector<AnimatorParameter>& parameters, const std::vector<sptr<AnimatorState>>& states);
+	AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, const std::unordered_map<std::string, sptr<AnimatorState>>& states);
 	AnimatorController(const AnimatorController& other);
 	virtual ~AnimatorController() = default;
 
@@ -36,4 +35,6 @@ public:
 	void Animate();
 
 	Vec4x4 GetTransform(int boneIndex);
+
+	void SetBool(const std::string& name, bool value);
 };

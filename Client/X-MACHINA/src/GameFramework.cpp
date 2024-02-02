@@ -48,7 +48,7 @@ void Framework::ReleaseObjects()
 
 void Framework::FrameAdvance()
 {
-	timer->Tick(0.f);
+	timer->Tick(60.f);
 	
 	// update input
 	InputMgr::Inst()->Update();

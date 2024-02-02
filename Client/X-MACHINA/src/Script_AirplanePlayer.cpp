@@ -7,6 +7,8 @@
 #include "Timer.h"
 #include "Rigidbody.h"
 
+#include "Animator.h"
+
 
 
 
@@ -65,6 +67,13 @@ void Script_AirplanePlayer::ProcessInput()
 	if (KEY_PRESSED('D')) rotationDir |= Dir::Right;
 	if (rotationDir) {
 		Rotate(rotationDir, DeltaTime());
+	}
+
+	if (Vector3::Length(mRigid->GetVelocity()) > 0.1f) {
+		mObject->GetObj<GameObject>()->GetAnimator()->SetBool("Walk", true);
+	}
+	else {
+		mObject->GetObj<GameObject>()->GetAnimator()->SetBool("Walk", false);
 	}
 
 	if (KEY_PRESSED(VK_LBUTTON)) {

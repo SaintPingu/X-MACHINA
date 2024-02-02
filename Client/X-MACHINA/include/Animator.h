@@ -32,6 +32,8 @@ public:
 
 	void Animate();
 
+	void SetBool(const std::string& name, bool value);
+
 private:
 	void InitController(rsptr<const AnimationLoadInfo> animationInfo);
 	void InitBoneFrames(size_t skinMeshCount, GameObject* avatar);

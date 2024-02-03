@@ -14,7 +14,7 @@
 #pragma region MaterialColors
 MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 	:
-	Diffuse(Vector4::Normalize(materialInfo.Albedo)),
+	Diffuse(Vector4::NormalizeColor(materialInfo.Albedo)),
 	Specular(materialInfo.Specular),
 	Emissive(materialInfo.Emissive)
 {

@@ -178,6 +178,7 @@
     <ClCompile Include="src\Script_Bullet.cpp" />
     <ClCompile Include="src\Script_ExplosiveObject.cpp" />
     <ClCompile Include="src\Script_Fragment.cpp" />
+    <ClCompile Include="src\Script_GroundPlayer.cpp" />
     <ClCompile Include="src\Script_Gunship.cpp" />
     <ClCompile Include="src\Script_MainCamera.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />

@@ -624,16 +624,18 @@ namespace FileIO {
 			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
 
 			// State
-			std::vector<AnimatorTransition> transitions{};
+			std::vector<sptr<AnimatorTransition>> transitions{};
 			int transitionSize = FileIO::ReadVal<int>(file);
 			transitions.resize(transitionSize);
 
 			for (auto& transition : transitions) {
-				FileIO::ReadString(file, transition.Destination);
-				int conditionSize = FileIO::ReadVal<int>(file);
-				transition.Conditions.resize(conditionSize);
+				transition = std::make_shared<AnimatorTransition>();
 
-				for (auto& condition : transition.Conditions) {
+				FileIO::ReadString(file, transition->Destination);
+				int conditionSize = FileIO::ReadVal<int>(file);
+				transition->Conditions.resize(conditionSize);
+
+				for (auto& condition : transition->Conditions) {
 					FileIO::ReadString(file, condition.mode);
 					FileIO::ReadString(file, condition.param);
 

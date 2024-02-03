@@ -342,9 +342,8 @@ void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
+	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("EliteTrooper"));
-	// airplanePlayer->GetAnimator()->mController->mCrntState = airplanePlayer->GetAnimator()->mController->mStates.back();
 
 	mPlayers.push_back(airplanePlayer);
 
@@ -753,7 +752,7 @@ void Scene::RenderBullets()
 	mBulletShader->Set();
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
-			player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
+			//player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
 		}
 	}
 }

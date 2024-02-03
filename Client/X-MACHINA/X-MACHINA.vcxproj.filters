@@ -202,6 +202,9 @@
     <ClCompile Include="src\AnimatorController.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_GroundPlayer.cpp">
+      <Filter>소스 파일\Component\Script\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">

@@ -4,13 +4,23 @@
 #include "AnimationClip.h"
 #include "Timer.h"
 
-AnimatorState::AnimatorState(rsptr<const AnimationClip> clip, const std::vector<AnimatorTransition>& transitions)
+AnimatorState::AnimatorState(rsptr<const AnimationClip> clip, const std::vector<sptr<AnimatorTransition>>& transitions)
 	:
 	mClip(clip),
 	mName(clip->mName),
 	mTransitions(transitions)
 {
 
+}
+
+AnimatorState::AnimatorState(const AnimatorState& other)
+{
+	mName = other.mName;
+	mClip = other.mClip;
+	mSpeed = other.mSpeed;
+	mCrntLength = other.mCrntLength;
+	mWeight = other.mWeight;
+	mTransitions = other.mTransitions;
 }
 
 Vec4x4 AnimatorState::GetSRT(int boneIndex) const
@@ -21,25 +31,25 @@ Vec4x4 AnimatorState::GetSRT(int boneIndex) const
 void AnimatorState::Init()
 {
 	mCrntLength = 0.f;
+	mWeight = 1.f;
 }
 
-int AnimatorState::Animate()
+bool AnimatorState::Animate()
 {
-	constexpr float kTransitionDuration = 0.25f;
-
 	mCrntLength += mSpeed * DeltaTime();
 	if (IsEndAnimation()) {
 		mCrntLength = 0.f;
+		return true;
 	}
 
-	return -1;
+	return false;
 }
 
 
-std::string AnimatorState::CheeckTransition(const std::string& param, float value)
+std::string AnimatorState::CheckTransition(const std::string& param, float value)
 {
 	for (const auto& transition : mTransitions) {
-		for (const auto& condition : transition.Conditions) {
+		for (const auto& condition : transition->Conditions) {
 			if (condition.param != param) {
 				continue;
 			}
@@ -47,12 +57,12 @@ std::string AnimatorState::CheeckTransition(const std::string& param, float valu
 			switch (Hash(condition.mode)) {
 			case Hash("If"):	// == true
 				if (Math::IsEqual(value, 1.f)) {
-					return transition.Destination;
+					return transition->Destination;
 				}
 				break;
 			case Hash("IfNot"):	// == false
 				if (Math::IsEqual(value, 0.f)) {
-					return transition.Destination;
+					return transition->Destination;
 				}
 				break;
 			default:
@@ -68,5 +78,5 @@ std::string AnimatorState::CheeckTransition(const std::string& param, float valu
 
 bool AnimatorState::IsEndAnimation()
 {
-	return mCrntLength > mClip->mLength;
+	return mCrntLength >= mClip->mLength;
 }

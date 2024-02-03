@@ -51,6 +51,7 @@ enum class ComponentID {	// except abstract component
 	Script_Bullet,
 	Script_Billboard,
 	Script_Sprite,
+	Script_GroundPlayer,
 	_count
 };
 

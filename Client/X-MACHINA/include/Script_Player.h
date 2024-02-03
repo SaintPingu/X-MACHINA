@@ -20,7 +20,8 @@ class ObjectPool;
 enum class PlayerType {
 	Unspecified = 0,
 	Tank,
-	Airplane
+	Airplane,
+	Human
 };
 #pragma endregion
 
@@ -134,4 +135,27 @@ public:
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
 };
+
+
+// 지상 플레이어
+class Script_GroundPlayer : public Script_ShootingPlayer {
+	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
+
+private:
+	float mRotationSpeed{};
+
+public:
+	virtual void Start() override;
+	virtual void Update() override;
+
+	virtual void OnCollisionStay(Object& other) override;
+
+public:
+	virtual void ProcessInput() override;
+
+	virtual void FireBullet() override;
+	// [rotationDir]방향으로 [angle]만큼 회전한다.
+	virtual void Rotate(DWORD rotationDir, float angle);
+};
+
 #pragma endregion

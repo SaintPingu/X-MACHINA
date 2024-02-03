@@ -780,6 +780,14 @@ namespace Vector4 {
 		return result;
 	}
 
+	inline Vec4 NormalizeColor(const Vec4& vector) noexcept
+	{
+		Vec3 v = Vec3(vector.x, vector.y, vector.z);
+		Vec3 normal;
+		XMStoreFloat3(&normal, XMVector3NormalizeEst(_VECTOR(v)));
+		return Vec4(normal.x, normal.y, normal.z, vector.w);
+	}
+
 	inline Vec4 Multiply(float scalar, const Vec4& vector) noexcept
 	{
 		Vec4 result;

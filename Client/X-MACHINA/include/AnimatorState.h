@@ -21,14 +21,15 @@ private:
 	std::string mName{};
 	sptr<const AnimationClip> mClip{};
 
-	float 	mSpeed     = 1.f;
-	float 	mCrntLength  = 0.0f;
-	float 	mWeight    = 1.0f;
+	float 	mSpeed      = .5f;
+	float 	mCrntLength = 0.f;
+	float 	mWeight     = 1.f;
 
-	std::vector<AnimatorTransition> mTransitions{};
+	std::vector<sptr<AnimatorTransition>> mTransitions{};
 
 public:
-	AnimatorState(rsptr<const AnimationClip> clip, const std::vector<AnimatorTransition>& transitions);
+	AnimatorState(rsptr<const AnimationClip> clip, const std::vector<sptr<AnimatorTransition>>& transitions);
+	AnimatorState(const AnimatorState& other);
 	~AnimatorState() = default;
 
 	Vec4x4 GetSRT(int boneIndex) const;
@@ -42,9 +43,9 @@ public:
 
 public:
 	void Init();
-	int Animate();
+	bool Animate();
 
-	std::string CheeckTransition(const std::string& param, float value);
+	std::string CheckTransition(const std::string& param, float value);
 
 private:
 	bool IsEndAnimation();

@@ -3,27 +3,25 @@
 
 #include "Animator.h"
 #include "AnimatorState.h"
+#include "AnimatorLayer.h"
 #include "AnimationClip.h"
 #include "Scene.h"
 #include "Timer.h"
 
-AnimatorController::AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, const std::unordered_map<std::string, sptr<AnimatorState>>& states)
+AnimatorController::AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, rsptr<AnimatorLayer> baseLayer)
 	:
 	mParameters(parameters),
-	mStates(states)
+	mBaseLayer(baseLayer)
 {
-	mCrntState = mStates.begin()->second;
+	mCrntState = mBaseLayer->Entry();
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
 	mParameters(other.mParameters)
 {
-	for (const auto& otherState : other.mStates) {
-		sptr<AnimatorState> state = std::make_shared<AnimatorState>(*otherState.second);
-		mStates.insert(std::make_pair(otherState.first, state));
-	}
-	mCrntState = mStates.begin()->second;
+	mBaseLayer = std::make_shared<AnimatorLayer>(*other.mBaseLayer);
+	mCrntState = mBaseLayer->Entry();
 }
 
 void AnimatorController::Animate()
@@ -75,7 +73,7 @@ void AnimatorController::SetBool(const std::string& name, bool value)
 
 	const std::string destination = mCrntState->CheckTransition(name, value);
 	if (destination != "") {
-		mNextState = mStates[destination];
+		mNextState = mBaseLayer->GetState(destination);
 		mNextState->Init();
 	}
 }

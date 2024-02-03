@@ -12,6 +12,7 @@
 #include "AnimationClip.h"
 #include "AnimatorState.h"
 #include "AnimatorController.h"
+#include "AnimatorLayer.h"
 
 
 namespace {
@@ -453,6 +454,42 @@ namespace {
 			out.emplace_back(file.path().filename().string());
 		}
 	}
+
+
+	std::vector<sptr<const AnimatorTransition>> LoadTransitions(FILE* file)
+	{
+		std::vector<sptr<const AnimatorTransition>> transitions{};
+
+		int transitionSize = FileIO::ReadVal<int>(file);
+		transitions.reserve(transitionSize);
+
+		for (int i = 0; i < transitionSize; ++i) {
+			sptr<AnimatorTransition> transition = std::make_shared<AnimatorTransition>();
+
+			FileIO::ReadString(file, transition->Destination);
+			int conditionSize = FileIO::ReadVal<int>(file);
+			transition->Conditions.resize(conditionSize);
+
+			for (auto& condition : transition->Conditions) {
+				FileIO::ReadString(file, condition.mode);
+				FileIO::ReadString(file, condition.param);
+
+				switch (Hash(condition.mode)) {
+				case Hash("If"):
+				case Hash("IfNot"):
+				case Hash("Trigger"):
+					break;
+				default:
+					FileIO::ReadVal(file, condition.threshold);
+					break;
+				}
+			}
+
+			transitions.push_back(transition);
+		}
+
+		return transitions;
+	}
 }
 
 
@@ -610,8 +647,13 @@ namespace FileIO {
 			params.insert(std::make_pair(paramName, param));
 		}
 
+		// Layer //
+		std::string layerName;
+		FileIO::ReadString(file, layerName);
+
 		// States //
-		std::unordered_map<std::string, sptr<AnimatorState>> states{};
+		Animations::StateMap states{};
+		Animations::LayerMap layers{};
 
 		FileIO::ReadString(file, token);	// <States>:
 		int stateSize = FileIO::ReadVal<int>(file);
@@ -623,39 +665,21 @@ namespace FileIO {
 			FileIO::ReadString(file, clipName);
 			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
 
-			// State
-			std::vector<sptr<AnimatorTransition>> transitions{};
-			int transitionSize = FileIO::ReadVal<int>(file);
-			transitions.resize(transitionSize);
-
-			for (auto& transition : transitions) {
-				transition = std::make_shared<AnimatorTransition>();
-
-				FileIO::ReadString(file, transition->Destination);
-				int conditionSize = FileIO::ReadVal<int>(file);
-				transition->Conditions.resize(conditionSize);
-
-				for (auto& condition : transition->Conditions) {
-					FileIO::ReadString(file, condition.mode);
-					FileIO::ReadString(file, condition.param);
-
-					switch (Hash(condition.mode)) {
-					case Hash("If"):
-					case Hash("IfNot"):
-					case Hash("Trigger"):
-						break;
-					default:
-						FileIO::ReadVal(file, condition.threshold);
-						break;
-					}
-				}
-			}
+			// Transitions
+			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);
 
 			sptr<AnimatorState> state = std::make_shared<AnimatorState>(clip, transitions);
 			states.insert(std::make_pair(state->GetName(), state));
 		}
 
-		return std::make_shared<AnimatorController>(params, states);
+		// Entry
+		FileIO::ReadString(file, token);	// <Entry>:
+		std::vector<sptr<const AnimatorTransition>> entryTransitions = LoadTransitions(file);
+
+		sptr<AnimatorLayer> baseLayer = std::make_shared<AnimatorLayer>(layerName, states, layers);
+		baseLayer->SetEntry(entryTransitions);
+
+		return std::make_shared<AnimatorController>(params, baseLayer);
 	}
 
 	void LoadLightFromFile(const std::string& filePath, LightInfo** out)

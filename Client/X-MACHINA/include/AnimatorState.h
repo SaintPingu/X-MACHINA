@@ -13,6 +13,8 @@ struct AnimationCondition {
 struct AnimatorTransition {
 	std::string Destination{};
 	std::vector<AnimationCondition> Conditions{};
+
+	std::string CheckTransition(const std::string& param, float value) const;
 };
  
 // AnimationClip의 재생을 관리한다.
@@ -25,10 +27,10 @@ private:
 	float 	mCrntLength = 0.f;
 	float 	mWeight     = 1.f;
 
-	std::vector<sptr<AnimatorTransition>> mTransitions{};
+	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
 public:
-	AnimatorState(rsptr<const AnimationClip> clip, const std::vector<sptr<AnimatorTransition>>& transitions);
+	AnimatorState(rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions);
 	AnimatorState(const AnimatorState& other);
 	~AnimatorState() = default;
 

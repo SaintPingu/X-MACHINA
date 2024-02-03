@@ -205,6 +205,12 @@
     <ClCompile Include="src\Script_GroundPlayer.cpp">
       <Filter>소스 파일\Component\Script\Player</Filter>
     </ClCompile>
+    <ClCompile Include="src\AnimatorStateMachine.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorLayer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -346,6 +352,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\AnimatorController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimatorStateMachine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimatorLayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

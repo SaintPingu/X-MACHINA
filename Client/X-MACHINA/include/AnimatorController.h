@@ -2,6 +2,7 @@
 
 struct AnimationLoadInfo;
 class AnimatorState;
+class AnimatorLayer;
 
 struct AnimatorParameter {
 	enum class Type {
@@ -22,13 +23,13 @@ struct AnimatorParameter {
 class AnimatorController {
 private:
 	std::unordered_map<std::string, AnimatorParameter> mParameters{};
+	sptr<AnimatorLayer> mBaseLayer{};
 
-	std::unordered_map<std::string, sptr<AnimatorState>> mStates{};
 	sptr<AnimatorState>	mCrntState{};
 	sptr<AnimatorState>	mNextState{};
 
 public:
-	AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, const std::unordered_map<std::string, sptr<AnimatorState>>& states);
+	AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, rsptr<AnimatorLayer> baseLayer);
 	AnimatorController(const AnimatorController& other);
 	virtual ~AnimatorController() = default;
 

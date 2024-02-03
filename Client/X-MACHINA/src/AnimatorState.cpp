@@ -1,12 +1,17 @@
 #include "stdafx.h"
 #include "AnimatorState.h"
 
+#include "AnimatorLayer.h"
 #include "AnimationClip.h"
 #include "Timer.h"
 
 
 std::string AnimatorTransition::CheckTransition(const std::string& param, float value) const
 {
+	if (Conditions.empty()) {
+		return Destination;
+	}
+
 	for (const auto& condition : Conditions) {
 		if (condition.param != param) {
 			continue;
@@ -32,8 +37,9 @@ std::string AnimatorTransition::CheckTransition(const std::string& param, float 
 	return "";
 }
 
-AnimatorState::AnimatorState(rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions)
+AnimatorState::AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions)
 	:
+	mLayer(layer),
 	mClip(clip),
 	mName(clip->mName),
 	mTransitions(transitions)
@@ -43,6 +49,7 @@ AnimatorState::AnimatorState(rsptr<const AnimationClip> clip, const std::vector<
 
 AnimatorState::AnimatorState(const AnimatorState& other)
 {
+	mLayer = other.mLayer;
 	mName = other.mName;
 	mClip = other.mClip;
 	mSpeed = other.mSpeed;
@@ -74,16 +81,16 @@ bool AnimatorState::Animate()
 }
 
 
-std::string AnimatorState::CheckTransition(const std::string& param, float value)
+sptr<AnimatorState> AnimatorState::CheckTransition(const std::string& param, float value)
 {
 	for (const auto& transition : mTransitions) {
 		std::string destination = transition->CheckTransition(param, value);
 		if (destination != "") {
-			return destination;
+			return mLayer->GetState(destination);
 		}
 	}
 
-	return "";
+	return nullptr;
 }
 
 

@@ -196,7 +196,7 @@ public:
 
 	ComPtr<ID3D12Resource> mCB_BoneTransforms{};
 	Vec4x4* mCBMap_BoneTransforms{};
-	std::vector<Transform*>* mBoneFrames;
+	std::vector<Transform*>* mBoneFrames{};
 
 private:
 	ComPtr<ID3D12Resource>	mCB_BindPoseBoneOffsets{};

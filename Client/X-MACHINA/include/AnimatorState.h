@@ -1,6 +1,7 @@
 #pragma once
 
 class AnimationClip;
+class AnimatorLayer;
 
 // AnimatorState간 상태 전이 조건
 struct AnimationCondition {
@@ -20,6 +21,8 @@ struct AnimatorTransition {
 // AnimationClip의 재생을 관리한다.
 class AnimatorState {
 private:
+	sptr<const AnimatorLayer> mLayer{};
+
 	std::string mName{};
 	sptr<const AnimationClip> mClip{};
 
@@ -30,7 +33,7 @@ private:
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
 public:
-	AnimatorState(rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions);
+	AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions);
 	AnimatorState(const AnimatorState& other);
 	~AnimatorState() = default;
 
@@ -47,7 +50,7 @@ public:
 	void Init();
 	bool Animate();
 
-	std::string CheckTransition(const std::string& param, float value);
+	sptr<AnimatorState> CheckTransition(const std::string& param, float value);
 
 private:
 	bool IsEndAnimation();

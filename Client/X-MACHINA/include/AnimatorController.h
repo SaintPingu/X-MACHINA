@@ -17,13 +17,12 @@ struct AnimatorParameter {
 		bool b;
 		int i;
 		float f;
-	} val;
+	} val{};
 };
 
 class AnimatorController {
 private:
 	std::unordered_map<std::string, AnimatorParameter> mParameters{};
-	sptr<AnimatorLayer> mBaseLayer{};
 
 	sptr<AnimatorState>	mCrntState{};
 	sptr<AnimatorState>	mNextState{};

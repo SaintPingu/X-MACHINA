@@ -21,13 +21,17 @@ private:
 	Animations::LayerMap mLayers{};
 
 public:
-	AnimatorLayer(std::string name, const Animations::StateMap& states, const Animations::LayerMap& layers);
+	AnimatorLayer(std::string name, const std::vector<sptr<const AnimatorTransition>>& entryTransitions);
 	virtual ~AnimatorLayer() = default;
 
+	std::string GetName() const { return mName; }
 	sptr<AnimatorState> GetState(const std::string& name) const { return mStates.at(name); }
 
-	void SetEntry(const std::vector<sptr<const AnimatorTransition>>& entryTransitions) { mEntryTransitions = entryTransitions; }
+	void AddState(rsptr<AnimatorState> state);
+	void SetParent(AnimatorLayer* parent) { mParent = parent; }
 
 public:
 	sptr<AnimatorState> Entry() const;
+
+	void AddLayer(rsptr<AnimatorLayer> layer);
 };

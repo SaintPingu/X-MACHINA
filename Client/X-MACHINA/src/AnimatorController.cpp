@@ -10,18 +10,16 @@
 
 AnimatorController::AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, rsptr<AnimatorLayer> baseLayer)
 	:
-	mParameters(parameters),
-	mBaseLayer(baseLayer)
+	mParameters(parameters)
 {
-	mCrntState = mBaseLayer->Entry();
+	mCrntState = baseLayer->Entry();
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
 	mParameters(other.mParameters)
 {
-	mBaseLayer = std::make_shared<AnimatorLayer>(*other.mBaseLayer);
-	mCrntState = mBaseLayer->Entry();
+	mCrntState = other.mCrntState;
 }
 
 void AnimatorController::Animate()
@@ -71,9 +69,8 @@ void AnimatorController::SetBool(const std::string& name, bool value)
 
 	mParameters[name].val.b = value;
 
-	const std::string destination = mCrntState->CheckTransition(name, value);
-	if (destination != "") {
-		mNextState = mBaseLayer->GetState(destination);
+	mNextState = mCrntState->CheckTransition(name, value);
+	if (mNextState != nullptr) {
 		mNextState->Init();
 	}
 }

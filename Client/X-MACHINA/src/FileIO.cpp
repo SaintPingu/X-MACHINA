@@ -490,6 +490,46 @@ namespace {
 
 		return transitions;
 	}
+
+	sptr<AnimatorLayer> LoadAnimatorLayer(FILE* file)
+	{
+		std::string token;
+
+		std::string layerName;
+		FileIO::ReadString(file, layerName);
+
+		// Entry
+		FileIO::ReadString(file, token);	// <Entry>:
+		std::vector<sptr<const AnimatorTransition>> entryTransitions = LoadTransitions(file);
+
+		sptr<AnimatorLayer> layer = std::make_shared<AnimatorLayer>(layerName, entryTransitions);
+
+		// States //
+		FileIO::ReadString(file, token);	// <States>:
+		int stateSize = FileIO::ReadVal<int>(file);
+
+		for (int i = 0; i < stateSize; ++i) {
+			// AnimationClip
+			std::string clipFolder, clipName;
+			FileIO::ReadString(file, clipFolder);
+			FileIO::ReadString(file, clipName);
+			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
+
+			// Transitions
+			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);
+
+			layer->AddState(std::make_shared<AnimatorState>(layer, clip, transitions));
+		}
+
+		// Sub Layers //
+		FileIO::ReadString(file, token);	// <Layer>:
+		int layerSize = FileIO::ReadVal<int>(file);
+		for (int i = 0; i < layerSize; ++i) {
+			layer->AddLayer(LoadAnimatorLayer(file));
+		}
+
+		return layer;
+	}
 }
 
 
@@ -648,36 +688,7 @@ namespace FileIO {
 		}
 
 		// Layer //
-		std::string layerName;
-		FileIO::ReadString(file, layerName);
-
-		// States //
-		Animations::StateMap states{};
-		Animations::LayerMap layers{};
-
-		FileIO::ReadString(file, token);	// <States>:
-		int stateSize = FileIO::ReadVal<int>(file);
-
-		for (int i = 0; i < stateSize; ++i) {
-			// AnimationClip
-			std::string clipFolder, clipName;
-			FileIO::ReadString(file, clipFolder);
-			FileIO::ReadString(file, clipName);
-			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
-
-			// Transitions
-			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);
-
-			sptr<AnimatorState> state = std::make_shared<AnimatorState>(clip, transitions);
-			states.insert(std::make_pair(state->GetName(), state));
-		}
-
-		// Entry
-		FileIO::ReadString(file, token);	// <Entry>:
-		std::vector<sptr<const AnimatorTransition>> entryTransitions = LoadTransitions(file);
-
-		sptr<AnimatorLayer> baseLayer = std::make_shared<AnimatorLayer>(layerName, states, layers);
-		baseLayer->SetEntry(entryTransitions);
+		sptr<AnimatorLayer> baseLayer = ::LoadAnimatorLayer(file);
 
 		return std::make_shared<AnimatorController>(params, baseLayer);
 	}

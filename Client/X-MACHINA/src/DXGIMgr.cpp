@@ -395,7 +395,7 @@ void DXGIMgr::CreateMRTs()
 
 		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,

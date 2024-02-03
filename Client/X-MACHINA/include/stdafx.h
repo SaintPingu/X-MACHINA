@@ -304,8 +304,19 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> BiTangentBuffer{};
 };
 
-// must be matched with Light.hlsl LightInfo
 struct LightInfo {
+	Vec3	Strength = { 0.5f, 0.5f, 0.5f };
+	float	FalloffStart = 1.f;					// point/spot light only
+	Vec3	Direction = { 0.f, -1.f, 0.f };     // directional/spot light only
+	float	FalloffEnd = 10.f;					// point/spot light only
+	Vec3	Position = { 0.f, 0.f, 0.f };		// point light only
+	float	SpotPower = 64.f;					// spot light only
+	int		Type{};
+	Vec3	Padding{};
+};
+
+// must be matched with Light.hlsl LightInfo
+struct LightLoadInfo {
 	Vec4	Ambient{};
 	Vec4	Diffuse{};
 	Vec4	Specular{};
@@ -325,15 +336,13 @@ struct LightInfo {
 	bool	IsEnable{};
 };
 
+struct SceneLoadLight {
+	std::array<LightLoadInfo, gkMaxSceneLight> Lights{};
+};
+
 // must be matched with Light.hlsl cbLights
 struct SceneLight {
 	std::array<LightInfo, gkMaxSceneLight> Lights{};
-
-	Vec4	GlobalAmbient{};
-
-	Vec4	FogColor{};
-	float	FogStart = 100.f;
-	float	FogRange = 300.f;
 };
 #pragma endregion
 

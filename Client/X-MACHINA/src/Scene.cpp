@@ -254,8 +254,11 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
+	passConstants.LightCount = mLight->GetLightCount();
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
-	
+	// TODO : set fog
+	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
+
 	frmResMgr->CopyData(passConstants);
 }
 
@@ -366,6 +369,7 @@ void Scene::BuildPlayers()
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("Gunship"));
+	//airplanePlayer->RemoveCollider();
 
 	mPlayers.push_back(airplanePlayer);
 

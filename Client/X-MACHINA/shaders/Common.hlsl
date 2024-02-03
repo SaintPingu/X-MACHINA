@@ -12,31 +12,35 @@
 #define gkMaxTexture            100
 #define gkMaxSceneLight         32
 
-struct LightInfo {
-    float4  Ambient;
-    float4  Diffuse;
-    float4  Sepcular;
-    
-    float3  Position;
-    float   Falloff;
-    
-    float3  Direction;
-    float   Theta; //cos(Theta)
-    
-    float3  Attenuation;
-    float   Phi; //cos(Phi)
-    
-    float   Range;
-    float   Padding;
-    int     Type;
-    bool    Enable;
+struct LightInfo
+{
+    float3  Strength;
+    float   FalloffStart;   // point/spot light only
+    float3  Direction;      // directional/spot light only
+    float   FalloffEnd;     // point/spot light only
+    float3  Position;       // point light only
+    float   SpotPower;      // spot light only
+    int     LightType;
+    float3  Padding;
+};
+
+struct LightColor
+{
+    float3  Diffuse;
+    float3  Specular;
+};
+
+struct Material
+{
+    float4  DiffuseAlbedo;
+    float   Metallic;
+    float   Roughness;
 };
 
 struct MaterialInfo {
-    float4  Ambient;
     float4  Diffuse;
-    float4  Sepcular;
-    float4  Emissive;
+    float3  FresnelR0;
+    float   Roughness;
     
     int DiffuseMap0Index;
     int DiffuseMap1Index;
@@ -63,10 +67,12 @@ struct PassInfo {
     float       DeltaTime;
 
     LightInfo   Lights[gkMaxSceneLight];
+    uint        LightCount;
+    float3      Padding;
+    
     float4      GlobalAmbient;
     
     float4      FogColor;
-    
     float       FogStart;
     float       FogRange;
     
@@ -75,6 +81,7 @@ struct PassInfo {
     int         RT2_NormalIndex;
     int         RT3_DepthIndex;
     int         RT4_DistanceIndex;
+    float3      Padding2;
 };
 
 struct ColliderInfo {
@@ -102,23 +109,59 @@ TextureCube     gSkyBoxTexture            : register(t1);
 Texture2D       gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
 SamplerState    gSamplerState             : register(s0);
 
-// 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding하여 출력한다.
-// 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding되어 저장된다.
+// 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding(어둡게)하여 출력한다.
+// 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding(밝게)되어 저장된다.
 // 따라서 빛, 조명과 관련된 연산은 비선형 공간이 아닌 선형 공간에서 처리해야 한다.
+
 // 감마 보정을 적용하는 함수
 float4 GammaEncoding(float4 color)
 {
     return float4(pow(color.rgb, 1 / 2.2f), color.a);
 }
+
 // 감마 보정을 해제하는 함수
 float4 GammaDecoding(float4 color)
 {
     return float4(pow(color.rgb, 2.2f), color.a);
 }
 
-float4 Mix(float4 colorA, float4 colorB, float t)
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
 {
-    return colorA * (1 - t) + colorB * t;
+    // [0,1] 공간에서 [-1,1]로 매핑한다.
+    float3 normalT = 2.0f * normalMapSample - 1.0;
+
+    // orthonormal basis(TBN 행렬)를 생성한다.
+    float3 N = unitNormalW;
+    float3 T = normalize(tangentW - dot(tangentW, N) * N);
+    float3 B = cross(N, T);
+
+    float3x3 TBN = float3x3(T, B, N);
+
+    // tangent 공간에서 world 공간으로 변환한다.
+    float3 bumpedNormalW = mul(normalT, TBN);
+
+    return bumpedNormalW;
+}
+
+bool IsWhite(float4 color)
+{
+    return color.rgb == float3(1.f, 1.f, 1.f) && color.a == 1.f;
+}
+
+float4 Fog(float4 color, float3 position)
+{
+    float3 camPos = gPassCB.CameraPos;
+    float3 posToCam = camPos - position;
+    float distance = length(posToCam);
+    
+    float factor = min(saturate((distance - gPassCB.FogStart) / gPassCB.FogRange), 0.8f);
+    return lerp(color, gPassCB.FogColor, factor);
+}
+
+float4 FogDistance(float4 color, float3 distance)
+{
+    float factor = min(saturate((distance - gPassCB.FogStart) / gPassCB.FogRange), 0.8f);
+    return lerp(color, gPassCB.FogColor, factor);
 }
 
 #endif

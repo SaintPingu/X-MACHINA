@@ -9,22 +9,64 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
-float4 PSStandard(VSOutput_Standard input) : SV_TARGET
+float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
 {
-    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
+    MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuseAlbedo = matInfo.Diffuse;
+    //float3 fresnelR0    = matInfo.FresnelR0;
+    //float roughness     = matInfo.Roughness;
+    float3 fresnelR0     = float3(0.91f, 0.92f, 0.92f);
+    float roughness      = 0.1f;
+    float metallic       = 0.1f;
+    int diffuseMapIndex  = matInfo.DiffuseMap0Index;
+    int normalMapIndex   = matInfo.NormalMapIndex;
     
-    if (mat.DiffuseMap0Index != -1)
+    if (diffuseMapIndex != -1)
     {
-        float4 color        = GammaDecoding(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV));
-        float3 normalW      = normalize(input.NormalW);
-        float4 illumination = Lighting(mat, input.PosW, normalW);
-        
-        return Fog(GammaEncoding(color * illumination), input.PosW);
+        // diffuseMap을 사용할 경우 샘플링하여 계산한다.
+        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gSamplerState, pin.UV));
+    }
+    
+    pin.NormalW = normalize(pin.NormalW);
+    float4 normalMapSample = (float4)0;
+    float3 bumpedNormalW = (float4)0;
+    if (normalMapIndex != -1)
+    {
+        // normal map을 사용할 경우 샘플링하여 월드 공간으로 변환한다.
+        normalMapSample = gTextureMap[normalMapIndex].Sample(gSamplerState, pin.UV);
+        bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
     }
     else
     {
-        float3 normalW  = normalize(input.NormalW);
-        float4 color    = Lighting(mat, input.PosW, normalW);
-        return color;
+        // normal map을 사용하지 않을 경우 입력 노말 값으로 대체한다.
+        bumpedNormalW = pin.NormalW;
     }
+    
+    // 해당 픽셀에서 카메라까지의 벡터
+    float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
+    
+    // 전역 조명의 ambient 값을 계산한다.
+    float4 ambient = gPassCB.GlobalAmbient * diffuseAlbedo;
+    
+    float3 shadowFactor = 1.f;
+    Material mat = { diffuseAlbedo, metallic, roughness };
+    LightColor lightColor = ComputeLighting(mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
+    
+    float4 litColor = ambient + float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
+    
+    //// specular reflection
+	//float3 r = reflect(-toCameraW, bumpedNormalW);
+	//float4 reflectionColor = gSkyBoxTexture.Sample(gSamplerState, r);
+	//float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+	//litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
+    
+    // 감마 디코딩을 수행했을 경우에만 감마 인코딩을 한다.
+    if (diffuseMapIndex != -1)
+    {
+        litColor = GammaEncoding(litColor);
+    }
+    
+    litColor.a = diffuseAlbedo.a;
+    
+    return litColor;
 }

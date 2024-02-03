@@ -6,8 +6,6 @@
 
 namespace {
 	constexpr int gkSunLightIdx = 0;
-
-	std::set<std::string> gkLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 }
 
 
@@ -15,23 +13,24 @@ namespace {
 
 Light::Light()
 	:
-	mLights(std::make_shared<SceneLight>())
+	mLights(std::make_shared<SceneLight>()),
+	mLoadLights(std::make_shared<SceneLoadLight>())
 {
-	XMStoreFloat4(&mLights->FogColor, Colors::Gray);
+	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 }
 
 Light::~Light()
 {
 	for (auto& light : mLightModels) {
-		if (gkLightModelNames.contains(light.first)) {
+		if (mLightModelNames.contains(light.first)) {
 			delete light.second;
 		}
 	}
 
-	gkLightModelNames.clear();
+	mLightModelNames.clear();
 }
 
-const LightInfo* Light::GetLightModel(const std::string& modelName) const
+const LightLoadInfo* Light::GetLightModel(const std::string& modelName) const
 {
 	assert(mLightModels.contains(modelName));
 
@@ -43,24 +42,43 @@ void Light::BuildLights(FILE* file)
 	LoadLightObjects(file);
 	LoadLightModels();
 
-	mLights->Lights[gkSunLightIdx].IsEnable = true;	// sunlight(전역조명)를 활성화한다.
+	mLoadLights->Lights[gkSunLightIdx].IsEnable = true;	// sunlight(전역조명)를 활성화한다.
 	SetSunlight();
+
+	BuildLights();
+}
+
+void Light::BuildLights()
+{
+	// TODO : 현재는 로드 라이트를 라이트에 복사하지만, 로드 부분을 수정하여 라이트에 바로 데이터를 채워줄 예정이다.
+	for (int i = 0; i < mLoadLights->Lights.size(); ++i) {
+		const auto& loadLight = mLoadLights->Lights[i];
+		auto& light = mLights->Lights[i];
+
+		light.Strength = Vec3{ loadLight.Diffuse.x, loadLight.Diffuse.y, loadLight.Diffuse.z };
+		light.FalloffStart = 1.f;
+		light.Direction = loadLight.Direction;
+		light.FalloffEnd = 30.f;
+		light.Position = loadLight.Position;
+		light.SpotPower = 64.f;
+		light.Type = loadLight.Type;
+	}
 }
 
 void Light::SetSunlight()
 {
-	LightInfo& light     = mLights->Lights[gkSunLightIdx];
+	LightLoadInfo& light     = mLoadLights->Lights[gkSunLightIdx];
 	light.Type           = static_cast<int>(LightType::Directional);
 	light.Ambient        = Vec4(0.1f, 0.1f, 0.1f, 1.f);
-	light.Diffuse        = Vec4(1.f, 0.956f, 0.839f, 1.f);
+	light.Diffuse        = Vec4(0.8f, 0.8f, 0.8f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
-	light.Direction      = Vec3(-0.6f, -0.6f, 0.3f);
+	light.Direction		 = Vec3(0.57735f, -0.57735f, 0.57735f);
 }
 
 void Light::LoadLightModels()
 {
-	for (auto& name : gkLightModelNames) {
-		LightInfo* light = new LightInfo;
+	for (auto& name : mLightModelNames) {
+		LightLoadInfo* light = new LightLoadInfo;
 		FileIO::LoadLightFromFile("Models/Lights/" + name + ".bin", &light);
 		mLightModels.insert(std::make_pair(name, light));
 	}
@@ -79,9 +97,9 @@ void Light::LoadLightObjects(FILE* file)
 	assert(lightCount <= gkMaxSceneLight);
 
 	int sameLightCount{};
-	LightInfo* modelLight{};
+	LightLoadInfo* modelLight{};
 	for (size_t i = 1; i < lightCount; ++i) {
-		LightInfo* light = &mLights->Lights[i];
+		LightLoadInfo* light = &mLoadLights->Lights[i];
 		light->IsEnable  = true;
 
 		if (sameLightCount <= 0) {

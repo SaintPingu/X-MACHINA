@@ -44,7 +44,7 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 		break;
 	case ShaderType::Deferred:
 		mPipelineStateDesc.NumRenderTargets = GBufferCount;
-		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;

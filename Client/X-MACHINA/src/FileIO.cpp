@@ -163,6 +163,7 @@ namespace {
 		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
+
 			switch (Hash(token)) {
 			case Hash("<Material>:"):
 			{
@@ -177,35 +178,43 @@ namespace {
 			}
 			break;
 			case Hash("<AlbedoColor>:"):
-				FileIO::ReadVal(file, matInfo->Albedo);
+				FileIO::ReadVal(file, matInfo->DiffuseAlbedo);
+				break;
+			case Hash("<FresnelR0>:"):
+				FileIO::ReadVal(file, matInfo->FresnelR0);
+				break;
+			case Hash("<Roughness>:"):
+				FileIO::ReadVal(file, matInfo->Roughness);
 				break;
 
 			case Hash("<EmissiveColor>:"):
-				FileIO::ReadVal(file, matInfo->Emissive);
+				Vec4 temp1; // TODO : 삭제
+				FileIO::ReadVal(file, temp1);
 				break;
 
 			case Hash("<SpecularColor>:"):
-				FileIO::ReadVal(file, matInfo->Specular);
+				FileIO::ReadVal(file, temp1);
 				break;
 
 			case Hash("<Glossiness>:"):
-				FileIO::ReadVal(file, matInfo->Glossiness);
+				float temp2; // TODO : 삭제
+				FileIO::ReadVal(file, temp2);
 				break;
 
 			case Hash("<Smoothness>:"):
-				FileIO::ReadVal(file, matInfo->Smoothness);
+				FileIO::ReadVal(file, temp2);
 				break;
 
 			case Hash("<Metallic>:"):
-				FileIO::ReadVal(file, matInfo->Metallic);
+				FileIO::ReadVal(file, temp2);
 				break;
 
 			case Hash("<SpecularHighlight>:"):
-				FileIO::ReadVal(file, matInfo->SpecularHighlight);
+				FileIO::ReadVal(file, temp2);
 				break;
 
 			case Hash("<GlossyReflection>:"):
-				FileIO::ReadVal(file, matInfo->GlossyReflection);
+				FileIO::ReadVal(file, temp2);
 				break;
 
 				// 여러 텍스처를 로드할 수 있도록 변경
@@ -431,9 +440,9 @@ namespace FileIO {
 	}
 
 
-	void LoadLightFromFile(const std::string& fileName, LightInfo** out)
+	void LoadLightFromFile(const std::string& fileName, LightLoadInfo** out)
 	{
-		LightInfo* light = *out;
+		LightLoadInfo* light = *out;
 
 		FILE* file = nullptr;
 		::fopen_s(&file, fileName.c_str(), "rb");

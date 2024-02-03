@@ -1,10 +1,5 @@
 #include "Light.hlsl"
 
-struct PSOutput_MRT {
-    float4 Texture  : SV_TARGET0;
-    float  Distance : SV_TARGET4;
-};
-
 struct VSOutput_Standard {
     float4 PosH       : SV_POSITION;
     float3 PosW       : POSITION;
@@ -14,31 +9,72 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
-#ifdef POST_PROCESSING
-PSOutput_MRT PSDeferred(VSOutput_Standard input)
+struct PSOutput_MRT {
+    float4 Texture  : SV_TARGET0;
+    float  Distance : SV_TARGET4;
+};
+
+PSOutput_MRT PSDeferred(VSOutput_Standard pin)
 {
+    MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuseAlbedo = matInfo.Diffuse * 1.5f; // 현재 유니티 실제 값보다 어둡기 때문에 보정을 위한 값
+    //float3 fresnelR0    = matInfo.FresnelR0;
+    //float roughness     = matInfo.Roughness;
+    float metallic       = 0.5f;
+    float roughness      = 0.1f;
+    int diffuseMapIndex  = matInfo.DiffuseMap0Index;
+    int normalMapIndex   = matInfo.NormalMapIndex;
+    
+    if (diffuseMapIndex != -1)
+    {
+        // diffuseMap을 사용할 경우 샘플링하여 계산한다.
+        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gSamplerState, pin.UV));
+    }
+    
+    pin.NormalW = normalize(pin.NormalW);
+    float4 normalMapSample = (float4)0;
+    float3 bumpedNormalW = (float4)0;
+    if (normalMapIndex != -1)
+    {
+        // normal map을 사용할 경우 샘플링하여 월드 공간으로 변환한다.
+        normalMapSample = gTextureMap[normalMapIndex].Sample(gSamplerState, pin.UV);
+        bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+    }
+    else
+    {
+        // normal map을 사용하지 않을 경우 입력 노말 값으로 대체한다.
+        bumpedNormalW = pin.NormalW;
+    }
+    
+    // 해당 픽셀에서 카메라까지의 벡터
+    float3 toCameraW = gPassCB.CameraPos - pin.PosW;
+    
+    // 전역 조명의 ambient 값을 계산한다.
+    float4 ambient = gPassCB.GlobalAmbient * diffuseAlbedo;
+    
+    float3 shadowFactor = 1.f;
+    Material mat = { diffuseAlbedo, metallic, roughness };
+    LightColor lightColor = ComputeLighting(mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
+    
+    float4 litColor = ambient + float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
+    
+    //// specular reflection
+	//float3 r = reflect(-toCameraW, bumpedNormalW);
+	//float4 reflectionColor = gSkyBoxTexture.Sample(gSamplerState, r);
+	//float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+	//litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
+    
+    // 감마 디코딩을 수행했을 경우에만 감마 인코딩을 한다.
+    if (diffuseMapIndex != -1)
+    {
+        litColor = GammaEncoding(litColor);
+    }
+    
+    litColor.a = diffuseAlbedo.a;
+    
     PSOutput_MRT output;
-    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
-    
-    input.NormalW = normalize(input.NormalW);
-    
-    float4 illumination = Lighting(mat, input.PosW, input.NormalW);
-    
-    //output.Position = float4(input.PositionW, 1.f);
-    //output.normal = float4(input.NormalW.xyz * 0.5f + 0.5f, 1.f);
-    output.Distance = length(input.PosW - gPassCB.CameraPos);
-    
-    if (mat.DiffuseMap0Index != -1)
-        output.Texture = GammaDecoding(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV)) * illumination;
-    else 
-        output.Texture = GammaDecoding(illumination);
+    output.Texture = litColor;
+    output.Distance = length(toCameraW);
     
     return output;
 }
-#else
-float4 PSTexturedLightingToMultipleRTs(VSOutput_Standard input) : SV_TARGET
-{
-    return gAlbedoTexture.Sample(gSamplerState, input.UV);
-}
-
-#endif

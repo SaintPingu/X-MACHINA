@@ -1,4 +1,4 @@
-#include "Light.hlsl"
+#include "Common.hlsl"
 
 struct VSOutput_Skybox {
     float3 PosL : POSITION;
@@ -9,6 +9,6 @@ float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
 {
     float4 color = gSkyBoxTexture.Sample(gSamplerState, input.PosL);
     
-    return color;
     //return lerp(color, gPassCB.FogColor, 0.9f);
+    return color;
 }

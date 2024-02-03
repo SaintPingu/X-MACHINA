@@ -13,75 +13,56 @@ struct PSOutput_MRT {
     float  Distance : SV_TARGET4;
 };
 
-#ifdef POST_PROCESSING
-PSOutput_MRT PSTerrain(VSOutput_Terrain input)
+PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
 {
-    PSOutput_MRT output;
-    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
+    MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
+    int diffuseMap0Index = matInfo.DiffuseMap0Index;
+    int diffuseMap1Index = matInfo.DiffuseMap1Index;
+    int diffuseMap2Index = matInfo.DiffuseMap2Index;
+    int diffuseMap3Index = matInfo.DiffuseMap3Index;
     
-    float4 illumination = Lighting(mat, input.PosW, input.NormalW);
-    
-    float4 splatColor = gTextureMap[mat.DiffuseMap3Index].Sample(gSamplerState, input.UV1);
+    float4 splatColor = gTextureMap[diffuseMap3Index].Sample(gSamplerState, pin.UV1);
     float4 layer0 = float4(0, 0, 0, 0);
     float4 layer1 = float4(0, 0, 0, 0);
     float4 layer2 = float4(0, 0, 0, 0);
     
     if (splatColor.r > 0.f)
     {
-        layer0 = GammaDecoding(gTextureMap[mat.DiffuseMap0Index].Sample(gSamplerState, input.UV0));
+        layer0 = GammaDecoding(gTextureMap[diffuseMap0Index].Sample(gSamplerState, pin.UV0));
         layer0 *= splatColor.r;
 
     }
     if (splatColor.g > 0.f)
     {
-        layer1 = GammaDecoding(gTextureMap[mat.DiffuseMap1Index].Sample(gSamplerState, input.UV0));
+        layer1 = GammaDecoding(gTextureMap[diffuseMap1Index].Sample(gSamplerState, pin.UV0));
         layer1 *= splatColor.g;
     }
     if (splatColor.b > 0.f)
     {
-        layer2 = GammaDecoding(gTextureMap[mat.DiffuseMap2Index].Sample(gSamplerState, input.UV0));
+        layer2 = GammaDecoding(gTextureMap[diffuseMap2Index].Sample(gSamplerState, pin.UV0));
         layer2 *= splatColor.b;
     }
-
-    float4 texColor = normalize(layer0 + layer1 + layer2);
+    float4 diffuseAlbedo = normalize(layer0 + layer1 + layer2);
+    pin.NormalW = normalize(pin.NormalW);
     
-    output.Texture  = texColor * illumination;
-    output.Distance = length(input.PosW - gPassCB.CameraPos);
+    // 해당 픽셀에서 카메라까지의 벡터
+    float3 toCameraW = gPassCB.CameraPos - pin.PosW;
+    
+    // 전역 조명의 ambient 값을 계산한다.
+    float4 ambient = gPassCB.GlobalAmbient * diffuseAlbedo;
+    
+    // 임시 값
+    float3 shadowFactor  = 1.f;
+    float metallic       = 0.0f;
+    float roughness      = 0.9f;
+    Material mat = { diffuseAlbedo, metallic, roughness };
+    LightColor lightColor = ComputeLighting(mat, pin.PosW, pin.NormalW, toCameraW, shadowFactor);
+    
+    float4 litColor = ambient + float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
+    
+    PSOutput_MRT output;
+    output.Texture = GammaEncoding(litColor);
+    output.Distance = length(toCameraW);
     
     return output;
 }
-#else
-float4 PSTerrain(VSOutput_Terrain input) : SV_TARGET
-{
-    float4 illumination = Lighting(input.PositionW, input.NormalW);
-    
-    float4 splatColor = gTerrainSplatMap.Sample(gSamplerState, input.UV1);
-    float4 layer0 = float4(0, 0, 0, 0);
-    float4 layer1 = float4(0, 0, 0, 0);
-    float4 layer2 = float4(0, 0, 0, 0);
-    
-    if (splatColor.r > 0.1f)
-    {
-        layer0 = gTerrainTextureLayer0.Sample(gSamplerState, input.UV0);
-        layer0 *= splatColor.r;
-    }
-    if (splatColor.g > 0.f)
-    {
-        layer1 = gTerrainTextureLayer1.Sample(gSamplerState, input.UV0);
-        layer1 *= splatColor.g;
-    }
-    if (splatColor.b > 0.f)
-    {
-        layer2 = gTerrainTextureLayer2.Sample(gSamplerState, input.UV0);
-        layer2 *= splatColor.b;
-    }
-    if (splatColor.a > 0.f)
-    {
-        layer3 = gTerrainTextureLayer3.Sample(gSamplerState, input.UV0);
-        layer3 *= splatColor.a;
-    }
-    float4 texColor = normalize(layer0 + layer1 + layer2);
-    
-    return saturate(illumination * 0.5 + texColor * 0.5f);;
-}
-#endif

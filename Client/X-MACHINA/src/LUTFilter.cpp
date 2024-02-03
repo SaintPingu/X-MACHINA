@@ -80,7 +80,7 @@ void LUTFilter::CreateDescriptors()
 	uavDesc.Texture2D.MipSlice = 0;
 
 	mLUT0GpuSrv = scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle();
-	mLUT1GpuSrv = scene->GetTexture("LUT_FoggyNight")->GetGpuDescriptorHandle();
+	mLUT1GpuSrv = scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle();
 	mInputGpuSrv = scene->GetDescHeap()->CreateShaderResourceView(mInput.Get(), &srvDesc);
 	mOutputGpuUav = scene->GetDescHeap()->CreateUnorderedAccessView(mOutput.Get(), &uavDesc);
 }

@@ -480,6 +480,26 @@ void ModelObjectMesh::CreateSphereMesh(float radius, int numSegments, bool isLin
 	CreateVertexBufferViews();
 	CreateIndexBuffer(indices);
 }
+
+void ModelObjectMesh::CreateRectangleMesh()
+{
+	float w2 = 0.5f;
+	float h2 = 0.5f;
+
+	std::vector<Vec3> vertices(4);
+	vertices[0] = Vec3(-w2, -h2, 0);
+	vertices[1] = Vec3(-w2, +h2, 0);
+	vertices[2] = Vec3(+w2, +h2, 0);
+	vertices[3] = Vec3(+w2, -h2, 0);
+
+	std::vector<UINT> indices(6);
+	indices[0] = 0; indices[1] = 1; indices[2] = 2;
+	indices[3] = 0; indices[4] = 2; indices[5] = 3;
+
+	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
+	CreateVertexBufferViews();
+	CreateIndexBuffer(indices);
+}
 #pragma endregion
 
 

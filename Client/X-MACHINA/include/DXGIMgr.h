@@ -106,6 +106,7 @@ public:
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
 	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
+	const FilterOption GetFilterOption() const				{ return mFilterOption; }
 #pragma endregion
 
 #pragma region Setter

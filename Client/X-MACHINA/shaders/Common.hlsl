@@ -82,7 +82,14 @@ struct PassInfo {
     int         RT2_NormalIndex;
     int         RT3_DepthIndex;
     int         RT4_DistanceIndex;
-    float3      Padding2;
+    
+    int         RT0_OffScreenIndex;
+    float2      Padding2;
+};
+
+struct PostPassInfo {
+    int         RT0_OffScreenIndex;
+    float3      Padding;
 };
 
 struct ColliderInfo {
@@ -100,7 +107,8 @@ struct SB_ColorInst {
 
 ConstantBuffer<ObjectInfo> gObjectCB     : register(b0);
 ConstantBuffer<PassInfo> gPassCB         : register(b1);
-ConstantBuffer<ColliderInfo> gColliderCB : register(b2);
+ConstantBuffer<PostPassInfo> gPostPassCB : register(b2);
+ConstantBuffer<ColliderInfo> gColliderCB : register(b3);
 
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);

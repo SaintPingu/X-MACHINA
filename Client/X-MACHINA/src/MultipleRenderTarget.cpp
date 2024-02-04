@@ -16,6 +16,11 @@ rsptr<Texture> MultipleRenderTarget::GetTexture(GBuffer index) const
 	return mRts[static_cast<UINT8>(index)].Target;
 }
 
+rsptr<Texture> MultipleRenderTarget::GetTexture(OffScreen index) const
+{
+	return mRts[static_cast<UINT8>(index)].Target;
+}
+
 void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle)
 {
 	mGroupType = groupType;
@@ -24,6 +29,9 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 	mDsvHandle = dsvHandle;
 
 	assert(mMaxRtCnt >= mRtCnt);
+
+	mViewport = D3D12_VIEWPORT{ 0.f, 0.f, mRts[0].Target->GetWidth(), mRts[0].Target->GetHeight(), 0.f, 1.f };
+	mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(mRts[0].Target->GetWidth()), static_cast<LONG>(mRts[0].Target->GetHeight()) };
 
 	// window resize를 할 때 Create함수가 다시 불리기 때문에 RTV 힙이 이미 존재하는지 검사한다.
 	if (!mRtvHeap) {
@@ -47,7 +55,6 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		rtvDesc.Texture2D.PlaneSlice = 0;
 		rtvDesc.Format = mRts[i].Target->GetResource()->GetDesc().Format;
 
-		// 후면 버퍼일 경우 SRV를 생성하지 않는다.
 		switch (groupType)
 		{
 		case GroupType::SwapChain:
@@ -55,7 +62,12 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		case GroupType::GBuffer:	
 			scene->CreateShaderResourceView(mRts[i].Target.get());
 			break;
+		case GroupType::OffScreen:
+			scene->CreateShaderResourceView(mRts[i].Target.get());
+			scene->CreateUnorderedAccessView(mRts[i].Target.get());
+			break;
 		default:
+			assert(1);
 			break;
 		}
 
@@ -74,15 +86,15 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 
 void MultipleRenderTarget::OMSetRenderTargets()
 {
-	// set viewports
-	// set scissorRects
+	cmdList->RSSetViewports(1, &mViewport);
+	cmdList->RSSetScissorRects(1, &mScissorRect);
 	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, &mDsvHandle);
 }
 
 void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 {
-	// set viewports
-	// set scissorRects
+	cmdList->RSSetViewports(1, &mViewport);
+	cmdList->RSSetScissorRects(1, &mScissorRect);
 	cmdList->OMSetRenderTargets(count, &mRts[index].RtvHandle, FALSE, &mDsvHandle);
 }
 

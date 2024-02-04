@@ -192,6 +192,16 @@ void Scene::CreateShaderResourceView(Texture* texture)
 	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
 }
 
+void Scene::CreateUnorderedAccessView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = texture->GetUnorderedAccessViewDesc();
+
+	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
+
+	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
+}
+
 void Scene::CreateGraphicsRootSignature()
 {
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
@@ -199,6 +209,7 @@ void Scene::CreateGraphicsRootSignature()
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
 	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
 	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
 
 	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
 	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
@@ -209,7 +220,7 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
 	
 	// GameObjectInfo를 Collider로 변경, 충돌 박스만 그려주는 용도
-	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
+	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
 
 	mGraphicsRootSignature->Create();
 }
@@ -256,12 +267,12 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
+	passConstants.RT0_OffScreenIndex = dxgi->GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
 	passConstants.LightCount = mLight->GetLightCount();
 	passConstants.GlobalAmbient = Vec4(0.1f, 0.1f, 0.1f, 1.f);
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
-	// TODO : set fog
+	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
-
+	
 	frmResMgr->CopyData(passConstants);
 }
 
@@ -347,7 +358,10 @@ void Scene::BuildForwardShader()
 	mSpriteShader->Create(shaderType);
 
 	mFinalShader = std::make_shared<FinalShader>();
-	mFinalShader->Create(shaderType, DXGI_FORMAT_D32_FLOAT);
+	mFinalShader->Create(shaderType);
+
+	mOffScreenShader = std::make_shared<OffScreenShader>();
+	mOffScreenShader->Create(shaderType);
 }
 
 void Scene::BuildDeferredShader()
@@ -636,8 +650,6 @@ void Scene::OnPrepareRender()
 {
 	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
 
-	mainCamera->SetViewportsAndScissorRects();
-
 	mDescriptorHeap->Set();
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
@@ -713,6 +725,22 @@ void Scene::RenderForward()
 	}
 
 	canvas->Render();
+}
+
+void Scene::RenderPostProcessing(int offScreenIndex)
+{
+	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
+	PostPassConstants passConstants;
+	passConstants.RT0_OffScreenIndex = offScreenIndex;
+	frmResMgr->CopyData(passConstants);
+	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
+
+	// 쉐이더 설정
+	mOffScreenShader->Set();
+
+	// 렌더링
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmdList->DrawInstanced(6, 1, 0, 0);
 }
 
 void Scene::RenderTerrain()

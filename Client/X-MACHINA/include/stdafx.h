@@ -235,6 +235,7 @@ enum class RootParam {
 	// Compute RootParam
 	Object = 0,
 	Pass,
+	PostPass,
 	Instancing,
 	Material,
 	SkyBox,
@@ -275,9 +276,17 @@ enum class GBuffer : UINT8 {
 };
 enum { GBufferCount = static_cast<UINT8>(GBuffer::_count) };
 
+enum class OffScreen : UINT8 {
+	Texture = 0,
+
+	_count
+};
+enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
+
 enum class GroupType : UINT8 {
 	SwapChain = 0,
 	GBuffer,
+	OffScreen,
 
 	_count
 };

@@ -33,8 +33,6 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 	mPipelineStateDesc.SampleDesc.Count      = 1;
 	mPipelineStateDesc.Flags                 = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-	mPipelineStateDesc.NumRenderTargets = MultipleRenderTarget::mMaxRtCnt;
-
 	// 쉐이더 타입에 따라서 RTV 포맷을 다르게 한다. 기본은 Forward이다.
 	switch (shaderType)
 	{
@@ -44,13 +42,11 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 		break;
 	case ShaderType::Deferred:
 		mPipelineStateDesc.NumRenderTargets = GBufferCount;
-		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		mPipelineStateDesc.RTVFormats[4] = DXGI_FORMAT_R32_FLOAT;
-		break;
-	default:
 		break;
 	}
 
@@ -666,7 +662,6 @@ D3D12_SHADER_BYTECODE CanvasShader::CreatePixelShader()
 }
 #pragma endregion
 
-
 #pragma region FinalShader
 void FinalShader::Set(int pipelineStateIndex)
 {
@@ -711,6 +706,13 @@ D3D12_SHADER_BYTECODE FinalShader::CreateVertexShader()
 D3D12_SHADER_BYTECODE FinalShader::CreatePixelShader()
 {
 	return D3DUtil::CompileShaderFile(L"PShader_Final.hlsl", "PSFinal", "ps_5_1", mPSBlob);
+}
+#pragma endregion
+
+#pragma region FinalShader
+D3D12_SHADER_BYTECODE OffScreenShader::CreatePixelShader()
+{
+	return D3DUtil::CompileShaderFile(L"PShader_OffScreen.hlsl", "PSOffScreen", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 

@@ -70,6 +70,7 @@ private:
 	sptr<Shader> mTransparentShader{};
 	sptr<Shader> mBulletShader{};
 	sptr<Shader> mFinalShader{};
+	sptr<Shader> mOffScreenShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};
@@ -160,6 +161,8 @@ public:
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
 	// texture의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(Texture* texture);
+	// texture의 UAV 리소스를 생성한다.
+	void CreateUnorderedAccessView(Texture* texture);
 
 private:
 	void CreateGraphicsRootSignature();
@@ -223,6 +226,7 @@ public:
 	void RenderLights();
 	void RenderFinal();
 	void RenderForward();
+	void RenderPostProcessing(int offScreenIndex);
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.

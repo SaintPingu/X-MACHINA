@@ -9,13 +9,14 @@ MaterialData::MaterialData()
 #pragma endregion
 
 #pragma region FrameResource
-FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int materialCount)
+FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int postPassCount, int objectCount, int materialCount)
 {
 	THROW_IF_FAILED(pDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(CmdAllocator.GetAddressOf())));
 
 	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, passCount, true);
+	PostPassCB = std::make_unique<UploadBuffer<PostPassConstants>>(pDevice, postPassCount, true);
 	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, objectCount, true);
 	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, materialCount, false);
 }
@@ -28,12 +29,18 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mFence(fence),
 	mFrameResourceCount(3),
 	mPassCount(1),
+	mPostPassCount(1),
 	mObjectCount(2000),
 	mMaterialCount(500)
 {
 	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
 	for (int i = 0; i < mPassCount; ++i) {
 		mAvailableIndices[static_cast<int>(BufferType::Pass)].push(i);
+	}
+
+	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
+	for (int i = 0; i < mPostPassCount; ++i) {
+		mAvailableIndices[static_cast<int>(BufferType::PostPass)].push(i);
 	}
 
 	mActiveIndices[static_cast<int>(BufferType::Object)].reserve(mObjectCount);
@@ -53,6 +60,12 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr(int elementIn
 	return passCB->Resource()->GetGPUVirtualAddress() + elementIndex * passCB->GetElementByteSize();
 }
 
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPostPassCBGpuAddr(int elementIndex) const
+{
+	const auto& postPassCB = mCurrFrameResource->PostPassCB;
+	return postPassCB->Resource()->GetGPUVirtualAddress() + elementIndex * postPassCB->GetElementByteSize();
+}
+
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetObjCBGpuAddr(int elementIndex) const
 {
 	const auto& objectCB = mCurrFrameResource->ObjectCB;
@@ -69,7 +82,7 @@ void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
 	for (int i = 0; i < mFrameResourceCount; ++i) {
-		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mObjectCount, mMaterialCount));
+		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mPostPassCount, mObjectCount, mMaterialCount));
 	}
 
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
@@ -107,6 +120,11 @@ void FrameResourceMgr::CopyData(const PassConstants& data)
 {
 	// 패스 당 상수 버퍼는 메인 패스 한 개만 존재하며 나중에 추가될 수 있다.
 	mCurrFrameResource->PassCB->CopyData(0, data);
+}
+
+void FrameResourceMgr::CopyData(const PostPassConstants& data)
+{
+	mCurrFrameResource->PostPassCB->CopyData(0, data);
 }
 
 void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)

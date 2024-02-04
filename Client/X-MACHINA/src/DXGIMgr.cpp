@@ -75,6 +75,7 @@ void DXGIMgr::Render()
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
+	GetMRT(GroupType::OffScreen)->ClearRenderTargetView();
 #pragma endregion
 
 #pragma region MainRender
@@ -92,8 +93,8 @@ void DXGIMgr::Render()
 		// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
 		scene->RenderLights();
 
-		// 후면 버퍼를 렌더 타겟으로 설정하고 포워드 렌더링
-		GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
+		// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
+		GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
 		scene->RenderFinal();
 		scene->RenderForward();
 	}
@@ -102,48 +103,20 @@ void DXGIMgr::Render()
 #pragma endregion
 
 #pragma region PostProcessing
+	UINT offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
 	switch (mFilterOption)
 	{
-	case FilterOption::None:
-	{
-		// 현재 후면 버퍼 텍스처 리소스를 가져온다.
-		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
-
-		// 필터가 없는 경우 리소스 상태를 렌더 타겟 상태에서 제시 상태로 변경한다.
-		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	}
-	break;
 	case FilterOption::Blur:
-	{
-		// 현재 후면 버퍼 텍스처 리소스를 가져온다.
-		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
-
-		// 후면 버퍼를 필터 리소스에 복사하여 블러 필터를 실행한다.
-		mBlurFilter->Execute(backBuffer.Get(), 10);
-
-		// 완료된 필터 리소스를 후면 버퍼에 복사한다.
-		mBlurFilter->CopyResource(backBuffer.Get());
-
-		// 후면 버퍼를 복사하였기 때문에 리소스 상태를 COPY_DEST에서 PRESENT로 변경한다.
-		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
-	}
-	break;
+		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
+		break;
 	case FilterOption::LUT:
-	{
-		// 현재 후면 버퍼 텍스처 리소스를 가져온다.
-		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
-
-		// 후면 버퍼를 필터 리소스에 복사하여 블러 필터를 실행한다.
-		mLUTFilter->Execute(backBuffer.Get());
-
-		// 완료된 필터 리소스를 후면 버퍼에 복사한다.
-		mLUTFilter->CopyResource(backBuffer.Get());
-
-		// 후면 버퍼를 복사하였기 때문에 리소스 상태를 COPY_DEST에서 PRESENT로 변경한다.
-		D3DUtil::ResourceTransition(backBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
+		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
+		break;
 	}
-	break;
-	}
+
+	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
+	scene->RenderPostProcessing(offScreenIndex);
+	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 
 	RenderEnd();
@@ -395,7 +368,7 @@ void DXGIMgr::CreateMRTs()
 
 		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
@@ -415,6 +388,19 @@ void DXGIMgr::CreateMRTs()
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDsvHandle);
+	}
+#pragma endregion
+
+#pragma region OffScreen
+	{
+		std::vector<RenderTarget> rts(OffScreenCount);
+
+		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+
+		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDsvHandle);
 	}
 #pragma endregion
 

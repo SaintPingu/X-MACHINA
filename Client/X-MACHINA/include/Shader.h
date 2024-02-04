@@ -19,6 +19,7 @@ enum class ShaderType : UINT8
 {
 	Forward = 0,
 	Deferred,
+	Final,
 };
 #pragma endregion
 
@@ -259,6 +260,17 @@ protected:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+};
+#pragma endregion
+
+// 후면 버퍼 대신 그려줄 쉐이더
+class OffScreenShader : public FinalShader {
+public:
+	OffScreenShader() = default;
+	virtual ~OffScreenShader() = default;
+
+protected:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 #pragma endregion

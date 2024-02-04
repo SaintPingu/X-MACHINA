@@ -80,33 +80,7 @@ GraphicsRootSignature::GraphicsRootSignature()
 
 RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 {
-	// sampler
-	D3D12_STATIC_SAMPLER_DESC samplerDescs[2]{};
-	samplerDescs[0].Filter           = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDescs[0].AddressU         = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDescs[0].AddressV         = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDescs[0].AddressW         = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDescs[0].MipLODBias       = 0;
-	samplerDescs[0].MaxAnisotropy    = 1;
-	samplerDescs[0].ComparisonFunc   = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDescs[0].MinLOD           = 0;
-	samplerDescs[0].MaxLOD           = D3D12_FLOAT32_MAX;
-	samplerDescs[0].ShaderRegister   = 0;
-	samplerDescs[0].RegisterSpace    = 0;
-	samplerDescs[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	samplerDescs[1].Filter           = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDescs[1].AddressU         = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDescs[1].AddressV         = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDescs[1].AddressW         = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDescs[1].MipLODBias       = 0;
-	samplerDescs[1].MaxAnisotropy    = 1;
-	samplerDescs[1].ComparisonFunc   = D3D12_COMPARISON_FUNC_ALWAYS;
-	samplerDescs[1].MinLOD           = 0;
-	samplerDescs[1].MaxLOD           = D3D12_FLOAT32_MAX;
-	samplerDescs[1].ShaderRegister   = 1;
-	samplerDescs[1].RegisterSpace    = 0;
-	samplerDescs[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	auto staticSamplers = GetStaticSamplers();
 
 	// flags
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -119,8 +93,8 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	rootSignatureDesc.NumParameters     = (UINT)mParams.size();
 	rootSignatureDesc.pParameters       = mParams.data();
-	rootSignatureDesc.NumStaticSamplers = _countof(samplerDescs);
-	rootSignatureDesc.pStaticSamplers   = samplerDescs;
+	rootSignatureDesc.NumStaticSamplers = staticSamplers.size();
+	rootSignatureDesc.pStaticSamplers	= staticSamplers.data();
 	rootSignatureDesc.Flags             = rootSignatureFlags;
 
 	// serialize
@@ -133,6 +107,62 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
 
 	return mRootSignature;
+}
+
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GraphicsRootSignature::GetStaticSamplers()
+{
+	// 자주 사용되는 샘플러들
+
+	const CD3DX12_STATIC_SAMPLER_DESC pointWrap(
+		0, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC pointClamp(
+		1, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC linearWrap(
+		2, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC linearClamp(
+		3, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC anisotropicWrap(
+		4, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressW
+		0.0f,                             // mipLODBias
+		8);                               // maxAnisotropy
+
+	const CD3DX12_STATIC_SAMPLER_DESC anisotropicClamp(
+		5, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressW
+		0.0f,                              // mipLODBias
+		8);                                // maxAnisotropy
+
+	return {
+		pointWrap, pointClamp,
+		linearWrap, linearClamp,
+		anisotropicWrap, anisotropicClamp };
 }
 #pragma endregion
 

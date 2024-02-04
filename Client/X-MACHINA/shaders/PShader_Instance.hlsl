@@ -16,8 +16,7 @@ PSOutput_MRT PSInstancing(VSOutput_Inst input)
     MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
     
     PSOutput_MRT output;
-    //output.Texture = mat.Diffuse; // 해당 값이 실제 모델의 머티리얼 정보 값이다.
-    output.Texture = input.Color;
+    output.Texture = mat.Diffuse;
     output.Distance = input.PosW;
     
     return output;

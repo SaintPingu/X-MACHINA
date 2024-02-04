@@ -20,7 +20,7 @@ float4 PSWater(VSOutput_Water pin) : SV_TARGET
     if (diffuseMapIndex != -1)
     {
         // diffuseMap을 사용할 경우 샘플링하여 계산한다.
-        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gSamplerState, pin.UV));
+        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
     
     pin.NormalW = normalize(pin.NormalW);

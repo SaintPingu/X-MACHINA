@@ -39,8 +39,9 @@ struct Material
 
 struct MaterialInfo {
     float4  Diffuse;
-    float3  FresnelR0;
+    float   Metallic;
     float   Roughness;
+    float2  Padding;
     
     int DiffuseMap0Index;
     int DiffuseMap1Index;
@@ -105,9 +106,15 @@ StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
 StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);
 
-TextureCube     gSkyBoxTexture            : register(t1);
-Texture2D       gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
-SamplerState    gSamplerState             : register(s0);
+TextureCube  gSkyBoxTexture            : register(t1);
+Texture2D    gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
+
+SamplerState gsamPointWrap        : register(s0);
+SamplerState gsamPointClamp       : register(s1);
+SamplerState gsamLinearWrap       : register(s2);
+SamplerState gsamLinearClamp      : register(s3);
+SamplerState gsamAnisotropicWrap  : register(s4);
+SamplerState gsamAnisotropicClamp : register(s5);
 
 // 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding(어둡게)하여 출력한다.
 // 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding(밝게)되어 저장된다.

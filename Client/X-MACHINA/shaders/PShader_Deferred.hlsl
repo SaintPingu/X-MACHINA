@@ -17,18 +17,17 @@ struct PSOutput_MRT {
 PSOutput_MRT PSDeferred(VSOutput_Standard pin)
 {
     MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
-    float4 diffuseAlbedo = matInfo.Diffuse * 1.5f; // 현재 유니티 실제 값보다 어둡기 때문에 보정을 위한 값
-    //float3 fresnelR0    = matInfo.FresnelR0;
-    //float roughness     = matInfo.Roughness;
-    float metallic       = 0.5f;
-    float roughness      = 0.1f;
+    float4 diffuseAlbedo = matInfo.Diffuse;
+    float metallic       = matInfo.Metallic;
+    float roughness      = matInfo.Roughness;
     int diffuseMapIndex  = matInfo.DiffuseMap0Index;
     int normalMapIndex   = matInfo.NormalMapIndex;
+    int roughMapIndex    = matInfo.RoughnessMapIndex;
     
     if (diffuseMapIndex != -1)
     {
         // diffuseMap을 사용할 경우 샘플링하여 계산한다.
-        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gSamplerState, pin.UV));
+        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
     
     pin.NormalW = normalize(pin.NormalW);
@@ -37,13 +36,18 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     if (normalMapIndex != -1)
     {
         // normal map을 사용할 경우 샘플링하여 월드 공간으로 변환한다.
-        normalMapSample = gTextureMap[normalMapIndex].Sample(gSamplerState, pin.UV);
+        normalMapSample = gTextureMap[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
         bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
     }
     else
     {
         // normal map을 사용하지 않을 경우 입력 노말 값으로 대체한다.
         bumpedNormalW = pin.NormalW;
+    }
+    
+    if (roughMapIndex != -1)
+    {
+        roughness *= gTextureMap[roughMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
     }
     
     // 해당 픽셀에서 카메라까지의 벡터

@@ -27,6 +27,7 @@ class GraphicsRootSignature;
 class ComputeRootSignature;
 class DescriptorHeap;
 class ObjectPool;
+class TestCube;
 #pragma endregion
 
 
@@ -86,6 +87,9 @@ private:
 	std::vector<sptr<GridObject>> mPlayers{};
 	sptr<GridObject> mPlayer{};					// main player
 	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
+
+	/* TestCube */
+	std::vector<sptr<TestCube>> mTestCubes{};
 
 	/* Map */
 	sptr<Terrain> mTerrain{};
@@ -186,6 +190,7 @@ private:
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
+	void BuildTestCube();
 
 	/* Grid */
 	// generate grids
@@ -231,6 +236,7 @@ private:
 	void RenderBullets();
 	void RenderInstanceObjects();
 	void RenderFXObjects();
+	void RenderTestCubes();
 
 	// render [billboards]
 	void RenderBillboards();

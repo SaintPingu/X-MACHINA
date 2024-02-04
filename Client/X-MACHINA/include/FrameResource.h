@@ -52,8 +52,9 @@ struct ObjectConstants {
 
 struct MaterialData {
     Vec4    DiffuseAlbedo{};
-    Vec3    FresnelR0{};
+    float   Metallic{};
     float   Roughness{};
+    Vec2    Padding{};
 
     std::array<int, TextureMapCount> MapIndices;
 

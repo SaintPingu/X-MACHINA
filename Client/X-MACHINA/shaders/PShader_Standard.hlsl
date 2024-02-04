@@ -13,18 +13,15 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
 {
     MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
     float4 diffuseAlbedo = matInfo.Diffuse;
-    //float3 fresnelR0    = matInfo.FresnelR0;
-    //float roughness     = matInfo.Roughness;
-    float3 fresnelR0     = float3(0.91f, 0.92f, 0.92f);
-    float roughness      = 0.1f;
-    float metallic       = 0.1f;
+    float metallic       = matInfo.Metallic;
+    float roughness      = matInfo.Roughness;
     int diffuseMapIndex  = matInfo.DiffuseMap0Index;
     int normalMapIndex   = matInfo.NormalMapIndex;
     
     if (diffuseMapIndex != -1)
     {
         // diffuseMap을 사용할 경우 샘플링하여 계산한다.
-        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gSamplerState, pin.UV));
+        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
     
     pin.NormalW = normalize(pin.NormalW);
@@ -33,7 +30,7 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     if (normalMapIndex != -1)
     {
         // normal map을 사용할 경우 샘플링하여 월드 공간으로 변환한다.
-        normalMapSample = gTextureMap[normalMapIndex].Sample(gSamplerState, pin.UV);
+        normalMapSample = gTextureMap[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
         bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
     }
     else

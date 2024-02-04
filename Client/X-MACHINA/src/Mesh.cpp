@@ -152,30 +152,35 @@ void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, boo
 		else {
 			mVertexCnt = 24;
 			vertices.resize(mVertexCnt);
-			vertices[0] = Vec3(+x, -y, +z);
-			vertices[1] = Vec3(+x, +y, +z);
-			vertices[2] = Vec3(-x, +y, +z);
-			vertices[3] = Vec3(-x, -y, +z);
-			vertices[4] = Vec3(-x, +y, -z);
-			vertices[5] = Vec3(+x, +y, -z);
-			vertices[6] = Vec3(+x, -y, -z);
-			vertices[7] = Vec3(-x, -y, -z);
-			vertices[8] = Vec3(-x, +y, +z);
-			vertices[9] = Vec3(+x, +y, +z);
-			vertices[10] = Vec3(+x, +y, -z);
-			vertices[11] = Vec3(-x, +y, -z);
-			vertices[12] = Vec3(+x, -y, -z);
-			vertices[13] = Vec3(+x, -y, +z);
-			vertices[14] = Vec3(-x, -y, +z);
-			vertices[15] = Vec3(-x, -y, -z);
-			vertices[16] = Vec3(-x, +y, +z);
-			vertices[17] = Vec3(-x, +y, -z);
-			vertices[18] = Vec3(-x, -y, -z);
-			vertices[19] = Vec3(-x, -y, +z);
-			vertices[20] = Vec3(+x, +y, -z);
-			vertices[21] = Vec3(+x, +y, +z);
-			vertices[22] = Vec3(+x, -y, +z);
-			vertices[23] = Vec3(+x, -y, -z);
+			vertices[0] = Vec3(-x, -y, -z);
+			vertices[1] = Vec3(-x, +y, -z);
+			vertices[2] = Vec3(+x, +y, -z);
+			vertices[3] = Vec3(+x, -y, -z);
+
+			vertices[4] = Vec3(-x, -y, +z);
+			vertices[5] = Vec3(+x, -y, +z);
+			vertices[6] = Vec3(+x, +y, +z);
+			vertices[7] = Vec3(-x, +y, +z);
+
+			vertices[8] = Vec3(-x, +y, -z);
+			vertices[9] = Vec3(-x, +y, +z);
+			vertices[10] = Vec3(+x, +y, +z);
+			vertices[11] = Vec3(+x, +y, -z);
+
+			vertices[12] = Vec3(-x, -y, -z);
+			vertices[13] = Vec3(+x, -y, -z);
+			vertices[14] = Vec3(+x, -y, +z);
+			vertices[15] = Vec3(-x, -y, +z);
+
+			vertices[16] = Vec3(-x, -y, +z);
+			vertices[17] = Vec3(-x, +y, +z);
+			vertices[18] = Vec3(-x, +y, -z);
+			vertices[19] = Vec3(-x, -y, -z);
+
+			vertices[20] = Vec3(+x, -y, -z);
+			vertices[21] = Vec3(+x, +y, -z);
+			vertices[22] = Vec3(+x, +y, +z);
+			vertices[23] = Vec3(+x, -y, +z);
 
 			indices = {
 				0, 1, 2, 0, 2, 3,
@@ -186,31 +191,68 @@ void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, boo
 				20, 21, 22, 20, 22, 23
 			};
 
+			std::vector<Vec3> normals(mVertexCnt);
+			normals[0] = Vec3(0.f, 0.f, -1.f);
+			normals[1] = Vec3(0.f, 0.f, -1.f);
+			normals[2] = Vec3(0.f, 0.f, -1.f);
+			normals[3] = Vec3(0.f, 0.f, -1.f);
+
+			normals[4] = Vec3(0.f, 0.f, 1.f);
+			normals[5] = Vec3(0.f, 0.f, 1.f);
+			normals[6] = Vec3(0.f, 0.f, 1.f);
+			normals[7] = Vec3(0.f, 0.f, 1.f);
+
+			normals[8] = Vec3(0.f, 1.f, 0.f);
+			normals[9] = Vec3(0.f, 1.f, 0.f);
+			normals[10] = Vec3(0.f, 1.f, 0.f);
+			normals[11] = Vec3(0.f, 1.f, 0.f);
+
+			normals[12] = Vec3(0.f, -1.f, 0.f);
+			normals[13] = Vec3(0.f, -1.f, 0.f);
+			normals[14] = Vec3(0.f, -1.f, 0.f);
+			normals[15] = Vec3(0.f, -1.f, 0.f);
+
+			normals[16] = Vec3(-1.f, 0.f, 0.f);
+			normals[17] = Vec3(-1.f, 0.f, 0.f);
+			normals[18] = Vec3(-1.f, 0.f, 0.f);
+			normals[19] = Vec3(-1.f, 0.f, 0.f);
+
+			normals[20] = Vec3(1.f, 0.f, 0.f);
+			normals[21] = Vec3(1.f, 0.f, 0.f);
+			normals[22] = Vec3(1.f, 0.f, 0.f);
+			normals[23] = Vec3(1.f, 0.f, 0.f);
+			D3DUtil::CreateVertexBufferResource(normals, mNormalUploadBuffer, mNormalBuffer);
+
 			std::vector<Vec2> UVs(mVertexCnt);
 			UVs[0] = Vec2(0.f, 1.f);
 			UVs[1] = Vec2(0.f, 0.f);
 			UVs[2] = Vec2(1.f, 0.f);
 			UVs[3] = Vec2(1.f, 1.f);
-			UVs[4] = Vec2(0.f, 0.f);
-			UVs[5] = Vec2(1.f, 0.f);
-			UVs[6] = Vec2(1.f, 1.f);
-			UVs[7] = Vec2(0.f, 1.f);
-			UVs[8] = Vec2(0.f, 0.f);
-			UVs[9] = Vec2(1.f, 0.f);
-			UVs[10] = Vec2(0.f, 1.f);
+
+			UVs[4] = Vec2(1.f, 1.f);
+			UVs[5] = Vec2(0.f, 1.f);
+			UVs[6] = Vec2(0.f, 0.f);
+			UVs[7] = Vec2(1.f, 0.f);
+
+			UVs[8] = Vec2(0.f, 1.f);
+			UVs[9] = Vec2(0.f, 0.f);
+			UVs[10] = Vec2(1.f, 0.f);
 			UVs[11] = Vec2(1.f, 1.f);
-			UVs[12] = Vec2(0.f, 0.f);
+
+			UVs[12] = Vec2(1.f, 1.f);
 			UVs[13] = Vec2(0.f, 1.f);
-			UVs[14] = Vec2(1.f, 1.f);
+			UVs[14] = Vec2(0.f, 0.f);
 			UVs[15] = Vec2(1.f, 0.f);
-			UVs[16] = Vec2(0.f, 0.f);
-			UVs[17] = Vec2(1.f, 0.f);
-			UVs[18] = Vec2(1.f, 1.f);
-			UVs[19] = Vec2(0.f, 1.f);
-			UVs[20] = Vec2(0.f, 0.f);
-			UVs[21] = Vec2(1.f, 0.f);
-			UVs[22] = Vec2(1.f, 1.f);
-			UVs[23] = Vec2(0.f, 1.f);
+
+			UVs[16] = Vec2(0.f, 1.f);
+			UVs[17] = Vec2(0.f, 0.f);
+			UVs[18] = Vec2(1.f, 0.f);
+			UVs[19] = Vec2(1.f, 1.f);
+
+			UVs[20] = Vec2(0.f, 1.f);
+			UVs[21] = Vec2(0.f, 0.f);
+			UVs[22] = Vec2(1.f, 0.f);
+			UVs[23] = Vec2(1.f, 1.f);
 
 			D3DUtil::CreateVertexBufferResource(UVs, mUV0UploadBuffer, mUV0Buffer);
 		}

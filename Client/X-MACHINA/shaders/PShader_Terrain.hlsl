@@ -21,25 +21,25 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     int diffuseMap2Index = matInfo.DiffuseMap2Index;
     int diffuseMap3Index = matInfo.DiffuseMap3Index;
     
-    float4 splatColor = gTextureMap[diffuseMap3Index].Sample(gSamplerState, pin.UV1);
+    float4 splatColor = gTextureMap[diffuseMap3Index].Sample(gsamLinearWrap, pin.UV1);
     float4 layer0 = float4(0, 0, 0, 0);
     float4 layer1 = float4(0, 0, 0, 0);
     float4 layer2 = float4(0, 0, 0, 0);
     
     if (splatColor.r > 0.f)
     {
-        layer0 = GammaDecoding(gTextureMap[diffuseMap0Index].Sample(gSamplerState, pin.UV0));
+        layer0 = GammaDecoding(gTextureMap[diffuseMap0Index].Sample(gsamAnisotropicWrap, pin.UV0));
         layer0 *= splatColor.r;
 
     }
     if (splatColor.g > 0.f)
     {
-        layer1 = GammaDecoding(gTextureMap[diffuseMap1Index].Sample(gSamplerState, pin.UV0));
+        layer1 = GammaDecoding(gTextureMap[diffuseMap1Index].Sample(gsamAnisotropicWrap, pin.UV0));
         layer1 *= splatColor.g;
     }
     if (splatColor.b > 0.f)
     {
-        layer2 = GammaDecoding(gTextureMap[diffuseMap2Index].Sample(gSamplerState, pin.UV0));
+        layer2 = GammaDecoding(gTextureMap[diffuseMap2Index].Sample(gsamAnisotropicWrap, pin.UV0));
         layer2 *= splatColor.b;
     }
     float4 diffuseAlbedo = normalize(layer0 + layer1 + layer2);
@@ -54,7 +54,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     // ÀÓ½Ã °ª
     float3 shadowFactor  = 1.f;
     float metallic       = 0.0f;
-    float roughness      = 0.9f;
+    float roughness      = 0.8f;
     Material mat = { diffuseAlbedo, metallic, roughness };
     LightColor lightColor = ComputeLighting(mat, pin.PosW, pin.NormalW, toCameraW, shadowFactor);
     

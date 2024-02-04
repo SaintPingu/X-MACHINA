@@ -52,6 +52,9 @@ public:
 public:
 	// ID3D12Device::CreateRootSignature
 	virtual RComPtr<ID3D12RootSignature> Create() override;
+
+	// 정적 샘플러 생성 함수
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 };
 
 // for computing

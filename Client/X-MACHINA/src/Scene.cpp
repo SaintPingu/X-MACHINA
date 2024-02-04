@@ -26,6 +26,8 @@
 #include "Script_ExplosiveObject.h"
 #include "Script_Billboard.h"
 #include "Script_Sprite.h"
+
+#include "TestCube.h"
 #pragma endregion
 
 
@@ -255,6 +257,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
 	passConstants.LightCount = mLight->GetLightCount();
+	passConstants.GlobalAmbient = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
 	// TODO : set fog
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
@@ -303,6 +306,7 @@ void Scene::BuildObjects()
 	// build settings
 	BuildPlayers();
 	BuildTerrain();
+	BuildTestCube();
 
 	// build 
  	BuildShaders();
@@ -382,10 +386,27 @@ void Scene::BuildTerrain()
 	// HeightMap_512x1024_R32
 	// HeightMap_513x513_R16
 	// HeightMap_1024x1024_R32
-
 	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap_513x513_R16.raw");
 
 	BuildGrid();
+}
+
+void Scene::BuildTestCube()
+{
+	mTestCubes.resize(2);
+	mTestCubes[0] = std::make_shared<TestCube>(Vec2(210, 50));
+	mTestCubes[0]->GetMaterial()->SetMatallic(0.1f);
+	mTestCubes[0]->GetMaterial()->SetRoughness(0.2f);
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Rock_BaseColor"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Rock_Normal"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Rock_Roughness"));
+
+	mTestCubes[1] = std::make_shared<TestCube>(Vec2(185, 50));
+	mTestCubes[1]->GetMaterial()->SetMatallic(0.9f);
+	mTestCubes[1]->GetMaterial()->SetRoughness(0.1f);
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Wall_BaseColor"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Wall_Normal"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Wall_Roughness"));
 }
 
 void Scene::BuildGrid()
@@ -535,6 +556,8 @@ void Scene::LoadModels()
 			mModels.insert(std::make_pair(name, model));
 		}
 	}
+
+	
 }
 
 
@@ -651,6 +674,7 @@ void Scene::RenderDeferred()
 	RenderEnvironments();	
 	RenderInstanceObjects();
 	RenderBullets();
+	RenderTestCubes();
 
 	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
 	RenderTerrain();
@@ -760,6 +784,13 @@ void Scene::RenderInstanceObjects()
 void Scene::RenderFXObjects()
 {
 
+}
+
+void Scene::RenderTestCubes()
+{
+	for (const auto& testCube : mTestCubes) {
+		testCube->Render();
+	}
 }
 
 void Scene::RenderEnvironments()

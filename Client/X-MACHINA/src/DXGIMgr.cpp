@@ -119,7 +119,7 @@ void DXGIMgr::Render()
 		const auto& backBuffer = GetMRT(GroupType::SwapChain)->GetTexture(mCurrBackBufferIdx)->GetResource();
 
 		// 후면 버퍼를 필터 리소스에 복사하여 블러 필터를 실행한다.
-		mBlurFilter->Execute(backBuffer.Get(), 4);
+		mBlurFilter->Execute(backBuffer.Get(), 10);
 
 		// 완료된 필터 리소스를 후면 버퍼에 복사한다.
 		mBlurFilter->CopyResource(backBuffer.Get());

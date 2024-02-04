@@ -180,8 +180,8 @@ namespace {
 			case Hash("<AlbedoColor>:"):
 				FileIO::ReadVal(file, matInfo->DiffuseAlbedo);
 				break;
-			case Hash("<FresnelR0>:"):
-				FileIO::ReadVal(file, matInfo->FresnelR0);
+			case Hash("<Metallic>:"):
+				FileIO::ReadVal(file, matInfo->Metallic);
 				break;
 			case Hash("<Roughness>:"):
 				FileIO::ReadVal(file, matInfo->Roughness);
@@ -202,10 +202,6 @@ namespace {
 				break;
 
 			case Hash("<Smoothness>:"):
-				FileIO::ReadVal(file, temp2);
-				break;
-
-			case Hash("<Metallic>:"):
 				FileIO::ReadVal(file, temp2);
 				break;
 

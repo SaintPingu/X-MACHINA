@@ -23,8 +23,8 @@ class ObjectPool;
 // file에서 읽은 material 정보를 담는 구조체
 struct MaterialLoadInfo {
 	Vec4	DiffuseAlbedo = Vector4::One();
-	Vec3	FresnelR0 = Vec3{ 0.5f, 0.5f, 0.5f };
-	float	Roughness = 0.5f;
+	float	Metallic{};
+	float	Roughness{};
 };
 
 // material의 색상
@@ -38,8 +38,8 @@ public:
 
 public:
 	Vec4    DiffuseAlbedo = Vector4::One();
-	Vec3	FresnelR0 = Vec3{ 0.5f, 0.5f, 0.5f };
-	float	Roughness = 0.5f;
+	float	Metallic{};
+	float	Roughness{};
 };
 #pragma endregion
 
@@ -60,6 +60,8 @@ public:
 
 	void SetMaterialColors(rsptr<MaterialColors> pMaterialColors) { mMaterialColors = pMaterialColors; }
 	void SetTexture(TextureMap map, rsptr<Texture> texture) { mTextures[static_cast<UINT8>(map)] = texture; }
+	void SetMatallic(float value) { mMaterialColors->Metallic = value; }
+	void SetRoughness(float value) { mMaterialColors->Roughness = value; }
 
 public:
 	void UpdateShaderVars();

@@ -246,7 +246,9 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 peakIrradiance, float3 di
 
         float3 fresnel = PBR::Fresnel(specularAlbedo, h, lightDir);
 
-        float specular = PBR::GGXSpecular(roughness, normal, h, view, lightDir);
+        // 탑다운 뷰 특성상 객체와 카메라의 거리가 멀고 roughness 값이 매우 작은 값이라면 specular가 매우 작아진다.
+        // 카메라가 먼 거리에서 작은 specular를 보게 되면 에일리어싱이 생기기 때문에 최저값을 어느정도 줘야 한다.
+        float specular = PBR::GGXSpecular(clamp(roughness, 0.1f, 1.f), normal, h, view, lightDir);
         
         lighting += specular * fresnel * msEnergyCompensation;
     }
@@ -265,7 +267,7 @@ LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3
     float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
     float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
 
-    return BRDF(normal, lightVec, L.Strength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(1.f, 1.f, 1.f));
+    return BRDF(normal, lightVec, L.Strength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(2.f, 2.f, 2.f));
 
 }
 
@@ -291,7 +293,7 @@ LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 norma
     float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
     float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
 
-    return BRDF(normal, lightVec, lightStrength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(1.f, 1.f, 1.f));
+    return BRDF(normal, lightVec, lightStrength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(2.f, 2.f, 2.f));
 }
 
 LightColor ComputeSpotLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toEye)

@@ -3,11 +3,14 @@
 #pragma region ClassForwardDecl
 struct LightInfo;
 struct MeshLoadInfo;
+struct AnimationLoadInfo;
 
 class Model;
 class MasterModel;
 class Material;
 class Texture;
+class AnimationClip;
+class AnimatorController;
 #pragma endregion
 
 namespace FileIO {
@@ -38,19 +41,31 @@ namespace FileIO {
 		::fread(out.data(), sizeof(T), cnt, file);
 	}
 
-	// fileName에 해당하는 모델을 불러온다. (계층구조)
-	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName);
+	// remove extension of [filePath]
+	inline void RemoveExtension(std::string& fileName)
+	{
+		fileName = fileName.substr(0, fileName.find_last_of('.'));
+	}
 
-	// [fileName]에 해당하는 조명 모델을 불러온다. (Type, Color, Intensity, ...)
-	void LoadLightFromFile(const std::string& fileName, LightInfo** out);
+	inline std::string RemoveExtension(const std::string& fileName)
+	{
+		return fileName.substr(0, fileName.find_last_of('.'));
+	}
+
+	// filePath에 해당하는 모델을 불러온다. (계층구조)
+	sptr<MasterModel> LoadGeometryFromFile(const std::string& filePath);
+
+	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo);
+	sptr<AnimationClip> LoadAnimationClip(const std::string& filePath);
+
+	sptr<AnimatorController> LoadAnimatorController(const std::string& filePath);
+
+	// [filePath]에 해당하는 조명 모델을 불러온다. (Type, Color, Intensity, ...)
+	void LoadLightFromFile(const std::string& filePath, LightInfo** out);
 
 	// [folder]의 모든 dds Texutre파일들을 로드한다.
 	// <texture name, Texture>
 	std::unordered_map<std::string, sptr<Texture>> LoadTextures(const std::string& folder);
 
-	// remove extension of [fileName]
-	inline void RemoveExtension(std::string& filename)
-	{
-		filename = filename.substr(0, filename.find_last_of('.'));
-	}
+
 }

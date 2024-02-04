@@ -120,32 +120,42 @@ namespace D3DUtil {
 
 		if (bufferViews.VertexBuffer) {
 			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.VertexBuffer);
-			out.emplace_back(view);
+			out.push_back(view);
 		}
 
 		if (bufferViews.NormalBuffer) {
 			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.NormalBuffer);
-			out.emplace_back(view);
+			out.push_back(view);
 		}
 
 		if (bufferViews.UV0Buffer) {
 			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV0Buffer);
-			out.emplace_back(view);
+			out.push_back(view);
 		}
 
 		if (bufferViews.UV1Buffer) {
 			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV1Buffer);
-			out.emplace_back(view);
+			out.push_back(view);
 		}
 
 		if (bufferViews.TangentBuffer) {
 			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.TangentBuffer);
-			out.emplace_back(view);
+			out.push_back(view);
 		}
 
 		if (bufferViews.BiTangentBuffer) {
 			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.BiTangentBuffer);
-			out.emplace_back(view);
+			out.push_back(view);
+		}
+
+		if (bufferViews.BoneIndexBuffer) {
+			CreateVertexBufferView<XMINT4>(view, vertexCount, bufferViews.BoneIndexBuffer);
+			out.push_back(view);
+		}
+
+		if (bufferViews.BoneWeightBuffer) {
+			CreateVertexBufferView<Vec4>(view, vertexCount, bufferViews.BoneWeightBuffer);
+			out.push_back(view);
 		}
 	}
 

@@ -83,7 +83,7 @@ public:
 
 // Canvas 위에 UI를 그리도록 한다.
 class Canvas : public Singleton<Canvas> {
-	friend class Singleton;
+	friend Singleton;
 
 private:
 	std::vector<sptr<UI>>	mUIs{};		// all UIs

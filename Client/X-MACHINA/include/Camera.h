@@ -104,7 +104,7 @@ public:
 
 /* main camera for scene rendering */
 class MainCameraObject : public Singleton<MainCameraObject>, public CameraObject {
-	friend class Singleton;
+	friend Singleton;
 
 	using base = CameraObject;
 

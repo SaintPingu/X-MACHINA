@@ -18,9 +18,8 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 
 void Script_MainCamera::Start()
 {
-	constexpr Vec3 initOffset = Vec3(0, 5, -10);
 	mPlayer = scene->GetPlayer();
-	mObject->SetPosition(Vector3::Add(mPlayer->GetPosition(), initOffset));
+	mObject->SetPosition(Vector3::Add(mPlayer->GetPosition(), Vector3::One()));
 	ChangeCameraMode(CameraMode::Third);
 }
 
@@ -58,6 +57,7 @@ void Script_MainCamera::Update()
 		mObject->Translate(dir, distance);
 		UpdateHeight();
 		LookPlayer();
+		mainCameraObject->Rotate(-10, 0, 0);
 		mainCamera->UpdateViewMtx();
 	}
 
@@ -65,6 +65,7 @@ void Script_MainCamera::Update()
 
 void Script_MainCamera::UpdateHeight()
 {
+	return;
 	constexpr float kMinHeight = 2.0f;
 
 	if (mObject->GetPosition().y <= kMinHeight) {
@@ -92,7 +93,8 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 	switch (mode) {
 	case CameraMode::Third:
 		mTimeLag = 0.1f;
-		SetCameraOffset(Vec3(0.f, 15.f, -30.f));
+		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));
+		SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
 		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
 		mainCamera->SetViewport(0, 0, gkFrameBufferWidth, gkFrameBufferHeight, 0.f, 1.f);
 		mainCamera->SetScissorRect(0, 0, gkFrameBufferWidth, gkFrameBufferHeight);

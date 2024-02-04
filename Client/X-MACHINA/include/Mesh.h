@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #pragma region ClassForwardDecl
 class Material;
 class Texture;
@@ -9,6 +7,7 @@ class Transform;
 class ModelObject;
 class GameObject;
 class ObjectPool;
+class Object;
 #pragma endregion
 
 
@@ -22,16 +21,20 @@ enum class VertexType : DWORD {
 	BiTangent = 0x10,
 	UV0       = 0x20,
 	UV1       = 0x40,
+	Weight    = 0x80,
 };
 #pragma endregion
 
+constexpr int gkSkinBoneSize = 128;
 
 #pragma region Struct
 // (계층 구조에서)한 프레임이 가지는 메쉬 정보
+class SkinMesh;
 struct FrameMeshInfo {
 	std::vector<sptr<Material>> Materials{};
 	std::vector<UINT>			IndicesCnts{};	// sub mesh의 각 indices의 개수들, guarantee that Materials.size() == IndicesCnts.size() [반드시 각 메쉬마다 재질이 있어야 한다.
 	UINT						VertexCnt{};	// 모든 mesh의 정점 개수
+	sptr<SkinMesh>				SkinMesh{};
 };
 
 // sub mesh의 각 정보들을 하나로 merge하기 위한 임시 버퍼
@@ -42,6 +45,8 @@ struct MeshBuffer {
 	std::vector<Vec3> BiTangents{};
 	std::vector<Vec2> UVs0{};
 	std::vector<Vec2> UVs1{};
+	std::vector<XMINT4> BoneIndices;
+	std::vector<Vec4> BoneWeights;
 
 	std::vector<UINT> Indices{};
 };
@@ -57,6 +62,8 @@ struct MeshLoadInfo {
 	int								SubMeshCnt{};
 	std::vector<int>				SubSetIndexCnts{};
 	std::vector<std::vector<UINT>>	SubSetIndices{};
+
+	sptr<SkinMesh>	SkinMesh{};
 };
 #pragma endregion
 
@@ -69,25 +76,26 @@ protected:
 	ComPtr<ID3D12Resource> mVertexBuffer{};
 	ComPtr<ID3D12Resource> mVertexUploadBuffer{};
 
-	UINT mNormalCnt{};
 	ComPtr<ID3D12Resource> mNormalBuffer{};
 	ComPtr<ID3D12Resource> mNormalUploadBuffer{};
 
-	UINT mUV0Cnt{};
 	ComPtr<ID3D12Resource> mUV0Buffer{};
 	ComPtr<ID3D12Resource> mUV0UploadBuffer{};
 
-	UINT mUV1Cnt{};
 	ComPtr<ID3D12Resource> mUV1Buffer{};
 	ComPtr<ID3D12Resource> mUV1UploadBuffer{};
 
-	UINT mTangentCnt{};
 	ComPtr<ID3D12Resource> mTangentBuffer{};
 	ComPtr<ID3D12Resource> mTangentUploadBuffer{};
 
-	UINT mBiTangentCnt{};
 	ComPtr<ID3D12Resource> mBiTangentBuffer{};
 	ComPtr<ID3D12Resource> mBiTangentUploadBuffer{};
+
+	ComPtr<ID3D12Resource> mBoneIndexBuffer{};
+	ComPtr<ID3D12Resource> mBoneIndexUploadBuffer{};
+
+	ComPtr<ID3D12Resource> mBoneWeightBuffer{};
+	ComPtr<ID3D12Resource> mBoneWeightUploadBuffer{};
 
 	UINT mIndexCnt{};
 	ComPtr<ID3D12Resource> mIndexBuffer{};
@@ -111,7 +119,7 @@ public:
 
 protected:
 	void CreateVertexBufferViews();
-	void CreateIndexBuffer(const std::vector<UINT>& indices);
+	void CreateIndexBufferView(const std::vector<UINT>& indices);
 };
 
 
@@ -179,5 +187,31 @@ private:
 	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelInfo);
 
 	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt = 1) const;
+};
+
+
+
+
+
+class SkinMesh : public Mesh {
+public:
+	std::vector<std::string> mBoneNames;
+
+	ComPtr<ID3D12Resource> mCB_BoneTransforms{};
+	Vec4x4* mCBMap_BoneTransforms{};
+	std::vector<Transform*>* mBoneFrames{};
+
+private:
+	ComPtr<ID3D12Resource>	mCB_BindPoseBoneOffsets{};
+	Vec4x4*					mCBMap_BindPoseBoneOffsets{};
+
+public:
+	SkinMesh() = default;
+	virtual ~SkinMesh() = default;
+
+public:
+	void CreateBufferResource(const std::vector<Vec4x4>& boneOffsets);
+
+	void UpdateShaderVariables();
 };
 #pragma endregion

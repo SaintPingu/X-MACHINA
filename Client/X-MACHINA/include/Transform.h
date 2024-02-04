@@ -7,6 +7,7 @@
 // transform can access to self Object
 class Transform {
 private:
+	int mIndex{};
 	Vec4x4 mWorldTransform = Matrix4x4::Identity();	// transform of     affected by a parent (world)
 	Vec4x4 mLocalTransform = Matrix4x4::Identity();	// transform of not affected by a parent (local)
 	Vec4x4 mPrevTransform  = Matrix4x4::Identity();	// transform of previous frame
@@ -157,6 +158,9 @@ public:
 	// set local transform to previous transform
 	void ReturnToPrevTransform();
 
+	// 부모의 world transform과 내 local transform을 곱해 내 world transform을 계산한다.
+	void ComputeWorldTransform(const Vec4x4* parentTransform = nullptr);
+
 private:
 	// set axis vectors from local transform
 	void UpdateAxis(bool isComputeWorldTransform = true);
@@ -165,9 +169,6 @@ private:
 
 	// 부모의 world transform을 적용한 transform을 반환
 	void RequestTransform(Vec4x4& transform);
-
-	// 부모의 world transform과 내 local transform을 곱해 내 world transform을 계산한다.
-	void ComputeWorldTransform(const Vec4x4* parentTransform = nullptr);
 
 public:
 #pragma endregion
@@ -180,7 +181,6 @@ public:
 	void ReturnObjCBIndex();
 
 	void BeforeUpdateTransform();
-	virtual void UpdateTransform() { ComputeWorldTransform(); }
 
 	virtual void UpdateShaderVars(const int cnt = 0, const int matIndex = 0) const;
 

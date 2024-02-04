@@ -302,6 +302,8 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> UV1Buffer{};
 	ComPtr<ID3D12Resource> TangentBuffer{};
 	ComPtr<ID3D12Resource> BiTangentBuffer{};
+	ComPtr<ID3D12Resource> BoneIndexBuffer{};
+	ComPtr<ID3D12Resource> BoneWeightBuffer{};
 };
 
 // must be matched with Light.hlsl LightInfo
@@ -885,6 +887,14 @@ namespace Vector4 {
 		return result;
 	}
 
+	inline Vec4 NormalizeColor(const Vec4& vector) noexcept
+	{
+		Vec3 v = Vec3(vector.x, vector.y, vector.z);
+		Vec3 normal;
+		XMStoreFloat3(&normal, XMVector3NormalizeEst(_VECTOR(v)));
+		return Vec4(normal.x, normal.y, normal.z, vector.w);
+	}
+
 	inline Vec4 Multiply(float scalar, const Vec4& vector) noexcept
 	{
 		Vec4 result;
@@ -973,7 +983,7 @@ namespace Matrix4x4 {
 	inline Vec4x4 Inverse(const Vec4x4& matrix) noexcept
 	{
 		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixInverse(NULL, _MATRIX(matrix)));
+		XMStoreFloat4x4(&result, XMMatrixInverse(nullptr, _MATRIX(matrix)));
 		return result;
 	}
 
@@ -1012,6 +1022,44 @@ namespace Matrix4x4 {
 		else {
 			XMStoreFloat4x4(&result, XMMatrixLookToLH(_VECTOR(eyePos), _VECTOR(lookTo), _VECTOR(upDir)));
 		}
+		return result;
+	}
+
+
+	inline Vec4x4 Interpolate(const Vec4x4& matrix1, const Vec4x4& matrix2, float t)
+	{
+		Vec4x4 result;
+
+		XMVECTOR S0, R0, T0, S1, R1, T1;
+		XMMatrixDecompose(&S0, &R0, &T0, _MATRIX(matrix1));
+		XMMatrixDecompose(&S1, &R1, &T1, _MATRIX(matrix2));
+
+		XMVECTOR S = XMVectorLerp(S0, S1, t);
+		XMVECTOR T = XMVectorLerp(T0, T1, t);
+		XMVECTOR R = XMQuaternionSlerp(R0, R1, t);
+		XMStoreFloat4x4(&result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+
+		return result;
+	}
+
+	inline Vec4x4 Add(const Vec4x4& matrix1, const Vec4x4& matrix2)
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, _MATRIX(matrix1) + _MATRIX(matrix2));
+		return result;
+	}
+
+	inline Vec4x4 Scale(const Vec4x4& matrix, float scale)
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, _MATRIX(matrix) * scale);
+		return result;
+	}
+
+	inline Vec4x4 Zero()
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, XMMatrixSet(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f));
 		return result;
 	}
 }

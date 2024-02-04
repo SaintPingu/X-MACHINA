@@ -37,7 +37,7 @@ enum class FilterOption {
 #pragma region Class
 // device, swapchain 등 DXGI 전반 및 렌더링을 관리한다.
 class DXGIMgr : public Singleton<DXGIMgr> {
-	friend class Singleton<DXGIMgr>;
+	friend Singleton<DXGIMgr>;
 
 private:
 	// window

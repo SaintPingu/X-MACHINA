@@ -9,13 +9,13 @@
 #include "Scene.h"
 #include "FileIO.h"
 
-
+#include "Animator.h"
 
 
 #pragma region MaterialColors
 MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 	:
-	Diffuse(Vector4::Normalize(materialInfo.Albedo)),
+	Diffuse(Vector4::NormalizeColor(materialInfo.Albedo)),
 	Specular(materialInfo.Specular),
 	Emissive(materialInfo.Emissive)
 {
@@ -120,10 +120,16 @@ rsptr<Texture> MasterModel::GetTexture() const
 	return mMesh->GetTexture();
 }
 
+void MasterModel::SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo)
+{
+	mAnimationInfo = animationInfo;
+}
+
 void MasterModel::ReleaseUploadBuffers()
 {
 	mMesh->ReleaseUploadBuffers();
 }
+
 
 void MasterModel::SetModel(const rsptr<Model> model)
 {
@@ -134,7 +140,7 @@ void MasterModel::SetModel(const rsptr<Model> model)
 	mMerged = true;
 }
 
-void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials)
+void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials) const
 {
 	assert(!mMerged);
 

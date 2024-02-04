@@ -11,7 +11,7 @@
 #include "Script_Apache.h"
 #include "Script_Gunship.h"
 
-
+#include "Animator.h"
 
 
 #pragma region GameObject
@@ -25,6 +25,12 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 {
 	mMasterModel = model;
 	mMasterModel->CopyModelHierarchy(this);
+
+	sptr<const AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
+	if (animationInfo) {
+		mIsSkinMesh = true;
+		mAnimator = std::make_shared<Animator>(animationInfo, this);
+	}
 
 	// 모델의 이름에 따라 설정한다.
 	switch (Hash(mMasterModel->GetName())) {
@@ -42,33 +48,23 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	Transform::MergeTransform(mMergedTransform, this);
 }
 
-
-void GameObject::Render()
+void GameObject::Animate()
 {
-	if (mMasterModel) {
-		mMasterModel->Render(this);
+	base::Animate();
+
+	if (mAnimator) {
+		mAnimator->Animate();
 	}
 }
 
-Transform* GameObject::FindFrame(const std::string& frameName)
+void GameObject::Render()
 {
-	if (GetName() == frameName) {
-		return this;
+	if (mAnimator) {
+		mAnimator->UpdateShaderVariables();
 	}
-
-	Transform* transform{};
-	if (mSibling) {
-		if (transform = mSibling->GetObj<GameObject>()->FindFrame(frameName)) {
-			return transform;
-		}
+	if (mMasterModel) {
+		mMasterModel->Render(this);
 	}
-	if (mChild) {
-		if (transform = mChild->GetObj<GameObject>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-
-	return nullptr;
 }
 
 
@@ -170,8 +166,8 @@ void InstObject::SetUpdateFunc()
 
 void InstObject::PushFunc(void* structuredBuffer) const
 {
-	SB_StandardInst* data = static_cast<SB_StandardInst*>(structuredBuffer);
-	XMStoreFloat4x4(&data->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
+	SB_StandardInst* buffer = static_cast<SB_StandardInst*>(structuredBuffer);
+	XMStoreFloat4x4(&buffer->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
 }
 
 void InstObject::PushRender()

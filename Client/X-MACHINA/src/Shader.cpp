@@ -774,3 +774,8 @@ D3D12_SHADER_BYTECODE LUTShader::CreateComputeShader()
 {
 	return D3DUtil::CompileShaderFile(L"CShader_LUT.hlsl", "LUTCS", "cs_5_1", mCSBlob);
 }
+
+D3D12_SHADER_BYTECODE SkinMeshShader::CreateVertexShader()
+{
+	return Shader::CompileShaderFile(L"VShader_SkinnedMesh.hlsl", "VS_SkinnedMesh", "vs_5_1", mVSBlob);;
+}

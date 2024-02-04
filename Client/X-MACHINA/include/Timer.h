@@ -3,7 +3,7 @@
 #define timer Timer::Inst()
 
 class Timer : public Singleton<Timer> {
-	friend class Singleton;
+	friend Singleton;
 
 private:
 	constexpr static ULONG kMaxSampleCnt = 50;		// Maximum frame time sample count

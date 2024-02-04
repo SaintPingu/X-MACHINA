@@ -77,7 +77,7 @@ public:
 
 
 
-// (각 계층구조)객체의 원본이 되는 모델
+// (각 계층구조 프레임)객체의 원본이 되는 모델
 // mesh와 material 정보를 갖는다.
 class Model : public Object {
 private:
@@ -96,7 +96,7 @@ public:
 	void CopyModelHierarchy(Object* object) const;
 
 	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
-	void MergeModel(MasterModel& out);
+	void MergeModel(MasterModel& out); 
 };
 
 
@@ -106,9 +106,11 @@ public:
 // 모델의 계층 구조 정보를 하나로 병합해 관리하는 객체
 // 모델의 모든 메쉬와 재질 정보를 가지고 있다.
 // 이 클래스를 통해 모델을 가지는 게임 객체를 렌더링 한다.
+struct AnimationLoadInfo;
 class MasterModel {
 private:
 	sptr<MergedMesh> mMesh{};
+	sptr<AnimationLoadInfo>	mAnimationInfo{};
 	sptr<Model> mModel{};
 
 	bool mMerged{ false };
@@ -125,6 +127,9 @@ public:
 	// 모델을 스프라이트로 설정한다.
 	void SetSprite() { RenderFunc = std::bind(&MasterModel::RenderSprite, this, std::placeholders::_1); }
 
+	sptr<const AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }
+	void SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo);
+
 public:
 	void ReleaseUploadBuffers();
 
@@ -132,7 +137,7 @@ public:
 	void SetModel(const rsptr<Model> model);
 
 	// merge [mesh] to [mMesh], call MergedMesh::MergeMesh().
-	void MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials);
+	void MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials) const;
 
 	// render single [object]
 	void Render(const GameObject* object) const { RenderFunc(object); }

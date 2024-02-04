@@ -5,9 +5,11 @@
 #include "Grid.h"
 #pragma endregion
 
+
 #pragma region Define
 #define scene Scene::Inst()
 #pragma endregion
+
 
 #pragma region ClassForwardDecl
 class Model;
@@ -27,6 +29,9 @@ class GraphicsRootSignature;
 class ComputeRootSignature;
 class DescriptorHeap;
 class ObjectPool;
+
+class AnimationClip;
+class AnimatorController;
 #pragma endregion
 
 
@@ -34,7 +39,7 @@ class ObjectPool;
 
 #pragma region Class
 class Scene : public Singleton<Scene> {
-	friend class Singleton;
+	friend Singleton;
 
 public:
 	enum class FXType {
@@ -68,6 +73,7 @@ private:
 	sptr<Shader> mInstShader{};		// for InstObjects
 	sptr<Shader> mTransparentShader{};
 	sptr<Shader> mBulletShader{};
+	sptr<Shader> mSkinnedMeshShader{};
 	sptr<Shader> mFinalShader{};
 
 	/* Object */
@@ -103,6 +109,10 @@ private:
 	/* Others */
 	bool mIsRenderBounds = false;
 
+	/* Animation */
+	std::unordered_map<std::string, std::unordered_map<std::string, sptr<const AnimationClip>>>	mAnimationClipMap{};
+	std::unordered_map<std::string, sptr<AnimatorController>>	mAnimatorControllerMap{};
+
 private:
 #pragma region C/Dtor
 	Scene();
@@ -126,6 +136,10 @@ public:
 	rsptr<Texture> GetTexture(const std::string& name) const;
 
 	rsptr<DescriptorHeap> GetDescHeap() const;
+	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
+	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;
+
+	RComPtr<ID3D12RootSignature> GetRootSignature() const;
 
 	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
 	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
@@ -201,6 +215,9 @@ private:
 	// 유니티 씬에 없는(별도로 생성해야 하는) 동적 객체 모델을 불러온다.
 	void LoadModels();
 
+	void LoadAnimationClips();
+	void LoadAnimatorControllers();
+
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
 	void InitObjectByTag(const void* tag, sptr<GridObject> object);
@@ -226,6 +243,7 @@ private:
 	// [transparentObjects] : 투명 객체
 	// [billboardObjects]	: 빌보드 객체 (plane)
 	void RenderGridObjects();
+	void RenderSkinMeshObjects(std::set<GridObject*>& skinMeshObjects);
 
 	void RenderEnvironments();
 	void RenderBullets();
@@ -294,7 +312,7 @@ private:
 	void CreateSmallExpFX(const Vec3& pos);
 	void CreateBigExpFX(const Vec3& pos);
 
-	int GetGridIndexFromPos(Vec3 pos);
+	int GetGridIndexFromPos(Vec3 pos) const;
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
 
 	void DeleteExplodedObjects();

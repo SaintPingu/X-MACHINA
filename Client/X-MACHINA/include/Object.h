@@ -18,19 +18,24 @@ class ObjectCollider;
 
 #pragma region Class
 // base class for all entities in Scene
+class Animator;
 class GameObject : public Object {
 	using base = Object;
 	using Transform::ReturnToPrevTransform;
 
 private:
+	bool mIsSkinMesh = false;
+
 	sptr<const MasterModel>		  mMasterModel{};		// 렌더링 모델
 	std::vector<const Transform*> mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위한 캐싱)
+	sptr<Animator>	  mAnimator{};
 
 public:
 	GameObject() = default;
 	virtual ~GameObject() = default;
 
 	bool IsTransparent() const										{ return GetLayer() == ObjectLayer::Transparent; }
+	bool IsSkinMesh() const											{ return mIsSkinMesh; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 	// 최상위(대표) 텍스쳐를 반환한다.
 	rsptr<Texture> GetTexture() const;
@@ -38,10 +43,9 @@ public:
 	void SetModel(rsptr<const MasterModel> model);
 
 public:
+	virtual void Animate() override;
 	virtual void Render();
-
-	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
-	Transform* FindFrame(const std::string& frameName);
+	rsptr<Animator> GetAnimator() const { return mAnimator; }
 
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.

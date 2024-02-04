@@ -384,7 +384,7 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 		}
 	}
 
-	CreateIndexBuffer(indices);
+	CreateIndexBufferView(indices);
 }
 
 

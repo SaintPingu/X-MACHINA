@@ -2,11 +2,17 @@
 #include "FileIO.h"
 #include "DXGIMgr.h"
 
+#include "Scene.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Light.h"
 #include "Collider.h"
 #include "Texture.h"
+#include "Animator.h"
+#include "AnimationClip.h"
+#include "AnimatorState.h"
+#include "AnimatorController.h"
+#include "AnimatorLayer.h"
 
 
 namespace {
@@ -132,8 +138,8 @@ namespace {
 			break;
 			case Hash("</Mesh>"):
 				isEOF = true;
-				break;
 
+			break;
 			default:
 				assert(0);
 				break;
@@ -143,6 +149,85 @@ namespace {
 		return meshInfo;
 	}
 
+
+
+	sptr<SkinMesh> LoadSkinMesh(FILE* file, sptr<MeshLoadInfo>& meshInfo)
+	{
+		sptr<SkinMesh> mesh = std::make_shared<SkinMesh>();
+		std::string token;
+
+		//FileIO::ReadString(file, m_pstrMeshName);
+
+		bool isEOF = false;
+		while (!isEOF) {
+			FileIO::ReadString(file, token);
+
+			switch (Hash(token)) {
+			case Hash("<BoneNames>:"):
+			{
+				int skinBoneCnt{};
+				FileIO::ReadVal(file, skinBoneCnt);
+				if (skinBoneCnt > 0) {
+					mesh->mBoneNames.resize(skinBoneCnt);
+					for (int i = 0; i < skinBoneCnt; i++)
+					{
+						FileIO::ReadString(file, mesh->mBoneNames[i]);
+					}
+				}
+			}
+
+			break;
+			case Hash("<BoneOffsets>:"):
+			{
+				int skinBoneCnt{};
+				FileIO::ReadVal(file, skinBoneCnt);
+				if (skinBoneCnt > 0) {
+					std::vector<Vec4x4> boneOffsets(skinBoneCnt);
+					FileIO::ReadRange(file, boneOffsets, skinBoneCnt);
+
+					mesh->CreateBufferResource(boneOffsets);
+				}
+			}
+
+			break;
+			case Hash("<BoneIndices>:"):
+			{
+				int vertexCnt = FileIO::ReadVal<int>(file);
+				if (vertexCnt > 0)
+				{
+					auto& boneIndices = meshInfo->Buffer.BoneIndices;
+					boneIndices.resize(vertexCnt);
+
+					FileIO::ReadRange(file, boneIndices, vertexCnt);
+				}
+			}
+
+			break;
+			case Hash("<BoneWeights>:"):
+			{
+				int vertexCnt = FileIO::ReadVal<int>(file);
+				if (vertexCnt > 0)
+				{
+					auto& boneWeights = meshInfo->Buffer.BoneWeights;
+					boneWeights.resize(vertexCnt);
+
+					FileIO::ReadRange(file, boneWeights, vertexCnt);
+				}
+			}
+
+			break;
+			case Hash("</SkinMesh>"):
+				isEOF = true;
+
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+
+		return mesh;
+	}
 
 	// 재질의 정보를 불러온다. (Albedo, Emissive, ...)
 	std::vector<sptr<Material>> LoadMaterial(FILE* file)
@@ -245,7 +330,7 @@ namespace {
 
 
 	// 한 프레임의 정보를 불러온다. (FrameName, Transform, BoundingBox, ...)
-	sptr<Model> LoadFrameHierarchy(FILE* file)
+	sptr<Model> LoadFrameHierarchy(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
 	{
 		std::string token;
 
@@ -253,6 +338,7 @@ namespace {
 		int nTextures = 0;
 
 		sptr<Model> model{};
+		sptr<MeshLoadInfo> meshInfo{};
 
 		bool isEOF{ false };
 		while (!isEOF) {
@@ -326,7 +412,16 @@ namespace {
 			break;
 			case Hash("<Mesh>:"):
 			{
-				model->SetMeshInfo(::LoadMesh(file));
+				meshInfo = ::LoadMesh(file);
+			}
+
+			break;
+			case Hash("<SkinMesh>:"):
+			{
+				FileIO::ReadString(file, token);	// <Mesh>:
+				meshInfo = ::LoadMesh(file);
+				meshInfo->SkinMesh = ::LoadSkinMesh(file, meshInfo);
+				animationInfo->SkinMeshes.push_back(meshInfo->SkinMesh);
 			}
 
 			break;
@@ -341,7 +436,7 @@ namespace {
 				int nChilds = FileIO::ReadVal<int>(file);
 				if (nChilds > 0) {
 					for (int i = 0; i < nChilds; i++) {
-						sptr<Model> child = LoadFrameHierarchy(file);
+						sptr<Model> child = LoadFrameHierarchy(file, animationInfo);
 						if (child) {
 							model->SetChild(child);
 						}
@@ -360,6 +455,7 @@ namespace {
 			}
 		}
 
+		model->SetMeshInfo(meshInfo);
 		return model;
 	}
 
@@ -371,7 +467,94 @@ namespace {
 			out.emplace_back(file.path().filename().string());
 		}
 	}
+
+
+	std::vector<sptr<const AnimatorTransition>> LoadTransitions(FILE* file)
+	{
+		std::vector<sptr<const AnimatorTransition>> transitions{};
+
+		int transitionSize = FileIO::ReadVal<int>(file);
+		transitions.reserve(transitionSize);
+
+		for (int i = 0; i < transitionSize; ++i) {
+			sptr<AnimatorTransition> transition = std::make_shared<AnimatorTransition>();
+
+			FileIO::ReadString(file, transition->Destination);
+			int conditionSize = FileIO::ReadVal<int>(file);
+			transition->Conditions.resize(conditionSize);
+
+			for (auto& condition : transition->Conditions) {
+				FileIO::ReadString(file, condition.mode);
+				FileIO::ReadString(file, condition.param);
+
+				switch (Hash(condition.mode)) {
+				case Hash("If"):
+				case Hash("IfNot"):
+				case Hash("Trigger"):
+					break;
+				default:
+					FileIO::ReadVal(file, condition.threshold);
+					break;
+				}
+			}
+
+			transitions.push_back(transition);
+		}
+
+		return transitions;
+	}
+
+	sptr<AnimatorLayer> LoadAnimatorLayer(FILE* file)
+	{
+		std::string token;
+
+		std::string layerName;
+		FileIO::ReadString(file, layerName);
+
+		// Entry
+		FileIO::ReadString(file, token);	// <Entry>:
+		std::vector<sptr<const AnimatorTransition>> entryTransitions = LoadTransitions(file);
+
+		sptr<AnimatorLayer> layer = std::make_shared<AnimatorLayer>(layerName, entryTransitions);
+
+		// States //
+		FileIO::ReadString(file, token);	// <States>:
+		int stateSize = FileIO::ReadVal<int>(file);
+
+		for (int i = 0; i < stateSize; ++i) {
+			// AnimationClip
+			std::string clipFolder, clipName;
+			FileIO::ReadString(file, clipFolder);
+			FileIO::ReadString(file, clipName);
+			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
+
+			// Transitions
+			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);
+
+			layer->AddState(std::make_shared<AnimatorState>(layer, clip, transitions));
+		}
+
+		// Sub Layers //
+		FileIO::ReadString(file, token);	// <Layer>:
+		int layerSize = FileIO::ReadVal<int>(file);
+		for (int i = 0; i < layerSize; ++i) {
+			layer->AddLayer(LoadAnimatorLayer(file));
+		}
+
+		return layer;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -396,15 +579,15 @@ namespace FileIO {
 	}
 
 
-	sptr<MasterModel> LoadGeometryFromFile(const std::string& fileName)
+	sptr<MasterModel> LoadGeometryFromFile(const std::string& filePath)
 	{
 		FILE* file = nullptr;
-		::fopen_s(&file, fileName.c_str(), "rb");
+		::fopen_s(&file, filePath.c_str(), "rb");
 		::rewind(file);
 
 		sptr<Model> model = std::make_shared<Model>();
 		sptr<MasterModel> masterModelA = std::make_shared<MasterModel>();
-
+		sptr<AnimationLoadInfo> animationInfo{};
 		std::string token;
 
 		bool isEOF{ false };
@@ -412,12 +595,18 @@ namespace FileIO {
 			FileIO::ReadString(file, token);
 
 			switch (Hash(token)) {
+			case Hash("<Controller>:"):
+				animationInfo = std::make_shared<AnimationLoadInfo>();
+				FileIO::LoadAnimation(file, animationInfo);
+				break;
+
 			case Hash("<Hierarchy>:"):
-				model = ::LoadFrameHierarchy(file);
+				model = ::LoadFrameHierarchy(file, animationInfo);
 				break;
 			case Hash("</Hierarchy>"):
 				isEOF = true;
 				break;
+
 			default:
 				assert(0);
 				break;
@@ -427,16 +616,102 @@ namespace FileIO {
 		sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
 		masterModel->SetModel(model);
 
+		if (animationInfo) {
+			masterModel->SetAnimationInfo(animationInfo);
+		}
+
 		return masterModel;
 	}
 
 
-	void LoadLightFromFile(const std::string& fileName, LightInfo** out)
+	void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
+	{
+		FileIO::ReadString(file, animationInfo->AnimatorControllerFile);
+	}
+
+
+	sptr<AnimationClip> LoadAnimationClip(const std::string& filePath)
+	{
+		FILE* file = nullptr;
+		::fopen_s(&file, filePath.c_str(), "rb");
+		::rewind(file);
+
+		std::string clipName;
+		FileIO::ReadString(file, clipName); //Animation Set Name
+
+		float length    = FileIO::ReadVal<float>(file);
+		int frameRate   = FileIO::ReadVal<int>(file);
+		int keyFrameCnt = FileIO::ReadVal<int>(file);
+		int boneCnt		= FileIO::ReadVal<int>(file);
+
+		sptr<AnimationClip> clip = std::make_shared<AnimationClip>(length, frameRate, keyFrameCnt, boneCnt, clipName);
+
+		for (int i = 0; i < keyFrameCnt; ++i) {
+			FileIO::ReadVal(file, clip->mKeyFrameTimes[i]);
+			FileIO::ReadRange(file, clip->mKeyFrameTransforms[i], boneCnt);
+		}
+
+		return clip;
+	}
+
+	sptr<AnimatorController> LoadAnimatorController(const std::string& filePath)
+	{
+		std::string token{};
+		FILE* file = nullptr;
+		::fopen_s(&file, filePath.c_str(), "rb");
+		::rewind(file);
+
+		// Params //
+		Animations::ParamMap params{};
+
+		FileIO::ReadString(file, token);	// <Params>:
+		int paramSize = FileIO::ReadVal<int>(file);
+
+		for (int i = 0; i < paramSize; ++i) {
+			AnimatorParameter param{};
+			std::string paramName;
+			FileIO::ReadString(file, paramName);
+
+			// Set param type and default value
+			std::string paramType;
+			FileIO::ReadString(file, paramType);
+			switch (Hash(paramType)) {
+			case Hash("Float"):
+				param.type = AnimatorParameter::Type::Float;
+				FileIO::ReadVal(file, param.val.f);
+				break;
+			case Hash("Int"):
+				param.type = AnimatorParameter::Type::Int;
+				FileIO::ReadVal(file, param.val.i);
+				break;
+			case Hash("Bool"):
+				param.type = AnimatorParameter::Type::Bool;
+				FileIO::ReadVal(file, param.val.b);
+				break;
+			case Hash("Trigger"):
+				param.type = AnimatorParameter::Type::Trigger;
+				param.val.b = false;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+
+			params.insert(std::make_pair(paramName, param));
+		}
+
+		// Layer //
+		sptr<AnimatorLayer> baseLayer = ::LoadAnimatorLayer(file);
+
+		return std::make_shared<AnimatorController>(params, baseLayer);
+	}
+
+	void LoadLightFromFile(const std::string& filePath, LightInfo** out)
 	{
 		LightInfo* light = *out;
 
 		FILE* file = nullptr;
-		::fopen_s(&file, fileName.c_str(), "rb");
+		::fopen_s(&file, filePath.c_str(), "rb");
 		assert(file);
 		::rewind(file);
 

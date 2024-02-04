@@ -22,6 +22,9 @@
 #include "DescriptorHeap.h"
 #include "ObjectPool.h"
 
+#include "Animator.h"
+#include "AnimatorController.h"
+
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
 #include "Script_Billboard.h"
@@ -91,6 +94,12 @@ rsptr<Texture> Scene::GetTexture(const std::string& name) const
 }
 
 rsptr<DescriptorHeap> Scene::GetDescHeap() const
+sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
+{
+	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
+}
+
+RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
 {
 	assert(mDescriptorHeap);
 
@@ -294,6 +303,8 @@ void Scene::BuildObjects()
 	canvas->Init();
 
 	// load models
+	LoadAnimationClips();
+	LoadAnimatorControllers();
 	LoadSceneObjects("Models/Scene.bin");
 	LoadModels();
 
@@ -364,8 +375,8 @@ void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
-	airplanePlayer->SetModel(GetModel("Gunship"));
+	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(GetModel("tank_bullet"));
+	airplanePlayer->SetModel(GetModel("EliteTrooper"));
 
 	mPlayers.push_back(airplanePlayer);
 
@@ -429,7 +440,7 @@ void Scene::UpdateGridInfo()
 
 void Scene::LoadSceneObjects(const std::string& fileName)
 {
-	FILE* file = NULL;
+	FILE* file = nullptr;
 	::fopen_s(&file, fileName.c_str(), "rb");
 	assert(file);
 	::rewind(file);
@@ -533,6 +544,30 @@ void Scene::LoadModels()
 	}
 }
 
+void Scene::LoadAnimationClips()
+{
+	const std::string rootFolder = "Models/AnimationClips/";
+	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
+		std::string clipFolderName = clipFolder.path().filename().string();
+
+		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
+			std::string fileName = file.path().filename().string();
+			sptr<const AnimationClip> clip = FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
+
+			FileIO::RemoveExtension(fileName);
+			mAnimationClipMap[clipFolderName].insert(std::make_pair(fileName, clip));
+		}
+	}
+}
+
+void Scene::LoadAnimatorControllers()
+{
+	const std::string rootFolder = "Models/AnimatorControllers/";
+	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = file.path().filename().string();
+		mAnimatorControllerMap.insert(std::make_pair(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName)));
+	}
+}
 
 void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
 {
@@ -739,9 +774,21 @@ void Scene::RenderGridObjects()
 			mBillboardObjects.insert(object);
 			break;
 		default:
+			if (object->IsSkinMesh()) {
+				skinMeshObjects.insert(object);
+				break;
+			}
 			object->Render();
 			break;
 		}
+	}
+}
+
+void Scene::RenderSkinMeshObjects(std::set<GridObject*>& skinMeshObjects)
+{
+	mSkinnedMeshShader->Set();
+	for (auto& object : skinMeshObjects) {
+		object->Render();
 	}
 }
 
@@ -771,7 +818,7 @@ void Scene::RenderBullets()
 	mBulletShader->Set();
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
-			player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
+			//player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
 		}
 	}
 }
@@ -907,6 +954,10 @@ void Scene::UpdateObjects()
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->Update();
 		});
+
+	ProcessObjects([this](sptr<GridObject> object) {
+		object->Animate();
+		});
 }
 
 void Scene::UpdateFXObjects()
@@ -974,7 +1025,7 @@ void Scene::CreateBigExpFX(const Vec3& pos)
 }
 
 
-int Scene::GetGridIndexFromPos(Vec3 pos)
+int Scene::GetGridIndexFromPos(Vec3 pos) const
 {
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
@@ -1135,7 +1186,7 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	// 1칸 이내의 "인접 그리드(8개)와 충돌검사"
 	const auto& collider = object->GetCollider();
 	if(collider) {
-		std::unordered_set<int> gridIndices{};
+		std::unordered_set<int> gridIndices{ gridIndex };
 		const auto& objectBS = collider->GetBS();
 
 		// BoundingSphere가 Grid 내부에 완전히 포함되면 "인접 그리드 충돌검사" X

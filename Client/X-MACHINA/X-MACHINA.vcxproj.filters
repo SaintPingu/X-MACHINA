@@ -250,6 +250,24 @@
     <ClCompile Include="src\LUTFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
+    <ClCompile Include="src\AnimationClip.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Animator.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_GroundPlayer.cpp">
+      <Filter>소스 파일\Component\Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorLayer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -345,9 +363,6 @@
     <ClInclude Include="include\SkyBox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Terrain.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -424,6 +439,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\LUTFilter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stdafx.h">
+      <Filter>소스 파일\PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimationClip.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Animator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimatorState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimatorController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimatorLayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -508,6 +541,9 @@
     </FxCompile>
     <FxCompile Include="shaders\CShader_LUT.hlsl">
       <Filter>소스 파일\Shaders\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_SkinnedMesh.hlsl">
+      <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

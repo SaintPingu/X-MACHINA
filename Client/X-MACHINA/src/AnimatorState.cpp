@@ -39,7 +39,7 @@ std::string AnimatorTransition::CheckTransition(const std::string& param, float 
 
 AnimatorState::AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions)
 	:
-	mLayer(layer),
+	mLayer(layer.get()),
 	mClip(clip),
 	mName(clip->mName),
 	mTransitions(transitions)
@@ -96,5 +96,5 @@ sptr<AnimatorState> AnimatorState::CheckTransition(const std::string& param, flo
 
 bool AnimatorState::IsEndAnimation()
 {
-	return mCrntLength >= mClip->mLength;
+	return mCrntLength > mClip->mLength;
 }

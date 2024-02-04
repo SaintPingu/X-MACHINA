@@ -649,7 +649,7 @@ namespace FileIO {
 		::rewind(file);
 
 		// Params //
-		std::unordered_map<std::string, AnimatorParameter> params{};
+		Animations::ParamMap params{};
 
 		FileIO::ReadString(file, token);	// <Params>:
 		int paramSize = FileIO::ReadVal<int>(file);

@@ -154,7 +154,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\AnimatorStateMachine.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\Component.cpp" />
@@ -205,7 +204,6 @@
     <ClInclude Include="include\Animator.h" />
     <ClInclude Include="include\AnimatorLayer.h" />
     <ClInclude Include="include\AnimatorState.h" />
-    <ClInclude Include="include\AnimatorStateMachine.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Collider.h" />
     <ClInclude Include="include\Component.h" />

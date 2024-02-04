@@ -8,18 +8,22 @@
 #include "Scene.h"
 #include "Timer.h"
 
-AnimatorController::AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, rsptr<AnimatorLayer> baseLayer)
+AnimatorController::AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer)
 	:
-	mParameters(parameters)
+	mParameters(parameters),
+	mBaseLayer(baseLayer)
 {
-	mCrntState = baseLayer->Entry();
+	mCrntLayer = mBaseLayer;
+	mCrntState = mCrntLayer->Entry();
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
-	mParameters(other.mParameters)
+	mParameters(other.mParameters),
+	mBaseLayer(std::make_shared<AnimatorLayer>(*other.mBaseLayer))
 {
-	mCrntState = other.mCrntState;
+	mCrntLayer = mBaseLayer;
+	mCrntState = mCrntLayer->Entry();
 }
 
 void AnimatorController::Animate()

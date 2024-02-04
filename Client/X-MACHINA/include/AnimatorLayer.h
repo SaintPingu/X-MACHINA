@@ -3,7 +3,6 @@
 struct AnimatorTransition;
 class AnimatorState;
 class AnimatorLayer;
-class AnimatorStateMachine;
 
 namespace Animations {
 	using StateMap = std::unordered_map<std::string, sptr<AnimatorState>>;
@@ -22,6 +21,7 @@ private:
 
 public:
 	AnimatorLayer(std::string name, const std::vector<sptr<const AnimatorTransition>>& entryTransitions);
+	AnimatorLayer(const AnimatorLayer& other);
 	virtual ~AnimatorLayer() = default;
 
 	std::string GetName() const { return mName; }

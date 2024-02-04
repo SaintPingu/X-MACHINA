@@ -57,6 +57,7 @@ void Script_MainCamera::Update()
 		mObject->Translate(dir, distance);
 		UpdateHeight();
 		LookPlayer();
+		mainCameraObject->Rotate(-10, 0, 0);
 		mainCamera->UpdateViewMtx();
 	}
 

@@ -21,21 +21,21 @@ struct AnimatorTransition {
 // AnimationClip의 재생을 관리한다.
 class AnimatorState {
 private:
-	sptr<const AnimatorLayer> mLayer{};
-
 	std::string mName{};
+
+	const AnimatorLayer* mLayer{};
 	sptr<const AnimationClip> mClip{};
+
+	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
 	float 	mSpeed      = .5f;
 	float 	mCrntLength = 0.f;
 	float 	mWeight     = 1.f;
 
-	std::vector<sptr<const AnimatorTransition>> mTransitions{};
-
 public:
 	AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions);
 	AnimatorState(const AnimatorState& other);
-	~AnimatorState() = default;
+	virtual ~AnimatorState() = default;
 
 	Vec4x4 GetSRT(int boneIndex) const;
 	float GetCrntLength() const { return mCrntLength; }

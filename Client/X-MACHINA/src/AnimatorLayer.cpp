@@ -11,6 +11,19 @@ AnimatorLayer::AnimatorLayer(std::string name, const std::vector<sptr<const Anim
 
 }
 
+AnimatorLayer::AnimatorLayer(const AnimatorLayer& other)
+{
+	mName = other.mName;
+	mEntryTransitions = other.mEntryTransitions;
+
+	for (const auto& [name, state] : other.mStates) {
+		AddState(std::make_shared<AnimatorState>(*state));
+	}
+
+	for (const auto& [name, layer] : other.mLayers) {
+		AddLayer(std::make_shared<AnimatorLayer>(*layer));
+	}
+}
 
 void AnimatorLayer::AddState(rsptr<AnimatorState> state)
 {

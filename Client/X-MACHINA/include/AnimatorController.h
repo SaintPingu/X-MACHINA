@@ -20,15 +20,22 @@ struct AnimatorParameter {
 	} val{};
 };
 
+namespace Animations {
+	using ParamMap = std::unordered_map<std::string, AnimatorParameter>;
+}
+
 class AnimatorController {
 private:
-	std::unordered_map<std::string, AnimatorParameter> mParameters{};
+	Animations::ParamMap mParameters{};
+
+	const sptr<AnimatorLayer> mBaseLayer{};
+	sptr<AnimatorLayer> mCrntLayer{};
 
 	sptr<AnimatorState>	mCrntState{};
 	sptr<AnimatorState>	mNextState{};
 
 public:
-	AnimatorController(const std::unordered_map<std::string, AnimatorParameter>& parameters, rsptr<AnimatorLayer> baseLayer);
+	AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer);
 	AnimatorController(const AnimatorController& other);
 	virtual ~AnimatorController() = default;
 

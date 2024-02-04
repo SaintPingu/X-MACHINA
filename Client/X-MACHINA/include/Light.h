@@ -24,6 +24,7 @@ enum class LightType {
 class Light {
 private:
 	sptr<SceneLight> mLights{};	// all lights in scene
+	std::set<std::string> mLightModelNames{};
 
 	size_t					mCurrLightCnt{};	// count of allocated light in scene
 

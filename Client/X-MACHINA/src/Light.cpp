@@ -6,8 +6,6 @@
 
 namespace {
 	constexpr int gkSunLightIdx = 0;
-
-	std::set<std::string> gkLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 }
 
 
@@ -17,18 +15,19 @@ Light::Light()
 	:
 	mLights(std::make_shared<SceneLight>())
 {
+	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 	XMStoreFloat4(&mLights->FogColor, Colors::Gray);
 }
 
 Light::~Light()
 {
 	for (auto& light : mLightModels) {
-		if (gkLightModelNames.contains(light.first)) {
+		if (mLightModelNames.contains(light.first)) {
 			delete light.second;
 		}
 	}
 
-	gkLightModelNames.clear();
+	mLightModelNames.clear();
 }
 
 const LightInfo* Light::GetLightModel(const std::string& modelName) const
@@ -59,7 +58,7 @@ void Light::SetSunlight()
 
 void Light::LoadLightModels()
 {
-	for (auto& name : gkLightModelNames) {
+	for (auto& name : mLightModelNames) {
 		LightInfo* light = new LightInfo;
 		FileIO::LoadLightFromFile("Models/Lights/" + name + ".bin", &light);
 		mLightModels.insert(std::make_pair(name, light));

@@ -41,9 +41,7 @@ struct PassConstants {
     int         RT3_NormalIndex     = -1;
     int         RT4_DepthIndex      = -1;
     int         RT5_DistanceIndex   = -1;
-
-    int         RT0_OffScreenIndex  = -1;
-    Vec2        Padding2;
+    int         Padding2{};
 };
 
 struct PostPassConstants {

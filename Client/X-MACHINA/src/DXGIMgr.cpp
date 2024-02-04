@@ -19,7 +19,7 @@ DXGIMgr::DXGIMgr()
 	mClientWidth(gkFrameBufferWidth),
 	mClientHeight(gkFrameBufferHeight)
 {
-	mFilterOption = FilterOption::LUT;
+	mFilterOption = FilterOption::None;
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)

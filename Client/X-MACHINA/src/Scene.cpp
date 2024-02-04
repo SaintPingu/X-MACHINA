@@ -267,7 +267,6 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
-	passConstants.RT0_OffScreenIndex = dxgi->GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
 	passConstants.LightCount = mLight->GetLightCount();
 	passConstants.GlobalAmbient = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));

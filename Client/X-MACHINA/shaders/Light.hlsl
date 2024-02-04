@@ -255,6 +255,7 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 peakIrradiance, float3 di
 
     LightColor result;
     result.Diffuse = lighting * nDotL * peakIrradiance;
+    result.Specular = float3(0.f, 0.f, 0.f);
     
     return result;
 }

@@ -74,17 +74,16 @@ struct PassInfo {
     float4      GlobalAmbient;
     
     float4      FogColor;
+    
     float       FogStart;
     float       FogRange;
-    
     int         RT0_TextureIndex;
     int         RT1_UIIndex;
+    
     int         RT2_NormalIndex;
     int         RT3_DepthIndex;
     int         RT4_DistanceIndex;
-    
-    int         RT0_OffScreenIndex;
-    float2      Padding2;
+    int         Padding2;
 };
 
 struct PostPassInfo {

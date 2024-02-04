@@ -94,16 +94,15 @@ rsptr<Texture> Scene::GetTexture(const std::string& name) const
 }
 
 rsptr<DescriptorHeap> Scene::GetDescHeap() const
-sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
-{
-	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
-}
-
-RComPtr<ID3D12RootSignature> Scene::GetRootSignature() const
 {
 	assert(mDescriptorHeap);
 
 	return mDescriptorHeap;
+}
+
+sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
+{
+	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
 }
 
 RComPtr<ID3D12RootSignature> Scene::GetGraphicsRootSignature() const
@@ -120,10 +119,16 @@ RComPtr<ID3D12RootSignature> Scene::GetComputeRootSignature() const
 	return mComputeRootSignature->Get();
 }
 
-UINT Scene::GetRootParamIndex(RootParam param) const
+UINT Scene::GetGraphicsRootParamIndex(RootParam param) const
 {
 	return mGraphicsRootSignature->GetRootParamIndex(param);
 }
+
+UINT Scene::GetComputeRootParamIndex(RootParam param) const
+{
+	return mComputeRootSignature->GetRootParamIndex(param);
+}
+
 #pragma endregion
 
 
@@ -144,35 +149,35 @@ void Scene::ReleaseUploadBuffers()
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 4U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 1U;
-	cmdList->SetGraphicsRoot32BitConstants(GetRootParamIndex(param), kNum32Bit, &data, offset);
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void Scene::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
 {
-	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(param), gpuAddr);
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
 }
 
 void Scene::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
 {
-	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(param), gpuAddr);
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
 }
 
 void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
@@ -204,19 +209,20 @@ void Scene::CreateGraphicsRootSignature()
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Object,		D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Pass,		D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::SkinMesh,	D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
+	// GameObjectInfo를 Collider로 변경, 충돌 박스만 그려주는 용도
+	mGraphicsRootSignature->Push(RootParam::Collider,	D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
 
 	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
-	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->Push(RootParam::Instancing,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	mGraphicsRootSignature->Push(RootParam::Material,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	
 	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
-	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::SkyBox,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
 	
-	// GameObjectInfo를 Collider로 변경, 충돌 박스만 그려주는 용도
-	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 2, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
 
 	mGraphicsRootSignature->Create();
 }
@@ -349,6 +355,9 @@ void Scene::BuildForwardShader()
 
 	mSpriteShader = std::make_shared<SpriteShader>();
 	mSpriteShader->Create(shaderType);
+
+	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
+	mSkinnedMeshShader->Create(shaderType);
 
 	mFinalShader = std::make_shared<FinalShader>();
 	mFinalShader->Create(shaderType, DXGI_FORMAT_D32_FLOAT);
@@ -649,9 +658,9 @@ void Scene::OnPrepareRender()
 	mDescriptorHeap->Set();
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
-	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
-	cmdList->SetGraphicsRootDescriptorTable(GetRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
+	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 }
 
 void Scene::RenderShadow()
@@ -679,6 +688,7 @@ void Scene::RenderDeferred()
 
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	RenderGridObjects();	
+	RenderSkinMeshObjects();
 	RenderEnvironments();	
 	RenderInstanceObjects();
 	RenderBullets();
@@ -775,7 +785,7 @@ void Scene::RenderGridObjects()
 			break;
 		default:
 			if (object->IsSkinMesh()) {
-				skinMeshObjects.insert(object);
+				mSkinMeshObjects.insert(object);
 				break;
 			}
 			object->Render();
@@ -784,10 +794,10 @@ void Scene::RenderGridObjects()
 	}
 }
 
-void Scene::RenderSkinMeshObjects(std::set<GridObject*>& skinMeshObjects)
+void Scene::RenderSkinMeshObjects()
 {
 	mSkinnedMeshShader->Set();
-	for (auto& object : skinMeshObjects) {
+	for (auto& object : mSkinMeshObjects) {
 		object->Render();
 	}
 }

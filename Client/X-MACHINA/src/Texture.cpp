@@ -8,12 +8,12 @@
 Texture::Texture(D3DResource resourceType)
 	:
 	mResourceType(resourceType),
-	mRootParamIndex(scene->GetRootParamIndex(RootParam::Texture))
+	mRootParamIndex(scene->GetGraphicsRootParamIndex(RootParam::Texture))
 {
 	switch (resourceType)
 	{
 	case D3DResource::TextureCube:
-		mRootParamIndex = scene->GetRootParamIndex(RootParam::SkyBox); // Textrue2D와 다른 루트 파라미터를 사용해야 함
+		mRootParamIndex = scene->GetGraphicsRootParamIndex(RootParam::SkyBox); // Textrue2D와 다른 루트 파라미터를 사용해야 함
 		break;
 	default:
 		break;

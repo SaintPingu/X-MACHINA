@@ -9,8 +9,11 @@
 #define LightType_Spot          0
 #define LightType_Directional   1
 #define LightType_Point         2
-#define gkMaxTexture            100
+#define gkMaxTexture            200
 #define gkMaxSceneLight         32
+
+#define MAX_VERTEX_INFLUENCES			4
+#define SKINNED_ANIMATION_BONES			128
 
 struct LightInfo {
     float4  Ambient;
@@ -81,6 +84,10 @@ struct ColliderInfo {
     matrix MtxView;
 };
 
+struct BoneTransformInfo {
+    float4x4 BoneTransforms[SKINNED_ANIMATION_BONES];
+};
+
 struct SB_StandardInst {
     matrix MtxObject;
 };
@@ -90,9 +97,14 @@ struct SB_ColorInst {
     float4 Color;
 };
 
-ConstantBuffer<ObjectInfo> gObjectCB     : register(b0);
-ConstantBuffer<PassInfo> gPassCB         : register(b1);
-ConstantBuffer<ColliderInfo> gColliderCB : register(b2);
+
+
+
+
+ConstantBuffer<ObjectInfo> gObjectCB          : register(b0);
+ConstantBuffer<PassInfo> gPassCB              : register(b1);
+ConstantBuffer<BoneTransformInfo> gSkinMeshCB : register(b2);
+ConstantBuffer<ColliderInfo> gColliderCB      : register(b3);
 
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);

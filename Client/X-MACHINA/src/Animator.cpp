@@ -21,23 +21,17 @@ Animator::Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* ava
 	const size_t skinMeshCount = mSkinMeshes.size();
 
 	InitBoneFrames(skinMeshCount, avatar);
-
-	InitBoneTransforms(skinMeshCount);
 }
 
 Animator::~Animator()
 {
-	for (auto& CB_BoneTransform : mCB_BoneTransforms) {
-		CB_BoneTransform->Unmap(0, nullptr);
-	}
+
 }
 
 void Animator::UpdateShaderVariables()
 {
 	for (size_t i = 0; i < mSkinMeshes.size(); ++i) {
 		mSkinMeshes[i]->mBoneFrames = &mBoneFramesList[i];
-		mSkinMeshes[i]->mCB_BoneTransforms = mCB_BoneTransforms[i];
-		mSkinMeshes[i]->mCBMap_BoneTransforms = mCBMap_BoneTransforms[i];
 	}
 }
 
@@ -81,17 +75,4 @@ void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar)
 	std::sort(mBoneFramesList.begin(), mBoneFramesList.end(), [](const auto& first, const auto& second) {
 		return first.size() > second.size();
 		});
-}
-
-void Animator::InitBoneTransforms(size_t skinMeshCount)
-{
-	// 각 SkinMesh에 대한 Constant Buffer 생성
-	mCB_BoneTransforms.resize(skinMeshCount);
-	mCBMap_BoneTransforms.resize(skinMeshCount);
-
-	size_t byteSize = D3DUtil::CalcConstantBuffSize(sizeof(Vec4x4) * gkSkinBoneSize);
-	for (size_t i = 0; i < skinMeshCount; ++i) {
-		D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_BoneTransforms[i]);
-		mCB_BoneTransforms[i]->Map(0, nullptr, (void**)&mCBMap_BoneTransforms[i]);
-	}
 }

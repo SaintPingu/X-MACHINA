@@ -355,7 +355,7 @@ D3D12_SHADER_BYTECODE WaterShader::CreatePixelShader()
 #pragma region ForwardShader
 D3D12_INPUT_LAYOUT_DESC ForwardShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 5;
+	UINT nInputElementDescs = 7;
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -363,6 +363,8 @@ D3D12_INPUT_LAYOUT_DESC ForwardShader::CreateInputLayout()
 	inputElementDescs[2] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -777,5 +779,5 @@ D3D12_SHADER_BYTECODE LUTShader::CreateComputeShader()
 
 D3D12_SHADER_BYTECODE SkinMeshShader::CreateVertexShader()
 {
-	return Shader::CompileShaderFile(L"VShader_SkinnedMesh.hlsl", "VS_SkinnedMesh", "vs_5_1", mVSBlob);;
+	return D3DUtil::CompileShaderFile(L"VShader_SkinnedMesh.hlsl", "VS_SkinnedMesh", "vs_5_1", mVSBlob);;
 }

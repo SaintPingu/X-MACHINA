@@ -325,7 +325,7 @@ protected:
 
 
 // for rendering UI (2D plane)
-class SkinMeshShader : public TexturedShader {
+class SkinMeshShader : public ForwardShader {
 public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 };

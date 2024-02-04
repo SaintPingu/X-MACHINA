@@ -185,7 +185,7 @@ namespace {
 					std::vector<Vec4x4> boneOffsets(skinBoneCnt);
 					FileIO::ReadRange(file, boneOffsets, skinBoneCnt);
 
-					mesh->CreateBufferResource(boneOffsets);
+					mesh->SetBoneOffsets(boneOffsets);
 				}
 			}
 
@@ -299,15 +299,15 @@ namespace {
 				break;
 
 			case Hash("<NormalMap>:"):
-				material->LoadTextureFromFile(TextureMap::NormalMap, file);
+				//material->LoadTextureFromFile(TextureMap::NormalMap, file);
 				break;
 
 			case Hash("<HeightMap>:"):
-				material->LoadTextureFromFile(TextureMap::HeightMap, file);
+				//material->LoadTextureFromFile(TextureMap::HeightMap, file);
 				break;
 
 			case Hash("<RoughnessMap>:"):
-				material->LoadTextureFromFile(TextureMap::RoughnessMap, file);
+				//material->LoadTextureFromFile(TextureMap::RoughnessMap, file);
 				break;
 
 			case Hash("</Materials>"):

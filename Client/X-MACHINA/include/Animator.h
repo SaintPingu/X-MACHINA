@@ -20,9 +20,6 @@ private:
 	std::vector<std::vector<Transform*>>	mBoneFramesList{};
 	std::vector<sptr<SkinMesh>>				mSkinMeshes{};
 
-	std::vector<ComPtr<ID3D12Resource>> mCB_BoneTransforms{};
-	std::vector<Vec4x4*>				mCBMap_BoneTransforms{};
-
 public:
 	Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 	~Animator();
@@ -37,5 +34,4 @@ public:
 private:
 	void InitController(rsptr<const AnimationLoadInfo> animationInfo);
 	void InitBoneFrames(size_t skinMeshCount, GameObject* avatar);
-	void InitBoneTransforms(size_t skinMeshCount);
 };

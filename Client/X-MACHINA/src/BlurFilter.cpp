@@ -70,8 +70,8 @@ void BlurFilter::Execute(ID3D12Resource* input, int blurCount)
 	for (int i = 0; i < blurCount; ++i) {
 #pragma region Horizontal Blur Pass
 		mHorzBlurShader->Set();
-		cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Read), mBlur0GpuSrv);
-		cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Write), mBlur1GpuUav);
+		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), mBlur0GpuSrv);
+		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), mBlur1GpuUav);
 
 		UINT numGroupsX = (UINT)ceilf(mWidth / 256.0f);
 		cmdList->Dispatch(numGroupsX, mHeight, 1);
@@ -82,8 +82,8 @@ void BlurFilter::Execute(ID3D12Resource* input, int blurCount)
 
 #pragma region Vertical Blur Pass
 		mVertBlurShader->Set();
-		cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Read), mBlur1GpuUav);
-		cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Write), mBlur0GpuSrv);
+		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), mBlur1GpuUav);
+		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), mBlur0GpuSrv);
 
 		UINT numGroupsY = (UINT)ceilf(mHeight / 256.0f);
 		cmdList->Dispatch(mWidth, numGroupsY, 1);

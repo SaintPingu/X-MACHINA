@@ -9,7 +9,7 @@ MaterialData::MaterialData()
 #pragma endregion
 
 #pragma region FrameResource
-FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int materialCount)
+FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int skinBoneCount, int materialCount)
 {
 	THROW_IF_FAILED(pDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -17,6 +17,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCou
 
 	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, passCount, true);
 	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, objectCount, true);
+	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, skinBoneCount, true);
 	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, materialCount, false);
 }
 #pragma endregion
@@ -29,6 +30,7 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mFrameResourceCount(3),
 	mPassCount(1),
 	mObjectCount(2000),
+	mSkinBoneCount(mObjectCount * gkSkinBoneSize),	// 임시, Object 개수 * SkinBone 최대크기(128)
 	mMaterialCount(500)
 {
 	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
@@ -39,6 +41,11 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mActiveIndices[static_cast<int>(BufferType::Object)].reserve(mObjectCount);
 	for (int i = 0; i < mObjectCount; ++i) {
 		mAvailableIndices[static_cast<int>(BufferType::Object)].push(i);
+	}
+
+	mActiveIndices[static_cast<int>(BufferType::SkinMesh)].reserve(mSkinBoneCount);
+	for (int i = 0; i < mSkinBoneCount; ++i) {
+		mAvailableIndices[static_cast<int>(BufferType::SkinMesh)].push(i);
 	}
 
 	mActiveIndices[static_cast<int>(BufferType::Material)].reserve(mMaterialCount);
@@ -59,6 +66,13 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetObjCBGpuAddr(int elementInd
 	return objectCB->Resource()->GetGPUVirtualAddress() + elementIndex * objectCB->GetElementByteSize();
 }
 
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetSKinMeshCBGpuAddr(int elementIndex) const
+{
+	const auto& skinMeshCB = mCurrFrameResource->SkinMeshCB;
+	return skinMeshCB->Resource()->GetGPUVirtualAddress() + elementIndex * skinMeshCB->GetElementByteSize();
+}
+
+
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr(int elementIndex) const
 {
 	const auto& materialBuffer = mCurrFrameResource->MaterialBuffer;
@@ -69,7 +83,7 @@ void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
 	for (int i = 0; i < mFrameResourceCount; ++i) {
-		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mObjectCount, mMaterialCount));
+		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mObjectCount, mSkinBoneCount, mMaterialCount));
 	}
 
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
@@ -145,6 +159,23 @@ void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
 	}
 
 	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const SkinnedConstants& data)
+{
+	constexpr UINT type = static_cast<UINT>(BufferType::SkinMesh);
+	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
+
+		if (mAvailableIndices[type].empty()) {
+			return;
+		}
+
+		elementIndex = mAvailableIndices[type].front();
+		mAvailableIndices[type].pop();
+		mActiveIndices[type].insert(elementIndex);
+	}
+
+	mCurrFrameResource->SkinMeshCB->CopyData(elementIndex, data);
 }
 
 #pragma endregion

@@ -9,6 +9,7 @@ enum class BufferType : UINT {
     Pass = 0,
     Object,
     Material,
+    SkinMesh,
     _count
 };
 
@@ -39,6 +40,10 @@ struct ObjectConstants {
     Vec3        Padding{};
 };
 
+struct SkinnedConstants {
+    Vec4x4 BoneTransforms[gkSkinBoneSize];
+};
+
 struct MaterialData {
     Vec4 Ambient{ Vector4::One() };
     Vec4 Diffuse{};
@@ -60,12 +65,13 @@ public:
     
     uptr<UploadBuffer<PassConstants>>   PassCB{};       // 패스 상수 버퍼
     uptr<UploadBuffer<ObjectConstants>> ObjectCB{};     // 오브젝트 상수 버퍼
+    uptr<UploadBuffer<SkinnedConstants>> SkinMeshCB{};     // 스킨메쉬 상수 버퍼
 
     uptr<UploadBuffer<MaterialData>>    MaterialBuffer{};   // 머티리얼 버퍼
 
 public:
 #pragma region C/Dtor
-    FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int materialCount);
+    FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int skinBoneCount, int materialCount);
     ~FrameResource() = default;
 #pragma endregion
 };
@@ -76,6 +82,7 @@ private:
     int mFrameResourceCount;
     int mPassCount;
     int mObjectCount;
+    int mSkinBoneCount;
     int mMaterialCount;
 
     ID3D12Fence*                                mFence{};
@@ -97,6 +104,7 @@ public:
     FrameResource* GetCurrFrameResource() const { return mCurrFrameResource; }
     const D3D12_GPU_VIRTUAL_ADDRESS GetPassCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetObjCBGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetSKinMeshCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
 #pragma endregion
     void CreateFrameResources(ID3D12Device* pDevice);
@@ -113,6 +121,8 @@ public:
     void CopyData(int& elementIndex, const ObjectConstants& data);
     // 머티리얼 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const MaterialData& data);
+    // 스킨메쉬 당 상수 버퍼에 데이터 복사
+    void CopyData(int& elementIndex, const SkinnedConstants& data);
 };
 
 #pragma endregion

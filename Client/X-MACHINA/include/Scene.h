@@ -87,6 +87,7 @@ private:
 	std::set<GridObject*> mRenderedObjects{};
 	std::set<GridObject*> mTransparentObjects{};
 	std::set<GridObject*> mBillboardObjects{};
+	std::set<GridObject*> mSkinMeshObjects{};
 
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};
@@ -139,13 +140,12 @@ public:
 	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
 	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;
 
-	RComPtr<ID3D12RootSignature> GetRootSignature() const;
-
 	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
 	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
 
 	// [param]에 해당하는 root parameter index를 반환한다.
-	UINT GetRootParamIndex(RootParam param) const;
+	UINT GetGraphicsRootParamIndex(RootParam param) const;
+	UINT GetComputeRootParamIndex(RootParam param) const;
 #pragma endregion
 
 
@@ -243,8 +243,8 @@ private:
 	// [transparentObjects] : 투명 객체
 	// [billboardObjects]	: 빌보드 객체 (plane)
 	void RenderGridObjects();
-	void RenderSkinMeshObjects(std::set<GridObject*>& skinMeshObjects);
 
+	void RenderSkinMeshObjects();
 	void RenderEnvironments();
 	void RenderBullets();
 	void RenderInstanceObjects();

@@ -626,6 +626,9 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		}
 
 		const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
+		if (modelMeshInfo.SkinMesh) {
+			modelMeshInfo.SkinMesh->UpdateShaderVariables();
+		}
 
 		UINT vertexCnt = modelMeshInfo.VertexCnt;
 		UINT mat{ 0 };
@@ -649,33 +652,20 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 
 #pragma region SkinMesh
-void SkinMesh::CreateBufferResource(const std::vector<Vec4x4>& boneOffsets)
-{
-	size_t byteSize = D3DUtil::CalcConstantBuffSize(sizeof(Vec4x4) * gkSkinBoneSize);
-	D3DUtil::CreateBufferResource(nullptr, byteSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, mCB_BindPoseBoneOffsets);
-	mCB_BindPoseBoneOffsets->Map(0, nullptr, (void**)&mCBMap_BindPoseBoneOffsets);
-
-	// bind pose는 고정이기 때문에 최초 1회만 값을 저장한다.
-	for (int i = 0; i < boneOffsets.size(); i++) {
-		XMStoreFloat4x4(&mCBMap_BindPoseBoneOffsets[i], XMMatrixTranspose(_MATRIX(boneOffsets[i])));
-	}
-}
-
 void SkinMesh::UpdateShaderVariables()
 {
-	if (mCB_BindPoseBoneOffsets) {
-		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneOffset), mCB_BindPoseBoneOffsets->GetGPUVirtualAddress()); //Skinned Bone Offsets
-	}
-
-	if (mCB_BoneTransforms)
+	SkinnedConstants skinnedConstatnts{};
+	
+	for (int i = 0; i < (*mBoneFrames).size(); ++i)
 	{
-		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneTransformsGpuVirtualAddress = mCB_BoneTransforms->GetGPUVirtualAddress();
-		cmdList->SetGraphicsRootConstantBufferView(scene->GetRootParamIndex(RootParam::BoneTransform), d3dcbBoneTransformsGpuVirtualAddress); //Skinned Bone Transforms
-
-		for (int j = 0; j < (*mBoneFrames).size(); j++)
-		{
-			XMStoreFloat4x4(&mCBMap_BoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&(*mBoneFrames)[j]->GetWorldTransform())));
-		}
+		Vec4x4 transform = Matrix4x4::Multiply(mBoneOffsets[i], (*mBoneFrames)[i]->GetWorldTransform());
+		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
+
+	int index = -1;
+	frmResMgr->CopyData(index, skinnedConstatnts);
+
+	scene->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
+
 }
 #pragma endregion

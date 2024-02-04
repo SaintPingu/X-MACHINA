@@ -25,8 +25,6 @@ enum class VertexType : DWORD {
 };
 #pragma endregion
 
-constexpr int gkSkinBoneSize = 128;
-
 #pragma region Struct
 // (계층 구조에서)한 프레임이 가지는 메쉬 정보
 class SkinMesh;
@@ -196,21 +194,17 @@ private:
 class SkinMesh : public Mesh {
 public:
 	std::vector<std::string> mBoneNames;
-
-	ComPtr<ID3D12Resource> mCB_BoneTransforms{};
-	Vec4x4* mCBMap_BoneTransforms{};
 	std::vector<Transform*>* mBoneFrames{};
 
 private:
-	ComPtr<ID3D12Resource>	mCB_BindPoseBoneOffsets{};
-	Vec4x4*					mCBMap_BindPoseBoneOffsets{};
+	std::vector<Vec4x4> mBoneOffsets{};
 
 public:
 	SkinMesh() = default;
 	virtual ~SkinMesh() = default;
 
 public:
-	void CreateBufferResource(const std::vector<Vec4x4>& boneOffsets);
+	void SetBoneOffsets(const std::vector<Vec4x4>& boneOffsets) { mBoneOffsets = boneOffsets; }
 
 	void UpdateShaderVariables();
 };

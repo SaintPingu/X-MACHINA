@@ -43,10 +43,10 @@ void LUTFilter::Execute(ID3D12Resource* input)
 	D3DUtil::ResourceTransition(mInput.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 	D3DUtil::ResourceTransition(mOutput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT0), mLUT0GpuSrv);
-	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT1), mLUT1GpuSrv);
-	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Read), mInputGpuSrv);
-	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Write), mOutputGpuUav);
+	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT0), mLUT0GpuSrv);
+	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT1), mLUT1GpuSrv);
+	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), mInputGpuSrv);
+	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), mOutputGpuUav);
 
 	UINT numGroupsX = (UINT)ceilf(mWidth / 256.0f);
 	cmdList->Dispatch(numGroupsX, mHeight, 1);

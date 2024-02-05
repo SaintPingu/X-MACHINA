@@ -120,9 +120,9 @@ void DXGIMgr::Render()
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
 		break;
 	}
-
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
+	scene->RenderUI();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 

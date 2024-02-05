@@ -718,7 +718,10 @@ void Scene::RenderForward()
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
+}
 
+void Scene::RenderUI()
+{
 	if (RenderBounds(mRenderedObjects)) {
 		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
 	}

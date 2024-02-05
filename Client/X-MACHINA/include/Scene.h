@@ -226,6 +226,7 @@ public:
 	void RenderLights();
 	void RenderFinal();
 	void RenderForward();
+	void RenderUI();
 	void RenderPostProcessing(int offScreenIndex);
 
 private:

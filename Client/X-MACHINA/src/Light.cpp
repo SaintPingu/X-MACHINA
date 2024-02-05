@@ -70,7 +70,7 @@ void Light::SetSunlight()
 	LightLoadInfo& light     = mLoadLights->Lights[gkSunLightIdx];
 	light.Type           = static_cast<int>(LightType::Directional);
 	light.Ambient        = Vec4(0.1f, 0.1f, 0.1f, 1.f);
-	light.Diffuse        = Vec4(0.8f, 0.8f, 0.8f, 1.f);
+	light.Diffuse        = Vec4(0.7f, 0.7f, 0.7f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Direction		 = Vec3(0.57735f, -0.57735f, 0.57735f);
 }

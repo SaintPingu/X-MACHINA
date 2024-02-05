@@ -268,7 +268,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
 	passConstants.LightCount = mLight->GetLightCount();
-	passConstants.GlobalAmbient = Vec4(0.1f, 0.1f, 0.1f, 1.f);
+	passConstants.GlobalAmbient = Vec4(0.05f, 0.05f, 0.05f, 1.f);
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
@@ -775,6 +775,7 @@ void Scene::RenderGridObjects()
 			continue;
 		}
 
+		// TODO : 현재 인스턴싱 쪽에서 깜빡거리는 버그 발견 
 		if (mainCamera->IsInFrustum(grid.GetBB())) {
 			auto& objects = grid.GetObjects();
 			mRenderedObjects.insert(objects.begin(), objects.end());

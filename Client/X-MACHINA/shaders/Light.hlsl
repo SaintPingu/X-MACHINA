@@ -238,9 +238,6 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
     float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
     
-    // 람버트 산란 모델에서 필요한 정규화 상수를 곱해준다.
-    float3 lighting = diffuseAlbedo * (1.0f / 3.14159f);
-
     float3 view = normalize(toCameraW);
     float3 h = normalize(view + lightDir);
     
@@ -250,7 +247,7 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     float specular = PBR::GGXSpecular(clamp(mat.Roughness, 0.1f, 1.f), normal, h, view, lightDir);
     
     LightColor result;
-    result.Diffuse =  lighting * lightStrength;
+    result.Diffuse =  diffuseAlbedo * lightStrength;
     result.Specular = specular * fresnel * lightStrength;
     
     return result;

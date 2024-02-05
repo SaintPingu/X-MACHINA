@@ -386,7 +386,7 @@ void Scene::BuildPlayers()
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
 	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("Gunship"));
-	//airplanePlayer->RemoveCollider();
+	airplanePlayer->RemoveCollider();
 
 	mPlayers.push_back(airplanePlayer);
 

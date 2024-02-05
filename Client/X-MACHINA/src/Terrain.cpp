@@ -227,11 +227,9 @@ Terrain::Terrain(const std::wstring& fileName) : Transform(this)
 	}
 
 	MaterialLoadInfo materialInfo{};
-	//materialInfo.Emissive          = Vec4(0.f, 0.f, 0.f, 1.f);
-	//materialInfo.Glossiness        = 0.1414213f;
-	//materialInfo.Metallic          = 0.f;
-	//materialInfo.SpecularHighlight = 1.f;
-	//materialInfo.GlossyReflection  = 1.f;
+	materialInfo.DiffuseAlbedo	= Vec4(1.f, 1.f, 1.f, 1.f);
+	materialInfo.Metallic		= 0.01f;
+	materialInfo.Roughness		= 0.95f;
 
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
 	mMaterial                           = std::make_shared<Material>();

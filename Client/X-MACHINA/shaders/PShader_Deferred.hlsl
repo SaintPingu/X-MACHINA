@@ -60,7 +60,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     Material mat = { diffuseAlbedo, metallic, roughness };
     LightColor lightColor = ComputeLighting(mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
     
-    float4 litColor = ambient + float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
+    float4 litColor = ambient +float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
     
     //// specular reflection
 	//float3 r = reflect(-toCameraW, bumpedNormalW);

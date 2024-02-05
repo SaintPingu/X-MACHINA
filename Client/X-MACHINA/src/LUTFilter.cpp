@@ -35,8 +35,8 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 	D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_GENERIC_READ);
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT0), scene->GetTexture("LUT_TensionGreen")->GetGpuDescriptorHandle());
-	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT1), scene->GetTexture("LUT_FoggyNight")->GetGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT0), scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT1), scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle());
 	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
 	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
 

@@ -16,10 +16,14 @@ struct PSOutput_MRT {
 PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
 {
     MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuseAlbedo = matInfo.Diffuse;
+    float metallic       = matInfo.Metallic;
+    float roughness      = matInfo.Roughness;
     int diffuseMap0Index = matInfo.DiffuseMap0Index;
     int diffuseMap1Index = matInfo.DiffuseMap1Index;
     int diffuseMap2Index = matInfo.DiffuseMap2Index;
     int diffuseMap3Index = matInfo.DiffuseMap3Index;
+    
     
     float4 splatColor = gTextureMap[diffuseMap3Index].Sample(gsamLinearWrap, pin.UV1);
     float4 layer0 = float4(0, 0, 0, 0);
@@ -42,7 +46,8 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
         layer2 = GammaDecoding(gTextureMap[diffuseMap2Index].Sample(gsamAnisotropicWrap, pin.UV0));
         layer2 *= splatColor.b;
     }
-    float4 diffuseAlbedo = normalize(layer0 + layer1 + layer2);
+    float4 diffuseMapSample = normalize(layer0 + layer1 + layer2);
+    diffuseAlbedo *= diffuseMapSample;
     pin.NormalW = normalize(pin.NormalW);
     
     // 해당 픽셀에서 카메라까지의 벡터
@@ -51,10 +56,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     // 전역 조명의 ambient 값을 계산한다.
     float4 ambient = gPassCB.GlobalAmbient * diffuseAlbedo;
     
-    // 임시 값
     float3 shadowFactor  = 1.f;
-    float metallic       = 0.0f;
-    float roughness      = 0.8f;
     Material mat = { diffuseAlbedo, metallic, roughness };
     LightColor lightColor = ComputeLighting(mat, pin.PosW, pin.NormalW, toCameraW, shadowFactor);
     

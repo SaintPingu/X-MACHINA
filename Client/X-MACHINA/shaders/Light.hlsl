@@ -232,47 +232,43 @@ float CalcAttenuation(float d, float falloffStart, float falloffEnd)
     return saturate((falloffEnd - d) / (falloffEnd - falloffStart));
 }
 
-LightColor BRDF(float3 normal, float3 lightDir, float3 peakIrradiance, float3 diffuseAlbedo, float3 specularAlbedo, 
-                float roughness, float3 positionWS, float3 cameraPosWS, float3 msEnergyCompensation)
+LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material mat, float3 toCameraW)
 {
+    // Metallic 값에 따른 diffuseAlbedo와 specularAlbedo를 계산한다.
+    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
+    float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
+    
+    // 람버트 산란 모델에서 필요한 정규화 상수를 곱해준다.
     float3 lighting = diffuseAlbedo * (1.0f / 3.14159f);
 
-    float3 view = normalize(cameraPosWS - positionWS);
-    const float nDotL = saturate(dot(normal, lightDir));
-    if (nDotL > 0.0f)
-    {
-        const float nDotV = saturate(dot(normal, view));
-        float3 h = normalize(view + lightDir);
-
-        float3 fresnel = PBR::Fresnel(specularAlbedo, h, lightDir);
-
-        // 탑다운 뷰 특성상 객체와 카메라의 거리가 멀고 roughness 값이 매우 작은 값이라면 specular가 매우 작아진다.
-        // 카메라가 먼 거리에서 작은 specular를 보게 되면 에일리어싱이 생기기 때문에 최저값을 어느정도 줘야 한다.
-        float specular = PBR::GGXSpecular(clamp(roughness, 0.1f, 1.f), normal, h, view, lightDir);
-        
-        lighting += specular * fresnel * msEnergyCompensation;
-    }
-
+    float3 view = normalize(toCameraW);
+    float3 h = normalize(view + lightDir);
+    
+    // 슐릭 근사 방정식을 사용하여 프레넬 값(얼마나 반사하는지)을 구한다.
+    float3 fresnel = PBR::Fresnel(specularAlbedo, h, lightDir);
+    // GGXSpecular 모델을 사용하여 정반사 값을 구한다.
+    float specular = PBR::GGXSpecular(clamp(mat.Roughness, 0.1f, 1.f), normal, h, view, lightDir);
+    
     LightColor result;
-    result.Diffuse = lighting * nDotL * peakIrradiance;
-    result.Specular = float3(0.f, 0.f, 0.f);
+    result.Diffuse =  lighting * lightStrength;
+    result.Specular = specular * fresnel * lightStrength;
     
     return result;
 }
 
-LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toEye)
+LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW)
 {
     // 빛이 나아가는 방향의 반대 방향
     float3 lightVec = -L.Direction;
+    
+    // Lambert를 half Lambert로 변경
+    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
+    float3 lightStrength = L.Strength * ndotl;
 
-    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
-    float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
-
-    return BRDF(normal, lightVec, L.Strength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(2.f, 2.f, 2.f));
-
+    return BRDF(normal, lightVec, lightStrength, mat, toCameraW);
 }
 
-LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toEye)
+LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW)
 {
     // 표면에서 광원으로의 벡터
     float3 lightVec = L.Position - pos;
@@ -283,21 +279,18 @@ LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 norma
     // 빛 벡터 정규화
     lightVec /= distance;
     
-    // 람베르트 코사인 법칙에 따라 빛의 세기를 줄인다.
-    float ndotl = max(dot(lightVec, normal), 0.0f);
+    // Lambert를 half Lambert로 변경
+    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
     float3 lightStrength = L.Strength * ndotl;
 
     // 거리에 따라 빛을 감쇠한다.
     float att = CalcAttenuation(distance, L.FalloffStart, L.FalloffEnd);
     lightStrength *= att;
     
-    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
-    float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
-
-    return BRDF(normal, lightVec, lightStrength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(2.f, 2.f, 2.f));
+    return BRDF(normal, lightVec, lightStrength, mat, toCameraW);
 }
 
-LightColor ComputeSpotLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toEye)
+LightColor ComputeSpotLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW)
 {
     // 표면에서 광원으로의 벡터
     float3 lightVec = L.Position - pos;
@@ -309,7 +302,7 @@ LightColor ComputeSpotLight(LightInfo L, Material mat, float3 pos, float3 normal
     lightVec /= distance;
     
     // 람베르트 코사인 법칙에 따라 빛의 세기를 줄인다.
-    float ndotl = max(dot(lightVec, normal), 0.0f);
+    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
     float3 lightStrength = L.Strength * ndotl;
 
     // 거리에 따라 빛을 감쇠한다.
@@ -320,13 +313,10 @@ LightColor ComputeSpotLight(LightInfo L, Material mat, float3 pos, float3 normal
     float spotFactor = pow(max(dot(-lightVec, L.Direction), 0.0f), L.SpotPower);
     lightStrength *= spotFactor;
     
-    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
-    float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
-
-    return BRDF(normal, lightVec, lightStrength, diffuseAlbedo, specularAlbedo, mat.Roughness, pos, gPassCB.CameraPos, float3(1.f, 1.f, 1.f));
+    return BRDF(normal, lightVec, lightStrength, mat, toCameraW);
 }
 
-LightColor ComputeLighting(Material mat, float3 pos, float3 normal, float3 toEye, float3 shadowFactor)
+LightColor ComputeLighting(Material mat, float3 pos, float3 normal, float3 toCameraW, float3 shadowFactor)
 {
     LightColor result = (LightColor)0.f;
     
@@ -334,19 +324,19 @@ LightColor ComputeLighting(Material mat, float3 pos, float3 normal, float3 toEye
     {
         if (gPassCB.Lights[i].LightType == 0)
         {
-            LightColor color = ComputeSpotLight(gPassCB.Lights[i], mat, pos, normal, toEye);
+            LightColor color = ComputeSpotLight(gPassCB.Lights[i], mat, pos, normal, toCameraW);
             result.Diffuse += shadowFactor * color.Diffuse;
             result.Specular += shadowFactor * color.Specular;
         }
         else if (gPassCB.Lights[i].LightType == 1)
         {
-            LightColor color = ComputeDirectionalLight(gPassCB.Lights[i], mat, pos, normal, toEye);
+            LightColor color = ComputeDirectionalLight(gPassCB.Lights[i], mat, pos, normal, toCameraW);
             result.Diffuse += color.Diffuse;
             result.Specular += color.Specular;
         }
         else if (gPassCB.Lights[i].LightType == 2)
         {
-            LightColor color = ComputePointLight(gPassCB.Lights[i], mat, pos, normal, toEye);
+            LightColor color = ComputePointLight(gPassCB.Lights[i], mat, pos, normal, toCameraW);
             result.Diffuse += color.Diffuse;
             result.Specular += saturate(color.Specular);
         }

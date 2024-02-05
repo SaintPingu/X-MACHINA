@@ -32,7 +32,7 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 
 	mElapsedTime += DeltaTime();
 	cmdList->SetComputeRoot32BitConstants(0, 1, &mElapsedTime, 0);
-	D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+	D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_GENERIC_READ);
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	cmdList->SetComputeRootDescriptorTable(scene->GetRootParamIndex(RootParam::LUT0), scene->GetTexture("LUT_TensionGreen")->GetGpuDescriptorHandle());

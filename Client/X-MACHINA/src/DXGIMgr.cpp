@@ -97,19 +97,26 @@ void DXGIMgr::Render()
 		GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
 		scene->RenderFinal();
 		scene->RenderForward();
+		GetMRT(GroupType::OffScreen)->WaitTargetToResource();
 	}
 	break;
 	}
 #pragma endregion
 
 #pragma region PostProcessing
-	UINT offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
+	UINT offScreenIndex{};
 	switch (mFilterOption)
 	{
+	case FilterOption::None:
+		// 필터가 없을 경우 OffScreen 텍스처의 인덱스를 바로 가져온다.
+		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
+		break;
 	case FilterOption::Blur:
+		// 블러 필터일 경우 최종 결과는 OffScreen 텍스처에 출력된다.
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
 		break;
 	case FilterOption::LUT:
+		// LUT 필터일 경우 최종 결과는 LUT 필터 텍스처에 출력된다.
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
 		break;
 	}

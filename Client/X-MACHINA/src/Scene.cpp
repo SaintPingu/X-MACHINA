@@ -268,7 +268,8 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
 	passConstants.LightCount = mLight->GetLightCount();
-	passConstants.GlobalAmbient = Vec4(0.05f, 0.05f, 0.05f, 1.f);
+	passConstants.GlobalAmbient = Vec4(0.2f, 0.2f, 0.2f, 1.f);
+	passConstants.FilterOption = dxgi->GetFilterOption();
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
@@ -342,25 +343,25 @@ void Scene::BuildShaders()
 
 void Scene::BuildForwardShader()
 {
-	ShaderType shaderType = ShaderType::Forward;
-
+	// 현재 조명 렌더 타겟을 따로 두지 않았기 때문에 foward가 offscreen으로 대체 되었다.
+	// 추후에 조명 렌더 타겟 구현 이후 forward를 R8G8B8A8의 쉐이더로 변경해야 한다.
 	mWaterShader = std::make_shared<WaterShader>();
-	mWaterShader->Create(shaderType);
-
-	mBoundingShader = std::make_shared<WireShader>();
-	mBoundingShader->Create(shaderType);
+	mWaterShader->Create(ShaderType::OffScreen);
 
 	mBillboardShader = std::make_shared<BillboardShader>();
-	mBillboardShader->Create(shaderType);
+	mBillboardShader->Create(ShaderType::OffScreen);
 
 	mSpriteShader = std::make_shared<SpriteShader>();
-	mSpriteShader->Create(shaderType);
+	mSpriteShader->Create(ShaderType::OffScreen);
 
 	mFinalShader = std::make_shared<FinalShader>();
-	mFinalShader->Create(shaderType);
+	mFinalShader->Create(ShaderType::OffScreen);
+
+	mBoundingShader = std::make_shared<WireShader>();
+	mBoundingShader->Create(ShaderType::Forward);
 
 	mOffScreenShader = std::make_shared<OffScreenShader>();
-	mOffScreenShader->Create(shaderType);
+	mOffScreenShader->Create(ShaderType::Forward);
 }
 
 void Scene::BuildDeferredShader()
@@ -407,14 +408,14 @@ void Scene::BuildTerrain()
 void Scene::BuildTestCube()
 {
 	mTestCubes.resize(2);
-	mTestCubes[0] = std::make_shared<TestCube>(Vec2(210, 50));
+	mTestCubes[0] = std::make_shared<TestCube>(Vec2(190, 150));
 	mTestCubes[0]->GetMaterial()->SetMatallic(0.1f);
 	mTestCubes[0]->GetMaterial()->SetRoughness(0.2f);
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Rock_BaseColor"));
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Rock_Normal"));
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Rock_Roughness"));
 
-	mTestCubes[1] = std::make_shared<TestCube>(Vec2(185, 50));
+	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
 	mTestCubes[1]->GetMaterial()->SetMatallic(0.9f);
 	mTestCubes[1]->GetMaterial()->SetRoughness(0.1f);
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Wall_BaseColor"));

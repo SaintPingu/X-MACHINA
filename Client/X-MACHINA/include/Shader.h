@@ -19,6 +19,7 @@ enum class ShaderType : UINT8
 {
 	Forward = 0,
 	Deferred,
+	OffScreen,
 	Final,
 };
 #pragma endregion

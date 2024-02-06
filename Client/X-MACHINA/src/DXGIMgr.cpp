@@ -19,7 +19,12 @@ DXGIMgr::DXGIMgr()
 	mClientWidth(gkFrameBufferWidth),
 	mClientHeight(gkFrameBufferHeight)
 {
-	mFilterOption = FilterOption::LUT;
+	DWORD filterOptione = 0;
+	filterOptione |= FilterOption::None;
+	filterOptione |= FilterOption::LUT;
+	filterOptione |= FilterOption::Tone;
+
+	mFilterOption = filterOptione;
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -91,6 +96,7 @@ void DXGIMgr::Render()
 		GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
 		// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
+		// TODO : 조명 계산을 G버퍼가 아닌 조명 렌더 타겟에서 진행해야 한다.
 		scene->RenderLights();
 
 		// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
@@ -105,21 +111,14 @@ void DXGIMgr::Render()
 
 #pragma region PostProcessing
 	UINT offScreenIndex{};
-	switch (mFilterOption)
-	{
-	case FilterOption::None:
-		// 필터가 없을 경우 OffScreen 텍스처의 인덱스를 바로 가져온다.
+
+	if (mFilterOption & FilterOption::None)
 		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
-		break;
-	case FilterOption::Blur:
-		// 블러 필터일 경우 최종 결과는 OffScreen 텍스처에 출력된다.
+	if (mFilterOption & FilterOption::Blur)
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
-		break;
-	case FilterOption::LUT:
-		// LUT 필터일 경우 최종 결과는 LUT 필터 텍스처에 출력된다.
+	if (mFilterOption & FilterOption::LUT | FilterOption::Tone)
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
-		break;
-	}
+
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
 	scene->RenderUI();
@@ -375,19 +374,19 @@ void DXGIMgr::CreateMRTs()
 
 		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[3].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[3].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[4].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[4].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
@@ -404,7 +403,7 @@ void DXGIMgr::CreateMRTs()
 
 		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDsvHandle);
@@ -478,10 +477,10 @@ void DXGIMgr::ChangeSwapChainState()
 
 void DXGIMgr::CreateFilter()
 {
-	mBlurFilter = std::make_unique<BlurFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
+	mBlurFilter = std::make_unique<BlurFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	mBlurFilter->Create();
 
-	mLUTFilter = std::make_unique<LUTFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
+	mLUTFilter = std::make_unique<LUTFilter>(mClientWidth, mClientHeight, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	mLUTFilter->Create();
 }
 

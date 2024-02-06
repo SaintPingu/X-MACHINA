@@ -7,8 +7,13 @@ struct VSOutput_Skybox {
 
 float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
 {
-    float4 color = gSkyBoxTexture.Sample(gsamLinearWrap, input.PosL);
+    float4 diffuseAlbedo = gSkyBoxTexture.Sample(gsamLinearWrap, input.PosL);
     
-    return lerp(color, gPassCB.FogColor, 0.9f);
-    //return color;
+    if (gPassCB.FilterOption & Filter_Tone)
+    {
+        diffuseAlbedo = GammaDecoding(diffuseAlbedo);
+    }
+    
+    //return lerp(color, gPassCB.FogColor, 0.9f);
+    return diffuseAlbedo;
 }

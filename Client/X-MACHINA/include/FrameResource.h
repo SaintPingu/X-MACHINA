@@ -26,22 +26,21 @@ struct PassConstants {
     float       DeltaTime{};
 
     SceneLight  Lights{};
-
     UINT        LightCount{};
     Vec3        Padding{};
     
     Vec4	    GlobalAmbient = {0.15f, 0.15f, 0.15f, 0.0f};
-
     Vec4	    FogColor{};
+
     float	    FogStart = 100.f;
     float	    FogRange = 300.f;
-
     int         RT1_TextureIndex    = -1;
     int         RT2_UIIndex         = -1;
+
     int         RT3_NormalIndex     = -1;
     int         RT4_DepthIndex      = -1;
     int         RT5_DistanceIndex   = -1;
-    int         Padding2{};
+    int         FilterOption{};
 };
 
 struct PostPassConstants {

@@ -238,6 +238,7 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
     float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
     
+    
     float3 view = normalize(toCameraW);
     float3 h = normalize(view + lightDir);
     

@@ -93,7 +93,7 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	rootSignatureDesc.NumParameters     = (UINT)mParams.size();
 	rootSignatureDesc.pParameters       = mParams.data();
-	rootSignatureDesc.NumStaticSamplers = staticSamplers.size();
+	rootSignatureDesc.NumStaticSamplers = (UINT)staticSamplers.size();
 	rootSignatureDesc.pStaticSamplers	= staticSamplers.data();
 	rootSignatureDesc.Flags             = rootSignatureFlags;
 

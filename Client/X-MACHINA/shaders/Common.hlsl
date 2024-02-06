@@ -12,6 +12,11 @@
 #define gkMaxTexture            100
 #define gkMaxSceneLight         32
 
+#define Filter_None           0x01
+#define Filter_Blur           0x02
+#define Filter_Tone           0x04
+#define Filter_LUT            0x08
+
 struct LightInfo
 {
     float3  Strength;
@@ -72,7 +77,6 @@ struct PassInfo {
     float3      Padding;
     
     float4      GlobalAmbient;
-    
     float4      FogColor;
     
     float       FogStart;
@@ -83,7 +87,7 @@ struct PassInfo {
     int         RT2_NormalIndex;
     int         RT3_DepthIndex;
     int         RT4_DistanceIndex;
-    int         Padding2;
+    int         FilterOption;
 };
 
 struct PostPassInfo {
@@ -160,6 +164,11 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
 bool IsWhite(float4 color)
 {
     return color.rgb == float3(1.f, 1.f, 1.f) && color.a == 1.f;
+}
+
+float Mix(float x, float y, float alpha)
+{
+    return x * (1.f - alpha) + y * x;
 }
 
 float4 Fog(float4 color, float3 position)

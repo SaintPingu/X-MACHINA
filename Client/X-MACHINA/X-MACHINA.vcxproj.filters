@@ -250,6 +250,9 @@
     <ClCompile Include="src\LUTFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
+    <ClCompile Include="src\TestCube.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -426,6 +429,9 @@
     <ClInclude Include="include\LUTFilter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\TestCube.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\VShader_Billboard.hlsl">
@@ -508,6 +514,9 @@
     </FxCompile>
     <FxCompile Include="shaders\CShader_LUT.hlsl">
       <Filter>소스 파일\Shaders\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_OffScreen.hlsl">
+      <Filter>소스 파일\Shaders\PS\Forward</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

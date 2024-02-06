@@ -57,7 +57,6 @@ void Script_MainCamera::Update()
 		mObject->Translate(dir, distance);
 		UpdateHeight();
 		LookPlayer();
-		mainCameraObject->Rotate(-10, 0, 0);
 		mainCamera->UpdateViewMtx();
 	}
 
@@ -94,7 +93,8 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 	case CameraMode::Third:
 		mTimeLag = 0.1f;
 		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));
-		SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
+		//SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
+		SetCameraOffset(Vec3(0.f, 10.f, -30.f));
 		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
 		mainCamera->SetViewport(0, 0, gkFrameBufferWidth, gkFrameBufferHeight, 0.f, 1.f);
 		mainCamera->SetScissorRect(0, 0, gkFrameBufferWidth, gkFrameBufferHeight);

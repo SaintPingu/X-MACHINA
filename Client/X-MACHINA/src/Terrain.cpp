@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "Texture.h"
 #include "Collider.h"
+#include "FileIO.h"
 
 #define _WITH_APPROXIMATE_OPPOSITE_CORNER
 
@@ -62,40 +63,16 @@ namespace {
 
 
 #pragma region HeightMapImage
-HeightMapImage::HeightMapImage(const std::wstring& fileName)
+HeightMapImage::HeightMapImage(const std::string& fileName)
 {
-#pragma region Extract
-	// HeightMap name example : "HeightMap_513x513_R16.raw"
-	size_t underScorePos = fileName.find(L"HeightMap_") + std::wstring{ L"HeightMap_" }.length() - 1;
-	size_t fileExtPos = fileName.find(std::filesystem::path(fileName).extension());
+	FILE* file = nullptr;
+	::fopen_s(&file, fileName.c_str(), "rb");
+	::rewind(file);
 
-	// desiredPart name example : "513x513_R16"
-	std::wstring desiredPart = (underScorePos != std::wstring::npos && fileExtPos != std::wstring::npos)
-		? fileName.substr(underScorePos + 1, fileExtPos - underScorePos - 1) : L"";
+	FileIO::ReadVal(file, mWidth);
+	FileIO::ReadVal(file, mLength);
 
-	// fileFormat name example : "R16", "R32"
-	underScorePos = desiredPart.find(L"_");
-	std::wstring fileFormat = desiredPart.substr(underScorePos + 1);
-
-	// extract width, length
-	size_t xPos = desiredPart.find(L"x");
-	mWidth = std::stoi(desiredPart.substr(0, xPos));
-	mLength = std::stoi(desiredPart.substr(xPos + 1));
-#pragma endregion
-
-#pragma region Load
-	switch (Hash(fileFormat))
-	{
-	case Hash("R16"):
-		LoadHeightMap<uint16_t>(fileName);
-		break;
-	case Hash("R32"):
-		LoadHeightMap<float>(fileName);
-		break;
-	default:
-		break;
-	}
-#pragma endregion
+	FileIO::ReadRange(file, mHeightMapPixels, mWidth * mLength);
 }
 
 
@@ -182,7 +159,7 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 
 #pragma region Terrain
-Terrain::Terrain(const std::wstring& fileName) : Transform(this)
+Terrain::Terrain(const std::string& fileName) : Transform(this)
 {
 	mHeightMapImage = std::make_shared<HeightMapImage>(fileName);
 

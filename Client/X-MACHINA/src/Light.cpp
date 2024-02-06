@@ -60,7 +60,7 @@ void Light::LoadLightModels()
 {
 	for (auto& name : mLightModelNames) {
 		LightInfo* light = new LightInfo;
-		FileIO::LoadLightFromFile("Models/Lights/" + name + ".bin", &light);
+		FileIO::LoadLightFromFile("Import/Lights/" + name + ".bin", &light);
 		mLightModels.insert(std::make_pair(name, light));
 	}
 }
@@ -89,7 +89,7 @@ void Light::LoadLightObjects(FILE* file)
 			std::string fileName{};
 			FileIO::ReadString(file, fileName);
 
-			FileIO::LoadLightFromFile("Models/Lights/" + fileName + ".bin", &light);
+			FileIO::LoadLightFromFile("Import/Lights/" + fileName + ".bin", &light);
 			InsertLightModel(fileName, light);
 
 			modelLight = light;

@@ -207,6 +207,6 @@ void Canvas::Render() const
 
 void Canvas::LoadTextures()
 {
-	mTextureMap = FileIO::LoadTextures("Models/UI/");
+	mTextureMap = FileIO::LoadTextures("Import/UI/");
 }
 #pragma endregion

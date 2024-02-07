@@ -59,6 +59,7 @@ void UI::CreateUIMesh()
 
 void UI::DeleteUIMesh()
 {
+	Sleep(100);	// TODO : FrameResource release error
 	mMesh = nullptr;
 }
 #pragma endregion

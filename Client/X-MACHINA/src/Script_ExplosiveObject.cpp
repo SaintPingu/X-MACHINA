@@ -16,7 +16,7 @@ void Script_ExplosiveObject::Explode()
 {
 	mIsExploded = true;
 
-	scene->GetPlayer()->GetComponent<Script_AirplanePlayer>()->AddScore(1);
+	scene->GetPlayer()->GetComponent<Script_GroundPlayer>()->AddScore(1);
 
 	if (CreateFX) {
 		CreateFX(mObject->GetPosition());

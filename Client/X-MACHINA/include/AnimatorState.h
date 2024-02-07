@@ -2,21 +2,7 @@
 
 class AnimationClip;
 class AnimatorLayer;
-
-// AnimatorState간 상태 전이 조건
-struct AnimationCondition {
-	std::string mode{};
-	std::string param{};
-	float threshold{};
-};
-
-// AnimatorState간 상태 전이를 관리한다.
-struct AnimatorTransition {
-	std::string Destination{};
-	std::vector<AnimationCondition> Conditions{};
-
-	std::string CheckTransition(const std::string& param, float value) const;
-};
+struct AnimatorTransition;
  
 // AnimationClip의 재생을 관리한다.
 class AnimatorState {
@@ -49,8 +35,6 @@ public:
 public:
 	void Init();
 	bool Animate();
-
-	sptr<AnimatorState> CheckTransition(const std::string& param, float value);
 
 private:
 	bool IsEndAnimation();

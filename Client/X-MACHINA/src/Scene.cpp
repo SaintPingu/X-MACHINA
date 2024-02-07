@@ -384,8 +384,8 @@ void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
-	airplanePlayer->SetModel(GetModel("Apache"));
+	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(GetModel("tank_bullet"));
+	airplanePlayer->SetModel(GetModel("EliteTrooper"));
 
 	mPlayers.push_back(airplanePlayer);
 
@@ -1082,7 +1082,7 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		case VK_END:
 			timer->Start();
 			break;
-		case '0':
+		case VK_DELETE:
 			scene->BlowAllExplosiveObjects();
 			break;
 
@@ -1138,7 +1138,12 @@ void Scene::BlowAllExplosiveObjects()
 {
 	for (auto& object : mExplosiveObjects)
 	{
-		object->GetComponent<Script_ExplosiveObject>()->Explode();
+		const auto& script = object->GetComponent<Script_ExplosiveObject>();
+		if (!script) {
+			return;
+		}
+
+		script->Explode();
 		for (int index : object->GetGridIndices()) {
 			mGrids[index].RemoveObject(object.get());
 		}

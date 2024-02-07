@@ -7,6 +7,7 @@
 #include "Rigidbody.h"
 
 #include "Animator.h"
+#include "AnimatorController.h"
 
 
 
@@ -20,7 +21,7 @@ void Script_GroundPlayer::Start()
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 60.f;
 
-	SetSpawn(Vec3(50.f, 100.f, 50.f));
+	SetSpawn(Vec3(300, 0, 300));
 	SetHP(150.f);
 
 	mRigid->SetMass(100.f);
@@ -54,19 +55,34 @@ void Script_GroundPlayer::ProcessInput()
 		base::Move(dwDirection);
 	}
 
-	if (KEY_PRESSED(VK_LCONTROL)) {
-		mObject->GetObj<GameObject>()->GetAnimator()->SetBool("Sit", true);
-	}
-	else {
-		mObject->GetObj<GameObject>()->GetAnimator()->SetBool("Sit", false);
+	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
+
+	if (animator) {
+		if (KEY_PRESSED(VK_LCONTROL)) {
+			animator->SetValue("Sit", true);
+		}
+		else {
+			animator->SetValue("Sit", false);
+		}
+
+		if (Vector3::Length(mRigid->GetVelocity()) > 0.1f) {
+			animator->SetValue("Walk", true);
+		}
+		else {
+			animator->SetValue("Walk", false);
+		}
+
+		if (KEY_TAP('0')) {
+			animator->SetValue("Weapon", 0);
+		}
+		if (KEY_TAP('1')) {
+			animator->SetValue("Weapon", 1);
+		}
+		if (KEY_TAP('2')) {
+			animator->SetValue("Weapon", 2);
+		}
 	}
 
-	if (Vector3::Length(mRigid->GetVelocity()) > 0.1f) {
-		mObject->GetObj<GameObject>()->GetAnimator()->SetBool("Walk", true);
-	}
-	else {
-		mObject->GetObj<GameObject>()->GetAnimator()->SetBool("Walk", false);
-	}
 
 	if (KEY_PRESSED(VK_LBUTTON)) {
 		Vec2 mouseDelta = InputMgr::Inst()->GetMouseDelta();

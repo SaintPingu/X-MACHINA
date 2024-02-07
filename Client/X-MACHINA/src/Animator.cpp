@@ -50,9 +50,23 @@ void Animator::Animate()
 	}
 }
 
-void Animator::SetBool(const std::string& name, bool value)
+void Animator::SetValue(const std::string& paramName, bool value)
 {
-	mController->SetBool(name, value);
+	AnimatorParameter::value val;
+	val.b = value;
+	mController->SetValue(paramName, val);
+}
+void Animator::SetValue(const std::string& paramName, int value)
+{
+	AnimatorParameter::value val;
+	val.i = value;
+	mController->SetValue(paramName, val);
+}
+void Animator::SetValue(const std::string& paramName, float value)
+{
+	AnimatorParameter::value val;
+	val.f = value;
+	mController->SetValue(paramName, val);
 }
 
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)

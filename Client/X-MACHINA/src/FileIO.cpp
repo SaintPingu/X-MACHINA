@@ -156,8 +156,6 @@ namespace {
 		sptr<SkinMesh> mesh = std::make_shared<SkinMesh>();
 		std::string token;
 
-		//FileIO::ReadString(file, m_pstrMeshName);
-
 		bool isEOF = false;
 		while (!isEOF) {
 			FileIO::ReadString(file, token);
@@ -299,7 +297,7 @@ namespace {
 				break;
 
 			case Hash("<NormalMap>:"):
-				//material->LoadTextureFromFile(TextureMap::NormalMap, file);
+				material->LoadTextureFromFile(TextureMap::NormalMap, file);
 				break;
 
 			case Hash("<HeightMap>:"):
@@ -485,7 +483,7 @@ namespace {
 
 			for (auto& condition : transition->Conditions) {
 				FileIO::ReadString(file, condition.mode);
-				FileIO::ReadString(file, condition.param);
+				FileIO::ReadString(file, condition.paramName);
 
 				switch (Hash(condition.mode)) {
 				case Hash("If"):

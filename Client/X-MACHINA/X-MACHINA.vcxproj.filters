@@ -79,6 +79,9 @@
     <Filter Include="소스 파일\Shaders\VS">
       <UniqueIdentifier>{460d0eb9-0431-47dc-91a6-b483b586539d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Animation">
+      <UniqueIdentifier>{cbc524b9-9f04-4fea-bf56-474efb0238d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -250,23 +253,23 @@
     <ClCompile Include="src\LUTFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="src\AnimationClip.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Animator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AnimatorState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AnimatorController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_GroundPlayer.cpp">
       <Filter>소스 파일\Component\Script\Player</Filter>
     </ClCompile>
+    <ClCompile Include="src\AnimationClip.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Animator.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorController.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
     <ClCompile Include="src\AnimatorLayer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorState.cpp">
+      <Filter>소스 파일\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

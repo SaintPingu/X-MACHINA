@@ -1,8 +1,23 @@
 #pragma once
 
-struct AnimatorTransition;
 class AnimatorState;
 class AnimatorLayer;
+class AnimatorController;
+
+// AnimatorState간 상태 전이 조건
+struct AnimationCondition {
+	std::string mode{};
+	std::string paramName{};
+	float threshold{};
+};
+
+// AnimatorState간 상태 전이를 관리한다.
+struct AnimatorTransition {
+	std::string Destination{};
+	std::vector<AnimationCondition> Conditions{};
+
+	std::string CheckTransition(const AnimatorController* controller) const;
+};
 
 namespace Animations {
 	using StateMap = std::unordered_map<std::string, sptr<AnimatorState>>;
@@ -25,13 +40,16 @@ public:
 	virtual ~AnimatorLayer() = default;
 
 	std::string GetName() const { return mName; }
-	sptr<AnimatorState> GetState(const std::string& name) const { return mStates.at(name); }
+	sptr<AnimatorState> GetState(const std::string& name) const;
+	sptr<AnimatorLayer> GetLayer(const std::string& name) const;
 
-	void AddState(rsptr<AnimatorState> state);
 	void SetParent(AnimatorLayer* parent) { mParent = parent; }
 
 public:
 	sptr<AnimatorState> Entry() const;
 
+	void AddState(rsptr<AnimatorState> state);
 	void AddLayer(rsptr<AnimatorLayer> layer);
+
+	sptr<AnimatorState> CheckTransition(const AnimatorController* controller) const;
 };

@@ -62,23 +62,51 @@ Vec4x4 AnimatorController::GetTransform(int boneIndex)
 	return transform;
 }
 
-void AnimatorController::SetBool(const std::string& name, bool value)
+void AnimatorController::SetValue(const std::string& paramName, AnimatorParameter::value value)
+{
+	if (!HasParam(paramName)) {
+		return;
+	}
+
+	auto& param = mParameters[paramName];
+	switch (param.type) {
+	case AnimatorParameter::Type::Bool:
+	case AnimatorParameter::Type::Trigger:
+		if (param.val.b == value.b) {
+			return;
+		}
+		break;
+	case AnimatorParameter::Type::Int:
+		if (param.val.i == value.i) {
+			return;
+		}
+		break;
+	case AnimatorParameter::Type::Float:
+		if (Math::IsEqual(param.val.f,value.f)) {
+			return;
+		}
+		break;
+	}
+
+	mParameters[paramName].val = value;
+
+	CheckTransition();
+}
+
+void AnimatorController::CheckTransition()
 {
 	if (mNextState) {
 		return;
 	}
-	if (!mParameters.contains(name)) {
-		return;
+
+	mNextState = mBaseLayer->CheckTransition(this);
+	if (mNextState == mCrntState) {
+		mNextState = nullptr;
 	}
-
-	mParameters[name].val.b = value;
-
-	mNextState = mCrntState->CheckTransition(name, value);
-	if (mNextState != nullptr) {
+	else if (mNextState != nullptr) {
 		mNextState->Init();
 	}
 }
-
 
 void AnimatorController::ChangeToNextState()
 {

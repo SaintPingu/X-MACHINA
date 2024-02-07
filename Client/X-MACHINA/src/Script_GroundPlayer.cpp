@@ -5,14 +5,49 @@
 #include "Object.h"
 #include "InputMgr.h"
 #include "Rigidbody.h"
+#include "Weapon.h"
 
 #include "Animator.h"
 #include "AnimatorController.h"
 
 
 
+void Script_GroundPlayer::Awake()
+{
+	const std::unordered_map<WeaponType, std::string> defaultWeapons{
+		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
+		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
+		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
+		{WeaponType::GatlinGun, "SK_SciFiLaserGatlinGun" },
+		{WeaponType::ShotGun, "SM_SciFiShotgun" },
+		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
+	};
+	const std::unordered_map<WeaponType, std::string> defaultTransforms{
+		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
+		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
+		{WeaponType::LightingGun, "RefPosLightningGun_Action" },
+		{WeaponType::GatlinGun, "RefPosLaserGatlinGun_Action" },
+		{WeaponType::ShotGun, "RefPosShotgun_Action" },
+		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+	};
 
+	// TODO : Weapon (temp)
+	mWeapons.resize(gkWeaponTypeCnt, nullptr);
+	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
+		auto& weapon = mWeapons[i];
+		WeaponType weaponType = static_cast<WeaponType>(i);
+		const auto& weaponObject = scene->Instantiate(defaultWeapons.at(weaponType), false);
+		if (!weaponObject) {
+			continue;
+		}
+		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
+		if (!transform) {
+			continue;
+		}
 
+		weapon = std::make_shared<Weapon>(weaponObject, transform);
+	}
+}
 
 void Script_GroundPlayer::Start()
 {
@@ -28,6 +63,8 @@ void Script_GroundPlayer::Start()
 	mRigid->SetFriction(30.f);
 	mRigid->SetAcc(5000.f);
 	mRigid->SetMaxSpeed(1.5f);
+
+	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
 }
 
 
@@ -55,31 +92,12 @@ void Script_GroundPlayer::ProcessInput()
 		base::Move(dwDirection);
 	}
 
-	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
-
-	if (animator) {
-		if (KEY_PRESSED(VK_LCONTROL)) {
-			animator->SetValue("Sit", true);
-		}
-		else {
-			animator->SetValue("Sit", false);
-		}
-
+	if (mAnimator) {
 		if (Vector3::Length(mRigid->GetVelocity()) > 0.1f) {
-			animator->SetValue("Walk", true);
+			mAnimator->SetValue("Walk", true);
 		}
 		else {
-			animator->SetValue("Walk", false);
-		}
-
-		if (KEY_TAP('0')) {
-			animator->SetValue("Weapon", 0);
-		}
-		if (KEY_TAP('1')) {
-			animator->SetValue("Weapon", 1);
-		}
-		if (KEY_TAP('2')) {
-			animator->SetValue("Weapon", 2);
+			mAnimator->SetValue("Walk", false);
 		}
 	}
 
@@ -124,6 +142,86 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 	case ObjectTag::Building:
 		Explode();
 		break;
+	default:
+		break;
+	}
+}
+
+void Script_GroundPlayer::SetWeapon(int weaponIdx)
+{
+	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
+
+	if (weaponIdx == 0) {
+		animator->SetValue("Weapon", 0);
+		if (mWeapon) {
+			mWeapon->Disable();
+			mWeapon = nullptr;
+		}
+		return;
+	}
+
+	if (mWeapon) {
+		if (mWeapon == mWeapons[weaponIdx - 1]) {
+			return;
+		}
+		else {
+			mWeapon->Disable();
+		}
+	}
+	
+	mWeapon = mWeapons[weaponIdx - 1];
+	if (mWeapon) {
+		mWeapon->Enable();
+		animator->SetValue("Weapon", weaponIdx);
+	}
+}
+
+void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (messageID)
+	{
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+			SetWeapon(static_cast<int>(wParam - '0'));
+			break;
+
+		case VK_LCONTROL:
+			if (mAnimator) {
+				mAnimator->SetValue("Sit", true);
+			}
+
+		break;
+		default:
+			break;
+		}
+	}
+
+	break;
+	case WM_KEYUP:
+	{
+		switch (wParam)
+		{
+		case VK_LCONTROL:
+			if (mAnimator) {
+				mAnimator->SetValue("Sit", false);
+			}
+
+		break;
+		default:
+			break;
+		}
+	}
+
+	break;
 	default:
 		break;
 	}

@@ -79,16 +79,20 @@ float Scene::GetTerrainHeight(float x, float z) const
 	return mTerrain->GetHeight(x, z);
 }
 
-rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
+sptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
 {
-	assert(mModels.contains(modelName));
+	if (!mModels.contains(modelName)) {
+		return nullptr;
+	}
 
 	return mModels.at(modelName);
 }
 
-rsptr<Texture> Scene::GetTexture(const std::string& name) const
+sptr<Texture> Scene::GetTexture(const std::string& name) const
 {
-	assert(mTextureMap.contains(name));
+	if (!mTextureMap.contains(name)) {
+		return nullptr;
+	}
 
 	return mTextureMap.at(name);
 }
@@ -514,7 +518,7 @@ void Scene::LoadGameObjects(FILE* file)
 			object = std::make_shared<GridObject>();
 		}
 
-		InitObjectByTag(&tag, object);
+		InitObjectByTag(tag, object);
 
 		object->SetLayer(layer);
 		if (layer == ObjectLayer::Water) {
@@ -534,17 +538,21 @@ void Scene::LoadGameObjects(FILE* file)
 
 void Scene::LoadModels()
 {
-	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
-
+	const std::string rootFolder = "Import/Meshes/";
 	sptr<MasterModel> model;
-	for (auto& name : binModelNames) {
-		if (!mModels.contains(name)) {
-			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + name + ".bin");
-			if (name.substr(0, 6) == "sprite") {
-				model->SetSprite();
-			}
-			mModels.insert(std::make_pair(name, model));
+	for (const auto& modelFile : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = modelFile.path().filename().string();
+		const std::string modelName = FileIO::RemoveExtension(fileName);
+
+		if (mModels.contains(modelName)) {
+			continue;
 		}
+
+		model = FileIO::LoadGeometryFromFile(rootFolder + fileName);
+		if (fileName.substr(0, 6) == "sprite") {
+			model->SetSprite();
+		}
+		mModels.insert(std::make_pair(modelName, model));
 	}
 }
 
@@ -573,17 +581,21 @@ void Scene::LoadAnimatorControllers()
 	}
 }
 
-void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
+void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 {
-	ObjectTag tag = *(ObjectTag*)pTag;
 	object->SetTag(tag);
 
 	switch (tag) {
 	case ObjectTag::Unspecified:
-		break;
+	{
+		mDynamicObjects.push_back(object);
+		return;
+	}
+
+	break;
 	case ObjectTag::ExplosiveSmall:
 	{
-		mExplosiveObjects.push_back(object);
+		mDynamicObjects.push_back(object);
 
 		const auto& script = object->AddComponent<Script_ExplosiveObject>();
 		script->SetFX([&](const Vec3& pos) { CreateSmallExpFX(pos); });
@@ -595,7 +607,7 @@ void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
 	case ObjectTag::Helicopter:
 	case ObjectTag::ExplosiveBig:
 	{
-		mExplosiveObjects.push_back(object);
+		mDynamicObjects.push_back(object);
 
 		const auto& script = object->AddComponent<Script_ExplosiveObject>();
 		script->SetFX([&](const Vec3& pos) { CreateBigExpFX(pos); });
@@ -1044,16 +1056,17 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 void Scene::DeleteExplodedObjects()
 {
-	for (auto it = mExplosiveObjects.begin(); it != mExplosiveObjects.end(); ) {
+	for (auto it = mDynamicObjects.begin(); it != mDynamicObjects.end(); ) {
 		auto& object = *it;
-		if (object->GetComponent<Script_ExplosiveObject>()->IsExploded()) {
+		const auto& script = object->GetComponent<Script_ExplosiveObject>();
+		if (script && script->IsExploded()) {
 			// remove objects in grid
 			for (int index : object->GetGridIndices()) {
 				mGrids[index].RemoveObject(object.get());
 			}
 
 			object->OnDestroy();
-			it = mExplosiveObjects.erase(it);
+			it = mDynamicObjects.erase(it);
 		}
 		else {
 			++it;
@@ -1083,7 +1096,7 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			timer->Start();
 			break;
 		case VK_DELETE:
-			scene->BlowAllExplosiveObjects();
+ 			scene->BlowAllExplosiveObjects();
 			break;
 
 		case VK_OEM_6:
@@ -1105,6 +1118,8 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	default:
 		break;
 	}
+
+	mPlayer->GetComponent<Script_GroundPlayer>()->ProcessKeyboardMsg(messageID, wParam, lParam);
 }
 
 
@@ -1136,7 +1151,7 @@ void Scene::CreateFX(FXType type, const Vec3& pos)
 
 void Scene::BlowAllExplosiveObjects()
 {
-	for (auto& object : mExplosiveObjects)
+	for (auto& object : mDynamicObjects)
 	{
 		const auto& script = object->GetComponent<Script_ExplosiveObject>();
 		if (!script) {
@@ -1149,7 +1164,7 @@ void Scene::BlowAllExplosiveObjects()
 		}
 		object->OnDestroy();
 	}
-	mExplosiveObjects.clear();
+	mDynamicObjects.clear();
 }
 
 
@@ -1249,6 +1264,23 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 }
 
 
+sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable) const
+{
+	const auto& model = GetModel(modelName);
+	if (!model) {
+		return nullptr;
+	}
+
+	sptr<GridObject> instance = std::make_shared<GridObject>();
+	instance->SetModel(model);
+	if (enable) {
+		instance->OnEnable();
+	}
+
+	return instance;
+}
+
+
 void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	for (auto& player : mPlayers) {
@@ -1259,7 +1291,7 @@ void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 		processFunc(object);
 	}
 
-	for (auto& object : mExplosiveObjects) {
+	for (auto& object : mDynamicObjects) {
 		processFunc(object);
 	}
 }

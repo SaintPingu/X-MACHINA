@@ -12,6 +12,8 @@ class MasterModel;
 class Rigidbody;
 class InstObject;
 class ObjectPool;
+class Animator;
+class Weapon;
 #pragma endregion
 
 
@@ -142,9 +144,14 @@ class Script_GroundPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
 
 private:
+	sptr<Animator> mAnimator{};
+
 	float mRotationSpeed{};
+	sptr<Weapon> mWeapon{};
+	std::vector<sptr<Weapon>> mWeapons{};
 
 public:
+	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
 
@@ -156,6 +163,11 @@ public:
 	virtual void FireBullet() override;
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
+
+	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+
+private:
+	void SetWeapon(int weaponIdx);
 };
 
 #pragma endregion

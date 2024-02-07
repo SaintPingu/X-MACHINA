@@ -80,7 +80,7 @@ private:
 	sptr<GameObject> mWater{};
 	std::vector<sptr<GameObject>> mEnvironments{};
 	std::vector<sptr<GridObject>> mStaticObjects{};
-	std::list<sptr<GridObject>> mExplosiveObjects{};		// dynamic
+	std::list<sptr<GridObject>> mDynamicObjects{};
 	std::list<sptr<GameObject>> mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>> mObjectPools{};
 
@@ -130,11 +130,12 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 
 	// [modelName]에 해당하는 MasterModel을 반환한다.
-	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
+	sptr<const MasterModel> GetModel(const std::string& modelName) const;
+
 	// return the first inserted player
 	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); }
 	// [name]에 해당하는 Texture 모델을 반환한다.
-	rsptr<Texture> GetTexture(const std::string& name) const;
+	sptr<Texture> GetTexture(const std::string& name) const;
 
 	rsptr<DescriptorHeap> GetDescHeap() const;
 	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
@@ -220,7 +221,7 @@ private:
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
-	void InitObjectByTag(const void* tag, sptr<GridObject> object);
+	void InitObjectByTag(ObjectTag tag, sptr<GridObject> object);
 
 #pragma endregion
 
@@ -303,6 +304,9 @@ public:
 	// update objects' grid indices
 	void UpdateObjectGrid(GridObject* object, bool isCheckAdj = true);
 	void RemoveObjectFromGrid(GridObject* object);
+
+	// create new game object from model
+	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true) const;
 
 private:
 	// do [processFunc] for all objects

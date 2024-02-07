@@ -238,6 +238,7 @@
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\UI.cpp" />
+    <ClCompile Include="src\Weapon.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +303,7 @@
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\UI.h" />
     <ClInclude Include="include\UploadBuffer.h" />
+    <ClInclude Include="include\Weapon.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>

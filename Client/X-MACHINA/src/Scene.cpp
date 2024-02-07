@@ -106,6 +106,10 @@ rsptr<DescriptorHeap> Scene::GetDescHeap() const
 
 sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
 {
+	if (!mAnimatorControllerMap.contains(controllerFile)) {
+		return nullptr;
+	}
+
 	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
 }
 
@@ -394,6 +398,7 @@ void Scene::BuildPlayers()
 	mPlayers.push_back(airplanePlayer);
 
 	mPlayer = mPlayers.front();
+	mPlayerScript = mPlayer->GetComponent<Script_GroundPlayer>();
 }
 
 void Scene::BuildTerrain()
@@ -686,6 +691,7 @@ void Scene::RenderDeferred()
 	// 따라서 deferred -> light(volume mesh) -> final(canvas) -> forward 순서로 렌더링을 처리해야 한다.
 #pragma region PrepareRender
 	mRenderedObjects.clear();
+	mSkinMeshObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
 	OnPrepareRender();
@@ -1077,7 +1083,7 @@ void Scene::DeleteExplodedObjects()
 
 void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-
+	mPlayerScript->ProcessMouseMsg(messageID, wParam, lParam);
 }
 
 
@@ -1096,7 +1102,7 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			timer->Start();
 			break;
 		case VK_DELETE:
- 			scene->BlowAllExplosiveObjects();
+			scene->BlowAllExplosiveObjects();
 			break;
 
 		case VK_OEM_6:
@@ -1119,7 +1125,7 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	mPlayer->GetComponent<Script_GroundPlayer>()->ProcessKeyboardMsg(messageID, wParam, lParam);
+	mPlayerScript->ProcessKeyboardMsg(messageID, wParam, lParam);
 }
 
 

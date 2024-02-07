@@ -32,6 +32,8 @@ class ObjectPool;
 
 class AnimationClip;
 class AnimatorController;
+
+class Script_GroundPlayer;
 #pragma endregion
 
 
@@ -92,6 +94,7 @@ private:
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};
 	sptr<GridObject> mPlayer{};					// main player
+	sptr<Script_GroundPlayer> mPlayerScript{};	// main player
 	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
 
 	/* Map */

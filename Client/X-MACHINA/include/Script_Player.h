@@ -164,6 +164,7 @@ public:
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
 
+	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 private:

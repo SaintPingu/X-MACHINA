@@ -419,6 +419,9 @@ namespace {
 				FileIO::ReadString(file, token);	// <Mesh>:
 				meshInfo = ::LoadMesh(file);
 				meshInfo->SkinMesh = ::LoadSkinMesh(file, meshInfo);
+				if (!animationInfo) {
+					animationInfo = std::make_shared<AnimationLoadInfo>();
+				}
 				animationInfo->SkinMeshes.push_back(meshInfo->SkinMesh);
 			}
 
@@ -448,7 +451,7 @@ namespace {
 				break;
 
 			default:
-				//assert(0);
+				assert(0);
 				break;
 			}
 		}

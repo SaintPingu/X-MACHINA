@@ -176,10 +176,29 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	}
 }
 
+void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (messageID) {
+	case WM_RBUTTONDOWN:
+		if (mAnimator) {
+			mAnimator->SetValue("Aim", true);
+		}
+
+	break;
+	case WM_RBUTTONUP:
+		if (mAnimator) {
+			mAnimator->SetValue("Aim", false);
+		}
+
+	break;
+	default:
+		break;
+	}
+}
+
 void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (messageID)
-	{
+	switch (messageID) {
 	case WM_KEYDOWN:
 	{
 		switch (wParam)
@@ -194,7 +213,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 			SetWeapon(static_cast<int>(wParam - '0'));
 			break;
 
-		case VK_LCONTROL:
+		case VK_CONTROL:
 			if (mAnimator) {
 				mAnimator->SetValue("Sit", true);
 			}
@@ -210,7 +229,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 	{
 		switch (wParam)
 		{
-		case VK_LCONTROL:
+		case VK_CONTROL:
 			if (mAnimator) {
 				mAnimator->SetValue("Sit", false);
 			}

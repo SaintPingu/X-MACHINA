@@ -37,6 +37,10 @@ void Animator::UpdateShaderVariables()
 
 void Animator::Animate()
 {
+	if (!mController) {
+		return;
+	}
+
 	mController->Animate();
 
 	auto& boneFrames = mBoneFramesList.front();

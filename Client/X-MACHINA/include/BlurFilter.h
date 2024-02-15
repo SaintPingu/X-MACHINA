@@ -1,6 +1,7 @@
 #pragma once
 
 #pragma region ClassForwardDecl
+class Texture;
 class HorzBlurShader;
 class VertBlurShader;
 #pragma endregion
@@ -21,15 +22,11 @@ private:
 
 	DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	D3D12_GPU_DESCRIPTOR_HANDLE mBlur0GpuSrv{};
-	D3D12_GPU_DESCRIPTOR_HANDLE mBlur0GpuUav{};
+	D3D12_GPU_DESCRIPTOR_HANDLE mOutputGpuSrv{};
+	D3D12_GPU_DESCRIPTOR_HANDLE mOutputGpuUav{};
 										
-	D3D12_GPU_DESCRIPTOR_HANDLE mBlur1GpuSrv{};
-	D3D12_GPU_DESCRIPTOR_HANDLE mBlur1GpuUav{};
-
 	// ping-pong the textures
-	ComPtr<ID3D12Resource> mBlurMap0{};
-	ComPtr<ID3D12Resource> mBlurMap1{};
+	sptr<Texture> mOutput{};
 
 	uptr<HorzBlurShader> mHorzBlurShader{};
 	uptr<VertBlurShader> mVertBlurShader{};
@@ -40,19 +37,13 @@ public:
 	virtual ~BlurFilter() = default;
 #pragma endregion
 
-#pragma region Getter
-	ID3D12Resource* Resource();
-#pragma endregion
-
 public:
 	void Create();
 
 	// 윈도우 화면 사이즈 크기가 달라지면 리소스와 서술자를 다시 생성해야 한다.
 	void OnResize(UINT width, UINT height);
 	// 블러 필터를 실행하는 함수.
-	void Execute(ID3D12Resource* input, int blurCount);
-	// 최종 mBlurMap0 리소스를 후면 버퍼에 복사하는 함수
-	void CopyResource(ID3D12Resource* input);
+	UINT Execute(rsptr<Texture> input, int blurCount);
 
 private:
 	// 주변 픽셀의 가중치를 구하기 위한 함수로 가중치의 합은 1이다.

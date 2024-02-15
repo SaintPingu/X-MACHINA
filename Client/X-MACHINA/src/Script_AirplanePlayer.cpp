@@ -24,7 +24,7 @@ void Script_AirplanePlayer::Start()
 	mPlayerType = PlayerType::Airplane;
 	mRotationSpeed = 90.f;
 
-	SetSpawn(Vec3(50.f, 100.f, 50.f));
+	SetSpawn(Vec3(200.f, 60.f, 30.f));
 	SetHP(150.f);
 	SetBulletDamage(10.f);
 	SetBulletSpeed(300.f);

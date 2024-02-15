@@ -236,6 +236,7 @@ enum class RootParam {
 	Object = 0,
 	Pass,
 	SkinMesh,
+	PostPass,
 	Instancing,
 	Material,
 	SkyBox,
@@ -276,9 +277,17 @@ enum class GBuffer : UINT8 {
 };
 enum { GBufferCount = static_cast<UINT8>(GBuffer::_count) };
 
+enum class OffScreen : UINT8 {
+	Texture = 0,
+
+	_count
+};
+enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
+
 enum class GroupType : UINT8 {
 	SwapChain = 0,
 	GBuffer,
+	OffScreen,
 
 	_count
 };
@@ -309,8 +318,19 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> BoneWeightBuffer{};
 };
 
-// must be matched with Light.hlsl LightInfo
 struct LightInfo {
+	Vec3	Strength = { 0.5f, 0.5f, 0.5f };
+	float	FalloffStart = 1.f;					// point/spot light only
+	Vec3	Direction = { 0.f, -1.f, 0.f };     // directional/spot light only
+	float	FalloffEnd = 10.f;					// point/spot light only
+	Vec3	Position = { 0.f, 0.f, 0.f };		// point light only
+	float	SpotPower = 64.f;					// spot light only
+	int		Type{};
+	Vec3	Padding{};
+};
+
+// must be matched with Light.hlsl LightInfo
+struct LightLoadInfo {
 	Vec4	Ambient{};
 	Vec4	Diffuse{};
 	Vec4	Specular{};
@@ -330,15 +350,13 @@ struct LightInfo {
 	bool	IsEnable{};
 };
 
+struct SceneLoadLight {
+	std::array<LightLoadInfo, gkMaxSceneLight> Lights{};
+};
+
 // must be matched with Light.hlsl cbLights
 struct SceneLight {
 	std::array<LightInfo, gkMaxSceneLight> Lights{};
-
-	Vec4	GlobalAmbient{};
-
-	Vec4	FogColor{};
-	float	FogStart = 100.f;
-	float	FogRange = 300.f;
 };
 #pragma endregion
 
@@ -401,9 +419,10 @@ inline std::wstring AnsiToWString(const std::string& str)
 enum class ObjectTag : DWORD;
 enum class VertexType : DWORD;
 enum class MaterialMap : DWORD;
+enum class FilterOption : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap>);
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, FilterOption>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)

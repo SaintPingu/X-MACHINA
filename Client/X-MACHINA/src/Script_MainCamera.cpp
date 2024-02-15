@@ -96,8 +96,6 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));
 		SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
 		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
-		mainCamera->SetViewport(0, 0, gkFrameBufferWidth, gkFrameBufferHeight, 0.f, 1.f);
-		mainCamera->SetScissorRect(0, 0, gkFrameBufferWidth, gkFrameBufferHeight);
 		break;
 	default:
 		assert(0);

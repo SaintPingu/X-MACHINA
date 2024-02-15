@@ -25,11 +25,11 @@ enum class DrawOption {
 	Depth,
 };
 
-// 추후에 DWORD를 상속받을 변경할 예정
-enum class FilterOption {
-	None = 0,
-	Blur,
-	LUT,
+enum class FilterOption : DWORD {
+	None = 0x01,
+	Blur = 0x02,
+	Tone = 0x04,
+	LUT	 = 0x08,
 };
 #pragma endregion
 
@@ -85,7 +85,7 @@ private:
 	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount>	mMRTs{};
 
 	// filter
-	FilterOption		mFilterOption{};
+	DWORD				mFilterOption{};
 	uptr<BlurFilter>	mBlurFilter;
 	uptr<LUTFilter>		mLUTFilter;
 
@@ -106,6 +106,7 @@ public:
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
 	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
+	const DWORD GetFilterOption() const						{ return mFilterOption; }
 #pragma endregion
 
 #pragma region Setter

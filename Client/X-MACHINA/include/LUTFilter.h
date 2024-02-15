@@ -1,6 +1,7 @@
 #pragma once
 
 #pragma region ClassForwardDecl
+class Texture;
 class LUTShader;
 #pragma endregion
 
@@ -14,11 +15,10 @@ private:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE mLUT0GpuSrv{};
 	D3D12_GPU_DESCRIPTOR_HANDLE mLUT1GpuSrv{};
-	D3D12_GPU_DESCRIPTOR_HANDLE mInputGpuSrv{};
 	D3D12_GPU_DESCRIPTOR_HANDLE mOutputGpuUav{};
+	D3D12_GPU_DESCRIPTOR_HANDLE mOutputGpuSrv{};
 
-	ComPtr<ID3D12Resource> mInput{};
-	ComPtr<ID3D12Resource> mOutput{};
+	sptr<Texture> mOutput{};
 
 	uptr<LUTShader> mLUTShader{};
 
@@ -28,14 +28,11 @@ public:
 	virtual ~LUTFilter() = default;
 #pragma endregion
 
-#pragma region Getter
-	ID3D12Resource* Resource();
-#pragma endregion
-
 public:
 	void Create();
-	void Execute(ID3D12Resource* input);
-	void CopyResource(ID3D12Resource* input);
+
+	// 필터를 실행하고 최종 결과 텍스처 인덱스를 반환한다.
+	UINT Execute(rsptr<Texture> input);
 
 private:
 	void CreateDescriptors();

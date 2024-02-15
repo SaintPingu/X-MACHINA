@@ -44,8 +44,8 @@ private:
 	BoundingFrustum mFrustumView{};
 	BoundingFrustum mFrustumWorld{};
 
-	D3D12_VIEWPORT	mViewport    = { 0.f, 0.f, gkFrameBufferWidth , gkFrameBufferHeight, 0.f, 1.f };
-	D3D12_RECT		mScissorRect = { 0, 0, gkFrameBufferWidth , gkFrameBufferHeight };
+	D3D12_VIEWPORT	mViewport    = { 0.f, 0.f, gkFrameBufferWidth, gkFrameBufferHeight, 0.f, 1.f };
+	D3D12_RECT		mScissorRect = { 0, 0, gkFrameBufferWidth, gkFrameBufferHeight};
 
 public:
 	Vec3 GetOffset() const { return mOffset; }

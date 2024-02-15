@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma region ClassForwardDecl
-struct LightInfo;
+struct LightLoadInfo;
 struct MeshLoadInfo;
 struct AnimationLoadInfo;
 

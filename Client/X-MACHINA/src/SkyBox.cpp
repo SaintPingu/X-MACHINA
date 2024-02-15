@@ -18,7 +18,7 @@ SkyBox::SkyBox() : Transform(this)
 	mTexture->LoadTexture("Models/Skybox/", "SkyBox_0");
 
 	mShader = std::make_unique<SkyBoxShader>();
-	mShader->Create(ShaderType::Forward);
+	mShader->Create(ShaderType::OffScreen);
 
 	scene->CreateShaderResourceView(mTexture.get());
 }

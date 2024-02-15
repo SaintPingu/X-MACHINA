@@ -7,6 +7,7 @@
 #pragma region EnumClass
 enum class BufferType : UINT {
     Pass = 0,
+    PostPass,
     Object,
     Material,
     SkinMesh,
@@ -24,13 +25,28 @@ struct PassConstants {
     Matrix      MtxProj{};
     Vec3        EyeW{};
     float       DeltaTime{};
+
     SceneLight  Lights{};
+    UINT        LightCount{};
+    Vec3        Padding{};
     
+    Vec4	    GlobalAmbient = {0.15f, 0.15f, 0.15f, 0.0f};
+    Vec4	    FogColor{};
+
+    float	    FogStart = 100.f;
+    float	    FogRange = 300.f;
     int         RT1_TextureIndex    = -1;
     int         RT2_UIIndex         = -1;
+
     int         RT3_NormalIndex     = -1;
     int         RT4_DepthIndex      = -1;
     int         RT5_DistanceIndex   = -1;
+    int         FilterOption{};
+};
+
+struct PostPassConstants {
+    int         RT0_OffScreenIndex = -1;
+    Vec3        Padding;
 };
 
 struct ObjectConstants {
@@ -45,10 +61,10 @@ struct SkinnedConstants {
 };
 
 struct MaterialData {
-    Vec4 Ambient{ Vector4::One() };
-    Vec4 Diffuse{};
-    Vec4 Specular{};
-    Vec4 Emissive{};
+    Vec4    DiffuseAlbedo{};
+    float   Metallic{};
+    float   Roughness{};
+    Vec2    Padding{};
 
     std::array<int, TextureMapCount> MapIndices;
 
@@ -64,6 +80,7 @@ public:
     ComPtr<ID3D12CommandAllocator>      CmdAllocator{};
     
     uptr<UploadBuffer<PassConstants>>   PassCB{};       // 패스 상수 버퍼
+    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};   // 포스트 프로세싱 패스 상수 버퍼
     uptr<UploadBuffer<ObjectConstants>> ObjectCB{};     // 오브젝트 상수 버퍼
     uptr<UploadBuffer<SkinnedConstants>> SkinMeshCB{};     // 스킨메쉬 상수 버퍼
 
@@ -71,7 +88,7 @@ public:
 
 public:
 #pragma region C/Dtor
-    FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int skinBoneCount, int materialCount);
+    FrameResource(ID3D12Device* pDevice, int passCount, int postPassCount, int objectCount, int skinBoneCount, int materialCount);
     ~FrameResource() = default;
 #pragma endregion
 };
@@ -81,6 +98,7 @@ class FrameResourceMgr {
 private:
     int mFrameResourceCount;
     int mPassCount;
+    int mPostPassCount;
     int mObjectCount;
     int mSkinBoneCount;
     int mMaterialCount;
@@ -103,6 +121,7 @@ public:
 #pragma region Getter
     FrameResource* GetCurrFrameResource() const { return mCurrFrameResource; }
     const D3D12_GPU_VIRTUAL_ADDRESS GetPassCBGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetPostPassCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetObjCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetSKinMeshCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
@@ -117,6 +136,7 @@ public:
 
     // 패스 당 상수 버퍼에 데이터 복사
     void CopyData(const PassConstants& data);
+    void CopyData(const PostPassConstants& data);
     // 오브젝트 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ObjectConstants& data);
     // 머티리얼 당 상수 버퍼에 데이터 복사

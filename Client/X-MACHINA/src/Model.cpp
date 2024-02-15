@@ -15,11 +15,10 @@
 #pragma region MaterialColors
 MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 	:
-	Diffuse(Vector4::NormalizeColor(materialInfo.Albedo)),
-	Specular(materialInfo.Specular),
-	Emissive(materialInfo.Emissive)
+	DiffuseAlbedo(materialInfo.DiffuseAlbedo),
+	Metallic(materialInfo.Metallic),
+	Roughness(materialInfo.Roughness)
 {
-	Specular.w = materialInfo.Glossiness * 255.0f;
 }
 #pragma endregion
 
@@ -28,10 +27,9 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 void Material::UpdateShaderVars()
 {
 	MaterialData materialData;
-	materialData.Ambient			= mMaterialColors->Ambient;
-	materialData.Diffuse			= mMaterialColors->Diffuse;
-	materialData.Specular			= mMaterialColors->Specular;
-	materialData.Emissive			= mMaterialColors->Emissive;
+	materialData.DiffuseAlbedo = mMaterialColors->DiffuseAlbedo;
+	materialData.Metallic	   = mMaterialColors->Metallic;
+	materialData.Roughness	   = mMaterialColors->Roughness;
 
 	for (UINT8 i = 0; i < TextureMapCount; ++i) {
 		if (mTextures[i]) {

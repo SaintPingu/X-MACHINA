@@ -135,11 +135,11 @@ public:
 	// isLine => D3D_PRIMITIVE_TOPOLOGY_LINELIST
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 	void CreateSkyBoxMesh(float width, float height, float depth);
-
 	void CreatePlaneMesh(float width, float depth, bool isLine = false);
-
 	void CreateSphereMesh(float radius, int numSegments = 12, bool isLine = false);
 
+	// 화면 전체를 덮는 메쉬
+	void CreateRectangleMesh();
 };
 
 

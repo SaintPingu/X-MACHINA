@@ -32,6 +32,7 @@ class ObjectPool;
 
 class AnimationClip;
 class AnimatorController;
+class TestCube;
 #pragma endregion
 
 
@@ -75,6 +76,7 @@ private:
 	sptr<Shader> mBulletShader{};
 	sptr<Shader> mSkinnedMeshShader{};
 	sptr<Shader> mFinalShader{};
+	sptr<Shader> mOffScreenShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};
@@ -93,6 +95,9 @@ private:
 	std::vector<sptr<GridObject>> mPlayers{};
 	sptr<GridObject> mPlayer{};					// main player
 	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
+
+	/* TestCube */
+	std::vector<sptr<TestCube>> mTestCubes{};
 
 	/* Map */
 	sptr<Terrain> mTerrain{};
@@ -170,6 +175,8 @@ public:
 	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
 	// texture의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(Texture* texture);
+	// texture의 UAV 리소스를 생성한다.
+	void CreateUnorderedAccessView(Texture* texture);
 
 private:
 	void CreateGraphicsRootSignature();
@@ -200,6 +207,7 @@ private:
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
+	void BuildTestCube();
 
 	/* Grid */
 	// generate grids
@@ -235,6 +243,8 @@ public:
 	void RenderLights();
 	void RenderFinal();
 	void RenderForward();
+	void RenderUI();
+	void RenderPostProcessing(int offScreenIndex);
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.
@@ -249,6 +259,7 @@ private:
 	void RenderBullets();
 	void RenderInstanceObjects();
 	void RenderFXObjects();
+	void RenderTestCubes();
 
 	// render [billboards]
 	void RenderBillboards();

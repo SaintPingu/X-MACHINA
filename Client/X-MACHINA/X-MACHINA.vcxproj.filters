@@ -544,6 +544,8 @@
     </FxCompile>
     <FxCompile Include="shaders\VShader_SkinnedMesh.hlsl">
       <Filter>소스 파일\Shaders\VS</Filter>
+    <FxCompile Include="shaders\PShader_OffScreen.hlsl">
+      <Filter>소스 파일\Shaders\PS\Forward</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

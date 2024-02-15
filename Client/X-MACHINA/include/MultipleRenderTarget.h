@@ -23,6 +23,9 @@ public:
 private:
 	GroupType mGroupType{};
 
+	D3D12_VIEWPORT	mViewport{};
+	D3D12_RECT		mScissorRect{};
+
 	UINT mRtCnt{};
 	std::vector<RenderTarget> mRts{};
 
@@ -43,6 +46,7 @@ public:
 #pragma region Getter
 	rsptr<Texture> GetTexture(UINT index) const;
 	rsptr<Texture> GetTexture(GBuffer index) const;
+	rsptr<Texture> GetTexture(OffScreen index) const;
 #pragma endregion
 
 public:

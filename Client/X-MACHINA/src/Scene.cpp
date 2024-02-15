@@ -29,6 +29,8 @@
 #include "Script_ExplosiveObject.h"
 #include "Script_Billboard.h"
 #include "Script_Sprite.h"
+
+#include "TestCube.h"
 #pragma endregion
 
 
@@ -204,16 +206,26 @@ void Scene::CreateShaderResourceView(Texture* texture)
 	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
 }
 
+void Scene::CreateUnorderedAccessView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = texture->GetUnorderedAccessViewDesc();
+
+	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
+
+	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
+}
+
 void Scene::CreateGraphicsRootSignature()
 {
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
 	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::Object,		D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass,		D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::SkinMesh,	D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
-	// GameObjectInfo를 Collider로 변경, 충돌 박스만 그려주는 용도
-	mGraphicsRootSignature->Push(RootParam::Collider,	D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
+	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
+	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
 
 	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
 	mGraphicsRootSignature->Push(RootParam::Instancing,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
@@ -269,7 +281,11 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
 	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
 	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights)); // 조명 정보 가져오기
+	passConstants.LightCount = mLight->GetLightCount();
+	passConstants.GlobalAmbient = Vec4(0.2f, 0.2f, 0.2f, 1.f);
+	passConstants.FilterOption = dxgi->GetFilterOption();
+	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
+	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
 	frmResMgr->CopyData(passConstants);
 }
@@ -317,6 +333,7 @@ void Scene::BuildObjects()
 	// build settings
 	BuildPlayers();
 	BuildTerrain();
+	BuildTestCube();
 
 	// build 
  	BuildShaders();
@@ -342,25 +359,28 @@ void Scene::BuildShaders()
 
 void Scene::BuildForwardShader()
 {
-	ShaderType shaderType = ShaderType::Forward;
-
+	// 현재 조명 렌더 타겟을 따로 두지 않았기 때문에 foward가 offscreen으로 대체 되었다.
+	// 추후에 조명 렌더 타겟 구현 이후 forward를 R8G8B8A8의 쉐이더로 변경해야 한다.
 	mWaterShader = std::make_shared<WaterShader>();
-	mWaterShader->Create(shaderType);
-
-	mBoundingShader = std::make_shared<WireShader>();
-	mBoundingShader->Create(shaderType);
+	mWaterShader->Create(ShaderType::OffScreen);
 
 	mBillboardShader = std::make_shared<BillboardShader>();
-	mBillboardShader->Create(shaderType);
+	mBillboardShader->Create(ShaderType::OffScreen);
 
 	mSpriteShader = std::make_shared<SpriteShader>();
-	mSpriteShader->Create(shaderType);
+	mSpriteShader->Create(ShaderType::OffScreen);
 
 	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
 	mSkinnedMeshShader->Create(shaderType);
 
 	mFinalShader = std::make_shared<FinalShader>();
-	mFinalShader->Create(shaderType, DXGI_FORMAT_D32_FLOAT);
+	mFinalShader->Create(ShaderType::OffScreen);
+
+	mBoundingShader = std::make_shared<WireShader>();
+	mBoundingShader->Create(ShaderType::Forward);
+
+	mOffScreenShader = std::make_shared<OffScreenShader>();
+	mOffScreenShader->Create(ShaderType::Forward);
 }
 
 void Scene::BuildDeferredShader()
@@ -398,10 +418,27 @@ void Scene::BuildTerrain()
 	// HeightMap_512x1024_R32
 	// HeightMap_513x513_R16
 	// HeightMap_1024x1024_R32
-
 	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap_513x513_R16.raw");
 
 	BuildGrid();
+}
+
+void Scene::BuildTestCube()
+{
+	mTestCubes.resize(2);
+	mTestCubes[0] = std::make_shared<TestCube>(Vec2(190, 150));
+	mTestCubes[0]->GetMaterial()->SetMatallic(0.1f);
+	mTestCubes[0]->GetMaterial()->SetRoughness(0.2f);
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Rock_BaseColor"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Rock_Normal"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Rock_Roughness"));
+
+	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
+	mTestCubes[1]->GetMaterial()->SetMatallic(0.9f);
+	mTestCubes[1]->GetMaterial()->SetRoughness(0.1f);
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Wall_BaseColor"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Wall_Normal"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Wall_Roughness"));
 }
 
 void Scene::BuildGrid()
@@ -551,6 +588,8 @@ void Scene::LoadModels()
 			mModels.insert(std::make_pair(name, model));
 		}
 	}
+
+	
 }
 
 void Scene::LoadAnimationClips()
@@ -653,8 +692,6 @@ void Scene::OnPrepareRender()
 {
 	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
 
-	mainCamera->SetViewportsAndScissorRects();
-
 	mDescriptorHeap->Set();
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
@@ -692,6 +729,7 @@ void Scene::RenderDeferred()
 	RenderEnvironments();	
 	RenderInstanceObjects();
 	RenderBullets();
+	RenderTestCubes();
 
 	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
 	RenderTerrain();
@@ -724,12 +762,31 @@ void Scene::RenderForward()
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
+}
 
+void Scene::RenderUI()
+{
 	if (RenderBounds(mRenderedObjects)) {
 		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
 	}
 
 	canvas->Render();
+}
+
+void Scene::RenderPostProcessing(int offScreenIndex)
+{
+	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
+	PostPassConstants passConstants;
+	passConstants.RT0_OffScreenIndex = offScreenIndex;
+	frmResMgr->CopyData(passConstants);
+	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
+
+	// 쉐이더 설정
+	mOffScreenShader->Set();
+
+	// 렌더링
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmdList->DrawInstanced(6, 1, 0, 0);
 }
 
 void Scene::RenderTerrain()
@@ -765,6 +822,7 @@ void Scene::RenderGridObjects()
 			continue;
 		}
 
+		// TODO : 현재 인스턴싱 쪽에서 깜빡거리는 버그 발견 
 		if (mainCamera->IsInFrustum(grid.GetBB())) {
 			auto& objects = grid.GetObjects();
 			mRenderedObjects.insert(objects.begin(), objects.end());
@@ -813,6 +871,13 @@ void Scene::RenderInstanceObjects()
 void Scene::RenderFXObjects()
 {
 
+}
+
+void Scene::RenderTestCubes()
+{
+	for (const auto& testCube : mTestCubes) {
+		testCube->Render();
+	}
 }
 
 void Scene::RenderEnvironments()

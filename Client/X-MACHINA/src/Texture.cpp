@@ -53,6 +53,19 @@ D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 	return srvDesc;
 }
 
+D3D12_UNORDERED_ACCESS_VIEW_DESC Texture::GetUnorderedAccessViewDesc() const
+{
+	ComPtr<ID3D12Resource> shaderResource = GetResource();
+	D3D12_RESOURCE_DESC resourceDesc = shaderResource->GetDesc();
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
+	uavDesc.Format = resourceDesc.Format;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+
+	return uavDesc;
+}
+
 void Texture::ReleaseUploadBuffers()
 {
 	mTextureUploadBuffer = nullptr;

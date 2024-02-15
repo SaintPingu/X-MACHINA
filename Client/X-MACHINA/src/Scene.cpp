@@ -370,9 +370,6 @@ void Scene::BuildForwardShader()
 	mSpriteShader = std::make_shared<SpriteShader>();
 	mSpriteShader->Create(ShaderType::OffScreen);
 
-	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
-	mSkinnedMeshShader->Create(shaderType);
-
 	mFinalShader = std::make_shared<FinalShader>();
 	mFinalShader->Create(ShaderType::OffScreen);
 
@@ -398,6 +395,9 @@ void Scene::BuildDeferredShader()
 
 	mBulletShader = std::make_shared<ColorInstShader>();
 	mBulletShader->Create(shaderType);
+
+	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
+	mSkinnedMeshShader->Create(shaderType);
 }
 
 void Scene::BuildPlayers()
@@ -779,7 +779,7 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	frmResMgr->CopyData(passConstants);
-	cmdList->SetGraphicsRootConstantBufferView(GetRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
 
 	// ½¦ÀÌ´õ ¼³Á¤
 	mOffScreenShader->Set();

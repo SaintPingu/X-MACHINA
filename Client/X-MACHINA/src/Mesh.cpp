@@ -500,7 +500,7 @@ void ModelObjectMesh::CreateRectangleMesh()
 
 	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
 	CreateVertexBufferViews();
-	CreateIndexBuffer(indices);
+	CreateIndexBufferView(indices);
 }
 #pragma endregion
 

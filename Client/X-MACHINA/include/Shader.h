@@ -21,6 +21,7 @@ enum class ShaderType : UINT8
 	Deferred,
 	OffScreen,
 	Final,
+	SkinMesh,
 };
 #pragma endregion
 
@@ -338,7 +339,7 @@ protected:
 
 
 // for rendering UI (2D plane)
-class SkinMeshShader : public ForwardShader {
+class SkinMeshShader : public DeferredShader {
 public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
 };

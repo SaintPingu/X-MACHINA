@@ -711,7 +711,7 @@ namespace FileIO {
 		return std::make_shared<AnimatorController>(params, baseLayer);
 	}
 
-	void LoadLightFromFile(const std::string& filePath, LightInfo** out)
+	void LoadLightFromFile(const std::string& filePath, LightLoadInfo** out)
 	{
 		LightLoadInfo* light = *out;
 

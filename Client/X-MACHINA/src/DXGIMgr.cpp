@@ -21,8 +21,8 @@ DXGIMgr::DXGIMgr()
 {
 	DWORD filterOptione = 0;
 	filterOptione |= FilterOption::None;
-	filterOptione |= FilterOption::LUT;
-	filterOptione |= FilterOption::Tone;
+	//filterOptione |= FilterOption::LUT;
+	//filterOptione |= FilterOption::Tone;
 
 	mFilterOption = filterOptione;
 }

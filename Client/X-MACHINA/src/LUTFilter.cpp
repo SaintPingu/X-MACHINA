@@ -38,7 +38,7 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	// LUT 텍스처는 BC7 형식으로 압축해야 포토샵 LUT와 최대한 똑같은 색상을 추출할 수 있다.
-	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT0), scene->GetTexture("LUT_LateSunset")->GetGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT0), scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle());
 	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT1), scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle());
 	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
 	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());

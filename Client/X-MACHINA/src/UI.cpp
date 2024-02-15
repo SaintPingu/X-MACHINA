@@ -59,6 +59,7 @@ void UI::CreateUIMesh()
 
 void UI::DeleteUIMesh()
 {
+	Sleep(10);
 	mMesh = nullptr;
 }
 #pragma endregion

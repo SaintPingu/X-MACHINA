@@ -61,7 +61,7 @@ namespace FileIO {
 	sptr<AnimatorController> LoadAnimatorController(const std::string& filePath);
 
 	// [filePath]에 해당하는 조명 모델을 불러온다. (Type, Color, Intensity, ...)
-	void LoadLightFromFile(const std::string& filePath, LightInfo** out);
+	void LoadLightFromFile(const std::string& filePath, LightLoadInfo** out);
 
 	// [folder]의 모든 dds Texutre파일들을 로드한다.
 	// <texture name, Texture>

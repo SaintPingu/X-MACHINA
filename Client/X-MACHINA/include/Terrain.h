@@ -28,7 +28,7 @@ private:
 
 public:
 	// [fileName]의 파일을 [width * height]만큼 읽어 저장한다.
-	HeightMapImage(const std::wstring& fileName);
+	HeightMapImage(const std::string& fileName);
 
 	virtual ~HeightMapImage() = default;
 
@@ -92,7 +92,7 @@ private:
 	int mLength{};	// length of entire Terrain
 
 public:
-	Terrain(const std::wstring& fileName);
+	Terrain(const std::string& fileName);
 	virtual ~Terrain() = default;
 
 	int GetWidth() const	{ return mWidth; }

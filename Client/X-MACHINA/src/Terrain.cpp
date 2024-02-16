@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "Texture.h"
 #include "Collider.h"
+#include "FileIO.h"
 
 #define _WITH_APPROXIMATE_OPPOSITE_CORNER
 
@@ -62,40 +63,16 @@ namespace {
 
 
 #pragma region HeightMapImage
-HeightMapImage::HeightMapImage(const std::wstring& fileName)
+HeightMapImage::HeightMapImage(const std::string& fileName)
 {
-#pragma region Extract
-	// HeightMap name example : "HeightMap_513x513_R16.raw"
-	size_t underScorePos = fileName.find(L"HeightMap_") + std::wstring{ L"HeightMap_" }.length() - 1;
-	size_t fileExtPos = fileName.find(std::filesystem::path(fileName).extension());
+	FILE* file = nullptr;
+	::fopen_s(&file, fileName.c_str(), "rb");
+	::rewind(file);
 
-	// desiredPart name example : "513x513_R16"
-	std::wstring desiredPart = (underScorePos != std::wstring::npos && fileExtPos != std::wstring::npos)
-		? fileName.substr(underScorePos + 1, fileExtPos - underScorePos - 1) : L"";
+	FileIO::ReadVal(file, mWidth);
+	FileIO::ReadVal(file, mLength);
 
-	// fileFormat name example : "R16", "R32"
-	underScorePos = desiredPart.find(L"_");
-	std::wstring fileFormat = desiredPart.substr(underScorePos + 1);
-
-	// extract width, length
-	size_t xPos = desiredPart.find(L"x");
-	mWidth = std::stoi(desiredPart.substr(0, xPos));
-	mLength = std::stoi(desiredPart.substr(xPos + 1));
-#pragma endregion
-
-#pragma region Load
-	switch (Hash(fileFormat))
-	{
-	case Hash("R16"):
-		LoadHeightMap<uint16_t>(fileName);
-		break;
-	case Hash("R32"):
-		LoadHeightMap<float>(fileName);
-		break;
-	default:
-		break;
-	}
-#pragma endregion
+	FileIO::ReadRange(file, mHeightMapPixels, mWidth * mLength);
 }
 
 
@@ -106,15 +83,15 @@ float HeightMapImage::GetHeight(float fx, float fz) const
 		return 0.f;
 	}
 	//높이 맵의 좌표의 정수 부분과 소수 부분을 계산한다.
-	const size_t x       = (size_t)fx;
-	const size_t z       = (size_t)fz;
+	const size_t x = (size_t)fx;
+	const size_t z = (size_t)fz;
 	const float xPercent = fx - x;
 	const float zPercent = fz - z;
 
-	float bottomLeft  = (float)mHeightMapPixels[x       + (z * mWidth)];
+	float bottomLeft = (float)mHeightMapPixels[x + (z * mWidth)];
 	float bottomRight = (float)mHeightMapPixels[(x + 1) + (z * mWidth)];
-	float topLeft     = (float)mHeightMapPixels[x       + ((z + 1) * mWidth)];
-	float topRight    = (float)mHeightMapPixels[(x + 1) + ((z + 1) * mWidth)];
+	float topLeft = (float)mHeightMapPixels[x + ((z + 1) * mWidth)];
+	float topRight = (float)mHeightMapPixels[(x + 1) + ((z + 1) * mWidth)];
 
 #ifdef _WITH_APPROXIMATE_OPPOSITE_CORNER
 	//z-좌표가 1, 3, 5, ...인 경우 인덱스가 오른쪽에서 왼쪽으로 나열된다.
@@ -147,9 +124,9 @@ float HeightMapImage::GetHeight(float fx, float fz) const
 #endif
 
 	//사각형의 네 점을 보간하여 높이(픽셀 값)를 계산한다.
-	const float topHeight    = topLeft * (1 - xPercent) + topRight * xPercent;
+	const float topHeight = topLeft * (1 - xPercent) + topRight * xPercent;
 	const float bottomHeight = bottomLeft * (1 - xPercent) + bottomRight * xPercent;
-	const float height       = bottomHeight * (1 - zPercent) + topHeight * zPercent;
+	const float height = bottomHeight * (1 - zPercent) + topHeight * zPercent;
 	return height;
 }
 
@@ -162,15 +139,15 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 	/*높이 맵에서 (x, z) 좌표의 픽셀 값과 인접한 두 개의 점 (x+1, z), (z, z+1)에 대한 픽셀 값을 사용하여 법선 벡터를 계산한다.*/
 	const int heightMapIndex = x + (z * mWidth);
-	const int xHeightMapAdd  = (x < (mWidth - 1))  ? 1 : -1;
-	const int zHeightMapAdd  = (z < (mLength - 1)) ? mWidth : -mWidth;
+	const int xHeightMapAdd = (x < (mWidth - 1)) ? 1 : -1;
+	const int zHeightMapAdd = (z < (mLength - 1)) ? mWidth : -mWidth;
 
 	const float y1 = (float)mHeightMapPixels[(size_t)heightMapIndex];
 	const float y2 = (float)mHeightMapPixels[(size_t)heightMapIndex + xHeightMapAdd];
 	const float y3 = (float)mHeightMapPixels[(size_t)heightMapIndex + zHeightMapAdd];
 
-	const Vec3 edge1  = Vec3(0.f, y3 - y1, 1.f);
-	const Vec3 edge2  = Vec3(1.f, y2 - y1, 0.f);
+	const Vec3 edge1 = Vec3(0.f, y3 - y1, 1.f);
+	const Vec3 edge2 = Vec3(1.f, y2 - y1, 0.f);
 	const Vec3 normal = Vector3::CrossProduct(edge1, edge2, true);
 
 	return normal;
@@ -182,7 +159,7 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 
 #pragma region Terrain
-Terrain::Terrain(const std::wstring& fileName) : Transform(this)
+Terrain::Terrain(const std::string& fileName) : Transform(this)
 {
 	mHeightMapImage = std::make_shared<HeightMapImage>(fileName);
 
@@ -212,27 +189,27 @@ Terrain::Terrain(const std::wstring& fileName) : Transform(this)
 	{
 		for (int x = 0, xStart = 0; x < xBlocks; x++)
 		{
-			xStart             = x * (blockWidth - 1);
-			zStart             = z * (blockLength - 1);
+			xStart = x * (blockWidth - 1);
+			zStart = z * (blockLength - 1);
 			const size_t index = x + (xBlocks * z);
 
 			const sptr<TerrainGridMesh> mesh = std::make_shared<TerrainGridMesh>(xStart, zStart, blockWidth, blockLength, mHeightMapImage);
-			mTerrains[index]                 = std::make_shared<TerrainBlock>(mesh, this);
+			mTerrains[index] = std::make_shared<TerrainBlock>(mesh, this);
 
 			const Vec3 center = Vec3(xStart + (float)blockWidth / 2, 0.f, zStart + (float)blockLength / 2);
-			bs.Center   = center;
+			bs.Center = center;
 			mTerrains[index]->SetPosition(center);
 			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
 		}
 	}
 
 	MaterialLoadInfo materialInfo{};
-	materialInfo.DiffuseAlbedo	= Vec4(1.f, 1.f, 1.f, 1.f);
-	materialInfo.Metallic		= 0.01f;
-	materialInfo.Roughness		= 0.95f;
+	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
+	materialInfo.Metallic = 0.01f;
+	materialInfo.Roughness = 0.95f;
 
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
-	mMaterial                           = std::make_shared<Material>();
+	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
 	mMaterial->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("GrassUV01"));
@@ -340,7 +317,7 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 			normals[i] = heightMapImage->GetHeightMapNormal(x, z);
 
 			uvs0[i] = Vec2((float)x * kDetailScale, (float)z * kDetailScale);
-			uvs1[i] = Vec2((float)x * kCorr,		(float)z * kCorr);
+			uvs1[i] = Vec2((float)x * kCorr, (float)z * kCorr);
 
 			if (height < minHeight) {
 				minHeight = height;

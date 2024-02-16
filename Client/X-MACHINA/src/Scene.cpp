@@ -319,7 +319,7 @@ void Scene::BuildObjects()
 	CreateCbvSrvDescriptorHeaps(0, 1024, 256);
 
 	// load materials
-	mTextureMap = FileIO::LoadTextures("Models/Textures/");
+	mTextureMap = FileIO::LoadTextures("Import/Textures/");
 
 	// load canvas (UI)
 	canvas->Init();
@@ -327,7 +327,7 @@ void Scene::BuildObjects()
 	// load models
 	LoadAnimationClips();
 	LoadAnimatorControllers();
-	LoadSceneObjects("Models/Scene.bin");
+	LoadSceneObjects("Import/Scene.bin");
 	LoadModels();
 
 	// build settings
@@ -414,11 +414,7 @@ void Scene::BuildPlayers()
 
 void Scene::BuildTerrain()
 {
-	// HeightMap List
-	// HeightMap_512x1024_R32
-	// HeightMap_513x513_R16
-	// HeightMap_1024x1024_R32
-	mTerrain = std::make_shared<Terrain>(L"Models/HeightMap_513x513_R16.raw");
+	mTerrain = std::make_shared<Terrain>("Import/Terrain.bin");
 
 	BuildGrid();
 }
@@ -532,7 +528,7 @@ void Scene::LoadGameObjects(FILE* file)
 			std::string meshName{};
 			FileIO::ReadString(file, meshName);
 
-			model = FileIO::LoadGeometryFromFile("Models/Meshes/" + meshName + ".bin");
+			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + meshName + ".bin");
 			mModels.insert(std::make_pair(meshName, model));
 
 			FileIO::ReadString(file, token); //"<Transforms>:"
@@ -581,7 +577,7 @@ void Scene::LoadModels()
 	sptr<MasterModel> model;
 	for (auto& name : binModelNames) {
 		if (!mModels.contains(name)) {
-			model = FileIO::LoadGeometryFromFile("Models/Meshes/" + name + ".bin");
+			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + name + ".bin");
 			if (name.substr(0, 6) == "sprite") {
 				model->SetSprite();
 			}
@@ -594,7 +590,7 @@ void Scene::LoadModels()
 
 void Scene::LoadAnimationClips()
 {
-	const std::string rootFolder = "Models/AnimationClips/";
+	const std::string rootFolder = "Import/AnimationClips/";
 	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
 		std::string clipFolderName = clipFolder.path().filename().string();
 
@@ -610,7 +606,7 @@ void Scene::LoadAnimationClips()
 
 void Scene::LoadAnimatorControllers()
 {
-	const std::string rootFolder = "Models/AnimatorControllers/";
+	const std::string rootFolder = "Import/AnimatorControllers/";
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
 		mAnimatorControllerMap.insert(std::make_pair(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName)));

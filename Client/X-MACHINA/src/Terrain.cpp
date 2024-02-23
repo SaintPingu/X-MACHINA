@@ -205,8 +205,8 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 
 	MaterialLoadInfo materialInfo{};
 	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
-	materialInfo.Metallic = 0.01f;
-	materialInfo.Roughness = 0.95f;
+	materialInfo.Metallic = 0.0f;
+	materialInfo.Roughness = 1.f;
 
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
 	mMaterial = std::make_shared<Material>();

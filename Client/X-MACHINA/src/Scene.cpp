@@ -276,11 +276,13 @@ void Scene::UpdateMainPassCB()
 	passConstants.MtxProj	= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
 	passConstants.EyeW		= mainCamera->GetPosition();
 	passConstants.DeltaTime = timeElapsed;
-	passConstants.RT1_TextureIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Texture)->GetGpuDescriptorHandleIndex();
-	passConstants.RT2_UIIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::UI)->GetGpuDescriptorHandleIndex();
-	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
-	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
-	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
+	passConstants.RT0G_PositionIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Position)->GetGpuDescriptorHandleIndex();
+	passConstants.RT1G_NormalIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
+	passConstants.RT2G_DiffuseIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Diffuse)->GetGpuDescriptorHandleIndex();
+	passConstants.RT3G_DepthIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
+	passConstants.RT4G_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
+	passConstants.RT0L_DiffuseIndex = dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Diffuse)->GetGpuDescriptorHandleIndex();
+	passConstants.RT1L_SpecularIndex = dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Specular)->GetGpuDescriptorHandleIndex();
 	passConstants.LightCount = mLight->GetLightCount();
 	passConstants.GlobalAmbient = Vec4(0.2f, 0.2f, 0.2f, 1.f);
 	passConstants.FilterOption = dxgi->GetFilterOption();
@@ -378,6 +380,9 @@ void Scene::BuildForwardShader()
 
 	mOffScreenShader = std::make_shared<OffScreenShader>();
 	mOffScreenShader->Create(ShaderType::Forward);
+
+	mLightingShader = std::make_shared<LightingShader>();
+	mLightingShader->Create(ShaderType::Lighting);
 }
 
 void Scene::BuildDeferredShader()
@@ -404,7 +409,7 @@ void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(GetModel("tank_bullet"));
+	airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
 	airplanePlayer->SetModel(GetModel("EliteTrooper"));
 
 	mPlayers.push_back(airplanePlayer);
@@ -423,18 +428,16 @@ void Scene::BuildTestCube()
 {
 	mTestCubes.resize(2);
 	mTestCubes[0] = std::make_shared<TestCube>(Vec2(190, 150));
-	mTestCubes[0]->GetMaterial()->SetMatallic(0.1f);
-	mTestCubes[0]->GetMaterial()->SetRoughness(0.2f);
+	mTestCubes[0]->GetMaterial()->SetMatallic(0.5f);
+	mTestCubes[0]->GetMaterial()->SetRoughness(0.3f);
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Rock_BaseColor"));
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Rock_Normal"));
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Rock_Roughness"));
 
 	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
-	mTestCubes[1]->GetMaterial()->SetMatallic(0.9f);
+	mTestCubes[1]->GetMaterial()->SetMatallic(0.1f);
 	mTestCubes[1]->GetMaterial()->SetRoughness(0.1f);
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Wall_Normal"));
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Wall_Roughness"));
 }
 
 void Scene::BuildGrid()
@@ -705,6 +708,8 @@ void Scene::RenderShadow()
 
 void Scene::RenderDeferred()
 {
+	OnPrepareRender();
+
 	// 추후에 디퍼드 렌더링 구현시 물체의 깊이 정보를 저장하고 조명 계산에 활용해야 한다.
 	// 현재는 MRT에서 조명을 처리하고 있는데 이후에 Final이나 Canvas에서 전달 받은 메쉬에 대해서만 조명 처리를 해야한다.
 	// Directional 조명은 화면 전체 크기의 사각형 볼륨 메쉬, Point, Spot 조명은 조명의 길이의 반지름을 가진 구 볼륨 메쉬를 가진다.
@@ -714,7 +719,6 @@ void Scene::RenderDeferred()
 	mRenderedObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
-	OnPrepareRender();
 #pragma endregion
 
 	mGlobalShader->Set();
@@ -733,9 +737,12 @@ void Scene::RenderDeferred()
 
 void Scene::RenderLights()
 {
-	// 포지션, 노말, 컬러 등의 모든 결과 텍스처를 샘플링하여 조명 처리를 진행한다.
-	// 이때 그림자 맵도 샘플링하고 현재 픽셀 값이 그림자 맵보다 큰 경우에 어둡게 렌더링한다.
-	// 결과 값인 diffuse와 specular를 각각의 타겟 텍스처에 출력한다.
+	cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
+	mLightingShader->Set();
+
+	if (mLight) {
+		mLight->Render();
+	}
 }
 
 void Scene::RenderFinal()
@@ -743,7 +750,7 @@ void Scene::RenderFinal()
 	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
 	mFinalShader->Set();
 
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
 	cmdList->DrawInstanced(6, 1, 0, 0);
 }
 

@@ -35,13 +35,18 @@ struct PassConstants {
 
     float	    FogStart = 100.f;
     float	    FogRange = 300.f;
-    int         RT1_TextureIndex    = -1;
-    int         RT2_UIIndex         = -1;
 
-    int         RT3_NormalIndex     = -1;
-    int         RT4_DepthIndex      = -1;
-    int         RT5_DistanceIndex   = -1;
+    int         RT0G_PositionIndex   = -1;
+    int         RT1G_NormalIndex     = -1;
+                   
+    int         RT2G_DiffuseIndex    = -1;
+    int         RT3G_DepthIndex      = -1;
+    int         RT4G_DistanceIndex   = -1;
     int         FilterOption{};
+
+    int         RT0L_DiffuseIndex   = -1;
+    int         RT1L_SpecularIndex  = -1;
+    Vec2        Padding2{};
 };
 
 struct PostPassConstants {
@@ -79,12 +84,12 @@ public:
     UINT64                              Fence{};
     ComPtr<ID3D12CommandAllocator>      CmdAllocator{};
     
-    uptr<UploadBuffer<PassConstants>>   PassCB{};       // 패스 상수 버퍼
-    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};   // 포스트 프로세싱 패스 상수 버퍼
-    uptr<UploadBuffer<ObjectConstants>> ObjectCB{};     // 오브젝트 상수 버퍼
-    uptr<UploadBuffer<SkinnedConstants>> SkinMeshCB{};     // 스킨메쉬 상수 버퍼
+    uptr<UploadBuffer<PassConstants>>       PassCB{};           // 패스 상수 버퍼
+    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};       // 포스트 프로세싱 패스 상수 버퍼
+    uptr<UploadBuffer<ObjectConstants>>     ObjectCB{};         // 오브젝트 상수 버퍼
+    uptr<UploadBuffer<SkinnedConstants>>    SkinMeshCB{};       // 스킨메쉬 상수 버퍼
 
-    uptr<UploadBuffer<MaterialData>>    MaterialBuffer{};   // 머티리얼 버퍼
+    uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};   // 머티리얼 버퍼
 
 public:
 #pragma region C/Dtor

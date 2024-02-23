@@ -80,6 +80,7 @@ void DXGIMgr::Render()
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
+	GetMRT(GroupType::Lighting)->ClearRenderTargetView();
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView();
 #pragma endregion
 
@@ -96,8 +97,9 @@ void DXGIMgr::Render()
 		GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
 		// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
-		// TODO : 조명 계산을 G버퍼가 아닌 조명 렌더 타겟에서 진행해야 한다.
+		GetMRT(GroupType::Lighting)->OMSetRenderTargets();
 		scene->RenderLights();
+		GetMRT(GroupType::Lighting)->WaitTargetToResource();
 
 		// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
 		GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
@@ -116,7 +118,7 @@ void DXGIMgr::Render()
 		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
 	if (mFilterOption & FilterOption::Blur)
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
-	if (mFilterOption & FilterOption::LUT | FilterOption::Tone)
+	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
@@ -374,19 +376,19 @@ void DXGIMgr::CreateMRTs()
 
 		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[3].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[3].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[4].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[4].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
@@ -394,6 +396,23 @@ void DXGIMgr::CreateMRTs()
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDsvHandle);
+	}
+#pragma endregion
+
+#pragma region Lighting
+	{
+		std::vector<RenderTarget> rts(LightingCount);
+
+		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		
+		mMRTs[static_cast<UINT8>(GroupType::Lighting)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::Lighting)]->Create(GroupType::Lighting, std::move(rts), mDsvHandle);
 	}
 #pragma endregion
 

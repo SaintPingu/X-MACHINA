@@ -62,7 +62,6 @@ void Mesh::CreateVertexBufferViews()
 	bufferViews.VertexBuffer     = mVertexBuffer;
 	bufferViews.NormalBuffer     = mNormalBuffer;
 	bufferViews.UV0Buffer        = mUV0Buffer;
-	bufferViews.UV1Buffer        = mUV1Buffer;
 	bufferViews.TangentBuffer    = mTangentBuffer;
 	bufferViews.BiTangentBuffer  = mBiTangentBuffer;
 	bufferViews.BoneIndexBuffer  = mBoneIndexBuffer;
@@ -485,20 +484,31 @@ void ModelObjectMesh::CreateSphereMesh(float radius, int numSegments, bool isLin
 
 void ModelObjectMesh::CreateRectangleMesh()
 {
+	mVertexCnt = 4;
+	mIndexCnt = 6;
+
 	float w2 = 0.5f;
 	float h2 = 0.5f;
 
-	std::vector<Vec3> vertices(4);
+	std::vector<Vec3> vertices(mVertexCnt);
 	vertices[0] = Vec3(-w2, -h2, 0);
 	vertices[1] = Vec3(-w2, +h2, 0);
 	vertices[2] = Vec3(+w2, +h2, 0);
 	vertices[3] = Vec3(+w2, -h2, 0);
 
-	std::vector<UINT> indices(6);
+	std::vector<Vec2> uvs(mVertexCnt);
+	uvs[0] = Vec2(0.f, 1.f);
+	uvs[1] = Vec2(0.f, 0.f);
+	uvs[2] = Vec2(1.f, 0.f);
+	uvs[3] = Vec2(1.f, 1.f);
+
+	std::vector<UINT> indices(mIndexCnt);
 	indices[0] = 0; indices[1] = 1; indices[2] = 2;
 	indices[3] = 0; indices[4] = 2; indices[5] = 3;
 
+	D3DUtil::CreateVertexBufferResource(uvs, mUV0UploadBuffer, mUV0Buffer);
 	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
+
 	CreateVertexBufferViews();
 	CreateIndexBufferView(indices);
 }

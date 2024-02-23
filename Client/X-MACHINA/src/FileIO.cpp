@@ -304,7 +304,15 @@ namespace {
 				break;
 
 			case Hash("<NormalMap>:"):
-				//material->LoadTextureFromFile(TextureMap::NormalMap, file);
+				material->LoadTextureFromFile(TextureMap::NormalMap, file);
+				break;
+
+			case Hash("<EmissionMap>:"):
+				material->LoadTextureFromFile(TextureMap::EmissiveMap, file);
+				break;
+
+			case Hash("<MetallicMap>:"):
+				material->LoadTextureFromFile(TextureMap::MetallicMap, file);
 				break;
 
 			case Hash("<HeightMap>:"):

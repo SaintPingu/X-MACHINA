@@ -44,9 +44,13 @@ public:
 
 public:
 #pragma region Getter
-	rsptr<Texture> GetTexture(UINT index) const;
-	rsptr<Texture> GetTexture(GBuffer index) const;
-	rsptr<Texture> GetTexture(OffScreen index) const;
+	template<typename T>
+	inline rsptr<Texture> GetTexture(T index) const
+	{
+		return mRts[static_cast<UINT8>(index)].Target;
+	}
+	//rsptr<Texture> GetTexture(GBuffer index) const;
+	//rsptr<Texture> GetTexture(OffScreen index) const;
 #pragma endregion
 
 public:

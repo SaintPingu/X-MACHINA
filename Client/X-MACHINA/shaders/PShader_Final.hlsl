@@ -7,9 +7,14 @@ struct VSOutput_Tex {
 
 float4 PSFinal(VSOutput_Tex pin) : SV_TARGET
 {
-    float4 color = gTextureMap[gPassCB.RT0_TextureIndex].Sample(gsamAnisotropicWrap, pin.UV);
-    float distance = gTextureMap[gPassCB.RT4_DistanceIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
+    float4 diffuseAlbedo = gTextureMap[gPassCB.RT0L_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
+    float4 specularAlbedo = gTextureMap[gPassCB.RT1L_SpecularIndex].Sample(gsamAnisotropicWrap, pin.UV);
+    float4 ambient = gPassCB.GlobalAmbient * diffuseAlbedo;
 
+    //float distance = gTextureMap[gPassCB.RT4_DistanceIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
     //return FogDistance(color, distance);
-    return color;
+
+    float4 litColor = ambient + GammaEncoding(diffuseAlbedo) + GammaEncoding(specularAlbedo);
+    
+    return ((gPassCB.FilterOption & Filter_Tone) ? GammaDecoding(litColor) : litColor);
 }

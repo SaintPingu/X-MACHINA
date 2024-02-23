@@ -9,6 +9,7 @@
 
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "MultipleRenderTarget.h"
 
 
 #pragma region UI

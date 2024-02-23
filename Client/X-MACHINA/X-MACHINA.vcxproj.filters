@@ -82,6 +82,9 @@
     <Filter Include="소스 파일\Animation">
       <UniqueIdentifier>{2afbe690-63ed-4afa-8b7c-ddef39a16859}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Shaders\Lighting">
+      <UniqueIdentifier>{c674e0af-79b1-44ba-833b-624a002f5066}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -556,6 +559,12 @@
     </FxCompile>
     <FxCompile Include="shaders\PShader_OffScreen.hlsl">
       <Filter>소스 파일\Shaders\PS\Forward</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_DirLighting.hlsl">
+      <Filter>소스 파일\Shaders\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_DirLighting.hlsl">
+      <Filter>소스 파일\Shaders\Lighting</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -26,7 +26,7 @@ void Script_GroundPlayer::Start()
 	mRigid->SetMass(100.f);
 	mRigid->SetFriction(30.f);
 	mRigid->SetAcc(5000.f);
-	mRigid->SetMaxSpeed(1.5f);
+	mRigid->SetMaxSpeed(16.5f);
 }
 
 

@@ -1,5 +1,9 @@
 #pragma once
 
+#pragma region ClassForwardDecl
+class ModelObjectMesh;
+#pragma endregion
+
 #pragma region EnumClass
 // must be matched with Light.hlsl LightType
 enum class LightType {
@@ -23,6 +27,7 @@ enum class LightType {
 #pragma region Class
 class Light {
 private:
+	sptr<ModelObjectMesh>	mVolumeMesh{};	// light volume mesh
 	sptr<SceneLight>		mLights{};		// all lights in scene
 	sptr<SceneLoadLight>	mLoadLights{};	// all load lights in scene
 
@@ -47,12 +52,14 @@ public:
 	UINT GetLightCount() const { return static_cast<UINT>(mLights->Lights.size()); }
 
 public:
-
 	// 새로운 조명 모델을 삽입한다.
 	void InsertLightModel(const std::string& name, const LightLoadInfo* light) { mLightModels.insert(std::make_pair(name, light)); }
 
 	void BuildLights(FILE* file);
 	void BuildLights();
+
+	// 조명의 볼륨 메쉬를 렌더링한다.
+	void Render();
 
 private:
 

@@ -57,9 +57,9 @@ struct MaterialInfo {
     int DiffuseMap3Index;
     
     int NormalMapIndex;
-    int HeightMapIndex;
-    int ShadowMapIndex;
-    int RoughnessMapIndex;
+    int EmissiveMapIndex;
+    int MetallicMapIndex;
+    int OcclusionMapIndex;
 };
 
 struct ObjectInfo {
@@ -84,13 +84,17 @@ struct PassInfo {
     
     float       FogStart;
     float       FogRange;
-    int         RT0_TextureIndex;
-    int         RT1_UIIndex;
+    int         RT0_PositionIndex;
+    int         RT1_NormalIndex;
     
-    int         RT2_NormalIndex;
-    int         RT3_DepthIndex;
+    int         RT2_DiffuseIndex;
+    int         RT3_MetallicSmoothnessIndex;
     int         RT4_DistanceIndex;
     int         FilterOption;
+    
+    int         RT0L_DiffuseIndex;
+    int         RT1L_SpecularIndex;
+    float2      Padding2;
 };
 
 struct PostPassInfo {

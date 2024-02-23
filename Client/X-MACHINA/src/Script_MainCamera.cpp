@@ -92,9 +92,11 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 
 	switch (mode) {
 	case CameraMode::Third:
-		mTimeLag = 0.1f;
-		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));
-		SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
+		mTimeLag = 0.f;
+		//SetCameraOffset(Vec3(0.f, 7.f, -2.f));
+		//SetCameraOffset(Vec3(0.f, 1.4f, 2.f));
+		//SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
+		SetCameraOffset(Vec3(0.f, 2.5f, -1.5f));
 		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
 		break;
 	default:

@@ -126,7 +126,7 @@ namespace PBR
 
     // Calculate the distribution term
         float x = nDotH * nDotH * (m2 - 1) + 1;
-        float d = m2 / (3.141592 * x * x);
+        float d = m2 / (3.141592 * pow(x, 2));
 
     // Calculate the matching visibility term
         float vis = GGXVisibility(m2, nDotL, nDotV);
@@ -226,10 +226,42 @@ namespace PBR
     }
 }
 
+
 // 선형 감쇠 함수
 float CalcAttenuation(float d, float falloffStart, float falloffEnd)
 {
     return saturate((falloffEnd - d) / (falloffEnd - falloffStart));
+}
+
+float3 SchlickFresnel(float3 R0, float3 normal, float3 lightVec)
+{
+    float cosIncidentAngle = saturate(dot(normal, lightVec));
+
+    float f0 = 1.0f - cosIncidentAngle;
+    float3 reflectPercent = R0 + (1.0f - R0)*(f0*f0*f0*f0*f0);
+
+    return reflectPercent;
+}
+
+LightColor BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, Material mat)
+{
+    const float m = 0.5 * 256.0f;
+    float3 halfVec = normalize(toEye + lightVec);
+
+    float roughnessFactor = (m + 8.0f)*pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
+    float3 fresnelFactor = SchlickFresnel(0.1f, halfVec, lightVec);
+
+    float3 specAlbedo = fresnelFactor*roughnessFactor;
+
+    // Our spec formula goes outside [0,1] range, but we are 
+    // doing LDR rendering.  So scale it down a bit.
+    specAlbedo = specAlbedo / (specAlbedo + 1.0f);
+
+    LightColor result;
+    result.Diffuse =  mat.DiffuseAlbedo.rgb * lightStrength;
+    result.Specular = specAlbedo * lightStrength;
+    
+    return result;
 }
 
 LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material mat, float3 toCameraW)
@@ -238,6 +270,10 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
     float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
     
+    float3 msEnergyCompensation = 1.0.xxx;
+    float2 DFG = PBR::GGXEnvironmentBRDFScaleBias(saturate(dot(normal, toCameraW)), mat.Roughness * mat.Roughness);
+    float Ess = DFG.x;
+    msEnergyCompensation = 1.0.xxx + specularAlbedo * (1.0f / Ess - 1.0f);
     
     float3 view = normalize(toCameraW);
     float3 h = normalize(view + lightDir);
@@ -245,11 +281,11 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     // 슐릭 근사 방정식을 사용하여 프레넬 값(얼마나 반사하는지)을 구한다.
     float3 fresnel = PBR::Fresnel(specularAlbedo, h, lightDir);
     // GGXSpecular 모델을 사용하여 정반사 값을 구한다.
-    float specular = PBR::GGXSpecular(clamp(mat.Roughness, 0.1f, 1.f), normal, h, view, lightDir);
+    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.01f, 1.f), normal, h, view, lightDir);
     
     LightColor result;
     result.Diffuse =  diffuseAlbedo * lightStrength;
-    result.Specular = specular * fresnel * lightStrength;
+    result.Specular = specular * fresnel * msEnergyCompensation;
     
     return result;
 }
@@ -264,6 +300,7 @@ LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3
     float3 lightStrength = L.Strength * ndotl;
 
     return BRDF(normal, lightVec, lightStrength, mat, toCameraW);
+    //return BlinnPhong(lightStrength, lightVec, normal, toCameraW, mat);
 }
 
 LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW)
@@ -278,7 +315,7 @@ LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 norma
     lightVec /= distance;
     
     // Lambert를 half Lambert로 변경
-    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 2));
+    float ndotl = saturate(dot(lightVec, normal) * 0.5f + 0.5f);
     float3 lightStrength = L.Strength * ndotl;
 
     // 거리에 따라 빛을 감쇠한다.
@@ -300,7 +337,7 @@ LightColor ComputeSpotLight(LightInfo L, Material mat, float3 pos, float3 normal
     lightVec /= distance;
     
     // 람베르트 코사인 법칙에 따라 빛의 세기를 줄인다.
-    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
+    float ndotl = saturate(dot(lightVec, normal) * 0.5f + 0.5f);
     float3 lightStrength = L.Strength * ndotl;
 
     // 거리에 따라 빛을 감쇠한다.
@@ -318,7 +355,7 @@ LightColor ComputeLighting(Material mat, float3 pos, float3 normal, float3 toCam
 {
     LightColor result = (LightColor)0.f;
     
-    for (uint i = 0; i < gPassCB.LightCount; ++i)
+    for (uint i = 0; i < 1; ++i)
     {
         if (gPassCB.Lights[i].LightType == 0)
         {

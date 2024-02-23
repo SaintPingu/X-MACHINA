@@ -123,18 +123,13 @@ namespace D3DUtil {
 			out.push_back(view);
 		}
 
-		if (bufferViews.NormalBuffer) {
-			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.NormalBuffer);
-			out.push_back(view);
-		}
-
 		if (bufferViews.UV0Buffer) {
 			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV0Buffer);
 			out.push_back(view);
 		}
 
-		if (bufferViews.UV1Buffer) {
-			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV1Buffer);
+		if (bufferViews.NormalBuffer) {
+			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.NormalBuffer);
 			out.push_back(view);
 		}
 

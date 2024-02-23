@@ -42,11 +42,16 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 		break;
 	case ShaderType::Deferred:
 		mPipelineStateDesc.NumRenderTargets = GBufferCount;
+		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R8G8_UNORM;
+		mPipelineStateDesc.RTVFormats[4] = DXGI_FORMAT_R32_FLOAT;
+		break;
+	case ShaderType::Lighting:
+		mPipelineStateDesc.NumRenderTargets = LightingCount;
 		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		mPipelineStateDesc.RTVFormats[4] = DXGI_FORMAT_R32_FLOAT;
 		break;
 	case ShaderType::OffScreen:
 		mPipelineStateDesc.NumRenderTargets = 1;
@@ -180,8 +185,8 @@ D3D12_INPUT_LAYOUT_DESC DeferredShader::CreateInputLayout()
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[2] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[1] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -248,13 +253,12 @@ D3D12_SHADER_BYTECODE ObjectInstShader::CreateVertexShader()
 #pragma region TerrainShader
 D3D12_INPUT_LAYOUT_DESC TerrainShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 4;
+	UINT nInputElementDescs = 3;
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[2] = { "UVA", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[3] = { "UVB", 0, DXGI_FORMAT_R32G32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[1] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -337,16 +341,64 @@ D3D12_DEPTH_STENCIL_DESC WaterShader::CreateDepthStencilState()
 	return depthStencilDesc;
 }
 
-
 D3D12_SHADER_BYTECODE WaterShader::CreateVertexShader()
 {
 	return D3DUtil::CompileShaderFile(L"VShader_Water.hlsl", "VSWater", "vs_5_1", mVSBlob);
 }
 
-
 D3D12_SHADER_BYTECODE WaterShader::CreatePixelShader()
 {
 	return D3DUtil::CompileShaderFile(L"PShader_Water.hlsl", "PSWater", "ps_5_1", mPSBlob);
+}
+#pragma endregion
+
+// [ LightingShader ] //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma region LightingShader
+D3D12_INPUT_LAYOUT_DESC LightingShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[1] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	inputLayoutDesc.pInputElementDescs = inputElementDescs;
+	inputLayoutDesc.NumElements = nInputElementDescs;
+
+	return inputLayoutDesc;
+}
+D3D12_DEPTH_STENCIL_DESC LightingShader::CreateDepthStencilState()
+{
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	depthStencilDesc.DepthEnable = FALSE;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	depthStencilDesc.StencilEnable = FALSE;
+	depthStencilDesc.StencilReadMask = 0x00;
+	depthStencilDesc.StencilWriteMask = 0x00;
+	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+
+	return depthStencilDesc;
+}
+D3D12_SHADER_BYTECODE LightingShader::CreateVertexShader()
+{
+	return D3DUtil::CompileShaderFile(L"VShader_DirLighting.hlsl", "VSDirLighting", "vs_5_1", mVSBlob);
+}
+
+D3D12_SHADER_BYTECODE LightingShader::CreatePixelShader()
+{
+	return D3DUtil::CompileShaderFile(L"PShader_DirLighting.hlsl", "PSDirLighting", "ps_5_1", mPSBlob);
 }
 #pragma endregion
 
@@ -361,8 +413,8 @@ D3D12_INPUT_LAYOUT_DESC ForwardShader::CreateInputLayout()
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[2] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[1] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 

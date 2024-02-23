@@ -3,13 +3,11 @@
 
 #include "Scene.h"
 #include "FileIO.h"
+#include "Mesh.h"
 
 namespace {
 	constexpr int gkSunLightIdx = 0;
 }
-
-
-
 
 Light::Light()
 	:
@@ -17,6 +15,9 @@ Light::Light()
 	mLoadLights(std::make_shared<SceneLoadLight>())
 {
 	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
+
+	mVolumeMesh = std::make_shared<ModelObjectMesh>();
+	mVolumeMesh->CreateRectangleMesh();
 }
 
 Light::~Light()
@@ -62,7 +63,13 @@ void Light::BuildLights()
 		light.Position = loadLight.Position;
 		light.SpotPower = 64.f;
 		light.Type = loadLight.Type;
+
 	}
+}
+
+void Light::Render()
+{
+	mVolumeMesh->Render();
 }
 
 void Light::SetSunlight()

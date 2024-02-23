@@ -258,24 +258,32 @@ enum class TextureMap : UINT8 {
 	DiffuseMap3,
 
 	NormalMap,
-	HeightMap,
-	ShadowMap,
-	RoughnessMap,
+	EmissiveMap,
+	MetallicMap,
+	OcclusionMap,
 
 	_count
 };
 enum { TextureMapCount = static_cast<UINT8>(TextureMap::_count) };
 
 enum class GBuffer : UINT8 {
-	Texture = 0,
-	UI,
+	Position = 0,
 	Normal,
+	Diffuse,
 	Depth,
 	Distance,
 
 	_count
 };
 enum { GBufferCount = static_cast<UINT8>(GBuffer::_count) };
+
+enum class Lighting : UINT8 {
+	Diffuse = 0,
+	Specular,
+
+	_count
+};
+enum { LightingCount = static_cast<UINT8>(Lighting::_count) };
 
 enum class OffScreen : UINT8 {
 	Texture = 0,
@@ -287,6 +295,7 @@ enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
 enum class GroupType : UINT8 {
 	SwapChain = 0,
 	GBuffer,
+	Lighting,
 	OffScreen,
 
 	_count
@@ -311,7 +320,6 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> VertexBuffer{};
 	ComPtr<ID3D12Resource> NormalBuffer{};
 	ComPtr<ID3D12Resource> UV0Buffer{};
-	ComPtr<ID3D12Resource> UV1Buffer{};
 	ComPtr<ID3D12Resource> TangentBuffer{};
 	ComPtr<ID3D12Resource> BiTangentBuffer{};
 	ComPtr<ID3D12Resource> BoneIndexBuffer{};

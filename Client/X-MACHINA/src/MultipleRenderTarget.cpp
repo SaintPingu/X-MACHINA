@@ -6,21 +6,6 @@
 #include "Scene.h"
 #include "Texture.h"
 
-rsptr<Texture> MultipleRenderTarget::GetTexture(UINT index) const
-{
-	return mRts[index].Target;
-}
-
-rsptr<Texture> MultipleRenderTarget::GetTexture(GBuffer index) const
-{
-	return mRts[static_cast<UINT8>(index)].Target;
-}
-
-rsptr<Texture> MultipleRenderTarget::GetTexture(OffScreen index) const
-{
-	return mRts[static_cast<UINT8>(index)].Target;
-}
-
 void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle)
 {
 	mGroupType = groupType;
@@ -60,14 +45,12 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		case GroupType::SwapChain:
 			break;
 		case GroupType::GBuffer:	
+		case GroupType::Lighting:
 			scene->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:
 			scene->CreateShaderResourceView(mRts[i].Target.get());
 			scene->CreateUnorderedAccessView(mRts[i].Target.get());
-			break;
-		default:
-			assert(1);
 			break;
 		}
 

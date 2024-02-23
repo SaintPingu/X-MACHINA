@@ -17,7 +17,7 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     float roughness      = matInfo.Roughness;
     int diffuseMapIndex  = matInfo.DiffuseMap0Index;
     int normalMapIndex   = matInfo.NormalMapIndex;
-    int roughMapIndex    = matInfo.RoughnessMapIndex;
+    int metallicMapIndex = matInfo.MetallicMapIndex;
     
     // diffuseMap을 사용할 경우 샘플링하여 계산
     if (diffuseMapIndex != -1)
@@ -42,9 +42,9 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
         bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
     }
     // roughness map을 사용할 경우 샘플링하여 roughness 값 계산
-    if (roughMapIndex != -1)
+    if (metallicMapIndex != -1)
     {
-        roughness *= gTextureMap[roughMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
+        metallic *= gTextureMap[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
     }
     
     // 해당 픽셀에서 카메라까지의 벡터

@@ -76,6 +76,7 @@ private:
 	sptr<Shader> mBulletShader{};
 	sptr<Shader> mSkinnedMeshShader{};
 	sptr<Shader> mFinalShader{};
+	sptr<Shader> mLightingShader{};
 	sptr<Shader> mOffScreenShader{};
 
 	/* Object */

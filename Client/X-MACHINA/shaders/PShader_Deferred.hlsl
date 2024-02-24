@@ -13,7 +13,8 @@ struct PSOutput_MRT {
     float4 Position           : SV_TARGET0;
     float4 Normal             : SV_TARGET1;
     float4 Diffuse            : SV_TARGET2;
-    float2 MetallicSmoothness : SV_TARGET3;
+    float4 Emissive           : SV_TARGET3;
+    float2 MetallicSmoothness : SV_TARGET4;
 };
 
 PSOutput_MRT PSDeferred(VSOutput_Standard pin)
@@ -26,6 +27,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     int diffuseMapIndex  = matInfo.DiffuseMap0Index;
     int normalMapIndex   = matInfo.NormalMapIndex;
     int metallicMapIndex = matInfo.MetallicMapIndex;
+    int emissiveMapIndex = matInfo.EmissiveMapIndex;
     
     // sampling diffuseMap
     if (diffuseMapIndex != -1)
@@ -45,6 +47,13 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
     }
     
+    // sampling emissiveMap
+    float4 emissiveMapSample = (float4)0;
+    if (metallicMapIndex != -1)
+    {
+        emissiveMapSample = gTextureMap[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+    }
+    
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;
     if (metallicMapIndex != -1)
@@ -53,12 +62,6 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         metallic = metallicMapSample.r;
         roughness = 1 - metallicMapSample.a;
     }
-    
-    // roughness map을 사용할 경우 샘플링하여 roughness 값 계산
-    //if (roughMapIndex != -1)
-    //{
-    //    roughness *= gTextureMap[roughMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
-    //}
     
     // 해당 픽셀에서 카메라까지의 벡터
     //float3 toCameraW = gPassCB.CameraPos - pin.PosW;
@@ -84,6 +87,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(bumpedNormalW, 0.f);
     pout.Diffuse = diffuseAlbedo;
+    pout.Emissive = emissiveMapSample;
     pout.MetallicSmoothness = float2(metallic, roughness);
     //output.Distance = length(toCameraW);
     

@@ -48,6 +48,7 @@ void LUTCS(int3 dispatchThreadID : SV_DispatchThreadID)
     // Åæ¸ÅÇÎ
     if (gFilterOption & Filter_Tone)
     {
+        color = GammaDecoding(color);
         float a = 2.51f;
         float b = 0.03f;
         float c = 2.43f;

@@ -9,7 +9,7 @@ struct PassConstants;
 #pragma region Struct
 struct RenderTarget {
 	sptr<Texture>				Target{};
-	std::array<float, 4>		ClearColor{ 1.f, 1.f, 1.f, 1.f };
+	std::array<float, 4>		ClearColor{ 0.f, 0.f, 0.f, 0.f };
 	D3D12_CPU_DESCRIPTOR_HANDLE	RtvHandle{};
 };
 #pragma endregion

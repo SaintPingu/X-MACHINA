@@ -74,7 +74,7 @@ public:
 		DXGI_FORMAT				dxgiFormat,
 		D3D12_RESOURCE_FLAGS	resourcecFlags,
 		D3D12_RESOURCE_STATES	resourceStates,
-		Vec4					clearColor = Vec4{ 1.f, 1.f, 1.f, 1.f });
+		Vec4					clearColor = Vec4{ 0.f, 0.f, 0.f, 0.f });
 
 	// 이미 생성된 리소스(backBuffers, depthStencilBuffers)로부터 텍스처를 생성하는 함수
 	ComPtr<ID3D12Resource> CreateTextureFromResource(

@@ -11,7 +11,7 @@ float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
     
     if (gPassCB.FilterOption & Filter_Tone)
     {
-        diffuseAlbedo = GammaDecoding(diffuseAlbedo);
+        diffuseAlbedo = (diffuseAlbedo);
     }
     
     //return lerp(color, gPassCB.FogColor, 0.9f);

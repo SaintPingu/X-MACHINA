@@ -88,13 +88,14 @@ struct PassInfo {
     int         RT1_NormalIndex;
     
     int         RT2_DiffuseIndex;
-    int         RT3_MetallicSmoothnessIndex;
-    int         RT4_DistanceIndex;
+    int         RT3_EmissiveIndex;
+    int         RT4_MetallicSmoothnessIndex;
     int         FilterOption;
     
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
-    float2      Padding2;
+    int         RT2L_AmbientIndex;
+    float       Padding2;
 };
 
 struct PostPassInfo {

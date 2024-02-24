@@ -8,7 +8,7 @@ struct VSOutput_Inst {
 
 struct PSOutput_MRT {
     float4 Texture : SV_TARGET0;
-    float  Distance : SV_TARGET4;
+    //float  Distance : SV_TARGET4;
 };
 
 PSOutput_MRT PSInstancing(VSOutput_Inst input)
@@ -17,7 +17,7 @@ PSOutput_MRT PSInstancing(VSOutput_Inst input)
     
     PSOutput_MRT output;
     output.Texture = mat.Diffuse;
-    output.Distance = input.PosW;
+    //output.Distance = input.PosW;
     
     return output;
 }

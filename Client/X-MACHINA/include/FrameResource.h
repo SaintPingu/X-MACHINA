@@ -40,13 +40,14 @@ struct PassConstants {
     int         RT1G_NormalIndex     = -1;
                    
     int         RT2G_DiffuseIndex    = -1;
-    int         RT3G_DepthIndex      = -1;
+    int         RT3G_EmissiveIndex   = -1;
     int         RT4G_DistanceIndex   = -1;
     int         FilterOption{};
 
     int         RT0L_DiffuseIndex   = -1;
     int         RT1L_SpecularIndex  = -1;
-    Vec2        Padding2{};
+    int         RT2L_AmbientIndex  = -1;
+    int         Padding2{};
 };
 
 struct PostPassConstants {

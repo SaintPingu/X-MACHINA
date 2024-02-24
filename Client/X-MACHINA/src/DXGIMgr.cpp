@@ -20,9 +20,9 @@ DXGIMgr::DXGIMgr()
 	mClientHeight(gkFrameBufferHeight)
 {
 	DWORD filterOptione = 0;
-	filterOptione |= FilterOption::None;
+	//filterOptione |= FilterOption::None;
 	//filterOptione |= FilterOption::LUT;
-	//filterOptione |= FilterOption::Tone;
+	filterOptione |= FilterOption::Tone;
 
 	mFilterOption = filterOptione;
 }
@@ -123,7 +123,7 @@ void DXGIMgr::Render()
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
-	scene->RenderUI();
+	//scene->RenderUI();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 
@@ -388,11 +388,11 @@ void DXGIMgr::CreateMRTs()
 
 		rts[3].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[3].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[4].Target = std::make_shared<Texture>(D3DResource::Texture2D);
 		rts[4].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDsvHandle);
@@ -411,6 +411,10 @@ void DXGIMgr::CreateMRTs()
 		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 		
+		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
+		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
 		mMRTs[static_cast<UINT8>(GroupType::Lighting)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::Lighting)]->Create(GroupType::Lighting, std::move(rts), mDsvHandle);
 	}

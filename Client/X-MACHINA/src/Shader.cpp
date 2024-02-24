@@ -45,13 +45,14 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R8G8_UNORM;
-		mPipelineStateDesc.RTVFormats[4] = DXGI_FORMAT_R32_FLOAT;
+		mPipelineStateDesc.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mPipelineStateDesc.RTVFormats[4] = DXGI_FORMAT_R8G8_UNORM;
 		break;
 	case ShaderType::Lighting:
 		mPipelineStateDesc.NumRenderTargets = LightingCount;
 		mPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		mPipelineStateDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		break;
 	case ShaderType::OffScreen:
 		mPipelineStateDesc.NumRenderTargets = 1;

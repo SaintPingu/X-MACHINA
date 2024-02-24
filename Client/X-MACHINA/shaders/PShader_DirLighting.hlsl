@@ -8,6 +8,7 @@ struct VSOutput_Lighting {
 struct PSOutput_Lighting {
     float4 Diffuse  : SV_TARGET0;
     float4 Specular : SV_TARGET1;
+    float4 Ambient  : SV_TARGET2;
 };
 
 PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
@@ -23,7 +24,7 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     
     float3 normalW = gTextureMap[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
     float4 diffuseAlbedo = gTextureMap[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
-    float2 metallicSmoothness = gTextureMap[gPassCB.RT3_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
+    float2 metallicSmoothness = gTextureMap[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
     
     float3 toCameraW = gPassCB.CameraPos - posW;
     
@@ -31,8 +32,9 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     Material mat = { diffuseAlbedo, metallicSmoothness.x, metallicSmoothness.y };
     LightColor lightColor = ComputeLighting(mat, posW, normalW, toCameraW, shadowFactor);
     
-    pout.Diffuse = float4(lightColor.Diffuse, 0.f);
-    pout.Specular = float4(lightColor.Specular, 0.f);
+    pout.Diffuse = GammaEncoding(float4(lightColor.Diffuse, 0.f));
+    pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f));
+    pout.Ambient = GammaEncoding(diffuseAlbedo * gPassCB.GlobalAmbient);
     
     return pout;
 }

@@ -267,7 +267,7 @@ LightColor BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, floa
 LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material mat, float3 toCameraW)
 {
     // Metallic 값에 따른 diffuseAlbedo와 specularAlbedo를 계산한다.
-    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.f, mat.Metallic);
+    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.0f, mat.Metallic);
     float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
     
     float3 msEnergyCompensation = 1.0.xxx;
@@ -281,11 +281,11 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     // 슐릭 근사 방정식을 사용하여 프레넬 값(얼마나 반사하는지)을 구한다.
     float3 fresnel = PBR::Fresnel(specularAlbedo, h, lightDir);
     // GGXSpecular 모델을 사용하여 정반사 값을 구한다.
-    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.01f, 1.f), normal, h, view, lightDir);
+    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.001f, 1.f), normal, h, view, lightDir);
     
     LightColor result;
-    result.Diffuse =  diffuseAlbedo * lightStrength;
-    result.Specular = specular * fresnel * msEnergyCompensation;
+    result.Diffuse = diffuseAlbedo * lightStrength;
+    result.Specular = specular * fresnel * lightStrength * msEnergyCompensation;
     
     return result;
 }
@@ -296,9 +296,9 @@ LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3
     float3 lightVec = -L.Direction;
     
     // Lambert를 half Lambert로 변경
-    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 2));
+    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
     float3 lightStrength = L.Strength * ndotl;
-
+    
     return BRDF(normal, lightVec, lightStrength, mat, toCameraW);
     //return BlinnPhong(lightStrength, lightVec, normal, toCameraW, mat);
 }

@@ -12,9 +12,6 @@ float4 PSFinal(VSOutput_Tex pin) : SV_TARGET
     float4 emissive = gTextureMap[gPassCB.RT3_EmissiveIndex].Sample(gsamAnisotropicWrap, pin.UV);
     float4 ambient = gTextureMap[gPassCB.RT2L_AmbientIndex].Sample(gsamAnisotropicWrap, pin.UV);
 
-    //float distance = gTextureMap[gPassCB.RT4_DistanceIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
-    //return FogDistance(color, distance);
-
     float4 litColor = ambient + emissive + diffuseAlbedo + specularAlbedo;
     
     return litColor;

@@ -63,33 +63,24 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         roughness = 1 - metallicMapSample.a;
     }
     
-    // 해당 픽셀에서 카메라까지의 벡터
-    //float3 toCameraW = gPassCB.CameraPos - pin.PosW;
-    
-    // 전역 조명의 ambient 값을 계산
-    //float4 ambient = gPassCB.GlobalAmbient * diffuseAlbedo;
-    
-    //float3 shadowFactor = 1.f;
-    //Material mat = { diffuseAlbedo, metallic, roughness };
-    //LightColor lightColor = ComputeLighting(mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
-    
-    //float4 litColor = ambient +float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
-    
     //// specular reflection
 	//float3 r = reflect(-toCameraW, bumpedNormalW);
 	//float4 reflectionColor = gSkyBoxTexture.Sample(gSamplerState, r);
 	//float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
 	//litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
     
-    //litColor.a = diffuseAlbedo.a;
+    float rimWidth = 0.7f;
+    float gLimLightFactor = 0.8f;
+    float4 gLimLightColor = float4(1.f, 0.6f, 0.f, 0.f);
+    float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
+    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gLimLightFactor;
     
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(bumpedNormalW, 0.f);
     pout.Diffuse = diffuseAlbedo;
-    pout.Emissive = emissiveMapSample;
+    pout.Emissive = emissiveMapSample + gLimLightColor * rim;
     pout.MetallicSmoothness = float2(metallic, roughness);
-    //output.Distance = length(toCameraW);
     
     return pout;
 }

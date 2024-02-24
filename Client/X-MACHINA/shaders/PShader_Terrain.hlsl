@@ -11,6 +11,7 @@ struct PSOutput_MRT {
     float4 Position           : SV_TARGET0;
     float4 Normal             : SV_TARGET1;
     float4 Diffuse            : SV_TARGET2;
+    float4 Emissive           : SV_TARGET3;
     float2 MetallicSmoothness : SV_TARGET4;
 };
 
@@ -54,11 +55,12 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     
     diffuseAlbedo *= normalize(layer0 + layer1 + layer2);
     diffuseAlbedo = GammaDecoding(diffuseAlbedo);
-    
+
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(pin.NormalW, 0.f);
     pout.Diffuse = diffuseAlbedo;
+    pout.Emissive = float4(0.f, 0.f, 0.f, 0.f);
     pout.MetallicSmoothness = float2(metallic, roughness);
     
     return pout;

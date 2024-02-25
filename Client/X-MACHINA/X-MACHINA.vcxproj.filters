@@ -506,9 +506,6 @@
     <FxCompile Include="shaders\Common.hlsl">
       <Filter>소스 파일\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\Light.hlsl">
-      <Filter>소스 파일\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\CShader_Blur.hlsl">
       <Filter>소스 파일\Shaders\CS</Filter>
     </FxCompile>
@@ -555,6 +552,9 @@
       <Filter>소스 파일\Shaders\Lighting</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_DirLighting.hlsl">
+      <Filter>소스 파일\Shaders\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Light.hlsl">
       <Filter>소스 파일\Shaders\Lighting</Filter>
     </FxCompile>
   </ItemGroup>

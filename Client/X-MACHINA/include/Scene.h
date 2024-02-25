@@ -14,28 +14,20 @@
 #pragma region ClassForwardDecl
 class Model;
 class MasterModel;
-
 class Shader;
 class InstShader;
-
 class Camera;
 class GameObject;
 class GridObject;
 class Terrain;
 class Light;
-class Texture;
 class SkyBox;
-class GraphicsRootSignature;
-class ComputeRootSignature;
-class DescriptorHeap;
 class ObjectPool;
-
+class Texture;
 class AnimationClip;
 class AnimatorController;
 class TestCube;
 #pragma endregion
-
-
 
 
 #pragma region Class
@@ -49,10 +41,6 @@ public:
 	};
 
 private:
-	/* DirectX */
-	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
-	sptr<ComputeRootSignature>  mComputeRootSignature{};
-
 	/* Model */
 	std::unordered_map<std::string, sptr<const MasterModel>> mModels{};	// model folder에서 로드한 모델 객체 모음
 
@@ -110,9 +98,6 @@ private:
 	int					mGridhWidth{};			// length of x for one grid
 	int					mGridCols{};			// number of columns in the grid
 
-	/* Descriptor */
-	sptr<DescriptorHeap> mDescriptorHeap{};
-
 	/* Others */
 	bool mIsRenderBounds = false;
 
@@ -142,16 +127,8 @@ public:
 	// [name]에 해당하는 Texture 모델을 반환한다.
 	rsptr<Texture> GetTexture(const std::string& name) const;
 
-	rsptr<DescriptorHeap> GetDescHeap() const;
 	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
 	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;
-
-	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
-	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
-
-	// [param]에 해당하는 root parameter index를 반환한다.
-	UINT GetGraphicsRootParamIndex(RootParam param) const;
-	UINT GetComputeRootParamIndex(RootParam param) const;
 #pragma endregion
 
 
@@ -160,30 +137,7 @@ public:
 public:
 	void ReleaseUploadBuffers();
 
-	// [data]를 32BitConstants에 Set한다.
-	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
-
-	// gpuAddr에 있는 CBV를 Set한다.
-	void SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
-
-	// gpuAddr에 있는 SRV를 Set한다.
-	void SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
-
-	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
-	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
-	// texture의 SRV 리소스를 생성한다.
-	void CreateShaderResourceView(Texture* texture);
-	// texture의 UAV 리소스를 생성한다.
-	void CreateUnorderedAccessView(Texture* texture);
-
 private:
-	void CreateGraphicsRootSignature();
-	void CreateComputeRootSignature();
-	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount);
-
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
 	void UpdateMaterialBuffer();

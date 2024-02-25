@@ -2,8 +2,6 @@
 #include "Transform.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
-#include "Scene.h"
-
 
 #pragma region Getter
 Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
@@ -371,7 +369,7 @@ void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 	
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void Transform::NormalizeAxis()
@@ -397,5 +395,5 @@ void Transform::MergeTransform(std::vector<const Transform*>& out, const Transfo
 
 void Transform::UpdateShaderVars(const Matrix& matrix)
 {
-	scene->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
+	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
 }

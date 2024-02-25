@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "DescriptorHeap.h"
 
 #include "Scene.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "RootSignature.h"
 #include "MultipleRenderTarget.h"
 #include "BlurFilter.h"
 #include "LUTFilter.h"
@@ -17,7 +19,8 @@
 DXGIMgr::DXGIMgr()
 	:
 	mClientWidth(gkFrameBufferWidth),
-	mClientHeight(gkFrameBufferHeight)
+	mClientHeight(gkFrameBufferHeight),
+	mDescriptorHeap(std::make_shared<DescriptorHeap>())
 {
 	DWORD filterOptione = 0;
 	//filterOptione |= FilterOption::None;
@@ -27,6 +30,64 @@ DXGIMgr::DXGIMgr()
 	mFilterOption = filterOptione;
 }
 
+UINT DXGIMgr::GetGraphicsRootParamIndex(RootParam param) const
+{
+	return mGraphicsRootSignature->GetRootParamIndex(param);
+}
+
+UINT DXGIMgr::GetComputeRootParamIndex(RootParam param) const
+{
+	return mComputeRootSignature->GetRootParamIndex(param);
+}
+
+RComPtr<ID3D12RootSignature> DXGIMgr::GetGraphicsRootSignature() const
+{
+	assert(mGraphicsRootSignature);
+
+	return mGraphicsRootSignature->Get();
+}
+
+RComPtr<ID3D12RootSignature> DXGIMgr::GetComputeRootSignature() const
+{
+	assert(mComputeRootSignature);
+
+	return mComputeRootSignature->Get();
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 16U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 16U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 4U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 1U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
+{
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
+}
+
+void DXGIMgr::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
+{
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
+}
+
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 {
 	mInstance = hInstance;
@@ -34,23 +95,59 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 
 	CreateDirect3DDevice();
 	CreateCmdQueueAndList();
-	CreateRtvAndDsvDescriptorHeaps();
-
 	CreateSwapChain();
-	CreateDSV();
-
 	CreateFrameResources();
-
-	BuildScene();
-
+	CreateGraphicsRootSignature();
+	CreateComputeRootSignature();
+	CreateCbvSrvDescriptorHeaps(0, 1024, 256);
+	CreateRtvAndDsvDescriptorHeaps();
+	CreateDSV();
 	CreateMRTs();
 	CreateFilter();
+
+	BuildScene();
 }
 
 void DXGIMgr::Release()
 {
+	mGraphicsRootSignature = nullptr;
+	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
 	Destroy();
+}
+
+void DXGIMgr::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = srvFormat;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.PlaneSlice = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
+
+	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
+}
+
+void DXGIMgr::CreateShaderResourceView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
+
+	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
+
+	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
+}
+
+void DXGIMgr::CreateUnorderedAccessView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = texture->GetUnorderedAccessViewDesc();
+
+	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
+
+	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
 }
 
 void DXGIMgr::Terminate()
@@ -134,7 +231,6 @@ void DXGIMgr::Render()
 	MoveToNextFrame();
 }
 
-
 void DXGIMgr::ToggleFullScreen()
 {
 	ChangeSwapChainState();
@@ -144,10 +240,12 @@ void DXGIMgr::ClearDepth()
 {
 	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 }
+
 void DXGIMgr::ClearStencil()
 {
 	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 }
+
 void DXGIMgr::ClearDepthStencil()
 {
 	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
@@ -156,16 +254,23 @@ void DXGIMgr::ClearDepthStencil()
 void DXGIMgr::RenderBegin()
 {
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
-
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
+
+	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
+	mDescriptorHeap->Set();
+
+	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
+	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 }
+
 void DXGIMgr::RenderEnd()
 {
 	mCmdList->Close();
 	ID3D12CommandList* cmdLists[] = { mCmdList.Get() };
 	mCmdQueue->ExecuteCommandLists(1, cmdLists);
 }
-
 
 void DXGIMgr::CreateFactory()
 {
@@ -227,13 +332,11 @@ void DXGIMgr::CreateFence()
 	mFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
-
 void DXGIMgr::SetIncrementSize()
 {
 	mCbvSrvUavDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	mRtvDescriptorIncSize		= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 }
-
 
 void DXGIMgr::CreateDirect3DDevice()
 {
@@ -261,7 +364,6 @@ void DXGIMgr::CreateCmdQueueAndList()
 	AssertHResult(hResult);
 }
 
-
 void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
 {
 	// Create DSV
@@ -276,7 +378,6 @@ void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
 	HRESULT hResult = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
 	AssertHResult(hResult);
 }
-
 
 void DXGIMgr::CreateSwapChain()
 {
@@ -316,6 +417,54 @@ void DXGIMgr::CreateSwapChain()
 
 }
 
+void DXGIMgr::CreateGraphicsRootSignature()
+{
+	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
+
+	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
+	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
+	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
+	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
+	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
+
+
+	mGraphicsRootSignature->Create();
+}
+
+void DXGIMgr::CreateComputeRootSignature()
+{
+	mComputeRootSignature = std::make_shared<ComputeRootSignature>();
+
+	// 가중치 루트 상수 (b0)
+	mComputeRootSignature->Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
+
+	// 읽기 전용 SRV 서술자 테이블 (t0)
+	mComputeRootSignature->PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 읽기 전용 SRV 서술자 테이블 (t1, t2)
+	mComputeRootSignature->PushTable(RootParam::LUT0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	mComputeRootSignature->PushTable(RootParam::LUT1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 쓰기 전용 UAV 서술자 테이블 (u0)
+	mComputeRootSignature->PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	mComputeRootSignature->Create();
+}
+
+void DXGIMgr::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount)
+{
+	mDescriptorHeap->Create(cbvCount, srvCount, uavCount);
+}
+
 void DXGIMgr::CreateDSV()
 {
 	D3D12_RESOURCE_DESC resourceDesc{};
@@ -349,7 +498,6 @@ void DXGIMgr::CreateDSV()
 	mDsvHandle = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 	mDevice->CreateDepthStencilView(mDepthStencilBuff.Get(), nullptr, mDsvHandle);
 }
-
 
 void DXGIMgr::CreateMRTs()
 {
@@ -434,7 +582,7 @@ void DXGIMgr::CreateMRTs()
 #pragma endregion
 
 	// create SRV for DepthStencil buffer
-	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+	CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
 void DXGIMgr::CreateFrameResources()

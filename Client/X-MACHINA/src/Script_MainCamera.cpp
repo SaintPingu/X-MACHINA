@@ -97,7 +97,7 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 		//SetCameraOffset(Vec3(0.f, 9.f, -3.f));	// top2
 		//SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));	// perspective
 		SetCameraOffset(Vec3(0.f, 2.2f, 2.f));	// front
-		mainCamera->SetProjMtx(0.01f, maxPlaneDistance, gkAspectRatio, 80.f);
+		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
 		break;
 	default:
 		assert(0);

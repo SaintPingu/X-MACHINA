@@ -11,9 +11,12 @@
 class PostProcessingShader;
 class FrameResourceMgr;
 class MultipleRenderTarget;
+class Texture;
 class BlurFilter;
 class LUTFilter;
-
+class DescriptorHeap;
+class GraphicsRootSignature;
+class ComputeRootSignature;
 struct PassConstants;
 #pragma endregion
 
@@ -33,7 +36,6 @@ enum class FilterOption : DWORD {
 };
 #pragma endregion
 
-
 #pragma region Class
 // device, swapchain 등 DXGI 전반 및 렌더링을 관리한다.
 class DXGIMgr : public Singleton<DXGIMgr> {
@@ -42,54 +44,60 @@ class DXGIMgr : public Singleton<DXGIMgr> {
 private:
 	// window
 	HINSTANCE	mInstance{};
-	HWND		mWnd{};			// 메인 윈도우 핸들
+	HWND		mWnd{};	
+	int			mClientWidth{};
+	int			mClientHeight{};
 
-	// screen
-	int mClientWidth{};
-	int mClientHeight{};
+	// msaa
+	bool		mIsMsaa4xEnabled = false;
+	UINT		mMsaa4xQualityLevels{};
 
 	// device
-	ComPtr<IDXGIFactory4>	mFactory{};
-	ComPtr<IDXGISwapChain3> mSwapChain{};
-	ComPtr<ID3D12Device>	mDevice{};
-
-	bool mIsMsaa4xEnabled{ false };
-	UINT mMsaa4xQualityLevels{};
-
-	// swap chain
-	static constexpr UINT mSwapChainBuffCnt = 2;
-	UINT mCurrBackBufferIdx{}; // current swap chain buffer index
-
-	// view (descriptor)
-	UINT mCbvSrvUavDescriptorIncSize{};
-	UINT mRtvDescriptorIncSize{};
-	ComPtr<ID3D12DescriptorHeap>	mDsvHeap{};
-	ComPtr<ID3D12Resource>			mDepthStencilBuff{};
-	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};
+	ComPtr<IDXGIFactory4>				mFactory{};
+	ComPtr<IDXGISwapChain3>				mSwapChain{};
+	ComPtr<ID3D12Device>				mDevice{};
 
 	// command
 	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
 	ComPtr<ID3D12CommandQueue>			mCmdQueue{};
 	ComPtr<ID3D12GraphicsCommandList>	mCmdList{};
 
-	// fence
-	// fence array -> single object
-	ComPtr<ID3D12Fence>						mFence{};
-	UINT32									mFenceValues{};
-	HANDLE									mFenceEvent{};
+	// swap chain
+	static constexpr UINT				mSwapChainBuffCnt = 2;
+	UINT								mCurrBackBufferIdx{};
 
 	// frameResource
-	uptr<FrameResourceMgr>		mFrameResourceMgr;
+	uptr<FrameResourceMgr>				mFrameResourceMgr;
 
-	// MRT
-	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount>	mMRTs{};
+	// fence
+	ComPtr<ID3D12Fence>					mFence{};
+	UINT32								mFenceValues{};
+	HANDLE								mFenceEvent{};
+
+	// root signature
+	sptr<GraphicsRootSignature>			mGraphicsRootSignature{};
+	sptr<ComputeRootSignature>			mComputeRootSignature{};
+
+	// descriptor heap
+	sptr<DescriptorHeap>				mDescriptorHeap{};
+
+	// descriptor
+	UINT								mCbvSrvUavDescriptorIncSize{};
+	UINT								mRtvDescriptorIncSize{};
+	ComPtr<ID3D12DescriptorHeap>		mDsvHeap{};
+	D3D12_CPU_DESCRIPTOR_HANDLE			mDsvHandle{};
+	ComPtr<ID3D12Resource>				mDepthStencilBuff{};
 
 	// filter
-	DWORD				mFilterOption{};
-	uptr<BlurFilter>	mBlurFilter;
-	uptr<LUTFilter>		mLUTFilter;
+	DWORD								mFilterOption{};
+	uptr<BlurFilter>					mBlurFilter;
+	uptr<LUTFilter>						mLUTFilter;
 
-	DrawOption		mDrawOption{};
+	// draw option
+	DrawOption							mDrawOption{};
+
+	// MRT
+	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount> mMRTs{};
 
 protected:
 #pragma region C/Dtor
@@ -107,17 +115,45 @@ public:
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
 	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
 	const DWORD GetFilterOption() const						{ return mFilterOption; }
+	rsptr<DescriptorHeap> GetDescHeap() const				{ return mDescriptorHeap; }
+
+	// [param]에 해당하는 root parameter index를 반환한다.
+	UINT GetGraphicsRootParamIndex(RootParam param) const;
+	UINT GetComputeRootParamIndex(RootParam param) const;
+	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
+	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
+
 #pragma endregion
 
 #pragma region Setter
-	void SetDrawOption(DrawOption option) { mDrawOption = option; }
+	void SetFilterOption(DWORD option)		{ mFilterOption = option; }
+	void SetDrawOption(DrawOption option)	{ mDrawOption = option; }
+
+	// [data]를 32BitConstants에 Set한다.
+	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
+	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
+	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
+	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
+
+	// gpuAddr에 있는 CBV를 Set한다.
+	void SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
+
+	// gpuAddr에 있는 SRV를 Set한다.
+	void SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
 #pragma endregion
 
 public:
 	void Init(HINSTANCE hInstance, HWND hMainWnd);
 	void Release();
 
-	// 강제종료
+	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
+	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
+	// texture의 SRV 리소스를 생성한다.
+	void CreateShaderResourceView(Texture* texture);
+	// texture의 UAV 리소스를 생성한다.
+	void CreateUnorderedAccessView(Texture* texture);
+
+	// exit
 	void Terminate();
 
 	// update dxgi
@@ -129,20 +165,19 @@ public:
 	// full screen on/off
 	void ToggleFullScreen();
 
+	// clear
 	void ClearDepth();
 	void ClearStencil();
 	void ClearDepthStencil();
 
 private:
 	// reset command 
-	// rename StartCommand -> RenderBegin
 	void RenderBegin();
 
 	// close command
-	// rename StopCommand -> RenderEnd
 	void RenderEnd();
 
-	// for CreateDirect3DDevice
+	// device
 	void CreateFactory();
 	void CreateDevice();
 	void SetMSAA();
@@ -154,9 +189,11 @@ private:
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateSwapChain();
+	void CreateGraphicsRootSignature();
+	void CreateComputeRootSignature();
+	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount);
 	void CreateDSV();
 	void CreateMRTs();
-
 	void CreateFrameResources();
 
 	// full screen on/off (resize swap chain buffer)
@@ -168,6 +205,5 @@ private:
 	void MoveToNextFrame();
 
 	void BuildScene();
-
 };
 #pragma endregion

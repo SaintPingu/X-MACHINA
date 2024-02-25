@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "SkyBox.h"
+#include "DXGIMgr.h"
 
 #include "Camera.h"
-#include "Scene.h"
 
 #include "Texture.h"
 #include "Mesh.h"
@@ -20,7 +20,7 @@ SkyBox::SkyBox() : Transform(this)
 	mShader = std::make_unique<SkyBoxShader>();
 	mShader->Create(ShaderType::OffScreen);
 
-	scene->CreateShaderResourceView(mTexture.get());
+	dxgi->CreateShaderResourceView(mTexture.get());
 }
 
 void SkyBox::SetGraphicsRootDescriptorTable()

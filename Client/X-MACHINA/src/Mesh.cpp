@@ -6,7 +6,6 @@
 #include "Object.h"
 #include "Model.h"
 #include "Shader.h"
-#include "Scene.h"
 #include "ObjectPool.h"
 
 
@@ -286,62 +285,6 @@ void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, boo
 
 	CreateVertexBufferViews();
 	CreateIndexBufferView(indices);
-}
-
-void ModelObjectMesh::CreateSkyBoxMesh(float width, float height, float depth)
-{
-	const float x = width * 0.5f, y = height * 0.5f, z = depth * 0.5f;
-
-	mVertexCnt = 36;
-
-	std::vector<Vec3> vertices;
-
-	vertices.resize(mVertexCnt);
-	vertices[0] = Vec3(-x, +x, +x);
-	vertices[1] = Vec3(+x, +x, +x);
-	vertices[2] = Vec3(-x, -x, +x);
-	vertices[3] = Vec3(-x, -x, +x);
-	vertices[4] = Vec3(+x, +x, +x);
-	vertices[5] = Vec3(+x, -x, +x);
-	// Back Quad										
-	vertices[6] = Vec3(+x, +x, -x);
-	vertices[7] = Vec3(-x, +x, -x);
-	vertices[8] = Vec3(+x, -x, -x);
-	vertices[9] = Vec3(+x, -x, -x);
-	vertices[10] = Vec3(-x, +x, -x);
-	vertices[11] = Vec3(-x, -x, -x);
-	// Left Quad										
-	vertices[12] = Vec3(-x, +x, -x);
-	vertices[13] = Vec3(-x, +x, +x);
-	vertices[14] = Vec3(-x, -x, -x);
-	vertices[15] = Vec3(-x, -x, -x);
-	vertices[16] = Vec3(-x, +x, +x);
-	vertices[17] = Vec3(-x, -x, +x);
-	// Right Quad										
-	vertices[18] = Vec3(+x, +x, +x);
-	vertices[19] = Vec3(+x, +x, -x);
-	vertices[20] = Vec3(+x, -x, +x);
-	vertices[21] = Vec3(+x, -x, +x);
-	vertices[22] = Vec3(+x, +x, -x);
-	vertices[23] = Vec3(+x, -x, -x);
-	// Top Quad											
-	vertices[24] = Vec3(-x, +x, -x);
-	vertices[25] = Vec3(+x, +x, -x);
-	vertices[26] = Vec3(-x, +x, +x);
-	vertices[27] = Vec3(-x, +x, +x);
-	vertices[28] = Vec3(+x, +x, -x);
-	vertices[29] = Vec3(+x, +x, +x);
-	// Bottom Quad										
-	vertices[30] = Vec3(-x, -x, +x);
-	vertices[31] = Vec3(+x, -x, +x);
-	vertices[32] = Vec3(-x, -x, -x);
-	vertices[33] = Vec3(-x, -x, -x);
-	vertices[34] = Vec3(+x, -x, +x);
-	vertices[35] = Vec3(+x, -x, -x);
-
-	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
-
-	CreateVertexBufferViews();
 }
 
 void ModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
@@ -737,7 +680,7 @@ void SkinMesh::UpdateShaderVariables()
 	int index = -1;
 	frmResMgr->CopyData(index, skinnedConstatnts);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
 
 }
 #pragma endregion

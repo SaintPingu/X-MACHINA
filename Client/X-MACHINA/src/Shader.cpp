@@ -3,7 +3,6 @@
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 
-#include "Scene.h"
 #include "Texture.h"
 #include "MultipleRenderTarget.h"
 
@@ -20,7 +19,7 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 {
 	assert(!mIsClosed);
 
-	mPipelineStateDesc.pRootSignature        = scene->GetGraphicsRootSignature().Get();
+	mPipelineStateDesc.pRootSignature        = dxgi->GetGraphicsRootSignature().Get();
 	mPipelineStateDesc.VS                    = CreateVertexShader();
 	mPipelineStateDesc.PS                    = CreatePixelShader();
 	mPipelineStateDesc.RasterizerState       = CreateRasterizerState();
@@ -451,16 +450,10 @@ D3D12_SHADER_BYTECODE ForwardShader::CreatePixelShader()
 #pragma region WireShader
 D3D12_INPUT_LAYOUT_DESC WireShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 7;
+	UINT nInputElementDescs = 1;
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[1] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	inputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -804,7 +797,7 @@ void ComputeShader::Create(bool isClose)
 {
 	assert(!mIsClosed);
 	
-	mPipelineStateDesc.pRootSignature = scene->GetComputeRootSignature().Get();
+	mPipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
 	mPipelineStateDesc.CS = CreateComputeShader();
 	mPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 

@@ -3,7 +3,6 @@
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 
-#include "Scene.h"
 #include "Texture.h"
 
 void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle)
@@ -46,11 +45,11 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 			break;
 		case GroupType::GBuffer:	
 		case GroupType::Lighting:
-			scene->CreateShaderResourceView(mRts[i].Target.get());
+			dxgi->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:
-			scene->CreateShaderResourceView(mRts[i].Target.get());
-			scene->CreateUnorderedAccessView(mRts[i].Target.get());
+			dxgi->CreateShaderResourceView(mRts[i].Target.get());
+			dxgi->CreateUnorderedAccessView(mRts[i].Target.get());
 			break;
 		}
 

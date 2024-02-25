@@ -2,18 +2,16 @@
 #include "Texture.h"
 #include "DXGIMgr.h"
 
-#include "Scene.h"
-
 
 Texture::Texture(D3DResource resourceType)
 	:
 	mResourceType(resourceType),
-	mRootParamIndex(scene->GetGraphicsRootParamIndex(RootParam::Texture))
+	mRootParamIndex(dxgi->GetGraphicsRootParamIndex(RootParam::Texture))
 {
 	switch (resourceType)
 	{
 	case D3DResource::TextureCube:
-		mRootParamIndex = scene->GetGraphicsRootParamIndex(RootParam::SkyBox); // Textrue2D와 다른 루트 파라미터를 사용해야 함
+		mRootParamIndex = dxgi->GetGraphicsRootParamIndex(RootParam::SkyBox); // Textrue2D와 다른 루트 파라미터를 사용해야 함
 		break;
 	default:
 		break;
@@ -93,7 +91,7 @@ void Texture::LoadTexture(const std::string& folder, const std::string& fileName
 	wfilePath.assign(filePath.begin(), filePath.end());
 
 	D3DUtil::CreateTextureResourceFromDDSFile(wfilePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	scene->CreateShaderResourceView(this);
+	dxgi->CreateShaderResourceView(this);
 
 	mTextureMask |= MaterialMap::Albedo;
 }

@@ -18,7 +18,6 @@
 #include "Collider.h"
 #include "SkyBox.h"
 #include "Texture.h"
-#include "RootSignature.h"
 #include "DescriptorHeap.h"
 #include "ObjectPool.h"
 
@@ -54,8 +53,7 @@ Scene::Scene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
 	mGridhWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
-	mLight(std::make_shared<Light>()),
-	mDescriptorHeap(std::make_unique<DescriptorHeap>())
+	mLight(std::make_shared<Light>())
 {
 
 }
@@ -68,6 +66,7 @@ void Scene::Release()
 	Destroy();
 }
 #pragma endregion
+
 
 
 
@@ -95,42 +94,10 @@ rsptr<Texture> Scene::GetTexture(const std::string& name) const
 	return mTextureMap.at(name);
 }
 
-rsptr<DescriptorHeap> Scene::GetDescHeap() const
-{
-	assert(mDescriptorHeap);
-
-	return mDescriptorHeap;
-}
-
 sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
 {
 	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
 }
-
-RComPtr<ID3D12RootSignature> Scene::GetGraphicsRootSignature() const
-{
-	assert(mGraphicsRootSignature);
-
-	return mGraphicsRootSignature->Get();
-}
-
-RComPtr<ID3D12RootSignature> Scene::GetComputeRootSignature() const
-{
-	assert(mComputeRootSignature);
-
-	return mComputeRootSignature->Get();
-}
-
-UINT Scene::GetGraphicsRootParamIndex(RootParam param) const
-{
-	return mGraphicsRootSignature->GetRootParamIndex(param);
-}
-
-UINT Scene::GetComputeRootParamIndex(RootParam param) const
-{
-	return mComputeRootSignature->GetRootParamIndex(param);
-}
-
 #pragma endregion
 
 
@@ -148,117 +115,6 @@ void Scene::ReleaseUploadBuffers()
 	MeshRenderer::ReleaseUploadBuffers();
 }
 
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 4U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 1U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
-{
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
-}
-
-void Scene::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
-{
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
-}
-
-void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = srvFormat;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.PlaneSlice = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
-
-	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
-}
-
-void Scene::CreateShaderResourceView(Texture* texture)
-{
-	ComPtr<ID3D12Resource> resource = texture->GetResource();
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
-
-	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
-
-	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
-}
-
-void Scene::CreateUnorderedAccessView(Texture* texture)
-{
-	ComPtr<ID3D12Resource> resource = texture->GetResource();
-	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = texture->GetUnorderedAccessViewDesc();
-
-	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
-
-	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
-}
-
-void Scene::CreateGraphicsRootSignature()
-{
-	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
-
-	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
-	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
-	mGraphicsRootSignature->Push(RootParam::Instancing,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-	mGraphicsRootSignature->Push(RootParam::Material,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	
-	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
-	mGraphicsRootSignature->PushTable(RootParam::SkyBox,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
-	
-
-	mGraphicsRootSignature->Create();
-}
-
-void Scene::CreateComputeRootSignature()
-{
-	mComputeRootSignature = std::make_shared<ComputeRootSignature>();
-
-	// 가중치 루트 상수 (b0)
-	mComputeRootSignature->Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
-
-	// 읽기 전용 SRV 서술자 테이블 (t0)
-	mComputeRootSignature->PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);	
-	
-	// 읽기 전용 SRV 서술자 테이블 (t1, t2)
-	mComputeRootSignature->PushTable(RootParam::LUT0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	mComputeRootSignature->PushTable(RootParam::LUT1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 쓰기 전용 UAV 서술자 테이블 (u0)
-	mComputeRootSignature->PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	mComputeRootSignature->Create();
-}
-
 void Scene::UpdateShaderVars()
 {
 	// TODO : AnimateMaterials(); 
@@ -272,21 +128,21 @@ void Scene::UpdateMainPassCB()
 	timeElapsed += DeltaTime();
 
 	PassConstants passConstants;
-	passConstants.MtxView	= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
-	passConstants.MtxProj	= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
-	passConstants.EyeW		= mainCamera->GetPosition();
-	passConstants.DeltaTime = timeElapsed;
-	passConstants.RT0G_PositionIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Position)->GetGpuDescriptorHandleIndex();
-	passConstants.RT1G_NormalIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
-	passConstants.RT2G_DiffuseIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Diffuse)->GetGpuDescriptorHandleIndex();
+	passConstants.MtxView				= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
+	passConstants.MtxProj				= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
+	passConstants.EyeW					= mainCamera->GetPosition();
+	passConstants.DeltaTime				= timeElapsed;
+	passConstants.RT0G_PositionIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Position)->GetGpuDescriptorHandleIndex();
+	passConstants.RT1G_NormalIndex		= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
+	passConstants.RT2G_DiffuseIndex		= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Diffuse)->GetGpuDescriptorHandleIndex();
 	passConstants.RT3G_EmissiveIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Emissive)->GetGpuDescriptorHandleIndex();
-	passConstants.RT4G_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
-	passConstants.RT0L_DiffuseIndex = dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Diffuse)->GetGpuDescriptorHandleIndex();
-	passConstants.RT1L_SpecularIndex = dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Specular)->GetGpuDescriptorHandleIndex();
-	passConstants.RT2L_AmbientIndex = dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Ambient)->GetGpuDescriptorHandleIndex();
-	passConstants.LightCount = mLight->GetLightCount();
-	passConstants.GlobalAmbient = Vec4(0.05f, 0.05f, 0.05f, 1.f);
-	passConstants.FilterOption = dxgi->GetFilterOption();
+	passConstants.RT4G_DistanceIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
+	passConstants.RT0L_DiffuseIndex		= dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Diffuse)->GetGpuDescriptorHandleIndex();
+	passConstants.RT1L_SpecularIndex	= dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Specular)->GetGpuDescriptorHandleIndex();
+	passConstants.RT2L_AmbientIndex		= dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Ambient)->GetGpuDescriptorHandleIndex();
+	passConstants.LightCount			= mLight->GetLightCount();
+	passConstants.GlobalAmbient			= Vec4(0.05f, 0.05f, 0.05f, 1.f);
+	passConstants.FilterOption			= dxgi->GetFilterOption();
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
@@ -300,11 +156,6 @@ void Scene::UpdateMaterialBuffer()
 		model.second->GetMesh()->UpdateMaterialBuffer();
 	}
 }
-
-void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount)
-{
-	mDescriptorHeap->Create(cbvCount, srvCount, uavCount);
-}
 #pragma endregion
 
 
@@ -315,12 +166,6 @@ void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount
 #pragma region Build
 void Scene::BuildObjects()
 {
-	CreateGraphicsRootSignature();
-	CreateComputeRootSignature();
-
-	assert(mGraphicsRootSignature);
-	CreateCbvSrvDescriptorHeaps(0, 1024, 256);
-
 	// load materials
 	mTextureMap = FileIO::LoadTextures("Import/Textures/");
 
@@ -349,7 +194,6 @@ void Scene::BuildObjects()
 
 void Scene::ReleaseObjects()
 {
-	mGraphicsRootSignature = nullptr;
 	MeshRenderer::Release();
 }
 
@@ -691,34 +535,19 @@ namespace {
 
 void Scene::OnPrepareRender()
 {
-	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
-
-	mDescriptorHeap->Set();
-
-	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
-	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
+	// 환경 매핑을 해야 하기 때문에 렌더 전 스카이 박스 텍스처를 설정해야 한다.
 	mSkyBox->SetGraphicsRootDescriptorTable();
 }
 
 void Scene::RenderShadow()
 {
-	// 추후에 그림자를 렌더링하는 함수
-	// 그림자용 카메라를 기준으로 모든 오브젝트의 깊이 값을 렌더링한다. 
-	// 깊이 값이 저장된 그림자 맵이 생성된 상태일 것이다.
+
 }
 
 void Scene::RenderDeferred()
 {
-	OnPrepareRender();
-
-	// 추후에 디퍼드 렌더링 구현시 물체의 깊이 정보를 저장하고 조명 계산에 활용해야 한다.
-	// 현재는 MRT에서 조명을 처리하고 있는데 이후에 Final이나 Canvas에서 전달 받은 메쉬에 대해서만 조명 처리를 해야한다.
-	// Directional 조명은 화면 전체 크기의 사각형 볼륨 메쉬, Point, Spot 조명은 조명의 길이의 반지름을 가진 구 볼륨 메쉬를 가진다.
-	// 블렌딩을 사용한 투명(반투명) 객체는 깊이 버퍼에 깊이 값을 저장할 수 없기 때문에 포워드 렌더링에서 처리해야만 한다.
-	// 따라서 deferred -> light(volume mesh) -> final(canvas) -> forward 순서로 렌더링을 처리해야 한다.
 #pragma region PrepareRender
+	OnPrepareRender();
 	mRenderedObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
@@ -759,9 +588,6 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	// 렌더 타겟 텍스처에 렌더링하는 것이 아닌 후면 버퍼에 바로 렌더링한다.
-	// forward 쉐이더를 사용하는 오브젝트가 조명을 사용하고자 한다면 
-	// 바로 해당 쉐이더에서 lighting 연산을 수행한다.
 	RenderFXObjects(); 
 	RenderBillboards();
 
@@ -785,7 +611,7 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	frmResMgr->CopyData(passConstants);
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
+	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
 
 	// 쉐이더 설정
 	mOffScreenShader->Set();
@@ -814,12 +640,10 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 	}
 }
 
-
 void Scene::RenderSkyBox()
 {
 	mSkyBox->Render();
 }
-
 
 void Scene::RenderGridObjects()
 {
@@ -893,7 +717,6 @@ void Scene::RenderEnvironments()
 	}
 }
 
-
 void Scene::RenderBullets()
 {
 	mBulletShader->Set();
@@ -903,7 +726,6 @@ void Scene::RenderBullets()
 		}
 	}
 }
-
 
 bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 {
@@ -919,7 +741,6 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 
 	return true;
 }
-
 
 void Scene::RenderObjectBounds(const std::set<GridObject*>& renderedObjects)
 {
@@ -1029,7 +850,6 @@ void Scene::UpdatePlayerGrid()
 	}
 }
 
-
 void Scene::UpdateObjects()
 {
 	ProcessObjects([this](sptr<GridObject> object) {
@@ -1045,7 +865,6 @@ void Scene::UpdateFXObjects()
 {
 
 }
-
 
 void Scene::UpdateSprites()
 {
@@ -1099,12 +918,10 @@ void Scene::CreateSmallExpFX(const Vec3& pos)
 	CreateSpriteEffect(pos, 0.0001f);
 }
 
-
 void Scene::CreateBigExpFX(const Vec3& pos)
 {
 	CreateSpriteEffect(pos, 0.025f, 5.f);
 }
-
 
 int Scene::GetGridIndexFromPos(Vec3 pos) const
 {
@@ -1116,7 +933,6 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 	return gridZ * mGridCols + gridX;
 }
-
 
 void Scene::DeleteExplodedObjects()
 {
@@ -1137,12 +953,10 @@ void Scene::DeleteExplodedObjects()
 	}
 }
 
-
 void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 
 }
-
 
 void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
@@ -1183,7 +997,6 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-
 void Scene::ToggleDrawBoundings()
 {
 	mIsRenderBounds = !mIsRenderBounds;
@@ -1192,7 +1005,6 @@ void Scene::ToggleDrawBoundings()
 		object->ToggleDrawBoundings();
 		});
 }
-
 
 void Scene::CreateFX(FXType type, const Vec3& pos)
 {
@@ -1209,7 +1021,6 @@ void Scene::CreateFX(FXType type, const Vec3& pos)
 	}
 }
 
-
 void Scene::BlowAllExplosiveObjects()
 {
 	for (auto& object : mExplosiveObjects)
@@ -1223,7 +1034,6 @@ void Scene::BlowAllExplosiveObjects()
 	mExplosiveObjects.clear();
 }
 
-
 void Scene::ChangeToNextPlayer()
 {
 	++mCurrPlayerIndex;
@@ -1234,7 +1044,6 @@ void Scene::ChangeToNextPlayer()
 	mPlayer = mPlayers[mCurrPlayerIndex];
 }
 
-
 void Scene::ChangeToPrevPlayer()
 {
 	--mCurrPlayerIndex;
@@ -1244,7 +1053,6 @@ void Scene::ChangeToPrevPlayer()
 
 	mPlayer = mPlayers[mCurrPlayerIndex];
 }
-
 
 void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 {
@@ -1307,7 +1115,6 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	mGrids[gridIndex].AddObject(object);
 }
 
-
 void Scene::RemoveObjectFromGrid(GridObject* object)
 {
 	for (const int gridIndex : object->GetGridIndices()) {
@@ -1318,7 +1125,6 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 
 	object->ClearGridIndices();
 }
-
 
 void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 {

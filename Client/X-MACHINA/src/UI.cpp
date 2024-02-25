@@ -41,7 +41,7 @@ void UI::UpdateShaderVars() const
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
 	frmResMgr->CopyData(mObjCBIndices.front(), objectConstants);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
 void UI::Render()
@@ -107,7 +107,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	objectConstants.MatIndex	= mTexture->GetGpuDescriptorHandleIndex(); 
 
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void MyFont::Render()

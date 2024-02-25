@@ -21,7 +21,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
 {
     // material info
     MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
-    float4 diffuseAlbedo = matInfo.Diffuse;
+    float4 diffuse       = matInfo.Diffuse;
     float metallic       = matInfo.Metallic;
     float roughness      = matInfo.Roughness;
     int diffuseMapIndex  = matInfo.DiffuseMap0Index;
@@ -32,7 +32,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     // sampling diffuseMap
     if (diffuseMapIndex != -1)
     {
-        diffuseAlbedo *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+        diffuse *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
 
     // normalize normal
@@ -63,23 +63,17 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         roughness = 1 - metallicMapSample.a;
     }
     
-    //// specular reflection
-	//float3 r = reflect(-toCameraW, bumpedNormalW);
-	//float4 reflectionColor = gSkyBoxTexture.Sample(gSamplerState, r);
-	//float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-	//litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
-    
-    float rimWidth = 0.7f;
-    float gLimLightFactor = 0.8f;
-    float4 gLimLightColor = float4(1.f, 0.6f, 0.f, 0.f);
+    float rimWidth = 0.8f;
+    float gRimLightFactor = 0.4f;
+    float4 gRimLightColor = float4(1.f, 1.f, 1.f, 0.f);
     float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
-    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gLimLightFactor;
+    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gRimLightFactor;
     
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(bumpedNormalW, 0.f);
-    pout.Diffuse = diffuseAlbedo;
-    pout.Emissive = emissiveMapSample + gLimLightColor * rim;
+    pout.Diffuse = diffuse;
+    pout.Emissive = emissiveMapSample + gRimLightColor * rim;
     pout.MetallicSmoothness = float2(metallic, roughness);
     
     return pout;

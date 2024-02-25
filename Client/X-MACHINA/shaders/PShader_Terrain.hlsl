@@ -18,7 +18,7 @@ struct PSOutput_MRT {
 PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
 {
     MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
-    float4 diffuseAlbedo = matInfo.Diffuse;
+    float4 diffuse       = matInfo.Diffuse;
     float metallic       = matInfo.Metallic;
     float roughness      = matInfo.Roughness;
     int diffuseMap0Index = matInfo.DiffuseMap0Index;
@@ -53,13 +53,13 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
         layer2 *= splatColor.b;
     }
     
-    diffuseAlbedo *= normalize(layer0 + layer1 + layer2);
-    diffuseAlbedo = GammaDecoding(diffuseAlbedo);
+    diffuse *= normalize(layer0 + layer1 + layer2);
+    diffuse = GammaDecoding(diffuse);
 
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(pin.NormalW, 0.f);
-    pout.Diffuse = diffuseAlbedo;
+    pout.Diffuse = diffuse;
     pout.Emissive = float4(0.f, 0.f, 0.f, 0.f);
     pout.MetallicSmoothness = float2(metallic, roughness);
     

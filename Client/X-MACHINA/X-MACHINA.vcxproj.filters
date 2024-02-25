@@ -497,9 +497,6 @@
     <FxCompile Include="shaders\VShader_Terrain.hlsl">
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\VShader_TextureInstance.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\VShader_Water.hlsl">
       <Filter>소스 파일\Shaders\VS</Filter>
     </FxCompile>
@@ -530,14 +527,8 @@
     <FxCompile Include="shaders\PShader_Standard.hlsl">
       <Filter>소스 파일\Shaders\PS\Forward</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PShader_StandardInstance.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\PShader_Terrain.hlsl">
       <Filter>소스 파일\Shaders\PS\Deferred</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_TextureInstance.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Water.hlsl">
       <Filter>소스 파일\Shaders\PS\Forward</Filter>

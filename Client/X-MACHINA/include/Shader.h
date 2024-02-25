@@ -22,7 +22,6 @@ enum class ShaderType : UINT8
 	Lighting,
 	OffScreen,
 	Final,
-	SkinMesh,
 };
 #pragma endregion
 
@@ -185,18 +184,6 @@ protected:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
 };
 
-// for rendering 3d effect GameObjects that has texture
-class TexturedEffectShader : public ForwardShader {
-public:
-	TexturedEffectShader() = default;
-	virtual ~TexturedEffectShader() = default;
-
-protected:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
-};
-
 // for rendering transparent GameObjects
 class TransparentShader : public ForwardShader {
 public:
@@ -216,6 +203,7 @@ public:
 
 protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;

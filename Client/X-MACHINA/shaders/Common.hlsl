@@ -40,7 +40,8 @@ struct LightColor
 
 struct Material
 {
-    float4  DiffuseAlbedo;
+    float3  DiffuseAlbedo;
+    float3  SpecularAlbedo;
     float   Metallic;
     float   Roughness;
 };

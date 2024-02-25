@@ -266,25 +266,20 @@ LightColor BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, floa
 
 LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material mat, float3 toCameraW)
 {
-    // Metallic 값에 따른 diffuseAlbedo와 specularAlbedo를 계산한다.
-    float3 diffuseAlbedo = lerp(mat.DiffuseAlbedo.xyz, 0.0f, mat.Metallic);
-    float3 specularAlbedo = lerp(0.03f, mat.DiffuseAlbedo.xyz, mat.Metallic);
-    
     float3 msEnergyCompensation = 1.0.xxx;
     float2 DFG = PBR::GGXEnvironmentBRDFScaleBias(saturate(dot(normal, toCameraW)), mat.Roughness * mat.Roughness);
     float Ess = DFG.x;
-    msEnergyCompensation = 1.0.xxx + specularAlbedo * (1.0f / Ess - 1.0f);
+    msEnergyCompensation = 1.0.xxx + mat.SpecularAlbedo * (1.0f / Ess - 1.0f);
     
-    float3 view = normalize(toCameraW);
-    float3 h = normalize(view + lightDir);
+    float3 h = normalize(toCameraW + lightDir);
     
     // 슐릭 근사 방정식을 사용하여 프레넬 값(얼마나 반사하는지)을 구한다.
-    float3 fresnel = PBR::Fresnel(specularAlbedo, h, lightDir);
+    float3 fresnel = PBR::Fresnel(mat.SpecularAlbedo, h, lightDir);
     // GGXSpecular 모델을 사용하여 정반사 값을 구한다.
-    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.001f, 1.f), normal, h, view, lightDir);
+    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.001f, 1.f), normal, h, toCameraW, lightDir);
     
     LightColor result;
-    result.Diffuse = diffuseAlbedo * lightStrength;
+    result.Diffuse = mat.DiffuseAlbedo * lightStrength;
     result.Specular = specular * fresnel * lightStrength * msEnergyCompensation;
     
     return result;

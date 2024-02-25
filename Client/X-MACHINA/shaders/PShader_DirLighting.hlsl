@@ -23,18 +23,28 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
         clip(-1);
     
     float3 normalW = gTextureMap[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
-    float4 diffuseAlbedo = gTextureMap[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
+    float4 diffuse = gTextureMap[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
     float2 metallicSmoothness = gTextureMap[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
     
-    float3 toCameraW = gPassCB.CameraPos - posW;
+    float3 toCameraW = normalize(gPassCB.CameraPos - posW);
+    
+    // 메탈릭 값을 적용
+    float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallicSmoothness.x);
+    float3 specularAlbedo = lerp(0.03f, diffuse.xyz, metallicSmoothness.x);
+    Material mat = { diffuseAlbedo, specularAlbedo, metallicSmoothness.x, metallicSmoothness.y };
     
     float3 shadowFactor = 1.f;
-    Material mat = { diffuseAlbedo, metallicSmoothness.x, metallicSmoothness.y };
     LightColor lightColor = ComputeLighting(mat, posW, normalW, toCameraW, shadowFactor);
     
+    // specular reflection
+    float3 r = reflect(-toCameraW, normalW);
+    float4 reflectionColor = gSkyBoxTexture.Sample(gsamLinearWrap, r);
+    float3 fresnelFactor = SchlickFresnel(specularAlbedo, normalW, r);
+    float3 reflection = (metallicSmoothness.r) * fresnelFactor * reflectionColor.rgb;
+    
     pout.Diffuse = GammaEncoding(float4(lightColor.Diffuse, 0.f));
-    pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f));
-    pout.Ambient = GammaEncoding(diffuseAlbedo * gPassCB.GlobalAmbient);
+    pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f)) + float4(reflection, 0.f);
+    pout.Ambient = GammaEncoding(diffuse * gPassCB.GlobalAmbient);
     
     return pout;
 }

@@ -26,6 +26,7 @@ public:
 	virtual ~SkyBox() = default;
 
 public:
+	void SetGraphicsRootDescriptorTable();
 	void Render();
 };
 #pragma endregion

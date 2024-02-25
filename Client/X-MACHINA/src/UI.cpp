@@ -2,6 +2,7 @@
 #include "UI.h"
 
 #include "Scene.h"
+#include "ResourceMgr.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
@@ -141,7 +142,7 @@ void MyFont::Render()
 
 void MyFont::CreateFontTexture()
 {
-	mTexture = canvas->GetTexture("Alphabet");
+	mTexture = res->Get<Texture>("Alphabet");
 }
 
 void MyFont::ReleaseFontTexture()
@@ -167,7 +168,6 @@ void Canvas::Init()
 {
 	mShader = std::make_shared<CanvasShader>();
 	mShader->Create(ShaderType::Forward);
-	LoadTextures();
 
 	UI::CreateUIMesh();
 
@@ -207,8 +207,4 @@ void Canvas::Render() const
 	mFont->Render();
 }
 
-void Canvas::LoadTextures()
-{
-	mTextureMap = FileIO::LoadTextures("Import/UI/");
-}
 #pragma endregion

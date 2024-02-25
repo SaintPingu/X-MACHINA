@@ -6,8 +6,8 @@
 #include "Object.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "Scene.h"
 #include "FileIO.h"
+#include "ResourceMgr.h"
 
 #include "Animator.h"
 
@@ -49,7 +49,7 @@ void Material::LoadTextureFromFile(TextureMap map, FILE* file)
 		return;
 	}
 
-	mTextures[static_cast<UINT8>(map)] = scene->GetTexture(textureName);
+	mTextures[static_cast<UINT8>(map)] = res->Get<Texture>(textureName);
 }
 #pragma endregion
 

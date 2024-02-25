@@ -124,10 +124,8 @@ void BlurFilter::CreateDescriptors()
 
 void BlurFilter::CreateResources()
 {
-	mOutput = std::make_shared<Texture>(D3DResource::Texture2D);
-	mOutput->CreateTexture(
-		mWidth,
-		mHeight,
+	mOutput = std::make_shared<Texture>();
+	mOutput->Create(mWidth, mHeight,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON);

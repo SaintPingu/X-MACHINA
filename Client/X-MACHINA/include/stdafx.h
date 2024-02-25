@@ -100,6 +100,7 @@ public:
 #include <vector>
 #include <forward_list>
 #include <deque>
+#include <map>
 #include <set>
 #include <bitset>
 #include <unordered_set>

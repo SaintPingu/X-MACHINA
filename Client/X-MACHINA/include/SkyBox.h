@@ -19,7 +19,7 @@ class SkyBox : public Transform {
 private:
 	uptr<ModelObjectMesh> mMesh{};
 	uptr<SkyBoxShader>	 mShader{};
-	uptr<Texture>		 mTexture{};
+	sptr<Texture>		 mTexture{};
 
 public:
 	SkyBox();

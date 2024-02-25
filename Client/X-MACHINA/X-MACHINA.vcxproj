@@ -212,6 +212,8 @@
     <ClCompile Include="src\MultipleRenderTarget.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\ObjectPool.cpp" />
+    <ClCompile Include="src\ResourceMgr.cpp" />
+    <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\RootSignature.cpp" />
     <ClCompile Include="src\Scene.cpp" />
@@ -279,7 +281,14 @@
     <ClInclude Include="include\MultipleRenderTarget.h" />
     <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\ObjectPool.h" />
-    <ClInclude Include="include\Resource.h" />
+    <ClInclude Include="include\Resource.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="include\ResourceMgr.h" />
+    <ClInclude Include="include\Resources.h" />
     <ClInclude Include="include\Rigidbody.h" />
     <ClInclude Include="include\RootSignature.h" />
     <ClInclude Include="include\Scene.h" />

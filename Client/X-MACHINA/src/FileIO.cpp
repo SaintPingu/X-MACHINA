@@ -13,6 +13,7 @@
 #include "AnimatorState.h"
 #include "AnimatorController.h"
 #include "AnimatorLayer.h"
+#include "ResourceMgr.h"
 
 
 namespace {
@@ -775,10 +776,8 @@ namespace FileIO {
 		light->Specular    = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	}
 
-	std::unordered_map<std::string, sptr<Texture>> LoadTextures(const std::string& folder)
+	void LoadTextures(const std::string& folder)
 	{
-		std::unordered_map<std::string, sptr<Texture>> result{};
-
 		// get [textureNames] from [folder]
 		std::vector<std::string> textureNames{};
 		GetTextureNames(textureNames, folder);
@@ -787,12 +786,7 @@ namespace FileIO {
 		for (auto& textureName : textureNames) {
 			FileIO::RemoveExtension(textureName);
 
-			sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
-			texture->LoadTexture(folder, textureName);
-
-			result.insert(std::make_pair(textureName, texture));
+			sptr<Texture> texture = res->Load<Texture>(textureName, folder);
 		}
-
-		return result;
 	}
 }

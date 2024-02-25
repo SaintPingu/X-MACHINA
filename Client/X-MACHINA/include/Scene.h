@@ -48,7 +48,7 @@ private:
 	sptr<Light> mLight{};
 
 	/* Textures */
-	std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
+	//std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
 
 	/* SkyBox */
 	sptr<SkyBox> mSkyBox{};					// sky box object
@@ -124,8 +124,6 @@ public:
 	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
 	// return the first inserted player
 	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); }
-	// [name]에 해당하는 Texture 모델을 반환한다.
-	rsptr<Texture> GetTexture(const std::string& name) const;
 
 	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
 	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;

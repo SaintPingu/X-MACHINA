@@ -2,20 +2,15 @@
 #include "Texture.h"
 #include "DXGIMgr.h"
 
+#include "ResourceMgr.h"
 
-Texture::Texture(D3DResource resourceType)
-	:
-	mResourceType(resourceType),
+Texture::Texture()
+	: 
+	Resource(ResourceType::Texture),
+	mTextureType(D3DResource::Texture2D),
 	mRootParamIndex(dxgi->GetGraphicsRootParamIndex(RootParam::Texture))
 {
-	switch (resourceType)
-	{
-	case D3DResource::TextureCube:
-		mRootParamIndex = dxgi->GetGraphicsRootParamIndex(RootParam::SkyBox); // Textrue2D와 다른 루트 파라미터를 사용해야 함
-		break;
-	default:
-		break;
-	}
+
 }
 
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
@@ -26,7 +21,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc() const
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-	switch (mResourceType)
+	switch (mTextureType)
 	{
 	case D3DResource::Texture2D: //(resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(resourceDesc.DepthOrArraySize == 1)
 	case D3DResource::Texture2D_Array:
@@ -64,6 +59,20 @@ D3D12_UNORDERED_ACCESS_VIEW_DESC Texture::GetUnorderedAccessViewDesc() const
 	return uavDesc;
 }
 
+void Texture::SetTextureType(D3DResource textureType)
+{
+	mTextureType = textureType;
+
+	switch (textureType)
+	{
+	case D3DResource::TextureCube:
+		mRootParamIndex = dxgi->GetGraphicsRootParamIndex(RootParam::SkyBox);
+		break;
+	default:
+		break;
+	}
+}
+
 void Texture::ReleaseUploadBuffers()
 {
 	mTextureUploadBuffer = nullptr;
@@ -82,11 +91,11 @@ void Texture::ReleaseShaderVars()
 }
 
 
-void Texture::LoadTexture(const std::string& folder, const std::string& fileName)
+void Texture::Load(const std::string& name, const std::string& path)
 {
-	mName = fileName;
+	mName = name;
 
-	std::string filePath = folder + mName + ".dds";
+	std::string filePath = path + mName + ".dds";
 	std::wstring wfilePath;
 	wfilePath.assign(filePath.begin(), filePath.end());
 
@@ -96,13 +105,12 @@ void Texture::LoadTexture(const std::string& folder, const std::string& fileName
 	mTextureMask |= MaterialMap::Albedo;
 }
 
-
-ComPtr<ID3D12Resource> Texture::CreateTexture(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
+ComPtr<ID3D12Resource> Texture::Create(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
 {
 	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
 }
 
-ComPtr<ID3D12Resource> Texture::CreateTextureFromResource(ComPtr<ID3D12Resource> resource)
+ComPtr<ID3D12Resource> Texture::Create(ComPtr<ID3D12Resource> resource)
 {
 	return mTexture = resource;
 }

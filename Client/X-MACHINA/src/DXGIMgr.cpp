@@ -3,6 +3,7 @@
 #include "FrameResource.h"
 #include "DescriptorHeap.h"
 
+#include "ResourceMgr.h"
 #include "Scene.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -24,8 +25,9 @@ DXGIMgr::DXGIMgr()
 {
 	DWORD filterOptione = 0;
 	//filterOptione |= FilterOption::None;
-	//filterOptione |= FilterOption::LUT;
+	filterOptione |= FilterOption::LUT;
 	filterOptione |= FilterOption::Tone;
+	//filterOptione |= FilterOption::Blur;
 
 	mFilterOption = filterOptione;
 }
@@ -113,6 +115,7 @@ void DXGIMgr::Release()
 	mGraphicsRootSignature = nullptr;
 	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
+	res->Destroy();
 	Destroy();
 }
 
@@ -509,8 +512,9 @@ void DXGIMgr::CreateMRTs()
 		for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 			ComPtr<ID3D12Resource> resource;
 			mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
-			rts[i].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-			rts[i].Target->CreateTextureFromResource(resource);
+
+			std::string name = "SwapChainTarget_" + std::to_string(i);
+			rts[i].Target = res->CreateTexture(name, resource);
 		}
 
 		mMRTs[static_cast<UINT8>(GroupType::SwapChain)] = std::make_shared<MultipleRenderTarget>();
@@ -522,24 +526,19 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(GBufferCount);
 
-		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[0].Target = res->CreateTexture("PositionTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			
+		rts[1].Target = res->CreateTexture("NormalTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
-
-		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[2].Target = res->CreateTexture("DiffuseTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[3].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[3].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[3].Target = res->CreateTexture("EmissiveTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[4].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[4].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[4].Target = res->CreateTexture("MetallicSmoothnessTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
@@ -551,16 +550,13 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(LightingCount);
 
-		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
-
-		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[0].Target = res->CreateTexture("DiffuseAlbedoTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 		
-		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[1].Target = res->CreateTexture("SpecularAlbedoTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		
+		rts[2].Target = res->CreateTexture("AmbientTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::Lighting)] = std::make_shared<MultipleRenderTarget>();
@@ -572,8 +568,7 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(OffScreenCount);
 
-		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[0].Target = res->CreateTexture("OffScreenTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
@@ -631,8 +626,9 @@ void DXGIMgr::ChangeSwapChainState()
 	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 		ComPtr<ID3D12Resource> resource;
 		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
-		rts[i].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[i].Target->CreateTextureFromResource(resource);
+
+		std::string name = "SwapChainTarget_" + std::to_string(i);
+		rts[i].Target = res->CreateTexture(name, resource);
 	}
 	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
 

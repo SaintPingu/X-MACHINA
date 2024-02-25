@@ -5,6 +5,7 @@
 #include "MultipleRenderTarget.h"
 #include "FrameResource.h"
 
+#include "ResourceMgr.h"
 #include "UI.h"
 #include "Object.h"
 #include "Model.h"
@@ -87,13 +88,6 @@ rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
 	return mModels.at(modelName);
 }
 
-rsptr<Texture> Scene::GetTexture(const std::string& name) const
-{
-	assert(mTextureMap.contains(name));
-
-	return mTextureMap.at(name);
-}
-
 sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
 {
 	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
@@ -167,7 +161,7 @@ void Scene::UpdateMaterialBuffer()
 void Scene::BuildObjects()
 {
 	// load materials
-	mTextureMap = FileIO::LoadTextures("Import/Textures/");
+	res->Init();
 
 	// load canvas (UI)
 	canvas->Init();
@@ -276,14 +270,14 @@ void Scene::BuildTestCube()
 	mTestCubes[0] = std::make_shared<TestCube>(Vec2(190, 150));
 	mTestCubes[0]->GetMaterial()->SetMatallic(0.f);
 	mTestCubes[0]->GetMaterial()->SetRoughness(0.f);
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Rock_BaseColor"));
-	//mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Rock_Normal"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Rock_BaseColor"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Rock_Normal"));
 
 	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
 	mTestCubes[1]->GetMaterial()->SetMatallic(0.f);
 	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Wall_BaseColor"));
-	//mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Wall_Normal"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 }
 
 void Scene::BuildGrid()

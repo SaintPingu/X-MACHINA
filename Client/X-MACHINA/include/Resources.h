@@ -3,6 +3,7 @@
 enum class ResourceType : UINT8 {
 	None,
 	Texture,
+	Shader,
 
 	_count
 };

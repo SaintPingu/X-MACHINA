@@ -274,7 +274,7 @@ namespace D3DUtil {
 		return shaderByteCode;
 	}
 
-	ComPtr<ID3DBlob> ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob)
+	ComPtr<ID3DBlob> ReadCompiledShaderFile(const std::wstring& fileName)
 	{
 		std::wstring filePath = L"shaders/cso/" + fileName;
 

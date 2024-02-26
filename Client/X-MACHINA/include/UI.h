@@ -11,7 +11,6 @@
 
 
 #pragma region ClassForwardDecl
-class CanvasShader;
 class Texture;
 class ModelObjectMesh;
 #pragma endregion
@@ -88,7 +87,6 @@ class Canvas : public Singleton<Canvas> {
 private:
 	std::vector<sptr<UI>>	mUIs{};		// all UIs
 	sptr<MyFont>			mFont{};
-	sptr<CanvasShader>		mShader{};
 
 private:
 	Canvas() = default;

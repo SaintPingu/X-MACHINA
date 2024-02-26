@@ -166,9 +166,6 @@ void Canvas::SetScore(int score)
 
 void Canvas::Init()
 {
-	mShader = std::make_shared<CanvasShader>();
-	mShader->Create(ShaderType::Forward);
-
 	UI::CreateUIMesh();
 
 	BuildUIs();
@@ -200,7 +197,7 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
-	mShader->Set();
+	res->Get<Shader>("Canvas")->Set();
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}

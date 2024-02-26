@@ -350,7 +350,7 @@ LightColor ComputeLighting(Material mat, float3 pos, float3 normal, float3 toCam
 {
     LightColor result = (LightColor)0.f;
     
-    for (uint i = 0; i < 1; ++i)
+    for (uint i = 0; i < gPassCB.LightCount; ++i)
     {
         if (gPassCB.Lights[i].LightType == 0)
         {

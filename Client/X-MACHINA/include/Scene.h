@@ -47,25 +47,8 @@ private:
 	/* Light */
 	sptr<Light> mLight{};
 
-	/* Textures */
-	//std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
-
 	/* SkyBox */
 	sptr<SkyBox> mSkyBox{};					// sky box object
-
-	/* Shader */
-	sptr<Shader> mGlobalShader{};			// 기본 Shader
-	sptr<Shader> mBoundingShader{};
-	sptr<Shader> mWaterShader{};
-	sptr<Shader> mBillboardShader{};
-	sptr<Shader> mSpriteShader{};
-	sptr<Shader> mInstShader{};		// for InstObjects
-	sptr<Shader> mTransparentShader{};
-	sptr<Shader> mBulletShader{};
-	sptr<Shader> mSkinnedMeshShader{};
-	sptr<Shader> mFinalShader{};
-	sptr<Shader> mLightingShader{};
-	sptr<Shader> mOffScreenShader{};
 
 	/* Object */
 	sptr<GameObject> mWater{};
@@ -149,14 +132,6 @@ public:
 	void ReleaseObjects();
 
 private:
-	/* Shader */
-	// build all scene's shaders
-	void BuildShaders();
-
-	/* Shader */
-	void BuildDeferredShader();
-	void BuildForwardShader();
-
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();

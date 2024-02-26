@@ -111,7 +111,6 @@ void Scene::ReleaseUploadBuffers()
 
 void Scene::UpdateShaderVars()
 {
-	// TODO : AnimateMaterials(); 
 	UpdateMainPassCB();
 	UpdateMaterialBuffer();
 }
@@ -160,7 +159,7 @@ void Scene::UpdateMaterialBuffer()
 #pragma region Build
 void Scene::BuildObjects()
 {
-	// load materials
+	// load all resources
 	res->Init();
 
 	// load canvas (UI)
@@ -177,8 +176,6 @@ void Scene::BuildObjects()
 	BuildTerrain();
 	BuildTestCube();
 
-	// build 
- 	BuildShaders();
 	// build static meshes
 	MeshRenderer::BuildMeshes();
 
@@ -189,59 +186,6 @@ void Scene::BuildObjects()
 void Scene::ReleaseObjects()
 {
 	MeshRenderer::Release();
-}
-
-
-void Scene::BuildShaders()
-{
-	BuildDeferredShader();
-	BuildForwardShader();
-}
-
-void Scene::BuildForwardShader()
-{
-	// 현재 조명 렌더 타겟을 따로 두지 않았기 때문에 foward가 offscreen으로 대체 되었다.
-	// 추후에 조명 렌더 타겟 구현 이후 forward를 R8G8B8A8의 쉐이더로 변경해야 한다.
-	mWaterShader = std::make_shared<WaterShader>();
-	mWaterShader->Create(ShaderType::OffScreen);
-
-	mBillboardShader = std::make_shared<BillboardShader>();
-	mBillboardShader->Create(ShaderType::OffScreen);
-
-	mSpriteShader = std::make_shared<SpriteShader>();
-	mSpriteShader->Create(ShaderType::OffScreen);
-
-	mFinalShader = std::make_shared<FinalShader>();
-	mFinalShader->Create(ShaderType::OffScreen);
-
-	mBoundingShader = std::make_shared<WireShader>();
-	mBoundingShader->Create(ShaderType::Forward);
-
-	mOffScreenShader = std::make_shared<OffScreenShader>();
-	mOffScreenShader->Create(ShaderType::Forward);
-
-	mLightingShader = std::make_shared<LightingShader>();
-	mLightingShader->Create(ShaderType::Lighting);
-}
-
-void Scene::BuildDeferredShader()
-{
-	ShaderType shaderType = ShaderType::Deferred;
-
-	mGlobalShader = std::make_shared<DeferredShader>();
-	mGlobalShader->Create(shaderType);
-
-	mInstShader = std::make_shared<ObjectInstShader>();
-	mInstShader->Create(shaderType);
-
-	mTransparentShader = std::make_shared<TransparentShader>();
-	mTransparentShader->Create(shaderType);
-
-	mBulletShader = std::make_shared<ColorInstShader>();
-	mBulletShader->Create(shaderType);
-
-	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
-	mSkinnedMeshShader->Create(shaderType);
 }
 
 void Scene::BuildPlayers()
@@ -547,7 +491,7 @@ void Scene::RenderDeferred()
 	mBillboardObjects.clear();
 #pragma endregion
 
-	mGlobalShader->Set();
+	res->Get<Shader>("Global")->Set();
 
 	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	RenderGridObjects();	
@@ -564,7 +508,7 @@ void Scene::RenderDeferred()
 void Scene::RenderLights()
 {
 	cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
-	mLightingShader->Set();
+	res->Get<Shader>("DirLighting")->Set();
 
 	if (mLight) {
 		mLight->Render();
@@ -574,7 +518,7 @@ void Scene::RenderLights()
 void Scene::RenderFinal()
 {
 	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
-	mFinalShader->Set();
+	res->Get<Shader>("Final")->Set();
 
 	cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
 	cmdList->DrawInstanced(6, 1, 0, 0);
@@ -608,7 +552,7 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
 
 	// 쉐이더 설정
-	mOffScreenShader->Set();
+	res->Get<Shader>("OffScreen")->Set();
 
 	// 렌더링
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -624,12 +568,12 @@ void Scene::RenderTerrain()
 
 void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObjects)
 {
-	mTransparentShader->Set();
+	res->Get<Shader>("Transparent")->Set();
 	for (auto& object : transparentObjects) {
 		object->Render();
 	}
 	if (mWater) {
-		mWaterShader->Set();
+		res->Get<Shader>("Water")->Set();
 		mWater->Render();
 	}
 }
@@ -678,7 +622,7 @@ void Scene::RenderGridObjects()
 
 void Scene::RenderSkinMeshObjects()
 {
-	mSkinnedMeshShader->Set();
+	res->Get<Shader>("SkinMesh")->Set();
 	for (auto& object : mSkinMeshObjects) {
 		object->Render();
 	}
@@ -686,7 +630,7 @@ void Scene::RenderSkinMeshObjects()
 
 void Scene::RenderInstanceObjects()
 {
-	mInstShader->Set();
+	res->Get<Shader>("ObjectInst")->Set();
 	for (auto& buffer : mObjectPools) {
 		buffer->Render();
 	}
@@ -713,7 +657,7 @@ void Scene::RenderEnvironments()
 
 void Scene::RenderBullets()
 {
-	mBulletShader->Set();
+	res->Get<Shader>("ColorInst")->Set();
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
 			//player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
@@ -723,13 +667,13 @@ void Scene::RenderBullets()
 
 bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 {
-	if (!mIsRenderBounds || !mBoundingShader) {
+	if (!mIsRenderBounds) {
 		return false;
 	}
 
 	cmdList->IASetPrimitiveTopology(kBoundsPrimitiveTopology);
 
-	mBoundingShader->Set();
+	res->Get<Shader>("Wire")->Set();
 	RenderObjectBounds(renderedObjects);
 	RenderGridBounds();
 
@@ -766,11 +710,11 @@ void Scene::RenderGridBounds()
 
 void Scene::RenderBillboards()
 {
-	mBillboardShader->Set();
+	res->Get<Shader>("Billboard")->Set();
 	for (auto& object : mBillboardObjects) {
 		object->Render();
 	}
-	mSpriteShader->Set();
+	res->Get<Shader>("Sprite")->Set();
 	for (auto& object : mSpriteEffectObjects) {
 		object->Render();
 	}

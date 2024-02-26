@@ -175,11 +175,6 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
     return bumpedNormalW;
 }
 
-bool IsWhite(float4 color)
-{
-    return color.rgb == float3(1.f, 1.f, 1.f) && color.a == 1.f;
-}
-
 float Mix(float x, float y, float alpha)
 {
     return x * (1.f - alpha) + y * x;

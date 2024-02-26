@@ -8,7 +8,6 @@
 #pragma region ClassForwardDecl
 class Texture;
 class Camera;
-class SkyBoxShader;
 class ModelObjectMesh;
 #pragma endregion
 
@@ -18,7 +17,6 @@ class ModelObjectMesh;
 class SkyBox : public Transform {
 private:
 	uptr<ModelObjectMesh> mMesh{};
-	uptr<SkyBoxShader>	 mShader{};
 	sptr<Texture>		 mTexture{};
 
 public:

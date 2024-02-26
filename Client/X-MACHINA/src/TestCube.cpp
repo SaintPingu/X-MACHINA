@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 
+#include "ResourceMgr.h"
 #include "Texture.h"
 #include "Mesh.h"
 #include "Shader.h"
@@ -21,14 +22,11 @@ TestCube::TestCube(Vec2 pos) : Transform(this)
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
-
-	mShader = std::make_unique<DeferredShader>();
-	mShader->Create(ShaderType::Deferred);
 }
 
 void TestCube::Render()
 {
-	mShader->Set();
+	res->Get<Shader>("Global")->Set();
 
 	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);

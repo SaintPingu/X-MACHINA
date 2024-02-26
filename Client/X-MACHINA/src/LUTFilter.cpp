@@ -18,16 +18,13 @@ LUTFilter::LUTFilter(UINT width, UINT height, DXGI_FORMAT format)
 
 void LUTFilter::Create()
 {
-	mLUTShader = std::make_unique<LUTShader>();
-	mLUTShader->Create();
-
 	CreateResources();
 	CreateDescriptors();
 }
 
 UINT LUTFilter::Execute(rsptr<Texture> input)
 {
-	mLUTShader->Set();
+	res->Get<Shader>("LUT")->Set();
 	cmdList->SetComputeRootSignature(dxgi->GetComputeRootSignature().Get());
 
 	mElapsedTime += DeltaTime();

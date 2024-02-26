@@ -10,6 +10,7 @@
 
 #pragma region ClassForwardDecl
 class Texture;
+class Shader;
 #pragma endregion
 
 class ResourceMgr : public Singleton<ResourceMgr> {
@@ -42,11 +43,13 @@ public:
 
 public:
 	void Init();
+	void Clear();
 	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4());
 	sptr<Texture> CreateTexture(const std::string& name, ComPtr<ID3D12Resource> resource);
 
 private:
 	void LoadTextures();
+	void LoadShaders();
 };
 
 template<typename T>
@@ -63,6 +66,7 @@ inline sptr<T> ResourceMgr::Load(const std::string& key, const std::string& path
 	sptr<T> resource = std::make_shared<T>();
 	resource->Load(key, path);
 	keyResMap[key] = resource;
+	keyResMap[key]->SetName(key);
 
 	return resource;
 }
@@ -79,6 +83,7 @@ inline bool ResourceMgr::Add(const std::string& key, sptr<T> resource)
 	}
 
 	keyResMap[key] = resource;
+	keyResMap[key]->SetName(key);
 
 	return true;
 }
@@ -102,4 +107,6 @@ inline ResourceType ResourceMgr::GetResourceType()
 {
 	if (std::is_same_v<T, Texture>)
 		return ResourceType::Texture;
+	if (std::is_same_v<T, Shader>)
+		return ResourceType::Shader;
 }

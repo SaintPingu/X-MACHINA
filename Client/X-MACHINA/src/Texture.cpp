@@ -93,9 +93,7 @@ void Texture::ReleaseShaderVars()
 
 void Texture::Load(const std::string& name, const std::string& path)
 {
-	mName = name;
-
-	std::string filePath = path + mName + ".dds";
+	std::string filePath = path + name + ".dds";
 	std::wstring wfilePath;
 	wfilePath.assign(filePath.begin(), filePath.end());
 

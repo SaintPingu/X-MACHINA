@@ -7,7 +7,6 @@
 #pragma region ClassForwardDecl
 class Texture;
 class Camera;
-class DeferredShader;
 class ModelObjectMesh;
 class Material;
 #pragma endregion
@@ -18,7 +17,6 @@ private:
 	float size = 20.f;
 
 	uptr<ModelObjectMesh>	mMesh{};
-	uptr<DeferredShader>	mShader{};
 	sptr<Material>			mMaterial{};
 	
 public:

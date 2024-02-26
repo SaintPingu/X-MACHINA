@@ -217,9 +217,6 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 	mMaterial->SetTexture(TextureMap::DiffuseMap1, res->Get<Texture>("Detail_Texture_6"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap2, res->Get<Texture>("Stone"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap3, res->Get<Texture>("Terrain_splatmap"));
-
-	mShader = std::make_shared<TerrainShader>();
-	mShader->Create(ShaderType::Deferred);
 }
 
 
@@ -252,7 +249,7 @@ void Terrain::PushObject(TerrainBlock* block)
 
 void Terrain::Render()
 {
-	mShader->Set();
+	res->Get<Shader>("Terrain")->Set();
 
 	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);

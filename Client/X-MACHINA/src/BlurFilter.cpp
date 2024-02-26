@@ -2,6 +2,7 @@
 #include "BlurFilter.h"
 #include "DXGIMgr.h"
 
+#include "ResourceMgr.h"
 #include "Scene.h"
 #include "DescriptorHeap.h"
 #include "Shader.h"
@@ -18,12 +19,6 @@ BlurFilter::BlurFilter(UINT width, UINT height, DXGI_FORMAT format)
 
 void BlurFilter::Create()
 {
-	mHorzBlurShader = std::make_unique<HorzBlurShader>();
-	mHorzBlurShader->Create();
-
-	mVertBlurShader = std::make_unique<VertBlurShader>();
-	mVertBlurShader->Create();
-
 	CreateResources();
 	CreateDescriptors();
 }
@@ -59,7 +54,7 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	// 2Pass : read mBlurMap1 and write mBlurMap0 
 	for (int i = 0; i < blurCount; ++i) {
 #pragma region Horizontal Blur Pass
-		mHorzBlurShader->Set();
+		res->Get<Shader>("HorzBlur")->Set();
 		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
 		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
 
@@ -71,7 +66,7 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 #pragma endregion
 
 #pragma region Vertical Blur Pass
-		mVertBlurShader->Set();
+		res->Get<Shader>("VertBlur")->Set();
 		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), mOutput->GetGpuDescriptorHandle());
 		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), input->GetUavGpuDescriptorHandle());
 

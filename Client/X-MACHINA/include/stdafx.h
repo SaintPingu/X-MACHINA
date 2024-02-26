@@ -623,7 +623,7 @@ namespace D3DUtil {
 		LPCSTR shaderProfile,
 		ComPtr<ID3DBlob>& shaderBlob);
 
-	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(
+	ComPtr<ID3DBlob> ReadCompiledShaderFile(
 		const std::wstring& fileName,
 		ComPtr<ID3DBlob>& shaderBlob);
 

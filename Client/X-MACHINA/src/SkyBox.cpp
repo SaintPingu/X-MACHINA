@@ -18,8 +18,8 @@ SkyBox::SkyBox() : Transform(this)
 	mTexture = res->Load<Texture>("SkyBox_0", "Import/Skybox/");
 	mTexture->SetTextureType(D3DResource::TextureCube);
 
-	mShader = std::make_unique<SkyBoxShader>();
-	mShader->Create(ShaderType::OffScreen);
+	//mShader = std::make_unique<SkyBoxShader>();
+	//mShader->Create(ShaderType::OffScreen);
 
 	dxgi->CreateShaderResourceView(mTexture.get());
 }
@@ -31,6 +31,6 @@ void SkyBox::SetGraphicsRootDescriptorTable()
 
 void SkyBox::Render()
 {
-	mShader->Set();
-	mMesh->Render();
+	//mShader->Set();
+	//mMesh->Render();
 }

@@ -274,7 +274,7 @@ namespace D3DUtil {
 		return shaderByteCode;
 	}
 
-	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob)
+	ComPtr<ID3DBlob> ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob)
 	{
 		std::wstring filePath = L"shaders/cso/" + fileName;
 
@@ -288,21 +288,30 @@ namespace D3DUtil {
 		UINT byteSize = (UINT)::fread(byteCode, sizeof(BYTE), fileSize, file);
 		::fclose(file);
 
-		D3D12_SHADER_BYTECODE shaderByteCode{};
-		if (!shaderBlob) {
-			HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
-			AssertHResult(hResult);
-			::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
-			shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
-			shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
-			delete[] byteCode;
-		}
-		else {
-			shaderByteCode.BytecodeLength = byteSize;
-			shaderByteCode.pShaderBytecode = byteCode;
-		}
+		ComPtr<ID3DBlob> blob;
+		HRESULT hResult = D3DCreateBlob(byteSize, &blob);
+		AssertHResult(hResult);
+		::memcpy(blob->GetBufferPointer(), byteCode, byteSize);
 
-		return shaderByteCode;
+		delete[] byteCode;
+
+		return blob;
+
+		//D3D12_SHADER_BYTECODE shaderByteCode{};
+		//if (!shaderBlob) {
+		//	HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
+		//	AssertHResult(hResult);
+		//	::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
+		//	shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
+		//	shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
+		//	delete[] byteCode;
+		//}
+		//else {
+		//	shaderByteCode.BytecodeLength = byteSize;
+		//	shaderByteCode.pShaderBytecode = byteCode;
+		//}
+
+		//return shaderByteCode;	
 	}
 }
 #pragma endregion

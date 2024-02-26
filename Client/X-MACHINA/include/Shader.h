@@ -15,25 +15,60 @@ struct PassConstants;
 #pragma endregion
 
 #pragma region EnumClass
-enum class ShaderType : UINT8
-{
+enum class ShaderType : UINT8 {
 	Forward = 0,
 	Deferred,
 	Lighting,
 	OffScreen,
 	Final,
 };
+
+enum class RasterizerType : UINT8 {
+	Cull_None,
+	Cull_Front,
+	Cull_Back,
+	WireFrame,
+};
+
+enum class DepthStencilType : UINT8 {
+	Less,
+	Less_Equal,
+	Greater,
+	Greater_Equal,
+	No_DepthTest,
+	No_DepthTest_No_Write,
+	Less_No_Write,
+};
+
+enum class BlendType : UINT8 {
+	Default,
+	Alpha_Blend,
+	One_To_One_Blend,
+};
+
+enum class InputLayoutType : UINT8 {
+	Default,
+	ColorInst,
+	Wire,
+};
+
+struct ShaderInfo {
+	ShaderType			ShaderType = ShaderType::Forward;
+	RasterizerType		RasterizerType = RasterizerType::Cull_Back;
+	DepthStencilType	DepthStencilType = DepthStencilType::Less;
+	BlendType			BlendType = BlendType::Default;
+	InputLayoutType		InputLayoutType = InputLayoutType::Default;
+};
 #pragma endregion
 
 #pragma region Class
-// Pipeline State 객체들을 가지는 클래스
-#pragma region GraphicsShader
+#pragma region Shader
 class Shader {
 private:
 	bool mIsClosed{ false };	// PipelineState생성을 종료하고 불필요 메모리를 해제했는가?
 
 protected:
-	ShaderType mShaderType{};
+	ShaderInfo mInfo;
 
 	std::vector<ComPtr<ID3D12PipelineState>>	mPipelineStates{};
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC			mPipelineStateDesc{};	// 마지막으로 설정된 PipelineStateDesc
@@ -42,30 +77,23 @@ protected:
 	ComPtr<ID3DBlob> mPSBlob{};
 
 public:
-	Shader() : mShaderType(ShaderType::Forward) {};
+	Shader(ShaderInfo info = ShaderInfo{}) : mInfo(info) {};
 	virtual ~Shader();
 
 public:
-	// [mPipelineStateDesc]를 설정하고 PipelineState를 생성한다.
 	virtual void Create(ShaderType shaderType = ShaderType::Forward, DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT, bool isClose = true);
-
-	// [pipelineStateIndex]의 PipelineState를 설정하고 쉐이더 변수를 업데이트한다.
-	// 렌더링 전 반드시 이 함수를 호출해야한다.
 	virtual void Set(int pipelineStateIndex = 0);
 
 protected:
 	virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveType() const { return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; };
-
-	// [pipelineStateIndex] 의 PipelineState를 설정한다.
-	void SetPipelineState(int pipelineStateIndex = 0);
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 	virtual D3D12_BLEND_DESC CreateBlendState();
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	virtual ComPtr<ID3DBlob> CreateVertexShader();
+	virtual ComPtr<ID3DBlob> CreatePixelShader();
 
 	// PipelineState 생성을 중단하고, 생성 과정에 발생한 불필요한 메모리를 해제한다.
 	void Close();
@@ -77,13 +105,13 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class DeferredShader : public Shader {
 public:
-	DeferredShader()          = default;
+	DeferredShader() = default;
 	virtual ~DeferredShader() = default;
 
 protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 
 };
 
@@ -95,47 +123,47 @@ public:
 
 protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 // for rendering instancing GameObjects that has texture
 class ObjectInstShader : public DeferredShader {
 public:
-	ObjectInstShader()          = default;
+	ObjectInstShader() = default;
 	virtual ~ObjectInstShader() = default;
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
 };
 
 // for rendering Terrain
 class TerrainShader : public DeferredShader {
 public:
-	TerrainShader()          = default;
+	TerrainShader() = default;
 	virtual ~TerrainShader() = default;
 
 protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 
 };
 
 // for rendering instancing GameObjects
 class WaterShader : public DeferredShader {
 public:
-	WaterShader()          = default;
+	WaterShader() = default;
 	virtual ~WaterShader() = default;
 
 protected:
 	virtual D3D12_BLEND_DESC CreateBlendState() override;
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 // for rendering instancing GameObjects
@@ -148,8 +176,8 @@ protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 // [ ForwardShader ] //
@@ -163,8 +191,8 @@ public:
 
 protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 
 };
 
@@ -180,8 +208,8 @@ protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 // for rendering transparent GameObjects
@@ -206,40 +234,40 @@ protected:
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 #pragma region BillboardShader
 // for rendering billboard GameObjects
 class BillboardShader : public ForwardShader {
 public:
-	BillboardShader()          = default;
+	BillboardShader() = default;
 	virtual ~BillboardShader() = default;
 
 protected:
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 	virtual D3D12_BLEND_DESC CreateBlendState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 // for rendering sprite GameObjects
 class SpriteShader : public BillboardShader {
 public:
-	SpriteShader()          = default;
+	SpriteShader() = default;
 	virtual ~SpriteShader() = default;
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
 };
 #pragma endregion
 
 // for rendering UI (2D plane)
 class CanvasShader : public ForwardShader {
 public:
-	CanvasShader()          = default;
+	CanvasShader() = default;
 	virtual ~CanvasShader() = default;
 
 public:
@@ -247,8 +275,8 @@ public:
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState() override;
 	virtual D3D12_BLEND_DESC CreateBlendState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 
 // for post processing
@@ -264,8 +292,8 @@ protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState() override;
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 #pragma endregion
 
@@ -276,7 +304,7 @@ public:
 	virtual ~OffScreenShader() = default;
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+	virtual ComPtr<ID3DBlob> CreatePixelShader() override;
 };
 #pragma endregion
 
@@ -304,7 +332,7 @@ public:
 	virtual void Set();
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreateComputeShader();
+	virtual ComPtr<ID3DBlob> CreateComputeShader();
 	void Close();
 };
 
@@ -315,7 +343,7 @@ public:
 	virtual ~HorzBlurShader() = default;
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
+	virtual ComPtr<ID3DBlob> CreateComputeShader() override;
 };
 
 // 수직 흐리기 쉐이더
@@ -325,7 +353,7 @@ public:
 	virtual ~VertBlurShader() = default;
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
+	virtual ComPtr<ID3DBlob> CreateComputeShader() override;
 };
 
 // Look-Up-Table 쉐이더
@@ -335,7 +363,7 @@ public:
 	virtual ~LUTShader() = default;
 
 protected:
-	virtual D3D12_SHADER_BYTECODE CreateComputeShader() override;
+	virtual ComPtr<ID3DBlob> CreateComputeShader() override;
 };
 
 
@@ -344,7 +372,7 @@ protected:
 // for rendering UI (2D plane)
 class SkinMeshShader : public DeferredShader {
 public:
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual ComPtr<ID3DBlob> CreateVertexShader() override;
 };
 
 #pragma endregion

@@ -6,7 +6,7 @@
 #include "Texture.h"
 #include "MultipleRenderTarget.h"
 
-//#define READ_COMPILED_SHADER
+#define READ_COMPILED_SHADER
 
 
 #pragma region Shader
@@ -19,9 +19,12 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 {
 	assert(!mIsClosed);
 
+	CreateVertexShader();
+	CreatePixelShader();
+
 	mPipelineStateDesc.pRootSignature        = dxgi->GetGraphicsRootSignature().Get();
-	mPipelineStateDesc.VS                    = CreateVertexShader();
-	mPipelineStateDesc.PS                    = CreatePixelShader();
+	mPipelineStateDesc.VS					 = { (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize()};
+	mPipelineStateDesc.PS					 = { (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize()};
 	mPipelineStateDesc.RasterizerState       = CreateRasterizerState();
 	mPipelineStateDesc.BlendState            = CreateBlendState();
 	mPipelineStateDesc.DepthStencilState     = CreateDepthStencilState();
@@ -74,13 +77,6 @@ void Shader::Create(ShaderType shaderType, DXGI_FORMAT dsvFormat, bool isClose)
 
 void Shader::Set(int pipelineStateIndex)
 {
-	SetPipelineState(pipelineStateIndex);
-}
-
-
-
-void Shader::SetPipelineState(int pipelineStateIndex)
-{
 	assert(mPipelineStates.size() >= pipelineStateIndex + 1);
 
 	cmdList->SetPipelineState(mPipelineStates[pipelineStateIndex].Get());
@@ -109,7 +105,7 @@ D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
 	rasterizerDesc.ForcedSampleCount     = 0;
 	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-
+	
 	return rasterizerDesc;
 }
 
@@ -153,12 +149,12 @@ D3D12_BLEND_DESC Shader::CreateBlendState()
 	return blendDesc;
 }
 
-D3D12_SHADER_BYTECODE Shader::CreateVertexShader()
+ComPtr<ID3DBlob> Shader::CreateVertexShader()
 {
 	throw std::runtime_error("not assigned vertex shader!");
 }
 
-D3D12_SHADER_BYTECODE Shader::CreatePixelShader()
+ComPtr<ID3DBlob> Shader::CreatePixelShader()
 {
 	throw std::runtime_error("not assigned pixel shader!");
 }
@@ -194,19 +190,27 @@ D3D12_INPUT_LAYOUT_DESC DeferredShader::CreateInputLayout()
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements        = nInputElementDescs;
+	inputLayoutDesc.NumElements = nInputElementDescs;
 
 	return inputLayoutDesc;
 }
 
-D3D12_SHADER_BYTECODE DeferredShader::CreateVertexShader()
+ComPtr<ID3DBlob> DeferredShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Standard.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Standard.hlsl", "VS_Standard", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE DeferredShader::CreatePixelShader()
+ComPtr<ID3DBlob> DeferredShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Deferred.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Deferred.hlsl", "PSDeferred", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -224,19 +228,19 @@ D3D12_INPUT_LAYOUT_DESC ColorInstShader::CreateInputLayout()
 	return inputLayoutDesc;
 }
 
-D3D12_SHADER_BYTECODE ColorInstShader::CreateVertexShader()
+ComPtr<ID3DBlob> ColorInstShader::CreateVertexShader()
 {
 #ifdef READ_COMPILED_SHADER
-	return D3DUtil::ReadCompiledShaderFile(L"VShader_Instance.cso", mVSBlob);
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Instance.cso", mVSBlob);
 #else
 	return D3DUtil::CompileShaderFile(L"VShader_Instance.hlsl", "VSInstancing", "vs_5_1", mVSBlob);
 #endif
 }
 
-D3D12_SHADER_BYTECODE ColorInstShader::CreatePixelShader()
+ComPtr<ID3DBlob> ColorInstShader::CreatePixelShader()
 {
 #ifdef READ_COMPILED_SHADER
-	return D3DUtil::ReadCompiledShaderFile(L"PShader_Instance.cso", mPSBlob);
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Instance.cso", mPSBlob);
 #else
 	return D3DUtil::CompileShaderFile(L"PShader_Instance.hlsl", "PSInstancing", "ps_5_1", mPSBlob);
 #endif
@@ -244,9 +248,13 @@ D3D12_SHADER_BYTECODE ColorInstShader::CreatePixelShader()
 #pragma endregion
 
 #pragma region ObjectInstShader
-D3D12_SHADER_BYTECODE ObjectInstShader::CreateVertexShader()
+ComPtr<ID3DBlob> ObjectInstShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_StandardInstance.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_StandardInstance.hlsl", "VS_StandardInstance", "vs_5_1", mVSBlob);
+#endif
 }
 #pragma endregion
 
@@ -292,15 +300,23 @@ D3D12_RASTERIZER_DESC TerrainShader::CreateRasterizerState()
 	//return rasterizerDesc;
 }
 
-D3D12_SHADER_BYTECODE TerrainShader::CreateVertexShader()
+ComPtr<ID3DBlob> TerrainShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Terrain.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Terrain.hlsl", "VSTerrain", "vs_5_1", mVSBlob);
+#endif
 }
 
 
-D3D12_SHADER_BYTECODE TerrainShader::CreatePixelShader()
+ComPtr<ID3DBlob> TerrainShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Terrain.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Terrain.hlsl", "PSTerrain", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -308,17 +324,17 @@ D3D12_SHADER_BYTECODE TerrainShader::CreatePixelShader()
 D3D12_BLEND_DESC WaterShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable                 = FALSE;
-	blendDesc.IndependentBlendEnable                = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable           = TRUE;
-	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
@@ -327,32 +343,40 @@ D3D12_BLEND_DESC WaterShader::CreateBlendState()
 D3D12_DEPTH_STENCIL_DESC WaterShader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable                  = TRUE;
-	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS;
-	depthStencilDesc.StencilEnable                = FALSE;
-	depthStencilDesc.StencilReadMask              = 0xff;
-	depthStencilDesc.StencilWriteMask             = 0xff;
-	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	depthStencilDesc.StencilEnable = FALSE;
+	depthStencilDesc.StencilReadMask = 0xff;
+	depthStencilDesc.StencilWriteMask = 0xff;
+	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS;
-	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return depthStencilDesc;
 }
 
-D3D12_SHADER_BYTECODE WaterShader::CreateVertexShader()
+ComPtr<ID3DBlob> WaterShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Water.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Water.hlsl", "VSWater", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE WaterShader::CreatePixelShader()
+ComPtr<ID3DBlob> WaterShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Water.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Water.hlsl", "PSWater", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -400,14 +424,22 @@ D3D12_DEPTH_STENCIL_DESC LightingShader::CreateDepthStencilState()
 
 	return depthStencilDesc;
 }
-D3D12_SHADER_BYTECODE LightingShader::CreateVertexShader()
+ComPtr<ID3DBlob> LightingShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_DirLighting.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_DirLighting.hlsl", "VSDirLighting", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE LightingShader::CreatePixelShader()
+ComPtr<ID3DBlob> LightingShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_DirLighting.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_DirLighting.hlsl", "PSDirLighting", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -436,14 +468,22 @@ D3D12_INPUT_LAYOUT_DESC ForwardShader::CreateInputLayout()
 	return inputLayoutDesc;
 }
 
-D3D12_SHADER_BYTECODE ForwardShader::CreateVertexShader()
+ComPtr<ID3DBlob> ForwardShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Standard.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Standard.hlsl", "VS_Standard", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE ForwardShader::CreatePixelShader()
+ComPtr<ID3DBlob> ForwardShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Standard.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Standard.hlsl", "PSStandard", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -480,21 +520,19 @@ D3D12_RASTERIZER_DESC WireShader::CreateRasterizerState()
 	return rasterizerDesc;
 }
 
-D3D12_SHADER_BYTECODE WireShader::CreateVertexShader()
+ComPtr<ID3DBlob> WireShader::CreateVertexShader()
 {
 #ifdef READ_COMPILED_SHADER
-	//return Shader::ReadCompiledShaderFile(L"VShader_Wired.cso", mVSBlob);
-	return D3DUtil::CompileShaderFile(L"VShader_Wired.hlsl", "VSWired", "vs_5_1", mVSBlob);
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Wired.cso", mVSBlob);
 #else
 	return D3DUtil::CompileShaderFile(L"VShader_Wired.hlsl", "VSWired", "vs_5_1", mVSBlob);
 #endif
 }
 
-D3D12_SHADER_BYTECODE WireShader::CreatePixelShader()
+ComPtr<ID3DBlob> WireShader::CreatePixelShader()
 {
 #ifdef READ_COMPILED_SHADER
-	//return Shader::ReadCompiledShaderFile(L"PShader_Wired.cso", mPSBlob);
-	return D3DUtil::CompileShaderFile(L"PShader_Wired.hlsl", "PSWired", "ps_5_1", mPSBlob);
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Wired.cso", mPSBlob);
 #else
 	return D3DUtil::CompileShaderFile(L"PShader_Wired.hlsl", "PSWired", "ps_5_1", mPSBlob);
 #endif  
@@ -558,7 +596,7 @@ D3D12_INPUT_LAYOUT_DESC SkyBoxShader::CreateInputLayout()
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements        = nInputElementDescs;
+	inputLayoutDesc.NumElements = nInputElementDescs;
 
 	return inputLayoutDesc;
 }
@@ -584,32 +622,40 @@ D3D12_RASTERIZER_DESC SkyBoxShader::CreateRasterizerState()
 D3D12_DEPTH_STENCIL_DESC SkyBoxShader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable                  = TRUE;
-	depthStencilDesc.DepthWriteMask               = D3D12_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc                    = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	depthStencilDesc.StencilEnable                = FALSE;
-	depthStencilDesc.StencilReadMask              = 0xff;
-	depthStencilDesc.StencilWriteMask             = 0xff;
-	depthStencilDesc.FrontFace.StencilFailOp      = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	depthStencilDesc.StencilEnable = FALSE;
+	depthStencilDesc.StencilReadMask = 0xff;
+	depthStencilDesc.StencilWriteMask = 0xff;
+	depthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp      = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS;
-	depthStencilDesc.BackFace.StencilFailOp       = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp  = D3D12_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp       = D3D12_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc         = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	depthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return depthStencilDesc;
 }
 
-D3D12_SHADER_BYTECODE SkyBoxShader::CreateVertexShader()
+ComPtr<ID3DBlob> SkyBoxShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Skybox.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Skybox.hlsl", "VSSkyBox", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE SkyBoxShader::CreatePixelShader()
+ComPtr<ID3DBlob> SkyBoxShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Skybox.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Skybox.hlsl", "PSSkyBox", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -617,17 +663,17 @@ D3D12_SHADER_BYTECODE SkyBoxShader::CreatePixelShader()
 D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.FillMode              = D3D12_FILL_MODE_SOLID;
-	rasterizerDesc.CullMode              = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
-	rasterizerDesc.DepthBias             = -8000;
-	rasterizerDesc.DepthBiasClamp        = 0.f;
-	rasterizerDesc.SlopeScaledDepthBias  = 0.f;
-	rasterizerDesc.DepthClipEnable       = TRUE;
-	rasterizerDesc.MultisampleEnable     = FALSE;
+	rasterizerDesc.DepthBias = -8000;
+	rasterizerDesc.DepthBiasClamp = 0.f;
+	rasterizerDesc.SlopeScaledDepthBias = 0.f;
+	rasterizerDesc.DepthClipEnable = TRUE;
+	rasterizerDesc.MultisampleEnable = FALSE;
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
-	rasterizerDesc.ForcedSampleCount     = 0;
-	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	rasterizerDesc.ForcedSampleCount = 0;
+	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	return rasterizerDesc;
 }
@@ -635,45 +681,63 @@ D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable                 = FALSE;
-	blendDesc.IndependentBlendEnable                = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable           = FALSE;
-	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable = FALSE;
+	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
 }
 
-D3D12_SHADER_BYTECODE BillboardShader::CreateVertexShader()
+ComPtr<ID3DBlob> BillboardShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Billboard.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Billboard.hlsl", "VSBillboard", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader()
+ComPtr<ID3DBlob> BillboardShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Billboard.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Billboard.hlsl", "PSBillboard", "ps_5_1", mPSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE SpriteShader::CreateVertexShader()
+ComPtr<ID3DBlob> SpriteShader::CreateVertexShader()
 {
-	return D3DUtil::CompileShaderFile(L"VShader_Billboard.hlsl", "VSSprite", "vs_5_1", mVSBlob);
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Sprite.cso", mVSBlob);
+#else
+	return D3DUtil::CompileShaderFile(L"VShader_Sprite.hlsl", "VSSprite", "vs_5_1", mVSBlob);
+#endif
 }
 #pragma endregion
 
 #pragma region CanvasShader
 D3D12_INPUT_LAYOUT_DESC CanvasShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 2;
+	UINT nInputElementDescs = 7;
 	D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
 	inputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	inputElementDescs[1] = { "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	inputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -684,17 +748,17 @@ D3D12_INPUT_LAYOUT_DESC CanvasShader::CreateInputLayout()
 D3D12_RASTERIZER_DESC CanvasShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.FillMode              = D3D12_FILL_MODE_SOLID;
-	rasterizerDesc.CullMode              = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
-	rasterizerDesc.DepthBias             = 0;
-	rasterizerDesc.DepthBiasClamp        = 0.f;
-	rasterizerDesc.SlopeScaledDepthBias  = 0.f;
-	rasterizerDesc.DepthClipEnable       = TRUE;
-	rasterizerDesc.MultisampleEnable     = FALSE;
+	rasterizerDesc.DepthBias = 0;
+	rasterizerDesc.DepthBiasClamp = 0.f;
+	rasterizerDesc.SlopeScaledDepthBias = 0.f;
+	rasterizerDesc.DepthClipEnable = TRUE;
+	rasterizerDesc.MultisampleEnable = FALSE;
 	rasterizerDesc.AntialiasedLineEnable = FALSE;
-	rasterizerDesc.ForcedSampleCount     = 0;
-	rasterizerDesc.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	rasterizerDesc.ForcedSampleCount = 0;
+	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	return rasterizerDesc;
 }
@@ -702,30 +766,38 @@ D3D12_RASTERIZER_DESC CanvasShader::CreateRasterizerState()
 D3D12_BLEND_DESC CanvasShader::CreateBlendState()
 {
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.AlphaToCoverageEnable                 = TRUE;
-	blendDesc.IndependentBlendEnable                = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable           = TRUE;
-	blendDesc.RenderTarget[0].LogicOpEnable         = FALSE;
-	blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
+	blendDesc.AlphaToCoverageEnable = TRUE;
+	blendDesc.IndependentBlendEnable = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return blendDesc;
 }
 
-D3D12_SHADER_BYTECODE CanvasShader::CreateVertexShader()
+ComPtr<ID3DBlob> CanvasShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Canvas.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Canvas.hlsl", "VSCanvas", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE CanvasShader::CreatePixelShader()
+ComPtr<ID3DBlob> CanvasShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Canvas.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Canvas.hlsl", "PSCanvas", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -765,21 +837,33 @@ D3D12_DEPTH_STENCIL_DESC FinalShader::CreateDepthStencilState()
 	return depthStencilDesc;
 }
 
-D3D12_SHADER_BYTECODE FinalShader::CreateVertexShader()
+ComPtr<ID3DBlob> FinalShader::CreateVertexShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_Rect.cso", mVSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"VShader_Rect.hlsl", "VSScreen", "vs_5_1", mVSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE FinalShader::CreatePixelShader()
+ComPtr<ID3DBlob> FinalShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_Final.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_Final.hlsl", "PSFinal", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
 #pragma region FinalShader
-D3D12_SHADER_BYTECODE OffScreenShader::CreatePixelShader()
+ComPtr<ID3DBlob> OffScreenShader::CreatePixelShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mPSBlob = D3DUtil::ReadCompiledShaderFile(L"PShader_OffScreen.cso", mPSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"PShader_OffScreen.hlsl", "PSOffScreen", "ps_5_1", mPSBlob);
+#endif
 }
 #pragma endregion
 
@@ -796,9 +880,11 @@ ComputeShader::~ComputeShader()
 void ComputeShader::Create(bool isClose)
 {
 	assert(!mIsClosed);
-	
+
+	CreateComputeShader();
+
 	mPipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
-	mPipelineStateDesc.CS = CreateComputeShader();
+	mPipelineStateDesc.CS = { (BYTE*)(mCSBlob->GetBufferPointer()), mCSBlob->GetBufferSize() };
 	mPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	HRESULT hResult = device->CreateComputePipelineState(&mPipelineStateDesc, IID_PPV_ARGS(&mPipelineState));
@@ -815,7 +901,7 @@ void ComputeShader::Set()
 	cmdList->SetPipelineState(mPipelineState.Get());
 }
 
-D3D12_SHADER_BYTECODE ComputeShader::CreateComputeShader()
+ComPtr<ID3DBlob> ComputeShader::CreateComputeShader()
 {
 	throw std::runtime_error("not assigned compute shader!");
 }
@@ -828,23 +914,39 @@ void ComputeShader::Close()
 #pragma endregion
 
 #pragma region BlurShader
-D3D12_SHADER_BYTECODE HorzBlurShader::CreateComputeShader()
+ComPtr<ID3DBlob> HorzBlurShader::CreateComputeShader()
 {
-	return D3DUtil::CompileShaderFile(L"CShader_Blur.hlsl", "HorzBlurCS", "cs_5_1", mCSBlob);
+#ifdef READ_COMPILED_SHADER
+	return mCSBlob = D3DUtil::ReadCompiledShaderFile(L"CShader_HorzBlur.cso", mCSBlob);
+#else
+	return D3DUtil::CompileShaderFile(L"CShader_HorzBlur.hlsl", "HorzBlurCS", "cs_5_1", mCSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE VertBlurShader::CreateComputeShader()
+ComPtr<ID3DBlob> VertBlurShader::CreateComputeShader()
 {
-	return D3DUtil::CompileShaderFile(L"CShader_Blur.hlsl", "VertBlurCS", "cs_5_1", mCSBlob);
+#ifdef READ_COMPILED_SHADER
+	return mCSBlob = D3DUtil::ReadCompiledShaderFile(L"CShader_VertBlur.cso", mCSBlob);
+#else
+	return D3DUtil::CompileShaderFile(L"CShader_VertBlur.hlsl", "VertBlurCS", "cs_5_1", mCSBlob);
+#endif
 }
 #pragma endregion
 
-D3D12_SHADER_BYTECODE LUTShader::CreateComputeShader()
+ComPtr<ID3DBlob> LUTShader::CreateComputeShader()
 {
+#ifdef READ_COMPILED_SHADER
+	return mCSBlob = D3DUtil::ReadCompiledShaderFile(L"CShader_LUT.cso", mCSBlob);
+#else
 	return D3DUtil::CompileShaderFile(L"CShader_LUT.hlsl", "LUTCS", "cs_5_1", mCSBlob);
+#endif
 }
 
-D3D12_SHADER_BYTECODE SkinMeshShader::CreateVertexShader()
+ComPtr<ID3DBlob> SkinMeshShader::CreateVertexShader()
 {
-	return D3DUtil::CompileShaderFile(L"VShader_SkinnedMesh.hlsl", "VS_SkinnedMesh", "vs_5_1", mVSBlob);;
+#ifdef READ_COMPILED_SHADER
+	return mVSBlob = D3DUtil::ReadCompiledShaderFile(L"VShader_SkinnedMesh.cso", mVSBlob);
+#else
+	return D3DUtil::CompileShaderFile(L"VShader_SkinnedMesh.hlsl", "VS_SkinnedMesh", "vs_5_1", mVSBlob);
+#endif
 }

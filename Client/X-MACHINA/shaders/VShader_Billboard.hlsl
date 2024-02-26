@@ -14,8 +14,6 @@ struct VSOutput_Billboard {
     float2 UV   : UV;
 };
 
-
-
 VSOutput_Billboard VSBillboard(VSInput_Standard input)
 {
     VSOutput_Billboard output;
@@ -24,16 +22,5 @@ VSOutput_Billboard VSBillboard(VSInput_Standard input)
     output.PosH = mul(mul(float4(output.PosW, 1.f), gPassCB.MtxView), gPassCB.MtxProj);
     output.UV = input.UV;
     
-    return output;
-}
-
-VSOutput_Billboard VSSprite(VSInput_Standard input)
-{
-    VSOutput_Billboard output;
-
-    output.PosW = mul(float4(input.PosL, 1.f), gObjectCB.MtxWorld).xyz;
-    output.PosH = mul(mul(float4(output.PosW, 1.f), gPassCB.MtxView), gPassCB.MtxProj);
-    output.UV = mul(float3(input.UV, 1.f), (float3x3) (gObjectCB.MtxSprite)).xy;
-
     return output;
 }

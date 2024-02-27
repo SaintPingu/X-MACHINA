@@ -34,24 +34,28 @@ void Shader::CreateGraphicsShader(bool isClose)
 {
 	assert(!mIsClosed);
 
-	mGraphicsPipelineStateDesc.pRootSignature = dxgi->GetGraphicsRootSignature().Get();
 	mGraphicsPipelineStateDesc.VS = { (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize() };
 	mGraphicsPipelineStateDesc.PS = { (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize() };
+	mGraphicsPipelineStateDesc.pRootSignature			= dxgi->GetGraphicsRootSignature().Get();
 	mGraphicsPipelineStateDesc.RasterizerState			= CreateRasterizerState();
 	mGraphicsPipelineStateDesc.BlendState				= CreateBlendState();
 	mGraphicsPipelineStateDesc.DepthStencilState		= CreateDepthStencilState();
 	mGraphicsPipelineStateDesc.InputLayout				= CreateInputLayout();
 	mGraphicsPipelineStateDesc.PrimitiveTopologyType	= GetTopologyType(mInfo.TopologyType);
-	mGraphicsPipelineStateDesc.SampleMask		= UINT_MAX;
-	mGraphicsPipelineStateDesc.DSVFormat		= DXGI_FORMAT_D24_UNORM_S8_UINT;
-	mGraphicsPipelineStateDesc.SampleDesc.Count = 1;
-	mGraphicsPipelineStateDesc.Flags			= D3D12_PIPELINE_STATE_FLAG_NONE;
+	mGraphicsPipelineStateDesc.SampleMask				= UINT_MAX;
+	mGraphicsPipelineStateDesc.DSVFormat				= DXGI_FORMAT_D24_UNORM_S8_UINT;
+	mGraphicsPipelineStateDesc.SampleDesc.Count			= 1;
+	mGraphicsPipelineStateDesc.Flags					= D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	// 쉐이더 타입에 따라서 RTV 포맷을 다르게 한다. 기본은 Forward이다.
 	switch (mInfo.ShaderType) {
-	case ShaderType::Forward:
+	case ShaderType::LDR:
 		mGraphicsPipelineStateDesc.NumRenderTargets = 1;
 		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R8G8B8A8_UNORM;
+		break;
+	case ShaderType::HDR:
+		mGraphicsPipelineStateDesc.NumRenderTargets = 1;
+		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		break;
 	case ShaderType::Deferred:
 		mGraphicsPipelineStateDesc.NumRenderTargets = GBufferCount;
@@ -67,9 +71,7 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.RTVFormats[1]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mGraphicsPipelineStateDesc.RTVFormats[2]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		break;
-	case ShaderType::OffScreen:
-		mGraphicsPipelineStateDesc.NumRenderTargets = 1;
-		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
+	default:
 		break;
 	}
 
@@ -255,10 +257,10 @@ D3D12_BLEND_DESC Shader::CreateBlendState()
 
 void Shader::Close()
 {
-	mIsClosed = true;
-	mVSBlob = nullptr;
-	mPSBlob = nullptr;
-	mCSBlob = nullptr;
+	mIsClosed	= true;
+	mVSBlob		= nullptr;
+	mPSBlob		= nullptr;
+	mCSBlob		= nullptr;
 
 	if (mGraphicsPipelineStateDesc.InputLayout.pInputElementDescs) {
 		delete[] mGraphicsPipelineStateDesc.InputLayout.pInputElementDescs;

@@ -13,6 +13,7 @@
 
 #pragma region ClassForwardDecl
 class Model;
+class ModelObjectMesh;
 class MasterModel;
 class Shader;
 class InstShader;
@@ -62,6 +63,8 @@ private:
 	std::set<GridObject*> mTransparentObjects{};
 	std::set<GridObject*> mBillboardObjects{};
 	std::set<GridObject*> mSkinMeshObjects{};
+
+	sptr<ModelObjectMesh> mRectMesh{};
 
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};
@@ -171,8 +174,8 @@ public:
 	void RenderLights();
 	void RenderFinal();
 	void RenderForward();
-	void RenderUI();
 	void RenderPostProcessing(int offScreenIndex);
+	void RenderUI();
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.

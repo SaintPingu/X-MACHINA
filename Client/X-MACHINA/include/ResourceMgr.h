@@ -11,13 +11,14 @@
 #pragma region ClassForwardDecl
 class Texture;
 class Shader;
+class ModelObjectMesh;
 #pragma endregion
 
 class ResourceMgr : public Singleton<ResourceMgr> {
 	friend Singleton;
 
 private:
-	using KeyResMap = std::map<std::string, sptr<Resource>>;
+	using KeyResMap = std::unordered_map<std::string, sptr<Resource>>;
 	std::array<KeyResMap, ResourceTypeCount> mResources;
 
 public:
@@ -46,6 +47,7 @@ public:
 	void Clear();
 	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4());
 	sptr<Texture> CreateTexture(const std::string& name, ComPtr<ID3D12Resource> resource);
+	sptr<ModelObjectMesh> LoadRectangleMesh();
 
 private:
 	void LoadTextures();
@@ -109,4 +111,6 @@ inline ResourceType ResourceMgr::GetResourceType()
 		return ResourceType::Texture;
 	if (std::is_same_v<T, Shader>)
 		return ResourceType::Shader;
+	if ( std::is_same_v<T, ModelObjectMesh>)
+		return ResourceType::Mesh;
 }

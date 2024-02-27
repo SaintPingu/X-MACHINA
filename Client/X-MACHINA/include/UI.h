@@ -24,8 +24,6 @@ protected:
 	float			mWidth{};
 	float			mHeight{};
 
-	static sptr<ModelObjectMesh> mMesh;		// 2D plane mesh
-
 public:
 	UI() : Transform(this) {}
 	virtual ~UI() = default;
@@ -38,11 +36,6 @@ public:
 	void UpdateShaderVars() const;
 
 	virtual void Render();
-
-	// create [mMesh]
-	static void CreateUIMesh();
-	// delete [mMesh]
-	static void DeleteUIMesh();
 };
 
 

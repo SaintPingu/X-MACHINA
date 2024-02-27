@@ -6,11 +6,10 @@
 
 #pragma region EnumClass
 enum class ShaderType : UINT8 {
-	Forward = 0,
+	LDR = 0,
+	HDR,
 	Deferred,
 	Lighting,
-	OffScreen,
-	Final,
 	Compute,
 };
 
@@ -47,7 +46,7 @@ enum class InputLayoutType : UINT8 {
 
 #pragma region Structure
 struct ShaderInfo {
-	ShaderType				ShaderType = ShaderType::Forward;
+	ShaderType				ShaderType = ShaderType::LDR;
 	RasterizerType			RasterizerType = RasterizerType::Cull_Back;
 	DepthStencilType		DepthStencilType = DepthStencilType::Less;
 	BlendType				BlendType = BlendType::Default;

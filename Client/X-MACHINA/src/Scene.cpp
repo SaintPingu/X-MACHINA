@@ -43,11 +43,6 @@ namespace {
 	constexpr int kGridWidthCount = 20;						// all grid count = n*n
 	constexpr Vec3 kBorderPos = Vec3(256, 200, 256);		// center of border
 	constexpr Vec3 kBorderExtents = Vec3(1500, 500, 1500);		// extents of border
-
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kTerrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 }
 
 Scene::Scene()
@@ -161,7 +156,7 @@ void Scene::BuildObjects()
 {
 	// load all resources
 	res->Init();
-
+	mRectMesh = res->Get<ModelObjectMesh>("Rect");
 	// load canvas (UI)
 	canvas->Init();
 
@@ -493,7 +488,7 @@ void Scene::RenderDeferred()
 
 	res->Get<Shader>("Global")->Set();
 
-	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	RenderGridObjects();	
 	RenderSkinMeshObjects();
 	RenderEnvironments();	
@@ -501,13 +496,13 @@ void Scene::RenderDeferred()
 	RenderBullets();
 	RenderTestCubes();
 
-	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	RenderTerrain();
 }
 
 void Scene::RenderLights()
 {
-	cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	res->Get<Shader>("DirLighting")->Set();
 
 	if (mLight) {
@@ -520,8 +515,7 @@ void Scene::RenderFinal()
 	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
 	res->Get<Shader>("Final")->Set();
 
-	cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
-	cmdList->DrawInstanced(6, 1, 0, 0);
+	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 
 void Scene::RenderForward()
@@ -529,18 +523,8 @@ void Scene::RenderForward()
 	RenderFXObjects(); 
 	RenderBillboards();
 
-	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
-}
-
-void Scene::RenderUI()
-{
-	if (RenderBounds(mRenderedObjects)) {
-		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
-	}
-
-	canvas->Render();
 }
 
 void Scene::RenderPostProcessing(int offScreenIndex)
@@ -556,7 +540,13 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 
 	// 렌더링
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	cmdList->DrawInstanced(6, 1, 0, 0);
+	res->Get<ModelObjectMesh>("Rect")->Render();
+}
+
+void Scene::RenderUI()
+{
+	canvas->Render();
+	RenderBounds(mRenderedObjects);
 }
 
 void Scene::RenderTerrain()
@@ -671,7 +661,7 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 		return false;
 	}
 
-	cmdList->IASetPrimitiveTopology(kBoundsPrimitiveTopology);
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	res->Get<Shader>("Wire")->Set();
 	RenderObjectBounds(renderedObjects);

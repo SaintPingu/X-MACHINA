@@ -4,11 +4,13 @@
 #include "FileIO.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Mesh.h"
 
 void ResourceMgr::Init()
 {
 	LoadTextures();
 	LoadShaders();
+	LoadRectangleMesh();
 }
 
 void ResourceMgr::Clear()
@@ -32,6 +34,18 @@ sptr<Texture> ResourceMgr::CreateTexture(const std::string& name, ComPtr<ID3D12R
 	texture->Create(resource);
 	Add<Texture>(name, texture);
 	return texture;
+}
+
+sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()
+{
+	sptr<ModelObjectMesh> findMesh = Get<ModelObjectMesh>("Rect");
+	if (findMesh)
+		return findMesh;
+
+	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
+	mesh->CreateRectangleMesh();
+	Add<ModelObjectMesh>("Rect", mesh);
+	return mesh;
 }
 
 void ResourceMgr::LoadTextures()
@@ -139,7 +153,7 @@ void ResourceMgr::LoadShaders()
 #pragma region Water
 	{
 		ShaderInfo info = {
-			ShaderType::OffScreen,
+			ShaderType::HDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::Less_No_Write,
 			BlendType::Alpha_Blend,
@@ -159,7 +173,7 @@ void ResourceMgr::LoadShaders()
 #pragma region Billboard
 	{
 		ShaderInfo info = {
-			ShaderType::OffScreen,
+			ShaderType::HDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::Less,
 			BlendType::Alpha_Blend,
@@ -179,7 +193,7 @@ void ResourceMgr::LoadShaders()
 #pragma region Sprite
 	{
 		ShaderInfo info = {
-			ShaderType::OffScreen,
+			ShaderType::HDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::Less,
 			BlendType::Alpha_Blend,
@@ -199,15 +213,13 @@ void ResourceMgr::LoadShaders()
 #pragma region Final
 	{
 		ShaderInfo info = {
-			ShaderType::OffScreen,
+			ShaderType::HDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::No_DepthTest_No_Write,
-			BlendType::Default,
-			InputLayoutType::None
 		};
 
 		ShaderPath path = {
-			 L"VShader_Rect.cso",
+			 L"VShader_Tex.cso",
 			 L"PShader_Final.cso",
 			 L""
 		};
@@ -220,7 +232,7 @@ void ResourceMgr::LoadShaders()
 #pragma region Canvas
 	{
 		ShaderInfo info = {
-			ShaderType::Forward,
+			ShaderType::LDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::No_DepthTest_No_Write,
 			BlendType::Alpha_Blend,
@@ -240,11 +252,12 @@ void ResourceMgr::LoadShaders()
 #pragma region Wire
 	{
 		ShaderInfo info = {
-			ShaderType::OffScreen,
+			ShaderType::LDR,
 			RasterizerType::WireFrame,
 			DepthStencilType::Less,
 			BlendType::Default,
 			InputLayoutType::Wire,
+			D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINELIST
 		};
 
 		ShaderPath path = {
@@ -261,15 +274,13 @@ void ResourceMgr::LoadShaders()
 #pragma region OffScreen
 	{
 		ShaderInfo info = {
-			ShaderType::Forward,
+			ShaderType::LDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::No_DepthTest_No_Write,
-			BlendType::Default,
-			InputLayoutType::None
 		};
 
 		ShaderPath path = {
-			 L"VShader_Rect.cso",
+			 L"VShader_Tex.cso",
 			 L"PShader_OffScreen.cso",
 			 L""
 		};
@@ -288,7 +299,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
-			 L"VShader_DirLighting.cso",
+			 L"VShader_Tex.cso",
 			 L"PShader_DirLighting.cso",
 			 L""
 		};
@@ -301,7 +312,7 @@ void ResourceMgr::LoadShaders()
 #pragma region Transparent
 	{
 		ShaderInfo info = {
-			ShaderType::Forward,
+			ShaderType::LDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::Less_No_Write,
 			BlendType::Alpha_Blend,
@@ -321,7 +332,7 @@ void ResourceMgr::LoadShaders()
 #pragma region SkyBox
 	{
 		ShaderInfo info = {
-			ShaderType::OffScreen,
+			ShaderType::HDR,
 			RasterizerType::Cull_None,
 			DepthStencilType::Less_Equal,
 		};

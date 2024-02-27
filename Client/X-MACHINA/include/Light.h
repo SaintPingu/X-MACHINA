@@ -1,9 +1,5 @@
 #pragma once
 
-#pragma region ClassForwardDecl
-class ModelObjectMesh;
-#pragma endregion
-
 #pragma region EnumClass
 // must be matched with Light.hlsl LightType
 enum class LightType {
@@ -27,7 +23,6 @@ enum class LightType {
 #pragma region Class
 class Light {
 private:
-	sptr<ModelObjectMesh>	mVolumeMesh{};	// light volume mesh
 	sptr<SceneLight>		mLights{};		// all lights in scene
 	sptr<SceneLoadLight>	mLoadLights{};	// all load lights in scene
 

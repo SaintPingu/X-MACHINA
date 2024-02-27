@@ -28,7 +28,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int postPassC
 FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence),
-	mFrameResourceCount(1),
+	mFrameResourceCount(3),
 	mPassCount(1),
 	mPostPassCount(1),
 	mObjectCount(2000),

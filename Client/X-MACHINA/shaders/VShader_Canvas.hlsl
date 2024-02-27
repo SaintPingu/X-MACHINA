@@ -1,64 +1,24 @@
 #include "Common.hlsl"
 
+struct VSInput_Canvas {
+    float3 PosW : POSITION;
+    float2 UV   : UV;
+};
+
 struct VSOutput_Canvas {
     float4 PosH : SV_POSITION;
     float2 UV   : UV;
 };
 
-VSOutput_Canvas VSCanvas(uint vertexID : SV_VertexID)
+VSOutput_Canvas VSCanvas(VSInput_Canvas vin)
 {
-   
-    VSOutput_Canvas output;
+    VSOutput_Canvas vout;
     
-    switch (vertexID) {
-        case 0:
-        {
-            output.PosH = float4(-1.f, +1.f, 0.f, 1.f);
-            output.UV = float2(0.f, 0.f);
-        }
-        
-        break;
-        case 1:
-        {
-            output.PosH = float4(+1.f, +1.f, 0.f, 1.f);
-            output.UV = float2(1.f, 0.f);
-        }
-        
-        break;
-        case 2:
-        {
-            output.PosH = float4(+1.f, -1.f, 0.f, 1.f);
-            output.UV = float2(1.f, 1.f);
-        }
-        
-        break;
-        case 3:
-        {
-            output.PosH = float4(-1.f, +1.f, 0.f, 1.f);
-            output.UV = float2(0.f, 0.f);
-        }
-        
-        break;
-        case 4:
-        {
-            output.PosH = float4(+1.f, -1.f, 0.f, 1.f);
-            output.UV = float2(1.f, 1.f);
-        }
-        
-        break;
-        case 5:
-        {
-            output.PosH = float4(-1.f, -1.f, 0.f, 1.f);
-            output.UV = float2(0.f, 1.f);
-        }
-        break;
-        
-        default:
-            break;
-    }
+    vout.PosH = float4(vin.PosW * 2.f, 1.f);
+    vout.UV = vin.UV;
     
-    output.PosH = mul(output.PosH, gObjectCB.MtxWorld);
-    output.UV = mul(float3(output.UV, 1.f), (float3x3) (gObjectCB.MtxSprite)).xy;
+    vout.PosH = mul(vout.PosH, gObjectCB.MtxWorld);
+    vout.UV = mul(float3(vout.UV, 1.f), (float3x3) (gObjectCB.MtxSprite)).xy;
     
-    return output;
+    return vout;
 }

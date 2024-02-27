@@ -14,8 +14,6 @@
 
 
 #pragma region UI
-sptr<ModelObjectMesh> UI::mMesh;
-
 void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
 {
 	mTexture = texture;
@@ -50,20 +48,9 @@ void UI::Render()
 	mTexture->UpdateShaderVars();
 	UpdateShaderVars();
 
-	mMesh->Render();
+	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 
-void UI::CreateUIMesh()
-{
-	mMesh = std::make_shared<ModelObjectMesh>();
-	mMesh->CreatePlaneMesh(1, 1, false);
-}
-
-void UI::DeleteUIMesh()
-{
-	Sleep(10);
-	mMesh = nullptr;
-}
 #pragma endregion
 
 
@@ -121,7 +108,7 @@ void MyFont::Render()
 		// 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없다.
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
-			mMesh->Render();
+			res->Get<ModelObjectMesh>("Rect")->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -130,7 +117,7 @@ void MyFont::Render()
 	for (char ch : mScore) {
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
-			mMesh->Render();
+			res->Get<ModelObjectMesh>("Rect")->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -166,14 +153,11 @@ void Canvas::SetScore(int score)
 
 void Canvas::Init()
 {
-	UI::CreateUIMesh();
-
 	BuildUIs();
 }
 
 void Canvas::Release()
 {
-	UI::DeleteUIMesh();
 	mFont->ReleaseFontTexture();
 	mFont->OnDestroy();
 	Destroy();

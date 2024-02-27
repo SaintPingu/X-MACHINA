@@ -3,6 +3,7 @@
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 
+#include "ResourceMgr.h"
 #include "Object.h"
 #include "Model.h"
 #include "Shader.h"
@@ -115,6 +116,8 @@ void ModelObjectMesh::CreateMeshFromOBB(const BoundingOrientedBox& box)
 
 	CreateVertexBufferViews();
 	CreateIndexBufferView(indices);
+
+	
 }
 
 void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, bool hasTexture, bool isLine)

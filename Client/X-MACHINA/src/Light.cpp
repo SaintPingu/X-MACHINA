@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "FileIO.h"
 #include "Mesh.h"
+#include "ResourceMgr.h"
 
 namespace {
 	constexpr int gkSunLightIdx = 0;
@@ -15,9 +16,6 @@ Light::Light()
 	mLoadLights(std::make_shared<SceneLoadLight>())
 {
 	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
-
-	mVolumeMesh = std::make_shared<ModelObjectMesh>();
-	mVolumeMesh->CreateRectangleMesh();
 }
 
 Light::~Light()
@@ -69,7 +67,7 @@ void Light::BuildLights()
 
 void Light::Render()
 {
-	mVolumeMesh->Render();
+	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 
 void Light::SetSunlight()

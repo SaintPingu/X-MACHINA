@@ -12,11 +12,6 @@
 
 
 #pragma region ClassForwardDecl
-class Model;
-class ModelObjectMesh;
-class MasterModel;
-class Shader;
-class InstShader;
 class Camera;
 class GameObject;
 class GridObject;
@@ -24,9 +19,6 @@ class Terrain;
 class Light;
 class SkyBox;
 class ObjectPool;
-class Texture;
-class AnimationClip;
-class AnimatorController;
 class TestCube;
 #pragma endregion
 
@@ -42,9 +34,6 @@ public:
 	};
 
 private:
-	/* Model */
-	std::unordered_map<std::string, sptr<const MasterModel>> mModels{};	// model folder에서 로드한 모델 객체 모음
-
 	/* Light */
 	sptr<Light> mLight{};
 
@@ -52,31 +41,29 @@ private:
 	sptr<SkyBox> mSkyBox{};					// sky box object
 
 	/* Object */
-	sptr<GameObject> mWater{};
-	std::vector<sptr<GameObject>> mEnvironments{};
-	std::vector<sptr<GridObject>> mStaticObjects{};
-	std::list<sptr<GridObject>> mExplosiveObjects{};		// dynamic
-	std::list<sptr<GameObject>> mSpriteEffectObjects{};
-	std::vector<sptr<ObjectPool>> mObjectPools{};
+	sptr<GameObject>				mWater{};
+	std::vector<sptr<GameObject>>	mEnvironments{};
+	std::vector<sptr<GridObject>>	mStaticObjects{};
+	std::list<sptr<GridObject>>		mExplosiveObjects{};		// dynamic
+	std::list<sptr<GameObject>>		mSpriteEffectObjects{};
+	std::vector<sptr<ObjectPool>>	mObjectPools{};
 
-	std::set<GridObject*> mRenderedObjects{};
-	std::set<GridObject*> mTransparentObjects{};
-	std::set<GridObject*> mBillboardObjects{};
-	std::set<GridObject*> mSkinMeshObjects{};
-
-	sptr<ModelObjectMesh> mRectMesh{};
+	std::set<GridObject*>	mRenderedObjects{};
+	std::set<GridObject*>	mTransparentObjects{};
+	std::set<GridObject*>	mBillboardObjects{};
+	std::set<GridObject*>	mSkinMeshObjects{};
 
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};
-	sptr<GridObject> mPlayer{};					// main player
-	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
+	sptr<GridObject>			  mPlayer{};			// main player
+	int							  mCurrPlayerIndex{};	// main player index from [mPlayers]
 
 	/* TestCube */
 	std::vector<sptr<TestCube>> mTestCubes{};
 
 	/* Map */
-	sptr<Terrain> mTerrain{};
-	BoundingBox mMapBorder{};					// max scene range	(grid will be generated within this border)
+	sptr<Terrain>	mTerrain{};
+	BoundingBox		mMapBorder{};				// max scene range	(grid will be generated within this border)
 
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids
@@ -86,10 +73,6 @@ private:
 
 	/* Others */
 	bool mIsRenderBounds = false;
-
-	/* Animation */
-	std::unordered_map<std::string, std::unordered_map<std::string, sptr<const AnimationClip>>>	mAnimationClipMap{};
-	std::unordered_map<std::string, sptr<AnimatorController>>	mAnimatorControllerMap{};
 
 private:
 #pragma region C/Dtor
@@ -105,18 +88,9 @@ private:
 public:
 #pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
-
-	// [modelName]에 해당하는 MasterModel을 반환한다.
-	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
-	// return the first inserted player
-	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); }
-
-	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
-	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;
+	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); } // return the first inserted player
 #pragma endregion
 
-
-public:
 #pragma region DirectX
 public:
 	void ReleaseUploadBuffers();
@@ -125,9 +99,7 @@ private:
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
 	void UpdateMaterialBuffer();
-
 #pragma endregion
-
 
 #pragma region Build
 public:
@@ -151,18 +123,11 @@ private:
 	void LoadSceneObjects(const std::string& fileName);
 	// 씬 파일에서 모든 객체의 정보를 불러온다. - call from Scene::LoadSceneObjects()
 	void LoadGameObjects(FILE* file);
-	// 유니티 씬에 없는(별도로 생성해야 하는) 동적 객체 모델을 불러온다.
-	void LoadModels();
-
-	void LoadAnimationClips();
-	void LoadAnimatorControllers();
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
 	void InitObjectByTag(const void* tag, sptr<GridObject> object);
-
 #pragma endregion
-
 
 #pragma region Render
 public:
@@ -224,9 +189,7 @@ private:
 	void UpdateFXObjects();
 
 	void UpdateSprites();
-	// for dynamic(movable) lights
-	void UpdateLights();
-	void UpdateCamera();
+
 #pragma endregion
 
 public:

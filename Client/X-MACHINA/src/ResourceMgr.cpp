@@ -3,14 +3,20 @@
 
 #include "FileIO.h"
 #include "Texture.h"
-#include "Shader.h"
 #include "Mesh.h"
+#include "Model.h"
+#include "Shader.h"
+#include "AnimationClip.h"
+#include "AnimatorController.h"
 
-void ResourceMgr::Init()
+void ResourceMgr::LoadResources()
 {
 	LoadTextures();
-	LoadShaders();
 	LoadRectangleMesh();
+	LoadModels();
+	LoadShaders();
+	LoadAnimationClips();
+	LoadAnimatorControllers();
 }
 
 void ResourceMgr::Clear()
@@ -52,6 +58,22 @@ void ResourceMgr::LoadTextures()
 {
 	FileIO::LoadTextures("Import/Textures/");
 	FileIO::LoadTextures("Import/UI/");
+}
+
+void ResourceMgr::LoadModels()
+{
+	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
+
+	sptr<MasterModel> model;
+	for (auto& name : binModelNames) {
+		if (!mResources[static_cast<UINT8>(ResourceType::Model)].contains(name)) {
+			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + name + ".bin");
+			if (name.substr(0, 6) == "sprite") {
+				model->SetSprite();
+			}
+			Add<MasterModel>(name, model);
+		}
+	}
 }
 
 void ResourceMgr::LoadShaders()
@@ -396,4 +418,30 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("LUT", shader);
 	}
 #pragma endregion
+}
+
+void ResourceMgr::LoadAnimationClips()
+{
+	const std::string rootFolder = "Import/AnimationClips/";
+	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
+		std::string clipFolderName = clipFolder.path().filename().string();
+
+		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
+			std::string fileName = file.path().filename().string();
+			sptr<AnimationClip> clip = FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
+
+			FileIO::RemoveExtension(fileName);
+			const std::string clipName = clipFolderName + '/' + fileName;
+			res->Add<AnimationClip>(clipName, clip);
+		}
+	}
+}
+
+void ResourceMgr::LoadAnimatorControllers()
+{
+	const std::string rootFolder = "Import/AnimatorControllers/";
+	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = file.path().filename().string();
+		res->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName));
+	}
 }

@@ -53,6 +53,8 @@ public:
 	void BuildLights(FILE* file);
 	void BuildLights();
 
+	void Update();
+
 	// 조명의 볼륨 메쉬를 렌더링한다.
 	void Render();
 

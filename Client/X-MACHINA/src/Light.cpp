@@ -65,6 +65,10 @@ void Light::BuildLights()
 	}
 }
 
+void Light::Update()
+{
+}
+
 void Light::Render()
 {
 	res->Get<ModelObjectMesh>("Rect")->Render();

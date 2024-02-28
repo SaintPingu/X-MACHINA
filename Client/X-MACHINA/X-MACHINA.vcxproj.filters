@@ -88,6 +88,9 @@
     <Filter Include="소스 파일\Shader\Lighting">
       <UniqueIdentifier>{c674e0af-79b1-44ba-833b-624a002f5066}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Shader\Utils">
+      <UniqueIdentifier>{b02cc291-a71d-41ab-a66c-278fb0dc4052}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -497,9 +500,6 @@
     <FxCompile Include="shaders\VShader_Instance.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\VShader_Rect.hlsl">
-      <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\VShader_Skybox.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
@@ -517,9 +517,6 @@
     </FxCompile>
     <FxCompile Include="shaders\VShader_Wired.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\Common.hlsl">
-      <Filter>소스 파일\Shader</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Billboard.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
@@ -563,14 +560,15 @@
     <FxCompile Include="shaders\PShader_DirLighting.hlsl">
       <Filter>소스 파일\Shader\Lighting</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\VShader_DirLighting.hlsl">
-      <Filter>소스 파일\Shader\Lighting</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\Light.hlsl">
-      <Filter>소스 파일\Shader\Lighting</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\CShader_HorzBlur.hlsl" />
     <FxCompile Include="shaders\CShader_VertBlur.hlsl" />
     <FxCompile Include="shaders\VShader_Sprite.hlsl" />
+    <FxCompile Include="shaders\VShader_Tex.hlsl" />
+    <FxCompile Include="shaders\Light.hlsl">
+      <Filter>소스 파일\Shader\Utils</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Common.hlsl">
+      <Filter>소스 파일\Shader\Utils</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

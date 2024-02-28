@@ -108,6 +108,7 @@ void Model::MergeModel(MasterModel& out)
 
 MasterModel::MasterModel()
 	:
+	Resource(ResourceType::Model),
 	mMesh(std::make_shared<MergedMesh>())
 {
 	

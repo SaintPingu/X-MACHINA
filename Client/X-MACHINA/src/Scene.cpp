@@ -19,11 +19,7 @@
 #include "Collider.h"
 #include "SkyBox.h"
 #include "Texture.h"
-#include "DescriptorHeap.h"
 #include "ObjectPool.h"
-
-#include "Animator.h"
-#include "AnimatorController.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -76,17 +72,6 @@ float Scene::GetTerrainHeight(float x, float z) const
 	return mTerrain->GetHeight(x, z);
 }
 
-rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
-{
-	assert(mModels.contains(modelName));
-
-	return mModels.at(modelName);
-}
-
-sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
-{
-	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
-}
 #pragma endregion
 
 
@@ -116,21 +101,21 @@ void Scene::UpdateMainPassCB()
 	timeElapsed += DeltaTime();
 
 	PassConstants passConstants;
-	passConstants.MtxView				= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
-	passConstants.MtxProj				= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
-	passConstants.EyeW					= mainCamera->GetPosition();
-	passConstants.DeltaTime				= timeElapsed;
-	passConstants.RT0G_PositionIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Position)->GetGpuDescriptorHandleIndex();
-	passConstants.RT1G_NormalIndex		= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
-	passConstants.RT2G_DiffuseIndex		= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Diffuse)->GetGpuDescriptorHandleIndex();
-	passConstants.RT3G_EmissiveIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Emissive)->GetGpuDescriptorHandleIndex();
-	passConstants.RT4G_DistanceIndex	= dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
-	passConstants.RT0L_DiffuseIndex		= dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Diffuse)->GetGpuDescriptorHandleIndex();
-	passConstants.RT1L_SpecularIndex	= dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Specular)->GetGpuDescriptorHandleIndex();
-	passConstants.RT2L_AmbientIndex		= dxgi->GetMRT(GroupType::Lighting)->GetTexture(Lighting::Ambient)->GetGpuDescriptorHandleIndex();
-	passConstants.LightCount			= mLight->GetLightCount();
-	passConstants.GlobalAmbient			= Vec4(0.05f, 0.05f, 0.05f, 1.f);
-	passConstants.FilterOption			= dxgi->GetFilterOption();
+	passConstants.MtxView						= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
+	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
+	passConstants.EyeW							= mainCamera->GetPosition();
+	passConstants.DeltaTime						= timeElapsed;
+	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT4G_MetallicSmoothnessIndex  = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT0L_DiffuseIndex				= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT2L_AmbientIndex				= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.LightCount					= mLight->GetLightCount();
+	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
+	passConstants.FilterOption					= dxgi->GetFilterOption();
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
@@ -139,10 +124,10 @@ void Scene::UpdateMainPassCB()
 
 void Scene::UpdateMaterialBuffer()
 {
-	// TODO : Update only if the numFramesDirty is greater than 0
-	for (auto& model : mModels) {
-		model.second->GetMesh()->UpdateMaterialBuffer();
-	}
+	res->ProcessFunc<MasterModel>(
+		[](sptr<MasterModel> model) {
+			model->GetMesh()->UpdateMaterialBuffer(); 
+		});
 }
 #pragma endregion
 
@@ -155,16 +140,13 @@ void Scene::UpdateMaterialBuffer()
 void Scene::BuildObjects()
 {
 	// load all resources
-	res->Init();
-	mRectMesh = res->Get<ModelObjectMesh>("Rect");
+	res->LoadResources();
+
 	// load canvas (UI)
 	canvas->Init();
 
 	// load models
-	LoadAnimationClips();
-	LoadAnimatorControllers();
 	LoadSceneObjects("Import/Scene.bin");
-	LoadModels();
 
 	// build settings
 	BuildPlayers();
@@ -187,12 +169,11 @@ void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(GetModel("tank_bullet"));
+	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(res->Get<MasterModel>("tank_bullet"));
 	//airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
-	airplanePlayer->SetModel(GetModel("EliteTrooper"));
-
+	airplanePlayer->SetModel(res->Get<MasterModel>("EliteTrooper"));
+	
 	mPlayers.push_back(airplanePlayer);
-
 	mPlayer = mPlayers.front();
 }
 
@@ -311,7 +292,7 @@ void Scene::LoadGameObjects(FILE* file)
 			FileIO::ReadString(file, meshName);
 
 			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + meshName + ".bin");
-			mModels.insert(std::make_pair(meshName, model));
+			res->Add<MasterModel>(meshName, model);
 
 			FileIO::ReadString(file, token); //"<Transforms>:"
 			FileIO::ReadVal(file, sameObjectCount);
@@ -349,49 +330,6 @@ void Scene::LoadGameObjects(FILE* file)
 		object->SetWorldTransform(transform);
 
 		--sameObjectCount;
-	}
-}
-
-void Scene::LoadModels()
-{
-	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
-
-	sptr<MasterModel> model;
-	for (auto& name : binModelNames) {
-		if (!mModels.contains(name)) {
-			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + name + ".bin");
-			if (name.substr(0, 6) == "sprite") {
-				model->SetSprite();
-			}
-			mModels.insert(std::make_pair(name, model));
-		}
-	}
-
-	
-}
-
-void Scene::LoadAnimationClips()
-{
-	const std::string rootFolder = "Import/AnimationClips/";
-	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
-		std::string clipFolderName = clipFolder.path().filename().string();
-
-		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
-			std::string fileName = file.path().filename().string();
-			sptr<const AnimationClip> clip = FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
-
-			FileIO::RemoveExtension(fileName);
-			mAnimationClipMap[clipFolderName].insert(std::make_pair(fileName, clip));
-		}
-	}
-}
-
-void Scene::LoadAnimatorControllers()
-{
-	const std::string rootFolder = "Import/AnimatorControllers/";
-	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
-		const std::string fileName = file.path().filename().string();
-		mAnimatorControllerMap.insert(std::make_pair(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName)));
 	}
 }
 
@@ -741,8 +679,8 @@ void Scene::Update()
 	CheckCollisions();
 
 	UpdateObjects();
-	UpdateLights();
-	UpdateCamera();
+	mLight->Update();
+	mainCameraObject->Update();
 	canvas->Update();
 
 	Animate();
@@ -808,16 +746,6 @@ void Scene::UpdateSprites()
 		}
 	}
 }
-
-void Scene::UpdateLights()
-{
-	// update dynamic lights here.
-}
-
-void Scene::UpdateCamera()
-{
-	mainCameraObject->Update();
-}
 #pragma endregion
 
 
@@ -828,7 +756,8 @@ void Scene::UpdateCamera()
 void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 {
 	sptr<GameObject> effect = std::make_shared<GameObject>();
-	effect->SetModel(GetModel("sprite_explosion"));
+	effect->SetModel(res->Get<MasterModel>("sprite_explosion"));
+	
 	effect->RemoveComponent<ObjectCollider>();
 	const auto& script = effect->AddComponent<Script_Sprite>();
 	script->SetSpeed(speed);

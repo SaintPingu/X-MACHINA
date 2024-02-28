@@ -2,6 +2,7 @@
 
 #pragma region Include
 #include "Component.h"
+#include "ResourceMgr.h"
 #pragma endregion
 
 
@@ -102,7 +103,7 @@ public:
 // 모델의 모든 메쉬와 재질 정보를 가지고 있다.
 // 이 클래스를 통해 모델을 가지는 게임 객체를 렌더링 한다.
 struct AnimationLoadInfo;
-class MasterModel {
+class MasterModel : public Resource{
 private:
 	sptr<MergedMesh> mMesh{};
 	sptr<AnimationLoadInfo>	mAnimationInfo{};

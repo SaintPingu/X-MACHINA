@@ -4,7 +4,10 @@ enum class ResourceType : UINT8 {
 	None,
 	Texture,
 	Mesh,
+	Model,
 	Shader,
+	AnimationClip,
+	AnimatorController,
 
 	_count
 };

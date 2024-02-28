@@ -36,17 +36,17 @@ struct PassConstants {
     float	    FogStart = 100.f;
     float	    FogRange = 300.f;
 
-    int         RT0G_PositionIndex   = -1;
-    int         RT1G_NormalIndex     = -1;
+    int         RT0G_PositionIndex           = -1;
+    int         RT1G_NormalIndex             = -1;
                    
-    int         RT2G_DiffuseIndex    = -1;
-    int         RT3G_EmissiveIndex   = -1;
-    int         RT4G_DistanceIndex   = -1;
+    int         RT2G_DiffuseIndex            = -1;
+    int         RT3G_EmissiveIndex           = -1;
+    int         RT4G_MetallicSmoothnessIndex = -1;
     int         FilterOption{};
 
-    int         RT0L_DiffuseIndex   = -1;
-    int         RT1L_SpecularIndex  = -1;
-    int         RT2L_AmbientIndex  = -1;
+    int         RT0L_DiffuseIndex            = -1;
+    int         RT1L_SpecularIndex           = -1;
+    int         RT2L_AmbientIndex            = -1;
     int         Padding2{};
 };
 

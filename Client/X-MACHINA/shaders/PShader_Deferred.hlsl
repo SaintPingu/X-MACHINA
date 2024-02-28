@@ -20,14 +20,15 @@ struct PSOutput_MRT {
 PSOutput_MRT PSDeferred(VSOutput_Standard pin)
 {
     // material info
-    MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
-    float4 diffuse       = matInfo.Diffuse;
-    float metallic       = matInfo.Metallic;
-    float roughness      = matInfo.Roughness;
-    int diffuseMapIndex  = matInfo.DiffuseMap0Index;
-    int normalMapIndex   = matInfo.NormalMapIndex;
-    int metallicMapIndex = matInfo.MetallicMapIndex;
-    int emissiveMapIndex = matInfo.EmissiveMapIndex;
+    MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuse        = matInfo.Diffuse;
+    float metallic        = matInfo.Metallic;
+    float roughness       = matInfo.Roughness;
+    int diffuseMapIndex   = matInfo.DiffuseMap0Index;
+    int normalMapIndex    = matInfo.NormalMapIndex;
+    int metallicMapIndex  = matInfo.MetallicMapIndex;
+    int emissiveMapIndex  = matInfo.EmissiveMapIndex;
+    int occlusionMapIndex = matInfo.OcclusionMapIndex;
     
     // sampling diffuseMap
     if (diffuseMapIndex != -1)
@@ -61,6 +62,12 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         metallicMapSample = GammaDecoding(gTextureMap[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
         metallic = metallicMapSample.r;
         roughness = 1 - metallicMapSample.a;
+    }
+    
+    float4 occlusionMapSample = (float4)0;
+    if (occlusionMapIndex != -1)
+    {
+        occlusionMapSample = gTextureMap[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
     
     float rimWidth = 0.8f;

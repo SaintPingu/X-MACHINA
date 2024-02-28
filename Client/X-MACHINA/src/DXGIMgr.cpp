@@ -223,7 +223,7 @@ void DXGIMgr::Render()
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
-	scene->RenderUI();
+	//scene->RenderUI();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 

@@ -12,8 +12,12 @@
 class Texture;
 class Shader;
 class ModelObjectMesh;
+class MasterModel;
+class AnimationClip;
+class AnimatorController;
 #pragma endregion
 
+#pragma region Class
 class ResourceMgr : public Singleton<ResourceMgr> {
 	friend Singleton;
 
@@ -39,11 +43,14 @@ public:
 	sptr<T> Get(const std::string& Key);
 
 	template<typename T>
+	void ProcessFunc(std::function<void(sptr<T>)> processFunc);
+
+	template<typename T>
 	ResourceType GetResourceType();
 #pragma endregion
 
 public:
-	void Init();
+	void LoadResources();
 	void Clear();
 	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4());
 	sptr<Texture> CreateTexture(const std::string& name, ComPtr<ID3D12Resource> resource);
@@ -51,8 +58,12 @@ public:
 
 private:
 	void LoadTextures();
+	void LoadModels();
 	void LoadShaders();
+	void LoadAnimationClips();
+	void LoadAnimatorControllers();
 };
+#pragma endregion
 
 template<typename T>
 inline sptr<T> ResourceMgr::Load(const std::string& key, const std::string& path)
@@ -105,12 +116,28 @@ inline sptr<T> ResourceMgr::Get(const std::string& key)
 }
 
 template<typename T>
+inline void ResourceMgr::ProcessFunc(std::function<void(sptr<T>)> processFunc)
+{
+	ResourceType resourceType = GetResourceType<T>();
+	
+	for (auto& resource : mResources[static_cast<UINT8>(resourceType)]) {
+		processFunc(std::static_pointer_cast<T>(resource.second));
+	}
+}
+
+template<typename T>
 inline ResourceType ResourceMgr::GetResourceType()
 {
 	if (std::is_same_v<T, Texture>)
 		return ResourceType::Texture;
+	if (std::is_same_v<T, ModelObjectMesh>)
+		return ResourceType::Mesh;
+	if (std::is_same_v<T, MasterModel>)
+		return ResourceType::Model;
 	if (std::is_same_v<T, Shader>)
 		return ResourceType::Shader;
-	if ( std::is_same_v<T, ModelObjectMesh>)
-		return ResourceType::Mesh;
+	if (std::is_same_v<T, AnimationClip>)
+		return ResourceType::AnimationClip;
+	if (std::is_same_v<T, AnimatorController>)
+		return ResourceType::AnimatorController;
 }

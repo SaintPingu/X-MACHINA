@@ -316,12 +316,8 @@ namespace {
 				material->LoadTextureFromFile(TextureMap::MetallicMap, file);
 				break;
 
-			case Hash("<HeightMap>:"):
-				//material->LoadTextureFromFile(TextureMap::HeightMap, file);
-				break;
-
-			case Hash("<RoughnessMap>:"):
-				//material->LoadTextureFromFile(TextureMap::RoughnessMap, file);
+			case Hash("<OcclusionMap>:"):
+				material->LoadTextureFromFile(TextureMap::OcclusionMap, file);
 				break;
 
 			case Hash("</Materials>"):
@@ -540,7 +536,7 @@ namespace {
 			std::string clipFolder, clipName;
 			FileIO::ReadString(file, clipFolder);
 			FileIO::ReadString(file, clipName);
-			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
+			sptr<const AnimationClip> clip = res->Get<AnimationClip>(clipFolder + '/' + clipName);
 
 			// Transitions
 			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);

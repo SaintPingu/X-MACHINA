@@ -401,9 +401,10 @@ inline std::wstring AnsiToWString(const std::string& str)
 enum class ObjectTag : DWORD;
 enum class VertexType : DWORD;
 enum class MaterialMap : DWORD;
+enum class HumanBone : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap>);
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, HumanBone>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)
@@ -427,6 +428,12 @@ template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<E
 constexpr DWORD operator|=(DWORD& lhs, EnumType rhs)
 {
 	return lhs = lhs | static_cast<DWORD>(rhs);
+}
+
+template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
+constexpr EnumType operator|=(EnumType& lhs, EnumType rhs)
+{
+	return lhs = static_cast<EnumType>(static_cast<DWORD>(lhs) | static_cast<DWORD>(rhs));
 }
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>

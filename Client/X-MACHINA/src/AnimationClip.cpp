@@ -18,20 +18,18 @@ AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int t
 
 Vec4x4 AnimationClip::GetSRT(int boneIndex, float position) const
 {
-	Vec4x4 result = Matrix4x4::Identity();
-
-	const size_t keyFrameCnt = mKeyFrameTimes.size();
-	for (size_t i = 0; i < (keyFrameCnt - 1); ++i) {
-		if ((mKeyFrameTimes[i] <= position) && (position < mKeyFrameTimes[i + 1])) {
-			const float t = (position - mKeyFrameTimes[i]) / (mKeyFrameTimes[i + 1] - mKeyFrameTimes[i]);
-			result = Matrix4x4::Interpolate(mKeyFrameTransforms[i][boneIndex], mKeyFrameTransforms[i + 1][boneIndex], t);
-			break;
-		}
+	const float lastPosition = mKeyFrameTimes.back();
+	if (position >= lastPosition) {
+		const size_t lastIndex = mKeyFrameTimes.size() - 1;
+		return mKeyFrameTransforms[lastIndex][boneIndex];
 	}
 
-	if (position >= mKeyFrameTimes[keyFrameCnt - 1]) {
-		result = mKeyFrameTransforms[keyFrameCnt - 1][boneIndex];
+	auto keyFramePosition = std::lower_bound(mKeyFrameTimes.begin(), mKeyFrameTimes.end(), position);
+	if (keyFramePosition != mKeyFrameTimes.begin()) {
+		keyFramePosition = std::prev(keyFramePosition);
 	}
+	const size_t keyFrameIndex = std::distance(mKeyFrameTimes.begin(), keyFramePosition);
 
-	return result;
+	const float t = (position - mKeyFrameTimes[keyFrameIndex]) / (mKeyFrameTimes[keyFrameIndex + 1] - mKeyFrameTimes[keyFrameIndex]);
+	return Matrix4x4::Interpolate(mKeyFrameTransforms[keyFrameIndex][boneIndex], mKeyFrameTransforms[keyFrameIndex + 1][boneIndex], t);
 }

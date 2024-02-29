@@ -1,55 +1,32 @@
 #pragma once
+#include "HumanBone.h"
 
 class AnimatorState;
-class AnimatorLayer;
+class AnimatorStateMachine;
 class AnimatorController;
-
-// AnimatorState간 상태 전이 조건
-struct AnimationCondition {
-	std::string mode{};
-	std::string paramName{};
-	float threshold{};
-};
-
-// AnimatorState간 상태 전이를 관리한다.
-struct AnimatorTransition {
-	std::string Destination{};
-	std::vector<AnimationCondition> Conditions{};
-
-	std::string CheckTransition(const AnimatorController* controller) const;
-};
-
-namespace Animations {
-	using StateMap = std::unordered_map<std::string, sptr<AnimatorState>>;
-	using LayerMap = std::unordered_map<std::string, sptr<AnimatorLayer>>;
-}
 
 class AnimatorLayer {
 private:
-	std::string mName{};
-	AnimatorLayer* mParent{};
+	std::string mName;
+	HumanBone mBoneMask;
 
-	std::vector<sptr<const AnimatorTransition>> mEntryTransitions{};
+	sptr<AnimatorStateMachine> mRootStateMachine;
 
-	Animations::StateMap mStates{};
-	Animations::LayerMap mLayers{};
+	sptr<AnimatorState>	mCrntState{};
+	sptr<AnimatorState>	mNextState{};
 
 public:
-	AnimatorLayer(std::string name, const std::vector<sptr<const AnimatorTransition>>& entryTransitions);
+	AnimatorLayer(const std::string& name, sptr<AnimatorStateMachine> rootStateMachine, HumanBone boneMask = HumanBone::None);
 	AnimatorLayer(const AnimatorLayer& other);
 	virtual ~AnimatorLayer() = default;
 
-	std::string GetName() const { return mName; }
-	sptr<AnimatorState> GetState(const std::string& name) const;
-	sptr<AnimatorLayer> GetLayer(const std::string& name) const;
-
-	void SetParent(AnimatorLayer* parent) { mParent = parent; }
+	Vec4x4 GetTransform(int boneIndex, HumanBone boneType) const;
 
 public:
-	sptr<AnimatorState> Entry() const;
+	bool CheckBoneMask(HumanBone boneType) { return boneType == HumanBone::None ? true : mBoneMask & boneType; }
 
-	void AddState(rsptr<AnimatorState> state);
-	void AddLayer(rsptr<AnimatorLayer> layer);
+	void Animate();
 
-	sptr<AnimatorState> CheckTransition(const AnimatorController* controller) const;
+	void CheckTransition(const AnimatorController* controller);
+	void ChangeToNextState();
 };

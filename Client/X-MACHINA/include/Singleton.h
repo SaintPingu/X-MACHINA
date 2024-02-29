@@ -2,7 +2,7 @@
 
 // usage :
 // class SampleClass : public Singleton<SampleClass> {
-//		friend Singleton
+//		friend Singleton;
 // };
 template<class T>
 class Singleton {

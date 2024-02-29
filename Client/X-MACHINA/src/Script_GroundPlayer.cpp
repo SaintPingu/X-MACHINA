@@ -18,7 +18,7 @@ void Script_GroundPlayer::Awake()
 		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
 		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
 		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
-		{WeaponType::GatlinGun, "SK_SciFiLaserGatlinGun" },
+		{WeaponType::GatlinGun, "SM_SciFiLaserGatlinGun" },
 		{WeaponType::ShotGun, "SM_SciFiShotgun" },
 		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
 	};

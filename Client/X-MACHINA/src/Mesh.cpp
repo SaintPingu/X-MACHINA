@@ -648,10 +648,300 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 #pragma endregion
 
 
+#pragma region Avatar
+BoneType Avatar::GetBoneType(const std::string& boneName) const
+{
+	if (mBoneTypes.contains(boneName)) {
+		return mBoneTypes.at(boneName);
+	}
+	
+	return BoneType::None;
+}
+
+void Avatar::SetBoneType(const std::string& boneName, const std::string& boneType)
+{
+	BoneType type = BoneType::None;
+
+	switch (Hash(boneType)) {
+		// Body
+		case Hash("Hips"):
+			type = BoneType::Hips;
+			break;
+		case Hash("Spine"):
+			type = BoneType::Spine;
+			break;
+		case Hash("Chest"):
+			type = BoneType::Chest;
+			break;
+		case Hash("UpperChest"):
+			type = BoneType::UpperChest;
+			break;
+
+			// Left Arm
+		case Hash("LeftShoulder"):
+			type = BoneType::LeftShoulder;
+			break;
+		case Hash("LeftUpperArm"):
+			type = BoneType::LeftUpperArm;
+			break;
+		case Hash("LeftLowerArm"):
+			type = BoneType::LeftLowerArm;
+			break;
+		case Hash("LeftHand"):
+			type = BoneType::LeftHand;
+			break;
+
+			// Right Arm
+		case Hash("RightShoulder"):
+			type = BoneType::RightShoulder;
+			break;
+		case Hash("RightUpperArm"):
+			type = BoneType::RightUpperArm;
+			break;
+		case Hash("RightLowerArm"):
+			type = BoneType::RightLowerArm;
+			break;
+		case Hash("RightHand"):
+			type = BoneType::RightHand;
+			break;
+
+			// Left Leg
+		case Hash("LeftUpperLeg"):
+			type = BoneType::LeftUpperLeg;
+			break;
+		case Hash("LeftLowerLeg"):
+			type = BoneType::LeftLowerLeg;
+			break;
+		case Hash("LeftFoot"):
+			type = BoneType::LeftFoot;
+			break;
+		case Hash("LeftToes"):
+			type = BoneType::LeftToes;
+			break;
+
+			// Right Leg
+		case Hash("RightUpperLeg"):
+			type = BoneType::RightUpperLeg;
+			break;
+		case Hash("RightLowerLeg"):
+			type = BoneType::RightLowerLeg;
+			break;
+		case Hash("RightFoot"):
+			type = BoneType::RightFoot;
+			break;
+		case Hash("RightToes"):
+			type = BoneType::RightToes;
+			break;
+
+			// Head
+		case Hash("Neck"):
+			type = BoneType::Neck;
+			break;
+		case Hash("Head"):
+			type = BoneType::Head;
+			break;
+		case Hash("LeftEye"):
+			type = BoneType::LeftEye;
+			break;
+		case Hash("RightEye"):
+			type = BoneType::RightEye;
+			break;
+		case Hash("Jaw"):
+			type = BoneType::Jaw;
+			break;
+
+			// Left Hand
+		case Hash("Left Thumb Proximal"):
+			type = BoneType::LeftThumbProximal;
+			break;
+		case Hash("Left Thumb Intermediate"):
+			type = BoneType::LeftThumbIntermediate;
+			break;
+		case Hash("Left Thumb Distal"):
+			type = BoneType::LeftThumbDistal;
+			break;
+
+		case Hash("Left Index Proximal"):
+			type = BoneType::LeftIndexProximal;
+			break;
+		case Hash("Left Index Intermediate"):
+			type = BoneType::LeftIndexIntermediate;
+			break;
+		case Hash("Left Index Distal"):
+			type = BoneType::LeftIndexDistal;
+			break;
+
+		case Hash("Left Middle Proximal"):
+			type = BoneType::LeftMiddleProximal;
+			break;
+		case Hash("Left Middle Intermediate"):
+			type = BoneType::LeftMiddleIntermediate;
+			break;
+		case Hash("Left Middle Distal"):
+			type = BoneType::LeftMiddleDistal;
+			break;
+
+		case Hash("Left Ring Proximal"):
+			type = BoneType::LeftRingProximal;
+			break;
+		case Hash("Left Ring Intermediate"):
+			type = BoneType::LeftRingIntermediate;
+			break;
+		case Hash("Left Ring Distal"):
+			type = BoneType::LeftRingDistal;
+			break;
+
+		case Hash("Left Little Proximal"):
+			type = BoneType::LeftLittleProximal;
+			break;
+		case Hash("Left Little Intermediate"):
+			type = BoneType::LeftLittleIntermediate;
+			break;
+		case Hash("Left Little Distal"):
+			type = BoneType::LeftLittleDistal;
+			break;
+
+			// Right Hand
+		case Hash("Right Thumb Proximal"):
+			type = BoneType::RightThumbProximal;
+			break;
+		case Hash("Right Thumb Intermediate"):
+			type = BoneType::RightThumbIntermediate;
+			break;
+		case Hash("Right Thumb Distal"):
+			type = BoneType::RightThumbDistal;
+			break;
+
+		case Hash("Right Index Proximal"):
+			type = BoneType::RightIndexProximal;
+			break;
+		case Hash("Right Index Intermediate"):
+			type = BoneType::RightIndexIntermediate;
+			break;
+		case Hash("Right Index Distal"):
+			type = BoneType::RightIndexDistal;
+			break;
+
+		case Hash("Right Middle Proximal"):
+			type = BoneType::RightMiddleProximal;
+			break;
+		case Hash("Right Middle Intermediate"):
+			type = BoneType::RightMiddleIntermediate;
+			break;
+		case Hash("Right Middle Distal"):
+			type = BoneType::RightMiddleDistal;
+			break;
+
+		case Hash("Right Ring Proximal"):
+			type = BoneType::RightRingProximal;
+			break;
+		case Hash("Right Ring Intermediate"):
+			type = BoneType::RightRingIntermediate;
+			break;
+		case Hash("Right Ring Distal"):
+			type = BoneType::RightRingDistal;
+			break;
+
+		case Hash("Right Little Proximal"):
+			type = BoneType::RightLittleProximal;
+			break;
+		case Hash("Right Little Intermediate"):
+			type = BoneType::RightLittleIntermediate;
+			break;
+		case Hash("Right Little Distal"):
+			type = BoneType::RightLittleDistal;
+			break;
+		default:
+			break;
+	}
+
+	mBoneTypes[boneName] = type;
+}
+
+#pragma endregion
 
 
 
 #pragma region SkinMesh
+HumanBone SkinMesh::GetHumanBone(int boneIndex) const
+{
+	switch (mBoneTypes[boneIndex]) {
+	case BoneType::Hips:
+	case BoneType::Spine:
+	case BoneType::Chest:
+	case BoneType::UpperChest:
+		return HumanBone::Body;
+
+	case BoneType::LeftShoulder:
+	case BoneType::LeftUpperArm:
+	case BoneType::LeftLowerArm:
+	case BoneType::LeftHand:
+		return HumanBone::LeftArm;
+
+	case BoneType::RightShoulder:
+	case BoneType::RightUpperArm:
+	case BoneType::RightLowerArm:
+	case BoneType::RightHand:
+		return HumanBone::RightArm;
+
+	case BoneType::LeftUpperLeg :
+	case BoneType::LeftLowerLeg:
+	case BoneType::LeftFoot:
+	case BoneType::LeftToes:
+		return HumanBone::LeftLeg;
+
+	case BoneType::RightUpperLeg:
+	case BoneType::RightLowerLeg:
+	case BoneType::RightFoot:
+	case BoneType::RightToes:
+		return HumanBone::RightLeg;
+
+	case BoneType::Neck:
+	case BoneType::Head:
+	case BoneType::LeftEye:
+	case BoneType::RightEye:
+	case BoneType::Jaw:
+		return HumanBone::Head;
+
+	case BoneType::LeftThumbProximal:
+	case BoneType::LeftThumbIntermediate:
+	case BoneType::LeftThumbDistal:
+	case BoneType::LeftIndexProximal:
+	case BoneType::LeftIndexIntermediate:
+	case BoneType::LeftIndexDistal:
+	case BoneType::LeftMiddleProximal:
+	case BoneType::LeftMiddleIntermediate:
+	case BoneType::LeftMiddleDistal:
+	case BoneType::LeftRingProximal:
+	case BoneType::LeftRingIntermediate:
+	case BoneType::LeftRingDistal:
+	case BoneType::LeftLittleProximal:
+	case BoneType::LeftLittleIntermediate:
+	case BoneType::LeftLittleDistal:
+		return HumanBone::LeftHand;
+
+	case BoneType::RightThumbProximal:
+	case BoneType::RightThumbIntermediate:
+	case BoneType::RightThumbDistal:
+	case BoneType::RightIndexProximal:
+	case BoneType::RightIndexIntermediate:
+	case BoneType::RightIndexDistal:
+	case BoneType::RightMiddleProximal:
+	case BoneType::RightMiddleIntermediate:
+	case BoneType::RightMiddleDistal:
+	case BoneType::RightRingProximal:
+	case BoneType::RightRingIntermediate:
+	case BoneType::RightRingDistal:
+	case BoneType::RightLittleProximal:
+	case BoneType::RightLittleIntermediate:
+	case BoneType::RightLittleDistal:
+		return HumanBone::LeftHand;
+
+	default:
+		return HumanBone::None;
+	}
+}
+
 void SkinMesh::UpdateShaderVariables()
 {
 	SkinnedConstants skinnedConstatnts{};

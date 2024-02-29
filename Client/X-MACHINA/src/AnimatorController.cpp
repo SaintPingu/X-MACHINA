@@ -8,58 +8,41 @@
 #include "Scene.h"
 #include "Timer.h"
 
-AnimatorController::AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer)
+AnimatorController::AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers)
 	:
 	mParameters(parameters),
-	mBaseLayer(baseLayer)
+	mLayers(layers)
 {
-	mCrntLayer = mBaseLayer;
-	mCrntState = mCrntLayer->Entry();
+
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
-	mParameters(other.mParameters),
-	mBaseLayer(std::make_shared<AnimatorLayer>(*other.mBaseLayer))
+	mParameters(other.mParameters)
 {
-	mCrntLayer = mBaseLayer;
-	mCrntState = mCrntLayer->Entry();
+	mLayers.reserve(other.mLayers.size());
+	for (auto& layer : other.mLayers) {
+		mLayers.push_back(std::make_shared<AnimatorLayer>(*layer));
+	}
+	// layers 복사 하기
 }
 
 void AnimatorController::Animate()
 {
-	mCrntState->Animate();
-
-	if (mNextState) {
-		bool isEndAnimation = mNextState->Animate();
-
-		if (isEndAnimation) {
-			ChangeToNextState();
-		}
-		else {
-			constexpr float kMaxDuration = .25f;
-			const float crntDuration = mNextState->GetCrntLength();
-
-			const float t = crntDuration / kMaxDuration;
-			if (t < 1.f) {
-				mCrntState->SetWeight(1 - t);
-				mNextState->SetWeight(t);
-			}
-			else {
-				ChangeToNextState();
-			}
-		}
+	for (auto& layer : mLayers) {
+		layer->Animate();
 	}
 }
 
-Vec4x4 AnimatorController::GetTransform(int boneIndex)
+Vec4x4 AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 {
-	Vec4x4 transform = Matrix4x4::Scale(mCrntState->GetSRT(boneIndex), mCrntState->GetWeight());
-	if (mNextState) {
-		transform = Matrix4x4::Add(transform, Matrix4x4::Scale(mNextState->GetSRT(boneIndex), mNextState->GetWeight()));
+	for (auto& layer : mLayers) {
+		if (layer->CheckBoneMask(boneType)) {
+			return layer->GetTransform(boneIndex, boneType);
+		}
 	}
 
-	return transform;
+	return Matrix4x4::Identity();
 }
 
 void AnimatorController::SetValue(const std::string& paramName, AnimatorParameter::value value)
@@ -95,27 +78,7 @@ void AnimatorController::SetValue(const std::string& paramName, AnimatorParamete
 
 void AnimatorController::CheckTransition()
 {
-	if (mNextState) {
-		return;
+	for (auto& layer : mLayers) {
+		layer->CheckTransition(this);
 	}
-
-	mNextState = mBaseLayer->CheckTransition(this);
-	if (mNextState == mCrntState) {
-		mNextState = nullptr;
-	}
-	else if (mNextState != nullptr) {
-		mNextState->Init();
-	}
-}
-
-void AnimatorController::ChangeToNextState()
-{
-	if (!mNextState) {
-		return;
-	}
-
-	mCrntState->Init();
-	mNextState->SetWeight(1.f);
-	mCrntState = mNextState;
-	mNextState = nullptr;
 }

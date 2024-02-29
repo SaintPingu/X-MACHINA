@@ -28,20 +28,16 @@ class AnimatorController {
 private:
 	Animations::ParamMap mParameters{};
 
-	const sptr<AnimatorLayer> mBaseLayer{};
-	sptr<AnimatorLayer> mCrntLayer{};
-
-	sptr<AnimatorState>	mCrntState{};
-	sptr<AnimatorState>	mNextState{};
+	std::vector<sptr<AnimatorLayer>> mLayers;
 
 public:
-	AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer);
+	AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers);
 	AnimatorController(const AnimatorController& other);
 	virtual ~AnimatorController() = default;
 
 	bool HasParam(const std::string paramName) const { return mParameters.contains(paramName); }
 
-	Vec4x4 GetTransform(int boneIndex);
+	Vec4x4 GetTransform(int boneIndex, HumanBone boneType);
 	const Animations::ParamMap& GetParams() const { return mParameters; }
 	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
 	float GetParamValue(const std::string& paramName) const { return mParameters.at(paramName).val.f; }
@@ -54,5 +50,4 @@ public:
 private:
 
 	void CheckTransition();
-	void ChangeToNextState();
 };

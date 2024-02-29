@@ -1,15 +1,15 @@
 #pragma once
 
-class AnimationClip;
-class AnimatorLayer;
 struct AnimatorTransition;
+class AnimationClip;
+class AnimatorStateMachine;
  
 // AnimationClip의 재생을 관리한다.
 class AnimatorState {
 private:
 	std::string mName{};
 
-	const AnimatorLayer* mLayer{};
+	const AnimatorStateMachine* mStateMachine{};
 	sptr<const AnimationClip> mClip{};
 
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
@@ -19,7 +19,7 @@ private:
 	float 	mWeight     = 1.f;
 
 public:
-	AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions);
+	AnimatorState(rsptr<const AnimatorStateMachine> staeMachine, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions);
 	AnimatorState(const AnimatorState& other);
 	virtual ~AnimatorState() = default;
 

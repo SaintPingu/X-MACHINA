@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "AnimatorState.h"
 
-#include "AnimatorLayer.h"
+#include "AnimatorStateMachine.h"
 #include "AnimationClip.h"
 #include "Timer.h"
 
-AnimatorState::AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions)
+AnimatorState::AnimatorState(rsptr<const AnimatorStateMachine> staeMachine, rsptr<const AnimationClip> clip, const std::vector<sptr<const AnimatorTransition>>& transitions)
 	:
-	mLayer(layer.get()),
+	mStateMachine(staeMachine.get()),
 	mClip(clip),
 	mName(clip->mName),
 	mTransitions(transitions)
@@ -17,7 +17,7 @@ AnimatorState::AnimatorState(rsptr<const AnimatorLayer> layer, rsptr<const Anima
 
 AnimatorState::AnimatorState(const AnimatorState& other)
 {
-	mLayer = other.mLayer;
+	mStateMachine = other.mStateMachine;
 	mName = other.mName;
 	mClip = other.mClip;
 	mSpeed = other.mSpeed;

@@ -3,10 +3,11 @@
 
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "ResourceMgr.h"
 #include "Scene.h"
 #include "FileIO.h"
 #include "Mesh.h"
-#include "ResourceMgr.h"
+#include "Shader.h"
 
 namespace {
 	constexpr int gkSunLightIdx = 0;
@@ -99,7 +100,20 @@ void Light::Render()
 	for (int i = 0; i < mLights->Lights.size(); ++i) {
 		auto& light = mLights->Lights[i];
 		auto& volumeMesh = mLights->VolumeMeshes[i];
-		if (mLights->Lights[i].IsEnable) {
+		if (light.IsEnable) {
+			switch (static_cast<LightType>(light.Type))
+			{
+			case LightType::Spot:
+			case LightType::Point:
+				res->Get<Shader>("SpotPointLighting")->Set();
+				break;
+			case LightType::Directional:
+				res->Get<Shader>("DirLighting")->Set();
+				break;
+			default:
+				break;
+			}
+			
 			UpdateShaderVars(i);
 			volumeMesh->Render();
 		}

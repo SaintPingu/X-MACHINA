@@ -425,10 +425,8 @@ void Scene::RenderDeferred()
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
 #pragma endregion
-
-	res->Get<Shader>("Global")->Set();
-
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	res->Get<Shader>("Global")->Set();
 	RenderGridObjects();	
 	RenderSkinMeshObjects();
 	RenderEnvironments();	
@@ -443,7 +441,6 @@ void Scene::RenderDeferred()
 void Scene::RenderLights()
 {
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	res->Get<Shader>("DirLighting")->Set();
 
 	if (mLight) {
 		mLight->Render();
@@ -454,7 +451,6 @@ void Scene::RenderFinal()
 {
 	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
 	res->Get<Shader>("Final")->Set();
-
 	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 
@@ -469,17 +465,15 @@ void Scene::RenderForward()
 
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	frmResMgr->CopyData(passConstants);
 	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
 
-	// 쉐이더 설정
 	res->Get<Shader>("OffScreen")->Set();
-
-	// 렌더링
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 

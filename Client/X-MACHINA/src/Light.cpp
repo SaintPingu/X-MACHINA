@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Light.h"
 
+#include "DXGIMgr.h"
+#include "FrameResource.h"
 #include "Scene.h"
 #include "FileIO.h"
 #include "Mesh.h"
@@ -41,7 +43,6 @@ void Light::BuildLights(FILE* file)
 	LoadLightObjects(file);
 	LoadLightModels();
 
-	mLoadLights->Lights[gkSunLightIdx].IsEnable = true;	// sunlight(전역조명)를 활성화한다.
 	SetSunlight();
 
 	BuildLights();
@@ -53,7 +54,6 @@ void Light::BuildLights()
 	for (int i = 0; i < mLoadLights->Lights.size(); ++i) {
 		const auto& loadLight = mLoadLights->Lights[i];
 		auto& light = mLights->Lights[i];
-
 		light.Strength = Vec3{ loadLight.Diffuse.x, loadLight.Diffuse.y, loadLight.Diffuse.z };
 		light.FalloffStart = 1.f;
 		light.Direction = loadLight.Direction;
@@ -61,27 +61,60 @@ void Light::BuildLights()
 		light.Position = loadLight.Position;
 		light.SpotPower = 64.f;
 		light.Type = loadLight.Type;
+		light.IsEnable = loadLight.IsEnable;
 
+		auto& volumeMesh = mLights->VolumeMeshes[i];
+		switch (static_cast<LightType>(light.Type))
+		{
+		case LightType::Spot:
+		case LightType::Point:
+			volumeMesh = std::make_shared<ModelObjectMesh>();
+			volumeMesh->CreateSphereMesh(light.FalloffEnd);
+			break;
+		case LightType::Directional:
+			volumeMesh = res->Get<ModelObjectMesh>("Rect");
+			break;
+		}
 	}
 }
 
 void Light::Update()
 {
+	// TODO : 동적 조명 세팅
+}
+
+void Light::UpdateShaderVars(int index)
+{
+	// TODO : 동적 조명만 업데이트
+	auto& light = mLights->Lights[index];
+	ObjectConstants objectConstants;
+	objectConstants.MtxWorld = XMMatrixTranslation(light.Position.x, light.Position.y, light.Position.z);
+	objectConstants.LightIndex = index;
+	frmResMgr->CopyData(light.ObjCBIndex, objectConstants);
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(light.ObjCBIndex));
 }
 
 void Light::Render()
 {
-	res->Get<ModelObjectMesh>("Rect")->Render();
+	for (int i = 0; i < mLights->Lights.size(); ++i) {
+		auto& light = mLights->Lights[i];
+		auto& volumeMesh = mLights->VolumeMeshes[i];
+		if (mLights->Lights[i].IsEnable) {
+			UpdateShaderVars(i);
+			volumeMesh->Render();
+		}
+	}
 }
 
 void Light::SetSunlight()
 {
-	LightLoadInfo& light     = mLoadLights->Lights[gkSunLightIdx];
+	LightLoadInfo& light = mLoadLights->Lights[gkSunLightIdx];
 	light.Type           = static_cast<int>(LightType::Directional);
 	light.Ambient        = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	light.Diffuse        = Vec4(0.9f, 0.9f, 0.9f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Direction		 = Vec3(0.57735f, -0.57735f, 0.57735f);
+	light.IsEnable		 = true;
 }
 
 void Light::LoadLightModels()

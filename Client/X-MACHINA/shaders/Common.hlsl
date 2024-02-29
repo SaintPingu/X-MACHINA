@@ -29,7 +29,9 @@ struct LightInfo
     float3  Position;       // point light only
     float   SpotPower;      // spot light only
     int     LightType;
-    float3  Padding;
+    int     IsEnable;
+	int		ObjCBIndex;
+    int     Padding;
 };
 
 struct LightColor
@@ -67,7 +69,8 @@ struct ObjectInfo {
     matrix  MtxWorld;
     matrix  MtxSprite;
     int     MatIndex;
-    float3  Padding;
+    int     LightIndex;
+    float2  Padding;
 };
 
 struct PassInfo {
@@ -77,8 +80,11 @@ struct PassInfo {
     float       DeltaTime;
 
     LightInfo   Lights[gkMaxSceneLight];
+    
     uint        LightCount;
-    float3      Padding;
+    int         FrameBufferWidth;
+    int         FrameBufferHeight;
+    int         FilterOption;
     
     float4      GlobalAmbient;
     float4      FogColor;
@@ -91,12 +97,11 @@ struct PassInfo {
     int         RT2_DiffuseIndex;
     int         RT3_EmissiveIndex;
     int         RT4_MetallicSmoothnessIndex;
-    int         FilterOption;
-    
     int         RT0L_DiffuseIndex;
+    
     int         RT1L_SpecularIndex;
     int         RT2L_AmbientIndex;
-    float       Padding2;
+    float2      Padding;
 };
 
 struct PostPassInfo {

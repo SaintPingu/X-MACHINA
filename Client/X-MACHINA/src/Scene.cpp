@@ -105,6 +105,8 @@ void Scene::UpdateMainPassCB()
 	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
 	passConstants.EyeW							= mainCamera->GetPosition();
 	passConstants.DeltaTime						= timeElapsed;
+	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
+	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
 	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
@@ -116,7 +118,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.LightCount					= mLight->GetLightCount();
 	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
 	passConstants.FilterOption					= dxgi->GetFilterOption();
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
+	memcpy(&passConstants.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passConstants.Lights));
 	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
 	frmResMgr->CopyData(passConstants);

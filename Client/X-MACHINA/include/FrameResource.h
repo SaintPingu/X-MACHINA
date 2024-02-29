@@ -26,28 +26,29 @@ struct PassConstants {
     Vec3        EyeW{};
     float       DeltaTime{};
 
-    SceneLight  Lights{};
+    std::array<LightInfo, gkMaxSceneLight> Lights{};
+
     UINT        LightCount{};
-    Vec3        Padding{};
+    int         FrameBufferWidth{};
+    int         FrameBufferHeight{};
+    int         FilterOption{};
     
     Vec4	    GlobalAmbient = {0.15f, 0.15f, 0.15f, 0.0f};
     Vec4	    FogColor{};
 
     float	    FogStart = 100.f;
     float	    FogRange = 300.f;
-
     int         RT0G_PositionIndex           = -1;
     int         RT1G_NormalIndex             = -1;
                    
     int         RT2G_DiffuseIndex            = -1;
     int         RT3G_EmissiveIndex           = -1;
     int         RT4G_MetallicSmoothnessIndex = -1;
-    int         FilterOption{};
-
     int         RT0L_DiffuseIndex            = -1;
+
     int         RT1L_SpecularIndex           = -1;
     int         RT2L_AmbientIndex            = -1;
-    int         Padding2{};
+    int         Padding{};
 };
 
 struct PostPassConstants {
@@ -59,7 +60,8 @@ struct ObjectConstants {
     Matrix      MtxWorld{};
     Matrix      MtxSprite{};
     int         MatIndex{};
-    Vec3        Padding{};
+    int         LightIndex{};
+    Vec2        Padding{};
 };
 
 struct SkinnedConstants {

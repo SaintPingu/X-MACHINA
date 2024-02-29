@@ -1,5 +1,10 @@
 #pragma once
 
+#pragma region ClassForwardDecl
+class ModelObjectMesh;
+#pragma endregion
+
+
 #pragma region EnumClass
 // must be matched with Light.hlsl LightType
 enum class LightType {
@@ -23,9 +28,8 @@ enum class LightType {
 #pragma region Class
 class Light {
 private:
-	sptr<SceneLight>		mLights{};		// all lights in scene
-	sptr<SceneLoadLight>	mLoadLights{};	// all load lights in scene
-
+	sptr<SceneLight>		mLights{};			// all lights in scene
+	sptr<SceneLoadLight>	mLoadLights{};		// all load lights in scene
 	size_t					mCurrLightCnt{};	// count of allocated light in scene
 
 	std::unordered_map<std::string, const LightLoadInfo*> mLightModels{};	// 하나의 조명 모델에 대해 여러 조명을 동적으로 생성 가능한 모델 목록
@@ -54,6 +58,7 @@ public:
 	void BuildLights();
 
 	void Update();
+	void UpdateShaderVars(int index);
 
 	// 조명의 볼륨 메쉬를 렌더링한다.
 	void Render();

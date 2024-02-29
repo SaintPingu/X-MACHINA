@@ -296,22 +296,6 @@ namespace D3DUtil {
 		delete[] byteCode;
 
 		return blob;
-
-		//D3D12_SHADER_BYTECODE shaderByteCode{};
-		//if (!shaderBlob) {
-		//	HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
-		//	AssertHResult(hResult);
-		//	::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
-		//	shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
-		//	shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
-		//	delete[] byteCode;
-		//}
-		//else {
-		//	shaderByteCode.BytecodeLength = byteSize;
-		//	shaderByteCode.pShaderBytecode = byteCode;
-		//}
-
-		//return shaderByteCode;	
 	}
 }
 #pragma endregion

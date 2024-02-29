@@ -330,6 +330,24 @@ void ResourceMgr::LoadShaders()
 		shader->Load(info, path);
 		Add<Shader>("DirLighting", shader);
 	}
+
+	{
+		ShaderInfo info = {
+			ShaderType::Lighting,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 L"VShader_SpotPointLighting.cso",
+			 L"PShader_SpotPointLighting.cso",
+			 L""
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("SpotPointLighting", shader);
+	}
 #pragma endregion
 #pragma region Transparent
 	{

@@ -331,14 +331,16 @@ struct VertexBufferViews {
 };
 
 struct LightInfo {
-	Vec3	Strength = { 0.5f, 0.5f, 0.5f };
-	float	FalloffStart = 1.f;					// point/spot light only
-	Vec3	Direction = { 0.f, -1.f, 0.f };     // directional/spot light only
-	float	FalloffEnd = 10.f;					// point/spot light only
-	Vec3	Position = { 0.f, 0.f, 0.f };		// point light only
-	float	SpotPower = 64.f;					// spot light only
-	int		Type{};
-	Vec3	Padding{};
+	Vec3	Strength	 = { 0.5f, 0.5f, 0.5f };
+	float	FalloffStart = 1.f;					 // point/spot light only
+	Vec3	Direction	 = { 0.f, -1.f, 0.f };   // directional/spot light only
+	float	FalloffEnd	 = 10.f;				 // point/spot light only
+	Vec3	Position	 = { 0.f, 0.f, 0.f };	 // point light only
+	float	SpotPower	 = 64.f;				 // spot light only
+	int		Type		 = 0;
+	int		IsEnable	 = 0;
+	int		ObjCBIndex	 = -1;
+	int 	Padding{};
 };
 
 // must be matched with Light.hlsl LightInfo
@@ -366,9 +368,9 @@ struct SceneLoadLight {
 	std::array<LightLoadInfo, gkMaxSceneLight> Lights{};
 };
 
-// must be matched with Light.hlsl cbLights
 struct SceneLight {
 	std::array<LightInfo, gkMaxSceneLight> Lights{};
+	std::array<sptr<class ModelObjectMesh>, gkMaxSceneLight>	VolumeMeshes{};
 };
 #pragma endregion
 

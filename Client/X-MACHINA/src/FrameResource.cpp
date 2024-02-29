@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "FrameResource.h"
 
+#include "Light.h"
 #pragma region MaterialData
 MaterialData::MaterialData()
 {

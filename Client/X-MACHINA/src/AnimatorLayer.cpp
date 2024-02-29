@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "AnimatorLayer.h"
 
+#include "Timer.h"
+#include "AnimationClip.h"
 #include "AnimatorController.h"
 #include "AnimatorState.h"
 #include "AnimatorStateMachine.h"
@@ -34,9 +36,24 @@ Vec4x4 AnimatorLayer::GetTransform(int boneIndex, HumanBone boneType) const
 	return transform;
 }
 
+void AnimatorLayer::SetCrntStateLength(float length) const
+{
+	if (mNextState) {
+		return;
+	}
+
+	mCrntState->SetLength(length);
+}
+
 void AnimatorLayer::Animate()
 {
 	mCrntState->Animate();
+	if (mSyncState) {
+		float distance = fabs(mCrntState->GetCrntLength() - mSyncState->GetCrntLength());
+		if (fabs(distance) <= 0.05f) {
+			SyncComplete();
+		}
+	}
 
 	if (mNextState) {
 		bool isEndAnimation = mNextState->Animate();
@@ -72,6 +89,7 @@ void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 		mNextState = nullptr;
 	}
 	else if (mNextState != nullptr) {
+		mCrntState->SetSpeed(1);
 		mNextState->Init();
 	}
 }
@@ -86,5 +104,65 @@ void AnimatorLayer::ChangeToNextState()
 	mNextState->SetWeight(1.f);
 	mCrntState = mNextState;
 	mNextState = nullptr;
+
+	if (mController) {
+		mController->SyncAnimation();
+	}
+}
+
+void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
+{
+	if (mNextState) {
+		return;
+	}
+
+	mSyncState = srcState;
+
+	float length = mSyncState->GetCrntLength();
+	float threshold = mSyncState->GetClip()->mLength;
+	float myLength = mCrntState->GetCrntLength();
+	float distance = length - myLength;
+	if (fabs(distance) < 0.05f) {
+		SyncComplete();
+		return;
+	}
+
+
+	float myThreshold = mCrntState->GetClip()->mLength;
+	threshold = threshold < myThreshold ? threshold : myThreshold;
+
+	float speed{};
+
+	float otherDstTime = threshold - length;	// 대상의 애니메이션 종료 시간
+	float myDstTime = threshold - myLength;		// 나의         "
+	// 남은 길이가 절반 이상이라면
+	if (fabs(distance) > threshold / 2) {
+		//speed = 0;
+		speed = otherDstTime / myDstTime;
+	}
+	else {
+		// 내 애니메이션이 빠를 경우 천천히,
+		//				  느릴 경우 빨리
+		// 재생해 두 애니메이션 속도를 맞춘다.
+
+		// 나의 애니메이션 종료 시간이 대상과 동일해야 한다.
+		speed = myDstTime / otherDstTime;
+	}
+
+	speed = std::clamp(speed, 0.75f, 1.25f);
+
+	mCrntState->SetSpeed(speed);
+	//mCrntState->SetLength(length);
+}
+
+void AnimatorLayer::SyncComplete()
+{
+	mCrntState->SetSpeed(1);
+	float distance = mCrntState->GetCrntLength() - mSyncState->GetCrntLength();
+	if (distance > 0) {
+		int a = 5;
+	}
+	mCrntState->SetLength(mSyncState->GetCrntLength());
+	mSyncState = nullptr;
 }
 #pragma endregion

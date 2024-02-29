@@ -868,6 +868,8 @@ HumanBone SkinMesh::GetHumanBone(int boneIndex) const
 	switch (mBoneTypes[boneIndex]) {
 	case BoneType::Hips:
 	case BoneType::Spine:
+		return HumanBone::Root;
+
 	case BoneType::Chest:
 	case BoneType::UpperChest:
 		return HumanBone::Body;

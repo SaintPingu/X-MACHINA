@@ -529,6 +529,7 @@ namespace {
 	HumanBone LoadAvatarMask(FILE* file)
 	{
 		HumanBone result = HumanBone::None;
+		result |= FileIO::ReadVal<bool>(file) ? HumanBone::Root		 : HumanBone::None;
 		result |= FileIO::ReadVal<bool>(file) ? HumanBone::Body		 : HumanBone::None;
 		result |= FileIO::ReadVal<bool>(file) ? HumanBone::LeftArm	 : HumanBone::None;
 		result |= FileIO::ReadVal<bool>(file) ? HumanBone::RightArm  : HumanBone::None;

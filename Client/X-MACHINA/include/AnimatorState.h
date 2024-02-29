@@ -14,7 +14,7 @@ private:
 
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
-	float 	mSpeed      = .5f;
+	float 	mSpeed      = 1.f;
 	float 	mCrntLength = 0.f;
 	float 	mWeight     = 1.f;
 
@@ -29,6 +29,7 @@ public:
 	rsptr<const AnimationClip> GetClip() const { return mClip; }
 	std::string GetName() const { return mName; }
 
+	void SetLength(float length);
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetWeight(float weight) { mWeight = weight; }
 

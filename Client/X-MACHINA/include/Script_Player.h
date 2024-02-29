@@ -149,6 +149,7 @@ private:
 	float mRotationSpeed{};
 	sptr<Weapon> mWeapon{};
 	std::vector<sptr<Weapon>> mWeapons{};
+	Transform* mSpine{};
 
 public:
 	virtual void Awake() override;

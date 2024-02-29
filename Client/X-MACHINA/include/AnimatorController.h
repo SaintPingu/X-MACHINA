@@ -47,7 +47,8 @@ public:
 public:
 	void Animate();
 
-private:
+	void SyncAnimation();
 
+private:
 	void CheckTransition();
 };

@@ -1,22 +1,25 @@
 #pragma once
 enum class HumanBone : DWORD {
 	None		= 0x00,
-	Body		= 0x01,
-	LeftArm     = 0x02,
-	RightArm    = 0x04,
-	LeftLeg     = 0x08,
-	RightLeg    = 0x10,
-	Head        = 0x20,
-	LeftHand    = 0x40,
-	RightHand   = 0x80,
+	Root		= 0x01,
+	Body		= 0x02,
+	LeftArm     = 0x04,
+	RightArm    = 0x08,
+	LeftLeg     = 0x10,
+	RightLeg    = 0x20,
+	Head        = 0x40,
+	LeftHand    = 0x80,
+	RightHand   = 0x100,
 	All			= 0xFFFFFFFF
 };
 
 enum class BoneType {
 	None,
 
-	// Body
+	// Root
 	Hips,
+
+	// Body
 	Spine,
 	Chest,
 	UpperChest,

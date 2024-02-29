@@ -65,6 +65,34 @@ std::string AnimatorTransition::CheckTransition(const AnimatorController* contro
 		}
 
 		break;
+		case Hash("NotEqual"):	// == !Math::IsEqual
+		{
+			switch (param->type) {
+			case AnimatorParameter::Type::Int:
+			{
+				int value = param->val.i;
+				if (value == static_cast<int>(round(condition.threshold))) {
+					return "";
+				}
+			}
+
+			break;
+			case AnimatorParameter::Type::Float:
+			{
+				float value = param->val.f;
+				if (Math::IsEqual(value, condition.threshold)) {
+					return "";
+				}
+			}
+
+			break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+
+		break;
 		default:
 			assert(0);
 			break;

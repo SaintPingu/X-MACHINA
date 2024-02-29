@@ -31,15 +31,26 @@ Vec4x4 AnimatorState::GetSRT(int boneIndex) const
 	return mClip->GetSRT(boneIndex, mCrntLength);
 }
 
+void AnimatorState::SetLength(float length)
+{
+	mCrntLength = length;
+	if (IsEndAnimation()) {
+		mCrntLength = 0.f;
+	}
+}
+
 void AnimatorState::Init()
 {
 	mCrntLength = 0.f;
 	mWeight = 1.f;
+	mSpeed = 1.f;
 }
 
 bool AnimatorState::Animate()
 {
-	mCrntLength += mSpeed * DeltaTime();
+	constexpr float corrSpeed = 0.5f;	// 스피드 보정값 (60fps)
+
+	mCrntLength += (mSpeed * corrSpeed) * DeltaTime();
 	if (IsEndAnimation()) {
 		mCrntLength = 0.f;
 		return true;
@@ -50,5 +61,5 @@ bool AnimatorState::Animate()
 
 bool AnimatorState::IsEndAnimation()
 {
-	return mCrntLength > mClip->mLength;
+	return (mCrntLength > mClip->mLength) || (mCrntLength < 0);
 }

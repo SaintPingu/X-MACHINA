@@ -7,10 +7,13 @@ class AnimatorController;
 
 class AnimatorLayer {
 private:
-	std::string mName;
-	HumanBone mBoneMask;
+	sptr<const AnimatorState> mSyncState{};
 
-	sptr<AnimatorStateMachine> mRootStateMachine;
+	std::string mName{};
+	HumanBone mBoneMask{};
+
+	AnimatorController* mController{};
+	sptr<AnimatorStateMachine> mRootStateMachine{};
 
 	sptr<AnimatorState>	mCrntState{};
 	sptr<AnimatorState>	mNextState{};
@@ -20,7 +23,11 @@ public:
 	AnimatorLayer(const AnimatorLayer& other);
 	virtual ~AnimatorLayer() = default;
 
+	sptr<const AnimatorState> GetSyncState() const { return mNextState ? mCrntState : mCrntState; }
 	Vec4x4 GetTransform(int boneIndex, HumanBone boneType) const;
+
+	void SetController(AnimatorController* controller) { mController = controller; }
+	void SetCrntStateLength(float length) const;
 
 public:
 	bool CheckBoneMask(HumanBone boneType) { return boneType == HumanBone::None ? true : mBoneMask & boneType; }
@@ -29,4 +36,9 @@ public:
 
 	void CheckTransition(const AnimatorController* controller);
 	void ChangeToNextState();
+
+	void SyncAnimation(rsptr<const AnimatorState> srcState);
+
+private:
+	void SyncComplete();
 };

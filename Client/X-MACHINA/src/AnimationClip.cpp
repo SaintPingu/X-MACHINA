@@ -18,10 +18,14 @@ AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int t
 
 Vec4x4 AnimationClip::GetSRT(int boneIndex, float position) const
 {
+
 	const float lastPosition = mKeyFrameTimes.back();
 	if (position >= lastPosition) {
 		const size_t lastIndex = mKeyFrameTimes.size() - 1;
 		return mKeyFrameTransforms[lastIndex][boneIndex];
+	}
+	else if (position < 0.f) {
+		position = 0.f;
 	}
 
 	auto keyFramePosition = std::lower_bound(mKeyFrameTimes.begin(), mKeyFrameTimes.end(), position);

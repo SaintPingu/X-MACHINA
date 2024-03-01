@@ -104,7 +104,8 @@ void Scene::UpdateMainPassCB()
 	passConstants.MtxView						= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
 	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
 	passConstants.EyeW							= mainCamera->GetPosition();
-	passConstants.DeltaTime						= timeElapsed;
+	passConstants.DeltaTime						= DeltaTime();
+	passConstants.TotalTime						= timeElapsed;
 	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
 	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
 	passConstants.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();

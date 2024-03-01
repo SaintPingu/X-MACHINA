@@ -24,14 +24,13 @@ struct PassConstants {
     Matrix      MtxView{};
     Matrix      MtxProj{};
     Vec3        EyeW{};
-    float       DeltaTime{};
-
+    UINT        LightCount{};
     std::array<LightInfo, gkMaxSceneLight> Lights{};
 
-    UINT        LightCount{};
+    float       DeltaTime{};
+    float       TotalTime{};
     int         FrameBufferWidth{};
     int         FrameBufferHeight{};
-    int         FilterOption{};
     
     Vec4	    GlobalAmbient = {0.15f, 0.15f, 0.15f, 0.0f};
     Vec4	    FogColor{};
@@ -49,7 +48,7 @@ struct PassConstants {
     int         RT0L_DiffuseIndex            = -1;
     int         RT1L_SpecularIndex           = -1;
     int         RT2L_AmbientIndex            = -1;
-    int         Padding{};
+    int         FilterOption{};
 };
 
 struct PostPassConstants {

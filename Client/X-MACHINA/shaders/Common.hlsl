@@ -78,14 +78,13 @@ struct PassInfo {
     matrix      MtxView;
     matrix      MtxProj;
     float3      CameraPos;
-    float       DeltaTime;
-
+    uint        LightCount;
     LightInfo   Lights[gkMaxSceneLight];
     
-    uint        LightCount;
+    float       DeltaTime;
+    float       TotalTime;
     int         FrameBufferWidth;
     int         FrameBufferHeight;
-    int         FilterOption;
     
     float4      GlobalAmbient;
     float4      FogColor;
@@ -103,7 +102,7 @@ struct PassInfo {
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
     int         RT2L_AmbientIndex;
-    int         Padding;
+    int         FilterOption;
 };
 
 struct PostPassInfo {

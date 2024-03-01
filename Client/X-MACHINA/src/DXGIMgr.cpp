@@ -21,6 +21,7 @@ namespace {
 	constexpr int kDescHeapSrvCount		= 1024;						
 	constexpr int kDescHeapUavCount		= 256;	
 	constexpr int kDescHeapSkyBoxCount	= 16;	
+	constexpr int kDescHeapDsvCount		= 8;	
 }
 
 DXGIMgr::DXGIMgr()
@@ -107,8 +108,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateFrameResources();
 	CreateGraphicsRootSignature();
 	CreateComputeRootSignature();
-	CreateCbvSrvDescriptorHeaps(kDescHeapCbvCount, kDescHeapSrvCount, kDescHeapUavCount, kDescHeapSkyBoxCount);
-	CreateRtvAndDsvDescriptorHeaps();
+	CreateDescriptorHeaps(kDescHeapCbvCount, kDescHeapSrvCount, kDescHeapUavCount, kDescHeapSkyBoxCount, kDescHeapDsvCount);
 	CreateDSV();
 	CreateMRTs();
 	CreateFilter();
@@ -125,8 +125,10 @@ void DXGIMgr::Release()
 	Destroy();
 }
 
-void DXGIMgr::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
+void DXGIMgr::CreateShaderResourceView(Texture* texture, DXGI_FORMAT srvFormat)
 {
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Format = srvFormat;
@@ -137,6 +139,7 @@ void DXGIMgr::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FO
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
 
 	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
+	texture->SetSrvGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
 }
 
 void DXGIMgr::CreateShaderResourceView(Texture* texture)
@@ -165,6 +168,16 @@ void DXGIMgr::CreateUnorderedAccessView(Texture* texture)
 	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
 
 	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
+}
+
+void DXGIMgr::CreateDepthStencilView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = texture->GetDepthStencilViewDesc();
+
+	mDescriptorHeap->CreateDepthStencilView(resource, &dsvDesc);
+
+	texture->SetDsvGpuDescriptorHandle(mDescriptorHeap->GetCPUDsvLastHandle());
 }
 
 void DXGIMgr::Terminate()
@@ -339,6 +352,7 @@ void DXGIMgr::SetIncrementSize()
 {
 	mCbvSrvUavDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	mRtvDescriptorIncSize		= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	mDsvDescriptorIncSize		= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
 
 void DXGIMgr::CreateDirect3DDevice()
@@ -448,58 +462,22 @@ void DXGIMgr::CreateComputeRootSignature()
 	mComputeRootSignature->Create();
 }
 
-void DXGIMgr::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount)
+void DXGIMgr::CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount, int dsvCount)
 {
-	mDescriptorHeap->Create(cbvCount, srvCount, uavCount, skyBoxSrvCount);
-}
-
-void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
-{
-	// Create DSV
-	constexpr int kDepthStencilBuffCnt = 1; // Depth 버퍼는 1개만 사용한다.
-
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = kDepthStencilBuffCnt;
-	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descriptorHeapDesc.NodeMask = 0;
-
-	HRESULT hResult = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
-	AssertHResult(hResult);
+	mDescriptorHeap->Create(cbvCount, srvCount, uavCount, skyBoxSrvCount, dsvCount);
 }
 
 void DXGIMgr::CreateDSV()
 {
-	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	resourceDesc.Alignment          = 0;
-	resourceDesc.Width              = mClientWidth;
-	resourceDesc.Height             = mClientHeight;
-	resourceDesc.DepthOrArraySize   = 1;
-	resourceDesc.MipLevels          = 1;
-	resourceDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;	// Depth buffer 24bit, stencil buffer 8bit
-	resourceDesc.SampleDesc.Count   = (mIsMsaa4xEnabled) ? 4 : 1;
-	resourceDesc.SampleDesc.Quality = (mIsMsaa4xEnabled) ? (mMsaa4xQualityLevels - 1) : 0;
-	resourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resourceDesc.Flags              = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	mDefaultDs = res->CreateTexture("DefaultDepthStencil", gkFrameBufferWidth, gkFrameBufferHeight,
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	CreateDepthStencilView(mDefaultDs.get());
+	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
-	D3D12_HEAP_PROPERTIES heapProperties{};
-	heapProperties.Type                 = D3D12_HEAP_TYPE_DEFAULT;
-	heapProperties.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	heapProperties.CreationNodeMask     = 1;
-	heapProperties.VisibleNodeMask      = 1;
-
-	D3D12_CLEAR_VALUE clearValue{};
-	clearValue.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	clearValue.DepthStencil.Depth   = 1.f;
-	clearValue.DepthStencil.Stencil = 0;
-
-	HRESULT hResult = mDevice->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&mDepthStencilBuff));
-	AssertHResult(hResult);
-
-	mDsvHandle = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
-	mDevice->CreateDepthStencilView(mDepthStencilBuff.Get(), nullptr, mDsvHandle);
+	mShadowDs = res->CreateTexture("ShadowDepthStencil", gkFrameBufferWidth * 2, gkFrameBufferHeight * 2,
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	CreateDepthStencilView(mShadowDs.get());
+	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
 void DXGIMgr::CreateMRTs()
@@ -518,7 +496,7 @@ void DXGIMgr::CreateMRTs()
 		}
 
 		mMRTs[static_cast<UINT8>(GroupType::SwapChain)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
 
@@ -542,7 +520,7 @@ void DXGIMgr::CreateMRTs()
 			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
 
@@ -560,7 +538,7 @@ void DXGIMgr::CreateMRTs()
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::Lighting)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::Lighting)]->Create(GroupType::Lighting, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::Lighting)]->Create(GroupType::Lighting, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
 
@@ -572,12 +550,12 @@ void DXGIMgr::CreateMRTs()
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
 
 	// create SRV for DepthStencil buffer
-	CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+	//CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
 void DXGIMgr::CreateFrameResources()
@@ -630,7 +608,7 @@ void DXGIMgr::ChangeSwapChainState()
 		std::string name = "SwapChainTarget_" + std::to_string(i);
 		rts[i].Target = res->CreateTexture(name, resource);
 	}
-	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
+	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
 
 	// 윈도우 사이즈가 변경되면 필터도 다시 생성해야 한다.
 	mBlurFilter->OnResize(mClientWidth, mClientHeight);

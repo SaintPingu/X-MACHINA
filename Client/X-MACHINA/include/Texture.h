@@ -14,6 +14,7 @@ private:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE		mSrvDescriptorHandle{};	// SRV의 핸들값
 	D3D12_GPU_DESCRIPTOR_HANDLE		mUavDescriptorHandle{};	// UAV의 핸들값
+	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvDescriptorHandle{};	// DSV의 핸들값
 
 	UINT							mSrvDescriptorHandleIndex{};
 
@@ -27,9 +28,11 @@ public:
 	ComPtr<ID3D12Resource>			 GetResource() const { return mResource; }
 	D3D12_GPU_DESCRIPTOR_HANDLE		 GetGpuDescriptorHandle() const	{ return mSrvDescriptorHandle; }
 	D3D12_GPU_DESCRIPTOR_HANDLE		 GetUavGpuDescriptorHandle() const { return mUavDescriptorHandle; }
+	D3D12_CPU_DESCRIPTOR_HANDLE		 GetDsvCpuDescriptorHandle() const { return mDsvDescriptorHandle; }
 	const UINT						 GetGpuDescriptorHandleIndex() const { return mSrvDescriptorHandleIndex; }
 	D3D12_SHADER_RESOURCE_VIEW_DESC	 GetShaderResourceViewDesc() const;
 	D3D12_UNORDERED_ACCESS_VIEW_DESC GetUnorderedAccessViewDesc() const;
+	D3D12_DEPTH_STENCIL_VIEW_DESC	 GetDepthStencilViewDesc() const;
 
 	float GetWidth() { return static_cast<float>(mResource->GetDesc().Width); }
 	float GetHeight() { return static_cast<float>(mResource->GetDesc().Height); }
@@ -38,6 +41,7 @@ public:
 #pragma region Setter
 	void SetSrvGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle, UINT index);
 	void SetUavGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE uavGpuDescriptorHandle);
+	void SetDsvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE dsvGpuDescriptorHandle);
 #pragma endregion
 
 public:

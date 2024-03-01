@@ -58,6 +58,20 @@ D3D12_UNORDERED_ACCESS_VIEW_DESC Texture::GetUnorderedAccessViewDesc() const
 	return uavDesc;
 }
 
+D3D12_DEPTH_STENCIL_VIEW_DESC Texture::GetDepthStencilViewDesc() const
+{
+	ComPtr<ID3D12Resource> shaderResource = GetResource();
+	D3D12_RESOURCE_DESC resourceDesc = shaderResource->GetDesc();
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Format = resourceDesc.Format;
+	dsvDesc.Texture2D.MipSlice = 0;
+
+	return dsvDesc;
+}
+
 void Texture::SetSrvGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle, UINT index)
 {
 	mSrvDescriptorHandle = srvGpuDescriptorHandle;
@@ -67,6 +81,11 @@ void Texture::SetSrvGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescri
 void Texture::SetUavGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE uavGpuDescriptorHandle)
 {
 	mUavDescriptorHandle = uavGpuDescriptorHandle;
+}
+
+void Texture::SetDsvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE dsvGpuDescriptorHandle)
+{
+	mDsvDescriptorHandle = dsvGpuDescriptorHandle;
 }
 
 void Texture::ReleaseUploadBuffers()

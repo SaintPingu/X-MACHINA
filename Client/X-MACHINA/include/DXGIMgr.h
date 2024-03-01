@@ -84,9 +84,9 @@ private:
 	// descriptor
 	UINT								mCbvSrvUavDescriptorIncSize{};
 	UINT								mRtvDescriptorIncSize{};
-	ComPtr<ID3D12DescriptorHeap>		mDsvHeap{};
-	D3D12_CPU_DESCRIPTOR_HANDLE			mDsvHandle{};
-	ComPtr<ID3D12Resource>				mDepthStencilBuff{};
+	UINT								mDsvDescriptorIncSize{};
+	sptr<Texture>						mDefaultDs{};
+	sptr<Texture>						mShadowDs{};
 
 	// filter
 	DWORD								mFilterOption{};
@@ -112,6 +112,7 @@ public:
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const	{ return mCmdList; }
 	UINT GetCbvSrvUavDescriptorIncSize() const				{ return mCbvSrvUavDescriptorIncSize; }
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }
+	UINT GetDsvDescriptorIncSize() const					{ return mDsvDescriptorIncSize; }
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
 	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
 	const DWORD GetFilterOption() const						{ return mFilterOption; }
@@ -147,11 +148,13 @@ public:
 	void Release();
 
 	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
-	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
+	void CreateShaderResourceView(Texture* texture, DXGI_FORMAT srvFormat);
 	// texture의 SRV 리소스를 생성한다.
 	void CreateShaderResourceView(Texture* texture);
 	// texture의 UAV 리소스를 생성한다.
 	void CreateUnorderedAccessView(Texture* texture);
+	// texture의 DSV 리소스를 생성한다.
+	void CreateDepthStencilView(Texture* texture);
 
 	// exit
 	void Terminate();
@@ -181,12 +184,11 @@ private:
 
 	void CreateDirect3DDevice();
 	void CreateCmdQueueAndList();
-	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateSwapChain();
 	void CreateGraphicsRootSignature();
 	void CreateComputeRootSignature();
-	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount);
+	void CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount, int dsvCount);
 	void CreateDSV();
 	void CreateMRTs();
 	void CreateFrameResources();

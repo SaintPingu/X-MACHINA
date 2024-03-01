@@ -207,7 +207,11 @@ namespace D3DUtil {
 		D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr;
 
 		// add depth buffer
-		if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+		if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) {
+			optimizedClearValue = CD3DX12_CLEAR_VALUE(dxgiFormat, 1.0f, 0);
+			pOptimizedClearValue = &optimizedClearValue;
+		}
+		else if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
 			float color[4] = { clearColor.x, clearColor.y, clearColor.z, clearColor.w };
 			optimizedClearValue = CD3DX12_CLEAR_VALUE(dxgiFormat, color);
 			pOptimizedClearValue = &optimizedClearValue;

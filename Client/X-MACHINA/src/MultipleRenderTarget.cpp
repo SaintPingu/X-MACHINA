@@ -5,17 +5,19 @@
 
 #include "Texture.h"
 
-void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle)
+void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, sptr<Texture> dsTexture)
 {
 	mGroupType = groupType;
 	mRts = std::move(rts);
 	mRtCnt = static_cast<UINT>(mRts.size());
-	mDsvHandle = dsvHandle;
+	mDsvHeapBegin = dsTexture->GetDsvCpuDescriptorHandle();
 
 	assert(mMaxRtCnt >= mRtCnt);
 
 	mViewport = D3D12_VIEWPORT{ 0.f, 0.f, mRts[0].Target->GetWidth(), mRts[0].Target->GetHeight(), 0.f, 1.f };
 	mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(mRts[0].Target->GetWidth()), static_cast<LONG>(mRts[0].Target->GetHeight()) };
+	//mViewport = D3D12_VIEWPORT{ 0.f, 0.f, gkFrameBufferWidth, gkFrameBufferHeight, 0.f, 1.f };
+	//mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(gkFrameBufferWidth), static_cast<LONG>(gkFrameBufferHeight) };
 
 	// window resize를 할 때 Create함수가 다시 불리기 때문에 RTV 힙이 이미 존재하는지 검사한다.
 	if (!mRtvHeap) {
@@ -70,14 +72,14 @@ void MultipleRenderTarget::OMSetRenderTargets()
 {
 	cmdList->RSSetViewports(1, &mViewport);
 	cmdList->RSSetScissorRects(1, &mScissorRect);
-	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, &mDsvHandle);
+	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, &mDsvHeapBegin);
 }
 
 void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 {
 	cmdList->RSSetViewports(1, &mViewport);
 	cmdList->RSSetScissorRects(1, &mScissorRect);
-	cmdList->OMSetRenderTargets(count, &mRts[index].RtvHandle, FALSE, &mDsvHandle);
+	cmdList->OMSetRenderTargets(count, &mRts[index].RtvHandle, FALSE, &mDsvHeapBegin);
 }
 
 void MultipleRenderTarget::ClearRenderTargetView()
@@ -91,7 +93,7 @@ void MultipleRenderTarget::ClearRenderTargetView()
 	}
 
 	// 사용할 깊이 버퍼도 클리어한다.
-	cmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
+	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 }
 
 void MultipleRenderTarget::ClearRenderTargetView(UINT index)
@@ -101,7 +103,7 @@ void MultipleRenderTarget::ClearRenderTargetView(UINT index)
 	// index 해당 렌더 타겟만 클리어한다.
 	cmdList->ClearRenderTargetView(mRts[index].RtvHandle, mRts[index].ClearColor.data(), 0, nullptr);
 
-	cmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
+	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 }
 
 void MultipleRenderTarget::WaitTargetToResource()

@@ -16,6 +16,12 @@
 #include "../Imgui/ImguiMgr.h"
 #pragma endregion
 
+namespace {
+	constexpr int kDescHeapCbvCount		= 0;	
+	constexpr int kDescHeapSrvCount		= 1024;						
+	constexpr int kDescHeapUavCount		= 256;	
+	constexpr int kDescHeapSkyBoxCount	= 16;	
+}
 
 DXGIMgr::DXGIMgr()
 	:
@@ -101,7 +107,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateFrameResources();
 	CreateGraphicsRootSignature();
 	CreateComputeRootSignature();
-	CreateCbvSrvDescriptorHeaps(0, 1024, 256);
+	CreateCbvSrvDescriptorHeaps(kDescHeapCbvCount, kDescHeapSrvCount, kDescHeapUavCount, kDescHeapSkyBoxCount);
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateDSV();
 	CreateMRTs();
@@ -140,7 +146,15 @@ void DXGIMgr::CreateShaderResourceView(Texture* texture)
 
 	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
 
-	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
+	switch (srvDesc.ViewDimension)
+	{
+	case D3D12_SRV_DIMENSION_TEXTURE2D:
+		texture->SetSrvGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
+		break;
+	case D3D12_SRV_DIMENSION_TEXTURECUBE:
+		texture->SetSrvGpuDescriptorHandle(mDescriptorHeap->GetSkyBoxGPUSrvLastHandle(), mDescriptorHeap->GetSkyBoxGPUSrvLastHandleIndex());
+		break;
+	}
 }
 
 void DXGIMgr::CreateUnorderedAccessView(Texture* texture)
@@ -239,21 +253,6 @@ void DXGIMgr::ToggleFullScreen()
 	ChangeSwapChainState();
 }
 
-void DXGIMgr::ClearDepth()
-{
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
-}
-
-void DXGIMgr::ClearStencil()
-{
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
-}
-
-void DXGIMgr::ClearDepthStencil()
-{
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
-}
-
 void DXGIMgr::RenderBegin()
 {
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
@@ -266,6 +265,7 @@ void DXGIMgr::RenderBegin()
 	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
 	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
+	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
 }
 
 void DXGIMgr::RenderEnd()
@@ -367,21 +367,6 @@ void DXGIMgr::CreateCmdQueueAndList()
 	AssertHResult(hResult);
 }
 
-void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
-{
-	// Create DSV
-	constexpr int kDepthStencilBuffCnt = 1; // Depth 버퍼는 1개만 사용한다.
-
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = kDepthStencilBuffCnt;
-	descriptorHeapDesc.Type			  = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	descriptorHeapDesc.Flags		  = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descriptorHeapDesc.NodeMask		  = 0;
-
-	HRESULT hResult = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
-	AssertHResult(hResult);
-}
-
 void DXGIMgr::CreateSwapChain()
 {
 	// client의 screen rect를 OS로부터 받아와 설정한다.
@@ -436,8 +421,8 @@ void DXGIMgr::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
-	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, kDescHeapSkyBoxCount, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, kDescHeapSrvCount, D3D12_SHADER_VISIBILITY_PIXEL);
 
 
 	mGraphicsRootSignature->Create();
@@ -463,9 +448,24 @@ void DXGIMgr::CreateComputeRootSignature()
 	mComputeRootSignature->Create();
 }
 
-void DXGIMgr::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount)
+void DXGIMgr::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount)
 {
-	mDescriptorHeap->Create(cbvCount, srvCount, uavCount);
+	mDescriptorHeap->Create(cbvCount, srvCount, uavCount, skyBoxSrvCount);
+}
+
+void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
+{
+	// Create DSV
+	constexpr int kDepthStencilBuffCnt = 1; // Depth 버퍼는 1개만 사용한다.
+
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+	descriptorHeapDesc.NumDescriptors = kDepthStencilBuffCnt;
+	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descriptorHeapDesc.NodeMask = 0;
+
+	HRESULT hResult = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
+	AssertHResult(hResult);
 }
 
 void DXGIMgr::CreateDSV()

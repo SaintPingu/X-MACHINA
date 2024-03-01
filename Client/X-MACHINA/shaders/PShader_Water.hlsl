@@ -22,7 +22,7 @@ float4 PSWater(VSOutput_Water pin) : SV_TARGET
     // diffuseMap을 사용할 경우 샘플링하여 계산
     if (diffuseMapIndex != -1)
     {
-        diffuse *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+        diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
     
     pin.NormalW = normalize(pin.NormalW);
@@ -31,13 +31,13 @@ float4 PSWater(VSOutput_Water pin) : SV_TARGET
     float4 emissiveMapSample = (float4)0;
     if (metallicMapIndex != -1)
     {
-        emissiveMapSample = gTextureMap[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
     
     // roughness map을 사용할 경우 샘플링하여 roughness 값 계산
     if (metallicMapIndex != -1)
     {
-        metallic *= gTextureMap[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
+        metallic *= gTextureMaps[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
     }
     
     // 해당 픽셀에서 카메라까지의 벡터
@@ -56,7 +56,7 @@ float4 PSWater(VSOutput_Water pin) : SV_TARGET
     
     // specular reflection
     float3 r = reflect(-toCameraW, pin.NormalW);
-    float4 reflectionColor = gSkyBoxTexture.Sample(gsamLinearWrap, r);
+    float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
     float3 fresnelFactor = SchlickFresnel(specularAlbedo, pin.NormalW, r);
     float3 reflection = (metallic) * fresnelFactor * reflectionColor.rgb;
     

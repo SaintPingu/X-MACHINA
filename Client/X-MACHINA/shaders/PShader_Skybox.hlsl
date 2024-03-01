@@ -7,6 +7,6 @@ struct VSOutput_Skybox {
 
 float4 PSSkyBox(VSOutput_Skybox pin) : SV_TARGET
 {
-    return gSkyBoxTexture.Sample(gsamAnisotropicWrap, pin.PosL);
+    return gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamAnisotropicWrap, pin.PosL);
     //return lerp(color, gPassCB.FogColor, 0.9f);
 }

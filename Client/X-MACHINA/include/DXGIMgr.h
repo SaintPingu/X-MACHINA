@@ -165,11 +165,6 @@ public:
 	// full screen on/off
 	void ToggleFullScreen();
 
-	// clear
-	void ClearDepth();
-	void ClearStencil();
-	void ClearDepthStencil();
-
 private:
 	// reset command 
 	void RenderBegin();
@@ -191,7 +186,7 @@ private:
 	void CreateSwapChain();
 	void CreateGraphicsRootSignature();
 	void CreateComputeRootSignature();
-	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount);
+	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount);
 	void CreateDSV();
 	void CreateMRTs();
 	void CreateFrameResources();

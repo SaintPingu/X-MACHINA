@@ -17,7 +17,7 @@ PSOutput_Lighting PSSpotPointLighting(VSOutput_Lighting pin)
     LightInfo light = gPassCB.Lights[gObjectCB.LightIndex];
     
     float2 Uv = float2(pin.PosH.x / gPassCB.FrameBufferWidth, pin.PosH.y / gPassCB.FrameBufferHeight);
-    float3 posW = gTextureMap[gPassCB.RT0_PositionIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
+    float3 posW = gTextureMaps[gPassCB.RT0_PositionIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
 
     // 카메라 기준 z값이 뒤에 있다면 그리지 않는다.
     float3 posV = mul(float4(posW, 1.f), gPassCB.MtxView);
@@ -31,9 +31,9 @@ PSOutput_Lighting PSSpotPointLighting(VSOutput_Lighting pin)
     
     float3 toCameraW = normalize(gPassCB.CameraPos - posW);
     
-    float3 normalW = gTextureMap[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
-    float4 diffuse = gTextureMap[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, Uv);
-    float2 metallicSmoothness = gTextureMap[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, Uv).xy;
+    float3 normalW = gTextureMaps[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
+    float4 diffuse = gTextureMaps[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, Uv);
+    float2 metallicSmoothness = gTextureMaps[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, Uv).xy;
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallicSmoothness.x);
@@ -54,7 +54,7 @@ PSOutput_Lighting PSSpotPointLighting(VSOutput_Lighting pin)
     
     // specular reflection
     float3 r = reflect(-toCameraW, normalW);
-    float4 reflectionColor = gSkyBoxTexture.Sample(gsamLinearWrap, r);
+    float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
     float3 fresnelFactor = SchlickFresnel(specularAlbedo, normalW, r);
     float3 reflection = (metallicSmoothness.r) * fresnelFactor * reflectionColor.rgb;
     

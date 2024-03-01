@@ -39,6 +39,5 @@ public:
 
 protected:
 	friend class ResourceMgr;
-	virtual void Load(const std::string& name, const std::string& path) { }
 };
 

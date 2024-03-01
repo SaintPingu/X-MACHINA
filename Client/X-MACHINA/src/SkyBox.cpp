@@ -12,18 +12,9 @@
 
 SkyBox::SkyBox() : Transform(this)
 {
-	mMesh = std::make_unique<ModelObjectMesh>();
+	mMesh = std::make_shared<ModelObjectMesh>();
 	mMesh->CreateSphereMesh(0.5f);
-
-	mTexture = res->Load<Texture>("SkyBox_0", "Import/Skybox/");
-	mTexture->SetTextureType(D3DResource::TextureCube);
-
-	dxgi->CreateShaderResourceView(mTexture.get());
-}
-
-void SkyBox::SetGraphicsRootDescriptorTable()
-{
-	mTexture->UpdateShaderVars();
+	mTexture = res->Get<Texture>("SkyBox_0");
 }
 
 void SkyBox::Render()

@@ -31,25 +31,25 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     float corr = (1.f / 512.f);
     float2 uv1 = (pin.UV * 10) * corr;
     
-    float4 splatColor = gTextureMap[diffuseMap3Index].Sample(gsamLinearWrap, uv1);
+    float4 splatColor = gTextureMaps[diffuseMap3Index].Sample(gsamLinearWrap, uv1);
     float4 layer0 = float4(0, 0, 0, 0);
     float4 layer1 = float4(0, 0, 0, 0);
     float4 layer2 = float4(0, 0, 0, 0);
     
     if (splatColor.r > 0.f)
     {
-        layer0 = gTextureMap[diffuseMap0Index].Sample(gsamAnisotropicWrap, pin.UV);
+        layer0 = gTextureMaps[diffuseMap0Index].Sample(gsamAnisotropicWrap, pin.UV);
         layer0 *= splatColor.r;
 
     }
     if (splatColor.g > 0.f)
     {
-        layer1 = gTextureMap[diffuseMap1Index].Sample(gsamAnisotropicWrap, pin.UV);
+        layer1 = gTextureMaps[diffuseMap1Index].Sample(gsamAnisotropicWrap, pin.UV);
         layer1 *= splatColor.g;
     }
     if (splatColor.b > 0.f)
     {
-        layer2 = gTextureMap[diffuseMap2Index].Sample(gsamAnisotropicWrap, pin.UV);
+        layer2 = gTextureMaps[diffuseMap2Index].Sample(gsamAnisotropicWrap, pin.UV);
         layer2 *= splatColor.b;
     }
     

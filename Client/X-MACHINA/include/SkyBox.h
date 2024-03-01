@@ -16,15 +16,17 @@ class ModelObjectMesh;
 // SkyBox ¹è°æ °´Ã¼ (not entity)
 class SkyBox : public Transform {
 private:
-	uptr<ModelObjectMesh> mMesh{};
-	sptr<Texture>		 mTexture{};
+	sptr<ModelObjectMesh>	mMesh{};
+	sptr<Texture>			mTexture{};
 
 public:
 	SkyBox();
 	virtual ~SkyBox() = default;
 
 public:
-	void SetGraphicsRootDescriptorTable();
+	rsptr<Texture> GetTexture() const { return mTexture; }
+
+public:
 	void Render();
 };
 #pragma endregion

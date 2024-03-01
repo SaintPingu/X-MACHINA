@@ -45,7 +45,6 @@ void UI::UpdateShaderVars() const
 
 void UI::Render()
 {
-	mTexture->UpdateShaderVars();
 	UpdateShaderVars();
 
 	res->Get<ModelObjectMesh>("Rect")->Render();

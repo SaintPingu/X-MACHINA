@@ -33,7 +33,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     // sampling diffuseMap
     if (diffuseMapIndex != -1)
     {
-        diffuse *= GammaDecoding(gTextureMap[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+        diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
 
     // normalize normal
@@ -44,7 +44,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float4 normalMapSample = (float4)0;
     if (normalMapIndex != -1)
     {
-        normalMapSample = gTextureMap[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
         bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
     }
     
@@ -52,14 +52,14 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float4 emissiveMapSample = (float4)0;
     if (metallicMapIndex != -1)
     {
-        emissiveMapSample = gTextureMap[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
     
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;
     if (metallicMapIndex != -1)
     {
-        metallicMapSample = GammaDecoding(gTextureMap[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+        metallicMapSample = GammaDecoding(gTextureMaps[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
         metallic = metallicMapSample.r;
         roughness = 1 - metallicMapSample.a;
     }
@@ -67,7 +67,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float4 occlusionMapSample = (float4)0;
     if (occlusionMapIndex != -1)
     {
-        occlusionMapSample = gTextureMap[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        occlusionMapSample = gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
     
     float rimWidth = 0.8f;

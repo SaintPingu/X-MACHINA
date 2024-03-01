@@ -4,11 +4,10 @@
 
 #include "ResourceMgr.h"
 
-Texture::Texture()
+Texture::Texture(D3DResource textureType)
 	: 
 	Resource(ResourceType::Texture),
-	mTextureType(D3DResource::Texture2D),
-	mRootParamIndex(dxgi->GetGraphicsRootParamIndex(RootParam::Texture))
+	mTextureType(textureType)
 {
 
 }
@@ -59,18 +58,15 @@ D3D12_UNORDERED_ACCESS_VIEW_DESC Texture::GetUnorderedAccessViewDesc() const
 	return uavDesc;
 }
 
-void Texture::SetTextureType(D3DResource textureType)
+void Texture::SetSrvGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle, UINT index)
 {
-	mTextureType = textureType;
+	mSrvDescriptorHandle = srvGpuDescriptorHandle;
+	mSrvDescriptorHandleIndex = index;
+}
 
-	switch (textureType)
-	{
-	case D3DResource::TextureCube:
-		mRootParamIndex = dxgi->GetGraphicsRootParamIndex(RootParam::SkyBox);
-		break;
-	default:
-		break;
-	}
+void Texture::SetUavGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE uavGpuDescriptorHandle)
+{
+	mUavDescriptorHandle = uavGpuDescriptorHandle;
 }
 
 void Texture::ReleaseUploadBuffers()
@@ -78,37 +74,22 @@ void Texture::ReleaseUploadBuffers()
 	mTextureUploadBuffer = nullptr;
 }
 
-void Texture::UpdateShaderVars()
-{
-	// 스카이 박스 전용이고 나머지는 Scene에서 한 프레임 당 한 번씩만 연결한다.
-	if (mSrvDescriptorHandle.ptr) {
-		cmdList->SetGraphicsRootDescriptorTable(mRootParamIndex, mSrvDescriptorHandle);
-	}
-}
-
-void Texture::ReleaseShaderVars()
-{
-}
-
-
-void Texture::Load(const std::string& name, const std::string& path)
+void Texture::LoadTexture(const std::string& name, const std::string& path)
 {
 	std::string filePath = path + name + ".dds";
 	std::wstring wfilePath;
 	wfilePath.assign(filePath.begin(), filePath.end());
 
-	D3DUtil::CreateTextureResourceFromDDSFile(wfilePath, mTextureUploadBuffer, mTexture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	D3DUtil::CreateTextureResourceFromDDSFile(wfilePath, mTextureUploadBuffer, mResource, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	dxgi->CreateShaderResourceView(this);
-
-	mTextureMask |= MaterialMap::Albedo;
 }
 
 ComPtr<ID3D12Resource> Texture::Create(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
 {
-	return mTexture = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
+	return mResource = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
 }
 
 ComPtr<ID3D12Resource> Texture::Create(ComPtr<ID3D12Resource> resource)
 {
-	return mTexture = resource;
+	return mResource = resource;
 }

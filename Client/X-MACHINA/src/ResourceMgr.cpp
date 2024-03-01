@@ -58,6 +58,7 @@ void ResourceMgr::LoadTextures()
 {
 	FileIO::LoadTextures("Import/Textures/");
 	FileIO::LoadTextures("Import/UI/");
+	FileIO::LoadTextures("Import/Skybox/", D3DResource::TextureCube);
 }
 
 void ResourceMgr::LoadModels()

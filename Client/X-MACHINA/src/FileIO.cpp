@@ -772,7 +772,7 @@ namespace FileIO {
 		light->Specular    = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	}
 
-	void LoadTextures(const std::string& folder)
+	void LoadTextures(const std::string& folder, D3DResource textureType)
 	{
 		// get [textureNames] from [folder]
 		std::vector<std::string> textureNames{};
@@ -782,7 +782,9 @@ namespace FileIO {
 		for (auto& textureName : textureNames) {
 			FileIO::RemoveExtension(textureName);
 
-			sptr<Texture> texture = res->Load<Texture>(textureName, folder);
+			sptr<Texture> texture = std::make_shared<Texture>(textureType);
+			texture->LoadTexture(textureName, folder);
+			res->Add<Texture>(textureName, texture);
 		}
 	}
 }

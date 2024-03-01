@@ -9,7 +9,8 @@
 #define LightType_Spot          0
 #define LightType_Directional   1
 #define LightType_Point         2
-#define gkMaxTexture            200
+#define gkMaxTextureCount       1024
+#define gkMaxSkyBoxCount        16
 #define gkMaxSceneLight         32
 
 #define MAX_VERTEX_INFLUENCES			4
@@ -91,17 +92,18 @@ struct PassInfo {
     
     float       FogStart;
     float       FogRange;
+    int         SkyBoxIndex;
     int         RT0_PositionIndex;
-    int         RT1_NormalIndex;
     
+    int         RT1_NormalIndex;
     int         RT2_DiffuseIndex;
     int         RT3_EmissiveIndex;
     int         RT4_MetallicSmoothnessIndex;
-    int         RT0L_DiffuseIndex;
     
+    int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
     int         RT2L_AmbientIndex;
-    float2      Padding;
+    int         Padding;
 };
 
 struct PostPassInfo {
@@ -126,18 +128,18 @@ struct SB_ColorInst {
     float4 Color;
 };
 
-ConstantBuffer<ObjectInfo> gObjectCB     : register(b0);
-ConstantBuffer<PassInfo> gPassCB         : register(b1);
-ConstantBuffer<PostPassInfo> gPostPassCB : register(b2);
-ConstantBuffer<ColliderInfo> gColliderCB : register(b3);
-ConstantBuffer<BoneTransformInfo> gSkinMeshCB : register(b4);
+ConstantBuffer<ObjectInfo> gObjectCB            : register(b0);
+ConstantBuffer<PassInfo> gPassCB                : register(b1);
+ConstantBuffer<PostPassInfo> gPostPassCB        : register(b2);
+ConstantBuffer<ColliderInfo> gColliderCB        : register(b3);
+ConstantBuffer<BoneTransformInfo> gSkinMeshCB   : register(b4);
 
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
 StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);
 
-TextureCube  gSkyBoxTexture            : register(t1);
-Texture2D    gTextureMap[gkMaxTexture] : register(t2); // t2, t3, t4...
+TextureCube gSkyBoxMaps[gkMaxSkyBoxCount]       : register(t1, space1);
+Texture2D gTextureMaps[gkMaxTextureCount]       : register(t1); // t1, t2, t3...
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);

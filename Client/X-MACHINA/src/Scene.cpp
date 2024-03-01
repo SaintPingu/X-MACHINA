@@ -107,6 +107,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.DeltaTime						= timeElapsed;
 	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
 	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
+	passConstants.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
 	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
@@ -408,8 +409,6 @@ namespace {
 
 void Scene::OnPrepareRender()
 {
-	// 환경 매핑을 해야 하기 때문에 렌더 전 스카이 박스 텍스처를 설정해야 한다.
-	mSkyBox->SetGraphicsRootDescriptorTable();
 }
 
 void Scene::RenderShadow()

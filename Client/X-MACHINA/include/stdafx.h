@@ -312,10 +312,8 @@ constexpr short gkFrameBufferHeight = 1600;
 //constexpr short gkFrameBufferWidth  = 1280;
 //constexpr short gkFrameBufferHeight = 960;
 
-constexpr int	gkMaxTexture		= 200;	// 씬에 존재할 수 있는 텍스처의 최대 개수. Common.hlsl과 동일해야 한다.
 constexpr int	gkMaxSceneLight		= 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
-
-constexpr int	gkSkinBoneSize = 128;
+constexpr int	gkSkinBoneSize		= 128;
 #pragma endregion
 
 
@@ -432,11 +430,10 @@ inline std::wstring AnsiToWString(const std::string& str)
 // is_valid_dword_type_v에 EnumType을 추가해주어야 한다.
 enum class ObjectTag : DWORD;
 enum class VertexType : DWORD;
-enum class MaterialMap : DWORD;
 enum class FilterOption : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, FilterOption>);
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, FilterOption>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)

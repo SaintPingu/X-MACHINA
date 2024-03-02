@@ -29,8 +29,8 @@ AnimatorLayer::AnimatorLayer(const AnimatorLayer& other)
 Vec4x4 AnimatorLayer::GetTransform(int boneIndex, HumanBone boneType) const
 {
 	Vec4x4 transform = Matrix4x4::Scale(mCrntState->GetSRT(boneIndex), mCrntState->GetWeight());
-	if (mNextState) {
-		transform = Matrix4x4::Add(transform, Matrix4x4::Scale(mNextState->GetSRT(boneIndex), mNextState->GetWeight()));
+	for (auto& nextState : mNextStates) {
+		transform = Matrix4x4::Add(transform, Matrix4x4::Scale(nextState->GetSRT(boneIndex), nextState->GetWeight()));
 	}
 
 	return transform;
@@ -38,7 +38,7 @@ Vec4x4 AnimatorLayer::GetTransform(int boneIndex, HumanBone boneType) const
 
 void AnimatorLayer::SetCrntStateLength(float length) const
 {
-	if (mNextState) {
+	if (!mNextStates.empty()) {
 		return;
 	}
 
@@ -49,29 +49,47 @@ void AnimatorLayer::Animate()
 {
 	mCrntState->Animate();
 	if (mSyncState) {
-		float distance = fabs(mCrntState->GetCrntLength() - mSyncState->GetCrntLength());
+		float distance = fabs(mCrntState->GetLength() - mSyncState->GetLength());
 		if (fabs(distance) <= 0.05f) {
 			SyncComplete();
 		}
 	}
 
-	if (mNextState) {
-		bool isEndAnimation = mNextState->Animate();
+	if (mNextStates.empty()) {
+		return;
+	}
 
-		if (isEndAnimation) {
-			ChangeToNextState();
+	sptr<AnimatorState> lastState = mNextStates.back();
+	for (auto& nextState : mNextStates) {
+		nextState->Animate();
+	}
+
+	std::erase_if(mNextStates, [](const auto& state) {
+		if (state->IsEndAnimation()) {
+			state->Init();
+			return true;
+		}
+		return false;
+		});
+
+	if (lastState) {
+		if (lastState->IsEndAnimation()) {
+			ChangeState(lastState);
 		}
 		else {
 			constexpr float kMaxDuration = .25f;
-			const float crntDuration = mNextState->GetCrntLength();
+			const float crntDuration = lastState->GetLength();
 
 			const float t = crntDuration / kMaxDuration;
 			if (t < 1.f) {
 				mCrntState->SetWeight(1 - t);
-				mNextState->SetWeight(t);
+				const float t2 = t / mNextStates.size();
+				for (auto& nextState : mNextStates) {
+					nextState->SetWeight(t2);
+				}
 			}
 			else {
-				ChangeToNextState();
+				ChangeState(lastState);
 			}
 		}
 	}
@@ -80,30 +98,44 @@ void AnimatorLayer::Animate()
 
 void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 {
-	if (mNextState) {
-		return;
+	const auto& nextState = mRootStateMachine->CheckTransition(controller);
+	if (nextState == mCrntState) {
+		if (mNextStates.empty()) {
+			return;
+		}
+		else {
+			auto& lastState = mNextStates.back();
+			lastState->Reverse();
+		}
 	}
-
-	mNextState = mRootStateMachine->CheckTransition(controller);
-	if (mNextState == mCrntState) {
-		mNextState = nullptr;
-	}
-	else if (mNextState != nullptr) {
-		mCrntState->SetSpeed(1);
-		mNextState->Init();
+	else if (nextState != nullptr) {
+		nextState->Init();
+		if (mIsSyncSM) {
+			if (mCrntState->IsSameStateMachine(nextState)) {
+				nextState->SetLength(mCrntState->GetLength());
+			}
+		}
+		
+		mNextStates.push_back(nextState);
 	}
 }
 
-void AnimatorLayer::ChangeToNextState()
+void AnimatorLayer::ChangeState(rsptr<AnimatorState> state)
 {
-	if (!mNextState) {
+	if (!state) {
 		return;
 	}
 
-	mCrntState->Init();
-	mNextState->SetWeight(1.f);
-	mCrntState = mNextState;
-	mNextState = nullptr;
+	if (!state->IsReverse()) {
+		mCrntState->Init();
+		state->SetWeight(1);
+		mCrntState = state;
+	}
+	else {
+		mCrntState->SetWeight(1);
+		state->Init();
+	}
+	mNextStates.clear();
 
 	if (mController) {
 		mController->SyncAnimation();
@@ -112,15 +144,15 @@ void AnimatorLayer::ChangeToNextState()
 
 void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
 {
-	if (mNextState) {
+	if (!mNextStates.empty()) {
 		return;
 	}
 
 	mSyncState = srcState;
 
-	float length = mSyncState->GetCrntLength();
+	float length = mSyncState->GetLength();
 	float threshold = mSyncState->GetClip()->mLength;
-	float myLength = mCrntState->GetCrntLength();
+	float myLength = mCrntState->GetLength();
 	float distance = length - myLength;
 	if (fabs(distance) < 0.05f) {
 		SyncComplete();
@@ -158,11 +190,11 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
 void AnimatorLayer::SyncComplete()
 {
 	mCrntState->SetSpeed(1);
-	float distance = mCrntState->GetCrntLength() - mSyncState->GetCrntLength();
+	float distance = mCrntState->GetLength() - mSyncState->GetLength();
 	if (distance > 0) {
 		int a = 5;
 	}
-	mCrntState->SetLength(mSyncState->GetCrntLength());
+	mCrntState->SetLength(mSyncState->GetLength());
 	mSyncState = nullptr;
 }
 #pragma endregion

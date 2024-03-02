@@ -44,22 +44,35 @@ void AnimatorState::Init()
 	mCrntLength = 0.f;
 	mWeight = 1.f;
 	mSpeed = 1.f;
+	if (IsReverse()) {
+		Reverse();
+	}
 }
 
 bool AnimatorState::Animate()
 {
 	constexpr float corrSpeed = 0.5f;	// 스피드 보정값 (60fps)
 
-	mCrntLength += (mSpeed * corrSpeed) * DeltaTime();
+	mCrntLength += (mSpeed * corrSpeed * mIsReverse) * DeltaTime();
 	if (IsEndAnimation()) {
-		mCrntLength = 0.f;
+		if (IsReverse()) {
+			mCrntLength = mClip->mLength;
+		}
+		else {
+			mCrntLength = 0.f;
+		}
 		return true;
 	}
 
 	return false;
 }
 
-bool AnimatorState::IsEndAnimation()
+bool AnimatorState::IsSameStateMachine(rsptr<const AnimatorState> other) const
 {
-	return (mCrntLength > mClip->mLength) || (mCrntLength < 0);
+	return mStateMachine == other->mStateMachine;
+}
+
+bool AnimatorState::IsEndAnimation() const
+{
+	return (mCrntLength > mClip->mLength) || (mCrntLength <= 0);
 }

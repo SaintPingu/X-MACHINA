@@ -14,6 +14,7 @@ private:
 
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
+	int		mIsReverse  = 1;
 	float 	mSpeed      = 1.f;
 	float 	mCrntLength = 0.f;
 	float 	mWeight     = 1.f;
@@ -24,7 +25,7 @@ public:
 	virtual ~AnimatorState() = default;
 
 	Vec4x4 GetSRT(int boneIndex) const;
-	float GetCrntLength() const { return mCrntLength; }
+	float GetLength() const { return mCrntLength; }
 	float GetWeight() const { return mWeight; }
 	rsptr<const AnimationClip> GetClip() const { return mClip; }
 	std::string GetName() const { return mName; }
@@ -36,7 +37,9 @@ public:
 public:
 	void Init();
 	bool Animate();
+	void Reverse() { mIsReverse *= -1; }
 
-private:
-	bool IsEndAnimation();
+	bool IsSameStateMachine(rsptr<const AnimatorState> other) const;
+	bool IsReverse() const { return mIsReverse == -1 ? true : false; }
+	bool IsEndAnimation() const;
 };

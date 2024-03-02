@@ -13,9 +13,7 @@ AnimatorController::AnimatorController(const Animations::ParamMap& parameters, s
 	mParameters(parameters),
 	mLayers(layers)
 {
-	for (auto& layer : mLayers) {
-		layer->SetController(this);
-	}
+	InitLayers();
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
@@ -28,9 +26,7 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 		mLayers.push_back(std::make_shared<AnimatorLayer>(*layer));
 	}
 
-	for (auto& layer : mLayers) {
-		layer->SetController(this);
-	}
+	InitLayers();
 }
 
 void AnimatorController::Animate()
@@ -49,27 +45,6 @@ Vec4x4 AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 	}
 
 	return Matrix4x4::Identity();
-
-	//std::vector<Vec4x4> transforms;
-	//transforms.reserve(mLayers.size());
-
-	//for (auto& layer : mLayers) {
-	//	if (layer->CheckBoneMask(boneType)) {
-	//		transforms.push_back(layer->GetTransform(boneIndex, boneType));
-	//	}
-	//}
-
-	//if (transforms.empty()) {
-	//	return Matrix4x4::Identity();
-	//}
-
-	//if (transforms.size() <= 1) {
-	//	return transforms.front();
-	//}
-
-	//Vec4x4 result = Matrix4x4::Scale(transforms[0], 0.8f);
-	//result = Matrix4x4::Add(result, Matrix4x4::Scale(transforms[1], 0.2f));
-	//return result;
 }
 
 void AnimatorController::SetValue(const std::string& paramName, AnimatorParameter::value value)
@@ -124,3 +99,13 @@ void AnimatorController::CheckTransition()
 		layer->CheckTransition(this);
 	}
 }
+
+void AnimatorController::InitLayers()
+{
+	for (auto& layer : mLayers) {
+		layer->SetController(this);
+		if (layer->GetName().contains("Legs")) {
+			layer->SetSyncStateMachine(true);
+		}
+	}
+}	

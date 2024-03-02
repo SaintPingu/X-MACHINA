@@ -50,5 +50,6 @@ public:
 	void SyncAnimation();
 
 private:
+	void InitLayers();
 	void CheckTransition();
 };

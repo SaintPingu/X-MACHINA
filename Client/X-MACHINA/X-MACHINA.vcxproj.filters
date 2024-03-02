@@ -289,6 +289,9 @@
     <ClCompile Include="src\Mesh.cpp">
       <Filter>소스 파일\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="src\SimpleMath.cpp">
+      <Filter>소스 파일\Library</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -399,9 +402,6 @@
     <ClInclude Include="include\UI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Singleton.h">
-      <Filter>소스 파일\Library</Filter>
-    </ClInclude>
     <ClInclude Include="include\d3dx12.h">
       <Filter>헤더 파일\Dummy</Filter>
     </ClInclude>
@@ -487,6 +487,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Resources.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Singleton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SimpleMath.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -584,5 +590,16 @@
     <FxCompile Include="shaders\VShader_SpotPointLighting.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\VShader_Shadow.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Shadow.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\SimpleMath.inl">
+      <Filter>헤더 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

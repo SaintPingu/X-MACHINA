@@ -92,17 +92,20 @@ struct PassInfo {
     float       FogStart;
     float       FogRange;
     int         SkyBoxIndex;
-    int         RT0_PositionIndex;
+    int         ShadowIndex;
     
+    int         RT0_PositionIndex;
     int         RT1_NormalIndex;
     int         RT2_DiffuseIndex;
     int         RT3_EmissiveIndex;
-    int         RT4_MetallicSmoothnessIndex;
     
+    int         RT4_MetallicSmoothnessIndex;
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
     int         RT2L_AmbientIndex;
+    
     int         FilterOption;
+    float3      Padding;
 };
 
 struct PostPassInfo {

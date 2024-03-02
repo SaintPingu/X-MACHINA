@@ -2,6 +2,7 @@
 
 #pragma region ClassForwardDecl
 class ModelObjectMesh;
+class GameObject;
 #pragma endregion
 
 
@@ -15,25 +16,18 @@ enum class LightType {
 #pragma endregion
 
 
-#pragma region Variable
-// move to stdafx.h
-#pragma endregion
-
-
-#pragma region Struct
-// move to stdafx.h
-#pragma endregion
-
-
 #pragma region Class
 class Light {
 private:
 	sptr<SceneLight>		mLights{};			// all lights in scene
 	sptr<SceneLoadLight>	mLoadLights{};		// all load lights in scene
 	size_t					mCurrLightCnt{};	// count of allocated light in scene
+	
+	BoundingSphere			mSceneBounds{};		// 시야 입체 빛은 해당 입체 부분에만 적용된다.
+	Matrix					mMtxLightView{};
+	Matrix					mMtxLightProj{};
 
 	std::unordered_map<std::string, const LightLoadInfo*> mLightModels{};	// 하나의 조명 모델에 대해 여러 조명을 동적으로 생성 가능한 모델 목록
-	
 	std::set<std::string> mLightModelNames{};
 
 public:
@@ -47,8 +41,10 @@ public:
 	LightInfo* GetLight(int index) const { return &mLights->Lights[index]; }
 	// 전체 조명을 반환한다.
 	rsptr<SceneLight> GetSceneLights() const { return mLights; }
-
 	UINT GetLightCount() const { return static_cast<UINT>(mLights->Lights.size()); }
+
+	const Matrix& GetLightViewMtx() const { return mMtxLightView; }
+	const Matrix& GetLightProjMtx() const { return mMtxLightProj; }
 
 public:
 	// 새로운 조명 모델을 삽입한다.

@@ -8,6 +8,9 @@
 #include "FileIO.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Camera.h"
+#include "Scene.h"
+#include "Object.h"
 
 namespace {
 	constexpr int gkSunLightIdx = 0;
@@ -19,6 +22,9 @@ Light::Light()
 	mLoadLights(std::make_shared<SceneLoadLight>())
 {
 	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
+
+	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
+	mSceneBounds.Radius = sqrt(5.f * 5.f + 5.f * 5.f);
 }
 
 Light::~Light()
@@ -81,7 +87,40 @@ void Light::BuildLights()
 
 void Light::Update()
 {
-	// TODO : 동적 조명 세팅
+	auto& sunLight = mLights->Lights[gkSunLightIdx];
+	mSceneBounds.Center = scene->GetPlayer()->GetPosition();
+
+	// 태양 조명 뷰 행렬 생성
+	Vec3 lightDir = sunLight.Direction;
+	Vec3 lightPos = -2.f * mSceneBounds.Radius * lightDir;
+	Vec3 targetPos = mSceneBounds.Center;
+	Vec3 lightUp = Vec3::Up;
+	Matrix lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+	sunLight.Position = lightPos;
+	
+	// 바운딩 구 센터를 조명 좌표계로 변환
+	Vec3 sphereCenterLS = Vec3::Transform(targetPos, lightView);
+	
+	// 조명 좌표계에서의 직교 프러스텀 생성
+	float l = sphereCenterLS.x - mSceneBounds.Radius;
+	float b = sphereCenterLS.y - mSceneBounds.Radius;
+	float n = sphereCenterLS.z - mSceneBounds.Radius;
+	float r = sphereCenterLS.x + mSceneBounds.Radius;
+	float t = sphereCenterLS.y + mSceneBounds.Radius;
+	float f = sphereCenterLS.z + mSceneBounds.Radius;
+
+	Matrix lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+
+	// NDC 공간을 텍스처 공간으로 변환
+	Matrix mtxTexture(
+		0.5f, 0.f, 0.f, 0.f,
+		0.f, -0.5f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.5f, 0.5f, 0.f, 1.f);
+
+	Matrix mtxShadow = lightView * lightProj * mtxTexture;
+	mMtxLightView = lightView;
+	mMtxLightProj = lightProj;
 }
 
 void Light::UpdateShaderVars(int index)

@@ -249,6 +249,7 @@ namespace {
 		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
+			Vec4 temp1 = Vec4(0.f, 0.f, 0.f, 0.f); // TODO : 삭제
 
 			switch (Hash(token)) {
 			case Hash("<Material>:"):
@@ -274,7 +275,6 @@ namespace {
 				break;
 
 			case Hash("<EmissiveColor>:"):
-				Vec4 temp1; // TODO : 삭제
 				FileIO::ReadVal(file, temp1);
 				break;
 

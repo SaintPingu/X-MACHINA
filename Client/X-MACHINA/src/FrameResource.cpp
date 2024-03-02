@@ -30,7 +30,7 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence),
 	mFrameResourceCount(3),
-	mPassCount(1),
+	mPassCount(2),
 	mPostPassCount(1),
 	mObjectCount(2000),
 	mSkinBoneCount(mObjectCount * gkSkinBoneSize),	// 임시, Object 개수 * SkinBone 최대크기(128)
@@ -131,10 +131,10 @@ void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
 	}
 }
 
-void FrameResourceMgr::CopyData(const PassConstants& data)
+void FrameResourceMgr::CopyData(const int elementIndex, const PassConstants& data)
 {
 	// 패스 당 상수 버퍼는 메인 패스 한 개만 존재하며 나중에 추가될 수 있다.
-	mCurrFrameResource->PassCB->CopyData(0, data);
+	mCurrFrameResource->PassCB->CopyData(elementIndex, data);
 }
 
 void FrameResourceMgr::CopyData(const PostPassConstants& data)

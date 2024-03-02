@@ -118,6 +118,7 @@ public:
 #include <DirectXCollision.h>
 #include <D3d12SDKLayers.h>
 #include <d3dx12.h>
+#include "SimpleMath.h"
 
 /* Custom */
 #include "Singleton.h"
@@ -178,13 +179,13 @@ using namespace DirectX::PackedVector;
 using Microsoft::WRL::ComPtr;
 
 /* DirectX Math */
-using Vec2   = XMFLOAT2;
-using Vec3   = XMFLOAT3;
-using Vec4   = XMFLOAT4;
+using Vec2   = DirectX::SimpleMath::Vector2;
+using Vec3   = DirectX::SimpleMath::Vector3;
+using Vec4   = DirectX::SimpleMath::Vector4;
+using Matrix = DirectX::SimpleMath::Matrix;
 using Vec4x4 = XMFLOAT4X4;
 using Vec4x3 = XMFLOAT4X3;
 using Vector = XMVECTOR;
-using Matrix = XMMATRIX;
 
 /* Abbreviation */
 template<class T>
@@ -296,6 +297,7 @@ enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
 
 enum class GroupType : UINT8 {
 	SwapChain = 0,
+	Shadow,
 	GBuffer,
 	Lighting,
 	OffScreen,
@@ -972,7 +974,7 @@ namespace Matrix4x4 {
 	inline Vec4x4 Multiply(const Vec4x4& matrix1, const Matrix& matrix2) noexcept
 	{
 		Vec4x4 result;
-		XMStoreFloat4x4(&result, _MATRIX(matrix1) * matrix2);
+		XMStoreFloat4x4(&result, (matrix1) * matrix2);
 		return result;
 	}
 
@@ -1023,6 +1025,13 @@ namespace Matrix4x4 {
 	{
 		Vec4x4 result;
 		XMStoreFloat4x4(&result, XMMatrixTranspose(_MATRIX(matrix)));
+		return result;
+	}
+	
+	inline Vec4x4 OrthographicOffCenterLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, XMMatrixOrthographicLH(XMConvertToRadians(fFovAngleY), aspectRatio, fNearZ, fFarZ));
 		return result;
 	}
 
@@ -1126,7 +1135,7 @@ namespace XMMatrix
 	inline void SetPosition(Matrix& matrix, const Vec3& pos)
 	{
 		Vector p = XMVectorSet(pos.x, pos.y, pos.z, 1.f);
-		::memcpy(&matrix.r[3], &p, sizeof(Vector));
+		::memcpy(&matrix.m[3], &p, sizeof(Vector));
 	}
 }
 	#pragma endregion

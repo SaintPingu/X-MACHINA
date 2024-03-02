@@ -98,6 +98,7 @@ public:
 private:
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
+	void UpdateShadowPassCB();
 	void UpdateMaterialBuffer();
 #pragma endregion
 
@@ -131,8 +132,6 @@ private:
 
 #pragma region Render
 public:
-	// root signature, descriptor heap 등의 기본 정보를 설정한다.
-	void OnPrepareRender();
 	// render scene
 	void RenderShadow();
 	void RenderDeferred();

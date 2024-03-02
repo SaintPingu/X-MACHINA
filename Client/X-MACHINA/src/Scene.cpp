@@ -92,6 +92,7 @@ void Scene::ReleaseUploadBuffers()
 void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
+	UpdateShadowPassCB();
 	UpdateMaterialBuffer();
 }
 
@@ -109,6 +110,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
 	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
 	passConstants.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
+	passConstants.ShadowIndex					= res->Get<Texture>("ShadowDepthStencil")->GetGpuDescriptorHandleIndex();
 	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
@@ -120,10 +122,19 @@ void Scene::UpdateMainPassCB()
 	passConstants.LightCount					= mLight->GetLightCount();
 	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
 	passConstants.FilterOption					= dxgi->GetFilterOption();
+	passConstants.FogColor						= Colors::Gray;
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passConstants.Lights));
-	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
 	
-	frmResMgr->CopyData(passConstants);
+	frmResMgr->CopyData(0, passConstants);
+}
+
+void Scene::UpdateShadowPassCB()
+{
+	PassConstants passConstants;
+	passConstants.MtxView = mLight->GetLightViewMtx().Transpose();
+	passConstants.MtxProj = mLight->GetLightProjMtx().Transpose();
+
+	frmResMgr->CopyData(1, passConstants);
 }
 
 void Scene::UpdateMaterialBuffer()
@@ -408,19 +419,25 @@ namespace {
 	}
 }
 
-void Scene::OnPrepareRender()
-{
-}
-
 void Scene::RenderShadow()
 {
+	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(1));
+	
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	res->Get<Shader>("Shadow")->Set();
 
+	RenderGridObjects();
+	RenderSkinMeshObjects();
+	RenderTestCubes();
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	RenderTerrain();
 }
 
 void Scene::RenderDeferred()
 {
 #pragma region PrepareRender
-	OnPrepareRender();
+	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(0));
 	mRenderedObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
@@ -675,8 +692,8 @@ void Scene::Update()
 	CheckCollisions();
 
 	UpdateObjects();
-	mLight->Update();
 	mainCameraObject->Update();
+	mLight->Update();
 	canvas->Update();
 
 	Animate();

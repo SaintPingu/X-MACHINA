@@ -206,6 +206,7 @@ void DXGIMgr::Render()
 #pragma region ClearRTVs
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
+	GetMRT(GroupType::Shadow)->ClearRenderTargetView();
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
 	GetMRT(GroupType::Lighting)->ClearRenderTargetView();
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView();
@@ -216,7 +217,9 @@ void DXGIMgr::Render()
 	case DrawOption::Main:
 	{
 		// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
+		GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 		scene->RenderShadow();
+		GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
 		// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
 		GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
@@ -275,8 +278,7 @@ void DXGIMgr::RenderBegin()
 	mDescriptorHeap->Set();
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
 }
@@ -475,7 +477,7 @@ void DXGIMgr::CreateDSV()
 	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
 	mShadowDs = res->CreateTexture("ShadowDepthStencil", gkFrameBufferWidth * 2, gkFrameBufferHeight * 2,
-		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ);
 	CreateDepthStencilView(mShadowDs.get());
 	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
@@ -497,6 +499,15 @@ void DXGIMgr::CreateMRTs()
 
 		mMRTs[static_cast<UINT8>(GroupType::SwapChain)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
+	}
+#pragma endregion
+
+#pragma region Shadow
+	{
+		// 그림자에서는 깊이 버퍼만 사용하며 어떠한 렌더 타겟도 사용하지 않는다.
+		std::vector<RenderTarget> rts(0);
+		mMRTs[static_cast<UINT8>(GroupType::Shadow)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->Create(GroupType::Shadow, std::move(rts), mShadowDs);
 	}
 #pragma endregion
 

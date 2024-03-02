@@ -57,6 +57,10 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.NumRenderTargets = 1;
 		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		break;
+	case ShaderType::Shadow:
+		mGraphicsPipelineStateDesc.NumRenderTargets = 0;
+		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_UNKNOWN;
+		break;
 	case ShaderType::Deferred:
 		mGraphicsPipelineStateDesc.NumRenderTargets = GBufferCount;
 		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -176,6 +180,11 @@ D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 	case RasterizerType::WireFrame:
 		rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
 		rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+		break;
+	case RasterizerType::DepthBias:
+		rasterizerDesc.DepthBias = 100000;
+		rasterizerDesc.DepthBiasClamp = 0.f;
+		rasterizerDesc.SlopeScaledDepthBias = 1.f;
 		break;
 	default:
 		break;

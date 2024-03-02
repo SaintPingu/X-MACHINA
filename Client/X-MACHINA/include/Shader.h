@@ -8,6 +8,7 @@
 enum class ShaderType : UINT8 {
 	LDR = 0,
 	HDR,
+	Shadow,
 	Deferred,
 	Lighting,
 	Compute,
@@ -18,6 +19,7 @@ enum class RasterizerType : UINT8 {
 	Cull_Front,
 	Cull_Back,
 	WireFrame,
+	DepthBias,
 };
 
 enum class DepthStencilType : UINT8 {

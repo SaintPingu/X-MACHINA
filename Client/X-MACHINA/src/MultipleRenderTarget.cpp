@@ -14,10 +14,22 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 
 	assert(mMaxRtCnt >= mRtCnt);
 
+	// 렌더 타겟 배열이 없는 경우(그림자) 깊이 텍스처를 사용한다.
+	if (mRts.empty()) {
+		mViewport = D3D12_VIEWPORT{ 0.f, 0.f, dsTexture->GetWidth(), dsTexture->GetHeight(), 0.f, 1.f };
+		mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(dsTexture->GetWidth()), static_cast<LONG>(dsTexture->GetHeight()) };
+
+		mTargetToResource[0] = CD3DX12_RESOURCE_BARRIER::Transition(dsTexture->GetResource().Get(),
+			D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+		mResourceToTarget[0] = CD3DX12_RESOURCE_BARRIER::Transition(dsTexture->GetResource().Get(),
+			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+		return;
+	}
+
 	mViewport = D3D12_VIEWPORT{ 0.f, 0.f, mRts[0].Target->GetWidth(), mRts[0].Target->GetHeight(), 0.f, 1.f };
 	mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(mRts[0].Target->GetWidth()), static_cast<LONG>(mRts[0].Target->GetHeight()) };
-	//mViewport = D3D12_VIEWPORT{ 0.f, 0.f, gkFrameBufferWidth, gkFrameBufferHeight, 0.f, 1.f };
-	//mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(gkFrameBufferWidth), static_cast<LONG>(gkFrameBufferHeight) };
 
 	// window resize를 할 때 Create함수가 다시 불리기 때문에 RTV 힙이 이미 존재하는지 검사한다.
 	if (!mRtvHeap) {
@@ -72,6 +84,7 @@ void MultipleRenderTarget::OMSetRenderTargets()
 {
 	cmdList->RSSetViewports(1, &mViewport);
 	cmdList->RSSetScissorRects(1, &mScissorRect);
+
 	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, &mDsvHeapBegin);
 }
 
@@ -79,7 +92,8 @@ void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 {
 	cmdList->RSSetViewports(1, &mViewport);
 	cmdList->RSSetScissorRects(1, &mScissorRect);
-	cmdList->OMSetRenderTargets(count, &mRts[index].RtvHandle, FALSE, &mDsvHeapBegin);
+
+	cmdList->OMSetRenderTargets(count, (mRtCnt != 0) ? &mRts[index].RtvHandle : nullptr, FALSE, &mDsvHeapBegin);
 }
 
 void MultipleRenderTarget::ClearRenderTargetView()
@@ -93,7 +107,7 @@ void MultipleRenderTarget::ClearRenderTargetView()
 	}
 
 	// 사용할 깊이 버퍼도 클리어한다.
-	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
+	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 }
 
 void MultipleRenderTarget::ClearRenderTargetView(UINT index)
@@ -103,19 +117,19 @@ void MultipleRenderTarget::ClearRenderTargetView(UINT index)
 	// index 해당 렌더 타겟만 클리어한다.
 	cmdList->ClearRenderTargetView(mRts[index].RtvHandle, mRts[index].ClearColor.data(), 0, nullptr);
 
-	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
+	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 }
 
 void MultipleRenderTarget::WaitTargetToResource()
 {
 	// 모든 렌더 타겟을 렌더 타겟 상태에서 리소스로 변경한다.
-	cmdList->ResourceBarrier(mRtCnt, mTargetToResource.data());
+	cmdList->ResourceBarrier(max(mRtCnt, 1), mTargetToResource.data());
 }
 
 void MultipleRenderTarget::WaitResourceToTarget()
 {
 	// 모든 렌더 타겟을 리소스 상태에서 렌더 타겟 상태로 변경한다.
-	cmdList->ResourceBarrier(mRtCnt, mResourceToTarget.data());
+	cmdList->ResourceBarrier(max(mRtCnt, 1), mResourceToTarget.data());
 }
 
 void MultipleRenderTarget::WaitTargetToResource(UINT index)

@@ -20,5 +20,6 @@ SkyBox::SkyBox() : Transform(this)
 void SkyBox::Render()
 {
 	res->Get<Shader>("SkyBox")->Set();
+	UpdateShaderVars();
 	mMesh->Render();
 }

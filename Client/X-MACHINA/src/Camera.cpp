@@ -13,15 +13,6 @@
 
 
 #pragma region Camera
-void Camera::Awake()
-{
-	base::Awake();
-}
-void Camera::Release()
-{
-	base::Release();
-}
-
 void Camera::UpdateViewMtx()
 {
 	const Vec3 kPos   = mObject->GetPosition();

@@ -889,7 +889,7 @@ void Scene::RenderBullets()
 	mBulletShader->Set();
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
-			//player->GetComponent<Script_AirplanePlayer>()->RenderBullets();
+			player->GetComponent<Script_ShootingPlayer>()->RenderBullets();
 		}
 	}
 }

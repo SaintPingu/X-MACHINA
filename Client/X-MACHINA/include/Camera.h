@@ -56,10 +56,6 @@ public:
 	void SetOffset(const Vec3& offset) { mOffset = offset; }
 
 public:
-	virtual void Awake() override;
-	virtual void Release() override;
-
-public:
 	void UpdateViewMtx();
 	void SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float aspectRatio, float fovAngle);
 		 

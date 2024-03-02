@@ -4,57 +4,29 @@
 #include "Transform.h"
 #pragma endregion
 
-
 #pragma region Define
-#define COMPONENT_ABSTRACT( className, parent )							\
-public:																	\
-	className(Object* object) : parent(object) {}						\
-	virtual ~className() = default;										\
-																		\
-private:																\
-	using base = parent;												\
 
-#define COMPONENT( className, parent )									\
-public:																	\
-    static const int ID = static_cast<int>(ComponentID::className);		\
-    className(Object* object) : parent(object) { }						\
-    virtual ~className() = default; 									\
-	virtual int GetID() const override { return ID; }					\
-																		\
-private:																\
-	using base = parent;												\
+#define COMPONENT( className, parent )				\
+public:												\
+    className(Object* object) : parent(object) { }	\
+	static bool IsAbstract() { return false; }		\
+private:											\
+	using base = parent;
+
+#define COMPONENT_ABSTRACT( className, parent )		\
+public:												\
+    className(Object* object) : parent(object) { }	\
+	static bool IsAbstract() { return true; }		\
+private:											\
+	using base = parent;
 
 #pragma endregion
-
 
 #pragma region ClassForwardDecl
 class Object;
 #pragma endregion
 
-
 #pragma region EnumClass
-enum class ComponentID {	// except abstract component
-	BoxCollider = 0,
-	SphereCollider,
-	ObjectCollider,
-	Camera,
-	Rigidbody,
-
-	/* scripts */
-	Script_Apache,
-	Script_Gunship,
-	Script_MainCamera,
-	Script_ExplosiveObject,
-	Script_AirplanePlayer,
-	Script_TankPlayer,
-	Script_Fragment,
-	Script_Bullet,
-	Script_Billboard,
-	Script_Sprite,
-	Script_GroundPlayer,
-	_count
-};
-
 enum class ObjectTag : DWORD {
 	Unspecified    = 0x000,
 	Player         = 0x001,
@@ -107,14 +79,12 @@ protected:
 	Object* mObject{};	// 이 Component를 소유하는 객체
 
 private:
-	bool mIsActive = true;
-	static constexpr int kNotID = -1;
+	bool mIsActive   = true;
 
 public:
 	Component(Object* object) { mObject = object; }
 	virtual ~Component() = default;
 
-	virtual int GetID() const { return kNotID; }
 	bool IsActive() const { return mIsActive; }
 	
 	void SetActive(bool isActive) { mIsActive = isActive; }
@@ -198,27 +168,28 @@ public:
 	sptr<T> GetComponent() const
 	{
 		for (const auto& component : mComponents) {
-			if (component->GetID() == T::ID) {
-				return std::static_pointer_cast<T>(component);
+			auto result = std::dynamic_pointer_cast<T>(component);
+			if (result) {
+				return result;
 			}
 		}
 
 		return nullptr;
 	}
 
-	// 모든 T component들을 반환한다.
 	template<class T>
 	std::vector<sptr<T>> GetComponents() const
 	{
-		std::vector<sptr<T>> result{};
+		std::vector<sptr<T>> results{};
 
 		for (const auto& component : mComponents) {
-			if (component->GetID() == T::ID) {
-				result.emplace_back(std::static_pointer_cast<T>(component));
+			auto result = std::dynamic_pointer_cast<T>(component);
+			if (result) {
+				results.push_back(result);
 			}
 		}
 
-		return result;
+		return results;
 	}
 
 	// 모든 component들을 반환한다.
@@ -231,6 +202,10 @@ public:
 	template<class T>
 	sptr<T> AddComponent()
 	{
+		if (T::IsAbstract()) {
+			// log here : Cannot add component of this type because it is abstract.
+			return nullptr;
+		}
 		mComponents.emplace_back(std::make_shared<T>((Object*)this));
 		return std::static_pointer_cast<T>(mComponents.back());
 	}
@@ -240,12 +215,24 @@ public:
 	void RemoveComponent()
 	{
 		for (auto it = mComponents.begin(); it != mComponents.end(); ++it) {
-			if ((*it)->GetID() == T::ID) {
+			auto component = *it;
+			auto result = std::dynamic_pointer_cast<T>(component);
+			if (result) {
 				mComponents.erase(it);
 				return;
 			}
 		}
 	}
+
+	// 모든 T component를 제거한다.
+	template<class T>
+	void RemoveAllComponents()
+	{
+		std::erase_if(mComponents, [](const auto& component) {
+			return std::dynamic_pointer_cast<T>(component);
+			});
+	}
+
 
 	// src 객체의 모든 component들을 복사해 추가한다.
 	void CopyComponents(const Object& src);

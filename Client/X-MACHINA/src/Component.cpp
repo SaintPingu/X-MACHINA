@@ -223,18 +223,14 @@ namespace {
 sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 {
 	sptr<Component> result{};
-
+	
 	// 복사 생성자가 오버로딩된 컴포넌트에 한해 컴포넌트 복사를 수행한다.
-	switch (component->GetID()) {
-	case BoxCollider::ID:
+	const auto& id = typeid(*component);
+	if (id == typeid(BoxCollider)) {
 		result = CopyComponent<BoxCollider>(component, this);
-		break;
-	case SphereCollider::ID:
+	}
+	else if (id == typeid(SphereCollider)) {
 		result = CopyComponent<SphereCollider>(component, this);
-		break;
-	default:
-		assert(0);
-		break;
 	}
 
 	return result;

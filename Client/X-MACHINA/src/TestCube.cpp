@@ -26,8 +26,6 @@ TestCube::TestCube(Vec2 pos) : Transform(this)
 
 void TestCube::Render()
 {
-	res->Get<Shader>("Global")->Set();
-
 	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);
 

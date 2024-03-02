@@ -23,6 +23,7 @@ enum {
 struct PassConstants {
     Matrix      MtxView{};
     Matrix      MtxProj{};
+    Matrix      MtxShadow{};
     Vec3        EyeW{};
     UINT        LightCount{};
     std::array<LightInfo, gkMaxSceneLight> Lights{};

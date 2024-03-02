@@ -249,8 +249,6 @@ void Terrain::PushObject(TerrainBlock* block)
 
 void Terrain::Render()
 {
-	res->Get<Shader>("Terrain")->Set();
-
 	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);
 

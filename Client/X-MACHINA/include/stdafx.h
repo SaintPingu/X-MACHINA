@@ -309,10 +309,10 @@ enum { MRTGroupTypeCount = static_cast<UINT8>(GroupType::_count) };
 
 
 #pragma region Variable
-constexpr short gkFrameBufferWidth  = 2560;
-constexpr short gkFrameBufferHeight = 1600;
-//constexpr short gkFrameBufferWidth  = 1280;
-//constexpr short gkFrameBufferHeight = 960;
+//constexpr short gkFrameBufferWidth  = 2560;
+//constexpr short gkFrameBufferHeight = 1600;
+constexpr short gkFrameBufferWidth  = 1280;
+constexpr short gkFrameBufferHeight = 960;
 
 constexpr int	gkMaxSceneLight		= 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
 constexpr int	gkSkinBoneSize		= 128;

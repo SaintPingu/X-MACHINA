@@ -285,7 +285,7 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     return result;
 }
 
-LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW)
+LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW, float shadowFactor)
 {
     // 빛이 나아가는 방향의 반대 방향
     float3 lightVec = -L.Direction;
@@ -294,8 +294,11 @@ LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3
     float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
     float3 lightStrength = L.Strength * ndotl;
     
-    return BRDF(normal, lightVec, lightStrength, mat, toCameraW);
-    //return BlinnPhong(lightStrength, lightVec, normal, toCameraW, mat);
+    LightColor result = BRDF(normal, lightVec, lightStrength, mat, toCameraW);
+    result.Diffuse  *= shadowFactor;
+    result.Specular *= shadowFactor;
+    
+    return result;
 }
 
 LightColor ComputePointLight(LightInfo L, Material mat, float3 pos, float3 normal, float3 toCameraW)
@@ -355,12 +358,12 @@ LightColor ComputeLighting(Material mat, float3 pos, float3 normal, float3 toCam
         if (gPassCB.Lights[i].LightType == 0)
         {
             LightColor color = ComputeSpotLight(gPassCB.Lights[i], mat, pos, normal, toCameraW);
-            result.Diffuse += shadowFactor * color.Diffuse;
-            result.Specular += shadowFactor * color.Specular;
+            result.Diffuse += color.Diffuse;
+            result.Specular += color.Specular;
         }
         else if (gPassCB.Lights[i].LightType == 1)
         {
-            LightColor color = ComputeDirectionalLight(gPassCB.Lights[i], mat, pos, normal, toCameraW);
+            LightColor color = ComputeDirectionalLight(gPassCB.Lights[i], mat, pos, normal, toCameraW, shadowFactor[i]);
             result.Diffuse += color.Diffuse;
             result.Specular += color.Specular;
         }

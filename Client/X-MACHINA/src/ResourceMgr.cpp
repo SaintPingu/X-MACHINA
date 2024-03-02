@@ -118,6 +118,22 @@ void ResourceMgr::LoadShaders()
 		shader->Load(info, path);
 		Add<Shader>("Global", shader);
 	}
+	{
+		ShaderInfo info = {
+			ShaderType::Shadow,
+			RasterizerType::DepthBias,
+		};
+
+		ShaderPath path = {
+			 L"VShader_Shadow.cso",
+			 L"PShader_Shadow.cso",
+			 L""
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Shadow_Global", shader);
+	}
 #pragma endregion
 #pragma region ObjectInst
 	{
@@ -172,6 +188,22 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("SkinMesh", shader);
+	}
+	{
+		ShaderInfo info = {
+			ShaderType::Shadow,
+			RasterizerType::DepthBias,
+		};
+
+		ShaderPath path = {
+			 L"VShader_Shadow_SkinnedMesh.cso",
+			 L"PShader_Shadow.cso",
+			 L""
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Shadow_SkinMesh", shader);
 	}
 #pragma endregion
 #pragma region Terrain

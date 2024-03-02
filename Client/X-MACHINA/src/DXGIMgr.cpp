@@ -476,7 +476,7 @@ void DXGIMgr::CreateDSV()
 	CreateDepthStencilView(mDefaultDs.get());
 	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
-	mShadowDs = res->CreateTexture("ShadowDepthStencil", gkFrameBufferWidth * 2, gkFrameBufferHeight * 2,
+	mShadowDs = res->CreateTexture("ShadowDepthStencil", gkFrameBufferWidth * 4, gkFrameBufferHeight * 4,
 		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ);
 	CreateDepthStencilView(mShadowDs.get());
 	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
@@ -564,9 +564,6 @@ void DXGIMgr::CreateMRTs()
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
-
-	// create SRV for DepthStencil buffer
-	//CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
 void DXGIMgr::CreateFrameResources()

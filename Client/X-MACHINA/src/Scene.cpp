@@ -104,6 +104,7 @@ void Scene::UpdateMainPassCB()
 	PassConstants passConstants;
 	passConstants.MtxView						= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
 	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
+	passConstants.MtxShadow						= mLight->GetShadowMtx().Transpose();
 	passConstants.EyeW							= mainCamera->GetPosition();
 	passConstants.DeltaTime						= DeltaTime();
 	passConstants.TotalTime						= timeElapsed;
@@ -421,17 +422,18 @@ namespace {
 
 void Scene::RenderShadow()
 {
+#pragma region PrepareRender
 	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(1));
-	
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	res->Get<Shader>("Shadow")->Set();
+#pragma endregion
 
-	RenderGridObjects();
-	RenderSkinMeshObjects();
-	RenderTestCubes();
-
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	RenderTerrain();
+#pragma region Shadow_Global
+	RenderGridObjects(true);
+	RenderTestCubes(true);
+#pragma endregion
+#pragma region Shadow_SkinMesh
+	RenderSkinMeshObjects(true);
+#pragma endregion
 }
 
 void Scene::RenderDeferred()
@@ -441,24 +443,30 @@ void Scene::RenderDeferred()
 	mRenderedObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
-#pragma endregion
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	res->Get<Shader>("Global")->Set();
-	RenderGridObjects();	
-	RenderSkinMeshObjects();
-	RenderEnvironments();	
-	RenderInstanceObjects();
-	RenderBullets();
-	RenderTestCubes();
+#pragma endregion
 
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+#pragma region Global
+	RenderGridObjects();
+	RenderTestCubes();
+	RenderEnvironments();
+#pragma endregion
+#pragma region ObjectInst
+	RenderInstanceObjects();
+#pragma endregion
+#pragma region ColorInst
+	RenderBullets();
+#pragma endregion
+#pragma region Shadow_SkinMesh
+	RenderSkinMeshObjects();
+#pragma endregion
+#pragma region Terrain
 	RenderTerrain();
+#pragma endregion
 }
 
 void Scene::RenderLights()
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	if (mLight) {
 		mLight->Render();
 	}
@@ -502,6 +510,9 @@ void Scene::RenderUI()
 
 void Scene::RenderTerrain()
 {
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	res->Get<Shader>("Terrain")->Set();
+
 	if (mTerrain) {
 		mTerrain->Render();
 	}
@@ -524,8 +535,13 @@ void Scene::RenderSkyBox()
 	mSkyBox->Render();
 }
 
-void Scene::RenderGridObjects()
+void Scene::RenderGridObjects(bool isShadowed)
 {
+	if (isShadowed)
+		res->Get<Shader>("Shadow_Global")->Set();
+	else 
+		res->Get<Shader>("Global")->Set();
+
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
 			continue;
@@ -561,9 +577,20 @@ void Scene::RenderGridObjects()
 	}
 }
 
-void Scene::RenderSkinMeshObjects()
+void Scene::RenderTestCubes(bool isShadowed)
 {
-	res->Get<Shader>("SkinMesh")->Set();
+	for (const auto& testCube : mTestCubes) {
+		testCube->Render();
+	}
+}
+
+void Scene::RenderSkinMeshObjects(bool isShadowed)
+{
+	if (isShadowed)
+		res->Get<Shader>("Shadow_SkinMesh")->Set();
+	else
+		res->Get<Shader>("SkinMesh")->Set();
+
 	for (auto& object : mSkinMeshObjects) {
 		object->Render();
 	}
@@ -580,13 +607,6 @@ void Scene::RenderInstanceObjects()
 void Scene::RenderFXObjects()
 {
 
-}
-
-void Scene::RenderTestCubes()
-{
-	for (const auto& testCube : mTestCubes) {
-		testCube->Render();
-	}
 }
 
 void Scene::RenderEnvironments()

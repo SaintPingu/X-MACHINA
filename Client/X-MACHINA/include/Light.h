@@ -26,6 +26,7 @@ private:
 	BoundingSphere			mSceneBounds{};		// 시야 입체 빛은 해당 입체 부분에만 적용된다.
 	Matrix					mMtxLightView{};
 	Matrix					mMtxLightProj{};
+	Matrix					mMtxShadow{};
 
 	std::unordered_map<std::string, const LightLoadInfo*> mLightModels{};	// 하나의 조명 모델에 대해 여러 조명을 동적으로 생성 가능한 모델 목록
 	std::set<std::string> mLightModelNames{};
@@ -45,6 +46,7 @@ public:
 
 	const Matrix& GetLightViewMtx() const { return mMtxLightView; }
 	const Matrix& GetLightProjMtx() const { return mMtxLightProj; }
+	const Matrix& GetShadowMtx() const { return mMtxShadow; }
 
 public:
 	// 새로운 조명 모델을 삽입한다.

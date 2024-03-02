@@ -147,14 +147,13 @@ private:
 	// [renderedObjects]    : ·»´õ¸µµÈ ¸ðµç °´Ã¼ (±×¸®µå¿¡ Æ÷ÇÔµÈ)
 	// [transparentObjects] : Åõ¸í °´Ã¼
 	// [billboardObjects]	: ºôº¸µå °´Ã¼ (plane)
-	void RenderGridObjects();
-
-	void RenderSkinMeshObjects();
+	void RenderGridObjects(bool isShadowed = false);
+	void RenderTestCubes(bool isShadowed = false);
+	void RenderSkinMeshObjects(bool isShadowed = false);
 	void RenderEnvironments();
 	void RenderBullets();
 	void RenderInstanceObjects();
 	void RenderFXObjects();
-	void RenderTestCubes();
 
 	// render [billboards]
 	void RenderBillboards();

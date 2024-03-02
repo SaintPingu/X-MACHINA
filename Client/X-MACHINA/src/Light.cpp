@@ -24,7 +24,7 @@ Light::Light()
 	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 
 	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
-	mSceneBounds.Radius = sqrt(5.f * 5.f + 5.f * 5.f);
+	mSceneBounds.Radius = sqrt(30.f * 30.f + 25.f * 25.f);
 }
 
 Light::~Light()
@@ -51,7 +51,6 @@ void Light::BuildLights(FILE* file)
 	LoadLightModels();
 
 	SetSunlight();
-
 	BuildLights();
 }
 
@@ -92,7 +91,7 @@ void Light::Update()
 
 	// 태양 조명 뷰 행렬 생성
 	Vec3 lightDir = sunLight.Direction;
-	Vec3 lightPos = -2.f * mSceneBounds.Radius * lightDir;
+	Vec3 lightPos = mSceneBounds.Center + -2.f * mSceneBounds.Radius * lightDir;
 	Vec3 targetPos = mSceneBounds.Center;
 	Vec3 lightUp = Vec3::Up;
 	Matrix lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
@@ -118,9 +117,9 @@ void Light::Update()
 		0.f, 0.f, 1.f, 0.f,
 		0.5f, 0.5f, 0.f, 1.f);
 
-	Matrix mtxShadow = lightView * lightProj * mtxTexture;
 	mMtxLightView = lightView;
 	mMtxLightProj = lightProj;
+	mMtxShadow = lightView * lightProj * mtxTexture;
 }
 
 void Light::UpdateShaderVars(int index)
@@ -136,6 +135,8 @@ void Light::UpdateShaderVars(int index)
 
 void Light::Render()
 {
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	for (int i = 0; i < mLights->Lights.size(); ++i) {
 		auto& light = mLights->Lights[i];
 		auto& volumeMesh = mLights->VolumeMeshes[i];
@@ -166,7 +167,7 @@ void Light::SetSunlight()
 	light.Ambient        = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	light.Diffuse        = Vec4(0.9f, 0.9f, 0.9f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
-	light.Direction		 = Vec3(0.57735f, -0.57735f, 0.57735f);
+	light.Direction		 = Vec3(0.57735f, -0.57735f, -0.57735f);
 	light.IsEnable		 = true;
 }
 

@@ -33,8 +33,10 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     float3 specularAlbedo = lerp(0.03f, diffuse.xyz, metallicSmoothness.x);
     Material mat = { diffuseAlbedo, specularAlbedo, metallicSmoothness.x, metallicSmoothness.y };
     
-    float3 shadowFactor = 1.f;
-    LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, posW, normalW, toCameraW);
+    float4 shadowPosH = mul(float4(posW, 1.f), gPassCB.MtxShadow);
+    float shadowFactor = 1.f;
+    shadowFactor.x = ComputeShadowFactor(shadowPosH);
+    LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, posW, normalW, toCameraW, shadowFactor);
     
     // specular reflection
     float3 r = reflect(-toCameraW, normalW);

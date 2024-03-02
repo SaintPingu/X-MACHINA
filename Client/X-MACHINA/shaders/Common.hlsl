@@ -77,6 +77,7 @@ struct ObjectInfo {
 struct PassInfo {
     matrix      MtxView;
     matrix      MtxProj;
+    matrix      MtxShadow;
     float3      CameraPos;
     uint        LightCount;
     LightInfo   Lights[gkMaxSceneLight];
@@ -149,6 +150,7 @@ SamplerState gsamLinearWrap       : register(s2);
 SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
+SamplerComparisonState gsamShadow : register(s6);
 
 // 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding(어둡게)하여 출력한다.
 // 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding(밝게)되어 저장된다.
@@ -203,6 +205,37 @@ float4 FogDistance(float4 color, float3 distance)
 {
     float factor = min(saturate((distance - gPassCB.FogStart) / gPassCB.FogRange), 0.8f);
     return lerp(color, gPassCB.FogColor, factor);
+}
+
+float ComputeShadowFactor(float4 shadowPosH)
+{
+    // w로 나눠서 투영을 완료한다.
+    shadowPosH.xyz /= shadowPosH.w;
+    
+    // z값이 깊이 값이다.
+    float depth = shadowPosH.z;
+    
+    uint width, height, numMips;
+    gTextureMaps[gPassCB.ShadowIndex].GetDimensions(0, width, height, numMips);
+    
+    // 텍셀 사이즈
+    float dx = 1.f / (float)width;
+    
+    float percentLit = 0.f;
+    const float2 offsets[9] =
+    {
+        float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
+    };
+    
+    [unroll]
+    for(int i = 0; i < 9; ++i)
+    {
+        percentLit += gTextureMaps[gPassCB.ShadowIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
+    }
+    
+    return percentLit / 9.f;
 }
 
 #endif

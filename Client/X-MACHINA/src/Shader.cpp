@@ -68,6 +68,7 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.RTVFormats[2]	= DXGI_FORMAT_R8G8B8A8_UNORM;
 		mGraphicsPipelineStateDesc.RTVFormats[3]	= DXGI_FORMAT_R8G8B8A8_UNORM;
 		mGraphicsPipelineStateDesc.RTVFormats[4]	= DXGI_FORMAT_R8G8_UNORM;
+		mGraphicsPipelineStateDesc.RTVFormats[5]	= DXGI_FORMAT_R16_UNORM;
 		break;
 	case ShaderType::Lighting:
 		mGraphicsPipelineStateDesc.NumRenderTargets = LightingCount;

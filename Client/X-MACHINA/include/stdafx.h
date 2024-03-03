@@ -273,7 +273,8 @@ enum class GBuffer : UINT8 {
 	Normal,
 	Diffuse,
 	Emissive,
-	Distance,
+	MetallicSmoothness,
+	Occlusion,
 
 	_count
 };

@@ -51,8 +51,10 @@ struct PassConstants {
     int         RT3G_EmissiveIndex           = -1;
 
     int         RT4G_MetallicSmoothnessIndex = -1;
+    int         RT5G_OcclusionIndex          = -1;
     int         RT0L_DiffuseIndex            = -1;
     int         RT1L_SpecularIndex           = -1;
+
     int         RT2L_AmbientIndex            = -1;
 };
 

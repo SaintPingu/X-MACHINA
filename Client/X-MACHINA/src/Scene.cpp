@@ -117,6 +117,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT4G_MetallicSmoothnessIndex  = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT0L_DiffuseIndex				= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
 	passConstants.RT2L_AmbientIndex				= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();

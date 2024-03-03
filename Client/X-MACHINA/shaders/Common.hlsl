@@ -105,8 +105,10 @@ struct PassInfo {
     int         RT3_EmissiveIndex;
     
     int         RT4_MetallicSmoothnessIndex;
+    int         RT5_OcclusionIndex;
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
+    
     int         RT2L_AmbientIndex;
 };
 

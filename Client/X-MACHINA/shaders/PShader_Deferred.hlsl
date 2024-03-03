@@ -15,6 +15,7 @@ struct PSOutput_MRT {
     float4 Diffuse            : SV_TARGET2;
     float4 Emissive           : SV_TARGET3;
     float2 MetallicSmoothness : SV_TARGET4;
+    float1 Occlusion          : SV_TARGET5;
 };
 
 PSOutput_MRT PSDeferred(VSOutput_Standard pin)
@@ -24,6 +25,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float4 diffuse        = matInfo.Diffuse;
     float metallic        = matInfo.Metallic;
     float roughness       = matInfo.Roughness;
+    float occlusion       = 1.f;
     int diffuseMapIndex   = matInfo.DiffuseMap0Index;
     int normalMapIndex    = matInfo.NormalMapIndex;
     int metallicMapIndex  = matInfo.MetallicMapIndex;
@@ -64,10 +66,9 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         roughness = 1 - metallicMapSample.a;
     }
     
-    float4 occlusionMapSample = (float4)0;
-    if (occlusionMapIndex != -1)
+    //if (occlusionMapIndex != -1)
     {
-        occlusionMapSample = gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        occlusion = GammaDecoding(gTextureMaps[44].Sample(gsamAnisotropicWrap, pin.UV).x);
     }
     
     float rimWidth = 0.8f;
@@ -82,6 +83,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     pout.Diffuse = diffuse;
     pout.Emissive = emissiveMapSample + gRimLightColor * rim;
     pout.MetallicSmoothness = float2(metallic, roughness);
+    pout.Occlusion = occlusion;
     
     return pout;
 }

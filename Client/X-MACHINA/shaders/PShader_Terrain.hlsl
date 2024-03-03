@@ -13,6 +13,7 @@ struct PSOutput_MRT {
     float4 Diffuse            : SV_TARGET2;
     float4 Emissive           : SV_TARGET3;
     float2 MetallicSmoothness : SV_TARGET4;
+    float1 Occlusion          : SV_TARGET5;
 };
 
 PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
@@ -21,6 +22,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     float4 diffuse       = matInfo.Diffuse;
     float metallic       = matInfo.Metallic;
     float roughness      = matInfo.Roughness;
+    float occlusion      = 1.f;
     int diffuseMap0Index = matInfo.DiffuseMap0Index;
     int diffuseMap1Index = matInfo.DiffuseMap1Index;
     int diffuseMap2Index = matInfo.DiffuseMap2Index;
@@ -62,6 +64,7 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     pout.Diffuse = diffuse;
     pout.Emissive = float4(0.f, 0.f, 0.f, 0.f);
     pout.MetallicSmoothness = float2(metallic, roughness);
+    pout.Occlusion = occlusion;
     
     return pout;
 }

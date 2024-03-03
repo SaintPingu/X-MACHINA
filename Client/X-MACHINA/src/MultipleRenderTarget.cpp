@@ -146,6 +146,10 @@ void MultipleRenderTarget::WaitResourceToTarget(UINT index)
 
 void MultipleRenderTarget::ReleaseRenderTargets()
 {
+	for (auto& res : mRts) {
+		res.Target->GetResource()->Release();
+	}
+
 	if (!mRts.empty()) {
 		mRts.clear();
 	}

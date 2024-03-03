@@ -680,8 +680,9 @@ void SkinMesh::UpdateShaderVariables()
 		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
 
-	int index = -1;
+	int index = (*mBoneFrames)[0]->GetObjCBIndex();
 	frmResMgr->CopyData(index, skinnedConstatnts);
+	(*mBoneFrames)[0]->SetObjCBIndex(index);
 
 	dxgi->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
 

@@ -27,6 +27,7 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     float3 normalW = gTextureMaps[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
     float4 diffuse = gTextureMaps[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
     float2 metallicSmoothness = gTextureMaps[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
+    float1 occlusion = gTextureMaps[gPassCB.RT5_OcclusionIndex].Sample(gsamAnisotropicWrap, pin.UV).r;
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallicSmoothness.x);
@@ -46,7 +47,7 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     
     pout.Diffuse = GammaEncoding(float4(lightColor.Diffuse, 0.f));
     pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f)) + float4(reflection, 0.f);
-    pout.Ambient = GammaEncoding(diffuse * gPassCB.GlobalAmbient);
+    pout.Ambient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * occlusion);
     
     return pout;
 }

@@ -530,6 +530,9 @@ void DXGIMgr::CreateMRTs()
 		rts[4].Target = res->CreateTexture("MetallicSmoothnessTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
+		rts[5].Target = res->CreateTexture("OcclusionTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDefaultDs);
 	}

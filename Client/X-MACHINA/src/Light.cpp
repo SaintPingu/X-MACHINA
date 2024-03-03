@@ -172,7 +172,6 @@ void Light::SetSunlight()
 	light.Diffuse        = Vec4(0.9f, 0.9f, 0.9f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Direction		 = Vec3(0.57735f, -0.57735f, -0.57735f);
-	//light.Direction		 = Vec3(0.f, -1.f, 0.01f);
 	light.IsEnable		 = true;
 }
 

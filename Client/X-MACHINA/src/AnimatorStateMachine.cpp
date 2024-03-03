@@ -118,7 +118,12 @@ AnimatorStateMachine::AnimatorStateMachine(const AnimatorStateMachine& other)
 	mEntryTransitions = other.mEntryTransitions;
 
 	for (const auto& [name, state] : other.mStates) {
-		AddState(std::make_shared<AnimatorState>(*state));
+		if (const auto& cast = std::dynamic_pointer_cast<AnimatorState>(state)) {
+			AddState(std::make_shared<AnimatorState>(*cast));
+		}
+		else if (const auto& cast = std::dynamic_pointer_cast<BlendTree>(state)) {
+			AddState(std::make_shared<BlendTree>(*cast));
+		}
 	}
 
 	for (const auto& [name, stateMachine] : other.mStateMachines) {
@@ -126,7 +131,7 @@ AnimatorStateMachine::AnimatorStateMachine(const AnimatorStateMachine& other)
 	}
 }
 
-sptr<AnimatorState> AnimatorStateMachine::GetState(const std::string& name) const
+sptr<AnimatorMotion> AnimatorStateMachine::GetState(const std::string& name) const
 {
 	if (mStates.contains(name)) {
 		return mStates.at(name);
@@ -143,12 +148,23 @@ sptr<AnimatorStateMachine> AnimatorStateMachine::GetStateMachine(const std::stri
 	return nullptr;
 }
 
-void AnimatorStateMachine::AddState(rsptr<AnimatorState> state)
+void AnimatorStateMachine::Init(const AnimatorController* controller)
+{
+	for (auto& [name, state] : mStates) {
+		state->Init(controller);
+	}
+
+	for (auto& [name, subState] : mStateMachines) {
+		subState->Init(controller);
+	}
+}
+
+void AnimatorStateMachine::AddState(rsptr<AnimatorMotion> state)
 {
 	mStates.insert(std::make_pair(state->GetName(), state));
 }
 
-sptr<AnimatorState> AnimatorStateMachine::Entry() const
+sptr<AnimatorMotion> AnimatorStateMachine::Entry() const
 {
 	if (mStates.contains(mEntryTransitions.front()->Destination)) {
 		return mStates.at(mEntryTransitions.front()->Destination);
@@ -166,12 +182,12 @@ void AnimatorStateMachine::AddStateMachine(rsptr<AnimatorStateMachine> stateMach
 	stateMachine->SetParent(this);
 }
 
-sptr<AnimatorState> AnimatorStateMachine::CheckTransition(const AnimatorController* controller) const
+sptr<AnimatorMotion> AnimatorStateMachine::CheckTransition(const AnimatorController* controller) const
 {
 	for (const auto& transition : mEntryTransitions) {
 		std::string destination = transition->CheckTransition(controller);
 		if (destination != "") {
-			sptr<AnimatorState> state = GetState(destination);
+			sptr<AnimatorMotion> state = GetState(destination);
 			if (state) {
 				return state;
 			}

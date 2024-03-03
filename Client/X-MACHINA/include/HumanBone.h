@@ -18,9 +18,9 @@ enum class BoneType {
 
 	// Root
 	Hips,
+	Spine,
 
 	// Body
-	Spine,
 	Chest,
 	UpperChest,
 

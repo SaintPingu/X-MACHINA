@@ -1,6 +1,6 @@
 #pragma once
 
-class AnimatorState;
+class AnimatorMotion;
 class AnimatorStateMachine;
 class AnimatorController;
 
@@ -20,7 +20,7 @@ struct AnimatorTransition {
 };
 
 namespace Animations {
-	using StateMap = std::unordered_map<std::string, sptr<AnimatorState>>;
+	using StateMap = std::unordered_map<std::string, sptr<AnimatorMotion>>;
 	using StateMachineMap = std::unordered_map<std::string, sptr<AnimatorStateMachine>>;
 }
 
@@ -41,15 +41,17 @@ public:
 
 public:
 	std::string GetName() const { return mName; }
-	sptr<AnimatorState> GetState(const std::string& name) const;
+	sptr<AnimatorMotion> GetState(const std::string& name) const;
 	sptr<AnimatorStateMachine> GetStateMachine(const std::string& name) const;
 
 	void SetParent(AnimatorStateMachine* parent) { mParent = parent; }
 
 public:
-	void AddState(rsptr<AnimatorState> state);
+	void Init(const AnimatorController* controller);
+
+	void AddState(rsptr<AnimatorMotion> state);
 	void AddStateMachine(rsptr<AnimatorStateMachine> stateMachine);
 
-	sptr<AnimatorState> Entry() const;
-	sptr<AnimatorState> CheckTransition(const AnimatorController* controller) const;
+	sptr<AnimatorMotion> Entry() const;
+	sptr<AnimatorMotion> CheckTransition(const AnimatorController* controller) const;
 };

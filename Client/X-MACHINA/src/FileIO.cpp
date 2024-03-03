@@ -542,6 +542,14 @@ namespace {
 		return result;
 	}
 
+	sptr<const AnimationClip> ReadAnimationClip(FILE* file)
+	{
+		std::string clipFolder, clipName;
+		FileIO::ReadString(file, clipFolder);
+		FileIO::ReadString(file, clipName);
+		return scene->GetAnimationClip(clipFolder, clipName);
+	}
+
 	sptr<AnimatorStateMachine> LoadAnimatorStateMachine(FILE* file)
 	{
 		std::string token;
@@ -560,16 +568,45 @@ namespace {
 		int stateSize = FileIO::ReadVal<int>(file);
 
 		for (int i = 0; i < stateSize; ++i) {
-			// AnimationClip
-			std::string clipFolder, clipName;
-			FileIO::ReadString(file, clipFolder);
-			FileIO::ReadString(file, clipName);
-			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
 
-			// Transitions
-			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);
+			sptr<AnimatorMotion> motion{};
+			sptr<const AnimationClip> clip{};
+			std::vector<sptr<const AnimatorTransition>> transitions;
 
-			stateMachine->AddState(std::make_shared<AnimatorState>(stateMachine, clip, transitions));
+			std::string motionType;
+			FileIO::ReadString(file, motionType);
+			switch (Hash(motionType)) {
+			case Hash("<BlendTree>:"):
+			{
+				std::string name;
+				FileIO::ReadString(file, name);
+
+				int motionCnt = FileIO::ReadVal<int>(file);
+				std::vector<sptr<ChildMotion>> motions;
+				motions.reserve(motionCnt);
+
+				for (int i = 0; i < motionCnt; ++i) {
+					clip = ReadAnimationClip(file);
+					Vec2 position = FileIO::ReadVal<Vec2>(file);
+					motions.push_back(std::make_shared<ChildMotion>(clip, position));
+				}
+				transitions = LoadTransitions(file);
+				motion = std::make_shared<BlendTree>(stateMachine, transitions, name, motions);
+			}
+				break;
+			case Hash("<State>:"):
+			{
+				clip = ReadAnimationClip(file);
+				transitions = LoadTransitions(file);
+				motion = std::make_shared<AnimatorState>(stateMachine, transitions, clip);
+			}
+				break;
+			default:
+				assert(0);
+				break;
+			}
+
+			stateMachine->AddState(motion);
 		}
 
 		// Sub State Machines //

@@ -954,6 +954,7 @@ void SkinMesh::UpdateShaderVariables()
 		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
 
+	// TODO : Memory Leak
 	int index = -1;
 	frmResMgr->CopyData(index, skinnedConstatnts);
 

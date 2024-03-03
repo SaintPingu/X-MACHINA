@@ -82,22 +82,31 @@ void Script_GroundPlayer::Update()
 
 void Script_GroundPlayer::ProcessInput()
 {
+	float v{}, h{};
 	DWORD dwDirection = 0;
 	DWORD rotationDir = 0;
-	if (KEY_PRESSED('W'))			dwDirection |= Dir::Front;
-	if (KEY_PRESSED('S'))			dwDirection |= Dir::Back;
-	if (KEY_PRESSED('A'))			dwDirection |= Dir::Left;
-	if (KEY_PRESSED('D'))			dwDirection |= Dir::Right;
+	if (KEY_PRESSED('W')) { dwDirection |= Dir::Front; v += 1; }
+	if (KEY_PRESSED('S')) { dwDirection |= Dir::Back; v -= 1; }
+	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left; h -= 1; }
+	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
 	if (dwDirection) {
 		base::Move(dwDirection);
 	}
 
 	if (mAnimator) {
-		if (Vector3::Length(mRigid->GetVelocity()) > 0.1f) {
-			mAnimator->SetValue("Walk", true);
-		}
-		else {
-			mAnimator->SetValue("Walk", false);
+		Vec3 velocity = mRigid->GetVelocity();
+		const auto& controller = mAnimator->GetController();
+		if (controller) {
+			if (Vector3::Length(velocity) > 0.1f) {
+				controller->SetValue("Walk", true);
+				controller->SetValue("Vertical", v);
+				controller->SetValue("Horizontal", h);
+			}
+			else {
+				controller->SetValue("Walk", false);
+				controller->SetValue("Vertical", 0.f);
+				controller->SetValue("Horizontal", 0.f);
+			}
 		}
 	}
 
@@ -152,7 +161,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
 
 	if (weaponIdx == 0) {
-		animator->SetValue("Weapon", 0);
+		animator->GetController()->SetValue("Weapon", 0);
 		if (mWeapon) {
 			mWeapon->Disable();
 			mWeapon = nullptr;
@@ -172,7 +181,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	mWeapon = mWeapons[weaponIdx - 1];
 	if (mWeapon) {
 		mWeapon->Enable();
-		animator->SetValue("Weapon", weaponIdx);
+		animator->GetController()->SetValue("Weapon", weaponIdx);
 	}
 }
 
@@ -181,13 +190,13 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
 		if (mAnimator) {
-			mAnimator->SetValue("Aim", true);
+			mAnimator->GetController()->SetValue("Aim", true);
 		}
 
 	break;
 	case WM_RBUTTONUP:
 		if (mAnimator) {
-			mAnimator->SetValue("Aim", false);
+			mAnimator->GetController()->SetValue("Aim", false);
 		}
 
 	break;
@@ -215,7 +224,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 
 		case VK_CONTROL:
 			if (mAnimator) {
-				mAnimator->SetValue("Sit", true);
+				mAnimator->GetController()->SetValue("Sit", true);
 			}
 
 		break;
@@ -231,7 +240,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		{
 		case VK_CONTROL:
 			if (mAnimator) {
-				mAnimator->SetValue("Sit", false);
+				mAnimator->GetController()->SetValue("Sit", false);
 			}
 
 		break;

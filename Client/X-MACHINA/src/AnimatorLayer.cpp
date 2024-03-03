@@ -45,6 +45,13 @@ void AnimatorLayer::SetCrntStateLength(float length) const
 	mCrntState->SetLength(length);
 }
 
+
+void AnimatorLayer::Init(const AnimatorController* controller)
+{
+	mController = controller;
+	mRootStateMachine->Init(controller);
+}
+
 void AnimatorLayer::Animate()
 {
 	mCrntState->Animate();
@@ -59,14 +66,14 @@ void AnimatorLayer::Animate()
 		return;
 	}
 
-	sptr<AnimatorState> lastState = mNextStates.back();
+	sptr<AnimatorMotion> lastState = mNextStates.back();
 	for (auto& nextState : mNextStates) {
 		nextState->Animate();
 	}
 
 	std::erase_if(mNextStates, [](const auto& state) {
 		if (state->IsEndAnimation()) {
-			state->Init();
+			state->Reset();
 			return true;
 		}
 		return false;
@@ -109,8 +116,8 @@ void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 		}
 	}
 	else if (nextState != nullptr) {
-		nextState->Init();
-		if (mIsSyncSM) {
+		nextState->Reset();
+		if (mIsSyncSM) {	// 동일한 StateMachine 내에서는 다음 state가 length를 이어받는다.
 			if (mCrntState->IsSameStateMachine(nextState)) {
 				nextState->SetLength(mCrntState->GetLength());
 			}
@@ -120,20 +127,20 @@ void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 	}
 }
 
-void AnimatorLayer::ChangeState(rsptr<AnimatorState> state)
+void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
 {
 	if (!state) {
 		return;
 	}
 
 	if (!state->IsReverse()) {
-		mCrntState->Init();
+		mCrntState->Reset();
 		state->SetWeight(1);
 		mCrntState = state;
 	}
 	else {
 		mCrntState->SetWeight(1);
-		state->Init();
+		state->Reset();
 	}
 	mNextStates.clear();
 
@@ -142,7 +149,7 @@ void AnimatorLayer::ChangeState(rsptr<AnimatorState> state)
 	}
 }
 
-void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
+void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
 {
 	if (!mNextStates.empty()) {
 		return;
@@ -151,7 +158,7 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
 	mSyncState = srcState;
 
 	float length = mSyncState->GetLength();
-	float threshold = mSyncState->GetClip()->mLength;
+	float threshold = mSyncState->GetMaxLength();
 	float myLength = mCrntState->GetLength();
 	float distance = length - myLength;
 	if (fabs(distance) < 0.05f) {
@@ -159,8 +166,7 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
 		return;
 	}
 
-
-	float myThreshold = mCrntState->GetClip()->mLength;
+	float myThreshold = mCrntState->GetMaxLength();
 	threshold = threshold < myThreshold ? threshold : myThreshold;
 
 	float speed{};
@@ -169,22 +175,18 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorState> srcState)
 	float myDstTime = threshold - myLength;		// 나의         "
 	// 남은 길이가 절반 이상이라면
 	if (fabs(distance) > threshold / 2) {
-		//speed = 0;
 		speed = otherDstTime / myDstTime;
 	}
 	else {
 		// 내 애니메이션이 빠를 경우 천천히,
 		//				  느릴 경우 빨리
 		// 재생해 두 애니메이션 속도를 맞춘다.
-
-		// 나의 애니메이션 종료 시간이 대상과 동일해야 한다.
 		speed = myDstTime / otherDstTime;
 	}
 
 	speed = std::clamp(speed, 0.75f, 1.25f);
 
 	mCrntState->SetSpeed(speed);
-	//mCrntState->SetLength(length);
 }
 
 void AnimatorLayer::SyncComplete()

@@ -31,6 +31,11 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 
 void AnimatorController::Animate()
 {
+	if (mIsCheckTransition) {
+		mIsCheckTransition = true;
+		CheckTransition();
+	}
+
 	for (auto& layer : mLayers) {
 		layer->Animate();
 	}
@@ -47,42 +52,11 @@ Vec4x4 AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 	return Matrix4x4::Identity();
 }
 
-void AnimatorController::SetValue(const std::string& paramName, AnimatorParameter::value value)
-{
-	if (!HasParam(paramName)) {
-		return;
-	}
-
-	auto& param = mParameters[paramName];
-	switch (param.type) {
-	case AnimatorParameter::Type::Bool:
-	case AnimatorParameter::Type::Trigger:
-		if (param.val.b == value.b) {
-			return;
-		}
-		break;
-	case AnimatorParameter::Type::Int:
-		if (param.val.i == value.i) {
-			return;
-		}
-		break;
-	case AnimatorParameter::Type::Float:
-		if (Math::IsEqual(param.val.f,value.f)) {
-			return;
-		}
-		break;
-	}
-
-	mParameters[paramName].val = value;
-
-	CheckTransition();
-}
-
-void AnimatorController::SyncAnimation()
+void AnimatorController::SyncAnimation() const
 {
 	if (mLayers.size() >= 2) {
 		auto& srcLayer = mLayers.back();
-		rsptr<const AnimatorState> srcState = srcLayer->GetSyncState();
+		rsptr<const AnimatorMotion> srcState = srcLayer->GetSyncState();
 
 		for (size_t i = 0; i < mLayers.size(); ++i) {
 			if (mLayers[i] == srcLayer) {
@@ -103,9 +77,44 @@ void AnimatorController::CheckTransition()
 void AnimatorController::InitLayers()
 {
 	for (auto& layer : mLayers) {
-		layer->SetController(this);
+		layer->Init(this);
 		if (layer->GetName().contains("Legs")) {
 			layer->SetSyncStateMachine(true);
 		}
 	}
 }	
+
+void AnimatorController::SetValue(const std::string& paramName, void* value)
+{
+	if (!HasParam(paramName)) {
+		return;
+	}
+
+	AnimatorParameter::value val;
+
+	auto& param = mParameters[paramName];
+	switch (param.type) {
+	case AnimatorParameter::Type::Bool:
+	case AnimatorParameter::Type::Trigger:
+		val.b = *(bool*)value;
+		if (param.val.b == val.b) {
+			return;
+		}
+		break;
+	case AnimatorParameter::Type::Int:
+		val.i = *(int*)value;
+		if (param.val.i == val.i) {
+			return;
+		}
+		break;
+	case AnimatorParameter::Type::Float:
+		val.f = *(float*)value;
+		if (Math::IsEqual(param.val.f, val.f)) {
+			return;
+		}
+		break;
+	}
+
+	mParameters[paramName].val = val;
+	mIsCheckTransition = true;
+}

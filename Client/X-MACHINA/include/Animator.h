@@ -24,16 +24,13 @@ public:
 	Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 	~Animator();
 
-	rsptr< AnimatorController> GetController() const { return mController; }
+	rsptr<AnimatorController> GetController() const { return mController; }
 
 public:
 	void UpdateShaderVariables();
 
+	void LookAt(const Vec3& position);
 	void Animate();
-
-	void SetValue(const std::string& paramName, bool value);
-	void SetValue(const std::string& paramName, int value);
-	void SetValue(const std::string& paramName, float value);
 
 private:
 	void InitController(rsptr<const AnimationLoadInfo> animationInfo);

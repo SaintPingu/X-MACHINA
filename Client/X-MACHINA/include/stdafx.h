@@ -156,6 +156,7 @@ public:
 
 #define _MATRIX(x)	XMLoadFloat4x4(&x)
 #define _VECTOR(x)	XMLoadFloat3(&x)
+#define _VECTOR2(x)	XMLoadFloat2(&x)
 
 #define TO_STRING( x ) #x				// ex) TO_STRING(myVar) ==> "myVar"
 
@@ -612,6 +613,27 @@ namespace D3DUtil {
 }
 
 #pragma region DirectXMath
+namespace Vector2 {
+	inline Vec2 Add(const Vec2& v1, const Vec2& v2)
+	{
+		Vec2 result;
+		XMStoreFloat2(&result, _VECTOR2(v1) + _VECTOR2(v2));
+		return result;
+	}
+
+	inline float Length(const Vec2& vector)
+	{
+		Vec2 result;
+		XMStoreFloat2(&result, XMVector2LengthEst(_VECTOR2(vector)));
+		return result.x;
+	}
+
+	inline float Length(const Vec2& v1, const Vec2& v2)
+	{
+		return Vector2::Length(Vector2::Add(v1, v2));
+	}
+}
+
 namespace Vector3 {
 
 	inline Vec3 ScalarProduct(const Vec3& vector, float scalar, bool normalize = true) noexcept
@@ -682,11 +704,17 @@ namespace Vector3 {
 		return mNormal;
 	}
 
+
 	inline float Length(const Vec3& vector) noexcept
 	{
 		Vec3 result;
 		XMStoreFloat3(&result, XMVector3LengthEst(_VECTOR(vector)));
 		return result.x;
+	}
+
+	inline float Length(const Vec3& v1, const Vec3& v2) noexcept
+	{
+		return Vector3::Length(Vector3::Add(v1, v2));
 	}
 
 	inline float AngleX(const Vector& v1, const Vector& v2) noexcept

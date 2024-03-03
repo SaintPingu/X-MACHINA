@@ -1,23 +1,23 @@
 #pragma once
 #include "HumanBone.h"
 
-class AnimatorState;
+class AnimatorMotion;
 class AnimatorStateMachine;
 class AnimatorController;
 
 class AnimatorLayer {
 private:
 	bool mIsSyncSM{};
-	sptr<const AnimatorState> mSyncState{};
+	sptr<const AnimatorMotion> mSyncState{};
 
 	std::string mName{};
 	HumanBone mBoneMask{};
 
-	AnimatorController* mController{};
+	const AnimatorController* mController{};
 	sptr<AnimatorStateMachine> mRootStateMachine{};
 
-	sptr<AnimatorState>					mCrntState{};
-	std::vector<sptr<AnimatorState>>	mNextStates{};
+	sptr<AnimatorMotion>					mCrntState{};
+	std::vector<sptr<AnimatorMotion>>	mNextStates{};
 
 public:
 	AnimatorLayer(const std::string& name, sptr<AnimatorStateMachine> rootStateMachine, HumanBone boneMask = HumanBone::None);
@@ -25,23 +25,24 @@ public:
 	virtual ~AnimatorLayer() = default;
 
 	std::string GetName() const { return mName; }
-	sptr<const AnimatorState> GetSyncState() const { return mNextStates.empty() ? mCrntState : mNextStates.back(); }
+	sptr<const AnimatorMotion> GetSyncState() const { return mNextStates.empty() ? mCrntState : mNextStates.back(); }
 	Vec4x4 GetTransform(int boneIndex, HumanBone boneType) const;
 
-	void SetController(AnimatorController* controller) { mController = controller; }
 	void SetCrntStateLength(float length) const;
 	void SetSyncStateMachine(bool val) { mIsSyncSM = val; }
 
 public:
+	void Init(const AnimatorController* controller);
+
 	bool CheckBoneMask(HumanBone boneType) { return boneType == HumanBone::None ? true : mBoneMask & boneType; }
 
 	void Animate();
 
 	void CheckTransition(const AnimatorController* controller);
 
-	void SyncAnimation(rsptr<const AnimatorState> srcState);
+	void SyncAnimation(rsptr<const AnimatorMotion> srcState);
 
 private:
 	void SyncComplete();
-	void ChangeState(rsptr<AnimatorState> state);
+	void ChangeState(rsptr<AnimatorMotion> state);
 };

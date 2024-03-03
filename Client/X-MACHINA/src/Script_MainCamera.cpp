@@ -73,7 +73,7 @@ void Script_MainCamera::UpdateHeight()
 		LookPlayer();
 	}
 
-	Vec3 camPos        = mObject->GetPosition();
+	Vec3 camPos = mObject->GetPosition();
 	const float height = scene->GetTerrainHeight(camPos.x, camPos.z) + kMinHeight;
 
 	if (camPos.y <= height) {

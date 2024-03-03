@@ -22,20 +22,20 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     if (posV.z <= 0.f)
         clip(-1);
     
+    float3 toCameraW = normalize(gPassCB.CameraPos - posW);
+    
     float3 normalW = gTextureMaps[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
     float4 diffuse = gTextureMaps[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
     float2 metallicSmoothness = gTextureMaps[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
-    
-    float3 toCameraW = normalize(gPassCB.CameraPos - posW);
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallicSmoothness.x);
     float3 specularAlbedo = lerp(0.03f, diffuse.xyz, metallicSmoothness.x);
     Material mat = { diffuseAlbedo, specularAlbedo, metallicSmoothness.x, metallicSmoothness.y };
     
+    // 조명 계산
     float4 shadowPosH = mul(float4(posW, 1.f), gPassCB.MtxShadow);
-    float shadowFactor = 1.f;
-    shadowFactor.x = ComputeShadowFactor(shadowPosH);
+    float shadowFactor = clamp(ComputeShadowFactor(shadowPosH), gPassCB.ShadowIntensity, 1.f);
     LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, posW, normalW, toCameraW, shadowFactor);
     
     // specular reflection

@@ -13,7 +13,8 @@
 #include "Object.h"
 
 namespace {
-	constexpr int gkSunLightIdx = 0;
+	constexpr int	gkSunLightIdx = 0;
+	constexpr float gkSceneBoundsRad = 15.f;
 }
 
 Light::Light()
@@ -24,7 +25,7 @@ Light::Light()
 	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
 
 	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
-	mSceneBounds.Radius = sqrt(30.f * 30.f + 25.f * 25.f);
+	mSceneBounds.Radius = sqrt(gkSceneBoundsRad * gkSceneBoundsRad + gkSceneBoundsRad * gkSceneBoundsRad);
 }
 
 Light::~Light()
@@ -100,10 +101,13 @@ void Light::Update()
 	// 바운딩 구 센터를 조명 좌표계로 변환
 	Vec3 sphereCenterLS = Vec3::Transform(targetPos, lightView);
 	
+	// 시야 입체가 작을 경우 n도 작아지기 때문에 큰 물체의 그림자가 이상하게 적용된다.
+	constexpr float kNearAdj = 5.f;
+
 	// 조명 좌표계에서의 직교 프러스텀 생성
 	float l = sphereCenterLS.x - mSceneBounds.Radius;
 	float b = sphereCenterLS.y - mSceneBounds.Radius;
-	float n = sphereCenterLS.z - mSceneBounds.Radius;
+	float n = sphereCenterLS.z - mSceneBounds.Radius * kNearAdj;
 	float r = sphereCenterLS.x + mSceneBounds.Radius;
 	float t = sphereCenterLS.y + mSceneBounds.Radius;
 	float f = sphereCenterLS.z + mSceneBounds.Radius;
@@ -168,6 +172,7 @@ void Light::SetSunlight()
 	light.Diffuse        = Vec4(0.9f, 0.9f, 0.9f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Direction		 = Vec3(0.57735f, -0.57735f, -0.57735f);
+	//light.Direction		 = Vec3(0.f, -1.f, 0.01f);
 	light.IsEnable		 = true;
 }
 

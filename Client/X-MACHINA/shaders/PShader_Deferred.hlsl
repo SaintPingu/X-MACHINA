@@ -71,7 +71,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     }
     
     float rimWidth = 0.8f;
-    float gRimLightFactor = 0.4f;
+    float gRimLightFactor = 0.1f;
     float4 gRimLightColor = float4(1.f, 1.f, 1.f, 0.f);
     float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
     rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gRimLightFactor;

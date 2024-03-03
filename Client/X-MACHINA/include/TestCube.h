@@ -14,7 +14,7 @@ class Material;
 // 테스트 용도 큐브
 class TestCube : public Transform {
 private:
-	float size = 20.f;
+	float mSize = 2.f;
 
 	uptr<ModelObjectMesh>	mMesh{};
 	sptr<Material>			mMaterial{};

@@ -596,6 +596,9 @@
     <FxCompile Include="shaders\PShader_Shadow.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\VShader_Shadow_SkinnedMesh.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\SimpleMath.inl">

@@ -41,6 +41,10 @@ struct PassConstants {
     int         SkyBoxIndex                  = -1;
     int         ShadowIndex                  = -1;
 
+    int         FilterOption{};
+    float       ShadowIntensity{};
+    Vec2        Padding{};
+
     int         RT0G_PositionIndex           = -1;
     int         RT1G_NormalIndex             = -1;
     int         RT2G_DiffuseIndex            = -1;
@@ -50,9 +54,6 @@ struct PassConstants {
     int         RT0L_DiffuseIndex            = -1;
     int         RT1L_SpecularIndex           = -1;
     int         RT2L_AmbientIndex            = -1;
-
-    int         FilterOption{};
-    Vec3        Padding{};
 };
 
 struct PostPassConstants {

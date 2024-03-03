@@ -243,27 +243,6 @@ float3 SchlickFresnel(float3 R0, float3 normal, float3 lightVec)
     return reflectPercent;
 }
 
-LightColor BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, Material mat)
-{
-    const float m = 0.5 * 256.0f;
-    float3 halfVec = normalize(toEye + lightVec);
-
-    float roughnessFactor = (m + 8.0f)*pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
-    float3 fresnelFactor = SchlickFresnel(0.1f, halfVec, lightVec);
-
-    float3 specAlbedo = fresnelFactor*roughnessFactor;
-
-    // Our spec formula goes outside [0,1] range, but we are 
-    // doing LDR rendering.  So scale it down a bit.
-    specAlbedo = specAlbedo / (specAlbedo + 1.0f);
-
-    LightColor result;
-    result.Diffuse =  mat.DiffuseAlbedo.rgb * lightStrength;
-    result.Specular = specAlbedo * lightStrength;
-    
-    return result;
-}
-
 LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material mat, float3 toCameraW)
 {
     float3 msEnergyCompensation = 1.0.xxx;
@@ -276,7 +255,7 @@ LightColor BRDF(float3 normal, float3 lightDir, float3 lightStrength, Material m
     // 슐릭 근사 방정식을 사용하여 프레넬 값(얼마나 반사하는지)을 구한다.
     float3 fresnel = PBR::Fresnel(mat.SpecularAlbedo, h, lightDir);
     // GGXSpecular 모델을 사용하여 정반사 값을 구한다.
-    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.001f, 1.f), normal, h, toCameraW, lightDir);
+    float specular = PBR::GGXSpecular(clamp(pow(mat.Roughness, 2), 0.1f, 1.f), normal, h, toCameraW, lightDir);
     
     LightColor result;
     result.Diffuse = mat.DiffuseAlbedo * lightStrength;
@@ -291,7 +270,7 @@ LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3
     float3 lightVec = -L.Direction;
     
     // Lambert를 half Lambert로 변경
-    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
+    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 2));
     float3 lightStrength = L.Strength * ndotl;
     
     LightColor result = BRDF(normal, lightVec, lightStrength, mat, toCameraW);

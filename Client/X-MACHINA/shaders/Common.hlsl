@@ -95,6 +95,10 @@ struct PassInfo {
     int         SkyBoxIndex;
     int         ShadowIndex;
     
+    int         FilterOption;
+    float       ShadowIntensity;
+    float2      Padding;
+    
     int         RT0_PositionIndex;
     int         RT1_NormalIndex;
     int         RT2_DiffuseIndex;
@@ -104,9 +108,6 @@ struct PassInfo {
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
     int         RT2L_AmbientIndex;
-    
-    int         FilterOption;
-    float3      Padding;
 };
 
 struct PostPassInfo {
@@ -207,10 +208,21 @@ float4 FogDistance(float4 color, float3 distance)
     return lerp(color, gPassCB.FogColor, factor);
 }
 
+bool IsOutOfRange(float3 value, float lhs = 0.f, float rhs = 1.f)
+{
+    return (value.x < 0.f || value.x > 1.f ||
+            value.y < 0.f || value.y > 1.f ||
+            value.z < 0.f || value.z > 1.f);
+}
+
 float ComputeShadowFactor(float4 shadowPosH)
 {
     // w로 나눠서 투영을 완료한다.
     shadowPosH.xyz /= shadowPosH.w;
+    
+    // 절두체 범위의 밖에 있다면 계산하지 않고 바로 리턴한다.
+    if (IsOutOfRange(shadowPosH.xyz))
+        return 1.f;
     
     // z값이 깊이 값이다.
     float depth = shadowPosH.z;
@@ -221,6 +233,7 @@ float ComputeShadowFactor(float4 shadowPosH)
     // 텍셀 사이즈
     float dx = 1.f / (float)width;
     
+    // 비율 근접 필터링(PCF)
     float percentLit = 0.f;
     const float2 offsets[9] =
     {

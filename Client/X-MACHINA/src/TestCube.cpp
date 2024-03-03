@@ -11,10 +11,10 @@
 
 TestCube::TestCube(Vec2 pos) : Transform(this)
 {
-	SetPosition(Vec3(pos.x, scene->GetTerrainHeight(pos.x, pos.y) + size / 2.f, pos.y));
+	SetPosition(Vec3(pos.x, scene->GetTerrainHeight(pos.x, pos.y) + mSize, pos.y));
 
 	mMesh = std::make_unique<ModelObjectMesh>();
-	mMesh->CreateCubeMesh(size, size, size, true);
+	mMesh->CreateCubeMesh(mSize, mSize, mSize, true);
 	
 	MaterialLoadInfo materialInfo{};
 	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);

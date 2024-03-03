@@ -123,6 +123,7 @@ void Scene::UpdateMainPassCB()
 	passConstants.LightCount					= mLight->GetLightCount();
 	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
 	passConstants.FilterOption					= dxgi->GetFilterOption();
+	passConstants.ShadowIntensity				= 0.1f;
 	passConstants.FogColor						= Colors::Gray;
 	memcpy(&passConstants.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passConstants.Lights));
 	
@@ -203,7 +204,7 @@ void Scene::BuildTerrain()
 void Scene::BuildTestCube()
 {
 	mTestCubes.resize(2);
-	mTestCubes[0] = std::make_shared<TestCube>(Vec2(190, 150));
+	mTestCubes[0] = std::make_shared<TestCube>(Vec2(170, 150));
 	mTestCubes[0]->GetMaterial()->SetMatallic(0.f);
 	mTestCubes[0]->GetMaterial()->SetRoughness(0.f);
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Rock_BaseColor"));

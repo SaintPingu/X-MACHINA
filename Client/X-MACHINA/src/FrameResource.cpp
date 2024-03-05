@@ -30,7 +30,7 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mFrameResourceCount(3),
 	mPassCount(1),
 	mObjectCount(2000),
-	mSkinBoneCount(mObjectCount * gkSkinBoneSize),	// 임시, Object 개수 * SkinBone 최대크기(128)
+	mSkinBoneCount(10 * gkSkinBoneSize),	// 임시, Object 개수 * SkinBone 최대크기(128)
 	mMaterialCount(500)
 {
 	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);

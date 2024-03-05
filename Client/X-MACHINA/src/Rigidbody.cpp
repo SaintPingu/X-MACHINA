@@ -30,7 +30,7 @@ void Rigidbody::Update()
 
 		const float mag = Vector3::Length(mVelocity);		// 현재 속도 크기
 		if (mag > FLT_EPSILON) {							// 현재 속도가 있다면
-			const Vec3 frictionDir = Vector3::Divide(Vector3::Negative(mVelocity), mag);	// 마찰력 방향(현재 속도의 반대방향)
+			const Vec3 frictionDir = Vector3::Divide(-mVelocity, mag);	// 마찰력 방향(현재 속도의 반대방향)
 
 			const Vec3 frictionForce = Vector3::Multiply(frictionDir, friction);			// 마찰력 = 마찰력 방향 * 마찰계수
 			const Vec3 dragForce = Vector3::Multiply(mVelocity, -mDrag);					// 저항력 = 속도 * 저항 계수 * -1

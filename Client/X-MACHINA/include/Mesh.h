@@ -215,6 +215,7 @@ public:
 	virtual ~SkinMesh() = default;
 
 public:
+	BoneType GetBoneType(int boneIndex) const;
 	HumanBone GetHumanBone(int boneIndex) const;
 	void SetBoneOffsets(const std::vector<Vec4x4>& boneOffsets) { mBoneOffsets = boneOffsets; }
 

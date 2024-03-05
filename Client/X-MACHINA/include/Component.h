@@ -132,11 +132,14 @@ public:
 	// Update 호출 전 한 번 호출된다.
 	virtual void Start() {}
 
-	// 매 프레임 호출된다.
+	// 매 프레임 호출된다. (before aninate)
 	virtual void Update() {}
 
 	// 매 프레임 호출된다.
 	virtual void Animate() {}
+
+	// 매 프레임 호출된다. (after aninate)
+	virtual void LateUpdate() {}
 
 	// 객체가 소멸될 시 호출된다.
 	virtual void OnDestroy() {}
@@ -251,13 +254,14 @@ public:
 	void CopyComponents(const Object& src);
 #pragma endregion
 
-	// Awake -> OnEnable -> Start -> Update -> Animate
+	// Awake -> OnEnable -> Start -> Update -> Animate -> LateUpdate
 	virtual void Awake() override;
 	virtual void OnEnable();
 	virtual void OnDisable();
 	virtual void Start();
 	virtual void Update();
 	virtual void Animate();
+	virtual void LateUpdate();
 	virtual void OnDestroy();
 	virtual void Release();
 	virtual void ReleaseUploadBuffers();

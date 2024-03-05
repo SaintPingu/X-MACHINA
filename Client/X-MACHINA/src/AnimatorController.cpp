@@ -32,7 +32,7 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 void AnimatorController::Animate()
 {
 	if (mIsCheckTransition) {
-		mIsCheckTransition = true;
+		mIsCheckTransition = false;
 		CheckTransition();
 	}
 

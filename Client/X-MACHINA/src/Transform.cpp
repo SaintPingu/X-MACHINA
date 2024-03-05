@@ -6,6 +6,13 @@
 
 
 #pragma region Getter
+Vec4 Transform::GetLocalRotation() const
+{
+	Vec4 result;
+	XMStoreFloat4(&result, XMQuaternionRotationMatrix(_MATRIX(mLocalTransform)));
+	return result;
+}
+
 Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
 {
 	if (!dwDirection) {
@@ -109,6 +116,10 @@ void Transform::SetUp(const Vec3& up)
 
 void Transform::SetChild(rsptr<Transform> child)
 {
+	if (child) {
+		child->mParent = this;
+	}
+
 	if (mChild) {
 		if (mChild->mSibling) {
 			Transform* tail = mChild->mSibling.get();
@@ -125,9 +136,8 @@ void Transform::SetChild(rsptr<Transform> child)
 		}
 	}
 	else {
-		mChild = child;;
+		mChild = child;
 	}
-	if (child) child->mParent = this;
 }
 
 void Transform::SetLocalTransform(const Vec4x4& transform)
@@ -234,14 +244,49 @@ void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 	UpdateAxis();
 }
 
+void Transform::SetRotation(const Vec4& quaternion)
+{
+	Vector quat = XMLoadFloat4(&quaternion);
+
+	Vector rotation = XMQuaternionRotationRollPitchYawFromVector(quat);
+
+	mLocalTransform = Matrix4x4::Multiply(mLocalTransform, XMMatrixRotationQuaternion(rotation));
+
+	UpdateAxis();
+}
+
 void Transform::LookTo(const Vec3& lookTo, const Vec3& up)
 {
-	SetAxis(Matrix4x4::LookToLH(GetPosition(), lookTo, up, true));
+	SetAxis(Matrix4x4::LookToLH(GetPosition(), lookTo, up, false));
 }
 
 void Transform::LookAt(const Vec3& lookAt, const Vec3& up)
 {
-	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, true));
+	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, false));
+}
+
+void Transform::LookAtWorld(const Vec3& lookAt, const Vec3& up)
+{
+	// 두 벡터 사이 각도를 pitch로 회전한다. //
+	Vec3 v1 = lookAt - GetPosition();
+
+	Vec3 v2 = GetLook();
+
+	v1 = Vector3::Normalize(v1);
+	v2 = Vector3::Normalize(v2);
+
+	float angle = XMConvertToDegrees(acosf(Vector3::DotProduct(v1, v2)));
+	// 두 벡터가 수평인경우
+	if (isnan(angle)) {
+		// 수평하지 않도록 만든 후 angle 재계산
+		v1.x += 0.001f;
+		v1.z -= 0.001f;
+		angle = XMConvertToDegrees(acosf(Vector3::DotProduct(v1, v2)));
+	}
+	Vec3 cross = Vector3::Normalize(Vector3::CrossProduct(v1, v2));
+	int sign = cross.y < 0 ? -1 : 1;
+
+	Rotate(up, angle * sign);
 }
 
 

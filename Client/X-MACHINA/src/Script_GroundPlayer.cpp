@@ -72,13 +72,26 @@ void Script_GroundPlayer::Update()
 {
 	base::Update();
 
+
+}
+
+
+void Script_GroundPlayer::LateUpdate()
+{
+	base::LateUpdate();
+
 	base::ProcessInput();
 	ProcessInput();
 
 	Vec3 pos = mObject->GetPosition();
 	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 	mObject->SetPositionY(terrainHeight);
+
+	if (mAnimator) {
+		mAnimator->LookAt(Vec3(300, 32, 300));
+	}
 }
+
 
 void Script_GroundPlayer::ProcessInput()
 {

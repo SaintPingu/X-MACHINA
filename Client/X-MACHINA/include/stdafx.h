@@ -155,6 +155,7 @@ public:
 #define RANDOM_COLOR	Vec4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))	// return random Vec4
 
 #define _MATRIX(x)	XMLoadFloat4x4(&x)
+#define _VECTOR4(x)	XMLoadFloat4(&x)
 #define _VECTOR(x)	XMLoadFloat3(&x)
 #define _VECTOR2(x)	XMLoadFloat2(&x)
 
@@ -632,6 +633,19 @@ namespace Vector2 {
 	{
 		return Vector2::Length(Vector2::Add(v1, v2));
 	}
+
+	inline Vec2 Normalize(const Vec2& vector) noexcept
+	{
+		Vec2 result;
+		XMStoreFloat2(&result, XMVector2NormalizeEst(_VECTOR2(vector)));
+		return result;
+	}
+
+	inline float AngleX(const Vec2& v1, const Vec2& v2) noexcept
+	{
+		Vector angle = XMVector2AngleBetweenNormalsEst(_VECTOR2(v1), _VECTOR2(v2));
+		return XMConvertToDegrees(acosf(XMVectorGetX(angle)));
+	}
 }
 
 namespace Vector3 {
@@ -646,6 +660,13 @@ namespace Vector3 {
 			XMStoreFloat3(&result, _VECTOR(vector) * scalar);
 		}
 
+		return result;
+	}
+
+	inline Vec3 Rotate(const Vec3& v, const Vec3& eulerAngles) noexcept
+	{
+		Vec3 result;
+		XMStoreFloat3(&result, XMVector3Rotate(_VECTOR(v), XMQuaternionRotationRollPitchYawFromVector(_VECTOR(eulerAngles))));
 		return result;
 	}
 
@@ -699,9 +720,9 @@ namespace Vector3 {
 
 	inline Vec3 Normalize(const Vec3& vector) noexcept
 	{
-		Vec3 mNormal;
-		XMStoreFloat3(&mNormal, XMVector3NormalizeEst(_VECTOR(vector)));
-		return mNormal;
+		Vec3 result;
+		XMStoreFloat3(&result, XMVector3NormalizeEst(_VECTOR(vector)));
+		return result;
 	}
 
 
@@ -720,12 +741,48 @@ namespace Vector3 {
 	inline float AngleX(const Vector& v1, const Vector& v2) noexcept
 	{
 		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
-		return XMConvertToDegrees(acosf(XMVectorGetX(angle)));
+		return XMConvertToDegrees(XMVectorGetX(angle));
 	}
 
 	inline float AngleX(const Vec3& v1, const Vec3& v2) noexcept
 	{
 		return AngleX(_VECTOR(v1), _VECTOR(v2));
+	}
+
+	inline float AngleY(const Vector& v1, const Vector& v2) noexcept
+	{
+		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
+		return XMConvertToDegrees(acosf(XMVectorGetY(angle)));
+	}
+
+	inline float AngleY(const Vec3& v1, const Vec3& v2) noexcept
+	{
+		return AngleY(_VECTOR(v1), _VECTOR(v2));
+	}
+
+	inline float AngleZ(const Vector& v1, const Vector& v2) noexcept
+	{
+		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
+		return XMConvertToDegrees(acosf(XMVectorGetZ(angle)));
+	}
+
+	inline float AngleZ(const Vec3& v1, const Vec3& v2) noexcept
+	{
+		return AngleZ(_VECTOR(v1), _VECTOR(v2));
+	}
+
+	inline Vec3 Angle(const Vector& v1, const Vector& v2) noexcept
+	{
+		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
+		float x = XMConvertToDegrees(acosf(XMVectorGetX(angle)));
+		float y = XMConvertToDegrees(acosf(XMVectorGetY(angle)));
+		float z = XMConvertToDegrees(acosf(XMVectorGetZ(angle)));
+		return Vec3(x, y, z);
+	}
+
+	inline Vec3 Angle(const Vec3& v1, const Vec3& v2) noexcept
+	{
+		return Angle(_VECTOR(v1), _VECTOR(v2));
 	}
 
 	inline Vec3 TransformNormal(const Vec3& vector, const Matrix& transform) noexcept
@@ -836,7 +893,7 @@ namespace Vector3 {
 	}
 
 	// (0, 0, 1)
-	inline Vec3 Forrward()
+	inline Vec3 Forward()
 	{
 		return Vec3(0.f, 0.f, 1.f);
 	}
@@ -901,7 +958,20 @@ namespace Vector3 {
 		return Vec3(-1.f, -1.f, -1.f);
 	}
 }
+inline Vec3 operator-(const Vec3& v) noexcept
+{
+	return Vector3::Negative(v);
+}
 
+inline Vec3 operator-(const Vec3& lhs, const Vec3& rhs) noexcept
+{
+	return Vector3::Subtract(lhs, rhs);
+}
+
+inline Vec3 operator+(const Vec3& lhs, const Vec3& rhs) noexcept
+{
+	return Vector3::Add(lhs, rhs);
+}
 
 namespace Vector4 {
 	inline Vec4 Add(const Vec4& v1, const Vec4& v2) noexcept
@@ -1133,6 +1203,36 @@ namespace XMMatrix
 	{
 		Vector p = XMVectorSet(pos.x, pos.y, pos.z, 1.f);
 		::memcpy(&matrix.r[3], &p, sizeof(Vector));
+	}
+}
+
+namespace Quaternion
+{
+	Vec4 LookRotation(const Vec3& direction, const Vec3& up);
+
+	inline Vec3 ToEuler(const Vec4& q)
+	{
+		Vec3 result{};
+
+		// Roll (x-axis rotation)
+		float sinr_cosp = +2.0f * (q.w * q.x + q.y * q.z);
+		float cosr_cosp = +1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+		result.x = XMConvertToDegrees(atan2(sinr_cosp, cosr_cosp));
+
+		// Pitch (y-axis rotation)
+		float sinp = +2.0f * (q.w * q.y - q.z * q.x);
+		if (fabs(sinp) >= 1)
+			result.y = copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
+		else
+			result.y = asin(sinp);
+		result.y = XMConvertToDegrees(result.y);
+
+		// Yaw (z-axis rotation)
+		float siny_cosp = +2.0f * (q.w * q.z + q.x * q.y);
+		float cosy_cosp = +1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+		result.z = XMConvertToDegrees(atan2(siny_cosp, cosy_cosp));
+
+		return result;
 	}
 }
 	#pragma endregion

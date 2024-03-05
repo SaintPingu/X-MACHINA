@@ -93,7 +93,7 @@ public:
 
 public:
 	// 이 Model의 trasnform 계층구조를 [object]에 복사 생성한다.
-	void CopyModelHierarchy(Object* object) const;
+	void CopyModelHierarchy(Object* object, Object* parent = nullptr) const;
 
 	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
 	void MergeModel(MasterModel& out); 

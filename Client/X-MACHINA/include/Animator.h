@@ -20,6 +20,9 @@ private:
 	std::vector<std::vector<Transform*>>	mBoneFramesList{};
 	std::vector<sptr<SkinMesh>>				mSkinMeshes{};
 
+	// for lookAt
+	Transform* mSpineBone{};
+
 public:
 	Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 	~Animator();
@@ -29,7 +32,7 @@ public:
 public:
 	void UpdateShaderVariables();
 
-	void LookAt(const Vec3& position);
+	void LookAt(const Vec3& target);
 	void Animate();
 
 private:

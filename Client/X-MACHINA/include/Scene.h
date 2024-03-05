@@ -274,7 +274,6 @@ private:
 public:
 	void Start();
 	void Update();
-	void Animate();
 
 private:
 	void CheckCollisions();

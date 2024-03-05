@@ -15,7 +15,7 @@ private:
 	Vec3 mPosition = Vector3::Zero();		// local space position
 	Vec3 mRight	   = Vector3::Right();		// right(x) axis in local space
 	Vec3 mUp	   = Vector3::Up();			// up(y)    axis in local space
-	Vec3 mLook	   = Vector3::Forrward();	// look(z)  axis in local space
+	Vec3 mLook	   = Vector3::Forward();	// look(z)  axis in local space
 
 	void* mObject{};	// self Object
 
@@ -56,6 +56,8 @@ public:
 	Vec3 GetUp()    const			{ return Vector3::Normalize(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
 	// returns a look(z) axis in world space
 	Vec3 GetLook()  const			{ return Vector3::Normalize(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
+	// returns a quaternion in local space
+	Vec4 GetLocalRotation() const;
 	// [dwDirection]에 따른 이 Transform의 diretion을 반환한다.
 	// [dwDirection]=Right&Front ==> return mRight + mLook
 	Vec3 GetDirection(DWORD dwDirection, float distance = 1.f) const;
@@ -145,11 +147,14 @@ public:
 	void Rotate(const Vec3& axis, float angle);
 	// (local) rotates around [offset] by [axis] and [angle]
 	void RotateOffset(const Vec3& axis, float angle, const Vec3& offset);
+	void SetRotation(const Vec4& quaternion);
 
 	// (local) rotates to the [lookTo] direction
 	void LookTo(const Vec3& lookTo, const Vec3& up = Vector3::Up());
 	// (local) rotates the transform so the forward vector points at [lookAt] position.
 	void LookAt(const Vec3& lookAt, const Vec3& up = Vector3::Up());
+	// (world) rotates the transform so the forward vector points at [lookAt] position.
+	void LookAtWorld(const Vec3& lookAt, const Vec3& up = Vector3::Up());
 
 	/* Transform */
 #pragma region Transform

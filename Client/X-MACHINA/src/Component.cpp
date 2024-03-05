@@ -141,6 +141,16 @@ void Object::Animate()
 	Transform::ComputeWorldTransform();
 }
 
+void Object::LateUpdate()
+{
+	ProcessComponents([](rsptr<Component> component) {
+		if (component->IsActive()) {
+			component->LateUpdate();
+		}
+		});
+	Transform::ComputeWorldTransform();
+}
+
 void Object::OnDestroy()
 {
 	OnDisable();

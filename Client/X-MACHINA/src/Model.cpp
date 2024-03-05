@@ -58,21 +58,22 @@ void Material::LoadTextureFromFile(TextureMap map, FILE* file)
 
 #pragma region Model
 // 재귀함수
-void Model::CopyModelHierarchy(Object* object) const
+void Model::CopyModelHierarchy(Object* object, Object* parent) const
 {
 	object->CopyComponents(*this);
 	object->SetLocalTransform(GetLocalTransform());
 	object->SetName(GetName());
+	object->mParent = parent;
 
 	/* 각 계층 구조의 복사본(새 할당)을 받아 설정한다. */
 	if (mSibling) {
 		sptr<Object> sibling = std::make_shared<Object>();
-		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling.get());
+		mSibling->GetObj<Model>()->CopyModelHierarchy(sibling.get(), parent);
 		object->mSibling = sibling;
 	}
 	if (mChild) {
 		sptr<Object> child = std::make_shared<Object>();
-		mChild->GetObj<Model>()->CopyModelHierarchy(child.get());
+		mChild->GetObj<Model>()->CopyModelHierarchy(child.get(), object);
 		object->SetChild(child);
 	}
 }

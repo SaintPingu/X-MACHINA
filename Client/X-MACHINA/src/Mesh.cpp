@@ -863,6 +863,15 @@ void Avatar::SetBoneType(const std::string& boneName, const std::string& boneTyp
 
 
 #pragma region SkinMesh
+BoneType SkinMesh::GetBoneType(int boneIndex) const
+{
+	if (boneIndex < 0 || boneIndex >= mBoneTypes.size()) {
+		return BoneType::None;
+	}
+
+	return mBoneTypes.at(boneIndex);
+}
+
 HumanBone SkinMesh::GetHumanBone(int boneIndex) const
 {
 	switch (mBoneTypes[boneIndex]) {
@@ -955,8 +964,9 @@ void SkinMesh::UpdateShaderVariables()
 	}
 
 	// TODO : Memory Leak
-	int index = -1;
+	int index = (*mBoneFrames)[0]->GetObjCBIndex();
 	frmResMgr->CopyData(index, skinnedConstatnts);
+	(*mBoneFrames)[0]->SetObjCBIndex(index);
 
 	scene->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
 

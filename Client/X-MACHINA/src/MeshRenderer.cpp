@@ -66,6 +66,16 @@ void MeshRenderer::RenderPlane(const Vec3& pos, float width, float length)
 	mPlaneMesh->Render();
 }
 
+void MeshRenderer::RenderBox(const Vec3& pos, const Vec3& size)
+{
+	const Matrix scaleMtx = XMMatrixScaling(size.x, size.y, size.z);
+	const Matrix translationMtx = XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+	const Matrix matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)
+
+	Transform::UpdateShaderVars(matrix);
+	mBoxMesh->Render();
+}
 
 void MeshRenderer::BuildMeshes()
 {

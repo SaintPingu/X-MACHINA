@@ -68,9 +68,7 @@ bool AnimatorMotion::IsSameStateMachine(rsptr<const AnimatorMotion> other) const
 
 bool AnimatorMotion::Animate()
 {
-	constexpr float corrSpeed = 0.5f;	// 스피드 보정값 (60fps)
-
-	mCrntLength += (mSpeed * corrSpeed * mIsReverse) * DeltaTime();
+	mCrntLength += (mSpeed * mIsReverse) * DeltaTime();
 	if (IsEndAnimation()) {
 		ResetLength();
 		return true;

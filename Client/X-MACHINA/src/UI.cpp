@@ -2,6 +2,7 @@
 #include "UI.h"
 
 #include "Scene.h"
+#include "ResourceMgr.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
@@ -9,11 +10,10 @@
 
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "MultipleRenderTarget.h"
 
 
 #pragma region UI
-sptr<ModelObjectMesh> UI::mMesh;
-
 void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
 {
 	mTexture = texture;
@@ -40,28 +40,16 @@ void UI::UpdateShaderVars() const
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
 	frmResMgr->CopyData(mObjCBIndices.front(), objectConstants);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
 void UI::Render()
 {
-	mTexture->UpdateShaderVars();
 	UpdateShaderVars();
 
-	mMesh->Render();
+	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 
-void UI::CreateUIMesh()
-{
-	mMesh = std::make_shared<ModelObjectMesh>();
-	mMesh->CreatePlaneMesh(1, 1, false);
-}
-
-void UI::DeleteUIMesh()
-{
-	Sleep(10);
-	mMesh = nullptr;
-}
 #pragma endregion
 
 
@@ -106,7 +94,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	objectConstants.MatIndex	= mTexture->GetGpuDescriptorHandleIndex(); 
 
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void MyFont::Render()
@@ -119,7 +107,7 @@ void MyFont::Render()
 		// 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없다.
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
-			mMesh->Render();
+			res->Get<ModelObjectMesh>("Rect")->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -128,7 +116,7 @@ void MyFont::Render()
 	for (char ch : mScore) {
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
-			mMesh->Render();
+			res->Get<ModelObjectMesh>("Rect")->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -140,7 +128,7 @@ void MyFont::Render()
 
 void MyFont::CreateFontTexture()
 {
-	mTexture = canvas->GetTexture("Alphabet");
+	mTexture = res->Get<Texture>("Alphabet");
 }
 
 void MyFont::ReleaseFontTexture()
@@ -164,18 +152,11 @@ void Canvas::SetScore(int score)
 
 void Canvas::Init()
 {
-	mShader = std::make_shared<CanvasShader>();
-	mShader->Create(ShaderType::Forward);
-	LoadTextures();
-
-	UI::CreateUIMesh();
-
 	BuildUIs();
 }
 
 void Canvas::Release()
 {
-	UI::DeleteUIMesh();
 	mFont->ReleaseFontTexture();
 	mFont->OnDestroy();
 	Destroy();
@@ -199,15 +180,11 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
-	mShader->Set();
+	res->Get<Shader>("Canvas")->Set();
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}
 	mFont->Render();
 }
 
-void Canvas::LoadTextures()
-{
-	mTextureMap = FileIO::LoadTextures("Import/UI/");
-}
 #pragma endregion

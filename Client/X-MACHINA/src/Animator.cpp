@@ -8,6 +8,7 @@
 #include "Mesh.h"
 #include "Timer.h"
 #include "Transform.h"
+#include "ResourceMgr.h"
 
 #include "Object.h"
 
@@ -57,7 +58,7 @@ void Animator::SetBool(const std::string& name, bool value)
 
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 {
-	mController = scene->GetAnimatorController(animationInfo->AnimatorControllerFile);
+	mController = res->Get<AnimatorController>(animationInfo->AnimatorControllerFile);
 }
 
 void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar)

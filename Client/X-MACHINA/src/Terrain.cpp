@@ -2,10 +2,11 @@
 #include "Terrain.h"
 #include "FrameResource.h"
 
+#include "Scene.h"
+#include "ResourceMgr.h"
 #include "Model.h"
 #include "Shader.h"
 #include "Mesh.h"
-#include "Scene.h"
 #include "Texture.h"
 #include "Collider.h"
 #include "FileIO.h"
@@ -205,20 +206,17 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 
 	MaterialLoadInfo materialInfo{};
 	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
-	materialInfo.Metallic = 0.01f;
-	materialInfo.Roughness = 0.95f;
+	materialInfo.Metallic = 0.0f;
+	materialInfo.Roughness = 1.f;
 
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
-	mMaterial->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("GrassUV01"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap1, scene->GetTexture("Detail_Texture_6"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap2, scene->GetTexture("Stone"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap3, scene->GetTexture("Terrain_splatmap"));
-
-	mShader = std::make_shared<TerrainShader>();
-	mShader->Create(ShaderType::Deferred);
+	mMaterial->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("GrassUV01"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap1, res->Get<Texture>("Detail_Texture_6"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap2, res->Get<Texture>("Stone"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap3, res->Get<Texture>("Terrain_splatmap"));
 }
 
 
@@ -251,8 +249,6 @@ void Terrain::PushObject(TerrainBlock* block)
 
 void Terrain::Render()
 {
-	mShader->Set();
-
 	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);
 

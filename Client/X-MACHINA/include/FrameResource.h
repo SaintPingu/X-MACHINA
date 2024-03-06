@@ -23,25 +23,39 @@ enum {
 struct PassConstants {
     Matrix      MtxView{};
     Matrix      MtxProj{};
+    Matrix      MtxShadow{};
     Vec3        EyeW{};
-    float       DeltaTime{};
-
-    SceneLight  Lights{};
     UINT        LightCount{};
-    Vec3        Padding{};
+    std::array<LightInfo, gkMaxSceneLight> Lights{};
+
+    float       DeltaTime{};
+    float       TotalTime{};
+    int         FrameBufferWidth{};
+    int         FrameBufferHeight{};
     
     Vec4	    GlobalAmbient = {0.15f, 0.15f, 0.15f, 0.0f};
     Vec4	    FogColor{};
 
     float	    FogStart = 100.f;
     float	    FogRange = 300.f;
-    int         RT1_TextureIndex    = -1;
-    int         RT2_UIIndex         = -1;
+    int         SkyBoxIndex                  = -1;
+    int         ShadowIndex                  = -1;
 
-    int         RT3_NormalIndex     = -1;
-    int         RT4_DepthIndex      = -1;
-    int         RT5_DistanceIndex   = -1;
     int         FilterOption{};
+    float       ShadowIntensity{};
+    Vec2        Padding{};
+
+    int         RT0G_PositionIndex           = -1;
+    int         RT1G_NormalIndex             = -1;
+    int         RT2G_DiffuseIndex            = -1;
+    int         RT3G_EmissiveIndex           = -1;
+
+    int         RT4G_MetallicSmoothnessIndex = -1;
+    int         RT5G_OcclusionIndex          = -1;
+    int         RT0L_DiffuseIndex            = -1;
+    int         RT1L_SpecularIndex           = -1;
+
+    int         RT2L_AmbientIndex            = -1;
 };
 
 struct PostPassConstants {
@@ -53,7 +67,8 @@ struct ObjectConstants {
     Matrix      MtxWorld{};
     Matrix      MtxSprite{};
     int         MatIndex{};
-    Vec3        Padding{};
+    int         LightIndex{};
+    Vec2        Padding{};
 };
 
 struct SkinnedConstants {
@@ -79,12 +94,12 @@ public:
     UINT64                              Fence{};
     ComPtr<ID3D12CommandAllocator>      CmdAllocator{};
     
-    uptr<UploadBuffer<PassConstants>>   PassCB{};       // 패스 상수 버퍼
-    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};   // 포스트 프로세싱 패스 상수 버퍼
-    uptr<UploadBuffer<ObjectConstants>> ObjectCB{};     // 오브젝트 상수 버퍼
-    uptr<UploadBuffer<SkinnedConstants>> SkinMeshCB{};     // 스킨메쉬 상수 버퍼
+    uptr<UploadBuffer<PassConstants>>       PassCB{};           // 패스 상수 버퍼
+    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};       // 포스트 프로세싱 패스 상수 버퍼
+    uptr<UploadBuffer<ObjectConstants>>     ObjectCB{};         // 오브젝트 상수 버퍼
+    uptr<UploadBuffer<SkinnedConstants>>    SkinMeshCB{};       // 스킨메쉬 상수 버퍼
 
-    uptr<UploadBuffer<MaterialData>>    MaterialBuffer{};   // 머티리얼 버퍼
+    uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};   // 머티리얼 버퍼
 
 public:
 #pragma region C/Dtor
@@ -135,7 +150,7 @@ public:
     void ReturnIndex(int elementIndex, BufferType bufferType);
 
     // 패스 당 상수 버퍼에 데이터 복사
-    void CopyData(const PassConstants& data);
+    void CopyData(const int elementIndex, const PassConstants& data);
     void CopyData(const PostPassConstants& data);
     // 오브젝트 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ObjectConstants& data);

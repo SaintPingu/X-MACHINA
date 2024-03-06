@@ -5,15 +5,8 @@ struct VSOutput_Skybox {
     float4 PosH : SV_POSITION;
 };
 
-float4 PSSkyBox(VSOutput_Skybox input) : SV_TARGET
+float4 PSSkyBox(VSOutput_Skybox pin) : SV_TARGET
 {
-    float4 diffuseAlbedo = gSkyBoxTexture.Sample(gsamLinearWrap, input.PosL);
-    
-    if (gPassCB.FilterOption & Filter_Tone)
-    {
-        diffuseAlbedo = GammaDecoding(diffuseAlbedo);
-    }
-    
+    return gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamAnisotropicWrap, pin.PosL);
     //return lerp(color, gPassCB.FogColor, 0.9f);
-    return diffuseAlbedo;
 }

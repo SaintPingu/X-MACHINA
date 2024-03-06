@@ -3,10 +3,10 @@
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 
+#include "ResourceMgr.h"
 #include "Object.h"
 #include "Model.h"
 #include "Shader.h"
-#include "Scene.h"
 #include "ObjectPool.h"
 
 
@@ -62,7 +62,6 @@ void Mesh::CreateVertexBufferViews()
 	bufferViews.VertexBuffer     = mVertexBuffer;
 	bufferViews.NormalBuffer     = mNormalBuffer;
 	bufferViews.UV0Buffer        = mUV0Buffer;
-	bufferViews.UV1Buffer        = mUV1Buffer;
 	bufferViews.TangentBuffer    = mTangentBuffer;
 	bufferViews.BiTangentBuffer  = mBiTangentBuffer;
 	bufferViews.BoneIndexBuffer  = mBoneIndexBuffer;
@@ -117,6 +116,8 @@ void ModelObjectMesh::CreateMeshFromOBB(const BoundingOrientedBox& box)
 
 	CreateVertexBufferViews();
 	CreateIndexBufferView(indices);
+
+	
 }
 
 void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, bool hasTexture, bool isLine)
@@ -289,62 +290,6 @@ void ModelObjectMesh::CreateCubeMesh(float width, float height, float depth, boo
 	CreateIndexBufferView(indices);
 }
 
-void ModelObjectMesh::CreateSkyBoxMesh(float width, float height, float depth)
-{
-	const float x = width * 0.5f, y = height * 0.5f, z = depth * 0.5f;
-
-	mVertexCnt = 36;
-
-	std::vector<Vec3> vertices;
-
-	vertices.resize(mVertexCnt);
-	vertices[0] = Vec3(-x, +x, +x);
-	vertices[1] = Vec3(+x, +x, +x);
-	vertices[2] = Vec3(-x, -x, +x);
-	vertices[3] = Vec3(-x, -x, +x);
-	vertices[4] = Vec3(+x, +x, +x);
-	vertices[5] = Vec3(+x, -x, +x);
-	// Back Quad										
-	vertices[6] = Vec3(+x, +x, -x);
-	vertices[7] = Vec3(-x, +x, -x);
-	vertices[8] = Vec3(+x, -x, -x);
-	vertices[9] = Vec3(+x, -x, -x);
-	vertices[10] = Vec3(-x, +x, -x);
-	vertices[11] = Vec3(-x, -x, -x);
-	// Left Quad										
-	vertices[12] = Vec3(-x, +x, -x);
-	vertices[13] = Vec3(-x, +x, +x);
-	vertices[14] = Vec3(-x, -x, -x);
-	vertices[15] = Vec3(-x, -x, -x);
-	vertices[16] = Vec3(-x, +x, +x);
-	vertices[17] = Vec3(-x, -x, +x);
-	// Right Quad										
-	vertices[18] = Vec3(+x, +x, +x);
-	vertices[19] = Vec3(+x, +x, -x);
-	vertices[20] = Vec3(+x, -x, +x);
-	vertices[21] = Vec3(+x, -x, +x);
-	vertices[22] = Vec3(+x, +x, -x);
-	vertices[23] = Vec3(+x, -x, -x);
-	// Top Quad											
-	vertices[24] = Vec3(-x, +x, -x);
-	vertices[25] = Vec3(+x, +x, -x);
-	vertices[26] = Vec3(-x, +x, +x);
-	vertices[27] = Vec3(-x, +x, +x);
-	vertices[28] = Vec3(+x, +x, -x);
-	vertices[29] = Vec3(+x, +x, +x);
-	// Bottom Quad										
-	vertices[30] = Vec3(-x, -x, +x);
-	vertices[31] = Vec3(+x, -x, +x);
-	vertices[32] = Vec3(-x, -x, -x);
-	vertices[33] = Vec3(-x, -x, -x);
-	vertices[34] = Vec3(+x, -x, +x);
-	vertices[35] = Vec3(+x, -x, -x);
-
-	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
-
-	CreateVertexBufferViews();
-}
-
 void ModelObjectMesh::CreatePlaneMesh(float width, float depth, bool isLine)
 {
 	const float x = width * 0.5f, z = depth * 0.5f;
@@ -485,20 +430,31 @@ void ModelObjectMesh::CreateSphereMesh(float radius, int numSegments, bool isLin
 
 void ModelObjectMesh::CreateRectangleMesh()
 {
+	mVertexCnt = 4;
+	mIndexCnt = 6;
+
 	float w2 = 0.5f;
 	float h2 = 0.5f;
 
-	std::vector<Vec3> vertices(4);
+	std::vector<Vec3> vertices(mVertexCnt);
 	vertices[0] = Vec3(-w2, -h2, 0);
 	vertices[1] = Vec3(-w2, +h2, 0);
 	vertices[2] = Vec3(+w2, +h2, 0);
 	vertices[3] = Vec3(+w2, -h2, 0);
 
-	std::vector<UINT> indices(6);
+	std::vector<Vec2> uvs(mVertexCnt);
+	uvs[0] = Vec2(0.f, 1.f);
+	uvs[1] = Vec2(0.f, 0.f);
+	uvs[2] = Vec2(1.f, 0.f);
+	uvs[3] = Vec2(1.f, 1.f);
+
+	std::vector<UINT> indices(mIndexCnt);
 	indices[0] = 0; indices[1] = 1; indices[2] = 2;
 	indices[3] = 0; indices[4] = 2; indices[5] = 3;
 
+	D3DUtil::CreateVertexBufferResource(uvs, mUV0UploadBuffer, mUV0Buffer);
 	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
+
 	CreateVertexBufferViews();
 	CreateIndexBufferView(indices);
 }
@@ -724,10 +680,11 @@ void SkinMesh::UpdateShaderVariables()
 		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
 
-	int index = -1;
+	int index = (*mBoneFrames)[0]->GetObjCBIndex();
 	frmResMgr->CopyData(index, skinnedConstatnts);
+	(*mBoneFrames)[0]->SetObjCBIndex(index);
 
-	scene->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
 
 }
 #pragma endregion

@@ -5,7 +5,6 @@
 #include "Timer.h"
 #include "Object.h"
 #include "Texture.h"
-#include "Scene.h"
 
 #include "FrameResource.h"
 
@@ -76,5 +75,5 @@ void Script_Sprite::UpdateSpriteVariable(const int matIndex) const
 	}
 
 	// »ó¼ö ¹öÆÛ ºä Set
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(objCBIdx));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(objCBIdx));
 }

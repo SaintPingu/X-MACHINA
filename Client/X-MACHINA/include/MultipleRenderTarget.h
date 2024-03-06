@@ -9,7 +9,7 @@ struct PassConstants;
 #pragma region Struct
 struct RenderTarget {
 	sptr<Texture>				Target{};
-	std::array<float, 4>		ClearColor{ 1.f, 1.f, 1.f, 1.f };
+	std::array<float, 4>		ClearColor{ 0.f, 0.f, 0.f, 0.f };
 	D3D12_CPU_DESCRIPTOR_HANDLE	RtvHandle{};
 };
 #pragma endregion
@@ -30,7 +30,7 @@ private:
 	std::vector<RenderTarget> mRts{};
 
 	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};							// RTV 힙
-	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHandle{};						// DSV 핸들
+	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHeapBegin{};
 	D3D12_CPU_DESCRIPTOR_HANDLE		mRtvHeapBegin{};					// RTV 핸들(시작 주소)
 
 	std::array<D3D12_RESOURCE_BARRIER, mMaxRtCnt> mTargetToResource{};	// 렌더 타겟에서 리소스로
@@ -44,13 +44,17 @@ public:
 
 public:
 #pragma region Getter
-	rsptr<Texture> GetTexture(UINT index) const;
-	rsptr<Texture> GetTexture(GBuffer index) const;
-	rsptr<Texture> GetTexture(OffScreen index) const;
+	template<typename T>
+	inline rsptr<Texture> GetTexture(T index) const
+	{
+		return mRts[static_cast<UINT8>(index)].Target;
+	}
+	//rsptr<Texture> GetTexture(GBuffer index) const;
+	//rsptr<Texture> GetTexture(OffScreen index) const;
 #pragma endregion
 
 public:
-	void Create(GroupType groupType, std::vector<RenderTarget>&& rts, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle);
+	void Create(GroupType groupType, std::vector<RenderTarget>&& rts, sptr<Texture> dsvHandle);
 
 	// set render targets
 	void OMSetRenderTargets();

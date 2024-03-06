@@ -20,13 +20,13 @@ void Script_GroundPlayer::Start()
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 60.f;
 
-	SetSpawn(Vec3(50.f, 100.f, 50.f));
+	SetSpawn(Vec3(170.f, 100.f, 145.f));
 	SetHP(150.f);
 
 	mRigid->SetMass(100.f);
 	mRigid->SetFriction(30.f);
 	mRigid->SetAcc(5000.f);
-	mRigid->SetMaxSpeed(1.5f);
+	mRigid->SetMaxSpeed(5.5f);
 }
 
 

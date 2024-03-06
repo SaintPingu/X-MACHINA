@@ -46,12 +46,6 @@
     <Filter Include="소스 파일\Library">
       <UniqueIdentifier>{9bb45c28-7281-4350-83f3-13bad36e44f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Shaders">
-      <UniqueIdentifier>{65de5673-0a20-45ef-964a-c3ea641fdd6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Shaders\PS">
-      <UniqueIdentifier>{c1828665-c5ef-43fc-a08d-78502ab6dc70}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\Dummy">
       <UniqueIdentifier>{1e2a33d2-c04c-491b-91a0-0d911f712140}</UniqueIdentifier>
     </Filter>
@@ -67,20 +61,35 @@
     <Filter Include="소스 파일\PostProcessing">
       <UniqueIdentifier>{d8b201cf-6796-4558-ae19-9f62bac3b2a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Shaders\CS">
-      <UniqueIdentifier>{68cd4ff5-98b2-43c6-8ada-72d142bdc938}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Shaders\PS\Deferred">
-      <UniqueIdentifier>{3f1b7758-0a11-4af9-b5df-680445eb523b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Shaders\PS\Forward">
-      <UniqueIdentifier>{8766729d-2a85-45e6-9231-2c832752630d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Shaders\VS">
-      <UniqueIdentifier>{460d0eb9-0431-47dc-91a6-b483b586539d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Animation">
       <UniqueIdentifier>{2afbe690-63ed-4afa-8b7c-ddef39a16859}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Resource">
+      <UniqueIdentifier>{ce054914-e9aa-49f7-a461-947de720e099}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader">
+      <UniqueIdentifier>{65de5673-0a20-45ef-964a-c3ea641fdd6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\PS">
+      <UniqueIdentifier>{c1828665-c5ef-43fc-a08d-78502ab6dc70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\PS\Deferred">
+      <UniqueIdentifier>{3f1b7758-0a11-4af9-b5df-680445eb523b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\PS\Forward">
+      <UniqueIdentifier>{8766729d-2a85-45e6-9231-2c832752630d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\CS">
+      <UniqueIdentifier>{68cd4ff5-98b2-43c6-8ada-72d142bdc938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\VS">
+      <UniqueIdentifier>{460d0eb9-0431-47dc-91a6-b483b586539d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\Utils">
+      <UniqueIdentifier>{b02cc291-a71d-41ab-a66c-278fb0dc4052}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\PS\Lighting">
+      <UniqueIdentifier>{c674e0af-79b1-44ba-833b-624a002f5066}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,12 +187,6 @@
     <ClCompile Include="src\Light.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Model.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
     <ClCompile Include="src\Object.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
@@ -201,12 +204,6 @@
     </ClCompile>
     <ClCompile Include="src\DDSTextureLoader12.cpp">
       <Filter>소스 파일\Library</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>소스 파일\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>소스 파일\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="src\MeshRenderer.cpp">
       <Filter>소스 파일\GameObject</Filter>
@@ -256,9 +253,6 @@
     <ClCompile Include="src\Script_GroundPlayer.cpp">
       <Filter>소스 파일\Component\Script\Player</Filter>
     </ClCompile>
-    <ClCompile Include="src\TestCube.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="src\AnimatorState.cpp">
       <Filter>소스 파일\Animation</Filter>
     </ClCompile>
@@ -273,6 +267,30 @@
     </ClCompile>
     <ClCompile Include="src\AnimatorLayer.cpp">
       <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ResourceMgr.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Resources.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TestCube.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SimpleMath.cpp">
+      <Filter>소스 파일\Library</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -384,9 +402,6 @@
     <ClInclude Include="include\UI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Singleton.h">
-      <Filter>소스 파일\Library</Filter>
-    </ClInclude>
     <ClInclude Include="include\d3dx12.h">
       <Filter>헤더 파일\Dummy</Filter>
     </ClInclude>
@@ -468,94 +483,126 @@
     <ClInclude Include="include\TestCube.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\ResourceMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Resources.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Singleton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SimpleMath.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\VShader_Billboard.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Canvas.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Instance.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\VShader_Rect.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Skybox.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Standard.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_StandardInstance.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Terrain.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\VShader_TextureInstance.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Water.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Wired.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\Common.hlsl">
-      <Filter>소스 파일\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\Light.hlsl">
-      <Filter>소스 파일\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\CShader_Blur.hlsl">
-      <Filter>소스 파일\Shaders\CS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Billboard.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Canvas.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Instance.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Skybox.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Standard.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_StandardInstance.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Terrain.hlsl">
-      <Filter>소스 파일\Shaders\PS\Deferred</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_TextureInstance.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Deferred</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Water.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Wired.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Deferred.hlsl">
-      <Filter>소스 파일\Shaders\PS\Deferred</Filter>
+      <Filter>소스 파일\Shader\PS\Deferred</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Final.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\CShader_LUT.hlsl">
-      <Filter>소스 파일\Shaders\CS</Filter>
+      <Filter>소스 파일\Shader\CS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_SkinnedMesh.hlsl">
-      <Filter>소스 파일\Shaders\VS</Filter>
+      <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_OffScreen.hlsl">
-      <Filter>소스 파일\Shaders\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\PShader_DirLighting.hlsl">
+      <Filter>소스 파일\Shader\PS\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Light.hlsl">
+      <Filter>소스 파일\Shader\Utils</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Common.hlsl">
+      <Filter>소스 파일\Shader\Utils</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Tex.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Sprite.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CShader_VertBlur.hlsl">
+      <Filter>소스 파일\Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CShader_HorzBlur.hlsl">
+      <Filter>소스 파일\Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_SpotPointLighting.hlsl">
+      <Filter>소스 파일\Shader\PS\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_SpotPointLighting.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Shadow.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Shadow.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Shadow_SkinnedMesh.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\SimpleMath.inl">
+      <Filter>헤더 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

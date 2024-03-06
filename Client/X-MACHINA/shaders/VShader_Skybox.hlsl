@@ -9,12 +9,17 @@ struct VSOutput_Skybox {
     float4 PosH : SV_POSITION;
 };
 
-VSOutput_Skybox VSSkyBox(VSInput_Skybox input)
+VSOutput_Skybox VSSkyBox(VSInput_Skybox vin)
 {
-    VSOutput_Skybox output;
+    VSOutput_Skybox vout;
 
-    output.PosH = mul(mul(mul(float4(input.PosL, 1.f), gObjectCB.MtxWorld), gPassCB.MtxView), gPassCB.MtxProj).xyww;
-    output.PosL = input.PosL;
+	vout.PosL = vin.PosL;
     
-    return output;
+	float4 posW = mul(float4(vin.PosL, 1.0f), gObjectCB.MtxWorld);
+    
+	posW.xyz += gPassCB.CameraPos;
+    
+    vout.PosH = mul(mul(posW, gPassCB.MtxView), gPassCB.MtxProj).xyww;
+    
+    return vout;
 }

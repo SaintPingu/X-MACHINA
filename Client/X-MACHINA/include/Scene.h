@@ -12,30 +12,15 @@
 
 
 #pragma region ClassForwardDecl
-class Model;
-class MasterModel;
-
-class Shader;
-class InstShader;
-
 class Camera;
 class GameObject;
 class GridObject;
 class Terrain;
 class Light;
-class Texture;
 class SkyBox;
-class GraphicsRootSignature;
-class ComputeRootSignature;
-class DescriptorHeap;
 class ObjectPool;
-
-class AnimationClip;
-class AnimatorController;
 class TestCube;
 #pragma endregion
-
-
 
 
 #pragma region Class
@@ -49,59 +34,36 @@ public:
 	};
 
 private:
-	/* DirectX */
-	sptr<GraphicsRootSignature> mGraphicsRootSignature{};
-	sptr<ComputeRootSignature>  mComputeRootSignature{};
-
-	/* Model */
-	std::unordered_map<std::string, sptr<const MasterModel>> mModels{};	// model folder에서 로드한 모델 객체 모음
-
 	/* Light */
 	sptr<Light> mLight{};
-
-	/* Textures */
-	std::unordered_map<std::string, sptr<Texture>> mTextureMap{};		// texture folder에서 로드한 texture 모음
 
 	/* SkyBox */
 	sptr<SkyBox> mSkyBox{};					// sky box object
 
-	/* Shader */
-	sptr<Shader> mGlobalShader{};			// 기본 Shader
-	sptr<Shader> mBoundingShader{};
-	sptr<Shader> mWaterShader{};
-	sptr<Shader> mBillboardShader{};
-	sptr<Shader> mSpriteShader{};
-	sptr<Shader> mInstShader{};		// for InstObjects
-	sptr<Shader> mTransparentShader{};
-	sptr<Shader> mBulletShader{};
-	sptr<Shader> mSkinnedMeshShader{};
-	sptr<Shader> mFinalShader{};
-	sptr<Shader> mOffScreenShader{};
-
 	/* Object */
-	sptr<GameObject> mWater{};
-	std::vector<sptr<GameObject>> mEnvironments{};
-	std::vector<sptr<GridObject>> mStaticObjects{};
-	std::list<sptr<GridObject>> mExplosiveObjects{};		// dynamic
-	std::list<sptr<GameObject>> mSpriteEffectObjects{};
-	std::vector<sptr<ObjectPool>> mObjectPools{};
+	sptr<GameObject>				mWater{};
+	std::vector<sptr<GameObject>>	mEnvironments{};
+	std::vector<sptr<GridObject>>	mStaticObjects{};
+	std::list<sptr<GridObject>>		mExplosiveObjects{};		// dynamic
+	std::list<sptr<GameObject>>		mSpriteEffectObjects{};
+	std::vector<sptr<ObjectPool>>	mObjectPools{};
 
-	std::set<GridObject*> mRenderedObjects{};
-	std::set<GridObject*> mTransparentObjects{};
-	std::set<GridObject*> mBillboardObjects{};
-	std::set<GridObject*> mSkinMeshObjects{};
+	std::set<GridObject*>	mRenderedObjects{};
+	std::set<GridObject*>	mTransparentObjects{};
+	std::set<GridObject*>	mBillboardObjects{};
+	std::set<GridObject*>	mSkinMeshObjects{};
 
 	/* Player */
 	std::vector<sptr<GridObject>> mPlayers{};
-	sptr<GridObject> mPlayer{};					// main player
-	int	mCurrPlayerIndex{};						// main player index from [mPlayers]
+	sptr<GridObject>			  mPlayer{};			// main player
+	int							  mCurrPlayerIndex{};	// main player index from [mPlayers]
 
 	/* TestCube */
 	std::vector<sptr<TestCube>> mTestCubes{};
 
 	/* Map */
-	sptr<Terrain> mTerrain{};
-	BoundingBox mMapBorder{};					// max scene range	(grid will be generated within this border)
+	sptr<Terrain>	mTerrain{};
+	BoundingBox		mMapBorder{};				// max scene range	(grid will be generated within this border)
 
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids
@@ -109,15 +71,8 @@ private:
 	int					mGridhWidth{};			// length of x for one grid
 	int					mGridCols{};			// number of columns in the grid
 
-	/* Descriptor */
-	sptr<DescriptorHeap> mDescriptorHeap{};
-
 	/* Others */
 	bool mIsRenderBounds = false;
-
-	/* Animation */
-	std::unordered_map<std::string, std::unordered_map<std::string, sptr<const AnimationClip>>>	mAnimationClipMap{};
-	std::unordered_map<std::string, sptr<AnimatorController>>	mAnimatorControllerMap{};
 
 private:
 #pragma region C/Dtor
@@ -133,62 +88,19 @@ private:
 public:
 #pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
-
-	// [modelName]에 해당하는 MasterModel을 반환한다.
-	rsptr<const MasterModel> GetModel(const std::string& modelName) const;
-	// return the first inserted player
-	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); }
-	// [name]에 해당하는 Texture 모델을 반환한다.
-	rsptr<Texture> GetTexture(const std::string& name) const;
-
-	rsptr<DescriptorHeap> GetDescHeap() const;
-	sptr<const AnimationClip> GetAnimationClip(const std::string& folderName, const std::string& fileName) const { return mAnimationClipMap.at(folderName).at(fileName); }
-	sptr<AnimatorController> GetAnimatorController(const std::string& controllerFile) const;
-
-	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
-	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
-
-	// [param]에 해당하는 root parameter index를 반환한다.
-	UINT GetGraphicsRootParamIndex(RootParam param) const;
-	UINT GetComputeRootParamIndex(RootParam param) const;
+	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); } // return the first inserted player
 #pragma endregion
 
-
-public:
 #pragma region DirectX
 public:
 	void ReleaseUploadBuffers();
 
-	// [data]를 32BitConstants에 Set한다.
-	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
-
-	// gpuAddr에 있는 CBV를 Set한다.
-	void SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
-
-	// gpuAddr에 있는 SRV를 Set한다.
-	void SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
-
-	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.
-	void CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat);
-	// texture의 SRV 리소스를 생성한다.
-	void CreateShaderResourceView(Texture* texture);
-	// texture의 UAV 리소스를 생성한다.
-	void CreateUnorderedAccessView(Texture* texture);
-
 private:
-	void CreateGraphicsRootSignature();
-	void CreateComputeRootSignature();
-	void CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount);
-
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
+	void UpdateShadowPassCB();
 	void UpdateMaterialBuffer();
-
 #pragma endregion
-
 
 #pragma region Build
 public:
@@ -196,14 +108,6 @@ public:
 	void ReleaseObjects();
 
 private:
-	/* Shader */
-	// build all scene's shaders
-	void BuildShaders();
-
-	/* Shader */
-	void BuildDeferredShader();
-	void BuildForwardShader();
-
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
@@ -220,31 +124,22 @@ private:
 	void LoadSceneObjects(const std::string& fileName);
 	// 씬 파일에서 모든 객체의 정보를 불러온다. - call from Scene::LoadSceneObjects()
 	void LoadGameObjects(FILE* file);
-	// 유니티 씬에 없는(별도로 생성해야 하는) 동적 객체 모델을 불러온다.
-	void LoadModels();
-
-	void LoadAnimationClips();
-	void LoadAnimatorControllers();
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
 	void InitObjectByTag(const void* tag, sptr<GridObject> object);
-
 #pragma endregion
-
 
 #pragma region Render
 public:
-	// root signature, descriptor heap 등의 기본 정보를 설정한다.
-	void OnPrepareRender();
 	// render scene
 	void RenderShadow();
 	void RenderDeferred();
 	void RenderLights();
 	void RenderFinal();
 	void RenderForward();
-	void RenderUI();
 	void RenderPostProcessing(int offScreenIndex);
+	void RenderUI();
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.
@@ -252,14 +147,13 @@ private:
 	// [renderedObjects]    : 렌더링된 모든 객체 (그리드에 포함된)
 	// [transparentObjects] : 투명 객체
 	// [billboardObjects]	: 빌보드 객체 (plane)
-	void RenderGridObjects();
-
-	void RenderSkinMeshObjects();
+	void RenderGridObjects(bool isShadowed = false);
+	void RenderTestCubes(bool isShadowed = false);
+	void RenderSkinMeshObjects(bool isShadowed = false);
 	void RenderEnvironments();
 	void RenderBullets();
 	void RenderInstanceObjects();
 	void RenderFXObjects();
-	void RenderTestCubes();
 
 	// render [billboards]
 	void RenderBillboards();
@@ -293,9 +187,7 @@ private:
 	void UpdateFXObjects();
 
 	void UpdateSprites();
-	// for dynamic(movable) lights
-	void UpdateLights();
-	void UpdateCamera();
+
 #pragma endregion
 
 public:

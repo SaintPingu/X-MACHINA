@@ -13,6 +13,7 @@
 #include "AnimatorState.h"
 #include "AnimatorController.h"
 #include "AnimatorLayer.h"
+#include "ResourceMgr.h"
 
 
 namespace {
@@ -248,6 +249,7 @@ namespace {
 		while (!isEOF) {
 			FileIO::ReadString(file, token);
 
+			Vec4 temp1 = Vec4(0.f, 0.f, 0.f, 0.f); // TODO : 삭제
 
 			switch (Hash(token)) {
 			case Hash("<Material>:"):
@@ -273,7 +275,6 @@ namespace {
 				break;
 
 			case Hash("<EmissiveColor>:"):
-				Vec4 temp1; // TODO : 삭제
 				FileIO::ReadVal(file, temp1);
 				break;
 
@@ -304,15 +305,19 @@ namespace {
 				break;
 
 			case Hash("<NormalMap>:"):
-				//material->LoadTextureFromFile(TextureMap::NormalMap, file);
+				material->LoadTextureFromFile(TextureMap::NormalMap, file);
 				break;
 
-			case Hash("<HeightMap>:"):
-				//material->LoadTextureFromFile(TextureMap::HeightMap, file);
+			case Hash("<EmissionMap>:"):
+				material->LoadTextureFromFile(TextureMap::EmissiveMap, file);
 				break;
 
-			case Hash("<RoughnessMap>:"):
-				//material->LoadTextureFromFile(TextureMap::RoughnessMap, file);
+			case Hash("<MetallicMap>:"):
+				material->LoadTextureFromFile(TextureMap::MetallicMap, file);
+				break;
+
+			case Hash("<OcclusionMap>:"):
+				material->LoadTextureFromFile(TextureMap::OcclusionMap, file);
 				break;
 
 			case Hash("</Materials>"):
@@ -531,7 +536,7 @@ namespace {
 			std::string clipFolder, clipName;
 			FileIO::ReadString(file, clipFolder);
 			FileIO::ReadString(file, clipName);
-			sptr<const AnimationClip> clip = scene->GetAnimationClip(clipFolder, clipName);
+			sptr<const AnimationClip> clip = res->Get<AnimationClip>(clipFolder + '/' + clipName);
 
 			// Transitions
 			std::vector<sptr<const AnimatorTransition>> transitions = LoadTransitions(file);
@@ -767,10 +772,8 @@ namespace FileIO {
 		light->Specular    = Vec4(0.1f, 0.1f, 0.1f, 1.f);
 	}
 
-	std::unordered_map<std::string, sptr<Texture>> LoadTextures(const std::string& folder)
+	void LoadTextures(const std::string& folder, D3DResource textureType)
 	{
-		std::unordered_map<std::string, sptr<Texture>> result{};
-
 		// get [textureNames] from [folder]
 		std::vector<std::string> textureNames{};
 		GetTextureNames(textureNames, folder);
@@ -779,12 +782,9 @@ namespace FileIO {
 		for (auto& textureName : textureNames) {
 			FileIO::RemoveExtension(textureName);
 
-			sptr<Texture> texture = std::make_shared<Texture>(D3DResource::Texture2D);
-			texture->LoadTexture(folder, textureName);
-
-			result.insert(std::make_pair(textureName, texture));
+			sptr<Texture> texture = std::make_shared<Texture>(textureType);
+			texture->LoadTexture(textureName, folder);
+			res->Add<Texture>(textureName, texture);
 		}
-
-		return result;
 	}
 }

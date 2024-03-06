@@ -2,6 +2,7 @@
 #include "BlurFilter.h"
 #include "DXGIMgr.h"
 
+#include "ResourceMgr.h"
 #include "Scene.h"
 #include "DescriptorHeap.h"
 #include "Shader.h"
@@ -18,12 +19,6 @@ BlurFilter::BlurFilter(UINT width, UINT height, DXGI_FORMAT format)
 
 void BlurFilter::Create()
 {
-	mHorzBlurShader = std::make_unique<HorzBlurShader>();
-	mHorzBlurShader->Create();
-
-	mVertBlurShader = std::make_unique<VertBlurShader>();
-	mVertBlurShader->Create();
-
 	CreateResources();
 	CreateDescriptors();
 }
@@ -46,7 +41,7 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	int blurRadius = (int)weights.size() / 2;
 
 	// 컴퓨트 루트 시그니처 연결
-	cmdList->SetComputeRootSignature(scene->GetComputeRootSignature().Get());
+	cmdList->SetComputeRootSignature(dxgi->GetComputeRootSignature().Get());
 
 	// 블러 반지름과 가중치 값 연결
 	cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
@@ -59,9 +54,9 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	// 2Pass : read mBlurMap1 and write mBlurMap0 
 	for (int i = 0; i < blurCount; ++i) {
 #pragma region Horizontal Blur Pass
-		mHorzBlurShader->Set();
-		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
-		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
+		res->Get<Shader>("HorzBlur")->Set();
+		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
+		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
 
 		UINT numGroupsX = (UINT)ceilf(mWidth / 256.0f);
 		cmdList->Dispatch(numGroupsX, mHeight, 1);
@@ -71,9 +66,9 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 #pragma endregion
 
 #pragma region Vertical Blur Pass
-		mVertBlurShader->Set();
-		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), mOutput->GetGpuDescriptorHandle());
-		cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), input->GetUavGpuDescriptorHandle());
+		res->Get<Shader>("VertBlur")->Set();
+		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), mOutput->GetGpuDescriptorHandle());
+		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), input->GetUavGpuDescriptorHandle());
 
 		UINT numGroupsY = (UINT)ceilf(mHeight / 256.0f);
 		cmdList->Dispatch(mWidth, numGroupsY, 1);
@@ -118,16 +113,14 @@ std::vector<float> BlurFilter::CalculateGaussWeights(float sigma)
 
 void BlurFilter::CreateDescriptors()
 {
-	scene->CreateShaderResourceView(mOutput.get());
-	scene->CreateUnorderedAccessView(mOutput.get());
+	dxgi->CreateShaderResourceView(mOutput.get());
+	dxgi->CreateUnorderedAccessView(mOutput.get());
 }
 
 void BlurFilter::CreateResources()
 {
-	mOutput = std::make_shared<Texture>(D3DResource::Texture2D);
-	mOutput->CreateTexture(
-		mWidth,
-		mHeight,
+	mOutput = std::make_shared<Texture>();
+	mOutput->Create(mWidth, mHeight,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON);

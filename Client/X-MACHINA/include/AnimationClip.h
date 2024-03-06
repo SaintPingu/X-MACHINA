@@ -1,8 +1,12 @@
 #pragma once
 
+#pragma region Include
+#include "Resources.h"
+#pragma endregion
+
 class Transform;
 
-class AnimationClip {
+class AnimationClip : public Resource {
 public:
 	std::string mName;
 

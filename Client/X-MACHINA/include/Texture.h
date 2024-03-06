@@ -1,83 +1,68 @@
 #pragma once
 
-#pragma region EnumClass
-enum class MaterialMap : DWORD {
-	None         = 0x00,
-	Albedo       = 0x01,
-	Specular     = 0x02,
-	Normal       = 0x04,
-	Metalic      = 0x08,
-	Emission     = 0x10,
-	DetailAlbedo = 0x20,
-	DetailNormal = 0x40,
-};
+#pragma region Include
+#include "Resources.h"
 #pragma endregion
 
-
 #pragma region Class
-// Texture를 resource(ID3D12Resource)로 관리한다.
-class Texture {
+class Texture : public Resource {
 private:
-	D3DResource	mResourceType{};
-	DWORD		mTextureMask{};
+	D3DResource						mTextureType{};
 
-	ComPtr<ID3D12Resource> mTexture{};
-	ComPtr<ID3D12Resource> mTextureUploadBuffer{};
+	ComPtr<ID3D12Resource>			mResource{};
+	ComPtr<ID3D12Resource>			mTextureUploadBuffer{};
 
-	std::string mName{};
+	D3D12_GPU_DESCRIPTOR_HANDLE		mSrvDescriptorHandle{};	// SRV의 핸들값
+	D3D12_GPU_DESCRIPTOR_HANDLE		mUavDescriptorHandle{};	// UAV의 핸들값
+	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvDescriptorHandle{};	// DSV의 핸들값
 
-	UINT mSrvDescriptorHandleIndex{};
-	D3D12_GPU_DESCRIPTOR_HANDLE mSrvDescriptorHandle{};	// SRV의 핸들값 (이 descriptor heap 위치에 resource가 있다)
-	D3D12_GPU_DESCRIPTOR_HANDLE mUavDescriptorHandle{};	// UAV의 핸들값 (이 descriptor heap 위치에 resource가 있다)
-	
-	UINT mRootParamIndex{};
+	UINT							mSrvDescriptorHandleIndex{};
 
 public:
-	Texture(D3DResource resourceType);
+#pragma region C/Dtor
+	Texture(D3DResource textureType = D3DResource::Texture2D);
 	virtual ~Texture() = default;
+#pragma endregion
 
-	const std::string& GetName() const								{ return mName; }
-	ComPtr<ID3D12Resource> GetResource() const						{ return mTexture; }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle() const		{ return mSrvDescriptorHandle; }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetUavGpuDescriptorHandle() const   { return mUavDescriptorHandle; }
-	const UINT GetGpuDescriptorHandleIndex() const					{ return mSrvDescriptorHandleIndex; }
-
-	float GetWidth() { return static_cast<float>(mTexture->GetDesc().Width); }
-	float GetHeight() { return static_cast<float>(mTexture->GetDesc().Height); }
-
-	// 현재 resource에 따른 SRV_DESC을 반환한다.
-	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc() const;
+#pragma region Getter
+	ComPtr<ID3D12Resource>			 GetResource() const { return mResource; }
+	D3D12_GPU_DESCRIPTOR_HANDLE		 GetGpuDescriptorHandle() const	{ return mSrvDescriptorHandle; }
+	D3D12_GPU_DESCRIPTOR_HANDLE		 GetUavGpuDescriptorHandle() const { return mUavDescriptorHandle; }
+	D3D12_CPU_DESCRIPTOR_HANDLE		 GetDsvCpuDescriptorHandle() const { return mDsvDescriptorHandle; }
+	const UINT						 GetGpuDescriptorHandleIndex() const { return mSrvDescriptorHandleIndex; }
+	D3D12_SHADER_RESOURCE_VIEW_DESC	 GetShaderResourceViewDesc() const;
 	D3D12_UNORDERED_ACCESS_VIEW_DESC GetUnorderedAccessViewDesc() const;
+	D3D12_DEPTH_STENCIL_VIEW_DESC	 GetDepthStencilViewDesc() const;
 
-	void SetRootParamIndex(UINT index) { mRootParamIndex = index; }
-	void SetGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle, UINT index) {
-		mSrvDescriptorHandle = srvGpuDescriptorHandle; 
-		mSrvDescriptorHandleIndex = index;
-	}
-	void SetUavGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE uavGpuDescriptorHandle) { mUavDescriptorHandle = uavGpuDescriptorHandle; }
+	float GetWidth() { return static_cast<float>(mResource->GetDesc().Width); }
+	float GetHeight() { return static_cast<float>(mResource->GetDesc().Height); }
+#pragma endregion
+
+#pragma region Setter
+	void SetSrvGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle, UINT index);
+	void SetUavGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE uavGpuDescriptorHandle);
+	void SetDsvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE dsvGpuDescriptorHandle);
+#pragma endregion
 
 public:
 	void ReleaseUploadBuffers();
 
-	void UpdateShaderVars();
-	void ReleaseShaderVars();
-
 	// load texture from [fileName] in [folder] (file must be .dds extension)
 	// create texture resource(ID3D12Device::CreateCommittedResource)
 	// ex) LoadTexture("Textures/", "textureA");	(path = Textures/textureA.dds)
-	void LoadTexture(const std::string& folder, const std::string& fileName);
+	void LoadTexture(const std::string& name, const std::string& path);
 
 	// ID3D12Device::CreateCommittedResource
-	ComPtr<ID3D12Resource> CreateTexture(
+	ComPtr<ID3D12Resource> Create(
 		UINT					width,
 		UINT					height,
 		DXGI_FORMAT				dxgiFormat,
 		D3D12_RESOURCE_FLAGS	resourcecFlags,
 		D3D12_RESOURCE_STATES	resourceStates,
-		Vec4					clearColor = Vec4{ 1.f, 1.f, 1.f, 1.f });
+		Vec4					clearColor = Vec4());
 
 	// 이미 생성된 리소스(backBuffers, depthStencilBuffers)로부터 텍스처를 생성하는 함수
-	ComPtr<ID3D12Resource> CreateTextureFromResource(
+	ComPtr<ID3D12Resource> Create(
 		ComPtr<ID3D12Resource>	resource);
 };
 #pragma endregion

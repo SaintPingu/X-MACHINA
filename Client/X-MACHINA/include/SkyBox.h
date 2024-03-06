@@ -8,7 +8,6 @@
 #pragma region ClassForwardDecl
 class Texture;
 class Camera;
-class SkyBoxShader;
 class ModelObjectMesh;
 #pragma endregion
 
@@ -17,13 +16,15 @@ class ModelObjectMesh;
 // SkyBox ¹è°æ °´Ã¼ (not entity)
 class SkyBox : public Transform {
 private:
-	uptr<ModelObjectMesh> mMesh{};
-	uptr<SkyBoxShader>	 mShader{};
-	uptr<Texture>		 mTexture{};
+	sptr<ModelObjectMesh>	mMesh{};
+	sptr<Texture>			mTexture{};
 
 public:
 	SkyBox();
 	virtual ~SkyBox() = default;
+
+public:
+	rsptr<Texture> GetTexture() const { return mTexture; }
 
 public:
 	void Render();

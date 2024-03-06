@@ -30,5 +30,5 @@ void Script_Billboard::UpdateSpriteVariable(const int matIndex) const
 	}
 
 	// »ó¼ö ¹öÆÛ ºä Set
-	scene->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(objCBIndex));
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(objCBIndex));
 }

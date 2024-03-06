@@ -100,6 +100,7 @@ public:
 #include <vector>
 #include <forward_list>
 #include <deque>
+#include <map>
 #include <set>
 #include <bitset>
 #include <unordered_set>
@@ -117,6 +118,7 @@ public:
 #include <DirectXCollision.h>
 #include <D3d12SDKLayers.h>
 #include <d3dx12.h>
+#include "SimpleMath.h"
 
 /* Custom */
 #include "Singleton.h"
@@ -177,13 +179,13 @@ using namespace DirectX::PackedVector;
 using Microsoft::WRL::ComPtr;
 
 /* DirectX Math */
-using Vec2   = XMFLOAT2;
-using Vec3   = XMFLOAT3;
-using Vec4   = XMFLOAT4;
+using Vec2   = DirectX::SimpleMath::Vector2;
+using Vec3   = DirectX::SimpleMath::Vector3;
+using Vec4   = DirectX::SimpleMath::Vector4;
+using Matrix = DirectX::SimpleMath::Matrix;
 using Vec4x4 = XMFLOAT4X4;
 using Vec4x3 = XMFLOAT4X3;
 using Vector = XMVECTOR;
-using Matrix = XMMATRIX;
 
 /* Abbreviation */
 template<class T>
@@ -258,24 +260,34 @@ enum class TextureMap : UINT8 {
 	DiffuseMap3,
 
 	NormalMap,
-	HeightMap,
-	ShadowMap,
-	RoughnessMap,
+	EmissiveMap,
+	MetallicMap,
+	OcclusionMap,
 
 	_count
 };
 enum { TextureMapCount = static_cast<UINT8>(TextureMap::_count) };
 
 enum class GBuffer : UINT8 {
-	Texture = 0,
-	UI,
+	Position = 0,
 	Normal,
-	Depth,
-	Distance,
+	Diffuse,
+	Emissive,
+	MetallicSmoothness,
+	Occlusion,
 
 	_count
 };
 enum { GBufferCount = static_cast<UINT8>(GBuffer::_count) };
+
+enum class Lighting : UINT8 {
+	Diffuse = 0,
+	Specular,
+	Ambient,
+
+	_count
+};
+enum { LightingCount = static_cast<UINT8>(Lighting::_count) };
 
 enum class OffScreen : UINT8 {
 	Texture = 0,
@@ -286,7 +298,9 @@ enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
 
 enum class GroupType : UINT8 {
 	SwapChain = 0,
+	Shadow,
 	GBuffer,
+	Lighting,
 	OffScreen,
 
 	_count
@@ -296,13 +310,13 @@ enum { MRTGroupTypeCount = static_cast<UINT8>(GroupType::_count) };
 
 
 #pragma region Variable
+//constexpr short gkFrameBufferWidth  = 2560;
+//constexpr short gkFrameBufferHeight = 1600;
 constexpr short gkFrameBufferWidth  = 1280;
 constexpr short gkFrameBufferHeight = 960;
 
-constexpr int	gkMaxTexture		= 200;	// 씬에 존재할 수 있는 텍스처의 최대 개수. Common.hlsl과 동일해야 한다.
 constexpr int	gkMaxSceneLight		= 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
-
-constexpr int	gkSkinBoneSize = 128;
+constexpr int	gkSkinBoneSize		= 128;
 #pragma endregion
 
 
@@ -311,7 +325,6 @@ struct VertexBufferViews {
 	ComPtr<ID3D12Resource> VertexBuffer{};
 	ComPtr<ID3D12Resource> NormalBuffer{};
 	ComPtr<ID3D12Resource> UV0Buffer{};
-	ComPtr<ID3D12Resource> UV1Buffer{};
 	ComPtr<ID3D12Resource> TangentBuffer{};
 	ComPtr<ID3D12Resource> BiTangentBuffer{};
 	ComPtr<ID3D12Resource> BoneIndexBuffer{};
@@ -319,14 +332,16 @@ struct VertexBufferViews {
 };
 
 struct LightInfo {
-	Vec3	Strength = { 0.5f, 0.5f, 0.5f };
-	float	FalloffStart = 1.f;					// point/spot light only
-	Vec3	Direction = { 0.f, -1.f, 0.f };     // directional/spot light only
-	float	FalloffEnd = 10.f;					// point/spot light only
-	Vec3	Position = { 0.f, 0.f, 0.f };		// point light only
-	float	SpotPower = 64.f;					// spot light only
-	int		Type{};
-	Vec3	Padding{};
+	Vec3	Strength	 = { 0.5f, 0.5f, 0.5f };
+	float	FalloffStart = 1.f;					 // point/spot light only
+	Vec3	Direction	 = { 0.f, -1.f, 0.f };   // directional/spot light only
+	float	FalloffEnd	 = 10.f;				 // point/spot light only
+	Vec3	Position	 = { 0.f, 0.f, 0.f };	 // point light only
+	float	SpotPower	 = 64.f;				 // spot light only
+	int		Type		 = 0;
+	int		IsEnable	 = 0;
+	int		ObjCBIndex	 = -1;
+	int 	Padding{};
 };
 
 // must be matched with Light.hlsl LightInfo
@@ -354,9 +369,9 @@ struct SceneLoadLight {
 	std::array<LightLoadInfo, gkMaxSceneLight> Lights{};
 };
 
-// must be matched with Light.hlsl cbLights
 struct SceneLight {
 	std::array<LightInfo, gkMaxSceneLight> Lights{};
+	std::array<sptr<class ModelObjectMesh>, gkMaxSceneLight>	VolumeMeshes{};
 };
 #pragma endregion
 
@@ -418,11 +433,10 @@ inline std::wstring AnsiToWString(const std::string& str)
 // is_valid_dword_type_v에 EnumType을 추가해주어야 한다.
 enum class ObjectTag : DWORD;
 enum class VertexType : DWORD;
-enum class MaterialMap : DWORD;
 enum class FilterOption : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, FilterOption>);
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, FilterOption>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)
@@ -611,9 +625,8 @@ namespace D3DUtil {
 		LPCSTR shaderProfile,
 		ComPtr<ID3DBlob>& shaderBlob);
 
-	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(
-		const std::wstring& fileName,
-		ComPtr<ID3DBlob>& shaderBlob);
+	ComPtr<ID3DBlob> ReadCompiledShaderFile(
+		const std::wstring& fileName);
 
 	inline UINT CalcConstantBuffSize(UINT byteSize)
 	{
@@ -962,7 +975,7 @@ namespace Matrix4x4 {
 	inline Vec4x4 Multiply(const Vec4x4& matrix1, const Matrix& matrix2) noexcept
 	{
 		Vec4x4 result;
-		XMStoreFloat4x4(&result, _MATRIX(matrix1) * matrix2);
+		XMStoreFloat4x4(&result, (matrix1) * matrix2);
 		return result;
 	}
 
@@ -1013,6 +1026,13 @@ namespace Matrix4x4 {
 	{
 		Vec4x4 result;
 		XMStoreFloat4x4(&result, XMMatrixTranspose(_MATRIX(matrix)));
+		return result;
+	}
+	
+	inline Vec4x4 OrthographicOffCenterLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
+	{
+		Vec4x4 result;
+		XMStoreFloat4x4(&result, XMMatrixOrthographicLH(XMConvertToRadians(fFovAngleY), aspectRatio, fNearZ, fFarZ));
 		return result;
 	}
 
@@ -1116,7 +1136,7 @@ namespace XMMatrix
 	inline void SetPosition(Matrix& matrix, const Vec3& pos)
 	{
 		Vector p = XMVectorSet(pos.x, pos.y, pos.z, 1.f);
-		::memcpy(&matrix.r[3], &p, sizeof(Vector));
+		::memcpy(&matrix.m[3], &p, sizeof(Vector));
 	}
 }
 	#pragma endregion

@@ -2,8 +2,6 @@
 
 #pragma region ClassForwardDecl
 class Texture;
-class HorzBlurShader;
-class VertBlurShader;
 #pragma endregion
 
 // 블러 필터와 같이 리소스와 후면 버퍼의 크기가 같을 경우에는 
@@ -27,9 +25,6 @@ private:
 										
 	// ping-pong the textures
 	sptr<Texture> mOutput{};
-
-	uptr<HorzBlurShader> mHorzBlurShader{};
-	uptr<VertBlurShader> mVertBlurShader{};
 
 public:
 #pragma region C/Dtor

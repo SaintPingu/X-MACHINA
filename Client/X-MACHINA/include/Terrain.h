@@ -83,7 +83,6 @@ private:
 	std::vector<TerrainBlock*>		mBuffer{};		// 카메라에 보이는 Blocks (rendering buffer)
 	UINT							mCurrBuffIdx{};
 
-	sptr<TerrainShader> mShader{};
 	sptr<Material>		mMaterial{};		// default material (apply all textures)
 	sptr<Texture>		mTextureLayer[3];	// for texture splatting
 	sptr<Texture>		mSplatMap{};

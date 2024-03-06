@@ -123,18 +123,13 @@ namespace D3DUtil {
 			out.push_back(view);
 		}
 
-		if (bufferViews.NormalBuffer) {
-			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.NormalBuffer);
-			out.push_back(view);
-		}
-
 		if (bufferViews.UV0Buffer) {
 			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV0Buffer);
 			out.push_back(view);
 		}
 
-		if (bufferViews.UV1Buffer) {
-			CreateVertexBufferView<Vec2>(view, vertexCount, bufferViews.UV1Buffer);
+		if (bufferViews.NormalBuffer) {
+			CreateVertexBufferView<Vec3>(view, vertexCount, bufferViews.NormalBuffer);
 			out.push_back(view);
 		}
 
@@ -212,7 +207,11 @@ namespace D3DUtil {
 		D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr;
 
 		// add depth buffer
-		if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+		if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) {
+			optimizedClearValue = CD3DX12_CLEAR_VALUE(dxgiFormat, 1.0f, 0);
+			pOptimizedClearValue = &optimizedClearValue;
+		}
+		else if (resourceFlags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
 			float color[4] = { clearColor.x, clearColor.y, clearColor.z, clearColor.w };
 			optimizedClearValue = CD3DX12_CLEAR_VALUE(dxgiFormat, color);
 			pOptimizedClearValue = &optimizedClearValue;
@@ -279,7 +278,7 @@ namespace D3DUtil {
 		return shaderByteCode;
 	}
 
-	D3D12_SHADER_BYTECODE ReadCompiledShaderFile(const std::wstring& fileName, ComPtr<ID3DBlob>& shaderBlob)
+	ComPtr<ID3DBlob> ReadCompiledShaderFile(const std::wstring& fileName)
 	{
 		std::wstring filePath = L"shaders/cso/" + fileName;
 
@@ -293,21 +292,14 @@ namespace D3DUtil {
 		UINT byteSize = (UINT)::fread(byteCode, sizeof(BYTE), fileSize, file);
 		::fclose(file);
 
-		D3D12_SHADER_BYTECODE shaderByteCode{};
-		if (!shaderBlob) {
-			HRESULT hResult = D3DCreateBlob(byteSize, &shaderBlob);
-			AssertHResult(hResult);
-			::memcpy(shaderBlob->GetBufferPointer(), byteCode, byteSize);
-			shaderByteCode.BytecodeLength = shaderBlob->GetBufferSize();
-			shaderByteCode.pShaderBytecode = shaderBlob->GetBufferPointer();
-			delete[] byteCode;
-		}
-		else {
-			shaderByteCode.BytecodeLength = byteSize;
-			shaderByteCode.pShaderBytecode = byteCode;
-		}
+		ComPtr<ID3DBlob> blob;
+		HRESULT hResult = D3DCreateBlob(byteSize, &blob);
+		AssertHResult(hResult);
+		::memcpy(blob->GetBufferPointer(), byteCode, byteSize);
 
-		return shaderByteCode;
+		delete[] byteCode;
+
+		return blob;
 	}
 }
 #pragma endregion

@@ -1,5 +1,9 @@
 #pragma once
 
+#pragma region Include
+#include "Resources.h"
+#pragma endregion
+
 struct AnimationLoadInfo;
 class AnimatorState;
 class AnimatorLayer;
@@ -24,7 +28,7 @@ namespace Animations {
 	using ParamMap = std::unordered_map<std::string, AnimatorParameter>;
 }
 
-class AnimatorController {
+class AnimatorController : public Resource {
 private:
 	Animations::ParamMap mParameters{};
 

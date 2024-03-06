@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 
+#include "ResourceMgr.h"
 #include "Texture.h"
 #include "Mesh.h"
 #include "Shader.h"
@@ -10,10 +11,10 @@
 
 TestCube::TestCube(Vec2 pos) : Transform(this)
 {
-	SetPosition(Vec3(pos.x, scene->GetTerrainHeight(pos.x, pos.y) + size / 2.f, pos.y));
+	SetPosition(Vec3(pos.x, scene->GetTerrainHeight(pos.x, pos.y) + mSize, pos.y));
 
 	mMesh = std::make_unique<ModelObjectMesh>();
-	mMesh->CreateCubeMesh(size, size, size, true);
+	mMesh->CreateCubeMesh(mSize, mSize, mSize, true);
 	
 	MaterialLoadInfo materialInfo{};
 	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
@@ -21,15 +22,10 @@ TestCube::TestCube(Vec2 pos) : Transform(this)
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
-
-	mShader = std::make_unique<DeferredShader>();
-	mShader->Create(ShaderType::Deferred);
 }
 
 void TestCube::Render()
 {
-	mShader->Set();
-
 	mMaterial->UpdateShaderVars();
 	UpdateShaderVars(0, mMaterial->mMatIndex);
 

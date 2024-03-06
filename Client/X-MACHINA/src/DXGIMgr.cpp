@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "DescriptorHeap.h"
 
+#include "ResourceMgr.h"
 #include "Scene.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "RootSignature.h"
 #include "MultipleRenderTarget.h"
 #include "BlurFilter.h"
 #include "LUTFilter.h"
@@ -13,18 +16,85 @@
 #include "../Imgui/ImguiMgr.h"
 #pragma endregion
 
+namespace {
+	constexpr int kDescHeapCbvCount		= 0;	
+	constexpr int kDescHeapSrvCount		= 1024;						
+	constexpr int kDescHeapUavCount		= 256;	
+	constexpr int kDescHeapSkyBoxCount	= 16;	
+	constexpr int kDescHeapDsvCount		= 8;	
+}
 
 DXGIMgr::DXGIMgr()
 	:
 	mClientWidth(gkFrameBufferWidth),
-	mClientHeight(gkFrameBufferHeight)
+	mClientHeight(gkFrameBufferHeight),
+	mDescriptorHeap(std::make_shared<DescriptorHeap>())
 {
 	DWORD filterOptione = 0;
-	filterOptione |= FilterOption::None;
-	//filterOptione |= FilterOption::LUT;
-	//filterOptione |= FilterOption::Tone;
+	//filterOptione |= FilterOption::None;
+	filterOptione |= FilterOption::LUT;
+	filterOptione |= FilterOption::Tone;
+	//filterOptione |= FilterOption::Blur;
 
 	mFilterOption = filterOptione;
+}
+
+UINT DXGIMgr::GetGraphicsRootParamIndex(RootParam param) const
+{
+	return mGraphicsRootSignature->GetRootParamIndex(param);
+}
+
+UINT DXGIMgr::GetComputeRootParamIndex(RootParam param) const
+{
+	return mComputeRootSignature->GetRootParamIndex(param);
+}
+
+RComPtr<ID3D12RootSignature> DXGIMgr::GetGraphicsRootSignature() const
+{
+	assert(mGraphicsRootSignature);
+
+	return mGraphicsRootSignature->Get();
+}
+
+RComPtr<ID3D12RootSignature> DXGIMgr::GetComputeRootSignature() const
+{
+	assert(mComputeRootSignature);
+
+	return mComputeRootSignature->Get();
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 16U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 16U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 4U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 1U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
+void DXGIMgr::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
+{
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
+}
+
+void DXGIMgr::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
+{
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
@@ -34,23 +104,80 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 
 	CreateDirect3DDevice();
 	CreateCmdQueueAndList();
-	CreateRtvAndDsvDescriptorHeaps();
-
 	CreateSwapChain();
-	CreateDSV();
-
 	CreateFrameResources();
-
-	BuildScene();
-
+	CreateGraphicsRootSignature();
+	CreateComputeRootSignature();
+	CreateDescriptorHeaps(kDescHeapCbvCount, kDescHeapSrvCount, kDescHeapUavCount, kDescHeapSkyBoxCount, kDescHeapDsvCount);
+	CreateDSV();
 	CreateMRTs();
 	CreateFilter();
+
+	BuildScene();
 }
 
 void DXGIMgr::Release()
 {
+	mGraphicsRootSignature = nullptr;
+	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
+	res->Destroy();
 	Destroy();
+}
+
+void DXGIMgr::CreateShaderResourceView(Texture* texture, DXGI_FORMAT srvFormat)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = srvFormat;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.PlaneSlice = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
+
+	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
+	texture->SetSrvGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
+}
+
+void DXGIMgr::CreateShaderResourceView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
+
+	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
+
+	switch (srvDesc.ViewDimension)
+	{
+	case D3D12_SRV_DIMENSION_TEXTURE2D:
+		texture->SetSrvGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
+		break;
+	case D3D12_SRV_DIMENSION_TEXTURECUBE:
+		texture->SetSrvGpuDescriptorHandle(mDescriptorHeap->GetSkyBoxGPUSrvLastHandle(), mDescriptorHeap->GetSkyBoxGPUSrvLastHandleIndex());
+		break;
+	}
+}
+
+void DXGIMgr::CreateUnorderedAccessView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = texture->GetUnorderedAccessViewDesc();
+
+	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
+
+	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
+}
+
+void DXGIMgr::CreateDepthStencilView(Texture* texture)
+{
+	ComPtr<ID3D12Resource> resource = texture->GetResource();
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = texture->GetDepthStencilViewDesc();
+
+	mDescriptorHeap->CreateDepthStencilView(resource, &dsvDesc);
+
+	texture->SetDsvGpuDescriptorHandle(mDescriptorHeap->GetCPUDsvLastHandle());
 }
 
 void DXGIMgr::Terminate()
@@ -79,7 +206,9 @@ void DXGIMgr::Render()
 #pragma region ClearRTVs
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
+	GetMRT(GroupType::Shadow)->ClearRenderTargetView();
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
+	GetMRT(GroupType::Lighting)->ClearRenderTargetView();
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView();
 #pragma endregion
 
@@ -88,7 +217,9 @@ void DXGIMgr::Render()
 	case DrawOption::Main:
 	{
 		// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
+		GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 		scene->RenderShadow();
+		GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
 		// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
 		GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
@@ -96,8 +227,9 @@ void DXGIMgr::Render()
 		GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
 		// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
-		// TODO : 조명 계산을 G버퍼가 아닌 조명 렌더 타겟에서 진행해야 한다.
+		GetMRT(GroupType::Lighting)->OMSetRenderTargets();
 		scene->RenderLights();
+		GetMRT(GroupType::Lighting)->WaitTargetToResource();
 
 		// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
 		GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
@@ -116,12 +248,12 @@ void DXGIMgr::Render()
 		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
 	if (mFilterOption & FilterOption::Blur)
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
-	if (mFilterOption & FilterOption::LUT | FilterOption::Tone)
+	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
-	scene->RenderUI();
+	//scene->RenderUI();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 
@@ -132,38 +264,31 @@ void DXGIMgr::Render()
 	MoveToNextFrame();
 }
 
-
 void DXGIMgr::ToggleFullScreen()
 {
 	ChangeSwapChainState();
 }
 
-void DXGIMgr::ClearDepth()
-{
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
-}
-void DXGIMgr::ClearStencil()
-{
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
-}
-void DXGIMgr::ClearDepthStencil()
-{
-	mCmdList->ClearDepthStencilView(mDsvHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
-}
-
 void DXGIMgr::RenderBegin()
 {
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
-
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
+
+	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
+	mDescriptorHeap->Set();
+
+	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
+	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
+	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
+	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
 }
+
 void DXGIMgr::RenderEnd()
 {
 	mCmdList->Close();
 	ID3D12CommandList* cmdLists[] = { mCmdList.Get() };
 	mCmdQueue->ExecuteCommandLists(1, cmdLists);
 }
-
 
 void DXGIMgr::CreateFactory()
 {
@@ -225,13 +350,12 @@ void DXGIMgr::CreateFence()
 	mFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
-
 void DXGIMgr::SetIncrementSize()
 {
 	mCbvSrvUavDescriptorIncSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	mRtvDescriptorIncSize		= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	mDsvDescriptorIncSize		= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
-
 
 void DXGIMgr::CreateDirect3DDevice()
 {
@@ -258,23 +382,6 @@ void DXGIMgr::CreateCmdQueueAndList()
 	hResult = mCmdList->Close();
 	AssertHResult(hResult);
 }
-
-
-void DXGIMgr::CreateRtvAndDsvDescriptorHeaps()
-{
-	// Create DSV
-	constexpr int kDepthStencilBuffCnt = 1; // Depth 버퍼는 1개만 사용한다.
-
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = kDepthStencilBuffCnt;
-	descriptorHeapDesc.Type			  = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	descriptorHeapDesc.Flags		  = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descriptorHeapDesc.NodeMask		  = 0;
-
-	HRESULT hResult = mDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&mDsvHeap));
-	AssertHResult(hResult);
-}
-
 
 void DXGIMgr::CreateSwapChain()
 {
@@ -314,40 +421,66 @@ void DXGIMgr::CreateSwapChain()
 
 }
 
-void DXGIMgr::CreateDSV()
+void DXGIMgr::CreateGraphicsRootSignature()
 {
-	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	resourceDesc.Alignment          = 0;
-	resourceDesc.Width              = mClientWidth;
-	resourceDesc.Height             = mClientHeight;
-	resourceDesc.DepthOrArraySize   = 1;
-	resourceDesc.MipLevels          = 1;
-	resourceDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;	// Depth buffer 24bit, stencil buffer 8bit
-	resourceDesc.SampleDesc.Count   = (mIsMsaa4xEnabled) ? 4 : 1;
-	resourceDesc.SampleDesc.Quality = (mIsMsaa4xEnabled) ? (mMsaa4xQualityLevels - 1) : 0;
-	resourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resourceDesc.Flags              = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 
-	D3D12_HEAP_PROPERTIES heapProperties{};
-	heapProperties.Type                 = D3D12_HEAP_TYPE_DEFAULT;
-	heapProperties.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	heapProperties.CreationNodeMask     = 1;
-	heapProperties.VisibleNodeMask      = 1;
+	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
+	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
+	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
 
-	D3D12_CLEAR_VALUE clearValue{};
-	clearValue.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	clearValue.DepthStencil.Depth   = 1.f;
-	clearValue.DepthStencil.Stencil = 0;
+	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
+	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
-	HRESULT hResult = mDevice->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&mDepthStencilBuff));
-	AssertHResult(hResult);
+	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
+	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, kDescHeapSkyBoxCount, D3D12_SHADER_VISIBILITY_PIXEL);
+	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, kDescHeapSrvCount, D3D12_SHADER_VISIBILITY_PIXEL);
 
-	mDsvHandle = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
-	mDevice->CreateDepthStencilView(mDepthStencilBuff.Get(), nullptr, mDsvHandle);
+
+	mGraphicsRootSignature->Create();
 }
 
+void DXGIMgr::CreateComputeRootSignature()
+{
+	mComputeRootSignature = std::make_shared<ComputeRootSignature>();
+
+	// 가중치 루트 상수 (b0)
+	mComputeRootSignature->Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
+
+	// 읽기 전용 SRV 서술자 테이블 (t0)
+	mComputeRootSignature->PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 읽기 전용 SRV 서술자 테이블 (t1, t2)
+	mComputeRootSignature->PushTable(RootParam::LUT0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	mComputeRootSignature->PushTable(RootParam::LUT1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 쓰기 전용 UAV 서술자 테이블 (u0)
+	mComputeRootSignature->PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	mComputeRootSignature->Create();
+}
+
+void DXGIMgr::CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount, int dsvCount)
+{
+	mDescriptorHeap->Create(cbvCount, srvCount, uavCount, skyBoxSrvCount, dsvCount);
+}
+
+void DXGIMgr::CreateDSV()
+{
+	mDefaultDs = res->CreateTexture("DefaultDepthStencil", gkFrameBufferWidth, gkFrameBufferHeight,
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	CreateDepthStencilView(mDefaultDs.get());
+	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+
+	mShadowDs = res->CreateTexture("ShadowDepthStencil", gkFrameBufferWidth * 4, gkFrameBufferHeight * 4,
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ);
+	CreateDepthStencilView(mShadowDs.get());
+	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+}
 
 void DXGIMgr::CreateMRTs()
 {
@@ -359,12 +492,22 @@ void DXGIMgr::CreateMRTs()
 		for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 			ComPtr<ID3D12Resource> resource;
 			mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
-			rts[i].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-			rts[i].Target->CreateTextureFromResource(resource);
+
+			std::string name = "SwapChainTarget_" + std::to_string(i);
+			rts[i].Target = res->CreateTexture(name, resource);
 		}
 
 		mMRTs[static_cast<UINT8>(GroupType::SwapChain)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
+	}
+#pragma endregion
+
+#pragma region Shadow
+	{
+		// 그림자에서는 깊이 버퍼만 사용하며 어떠한 렌더 타겟도 사용하지 않는다.
+		std::vector<RenderTarget> rts(0);
+		mMRTs[static_cast<UINT8>(GroupType::Shadow)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->Create(GroupType::Shadow, std::move(rts), mShadowDs);
 	}
 #pragma endregion
 
@@ -372,28 +515,44 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(GBufferCount);
 
-		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		rts[0].Target = res->CreateTexture("PositionTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			
+		rts[1].Target = res->CreateTexture("NormalTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[1].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[1].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		rts[2].Target = res->CreateTexture("DiffuseTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[2].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[2].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		rts[3].Target = res->CreateTexture("EmissiveTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[3].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[3].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		rts[4].Target = res->CreateTexture("MetallicSmoothnessTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[4].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[4].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
-			DXGI_FORMAT_R32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		rts[5].Target = res->CreateTexture("OcclusionTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::GBuffer)]->Create(GroupType::GBuffer, std::move(rts), mDefaultDs);
+	}
+#pragma endregion
+
+#pragma region Lighting
+	{
+		std::vector<RenderTarget> rts(LightingCount);
+
+		rts[0].Target = res->CreateTexture("DiffuseAlbedoTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		
+		rts[1].Target = res->CreateTexture("SpecularAlbedoTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		
+		rts[2].Target = res->CreateTexture("AmbientTarget", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+		mMRTs[static_cast<UINT8>(GroupType::Lighting)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::Lighting)]->Create(GroupType::Lighting, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
 
@@ -401,17 +560,13 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(OffScreenCount);
 
-		rts[0].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[0].Target->CreateTexture(gkFrameBufferWidth, gkFrameBufferHeight,
+		rts[0].Target = res->CreateTexture("OffScreenTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
-		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDsvHandle);
+		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDefaultDs);
 	}
 #pragma endregion
-
-	// create SRV for DepthStencil buffer
-	scene->CreateShaderResourceView(mDepthStencilBuff, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
 void DXGIMgr::CreateFrameResources()
@@ -460,10 +615,11 @@ void DXGIMgr::ChangeSwapChainState()
 	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 		ComPtr<ID3D12Resource> resource;
 		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
-		rts[i].Target = std::make_shared<Texture>(D3DResource::Texture2D);
-		rts[i].Target->CreateTextureFromResource(resource);
+
+		std::string name = "SwapChainTarget_" + std::to_string(i);
+		rts[i].Target = res->CreateTexture(name, resource);
 	}
-	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDsvHandle);
+	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
 
 	// 윈도우 사이즈가 변경되면 필터도 다시 생성해야 한다.
 	mBlurFilter->OnResize(mClientWidth, mClientHeight);

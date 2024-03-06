@@ -5,6 +5,7 @@
 #include "MultipleRenderTarget.h"
 #include "FrameResource.h"
 
+#include "ResourceMgr.h"
 #include "UI.h"
 #include "Object.h"
 #include "Model.h"
@@ -18,12 +19,7 @@
 #include "Collider.h"
 #include "SkyBox.h"
 #include "Texture.h"
-#include "RootSignature.h"
-#include "DescriptorHeap.h"
 #include "ObjectPool.h"
-
-#include "Animator.h"
-#include "AnimatorController.h"
 
 #include "Script_Player.h"
 #include "Script_ExplosiveObject.h"
@@ -43,19 +39,13 @@ namespace {
 	constexpr int kGridWidthCount = 20;						// all grid count = n*n
 	constexpr Vec3 kBorderPos = Vec3(256, 200, 256);		// center of border
 	constexpr Vec3 kBorderExtents = Vec3(1500, 500, 1500);		// extents of border
-
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kObjectPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kUIPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kTerrainPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-	constexpr D3D12_PRIMITIVE_TOPOLOGY kBoundsPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 }
 
 Scene::Scene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
 	mGridhWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
-	mLight(std::make_shared<Light>()),
-	mDescriptorHeap(std::make_unique<DescriptorHeap>())
+	mLight(std::make_shared<Light>())
 {
 
 }
@@ -72,6 +62,7 @@ void Scene::Release()
 
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region Getter
 float Scene::GetTerrainHeight(float x, float z) const
@@ -79,56 +70,6 @@ float Scene::GetTerrainHeight(float x, float z) const
 	assert(mTerrain);
 
 	return mTerrain->GetHeight(x, z);
-}
-
-rsptr<const MasterModel> Scene::GetModel(const std::string& modelName) const
-{
-	assert(mModels.contains(modelName));
-
-	return mModels.at(modelName);
-}
-
-rsptr<Texture> Scene::GetTexture(const std::string& name) const
-{
-	assert(mTextureMap.contains(name));
-
-	return mTextureMap.at(name);
-}
-
-rsptr<DescriptorHeap> Scene::GetDescHeap() const
-{
-	assert(mDescriptorHeap);
-
-	return mDescriptorHeap;
-}
-
-sptr<AnimatorController> Scene::GetAnimatorController(const std::string& controllerFile) const
-{
-	return std::make_shared<AnimatorController>(*mAnimatorControllerMap.at(controllerFile));
-}
-
-RComPtr<ID3D12RootSignature> Scene::GetGraphicsRootSignature() const
-{
-	assert(mGraphicsRootSignature);
-
-	return mGraphicsRootSignature->Get();
-}
-
-RComPtr<ID3D12RootSignature> Scene::GetComputeRootSignature() const
-{
-	assert(mComputeRootSignature);
-
-	return mComputeRootSignature->Get();
-}
-
-UINT Scene::GetGraphicsRootParamIndex(RootParam param) const
-{
-	return mGraphicsRootSignature->GetRootParamIndex(param);
-}
-
-UINT Scene::GetComputeRootParamIndex(RootParam param) const
-{
-	return mComputeRootSignature->GetRootParamIndex(param);
 }
 
 #pragma endregion
@@ -148,121 +89,10 @@ void Scene::ReleaseUploadBuffers()
 	MeshRenderer::ReleaseUploadBuffers();
 }
 
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 4U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 1U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
-void Scene::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
-{
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
-}
-
-void Scene::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
-{
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
-}
-
-void Scene::CreateShaderResourceView(RComPtr<ID3D12Resource> resource, DXGI_FORMAT srvFormat)
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = srvFormat;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.PlaneSlice = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.f;
-
-	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
-}
-
-void Scene::CreateShaderResourceView(Texture* texture)
-{
-	ComPtr<ID3D12Resource> resource = texture->GetResource();
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = texture->GetShaderResourceViewDesc();
-
-	mDescriptorHeap->CreateShaderResourceView(resource, &srvDesc);
-
-	texture->SetGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle(), mDescriptorHeap->GetGPUSrvLastHandleIndex());
-}
-
-void Scene::CreateUnorderedAccessView(Texture* texture)
-{
-	ComPtr<ID3D12Resource> resource = texture->GetResource();
-	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = texture->GetUnorderedAccessViewDesc();
-
-	mDescriptorHeap->CreateUnorderedAccessView(resource, &uavDesc);
-
-	texture->SetUavGpuDescriptorHandle(mDescriptorHeap->GetGPUSrvLastHandle());
-}
-
-void Scene::CreateGraphicsRootSignature()
-{
-	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
-
-	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
-	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
-	mGraphicsRootSignature->Push(RootParam::Instancing,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-	mGraphicsRootSignature->Push(RootParam::Material,	D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	
-	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
-	mGraphicsRootSignature->PushTable(RootParam::SkyBox,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture,	D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, gkMaxTexture, D3D12_SHADER_VISIBILITY_PIXEL);
-	
-
-	mGraphicsRootSignature->Create();
-}
-
-void Scene::CreateComputeRootSignature()
-{
-	mComputeRootSignature = std::make_shared<ComputeRootSignature>();
-
-	// 가중치 루트 상수 (b0)
-	mComputeRootSignature->Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
-
-	// 읽기 전용 SRV 서술자 테이블 (t0)
-	mComputeRootSignature->PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);	
-	
-	// 읽기 전용 SRV 서술자 테이블 (t1, t2)
-	mComputeRootSignature->PushTable(RootParam::LUT0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	mComputeRootSignature->PushTable(RootParam::LUT1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 쓰기 전용 UAV 서술자 테이블 (u0)
-	mComputeRootSignature->PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	mComputeRootSignature->Create();
-}
-
 void Scene::UpdateShaderVars()
 {
-	// TODO : AnimateMaterials(); 
 	UpdateMainPassCB();
+	UpdateShadowPassCB();
 	UpdateMaterialBuffer();
 }
 
@@ -272,35 +102,50 @@ void Scene::UpdateMainPassCB()
 	timeElapsed += DeltaTime();
 
 	PassConstants passConstants;
-	passConstants.MtxView	= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
-	passConstants.MtxProj	= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
-	passConstants.EyeW		= mainCamera->GetPosition();
-	passConstants.DeltaTime = timeElapsed;
-	passConstants.RT1_TextureIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Texture)->GetGpuDescriptorHandleIndex();
-	passConstants.RT2_UIIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::UI)->GetGpuDescriptorHandleIndex();
-	passConstants.RT3_NormalIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Normal)->GetGpuDescriptorHandleIndex();
-	passConstants.RT4_DepthIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Depth)->GetGpuDescriptorHandleIndex();
-	passConstants.RT5_DistanceIndex = dxgi->GetMRT(GroupType::GBuffer)->GetTexture(GBuffer::Distance)->GetGpuDescriptorHandleIndex();
-	passConstants.LightCount = mLight->GetLightCount();
-	passConstants.GlobalAmbient = Vec4(0.2f, 0.2f, 0.2f, 1.f);
-	passConstants.FilterOption = dxgi->GetFilterOption();
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get(), sizeof(passConstants.Lights));
-	XMStoreFloat4(&passConstants.FogColor, Colors::Gray);
+	passConstants.MtxView						= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
+	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
+	passConstants.MtxShadow						= mLight->GetShadowMtx().Transpose();
+	passConstants.EyeW							= mainCamera->GetPosition();
+	passConstants.DeltaTime						= DeltaTime();
+	passConstants.TotalTime						= timeElapsed;
+	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
+	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
+	passConstants.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
+	passConstants.ShadowIndex					= res->Get<Texture>("ShadowDepthStencil")->GetGpuDescriptorHandleIndex();
+	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT4G_MetallicSmoothnessIndex  = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT0L_DiffuseIndex				= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.RT2L_AmbientIndex				= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();
+	passConstants.LightCount					= mLight->GetLightCount();
+	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
+	passConstants.FilterOption					= dxgi->GetFilterOption();
+	passConstants.ShadowIntensity				= 0.1f;
+	passConstants.FogColor						= Colors::Gray;
+	memcpy(&passConstants.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passConstants.Lights));
 	
-	frmResMgr->CopyData(passConstants);
+	frmResMgr->CopyData(0, passConstants);
+}
+
+void Scene::UpdateShadowPassCB()
+{
+	PassConstants passConstants;
+	passConstants.MtxView = mLight->GetLightViewMtx().Transpose();
+	passConstants.MtxProj = mLight->GetLightProjMtx().Transpose();
+
+	frmResMgr->CopyData(1, passConstants);
 }
 
 void Scene::UpdateMaterialBuffer()
 {
-	// TODO : Update only if the numFramesDirty is greater than 0
-	for (auto& model : mModels) {
-		model.second->GetMesh()->UpdateMaterialBuffer();
-	}
-}
-
-void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount)
-{
-	mDescriptorHeap->Create(cbvCount, srvCount, uavCount);
+	res->ProcessFunc<MasterModel>(
+		[](sptr<MasterModel> model) {
+			model->GetMesh()->UpdateMaterialBuffer(); 
+		});
 }
 #pragma endregion
 
@@ -312,31 +157,20 @@ void Scene::CreateCbvSrvDescriptorHeaps(int cbvCount, int srvCount, int uavCount
 #pragma region Build
 void Scene::BuildObjects()
 {
-	CreateGraphicsRootSignature();
-	CreateComputeRootSignature();
-
-	assert(mGraphicsRootSignature);
-	CreateCbvSrvDescriptorHeaps(0, 1024, 256);
-
-	// load materials
-	mTextureMap = FileIO::LoadTextures("Import/Textures/");
+	// load all resources
+	res->LoadResources();
 
 	// load canvas (UI)
 	canvas->Init();
 
 	// load models
-	LoadAnimationClips();
-	LoadAnimatorControllers();
 	LoadSceneObjects("Import/Scene.bin");
-	LoadModels();
 
 	// build settings
 	BuildPlayers();
 	BuildTerrain();
 	BuildTestCube();
 
-	// build 
- 	BuildShaders();
 	// build static meshes
 	MeshRenderer::BuildMeshes();
 
@@ -346,69 +180,18 @@ void Scene::BuildObjects()
 
 void Scene::ReleaseObjects()
 {
-	mGraphicsRootSignature = nullptr;
 	MeshRenderer::Release();
-}
-
-
-void Scene::BuildShaders()
-{
-	BuildDeferredShader();
-	BuildForwardShader();
-}
-
-void Scene::BuildForwardShader()
-{
-	// 현재 조명 렌더 타겟을 따로 두지 않았기 때문에 foward가 offscreen으로 대체 되었다.
-	// 추후에 조명 렌더 타겟 구현 이후 forward를 R8G8B8A8의 쉐이더로 변경해야 한다.
-	mWaterShader = std::make_shared<WaterShader>();
-	mWaterShader->Create(ShaderType::OffScreen);
-
-	mBillboardShader = std::make_shared<BillboardShader>();
-	mBillboardShader->Create(ShaderType::OffScreen);
-
-	mSpriteShader = std::make_shared<SpriteShader>();
-	mSpriteShader->Create(ShaderType::OffScreen);
-
-	mFinalShader = std::make_shared<FinalShader>();
-	mFinalShader->Create(ShaderType::OffScreen);
-
-	mBoundingShader = std::make_shared<WireShader>();
-	mBoundingShader->Create(ShaderType::Forward);
-
-	mOffScreenShader = std::make_shared<OffScreenShader>();
-	mOffScreenShader->Create(ShaderType::Forward);
-}
-
-void Scene::BuildDeferredShader()
-{
-	ShaderType shaderType = ShaderType::Deferred;
-
-	mGlobalShader = std::make_shared<DeferredShader>();
-	mGlobalShader->Create(shaderType);
-
-	mInstShader = std::make_shared<ObjectInstShader>();
-	mInstShader->Create(shaderType);
-
-	mTransparentShader = std::make_shared<TransparentShader>();
-	mTransparentShader->Create(shaderType);
-
-	mBulletShader = std::make_shared<ColorInstShader>();
-	mBulletShader->Create(shaderType);
-
-	mSkinnedMeshShader = std::make_shared<SkinMeshShader>();
-	mSkinnedMeshShader->Create(shaderType);
 }
 
 void Scene::BuildPlayers()
 {
 	mPlayers.reserve(1);
 	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(GetModel("tank_bullet"));
-	airplanePlayer->SetModel(GetModel("EliteTrooper"));
-
+	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(res->Get<MasterModel>("tank_bullet"));
+	//airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
+	airplanePlayer->SetModel(res->Get<MasterModel>("EliteTrooper"));
+	
 	mPlayers.push_back(airplanePlayer);
-
 	mPlayer = mPlayers.front();
 }
 
@@ -422,19 +205,17 @@ void Scene::BuildTerrain()
 void Scene::BuildTestCube()
 {
 	mTestCubes.resize(2);
-	mTestCubes[0] = std::make_shared<TestCube>(Vec2(190, 150));
-	mTestCubes[0]->GetMaterial()->SetMatallic(0.1f);
-	mTestCubes[0]->GetMaterial()->SetRoughness(0.2f);
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Rock_BaseColor"));
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Rock_Normal"));
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Rock_Roughness"));
+	mTestCubes[0] = std::make_shared<TestCube>(Vec2(170, 150));
+	mTestCubes[0]->GetMaterial()->SetMatallic(0.f);
+	mTestCubes[0]->GetMaterial()->SetRoughness(0.f);
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Rock_BaseColor"));
+	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Rock_Normal"));
 
 	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
-	mTestCubes[1]->GetMaterial()->SetMatallic(0.9f);
-	mTestCubes[1]->GetMaterial()->SetRoughness(0.1f);
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, scene->GetTexture("Wall_BaseColor"));
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, scene->GetTexture("Wall_Normal"));
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::RoughnessMap, scene->GetTexture("Wall_Roughness"));
+	mTestCubes[1]->GetMaterial()->SetMatallic(0.f);
+	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
+	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 }
 
 void Scene::BuildGrid()
@@ -529,7 +310,7 @@ void Scene::LoadGameObjects(FILE* file)
 			FileIO::ReadString(file, meshName);
 
 			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + meshName + ".bin");
-			mModels.insert(std::make_pair(meshName, model));
+			res->Add<MasterModel>(meshName, model);
 
 			FileIO::ReadString(file, token); //"<Transforms>:"
 			FileIO::ReadVal(file, sameObjectCount);
@@ -567,49 +348,6 @@ void Scene::LoadGameObjects(FILE* file)
 		object->SetWorldTransform(transform);
 
 		--sameObjectCount;
-	}
-}
-
-void Scene::LoadModels()
-{
-	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
-
-	sptr<MasterModel> model;
-	for (auto& name : binModelNames) {
-		if (!mModels.contains(name)) {
-			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + name + ".bin");
-			if (name.substr(0, 6) == "sprite") {
-				model->SetSprite();
-			}
-			mModels.insert(std::make_pair(name, model));
-		}
-	}
-
-	
-}
-
-void Scene::LoadAnimationClips()
-{
-	const std::string rootFolder = "Import/AnimationClips/";
-	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
-		std::string clipFolderName = clipFolder.path().filename().string();
-
-		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
-			std::string fileName = file.path().filename().string();
-			sptr<const AnimationClip> clip = FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
-
-			FileIO::RemoveExtension(fileName);
-			mAnimationClipMap[clipFolderName].insert(std::make_pair(fileName, clip));
-		}
-	}
-}
-
-void Scene::LoadAnimatorControllers()
-{
-	const std::string rootFolder = "Import/AnimatorControllers/";
-	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
-		const std::string fileName = file.path().filename().string();
-		mAnimatorControllerMap.insert(std::make_pair(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName)));
 	}
 }
 
@@ -684,109 +422,99 @@ namespace {
 	}
 }
 
-void Scene::OnPrepareRender()
-{
-	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
-
-	mDescriptorHeap->Set();
-
-	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr(0));
-	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
-}
-
 void Scene::RenderShadow()
 {
-	// 추후에 그림자를 렌더링하는 함수
-	// 그림자용 카메라를 기준으로 모든 오브젝트의 깊이 값을 렌더링한다. 
-	// 깊이 값이 저장된 그림자 맵이 생성된 상태일 것이다.
+#pragma region PrepareRender
+	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(1));
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+#pragma endregion
+
+#pragma region Shadow_Global
+	RenderGridObjects(true);
+	RenderTestCubes(true);
+#pragma endregion
+#pragma region Shadow_SkinMesh
+	RenderSkinMeshObjects(true);
+#pragma endregion
 }
 
 void Scene::RenderDeferred()
 {
-	// 추후에 디퍼드 렌더링 구현시 물체의 깊이 정보를 저장하고 조명 계산에 활용해야 한다.
-	// 현재는 MRT에서 조명을 처리하고 있는데 이후에 Final이나 Canvas에서 전달 받은 메쉬에 대해서만 조명 처리를 해야한다.
-	// Directional 조명은 화면 전체 크기의 사각형 볼륨 메쉬, Point, Spot 조명은 조명의 길이의 반지름을 가진 구 볼륨 메쉬를 가진다.
-	// 블렌딩을 사용한 투명(반투명) 객체는 깊이 버퍼에 깊이 값을 저장할 수 없기 때문에 포워드 렌더링에서 처리해야만 한다.
-	// 따라서 deferred -> light(volume mesh) -> final(canvas) -> forward 순서로 렌더링을 처리해야 한다.
 #pragma region PrepareRender
+	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(0));
 	mRenderedObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
-	OnPrepareRender();
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
 
-	mGlobalShader->Set();
-
-	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
-	RenderGridObjects();	
-	RenderSkinMeshObjects();
-	RenderEnvironments();	
-	RenderInstanceObjects();
-	RenderBullets();
+#pragma region Global
+	RenderGridObjects();
 	RenderTestCubes();
-
-	cmdList->IASetPrimitiveTopology(kTerrainPrimitiveTopology);
+	RenderEnvironments();
+#pragma endregion
+#pragma region ObjectInst
+	RenderInstanceObjects();
+#pragma endregion
+#pragma region ColorInst
+	RenderBullets();
+#pragma endregion
+#pragma region Shadow_SkinMesh
+	RenderSkinMeshObjects();
+#pragma endregion
+#pragma region Terrain
 	RenderTerrain();
+#pragma endregion
 }
 
 void Scene::RenderLights()
 {
-	// 포지션, 노말, 컬러 등의 모든 결과 텍스처를 샘플링하여 조명 처리를 진행한다.
-	// 이때 그림자 맵도 샘플링하고 현재 픽셀 값이 그림자 맵보다 큰 경우에 어둡게 렌더링한다.
-	// 결과 값인 diffuse와 specular를 각각의 타겟 텍스처에 출력한다.
+	if (mLight) {
+		mLight->Render();
+	}
 }
 
 void Scene::RenderFinal()
 {
 	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
-	mFinalShader->Set();
-
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	cmdList->DrawInstanced(6, 1, 0, 0);
+	res->Get<Shader>("Final")->Set();
+	res->Get<ModelObjectMesh>("Rect")->Render();
 }
 
 void Scene::RenderForward()
 {
-	// 렌더 타겟 텍스처에 렌더링하는 것이 아닌 후면 버퍼에 바로 렌더링한다.
-	// forward 쉐이더를 사용하는 오브젝트가 조명을 사용하고자 한다면 
-	// 바로 해당 쉐이더에서 lighting 연산을 수행한다.
 	RenderFXObjects(); 
 	RenderBillboards();
 
-	cmdList->IASetPrimitiveTopology(kObjectPrimitiveTopology);
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
 }
 
-void Scene::RenderUI()
-{
-	if (RenderBounds(mRenderedObjects)) {
-		cmdList->IASetPrimitiveTopology(kUIPrimitiveTopology);
-	}
-
-	canvas->Render();
-}
-
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	frmResMgr->CopyData(passConstants);
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
+	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
 
-	// 쉐이더 설정
-	mOffScreenShader->Set();
+	res->Get<Shader>("OffScreen")->Set();
+	res->Get<ModelObjectMesh>("Rect")->Render();
+}
 
-	// 렌더링
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	cmdList->DrawInstanced(6, 1, 0, 0);
+void Scene::RenderUI()
+{
+	canvas->Render();
+	RenderBounds(mRenderedObjects);
 }
 
 void Scene::RenderTerrain()
 {
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	res->Get<Shader>("Terrain")->Set();
+
 	if (mTerrain) {
 		mTerrain->Render();
 	}
@@ -794,25 +522,28 @@ void Scene::RenderTerrain()
 
 void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObjects)
 {
-	mTransparentShader->Set();
+	res->Get<Shader>("Transparent")->Set();
 	for (auto& object : transparentObjects) {
 		object->Render();
 	}
 	if (mWater) {
-		mWaterShader->Set();
+		res->Get<Shader>("Water")->Set();
 		mWater->Render();
 	}
 }
-
 
 void Scene::RenderSkyBox()
 {
 	mSkyBox->Render();
 }
 
-
-void Scene::RenderGridObjects()
+void Scene::RenderGridObjects(bool isShadowed)
 {
+	if (isShadowed)
+		res->Get<Shader>("Shadow_Global")->Set();
+	else 
+		res->Get<Shader>("Global")->Set();
+
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
 			continue;
@@ -848,9 +579,20 @@ void Scene::RenderGridObjects()
 	}
 }
 
-void Scene::RenderSkinMeshObjects()
+void Scene::RenderTestCubes(bool isShadowed)
 {
-	mSkinnedMeshShader->Set();
+	for (const auto& testCube : mTestCubes) {
+		testCube->Render();
+	}
+}
+
+void Scene::RenderSkinMeshObjects(bool isShadowed)
+{
+	if (isShadowed)
+		res->Get<Shader>("Shadow_SkinMesh")->Set();
+	else
+		res->Get<Shader>("SkinMesh")->Set();
+
 	for (auto& object : mSkinMeshObjects) {
 		object->Render();
 	}
@@ -858,7 +600,7 @@ void Scene::RenderSkinMeshObjects()
 
 void Scene::RenderInstanceObjects()
 {
-	mInstShader->Set();
+	res->Get<Shader>("ObjectInst")->Set();
 	for (auto& buffer : mObjectPools) {
 		buffer->Render();
 	}
@@ -869,13 +611,6 @@ void Scene::RenderFXObjects()
 
 }
 
-void Scene::RenderTestCubes()
-{
-	for (const auto& testCube : mTestCubes) {
-		testCube->Render();
-	}
-}
-
 void Scene::RenderEnvironments()
 {
 	for (auto& env : mEnvironments) {
@@ -883,10 +618,9 @@ void Scene::RenderEnvironments()
 	}
 }
 
-
 void Scene::RenderBullets()
 {
-	mBulletShader->Set();
+	res->Get<Shader>("ColorInst")->Set();
 	for (auto& player : mPlayers) {
 		if (player->IsActive()) {
 			player->GetComponent<Script_ShootingPlayer>()->RenderBullets();
@@ -894,22 +628,20 @@ void Scene::RenderBullets()
 	}
 }
 
-
 bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 {
-	if (!mIsRenderBounds || !mBoundingShader) {
+	if (!mIsRenderBounds) {
 		return false;
 	}
 
-	cmdList->IASetPrimitiveTopology(kBoundsPrimitiveTopology);
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	mBoundingShader->Set();
+	res->Get<Shader>("Wire")->Set();
 	RenderObjectBounds(renderedObjects);
 	RenderGridBounds();
 
 	return true;
 }
-
 
 void Scene::RenderObjectBounds(const std::set<GridObject*>& renderedObjects)
 {
@@ -941,11 +673,11 @@ void Scene::RenderGridBounds()
 
 void Scene::RenderBillboards()
 {
-	mBillboardShader->Set();
+	res->Get<Shader>("Billboard")->Set();
 	for (auto& object : mBillboardObjects) {
 		object->Render();
 	}
-	mSpriteShader->Set();
+	res->Get<Shader>("Sprite")->Set();
 	for (auto& object : mSpriteEffectObjects) {
 		object->Render();
 	}
@@ -982,8 +714,8 @@ void Scene::Update()
 	CheckCollisions();
 
 	UpdateObjects();
-	UpdateLights();
-	UpdateCamera();
+	mainCameraObject->Update();
+	mLight->Update();
 	canvas->Update();
 
 	Animate();
@@ -1019,7 +751,6 @@ void Scene::UpdatePlayerGrid()
 	}
 }
 
-
 void Scene::UpdateObjects()
 {
 	ProcessObjects([this](sptr<GridObject> object) {
@@ -1036,7 +767,6 @@ void Scene::UpdateFXObjects()
 
 }
 
-
 void Scene::UpdateSprites()
 {
 	for (auto it = mSpriteEffectObjects.begin(); it != mSpriteEffectObjects.end(); ) {
@@ -1051,16 +781,6 @@ void Scene::UpdateSprites()
 		}
 	}
 }
-
-void Scene::UpdateLights()
-{
-	// update dynamic lights here.
-}
-
-void Scene::UpdateCamera()
-{
-	mainCameraObject->Update();
-}
 #pragma endregion
 
 
@@ -1071,7 +791,8 @@ void Scene::UpdateCamera()
 void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
 {
 	sptr<GameObject> effect = std::make_shared<GameObject>();
-	effect->SetModel(GetModel("sprite_explosion"));
+	effect->SetModel(res->Get<MasterModel>("sprite_explosion"));
+	
 	effect->RemoveComponent<ObjectCollider>();
 	const auto& script = effect->AddComponent<Script_Sprite>();
 	script->SetSpeed(speed);
@@ -1089,12 +810,10 @@ void Scene::CreateSmallExpFX(const Vec3& pos)
 	CreateSpriteEffect(pos, 0.0001f);
 }
 
-
 void Scene::CreateBigExpFX(const Vec3& pos)
 {
 	CreateSpriteEffect(pos, 0.025f, 5.f);
 }
-
 
 int Scene::GetGridIndexFromPos(Vec3 pos) const
 {
@@ -1106,7 +825,6 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 	return gridZ * mGridCols + gridX;
 }
-
 
 void Scene::DeleteExplodedObjects()
 {
@@ -1127,12 +845,10 @@ void Scene::DeleteExplodedObjects()
 	}
 }
 
-
 void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 
 }
-
 
 void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
@@ -1173,7 +889,6 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-
 void Scene::ToggleDrawBoundings()
 {
 	mIsRenderBounds = !mIsRenderBounds;
@@ -1182,7 +897,6 @@ void Scene::ToggleDrawBoundings()
 		object->ToggleDrawBoundings();
 		});
 }
-
 
 void Scene::CreateFX(FXType type, const Vec3& pos)
 {
@@ -1199,7 +913,6 @@ void Scene::CreateFX(FXType type, const Vec3& pos)
 	}
 }
 
-
 void Scene::BlowAllExplosiveObjects()
 {
 	for (auto& object : mExplosiveObjects)
@@ -1213,7 +926,6 @@ void Scene::BlowAllExplosiveObjects()
 	mExplosiveObjects.clear();
 }
 
-
 void Scene::ChangeToNextPlayer()
 {
 	++mCurrPlayerIndex;
@@ -1224,7 +936,6 @@ void Scene::ChangeToNextPlayer()
 	mPlayer = mPlayers[mCurrPlayerIndex];
 }
 
-
 void Scene::ChangeToPrevPlayer()
 {
 	--mCurrPlayerIndex;
@@ -1234,7 +945,6 @@ void Scene::ChangeToPrevPlayer()
 
 	mPlayer = mPlayers[mCurrPlayerIndex];
 }
-
 
 void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 {
@@ -1297,7 +1007,6 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	mGrids[gridIndex].AddObject(object);
 }
 
-
 void Scene::RemoveObjectFromGrid(GridObject* object)
 {
 	for (const int gridIndex : object->GetGridIndices()) {
@@ -1308,7 +1017,6 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 
 	object->ClearGridIndices();
 }
-
 
 void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 {

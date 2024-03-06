@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ObjectPool.h"
 
-#include "Scene.h"
+#include "DXGIMgr.h"
 #include "Model.h"
 #include "Object.h"
 
@@ -49,7 +49,7 @@ void ObjectPool::Return(InstObject* object)
 
 void ObjectPool::UpdateShaderVars() const
 {
-	scene->SetGraphicsRootShaderResourceView(RootParam::Instancing, mSB_Inst->GetGPUVirtualAddress());
+	dxgi->SetGraphicsRootShaderResourceView(RootParam::Instancing, mSB_Inst->GetGPUVirtualAddress());
 }
 
 void ObjectPool::PushRender(const InstObject* object)

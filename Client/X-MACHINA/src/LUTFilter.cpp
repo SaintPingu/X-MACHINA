@@ -2,7 +2,7 @@
 #include "LUTFilter.h"
 #include "DXGIMgr.h"
 
-#include "Scene.h"
+#include "ResourceMgr.h"
 #include "DescriptorHeap.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -18,17 +18,14 @@ LUTFilter::LUTFilter(UINT width, UINT height, DXGI_FORMAT format)
 
 void LUTFilter::Create()
 {
-	mLUTShader = std::make_unique<LUTShader>();
-	mLUTShader->Create();
-
 	CreateResources();
 	CreateDescriptors();
 }
 
 UINT LUTFilter::Execute(rsptr<Texture> input)
 {
-	mLUTShader->Set();
-	cmdList->SetComputeRootSignature(scene->GetComputeRootSignature().Get());
+	res->Get<Shader>("LUT")->Set();
+	cmdList->SetComputeRootSignature(dxgi->GetComputeRootSignature().Get());
 
 	mElapsedTime += DeltaTime();
 	DWORD filterOption = dxgi->GetFilterOption();
@@ -38,10 +35,10 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	// LUT 텍스처는 BC7 형식으로 압축해야 포토샵 LUT와 최대한 똑같은 색상을 추출할 수 있다.
-	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT0), scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle());
-	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::LUT1), scene->GetTexture("LUT_RGB")->GetGpuDescriptorHandle());
-	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
-	cmdList->SetComputeRootDescriptorTable(scene->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::LUT0), res->Get<Texture>("LUT_RGB")->GetGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::LUT1), res->Get<Texture>("LUT_RGB")->GetGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
+	cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
 
 	UINT numGroupsX = (UINT)ceilf(mWidth / 256.0f);
 	cmdList->Dispatch(numGroupsX, mHeight, 1);
@@ -54,17 +51,15 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 
 void LUTFilter::CreateDescriptors()
 {
-	scene->CreateShaderResourceView(mOutput.get());
-	scene->CreateUnorderedAccessView(mOutput.get());
+	dxgi->CreateShaderResourceView(mOutput.get());
+	dxgi->CreateUnorderedAccessView(mOutput.get());
 }
 
 void LUTFilter::CreateResources()
 {
-	mOutput = std::make_shared<Texture>(D3DResource::Texture2D);
-	mOutput->CreateTexture(
-		mWidth,
-		mHeight,
-		DXGI_FORMAT_R8G8B8A8_UNORM,
-		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+	mOutput = std::make_shared<Texture>();
+	mOutput->Create(mWidth, mHeight, 
+		DXGI_FORMAT_R8G8B8A8_UNORM, 
+		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, 
 		D3D12_RESOURCE_STATE_COMMON);
 }

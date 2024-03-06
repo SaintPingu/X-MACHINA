@@ -73,7 +73,7 @@ void Script_MainCamera::UpdateHeight()
 		LookPlayer();
 	}
 
-	Vec3 camPos        = mObject->GetPosition();
+	Vec3 camPos = mObject->GetPosition();
 	const float height = scene->GetTerrainHeight(camPos.x, camPos.z) + kMinHeight;
 
 	if (camPos.y <= height) {
@@ -92,9 +92,11 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 
 	switch (mode) {
 	case CameraMode::Third:
-		mTimeLag = 0.1f;
-		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));
-		SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
+		mTimeLag = 0.f;
+		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));	// top1
+		SetCameraOffset(Vec3(0.f, 9.f, -3.f));	// top2
+		//SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));	// perspective
+		//SetCameraOffset(Vec3(0.f, 2.2f, 2.f));	// front
 		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
 		break;
 	default:

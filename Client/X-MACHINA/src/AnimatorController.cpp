@@ -10,6 +10,7 @@
 
 AnimatorController::AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer)
 	:
+	Resource(ResourceType::AnimatorController),
 	mParameters(parameters),
 	mBaseLayer(baseLayer)
 {
@@ -19,6 +20,7 @@ AnimatorController::AnimatorController(const Animations::ParamMap& parameters, r
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
+	Resource(ResourceType::AnimatorController),
 	mParameters(other.mParameters),
 	mBaseLayer(std::make_shared<AnimatorLayer>(*other.mBaseLayer))
 {

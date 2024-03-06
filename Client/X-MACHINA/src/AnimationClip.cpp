@@ -4,6 +4,7 @@
 
 AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int transformCnt, const std::string& name)
 	:
+	Resource(ResourceType::AnimationClip),
 	mLength(length),
 	mFrameRate(frameRate),
 	mTransformCnt(transformCnt),

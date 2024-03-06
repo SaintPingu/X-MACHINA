@@ -1,5 +1,9 @@
 #pragma once
 
+#pragma region Include
+#include "Resources.h"
+#pragma endregion
+
 #pragma region ClassForwardDecl
 class Material;
 class Texture;
@@ -68,7 +72,7 @@ struct MeshLoadInfo {
 
 
 #pragma region Class
-class Mesh {
+class Mesh : public Resource {
 protected:
 	UINT mVertexCnt{};
 	ComPtr<ID3D12Resource> mVertexBuffer{};
@@ -106,7 +110,7 @@ protected:
 	static constexpr UINT mOffset = 0;	// StartVertexLocation
 
 public:
-	Mesh()          = default;
+	Mesh() : Resource(ResourceType::Mesh) { }
 	virtual ~Mesh() = default;
 
 public:
@@ -134,11 +138,8 @@ public:
 
 	// isLine => D3D_PRIMITIVE_TOPOLOGY_LINELIST
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
-	void CreateSkyBoxMesh(float width, float height, float depth);
 	void CreatePlaneMesh(float width, float depth, bool isLine = false);
 	void CreateSphereMesh(float radius, int numSegments = 12, bool isLine = false);
-
-	// 화면 전체를 덮는 메쉬
 	void CreateRectangleMesh();
 };
 

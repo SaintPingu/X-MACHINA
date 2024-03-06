@@ -11,7 +11,6 @@
 
 
 #pragma region ClassForwardDecl
-class CanvasShader;
 class Texture;
 class ModelObjectMesh;
 #pragma endregion
@@ -25,8 +24,6 @@ protected:
 	float			mWidth{};
 	float			mHeight{};
 
-	static sptr<ModelObjectMesh> mMesh;		// 2D plane mesh
-
 public:
 	UI() : Transform(this) {}
 	virtual ~UI() = default;
@@ -39,11 +36,6 @@ public:
 	void UpdateShaderVars() const;
 
 	virtual void Render();
-
-	// create [mMesh]
-	static void CreateUIMesh();
-	// delete [mMesh]
-	static void DeleteUIMesh();
 };
 
 
@@ -88,17 +80,12 @@ class Canvas : public Singleton<Canvas> {
 private:
 	std::vector<sptr<UI>>	mUIs{};		// all UIs
 	sptr<MyFont>			mFont{};
-	sptr<CanvasShader>		mShader{};
-
-	std::unordered_map<std::string, sptr<Texture>> mTextureMap{}; // UI folder에서 load한 모든 UI texture 모음
 
 private:
 	Canvas() = default;
 	virtual ~Canvas() = default;
 
 public:
-	rsptr<Texture> GetTexture(const std::string& name) const { return mTextureMap.at(name); }
-
 	void SetScore(int score);
 
 public:
@@ -108,9 +95,5 @@ public:
 
 	void Update();
 	void Render() const;
-
-private:
-	// UI folder의 모든 UI texutre들을 로드한다.
-	void LoadTextures();
 };
 #pragma endregion

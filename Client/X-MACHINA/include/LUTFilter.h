@@ -20,8 +20,6 @@ private:
 
 	sptr<Texture> mOutput{};
 
-	uptr<LUTShader> mLUTShader{};
-
 public:
 #pragma region C/Dtor
 	LUTFilter(UINT width, UINT height, DXGI_FORMAT format);

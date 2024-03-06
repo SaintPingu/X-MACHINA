@@ -38,3 +38,4 @@
 Debug/
 Release/
 Client/X-MACHINA/shaders/cso/
+*.pdb

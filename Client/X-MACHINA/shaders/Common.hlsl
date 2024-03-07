@@ -6,20 +6,21 @@
 #define _WITH_REFLECT
 #define POST_PROCESSING
 
-#define LightType_Spot          0
-#define LightType_Directional   1
-#define LightType_Point         2
-#define gkMaxTextureCount       1024
-#define gkMaxSkyBoxCount        16
-#define gkMaxSceneLight         32
-
-#define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			128
-
-#define Filter_None           0x01
-#define Filter_Blur           0x02
-#define Filter_Tone           0x04
-#define Filter_LUT            0x08
+#define LightType_Spot           0
+#define LightType_Directional    1
+#define LightType_Point          2
+#define gkMaxTextureCount        1024
+#define gkMaxSkyBoxCount         16
+#define gkMaxSceneLight          32
+                                 
+#define MAX_VERTEX_INFLUENCES	 4
+#define SKINNED_ANIMATION_BONES  128
+                                 
+#define Filter_None              0x001
+#define Filter_Blur              0x002
+#define Filter_Tone              0x004
+#define Filter_LUT               0x008
+#define Filter_Ssao              0x010
 
 struct LightInfo
 {
@@ -92,24 +93,25 @@ struct PassInfo {
     
     float       FogStart;
     float       FogRange;
-    int         SkyBoxIndex;
-    int         ShadowIndex;
-    
     int         FilterOption;
     float       ShadowIntensity;
-    float2      Padding;
     
-    int         RT0_PositionIndex;
-    int         RT1_NormalIndex;
-    int         RT2_DiffuseIndex;
-    int         RT3_EmissiveIndex;
+    int         SkyBoxIndex;
+    int         DefaultDsIndex;
+    int         ShadowDsIndex;
+    int         RT0G_PositionIndex;
     
-    int         RT4_MetallicSmoothnessIndex;
-    int         RT5_OcclusionIndex;
+    int         RT1G_NormalIndex;
+    int         RT2G_DiffuseIndex;
+    int         RT3G_EmissiveIndex;
+    int         RT4G_MetallicSmoothnessIndex;
+    
+    int         RT5G_OcclusionIndex;
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
-    
     int         RT2L_AmbientIndex;
+    
+    int         RT0S_SsaoIndex;
 };
 
 struct PostPassInfo {
@@ -125,13 +127,35 @@ struct BoneTransformInfo {
     float4x4 BoneTransforms[SKINNED_ANIMATION_BONES];
 };
 
+struct SsaoInfo {
+    matrix  MtxInvProj;
+    matrix  MtxProjTex;
+    float4  OffsetVectors[14];
+
+    float4  BlurWeights[3];
+    float2  InvRenderTargetSize;
+    
+    float   OcclusionRadius;
+    float   OcclusionFadeStart;
+    float   OcclusionFadeEnd;
+    float   SurfaceEpsilon;
+    
+    int     AccessContrast;
+    int     RandomVectorIndex;
+};
+
+struct SsaoBlurInfo {
+    int     InputMapIndex;
+    int     IsHorzBlur;
+};
+
 struct SB_StandardInst {
-    matrix MtxObject;
+    matrix  MtxObject;
 };
 
 struct SB_ColorInst {
-    matrix MtxObject;
-    float4 Color;
+    matrix  MtxObject;
+    float4  Color;
 };
 
 ConstantBuffer<ObjectInfo> gObjectCB            : register(b0);
@@ -139,6 +163,8 @@ ConstantBuffer<PassInfo> gPassCB                : register(b1);
 ConstantBuffer<PostPassInfo> gPostPassCB        : register(b2);
 ConstantBuffer<ColliderInfo> gColliderCB        : register(b3);
 ConstantBuffer<BoneTransformInfo> gSkinMeshCB   : register(b4);
+ConstantBuffer<SsaoInfo> gSsaoCB                : register(b5);
+ConstantBuffer<SsaoBlurInfo> gSsaoBlurCB        : register(b6);
 
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
@@ -154,6 +180,7 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 SamplerComparisonState gsamShadow : register(s6);
+SamplerState gsamDepthMap         : register(s7);
 
 // 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding(어둡게)하여 출력한다.
 // 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding(밝게)되어 저장된다.
@@ -230,7 +257,7 @@ float ComputeShadowFactor(float4 shadowPosH)
     float depth = shadowPosH.z;
     
     uint width, height, numMips;
-    gTextureMaps[gPassCB.ShadowIndex].GetDimensions(0, width, height, numMips);
+    gTextureMaps[gPassCB.ShadowDsIndex].GetDimensions(0, width, height, numMips);
     
     // 텍셀 사이즈
     float dx = 1.f / (float)width;
@@ -247,7 +274,7 @@ float ComputeShadowFactor(float4 shadowPosH)
     [unroll]
     for(int i = 0; i < 9; ++i)
     {
-        percentLit += gTextureMaps[gPassCB.ShadowIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
+        percentLit += gTextureMaps[gPassCB.ShadowDsIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
     }
     
     return percentLit / 9.f;

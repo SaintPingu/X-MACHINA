@@ -11,7 +11,7 @@
 
 TestCube::TestCube(Vec2 pos) : Transform(this)
 {
-	SetPosition(Vec3(pos.x, scene->GetTerrainHeight(pos.x, pos.y) + mSize, pos.y));
+	SetPosition(Vec3(pos.x, scene->GetTerrainHeight(pos.x, pos.y) + mSize / 2.f, pos.y));
 
 	mMesh = std::make_unique<ModelObjectMesh>();
 	mMesh->CreateCubeMesh(mSize, mSize, mSize, true);

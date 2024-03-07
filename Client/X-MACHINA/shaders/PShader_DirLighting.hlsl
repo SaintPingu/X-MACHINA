@@ -15,7 +15,7 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
 {
     PSOutput_Lighting pout;
     
-    float3 posW = gTextureMaps[gPassCB.RT0_PositionIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
+    float3 posW = gTextureMaps[gPassCB.RT0G_PositionIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
 
     // 카메라 기준 z값이 뒤에 있다면 그리지 않는다.
     float3 posV = mul(float4(posW, 1.f), gPassCB.MtxView);
@@ -24,10 +24,14 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     
     float3 toCameraW = normalize(gPassCB.CameraPos - posW);
     
-    float3 normalW = gTextureMaps[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
-    float4 diffuse = gTextureMaps[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
-    float2 metallicSmoothness = gTextureMaps[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
-    float1 occlusion = gTextureMaps[gPassCB.RT5_OcclusionIndex].Sample(gsamAnisotropicWrap, pin.UV).r;
+    float3 normalW = gTextureMaps[gPassCB.RT1G_NormalIndex].Sample(gsamAnisotropicWrap, pin.UV).xyz;
+    float4 diffuse = gTextureMaps[gPassCB.RT2G_DiffuseIndex].Sample(gsamAnisotropicWrap, pin.UV);
+    float2 metallicSmoothness = gTextureMaps[gPassCB.RT4G_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, pin.UV).xy;
+    float1 occlusion = gTextureMaps[gPassCB.RT5G_OcclusionIndex].Sample(gsamAnisotropicWrap, pin.UV).r;
+    float1 ambientAcess = 1.f;
+    
+    if (gPassCB.FilterOption & Filter_Ssao)
+        ambientAcess = gTextureMaps[gPassCB.RT0S_SsaoIndex].Sample(gsamAnisotropicWrap, pin.UV).r * occlusion;
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallicSmoothness.x);
@@ -47,7 +51,7 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     
     pout.Diffuse = GammaEncoding(float4(lightColor.Diffuse, 0.f));
     pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f)) + float4(reflection, 0.f);
-    pout.Ambient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * occlusion);
+    pout.Ambient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * ambientAcess);
     
     return pout;
 }

@@ -109,7 +109,7 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 	return mRootSignature;
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GraphicsRootSignature::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 8> GraphicsRootSignature::GetStaticSamplers()
 {
 	// 자주 사용되는 샘플러들
 
@@ -170,10 +170,21 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GraphicsRootSignature::GetStati
 		D3D12_COMPARISON_FUNC_LESS_EQUAL,
 		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK);
 
+	const CD3DX12_STATIC_SAMPLER_DESC depthMapSam(
+		7, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
+		0.0f,
+		0,
+		D3D12_COMPARISON_FUNC_LESS_EQUAL,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE);
+
 	return {
 		pointWrap, pointClamp,
 		linearWrap, linearClamp,
-		anisotropicWrap, anisotropicClamp, shadow 
+		anisotropicWrap, anisotropicClamp, shadow, depthMapSam
 	};
 }
 #pragma endregion

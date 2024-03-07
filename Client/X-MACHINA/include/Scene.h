@@ -99,6 +99,7 @@ private:
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
 	void UpdateShadowPassCB();
+	void UpdateSsaoCB();
 	void UpdateMaterialBuffer();
 #pragma endregion
 

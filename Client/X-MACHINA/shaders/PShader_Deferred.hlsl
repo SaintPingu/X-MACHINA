@@ -66,9 +66,9 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         roughness = 1 - metallicMapSample.a;
     }
     
-    //if (occlusionMapIndex != -1)
+    if (occlusionMapIndex != -1)
     {
-        occlusion = GammaDecoding(gTextureMaps[44].Sample(gsamAnisotropicWrap, pin.UV).x);
+        occlusion = GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
     }
     
     float rimWidth = 0.8f;

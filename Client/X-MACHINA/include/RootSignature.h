@@ -54,7 +54,7 @@ public:
 	virtual RComPtr<ID3D12RootSignature> Create() override;
 
 	// 정적 샘플러 생성 함수
-	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 8> GetStaticSamplers();
 };
 
 // for computing

@@ -76,6 +76,11 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.RTVFormats[1]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mGraphicsPipelineStateDesc.RTVFormats[2]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		break;
+	case ShaderType::Ssao:
+		mGraphicsPipelineStateDesc.NumRenderTargets = SsaoCount;
+		mGraphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16_UNORM;
+		mGraphicsPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R16_UNORM;
+		break;
 	default:
 		break;
 	}

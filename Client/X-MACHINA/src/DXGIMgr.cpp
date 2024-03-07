@@ -11,6 +11,7 @@
 #include "MultipleRenderTarget.h"
 #include "BlurFilter.h"
 #include "LUTFilter.h"
+#include "Ssao.h"
 
 #pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
 #include "../Imgui/ImguiMgr.h"
@@ -34,6 +35,7 @@ DXGIMgr::DXGIMgr()
 	//filterOptione |= FilterOption::None;
 	filterOptione |= FilterOption::LUT;
 	filterOptione |= FilterOption::Tone;
+	filterOptione |= FilterOption::Ssao;
 	//filterOptione |= FilterOption::Blur;
 
 	mFilterOption = filterOptione;
@@ -87,6 +89,12 @@ void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT of
 	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, int data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 1U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
 void DXGIMgr::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
 {
 	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
@@ -112,6 +120,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDSV();
 	CreateMRTs();
 	CreateFilter();
+	CreateSsao();
 
 	BuildScene();
 }
@@ -245,11 +254,13 @@ void DXGIMgr::Render()
 	UINT offScreenIndex{};
 
 	if (mFilterOption & FilterOption::None)
-		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
+		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetGpuDescriptorHandleIndex();
 	if (mFilterOption & FilterOption::Blur)
-		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
+		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0), 4);
 	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
-		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
+		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0));
+	if (mFilterOption & FilterOption::Ssao)
+		mSsao->Execute(4);
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
@@ -278,6 +289,7 @@ void DXGIMgr::RenderBegin()
 	mDescriptorHeap->Set();
 
 	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Ssao), frmResMgr->GetSSAOCBGpuAddr());
 	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
@@ -379,8 +391,6 @@ void DXGIMgr::CreateCmdQueueAndList()
 	AssertHResult(hResult);
 	hResult = mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCmdAllocator.Get(), nullptr, IID_PPV_ARGS(&mCmdList));
 	AssertHResult(hResult);
-	hResult = mCmdList->Close();
-	AssertHResult(hResult);
 }
 
 void DXGIMgr::CreateSwapChain()
@@ -431,6 +441,8 @@ void DXGIMgr::CreateGraphicsRootSignature()
 	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
 	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
 	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::Ssao, D3D12_ROOT_PARAMETER_TYPE_CBV, 5, 0, D3D12_SHADER_VISIBILITY_ALL);
+	mGraphicsRootSignature->Push(RootParam::SsaoBlur, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 6, 0, D3D12_SHADER_VISIBILITY_ALL, 2);
 
 	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
 	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
@@ -558,13 +570,28 @@ void DXGIMgr::CreateMRTs()
 
 #pragma region OffScreen
 	{
-		std::vector<RenderTarget> rts(OffScreenCount);
+		std::vector<RenderTarget> rts(1);
 
 		rts[0].Target = res->CreateTexture("OffScreenTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDefaultDs);
+	}
+#pragma endregion
+
+#pragma region SSAO
+	{
+		std::vector<RenderTarget> rts(SsaoCount);
+
+		rts[0].Target = res->CreateTexture("SSAOTarget_0", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{ 1.f });
+
+		rts[1].Target = res->CreateTexture("SSAOTarget_1", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{ 1.f });
+
+		mMRTs[static_cast<UINT8>(GroupType::Ssao)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::Ssao)]->Create(GroupType::Ssao, std::move(rts), nullptr, Vec4{ 1.f });
 	}
 #pragma endregion
 }
@@ -640,6 +667,11 @@ void DXGIMgr::CreateFilter()
 	mLUTFilter->Create();
 }
 
+void DXGIMgr::CreateSsao()
+{
+	mSsao = std::make_unique<Ssao>(mCmdList.Get());
+}
+
 void DXGIMgr::WaitForGpuComplete()
 {
 	UINT64 fenceValue = ++mFenceValues;
@@ -663,9 +695,6 @@ void DXGIMgr::MoveToNextFrame()
 
 void DXGIMgr::BuildScene()
 {
-	// 처음 빌드할때는 프레임 리소스의 명령 할당자가 아니어야 한다.
-	mCmdList->Reset(mCmdAllocator.Get(), nullptr);
-
 	scene->BuildObjects();
 
 	mCmdList->Close();

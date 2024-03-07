@@ -36,8 +36,8 @@ class Camera : public Component {
 	COMPONENT(Camera, Component)
 
 private:
-	Vec4x4 mViewTransform = Matrix4x4::Identity();
-	Vec4x4 mProjTransform = Matrix4x4::Identity();
+	Matrix mViewTransform = Matrix4x4::Identity();
+	Matrix mProjTransform = Matrix4x4::Identity();
 
 	Vec3 mOffset{};
 
@@ -50,8 +50,8 @@ private:
 public:
 	Vec3 GetOffset() const { return mOffset; }
 	Vec3 GetPosition() const { return mObject->GetPosition(); }
-	const Vec4x4& GetViewMtx() const { return mViewTransform; }
-	const Vec4x4& GetProjMtx() const { return mProjTransform; }
+	const Matrix& GetViewMtx() const { return mViewTransform; }
+	const Matrix& GetProjMtx() const { return mProjTransform; }
 
 	void SetOffset(const Vec3& offset) { mOffset = offset; }
 

@@ -442,7 +442,44 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("SkyBox", shader);
 	}
 #pragma endregion
+#pragma region SSAO
+	{
+		ShaderInfo info = {
+			ShaderType::Ssao,
+			RasterizerType::Cull_None,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
 
+		ShaderPath path = {
+			 L"VShader_Ssao.cso",
+			 L"PShader_Ssao.cso",
+			 L""
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Ssao", shader);
+	}
+#pragma endregion
+#pragma region SSAOBlur
+	{
+		ShaderInfo info = {
+			ShaderType::Ssao,
+			RasterizerType::Cull_None,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 L"VShader_Ssao.cso",
+			 L"PShader_SsaoBlur.cso",
+			 L""
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("SsaoBlur", shader);
+	}
+#pragma endregion
 // ComputeShader
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region HorzBlur

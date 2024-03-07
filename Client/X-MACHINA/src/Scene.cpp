@@ -27,6 +27,7 @@
 #include "Script_Sprite.h"
 
 #include "TestCube.h"
+#include "Ssao.h"
 #pragma endregion
 
 
@@ -93,6 +94,7 @@ void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
 	UpdateShadowPassCB();
+	UpdateSsaoCB();
 	UpdateMaterialBuffer();
 }
 
@@ -101,43 +103,81 @@ void Scene::UpdateMainPassCB()
 	static float timeElapsed{};
 	timeElapsed += DeltaTime();
 
-	PassConstants passConstants;
-	passConstants.MtxView						= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
-	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
-	passConstants.MtxShadow						= mLight->GetShadowMtx().Transpose();
-	passConstants.EyeW							= mainCamera->GetPosition();
-	passConstants.DeltaTime						= DeltaTime();
-	passConstants.TotalTime						= timeElapsed;
-	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
-	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
-	passConstants.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
-	passConstants.ShadowIndex					= res->Get<Texture>("ShadowDepthStencil")->GetGpuDescriptorHandleIndex();
-	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT4G_MetallicSmoothnessIndex  = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT0L_DiffuseIndex				= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT2L_AmbientIndex				= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.LightCount					= mLight->GetLightCount();
-	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
-	passConstants.FilterOption					= dxgi->GetFilterOption();
-	passConstants.ShadowIntensity				= 0.1f;
-	passConstants.FogColor						= Colors::Gray;
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passConstants.Lights));
+	PassConstants passCB;
+	passCB.MtxView						= mainCamera->GetViewMtx().Transpose();
+	passCB.MtxProj						= mainCamera->GetProjMtx().Transpose();
+	passCB.MtxShadow					= mLight->GetShadowMtx().Transpose();
+	passCB.EyeW							= mainCamera->GetPosition();
+	passCB.DeltaTime					= DeltaTime();
+	passCB.TotalTime					= timeElapsed;
+	passCB.FrameBufferWidth				= gkFrameBufferWidth;
+	passCB.FrameBufferHeight			= gkFrameBufferHeight;
+	passCB.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
+	passCB.DefaultDsIndex				= res->Get<Texture>("DefaultDepthStencil")->GetGpuDescriptorHandleIndex();
+	passCB.ShadowDsIndex				= res->Get<Texture>("ShadowDepthStencil")->GetGpuDescriptorHandleIndex();
+	passCB.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT2G_DiffuseIndex			= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT4G_MetallicSmoothnessIndex = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT0L_DiffuseIndex			= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT2L_AmbientIndex			= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();
+	passCB.RT0S_SsaoIndex				= res->Get<Texture>("SSAOTarget_0")->GetGpuDescriptorHandleIndex();
+	passCB.LightCount					= mLight->GetLightCount();
+	passCB.GlobalAmbient				= Vec4(0.4f, 0.4f, 0.4f, 1.f);
+	passCB.FilterOption					= dxgi->GetFilterOption();
+	passCB.ShadowIntensity				= 0.0f;
+	passCB.FogColor						= Colors::Gray;
+	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
 	
-	frmResMgr->CopyData(0, passConstants);
+	frmResMgr->CopyData(0, passCB);
 }
 
 void Scene::UpdateShadowPassCB()
 {
-	PassConstants passConstants;
-	passConstants.MtxView = mLight->GetLightViewMtx().Transpose();
-	passConstants.MtxProj = mLight->GetLightProjMtx().Transpose();
+	PassConstants passCB;
+	passCB.MtxView = mLight->GetLightViewMtx().Transpose();
+	passCB.MtxProj = mLight->GetLightProjMtx().Transpose();
 
-	frmResMgr->CopyData(1, passConstants);
+	frmResMgr->CopyData(1, passCB);
+}
+
+void Scene::UpdateSsaoCB()
+{
+	SsaoConstants ssaoCB;
+
+	Matrix mtxProj = mainCamera->GetProjMtx();
+	Matrix mtxTex = {
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f };
+
+	ssaoCB.MtxInvProj = mainCamera->GetProjMtx().Invert().Transpose();
+	ssaoCB.MtxProjTex = (mtxProj * mtxTex).Transpose();
+	dxgi->GetSsao()->GetOffsetVectors(ssaoCB.OffsetVectors);
+	
+	// for Blur 
+	auto blurWeights = Filter::CalcGaussWeights(2.5f);
+	ssaoCB.BlurWeights[0] = Vec4(&blurWeights[0]);
+	ssaoCB.BlurWeights[1] = Vec4(&blurWeights[4]);
+	ssaoCB.BlurWeights[2] = Vec4(&blurWeights[8]);
+
+	auto ssaoTarget = res->Get<Texture>("SSAOTarget_0");
+	ssaoCB.InvRenderTargetSize = Vec2{ 1.f / ssaoTarget->GetWidth(), 1.f / ssaoTarget->GetHeight() };
+
+	// coordinates given in view space.
+	ssaoCB.OcclusionRadius = 0.5f;
+	ssaoCB.OcclusionFadeStart = 0.2f;
+	ssaoCB.OcclusionFadeEnd = 1.0f;
+	ssaoCB.SurfaceEpsilon = 0.05f;
+	ssaoCB.AccessContrast = 12;
+
+	ssaoCB.RandomVectorIndex = res->Get<Texture>("RandomVector")->GetGpuDescriptorHandleIndex();
+
+	frmResMgr->CopyData(ssaoCB);
 }
 
 void Scene::UpdateMaterialBuffer()

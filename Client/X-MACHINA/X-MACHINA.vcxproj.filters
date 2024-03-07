@@ -292,6 +292,9 @@
     <ClCompile Include="src\SimpleMath.cpp">
       <Filter>소스 파일\Library</Filter>
     </ClCompile>
+    <ClCompile Include="src\Ssao.cpp">
+      <Filter>소스 파일\PostProcessing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -495,6 +498,9 @@
     <ClInclude Include="include\SimpleMath.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Ssao.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\VShader_Billboard.hlsl">
@@ -598,6 +604,15 @@
     </FxCompile>
     <FxCompile Include="shaders\VShader_Shadow_SkinnedMesh.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Ssao.hlsl">
+      <Filter>소스 파일\Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Ssao.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_SsaoBlur.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

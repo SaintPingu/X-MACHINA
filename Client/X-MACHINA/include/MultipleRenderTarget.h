@@ -10,7 +10,6 @@ struct PassConstants;
 struct RenderTarget {
 	sptr<Texture>				Target{};
 	std::array<float, 4>		ClearColor{ 0.f, 0.f, 0.f, 0.f };
-	D3D12_CPU_DESCRIPTOR_HANDLE	RtvHandle{};
 };
 #pragma endregion
 
@@ -30,7 +29,7 @@ private:
 	std::vector<RenderTarget> mRts{};
 
 	ComPtr<ID3D12DescriptorHeap>	mRtvHeap{};							// RTV 힙
-	D3D12_CPU_DESCRIPTOR_HANDLE		mDsvHeapBegin{};
+	sptr<Texture>					mTextureDs{};						// 깊이 스텐실 텍스처
 	D3D12_CPU_DESCRIPTOR_HANDLE		mRtvHeapBegin{};					// RTV 핸들(시작 주소)
 
 	std::array<D3D12_RESOURCE_BARRIER, mMaxRtCnt> mTargetToResource{};	// 렌더 타겟에서 리소스로
@@ -49,12 +48,10 @@ public:
 	{
 		return mRts[static_cast<UINT8>(index)].Target;
 	}
-	//rsptr<Texture> GetTexture(GBuffer index) const;
-	//rsptr<Texture> GetTexture(OffScreen index) const;
 #pragma endregion
 
 public:
-	void Create(GroupType groupType, std::vector<RenderTarget>&& rts, sptr<Texture> dsvHandle);
+	void Create(GroupType groupType, std::vector<RenderTarget>&& rts, sptr<Texture> dsvHandle, Vec4 clearValue = Vec4{ 0.f });
 
 	// set render targets
 	void OMSetRenderTargets();

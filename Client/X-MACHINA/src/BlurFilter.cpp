@@ -37,7 +37,7 @@ void BlurFilter::OnResize(UINT width, UINT height)
 UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 {
 	// 총 가중치 개수는 홀수이어야 중앙을 기준으로 할 수 있다.
-	auto weights = CalculateGaussWeights(mSigma);
+	auto weights = Filter::CalcGaussWeights(mSigma);
 	int blurRadius = (int)weights.size() / 2;
 
 	// 컴퓨트 루트 시그니처 연결
@@ -81,34 +81,6 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 	return input->GetGpuDescriptorHandleIndex();
-}
-
-std::vector<float> BlurFilter::CalculateGaussWeights(float sigma)
-{
-	float twoSigma2 = 2.f * sigma * sigma;
-
-	int blurRadius = (int)ceil(2.f * sigma);
-
-	assert(blurRadius <= mMaxBlurRadius);
-
-	std::vector<float> weights;
-	weights.resize(2 * blurRadius + 1);
-
-	float weightSum = 0.f;
-
-	for (int i = -blurRadius; i <= blurRadius; ++i) {
-		float x = (float)i;
-
-		weights[i + blurRadius] = expf(-x * x / twoSigma2);
-
-		weightSum += weights[i + blurRadius];
-	}
-
-	for (int i = 0; i < weights.size(); ++i) {
-		weights[i] /= weightSum;
-	}
-
-	return weights;
 }
 
 void BlurFilter::CreateDescriptors()

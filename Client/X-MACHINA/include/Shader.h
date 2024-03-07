@@ -11,6 +11,7 @@ enum class ShaderType : UINT8 {
 	Shadow,
 	Deferred,
 	Lighting,
+	Ssao,
 	Compute,
 };
 

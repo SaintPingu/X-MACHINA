@@ -239,6 +239,8 @@ enum class RootParam {
 	Pass,
 	SkinMesh,
 	PostPass,
+	Ssao,
+	SsaoBlur,
 	Instancing,
 	Material,
 	SkyBox,
@@ -289,12 +291,13 @@ enum class Lighting : UINT8 {
 };
 enum { LightingCount = static_cast<UINT8>(Lighting::_count) };
 
-enum class OffScreen : UINT8 {
-	Texture = 0,
+enum class SsaoMap : UINT8 {
+	Ssao0 = 0,
+	Ssao1,
 
 	_count
 };
-enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
+enum { SsaoCount = static_cast<UINT8>(SsaoMap::_count) };
 
 enum class GroupType : UINT8 {
 	SwapChain = 0,
@@ -302,6 +305,7 @@ enum class GroupType : UINT8 {
 	GBuffer,
 	Lighting,
 	OffScreen,
+	Ssao,
 
 	_count
 };
@@ -508,7 +512,7 @@ namespace Math {
 	inline bool IsEqual(float a, float b) { return Math::IsZero(a - b); }
 	inline float InverseSqrt(float f) { return 1.f / sqrtf(f); }
 
-	inline float RandF(float min, float max)
+	inline float RandF(float min = 0.f, float max = 1.f)
 	{
 		return min + ((float)rand() / (float)RAND_MAX) * (max - min);
 	}
@@ -1139,7 +1143,42 @@ namespace XMMatrix
 		::memcpy(&matrix.m[3], &p, sizeof(Vector));
 	}
 }
-	#pragma endregion
+#pragma endregion
+
+namespace Filter
+{
+	static constexpr UINT mMaxBlurRadius = 5;
+
+	inline std::vector<float> CalcGaussWeights(float sigma)
+	{
+		float twoSigma2 = 2.0f * sigma * sigma;
+
+		int blurRadius = (int)ceil(2.0f * sigma);
+
+		assert(blurRadius <= mMaxBlurRadius);
+
+		std::vector<float> weights;
+		weights.resize(2 * blurRadius + 1);
+
+		float weightSum = 0.0f;
+
+		for (int i = -blurRadius; i <= blurRadius; ++i)
+		{
+			float x = (float)i;
+
+			weights[i + blurRadius] = expf(-x * x / twoSigma2);
+
+			weightSum += weights[i + blurRadius];
+		}
+
+		for (int i = 0; i < weights.size(); ++i)
+		{
+			weights[i] /= weightSum;
+		}
+
+		return weights;
+	}
+}
 #pragma endregion
 
 

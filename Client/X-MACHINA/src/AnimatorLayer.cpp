@@ -106,6 +106,11 @@ void AnimatorLayer::Animate()
 void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 {
 	const auto& nextState = mRootStateMachine->CheckTransition(controller);
+	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
+	if (it != mNextStates.end()) {
+		return;
+	}
+
 	if (nextState == mCrntState) {
 		if (mNextStates.empty()) {
 			return;

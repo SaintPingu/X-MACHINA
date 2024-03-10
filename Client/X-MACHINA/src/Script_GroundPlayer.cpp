@@ -6,6 +6,7 @@
 #include "InputMgr.h"
 #include "Rigidbody.h"
 #include "Weapon.h"
+#include "Timer.h"
 
 #include "Animator.h"
 #include "AnimatorController.h"
@@ -72,16 +73,14 @@ void Script_GroundPlayer::Update()
 {
 	base::Update();
 
-
+	base::ProcessInput();
+	ProcessInput();
 }
 
 
 void Script_GroundPlayer::LateUpdate()
 {
 	base::LateUpdate();
-
-	base::ProcessInput();
-	ProcessInput();
 
 	Vec3 pos = mObject->GetPosition();
 	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
@@ -93,9 +92,47 @@ void Script_GroundPlayer::LateUpdate()
 }
 
 
+void Script_GroundPlayer::UpdateParams()
+{
+	constexpr float speed = 4.f;
+	constexpr float oppositeExtraSpeed = 10.f;
+
+	int signV = Math::Sign(v);
+	if (Math::IsZero(v)) {
+		signV = -Math::Sign(paramV);
+	}
+	float beforeV = paramV;
+
+	paramV += (speed * signV) * DeltaTime();
+	if (fabs(paramV) < 0.01f) {
+		paramV = 0.f;
+	}
+	else if (!Math::IsZero(v) && fabs(paramV) < 0.5f && (fabs(beforeV) > fabs(paramV))) {
+		paramV += (signV * speed) * DeltaTime() * oppositeExtraSpeed;
+	}
+	paramV = std::clamp(paramV, -1.f, 1.f);
+
+	int signH = Math::Sign(h);
+	if (Math::IsZero(h)) {
+		signH = -Math::Sign(paramH);
+	}
+	float beforeH = paramH;
+	paramH += (signH * speed) * DeltaTime();
+
+	if (fabs(paramH) < 0.01f) {
+		paramH = 0.f;
+	}
+	else if (!Math::IsZero(h) && fabs(paramH) < 0.5f && (fabs(beforeH) > fabs(paramH))) {
+		paramH += (signH * speed) * DeltaTime() * oppositeExtraSpeed;
+	}
+	paramH = std::clamp(paramH, -1.f, 1.f);
+}
+
+
 void Script_GroundPlayer::ProcessInput()
 {
-	float v{}, h{};
+	v = 0, h = 0;
+
 	DWORD dwDirection = 0;
 	DWORD rotationDir = 0;
 	if (KEY_PRESSED('W')) { dwDirection |= Dir::Front; v += 1; }
@@ -110,16 +147,15 @@ void Script_GroundPlayer::ProcessInput()
 		Vec3 velocity = mRigid->GetVelocity();
 		const auto& controller = mAnimator->GetController();
 		if (controller) {
+			UpdateParams();
 			if (Vector3::Length(velocity) > 0.1f) {
 				controller->SetValue("Walk", true);
-				controller->SetValue("Vertical", v);
-				controller->SetValue("Horizontal", h);
 			}
 			else {
 				controller->SetValue("Walk", false);
-				controller->SetValue("Vertical", 0.f);
-				controller->SetValue("Horizontal", 0.f);
 			}
+			controller->SetValue("Vertical", paramV);
+			controller->SetValue("Horizontal", paramH);
 		}
 	}
 

@@ -634,6 +634,18 @@ namespace Vector2 {
 		return Vector2::Length(Vector2::Add(v1, v2));
 	}
 
+	inline float LengthExact(const Vec2& vector)
+	{
+		Vec2 result;
+		XMStoreFloat2(&result, XMVector2Length(_VECTOR2(vector)));
+		return result.x;
+	}
+
+	inline float LengthExact(const Vec2& v1, const Vec2& v2)
+	{
+		return Vector2::LengthExact(Vector2::Add(v1, v2));
+	}
+
 	inline Vec2 Normalize(const Vec2& vector) noexcept
 	{
 		Vec2 result;

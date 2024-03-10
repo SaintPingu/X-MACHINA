@@ -144,6 +144,9 @@ class Script_GroundPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
 
 private:
+	float v{}, h{};
+	float paramV{}, paramH{};
+
 	sptr<Animator> mAnimator{};
 
 	float mRotationSpeed{};
@@ -160,6 +163,7 @@ public:
 	virtual void OnCollisionStay(Object& other) override;
 
 public:
+	void UpdateParams();
 	virtual void ProcessInput() override;
 
 	virtual void FireBullet() override;

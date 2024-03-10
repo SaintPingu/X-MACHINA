@@ -50,15 +50,13 @@ void AnimatorMotion::Reset()
 	mCrntLength = 0.f;
 	mWeight     = 1.f;
 	mSpeed      = 1.f;
-	if (IsReverse()) {
-		Reverse();
-	}
+	mIsReverse  = 1;
 }
 
 
 bool AnimatorMotion::IsEndAnimation() const
 {
-	return (mCrntLength > mMaxLength) || (mCrntLength <= 0);
+	return (mCrntLength >= mMaxLength) || (mCrntLength <= 0);
 }
 
 bool AnimatorMotion::IsSameStateMachine(rsptr<const AnimatorMotion> other) const
@@ -170,16 +168,33 @@ void BlendTree::CalculateWeights() const
 	std::vector<float> weights(mMotions.size());
 	float totalWight{};
 
+	bool onlyOne = false;
 	Vec2 position{-x->val.f, -y->val.f};
 	for (size_t i = 0; i < mMotions.size(); ++i) {
-		float distance = Vector2::Length(position, mMotions[i]->GetPosition());
+		float distance = Vector2::LengthExact(position, mMotions[i]->GetPosition());
 		weights[i] += max(0, 1 - distance);
 		totalWight += weights[i];
+
+		if (weights[i] > 0.9f) {
+			onlyOne = true;
+		}
+	}
+
+	if (onlyOne) {
+		for (size_t i = 0; i < mMotions.size(); ++i) {
+			if (weights[i] > 0.9f) {
+				mMotions[i]->SetWeight(1.f);
+			}
+			else {
+				mMotions[i]->SetWeight(0.f);
+			}
+		}
+		return;
 	}
 
 	for (size_t i = 0; i < mMotions.size(); ++i) {
 		float weight = weights[i] / totalWight;
-		if (weight < 0.01f) {
+		if (weight < 0.00001f) {
 			weight = 0.f;
 		}
 

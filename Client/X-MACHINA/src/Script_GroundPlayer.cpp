@@ -94,38 +94,8 @@ void Script_GroundPlayer::LateUpdate()
 
 void Script_GroundPlayer::UpdateParams()
 {
-	constexpr float speed = 4.f;
-	constexpr float oppositeExtraSpeed = 10.f;
-
-	int signV = Math::Sign(v);
-	if (Math::IsZero(v)) {
-		signV = -Math::Sign(paramV);
-	}
-	float beforeV = paramV;
-
-	paramV += (speed * signV) * DeltaTime();
-	if (fabs(paramV) < 0.01f) {
-		paramV = 0.f;
-	}
-	else if (!Math::IsZero(v) && fabs(paramV) < 0.5f && (fabs(beforeV) > fabs(paramV))) {
-		paramV += (signV * speed) * DeltaTime() * oppositeExtraSpeed;
-	}
-	paramV = std::clamp(paramV, -1.f, 1.f);
-
-	int signH = Math::Sign(h);
-	if (Math::IsZero(h)) {
-		signH = -Math::Sign(paramH);
-	}
-	float beforeH = paramH;
-	paramH += (signH * speed) * DeltaTime();
-
-	if (fabs(paramH) < 0.01f) {
-		paramH = 0.f;
-	}
-	else if (!Math::IsZero(h) && fabs(paramH) < 0.5f && (fabs(beforeH) > fabs(paramH))) {
-		paramH += (signH * speed) * DeltaTime() * oppositeExtraSpeed;
-	}
-	paramH = std::clamp(paramH, -1.f, 1.f);
+	UpdateParam(v, paramV);
+	UpdateParam(h, paramH);
 }
 
 
@@ -205,35 +175,6 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 	}
 }
 
-void Script_GroundPlayer::SetWeapon(int weaponIdx)
-{
-	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
-
-	if (weaponIdx == 0) {
-		animator->GetController()->SetValue("Weapon", 0);
-		if (mWeapon) {
-			mWeapon->Disable();
-			mWeapon = nullptr;
-		}
-		return;
-	}
-
-	if (mWeapon) {
-		if (mWeapon == mWeapons[weaponIdx - 1]) {
-			return;
-		}
-		else {
-			mWeapon->Disable();
-		}
-	}
-	
-	mWeapon = mWeapons[weaponIdx - 1];
-	if (mWeapon) {
-		mWeapon->Enable();
-		animator->GetController()->SetValue("Weapon", weaponIdx);
-	}
-}
-
 void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (messageID) {
@@ -302,4 +243,59 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 	default:
 		break;
 	}
+}
+
+
+
+void Script_GroundPlayer::SetWeapon(int weaponIdx)
+{
+	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
+
+	if (weaponIdx == 0) {
+		animator->GetController()->SetValue("Weapon", 0);
+		if (mWeapon) {
+			mWeapon->Disable();
+			mWeapon = nullptr;
+		}
+		return;
+	}
+
+	if (mWeapon) {
+		if (mWeapon == mWeapons[weaponIdx - 1]) {
+			return;
+		}
+		else {
+			mWeapon->Disable();
+		}
+	}
+
+	mWeapon = mWeapons[weaponIdx - 1];
+	if (mWeapon) {
+		mWeapon->Enable();
+		animator->GetController()->SetValue("Weapon", weaponIdx);
+	}
+}
+
+
+
+void Script_GroundPlayer::UpdateParam(int val, float& param)
+{
+	constexpr float speed = 4.f;				// 파라미터 전환 속도
+	constexpr float oppositeExtraSpeed = 20.f;	// 반대편 이동 시 추가 이동 전환 속도
+
+	int sign = Math::Sign(val);					// sign : 파라미터 이동 방향 = 현재 입력값의 부호
+	if (Math::IsZero(val)) {					//		  입력이 없다면 현재 파라미터의 반대 부호
+		sign = -Math::Sign(param);
+	}
+	float before = param;
+	param += (speed * sign) * DeltaTime();		// 파라미터값 증감
+
+	if (fabs(param) < 0.01f) {					// 0에 근접하면 0으로 설정
+		param = 0.f;
+	}
+	else if (!Math::IsZero(val) && fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// 반대편 이동 시
+		param += (sign * oppositeExtraSpeed) * DeltaTime();									// 추가 전환 속도 적용
+	}
+
+	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 사이로 고정
 }

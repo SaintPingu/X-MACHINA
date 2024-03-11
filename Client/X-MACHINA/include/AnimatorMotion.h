@@ -84,6 +84,7 @@ public:
 
 
 
+// BlendTree에서 사용하는 하위 Motion
 class ChildMotion : public AnimatorTrack {
 private:
 	float	mCrntLength = 0.f;
@@ -106,6 +107,7 @@ public:
 };
 
 
+// 여러 Motion을 블렌딩하여 재생한다.
 class BlendTree : public AnimatorMotion {
 	using base = AnimatorMotion;
 

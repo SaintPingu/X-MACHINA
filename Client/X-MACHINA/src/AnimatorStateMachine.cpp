@@ -3,7 +3,7 @@
 
 #include "AnimatorController.h"
 #include "AnimatorLayer.h"
-#include "AnimatorState.h"
+#include "AnimatorMotion.h"
 
 #pragma region AnimatorTransition
 std::string AnimatorTransition::CheckTransition(const AnimatorController* controller) const

@@ -4,7 +4,7 @@
 #include "Timer.h"
 #include "AnimationClip.h"
 #include "AnimatorController.h"
-#include "AnimatorState.h"
+#include "AnimatorMotion.h"
 #include "AnimatorStateMachine.h"
 
 

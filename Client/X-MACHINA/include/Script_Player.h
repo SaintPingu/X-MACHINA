@@ -175,6 +175,7 @@ public:
 
 private:
 	void SetWeapon(int weaponIdx);
+	void UpdateParam(int val, float& param);
 };
 
 #pragma endregion

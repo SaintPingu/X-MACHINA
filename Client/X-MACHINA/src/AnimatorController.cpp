@@ -2,7 +2,7 @@
 #include "AnimatorController.h"
 
 #include "Animator.h"
-#include "AnimatorState.h"
+#include "AnimatorMotion.h"
 #include "AnimatorLayer.h"
 #include "AnimationClip.h"
 #include "Scene.h"

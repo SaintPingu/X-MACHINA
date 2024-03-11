@@ -10,7 +10,7 @@
 #include "Texture.h"
 #include "Animator.h"
 #include "AnimationClip.h"
-#include "AnimatorState.h"
+#include "AnimatorMotion.h"
 #include "AnimatorStateMachine.h"
 #include "AnimatorController.h"
 #include "AnimatorLayer.h"

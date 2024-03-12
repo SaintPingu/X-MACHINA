@@ -13,6 +13,7 @@ void ResourceMgr::LoadResources()
 {
 	LoadTextures();
 	LoadRectangleMesh();
+	LoadPointMesh();
 	LoadModels();
 	LoadShaders();
 	LoadAnimationClips();
@@ -51,6 +52,18 @@ sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()
 	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
 	mesh->CreateRectangleMesh();
 	Add<ModelObjectMesh>("Rect", mesh);
+	return mesh;
+}
+
+sptr<ModelObjectMesh> ResourceMgr::LoadPointMesh()
+{
+	sptr<ModelObjectMesh> findMesh = Get<ModelObjectMesh>("Point");
+	if (findMesh)
+		return findMesh;
+
+	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
+	mesh->CreatePointMesh();
+	Add<ModelObjectMesh>("Point", mesh);
 	return mesh;
 }
 

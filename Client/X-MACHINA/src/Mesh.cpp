@@ -458,6 +458,27 @@ void ModelObjectMesh::CreateRectangleMesh()
 	CreateVertexBufferViews();
 	CreateIndexBufferView(indices);
 }
+
+void ModelObjectMesh::CreatePointMesh()
+{
+	mVertexCnt = 1;
+	mIndexCnt = 1;
+
+	std::vector<Vec3> vertices(mVertexCnt);
+	vertices[0] = Vec3(0, 0, 0);
+
+	std::vector<Vec2> uvs(mVertexCnt);
+	uvs[0] = Vec2(0.5f, 0.5f);
+
+	std::vector<UINT> indices(mIndexCnt);
+	indices[0] = 0;
+
+	D3DUtil::CreateVertexBufferResource(uvs, mUV0UploadBuffer, mUV0Buffer);
+	D3DUtil::CreateVertexBufferResource(vertices, mVertexUploadBuffer, mVertexBuffer);
+
+	CreateVertexBufferViews();
+	CreateIndexBufferView(indices);
+}
 #pragma endregion
 
 

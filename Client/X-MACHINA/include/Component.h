@@ -39,6 +39,7 @@ enum class ComponentID {	// except abstract component
 	ObjectCollider,
 	Camera,
 	Rigidbody,
+	ParticleSystem,
 
 	/* scripts */
 	Script_Apache,

@@ -295,6 +295,9 @@
     <ClCompile Include="src\Ssao.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
+    <ClCompile Include="src\ParticleSystem.cpp">
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -499,6 +502,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Ssao.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ParticleSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

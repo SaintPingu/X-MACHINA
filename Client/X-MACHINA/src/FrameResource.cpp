@@ -10,18 +10,18 @@ MaterialData::MaterialData()
 #pragma endregion
 
 #pragma region FrameResource
-FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int skinBoneCount, int materialCount)
+FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, BufferTypeCount>& bufferCounts)
 {
 	THROW_IF_FAILED(pDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(CmdAllocator.GetAddressOf())));
 
-	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, passCount, true);
-	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, objectCount, true);
-	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, skinBoneCount, true);
-	PostPassCB = std::make_unique<UploadBuffer<PostPassConstants>>(pDevice, 1, true);
-	SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(pDevice, 1, true);
-	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, materialCount, false);
+	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Pass)], true);
+	PostPassCB = std::make_unique<UploadBuffer<PostPassConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::PostPass)], true);
+	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Object)], true);
+	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::SkinMesh)], true);
+	SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Ssao)], true);
+	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, bufferCounts[static_cast<int>(BufferType::Material)], false);
 }
 #pragma endregion
 
@@ -30,30 +30,20 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int objectCou
 FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence),
-	mFrameResourceCount(3),
-	mPassCount(2),
-	mObjectCount(2000),
-	mSkinBoneCount(mObjectCount * gkSkinBoneSize),	// 임시, Object 개수 * SkinBone 최대크기(128)
-	mMaterialCount(500)
+	mFrameResourceCount(3)
 {
-	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
-	for (int i = 0; i < mPassCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::Pass)].push(i);
-	}
+	mBufferCounts[static_cast<int>(BufferType::Pass)]			= 2;
+	mBufferCounts[static_cast<int>(BufferType::PostPass)]		= 1;
+	mBufferCounts[static_cast<int>(BufferType::Object)]			= 2000;
+	mBufferCounts[static_cast<int>(BufferType::SkinMesh)]		= 100;
+	mBufferCounts[static_cast<int>(BufferType::Ssao)]			= 1;
+	mBufferCounts[static_cast<int>(BufferType::Material)]		= 500;
+	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 100;
 
-	mActiveIndices[static_cast<int>(BufferType::Object)].reserve(mObjectCount);
-	for (int i = 0; i < mObjectCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::Object)].push(i);
-	}
-
-	mActiveIndices[static_cast<int>(BufferType::SkinMesh)].reserve(mSkinBoneCount);
-	for (int i = 0; i < mSkinBoneCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::SkinMesh)].push(i);
-	}
-
-	mActiveIndices[static_cast<int>(BufferType::Material)].reserve(mMaterialCount);
-	for (int i = 0; i < mMaterialCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::Material)].push(i);
+	for (int bufferType = 0; bufferType < BufferTypeCount; ++bufferType) {
+		for (int index = 0; index < mBufferCounts[bufferType]; ++index) {
+			mAvailableIndices[bufferType].push(index);
+		}
 	}
 }
 
@@ -97,7 +87,7 @@ void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
 	for (int i = 0; i < mFrameResourceCount; ++i) {
-		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mObjectCount, mSkinBoneCount, mMaterialCount));
+		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mBufferCounts));
 	}
 
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();

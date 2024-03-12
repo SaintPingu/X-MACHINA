@@ -21,15 +21,6 @@ constexpr float gkAspectRatio = (float(gkFrameBufferWidth) / float(gkFrameBuffer
 #pragma endregion
 
 
-#pragma region Struct
-struct CB_CameraInfo {
-	Vec4x4 View{};			// View 행렬
-	Vec4x4 Projection{};	// Projection 행렬
-	Vec3   Position{};		// 카메라 위치
-};
-#pragma endregion
-
-
 #pragma region Class
 
 class Camera : public Component {

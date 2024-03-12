@@ -9,8 +9,11 @@ enum class BufferType : UINT {
     Pass = 0,
     PostPass,
     Object,
-    Material,
     SkinMesh,
+    Ssao,
+    Material,
+    ParticleSystem,
+    
     _count
 };
 
@@ -81,11 +84,9 @@ struct SsaoConstants {
     Matrix  MtxProjTex{};
     Vec4    OffsetVectors[14];
 
-    // for SSAOBlur.hlsl
     Vec4    BlurWeights[3];
     Vec2    InvRenderTargetSize = { 0.f, 0.f };
     
-    // coordinates given in view space
     float   OcclusionRadius     = 0.5f;
     float   OcclusionFadeStart  = 0.2f;
     float   OcclusionFadeEnd    = 2.f;
@@ -120,11 +121,12 @@ public:
     uptr<UploadBuffer<SkinnedConstants>>    SkinMeshCB{};       // 스킨메쉬 상수 버퍼
     uptr<UploadBuffer<SsaoConstants>>       SsaoCB{};           // SSAO 상수 버퍼
 
-    uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};   // 머티리얼 버퍼
+    uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};       // 머티리얼 버퍼
+    uptr<UploadBuffer<ParticleSystemData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
 
 public:
 #pragma region C/Dtor
-    FrameResource(ID3D12Device* pDevice, int passCount, int objectCount, int skinBoneCount, int materialCount);
+    FrameResource(ID3D12Device* pDevice, const std::array<int, BufferTypeCount>& bufferCounts);
     ~FrameResource() = default;
 #pragma endregion
 };
@@ -133,18 +135,16 @@ public:
 class FrameResourceMgr {
 private:
     int mFrameResourceCount;
-    int mPassCount;
-    int mObjectCount;
-    int mSkinBoneCount;
-    int mMaterialCount;
 
-    ID3D12Fence*                                mFence{};
-    std::vector<uptr<FrameResource>>			mFrameResources{};
-    FrameResource*                              mCurrFrameResource{};       // 현재 프레임 리소스
-    int											mCurrFrameResourceIndex{};	// 현재 프레임 인덱스
+    std::array<int, BufferTypeCount> mBufferCounts;
 
-    std::array<std::unordered_set<int>, BufferTypeCount>   mActiveIndices{};       // 사용중인 인덱스 집합
-    std::array<std::queue<int>, BufferTypeCount>           mAvailableIndices{};    // 사용가능 인덱스 큐
+    ID3D12Fence*                     mFence{};
+    std::vector<uptr<FrameResource>> mFrameResources{};
+    FrameResource*                   mCurrFrameResource{};       // 현재 프레임 리소스
+    int								 mCurrFrameResourceIndex{};	// 현재 프레임 인덱스
+
+    std::array<std::unordered_set<int>, BufferTypeCount> mActiveIndices{};       // 사용중인 인덱스 집합
+    std::array<std::queue<int>, BufferTypeCount>         mAvailableIndices{};    // 사용가능 인덱스 큐
 
 public:
 #pragma region C/Dtor

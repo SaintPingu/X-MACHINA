@@ -212,6 +212,7 @@
     <ClCompile Include="src\MultipleRenderTarget.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\ObjectPool.cpp" />
+    <ClCompile Include="src\ParticleSystem.cpp" />
     <ClCompile Include="src\ResourceMgr.cpp" />
     <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="include\MultipleRenderTarget.h" />
     <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\ObjectPool.h" />
+    <ClInclude Include="include\ParticleSystem.h" />
     <ClInclude Include="include\Resource.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

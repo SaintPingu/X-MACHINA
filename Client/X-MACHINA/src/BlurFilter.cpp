@@ -40,9 +40,6 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	auto weights = Filter::CalcGaussWeights(mSigma);
 	int blurRadius = (int)weights.size() / 2;
 
-	// 컴퓨트 루트 시그니처 연결
-	cmdList->SetComputeRootSignature(dxgi->GetComputeRootSignature().Get());
-
 	// 블러 반지름과 가중치 값 연결
 	cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
 	cmdList->SetComputeRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1);

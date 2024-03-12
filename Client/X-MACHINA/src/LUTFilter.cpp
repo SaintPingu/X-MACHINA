@@ -25,7 +25,6 @@ void LUTFilter::Create()
 UINT LUTFilter::Execute(rsptr<Texture> input)
 {
 	res->Get<Shader>("LUT")->Set();
-	cmdList->SetComputeRootSignature(dxgi->GetComputeRootSignature().Get());
 
 	mElapsedTime += DeltaTime();
 	DWORD filterOption = dxgi->GetFilterOption();

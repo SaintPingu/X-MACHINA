@@ -77,6 +77,8 @@ private:
 	// root signature
 	sptr<GraphicsRootSignature>			mGraphicsRootSignature{};
 	sptr<ComputeRootSignature>			mComputeRootSignature{};
+	sptr<GraphicsRootSignature>			mParticleGraphicsRootSignature{};
+	sptr<ComputeRootSignature>			mParticleComputeRootSignature{};
 
 	// descriptor heap
 	sptr<DescriptorHeap>				mDescriptorHeap{};
@@ -125,8 +127,11 @@ public:
 	// [param]에 해당하는 root parameter index를 반환한다.
 	UINT GetGraphicsRootParamIndex(RootParam param) const;
 	UINT GetComputeRootParamIndex(RootParam param) const;
+	UINT GetParticleComputeRootParamIndex(RootParam param) const;
 	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
-	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
+	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;	
+	RComPtr<ID3D12RootSignature> GetParticleGraphicsRootSignature() const;
+	RComPtr<ID3D12RootSignature> GetParticleComputeRootSignature() const;
 
 #pragma endregion
 
@@ -175,7 +180,8 @@ public:
 
 private:
 	// reset command 
-	void RenderBegin();
+	void MainPassRenderBegin();
+	void PostPassRenderBegin();
 
 	// close command
 	void RenderEnd();

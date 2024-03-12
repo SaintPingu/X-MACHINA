@@ -13,6 +13,7 @@ enum class ShaderType : UINT8 {
 	Lighting,
 	Ssao,
 	Compute,
+	Particle,
 };
 
 enum class RasterizerType : UINT8 {

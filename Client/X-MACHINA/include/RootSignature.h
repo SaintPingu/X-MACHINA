@@ -34,10 +34,10 @@ public:
 	// add root parameter with descriptor table and range
 	void PushTable(RootParam param, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, UINT shaderRegister, UINT registerSpace, UINT numDescriptors, D3D12_SHADER_VISIBILITY visibility);
 
-	// ID3D12Device::CreateRootSignature
-	virtual RComPtr<ID3D12RootSignature> Create() abstract;
-
 protected:
+	// ID3D12Device::CreateRootSignature
+	virtual void Create() abstract;
+
 	// [mPrams]의 인덱스를 매핑한다.
 	void ParamMapping(RootParam param);
 };
@@ -50,10 +50,12 @@ public:
 	virtual ~GraphicsRootSignature() = default;
 
 public:
-	// ID3D12Device::CreateRootSignature
-	virtual RComPtr<ID3D12RootSignature> Create() override;
+	void CreateDefaultGraphicsRootSignature();
+	void CreateParticleGraphicsRootSignature();
 
-	// 정적 샘플러 생성 함수
+protected:
+	virtual void Create() override;
+
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 8> GetStaticSamplers();
 };
 
@@ -64,6 +66,9 @@ public:
 	virtual ~ComputeRootSignature() = default;
 
 public:
-	// ID3D12Device::CreateRootSignature
-	virtual RComPtr<ID3D12RootSignature> Create() override;
+	void CreateDefaultComputeRootSignature();
+	void CreateParticleComputeRootSignature();
+
+protected:
+	virtual void Create() override;
 };

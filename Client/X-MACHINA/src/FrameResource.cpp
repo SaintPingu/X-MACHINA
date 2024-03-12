@@ -21,7 +21,9 @@ FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, Buffer
 	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Object)], true);
 	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::SkinMesh)], true);
 	SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Ssao)], true);
+
 	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, bufferCounts[static_cast<int>(BufferType::Material)], false);
+	ParticleSystemBuffer = std::make_unique<UploadBuffer<ParticleSystemData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleSystem)], false);
 }
 #pragma endregion
 
@@ -39,6 +41,7 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mBufferCounts[static_cast<int>(BufferType::Ssao)]			= 1;
 	mBufferCounts[static_cast<int>(BufferType::Material)]		= 500;
 	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 100;
+	mBufferCounts[static_cast<int>(BufferType::Particle)]		= 500;
 
 	for (int bufferType = 0; bufferType < BufferTypeCount; ++bufferType) {
 		for (int index = 0; index < mBufferCounts[bufferType]; ++index) {
@@ -83,6 +86,12 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr(int elemen
 	return materialBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * materialBuffer->GetElementByteSize();
 }
 
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetParticleSystemGpuAddr(int elementIndex) const
+{
+	const auto& particleSystemBuffer = mCurrFrameResource->ParticleSystemBuffer;
+	return particleSystemBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * particleSystemBuffer->GetElementByteSize();
+}
+
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
@@ -109,21 +118,8 @@ void FrameResourceMgr::Update()
 	}
 }
 
-void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
+void FrameResourceMgr::CopyData(int elementIndex, const PassConstants& data)
 {
-	const UINT& type = static_cast<UINT>(bufferType);
-
-	// 모든 오브젝트 인덱스를 -1로 초기화하였다.
-	if (elementIndex != -1) {
-		if (mActiveIndices[type].erase(elementIndex)) {
-			mAvailableIndices[type].push(elementIndex);
-		}
-	}
-}
-
-void FrameResourceMgr::CopyData(const int elementIndex, const PassConstants& data)
-{
-	// 패스 당 상수 버퍼는 메인 패스 한 개만 존재하며 나중에 추가될 수 있다.
 	mCurrFrameResource->PassCB->CopyData(elementIndex, data);
 }
 
@@ -139,45 +135,32 @@ void FrameResourceMgr::CopyData(const SsaoConstants& data)
 
 void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
 {
-	constexpr UINT type = static_cast<UINT>(BufferType::Object);
-	// 사용중인 인덱스 집합에서 elementIndex를 찾지 못한 경우
-	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
-
-		// 사용 가능한 인덱스가 없을 경우 메모리를 복사하지 않는다.
-		if (mAvailableIndices[type].empty()) {
-			return;
-		}
-
-		// 사용 가능한 인덱스 큐에서 맨 앞의 인덱스를 가져오고 삭제한다.
-		elementIndex = mAvailableIndices[type].front();
-		mAvailableIndices[type].pop();
-		mActiveIndices[type].insert(elementIndex);
-	}
-
-	// 매핑된 메모리에 데이터 복사
+	AllocIndex(elementIndex, BufferType::Object);
 	mCurrFrameResource->ObjectCB->CopyData(elementIndex, data);
-}
-
-void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
-{
-	constexpr UINT type = static_cast<UINT>(BufferType::Material);
-	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
-
-		if (mAvailableIndices[type].empty()) {
-			return;
-		}
-
-		elementIndex = mAvailableIndices[type].front();
-		mAvailableIndices[type].pop();
-		mActiveIndices[type].insert(elementIndex);
-	}
-
-	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
 }
 
 void FrameResourceMgr::CopyData(int& elementIndex, const SkinnedConstants& data)
 {
-	constexpr UINT type = static_cast<UINT>(BufferType::SkinMesh);
+	AllocIndex(elementIndex, BufferType::SkinMesh);
+	mCurrFrameResource->SkinMeshCB->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
+{
+	AllocIndex(elementIndex, BufferType::Material);
+	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSystemData& data)
+{
+	AllocIndex(elementIndex, BufferType::ParticleSystem);
+	mCurrFrameResource->ParticleSystemBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::AllocIndex(int& elementIndex, BufferType bufferType)
+{
+	const UINT type = static_cast<UINT>(bufferType);
+
 	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
 
 		if (mAvailableIndices[type].empty()) {
@@ -188,8 +171,17 @@ void FrameResourceMgr::CopyData(int& elementIndex, const SkinnedConstants& data)
 		mAvailableIndices[type].pop();
 		mActiveIndices[type].insert(elementIndex);
 	}
-
-	mCurrFrameResource->SkinMeshCB->CopyData(elementIndex, data);
 }
 
+void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
+{
+	const UINT& type = static_cast<UINT>(bufferType);
+
+	// 모든 오브젝트 인덱스를 -1로 초기화하였다.
+	if (elementIndex != -1) {
+		if (mActiveIndices[type].erase(elementIndex)) {
+			mAvailableIndices[type].push(elementIndex);
+		}
+	}
+}
 #pragma endregion

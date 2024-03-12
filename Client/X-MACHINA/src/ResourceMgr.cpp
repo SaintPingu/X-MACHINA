@@ -497,7 +497,9 @@ void ResourceMgr::LoadShaders()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region HorzBlur
 	{
-		ShaderInfo info{};
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
 
 		ShaderPath path = {
 			 L"",
@@ -512,7 +514,9 @@ void ResourceMgr::LoadShaders()
 #pragma endregion
 #pragma region VertBlur
 	{
-		ShaderInfo info{};
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
 
 		ShaderPath path = {
 			 L"",
@@ -527,7 +531,9 @@ void ResourceMgr::LoadShaders()
 #pragma endregion
 #pragma region VertBlur
 	{
-		ShaderInfo info{};
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
 
 		ShaderPath path = {
 			 L"",
@@ -538,6 +544,23 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("LUT", shader);
+	}
+#pragma endregion
+#pragma region ComputeParticle
+	{
+		ShaderInfo info{
+			ShaderType::Particle,
+		};
+
+		ShaderPath path = {
+			 L"",
+			 L"",
+			 L"CShader_Particle.cso"
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("ComputeParticle", shader);
 	}
 #pragma endregion
 }

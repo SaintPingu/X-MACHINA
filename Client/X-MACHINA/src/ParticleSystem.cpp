@@ -3,8 +3,10 @@
 #include "Timer.h"
 #include "ResourceMgr.h"
 #include "Mesh.h"
-
-
+#include "DXGIMgr.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "FrameResource.h"
 
 
 
@@ -23,7 +25,19 @@ void ParticleSystem::Awake()
 	mParticleSystemData.MaxSpeed	= 50;
 	mParticleSystemData.StartScale	= 10.f;
 	mParticleSystemData.EndScale	= 0.f;
+
+	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mParticleSystemData.MaxCount, false);
+	
+	for (int i = 0; i < mParticleSystemData.MaxCount; ++i) {
+		ParticleData particleData;
+		particleData.WorldPos.x = Math::RandF(-10.f, 10.f);
+		particleData.WorldPos.y = Math::RandF(-10.f, 10.f);
+		particleData.WorldPos.z = Math::RandF(-10.f, 10.f);
+		mParticles->CopyData(i, particleData);
+	}
+	// TODO : shape에 따른 파티클들의 시작 지점과 방향 설정
 }
+
 
 void ParticleSystem::Update()
 {
@@ -48,29 +62,48 @@ ParticleSystemObject::ParticleSystemObject() : Object()
 	mParticleSystem = AddComponent<ParticleSystem>();
 }
 
+void ParticleSystemObject::Awake()
+{
+	base::Awake();
+}
+
 void ParticleSystemObject::Update()
 {
 	base::Update();					// update base
-	Transform::UpdateShaderVars();	// update objectCB
 	mParticleSystem->Update();		// update particle system 
-	UpdateShaderVars();				// update particle system object
 }
 
 void ParticleSystemObject::OnDestroy()
 {
-	Transform::OnDestroy();
-
-
+	base::OnDestroy();
+	frmResMgr->ReturnIndex(mParticleSystemIndex, BufferType::ParticleSystem);
 }
 
-void ParticleSystemObject::UpdateShaderVars()
+void ParticleSystemObject::UpdateComputeShaderVars()
 {
+	res->Get<Shader>("ComputeParticle")->Set();
 
+	frmResMgr->CopyData(mParticleSystemIndex, mParticleSystem->mParticleSystemData);
+
+	cmdList->SetComputeRootUnorderedAccessView(dxgi->GetParticleComputeRootParamIndex(RootParam::OutputParticle), mParticleSystem->mParticles->Resource()->GetGPUVirtualAddress());
+	cmdList->SetComputeRoot32BitConstants(dxgi->GetParticleComputeRootParamIndex(RootParam::ParticleIndex), 1, &mParticleSystemIndex, 0);
+
+	cmdList->Dispatch(1, 1, 1);
+}
+
+void ParticleSystemObject::UpdateGraphicsShaderVars()
+{
+	//res->Get<Shader>("GraphicsParticle")->Set();
+
+	Transform::UpdateShaderVars();
 }
 
 void ParticleSystemObject::Render()
 {
-	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mParticleSystem->mParticleSystemData.MaxCount);
+	UpdateComputeShaderVars();
+	UpdateGraphicsShaderVars();
+
+	//res->Get<ModelObjectMesh>("Point")->RenderInstanced(mParticleSystem->mParticleSystemData.MaxCount);
 }
 
 

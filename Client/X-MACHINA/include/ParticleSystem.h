@@ -1,8 +1,8 @@
 #pragma once
 
-
 #pragma region Include
 #include "Component.h"
+#include "UploadBuffer.h"
 #pragma endregion
 
 
@@ -21,7 +21,8 @@ class ParticleSystem : public Component {
 
 private:
 	float mCreateInterval = 0.005f;
-	ParticleSystemData mParticleSystemData;
+	ParticleSystemData	mParticleSystemData;
+	uptr<UploadBuffer<ParticleData>> mParticles;
 
 public:
 	virtual void Awake() override;
@@ -36,6 +37,7 @@ class ParticleSystemObject : public Object {
 	using base = Object;
 
 private:
+	int mParticleSystemIndex = -1;
 	sptr<ParticleSystem> mParticleSystem{};
 
 public:
@@ -43,11 +45,16 @@ public:
 	virtual ~ParticleSystemObject() = default;
 
 public:
+	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
 
 public:
-	void UpdateShaderVars();
+	// 컴퓨트 쉐이더에서 사용하는 상수 
+	void UpdateComputeShaderVars();
+	// 그래픽스 쉐이더에서 사용하는 상수
+	void UpdateGraphicsShaderVars();
+
 	void Render();
 };
 #pragma endregion

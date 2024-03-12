@@ -620,6 +620,9 @@
     <FxCompile Include="shaders\PShader_SsaoBlur.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\CShader_Particle.hlsl">
+      <Filter>소스 파일\Shader\CS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\SimpleMath.inl">

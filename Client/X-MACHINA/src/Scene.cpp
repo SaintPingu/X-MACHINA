@@ -28,6 +28,7 @@
 
 #include "TestCube.h"
 #include "Ssao.h"
+#include "ParticleSystem.h"
 #pragma endregion
 
 
@@ -256,6 +257,8 @@ void Scene::BuildTestCube()
 	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
+
+	mParticle = std::make_shared<ParticleSystemObject>();
 }
 
 void Scene::BuildGrid()
@@ -528,6 +531,7 @@ void Scene::RenderForward()
 
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
+	RenderParticles();
 }
 
 void Scene::RenderPostProcessing(int offScreenIndex)
@@ -575,6 +579,11 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 void Scene::RenderSkyBox()
 {
 	mSkyBox->Render();
+}
+
+void Scene::RenderParticles()
+{
+	mParticle->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -738,6 +747,7 @@ void Scene::Start()
 	ProcessObjects([](sptr<GameObject> object) {
 		object->Awake();
 		});
+	mParticle->Awake();
 
 	/* Enable & Start */
 	mTerrain->OnEnable();
@@ -754,6 +764,7 @@ void Scene::Update()
 	CheckCollisions();
 
 	UpdateObjects();
+	mParticle->Update();
 	mainCameraObject->Update();
 	mLight->Update();
 	canvas->Update();

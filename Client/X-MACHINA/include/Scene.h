@@ -20,6 +20,7 @@ class Light;
 class SkyBox;
 class ObjectPool;
 class TestCube;
+class ParticleSystemObject;
 #pragma endregion
 
 
@@ -60,6 +61,7 @@ private:
 
 	/* TestCube */
 	std::vector<sptr<TestCube>> mTestCubes{};
+	sptr<ParticleSystemObject> mParticle{};
 
 	/* Map */
 	sptr<Terrain>	mTerrain{};
@@ -164,6 +166,7 @@ private:
 	// render [transparentObjects]
 	void RenderTransparentObjects(const std::set<GridObject*>& transparentObjects);
 	void RenderSkyBox();
+	void RenderParticles();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
 	bool RenderBounds(const std::set<GridObject*>& renderedObjects);

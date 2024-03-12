@@ -81,6 +81,11 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16_UNORM;
 		mGraphicsPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R16_UNORM;
 		break;
+	case ShaderType::Particle:
+		mGraphicsPipelineStateDesc.NumRenderTargets = 1;
+		mGraphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		mGraphicsPipelineStateDesc.pRootSignature = dxgi->GetParticleGraphicsRootSignature().Get();
+		break;
 	default:
 		break;
 	}
@@ -102,7 +107,17 @@ void Shader::CreateComputeShader(bool isClose)
 {
 	assert(!mIsClosed);
 
-	mComputePipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
+	switch (mInfo.ShaderType) {
+	case ShaderType::Compute:
+		mComputePipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
+		break;
+	case ShaderType::Particle:
+		mComputePipelineStateDesc.pRootSignature = dxgi->GetParticleComputeRootSignature().Get();
+		break;
+	default:
+		break;
+	}
+
 	mComputePipelineStateDesc.CS = { (BYTE*)(mCSBlob->GetBufferPointer()), mCSBlob->GetBufferSize() };
 	mComputePipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 

@@ -16,10 +16,17 @@ void RootSignature::Push(RootParam param, D3D12_ROOT_PARAMETER_TYPE paramType, U
 	D3D12_ROOT_PARAMETER rootParam{};
 
 	rootParam.ParameterType            = paramType;
-	rootParam.Constants.Num32BitValues = num32BitValues;
-	rootParam.Constants.ShaderRegister = shaderRegister;
-	rootParam.Constants.RegisterSpace  = registerSpace;
 	rootParam.ShaderVisibility         = visibility;
+
+	if (num32BitValues > 0) {
+		rootParam.Constants.Num32BitValues = num32BitValues;
+		rootParam.Constants.ShaderRegister = shaderRegister;
+		rootParam.Constants.RegisterSpace = registerSpace;
+	}
+	else {
+		rootParam.Descriptor.ShaderRegister = shaderRegister;
+		rootParam.Descriptor.RegisterSpace = registerSpace;
+	}
 
 	mParams.push_back(rootParam);
 
@@ -78,7 +85,7 @@ GraphicsRootSignature::GraphicsRootSignature()
 	mType = RootSignatureType::Graphics;
 }
 
-RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
+void GraphicsRootSignature::Create()
 {
 	auto staticSamplers = GetStaticSamplers();
 
@@ -105,8 +112,33 @@ RComPtr<ID3D12RootSignature> GraphicsRootSignature::Create()
 
 	// create
 	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
+}
 
-	return mRootSignature;
+void GraphicsRootSignature::CreateDefaultGraphicsRootSignature()
+{
+	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
+	Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+	Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
+	Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
+	Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
+	Push(RootParam::Ssao, D3D12_ROOT_PARAMETER_TYPE_CBV, 5, 0, D3D12_SHADER_VISIBILITY_ALL);
+	Push(RootParam::SsaoBlur, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 6, 0, D3D12_SHADER_VISIBILITY_ALL, 2);
+
+	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
+	Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
+	PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, gkDescHeapSkyBoxCount, D3D12_SHADER_VISIBILITY_PIXEL);
+	PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, gkDescHeapSrvCount, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	Create();
+}
+
+void GraphicsRootSignature::CreateParticleGraphicsRootSignature()
+{
+
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 8> GraphicsRootSignature::GetStaticSamplers()
@@ -198,7 +230,37 @@ ComputeRootSignature::ComputeRootSignature()
 	mType = RootSignatureType::Compute;
 }
 
-RComPtr<ID3D12RootSignature> ComputeRootSignature::Create()
+void ComputeRootSignature::CreateDefaultComputeRootSignature()
+{
+	// 가중치 루트 상수 (b0)
+	Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
+
+	// 읽기 전용 SRV 서술자 테이블 (t0)
+	PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 읽기 전용 SRV 서술자 테이블 (t1, t2)
+	PushTable(RootParam::LUT0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	PushTable(RootParam::LUT1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	// 쓰기 전용 UAV 서술자 테이블 (u0)
+	PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+
+	Create();
+}
+
+void ComputeRootSignature::CreateParticleComputeRootSignature()
+{
+	// 파티클 시스템 데이터 (t0)
+	Push(RootParam::ParticleSystem, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	// 인풋 파티클 데이터 (u0)
+	Push(RootParam::OutputParticle, D3D12_ROOT_PARAMETER_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	// 파티클 시스템 인덱스 (b0)
+	Push(RootParam::ParticleIndex, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 1);
+
+	Create();
+}
+
+void ComputeRootSignature::Create()
 {
 	// flags
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -220,7 +282,5 @@ RComPtr<ID3D12RootSignature> ComputeRootSignature::Create()
 
 	// create
 	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
-
-	return mRootSignature;
 }
 #pragma endregion

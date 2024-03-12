@@ -13,7 +13,8 @@ enum class BufferType : UINT {
     Ssao,
     Material,
     ParticleSystem,
-    
+    Particle,
+
     _count
 };
 
@@ -115,11 +116,11 @@ public:
     UINT64                              Fence{};
     ComPtr<ID3D12CommandAllocator>      CmdAllocator{};
     
-    uptr<UploadBuffer<PassConstants>>       PassCB{};           // 패스 상수 버퍼
-    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};       // 포스트 프로세싱 패스 상수 버퍼
-    uptr<UploadBuffer<ObjectConstants>>     ObjectCB{};         // 오브젝트 상수 버퍼
-    uptr<UploadBuffer<SkinnedConstants>>    SkinMeshCB{};       // 스킨메쉬 상수 버퍼
-    uptr<UploadBuffer<SsaoConstants>>       SsaoCB{};           // SSAO 상수 버퍼
+    uptr<UploadBuffer<PassConstants>>       PassCB{};               // 패스 상수 버퍼
+    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};           // 포스트 프로세싱 패스 상수 버퍼
+    uptr<UploadBuffer<ObjectConstants>>     ObjectCB{};             // 오브젝트 상수 버퍼
+    uptr<UploadBuffer<SkinnedConstants>>    SkinMeshCB{};           // 스킨메쉬 상수 버퍼
+    uptr<UploadBuffer<SsaoConstants>>       SsaoCB{};               // SSAO 상수 버퍼
 
     uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};       // 머티리얼 버퍼
     uptr<UploadBuffer<ParticleSystemData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
@@ -161,27 +162,34 @@ public:
     const D3D12_GPU_VIRTUAL_ADDRESS GetPostPassCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetSSAOCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSystemGpuAddr(int elementIndex = 0) const;
 #pragma endregion
+public:
+    // 프레임 리소스 생성
     void CreateFrameResources(ID3D12Device* pDevice);
 
     // 프레임 리소스 배열을 순환하며 사용 가능 프레임 리소스를 얻어온다.
     void Update();
 
-    // 객체 소멸시 사용하지 않는 버퍼 인덱스를 반환하는 함수
-    void ReturnIndex(int elementIndex, BufferType bufferType);
-
     // 패스 당 상수 버퍼에 데이터 복사
-    void CopyData(const int elementIndex, const PassConstants& data);
+    void CopyData(int elementIndex, const PassConstants& data);
     // 포스트 패스 당 상수 버퍼에 데이터 복사
     void CopyData(const PostPassConstants& data);
     // SSAO 당 상수 버퍼에 데이터 복사
     void CopyData(const SsaoConstants& data);
     // 오브젝트 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ObjectConstants& data);
-    // 머티리얼 당 상수 버퍼에 데이터 복사
+    // 머티리얼 당 구조적 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const MaterialData& data);
     // 스킨메쉬 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const SkinnedConstants& data);
+    // 파티클 시스템 데이터 당 구조적 버퍼에 데이터 복사
+    void CopyData(int& elementIndex, const ParticleSystemData& data);
+
+    // 사용중이지 않은 인덱스를 할당
+    void AllocIndex(int& elementIndex, BufferType bufferType);
+    // 객체 소멸시 사용하지 않는 버퍼 인덱스를 반환
+    void ReturnIndex(int elementIndex, BufferType bufferType);
 };
 
 #pragma endregion

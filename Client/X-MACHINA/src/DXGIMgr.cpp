@@ -28,7 +28,7 @@ DXGIMgr::DXGIMgr()
 	//filterOptione |= FilterOption::None;
 	filterOptione |= FilterOption::LUT;
 	filterOptione |= FilterOption::Tone;
-	//filterOptione |= FilterOption::Ssao;
+	filterOptione |= FilterOption::Ssao;
 	//filterOptione |= FilterOption::Blur;
 
 	mFilterOption = filterOptione;

@@ -27,9 +27,11 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 void Material::UpdateShaderVars()
 {
 	MaterialData materialData;
-	materialData.DiffuseAlbedo = mMaterialColors->DiffuseAlbedo;
-	materialData.Metallic	   = mMaterialColors->Metallic;
-	materialData.Roughness	   = mMaterialColors->Roughness;
+	if (mMaterialColors) {
+		materialData.DiffuseAlbedo = mMaterialColors->DiffuseAlbedo;
+		materialData.Metallic = mMaterialColors->Metallic;
+		materialData.Roughness = mMaterialColors->Roughness;
+	}
 
 	for (UINT8 i = 0; i < TextureMapCount; ++i) {
 		if (mTextures[i]) {

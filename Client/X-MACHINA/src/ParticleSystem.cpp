@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "FrameResource.h"
-
+#include "Model.h"
 
 
 #pragma region ParticleSystem
@@ -31,9 +31,16 @@ void ParticleSystem::Awake()
 	// TODO : shape에 따른 파티클들의 시작 지점과 방향 설정
 	for (int i = 0; i < mParticleSystemData.MaxCount; ++i) {
 		ParticleData particleData;
-		particleData.WorldPos.x = -10.f;
-		particleData.WorldPos.y = -10.f;
-		particleData.WorldPos.z = -10.f;
+		particleData.LocalPos.x = 0;
+		particleData.LocalPos.y = 0;
+		particleData.LocalPos.z = 0;
+
+		particleData.WorldDir.x = Math::RandF(-1.f, 1.f);
+		particleData.WorldDir.y = Math::RandF(-1.f, 1.f);
+		particleData.WorldDir.z = Math::RandF(-1.f, 1.f);
+
+		particleData.LifeTime = 1.f;
+		particleData.Alive = 0;
 		mParticles->CopyData(i, particleData);
 	}
 }
@@ -43,6 +50,7 @@ void ParticleSystem::Update()
 {
 	mParticleSystemData.AccTime += DeltaTime();
 	mParticleSystemData.DeltaTime = DeltaTime();
+	
 
 	mParticleSystemData.AddCount = 0;
 	if (mCreateInterval < mParticleSystemData.AccTime) {
@@ -57,9 +65,11 @@ void ParticleSystem::Update()
 
 
 #pragma region ParticleSystemObject
-ParticleSystemObject::ParticleSystemObject() : Object()
+ParticleSystemObject::ParticleSystemObject(Vec3 worldPos) : Object()
 {
 	mParticleSystem = AddComponent<ParticleSystem>();
+	mMaterial = std::make_shared<Material>();
+	SetPosition(worldPos);
 }
 
 void ParticleSystemObject::Awake()
@@ -73,7 +83,6 @@ void ParticleSystemObject::Update()
 	mParticleSystem->Update();		// update particle system 
 }
 
-
 void ParticleSystemObject::OnDestroy()
 {
 	base::OnDestroy();
@@ -81,10 +90,16 @@ void ParticleSystemObject::OnDestroy()
 	frmResMgr->ReturnIndex(mParticleSystemIndex, BufferType::ParticleShared);
 }
 
+void ParticleSystemObject::SetTexture(rsptr<Texture> texture)
+{
+	mMaterial->SetTexture(TextureMap::DiffuseMap0, texture);
+}
+
 void ParticleSystemObject::UpdateComputeShaderVars()
 {
 	res->Get<Shader>("ComputeParticle")->Set();
 
+	mParticleSystem->mParticleSystemData.WorldPos = GetPosition();
 	frmResMgr->CopyData(mParticleSystemIndex, mParticleSystem->mParticleSystemData);
 
 	cmdList->SetComputeRootUnorderedAccessView(dxgi->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticleSystem->mParticles->Resource()->GetGPUVirtualAddress());
@@ -97,7 +112,8 @@ void ParticleSystemObject::UpdateGraphicsShaderVars()
 {
 	res->Get<Shader>("GraphicsParticle")->Set();
 
-	Transform::UpdateShaderVars();
+	mMaterial->UpdateShaderVars();
+	Transform::UpdateShaderVars(0, mMaterial->mMatIndex);
 
 	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticleSystem->mParticles->Resource()->GetGPUVirtualAddress());
 }
@@ -106,7 +122,6 @@ void ParticleSystemObject::Render()
 {
 	UpdateComputeShaderVars();
 	UpdateGraphicsShaderVars();
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mParticleSystem->mParticleSystemData.MaxCount);
 }
 

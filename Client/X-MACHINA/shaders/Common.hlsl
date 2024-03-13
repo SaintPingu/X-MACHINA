@@ -71,11 +71,11 @@ struct ParticleInfo
 {
 	float3	WorldPos;
 	float	CurTime;
-	float3	WorldDir;
+	float3	LocalPos;
 	float	LifeTime;
+	float3	WorldDir;
 	int	    Alive;
 	float2	StartEndScale;
-	float   Padding;
 };
 
 struct ObjectInfo {
@@ -92,6 +92,8 @@ struct PassInfo {
     matrix      MtxShadow;
     float3      CameraPos;
     uint        LightCount;
+    float3      CameraRight;
+    uint        Padding;
     LightInfo   Lights[gkMaxSceneLight];
     
     float       DeltaTime;

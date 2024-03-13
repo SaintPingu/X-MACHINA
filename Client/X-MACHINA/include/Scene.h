@@ -62,6 +62,7 @@ private:
 	/* TestCube */
 	std::vector<sptr<TestCube>> mTestCubes{};
 	sptr<ParticleSystemObject> mParticle{};
+	sptr<ParticleSystemObject> mParticle2{};
 
 	/* Map */
 	sptr<Terrain>	mTerrain{};
@@ -114,7 +115,7 @@ private:
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
-	void BuildTestCube();
+	void BuildTest();
 
 	/* Grid */
 	// generate grids

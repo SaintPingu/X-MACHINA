@@ -14,6 +14,7 @@ struct ParticleSharedInfo
 
 struct ParticleSystemInfo
 {
+    float3  WorldPos;
 	int		AddCount;
 	int		MaxCount;
 	float	DeltaTime;
@@ -24,7 +25,7 @@ struct ParticleSystemInfo
 	float	MaxSpeed;
 	float	StartScale;
 	float	EndScale;
-	float2  Padding;
+	float3  Padding;
 };
 
 StructuredBuffer<ParticleSystemInfo> gParticleSystem : register(t0, space0);
@@ -67,7 +68,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         if (gOutputParticles[threadID.x].Alive == 1)
         {
             gOutputParticles[threadID.x].CurTime = 0.f;
-            gOutputParticles[threadID.x].WorldPos = 0.f.xxx;
+            gOutputParticles[threadID.x].WorldPos = gOutputParticles[threadID.x].LocalPos + ps.WorldPos;
         }
     }
     else
@@ -81,7 +82,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         
         float t = gOutputParticles[threadID.x].CurTime / gOutputParticles[threadID.x].LifeTime;
         float3 v = float3(0.f, 10.f, 0.f);
-        gOutputParticles[threadID.x].WorldPos += dir
+        gOutputParticles[threadID.x].WorldPos += normalize(gOutputParticles[threadID.x].WorldDir) * 0.01;
     }
 	
 }

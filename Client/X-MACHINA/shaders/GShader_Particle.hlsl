@@ -3,7 +3,6 @@
 struct VSOutput_Particle
 {
     float3 PosW : POSITION;
-    float2 UV   : UV;
     uint   ID   : ID;
 };
 
@@ -26,16 +25,15 @@ void GSParticle(point VSOutput_Particle gin[1], inout TriangleStream<GSOutput_Pa
     };
     
     uint id = (uint)gin[0].ID;
-    if (gInputPraticles[id].Alive)
+    if (gInputPraticles[id].Alive == 0)
         return;
     
-    float3 look = gPassCB.CameraPos.xyz - gin[0].PosW;
-    look = normalize(look);
-    float3 right = float3(1.f, 0.f, 0.f);
+    float3 look = normalize(gPassCB.CameraPos.xyz - gin[0].PosW);
+    float3 right = gPassCB.CameraRight;
     float3 up = cross(right, look);
     
-    float halfWidth = 1.f;
-    float halfHeight = 1.f;
+    float halfWidth = 0.1f;
+    float halfHeight = 0.1f;
     
     float4 posW[4];
     posW[0] = float4(gin[0].PosW - halfWidth * right + halfHeight * up, 1.f);

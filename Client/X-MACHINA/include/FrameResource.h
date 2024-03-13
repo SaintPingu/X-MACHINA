@@ -28,8 +28,10 @@ struct PassConstants {
     Matrix  MtxView{};
     Matrix  MtxProj{};
     Matrix  MtxShadow{};
-    Vec3    EyeW{};
+    Vec3    CameraPos{};
     UINT    LightCount{};
+    Vec3    CameraRight{};
+    UINT    Padding{};
     std::array<LightInfo, gkMaxSceneLight> Lights{};
 
     float   DeltaTime{};

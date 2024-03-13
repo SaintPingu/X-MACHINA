@@ -8,6 +8,8 @@
 
 #pragma region ClassForwardDecl
 class GridObject;
+class Material;
+class Texture;
 struct ParticleSystemData;
 #pragma endregion
 
@@ -39,15 +41,19 @@ class ParticleSystemObject : public Object {
 private:
 	int mParticleSystemIndex = -1;
 	sptr<ParticleSystem> mParticleSystem{};
+	sptr<Material> mMaterial{};
 
 public:
-	ParticleSystemObject();
+	ParticleSystemObject(Vec3 worldPos);
 	virtual ~ParticleSystemObject() = default;
 
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
+
+public:
+	void SetTexture(rsptr<Texture> texture);
 
 public:
 	// 컴퓨트 쉐이더에서 사용하는 상수 

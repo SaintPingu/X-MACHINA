@@ -390,12 +390,13 @@ struct SceneLoadLight {
 
 struct SceneLight {
 	std::array<LightInfo, gkMaxSceneLight> Lights{};
-	std::array<sptr<class ModelObjectMesh>, gkMaxSceneLight>	VolumeMeshes{};
+	std::array<sptr<class ModelObjectMesh>, gkMaxSceneLight> VolumeMeshes{};
 };
 
 
 struct ParticleSystemData
 {
+	Vec3  WorldPos = { 0.f, 0.f, 0.f };
 	int   AddCount = 0;
 	int   MaxCount = 0;
 	float DeltaTime = 0.f;
@@ -406,18 +407,18 @@ struct ParticleSystemData
 	float MaxSpeed = 0.f;
 	float StartScale = 0.f;
 	float EndScale = 0.f;
-	Vec2  Padding{};
+	Vec3  Padding;
 };
 
 struct ParticleData
 {
-	Vec3	WorldPos = { 1.f, 1.f, 1.f };
+	Vec3	WorldPos = { 0.f, 0.f, 0.f };
 	float	CurTime = 0.f;
-	Vec3	WorldDir = { 1.f, 1.f, 1.f };
+	Vec3	LocalPos = { 0.f, 0.f, 0.f };
 	float	LifeTime = 0.f;
+	Vec3	WorldDir = { 0.f, 0.f, 0.f };
 	int	    Alive = 0;
 	Vec2	StartEndScale = { 0.f, 0.f };
-	float   Padding;
 };
 
 struct ParticleSharedData

@@ -108,7 +108,8 @@ void Scene::UpdateMainPassCB()
 	passCB.MtxView						= mainCamera->GetViewMtx().Transpose();
 	passCB.MtxProj						= mainCamera->GetProjMtx().Transpose();
 	passCB.MtxShadow					= mLight->GetShadowMtx().Transpose();
-	passCB.EyeW							= mainCamera->GetPosition();
+	passCB.CameraPos					= mainCamera->GetPosition();
+	passCB.CameraRight					= mainCamera->GetRight();
 	passCB.DeltaTime					= DeltaTime();
 	passCB.TotalTime					= timeElapsed;
 	passCB.FrameBufferWidth				= gkFrameBufferWidth;
@@ -210,7 +211,7 @@ void Scene::BuildObjects()
 	// build settings
 	BuildPlayers();
 	BuildTerrain();
-	BuildTestCube();
+	BuildTest();
 
 	// build static meshes
 	MeshRenderer::BuildMeshes();
@@ -243,7 +244,7 @@ void Scene::BuildTerrain()
 	BuildGrid();
 }
 
-void Scene::BuildTestCube()
+void Scene::BuildTest()
 {
 	mTestCubes.resize(2);
 	mTestCubes[0] = std::make_shared<TestCube>(Vec2(170, 150));
@@ -258,7 +259,11 @@ void Scene::BuildTestCube()
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
-	mParticle = std::make_shared<ParticleSystemObject>();
+	mParticle = std::make_shared<ParticleSystemObject>(Vec3{ 167.5f, 10.f, 150.f });
+	mParticle->SetTexture(res->Get<Texture>("lightParticle"));
+
+	mParticle2 = std::make_shared<ParticleSystemObject>(Vec3{ 172.5f, 10.f, 150.f });
+	mParticle2->SetTexture(res->Get<Texture>("fireParticle"));
 }
 
 void Scene::BuildGrid()
@@ -526,18 +531,19 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	RenderFXObjects(); 
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	RenderParticles();
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	RenderFXObjects();
 	RenderBillboards();
 
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
-	RenderParticles();
 }
 
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
@@ -584,6 +590,7 @@ void Scene::RenderSkyBox()
 void Scene::RenderParticles()
 {
 	mParticle->Render();
+	mParticle2->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -748,6 +755,7 @@ void Scene::Start()
 		object->Awake();
 		});
 	mParticle->Awake();
+	mParticle2->Awake();
 
 	/* Enable & Start */
 	mTerrain->OnEnable();
@@ -765,6 +773,7 @@ void Scene::Update()
 
 	UpdateObjects();
 	mParticle->Update();
+	mParticle2->Update();
 	mainCameraObject->Update();
 	mLight->Update();
 	canvas->Update();

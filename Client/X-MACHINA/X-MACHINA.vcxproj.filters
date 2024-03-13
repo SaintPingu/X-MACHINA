@@ -88,7 +88,10 @@
     <Filter Include="소스 파일\Shader\Utils">
       <UniqueIdentifier>{b02cc291-a71d-41ab-a66c-278fb0dc4052}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Shader\PS\Lighting">
+    <Filter Include="소스 파일\Shader\Particle">
+      <UniqueIdentifier>{fdd50f91-70f8-4eac-a3fb-b7cbec4e5c9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\Lighting">
       <UniqueIdentifier>{c674e0af-79b1-44ba-833b-624a002f5066}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -575,9 +578,6 @@
     <FxCompile Include="shaders\PShader_OffScreen.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PShader_DirLighting.hlsl">
-      <Filter>소스 파일\Shader\PS\Lighting</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\Light.hlsl">
       <Filter>소스 파일\Shader\Utils</Filter>
     </FxCompile>
@@ -597,10 +597,7 @@
       <Filter>소스 파일\Shader\CS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_SpotPointLighting.hlsl">
-      <Filter>소스 파일\Shader\PS\Lighting</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\VShader_SpotPointLighting.hlsl">
-      <Filter>소스 파일\Shader\VS</Filter>
+      <Filter>소스 파일\Shader\Lighting</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Shadow.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
@@ -621,7 +618,22 @@
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\CShader_Particle.hlsl">
-      <Filter>소스 파일\Shader\CS</Filter>
+      <Filter>소스 파일\Shader\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Particle.hlsl">
+      <Filter>소스 파일\Shader\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_Particle.hlsl">
+      <Filter>소스 파일\Shader\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_DirLighting.hlsl">
+      <Filter>소스 파일\Shader\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\VShader_SpotPointLighting.hlsl">
+      <Filter>소스 파일\Shader\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\GShader_Particle.hlsl">
+      <Filter>소스 파일\Shader\Particle</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

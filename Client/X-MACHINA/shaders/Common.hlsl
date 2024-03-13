@@ -67,6 +67,17 @@ struct MaterialInfo {
     int OcclusionMapIndex;
 };
 
+struct ParticleInfo
+{
+	float3	WorldPos;
+	float	CurTime;
+	float3	WorldDir;
+	float	LifeTime;
+	int	    Alive;
+	float2	StartEndScale;
+	float   Padding;
+};
+
 struct ObjectInfo {
     matrix  MtxWorld;
     matrix  MtxSprite;
@@ -169,6 +180,7 @@ ConstantBuffer<SsaoBlurInfo> gSsaoBlurCB        : register(b6);
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
 StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);
+StructuredBuffer<ParticleInfo> gInputPraticles   : register(t0, space2);
 
 TextureCube gSkyBoxMaps[gkMaxSkyBoxCount]       : register(t1, space1);
 Texture2D gTextureMaps[gkMaxTextureCount]       : register(t1); // t1, t2, t3...

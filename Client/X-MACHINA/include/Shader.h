@@ -62,6 +62,7 @@ struct ShaderPath
 {
 	const std::wstring	VS = L"";
 	const std::wstring	PS = L"";
+	const std::wstring	GS = L"";
 	const std::wstring	CS = L"";
 };
 #pragma endregion
@@ -79,6 +80,7 @@ private:
 
 	ComPtr<ID3DBlob> mVSBlob{};
 	ComPtr<ID3DBlob> mPSBlob{};
+	ComPtr<ID3DBlob> mGSBlob{};
 	ComPtr<ID3DBlob> mCSBlob{};
 
 public:

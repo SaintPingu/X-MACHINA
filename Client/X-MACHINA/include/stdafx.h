@@ -246,6 +246,7 @@ enum class RootParam {
 	SkyBox,
 	Texture,
 	Collider,
+	Particle,
 
 	// Compute RootParam
 	Weight = 0,
@@ -256,7 +257,8 @@ enum class RootParam {
 
 	// Particle
 	ParticleSystem = 0,
-	OutputParticle,
+	ParticleShared,
+	ComputeParticle,
 	ParticleIndex,
 };
 
@@ -413,7 +415,7 @@ struct ParticleData
 	float	CurTime = 0.f;
 	Vec3	WorldDir = { 1.f, 1.f, 1.f };
 	float	LifeTime = 0.f;
-	int	    Alive = 1;
+	int	    Alive = 0;
 	Vec2	StartEndScale = { 0.f, 0.f };
 	float   Padding;
 };

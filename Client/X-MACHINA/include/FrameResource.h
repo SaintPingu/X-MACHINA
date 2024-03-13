@@ -13,7 +13,7 @@ enum class BufferType : UINT {
     Ssao,
     Material,
     ParticleSystem,
-    Particle,
+    ParticleShared,
 
     _count
 };
@@ -124,6 +124,7 @@ public:
 
     uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};       // 머티리얼 버퍼
     uptr<UploadBuffer<ParticleSystemData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
+    uptr<UploadBuffer<ParticleSharedData>>  ParticleSharedBuffer{}; // 파티클 공유 버퍼 
 
 public:
 #pragma region C/Dtor
@@ -163,6 +164,7 @@ public:
     const D3D12_GPU_VIRTUAL_ADDRESS GetSSAOCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSystemGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSharedGpuAddr(int elementIndex = 0) const;
 #pragma endregion
 public:
     // 프레임 리소스 생성
@@ -185,6 +187,8 @@ public:
     void CopyData(int& elementIndex, const SkinnedConstants& data);
     // 파티클 시스템 데이터 당 구조적 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ParticleSystemData& data);
+    // 파티클 공유 데이터 당 구조적 버퍼에 데이터 복사
+    void CopyData(int& elementIndex, const ParticleSharedData& data);
 
     // 사용중이지 않은 인덱스를 할당
     void AllocIndex(int& elementIndex, BufferType bufferType);

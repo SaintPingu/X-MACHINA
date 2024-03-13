@@ -51,7 +51,6 @@ public:
 
 public:
 	void CreateDefaultGraphicsRootSignature();
-	void CreateParticleGraphicsRootSignature();
 
 protected:
 	virtual void Create() override;

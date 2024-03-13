@@ -25,7 +25,8 @@ void Shader::Load(ShaderInfo info, ShaderPath path, bool isClose)
 			mVSBlob = D3DUtil::ReadCompiledShaderFile(path.VS);
 		if (!path.PS.empty())
 			mPSBlob = D3DUtil::ReadCompiledShaderFile(path.PS);
-
+		if (!path.GS.empty())
+			mGSBlob = D3DUtil::ReadCompiledShaderFile(path.GS);
 		CreateGraphicsShader(isClose);
 	}
 }
@@ -34,8 +35,9 @@ void Shader::CreateGraphicsShader(bool isClose)
 {
 	assert(!mIsClosed);
 
-	mGraphicsPipelineStateDesc.VS = { (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize() };
-	mGraphicsPipelineStateDesc.PS = { (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize() };
+	mGraphicsPipelineStateDesc.VS = mVSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
+	mGraphicsPipelineStateDesc.PS = mPSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
+	mGraphicsPipelineStateDesc.GS = mGSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mGSBlob->GetBufferPointer()), mGSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
 	mGraphicsPipelineStateDesc.pRootSignature			= dxgi->GetGraphicsRootSignature().Get();
 	mGraphicsPipelineStateDesc.RasterizerState			= CreateRasterizerState();
 	mGraphicsPipelineStateDesc.BlendState				= CreateBlendState();
@@ -80,11 +82,6 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.NumRenderTargets = SsaoCount;
 		mGraphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16_UNORM;
 		mGraphicsPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R16_UNORM;
-		break;
-	case ShaderType::Particle:
-		mGraphicsPipelineStateDesc.NumRenderTargets = 1;
-		mGraphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		mGraphicsPipelineStateDesc.pRootSignature = dxgi->GetParticleGraphicsRootSignature().Get();
 		break;
 	default:
 		break;

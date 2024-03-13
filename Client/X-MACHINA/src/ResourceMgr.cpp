@@ -104,7 +104,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Shadow.cso",
 			 L"PShader_Shadow.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -124,7 +123,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Standard.cso",
 			 L"PShader_Deferred.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -140,7 +138,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Shadow.cso",
 			 L"PShader_Shadow.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -157,7 +154,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_StandardInstance.cso",
 			 L"PShader_Deferred.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -178,7 +174,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Instance.cso",
 			 L"PShader_Instance.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -195,7 +190,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_SkinnedMesh.cso",
 			 L"PShader_Deferred.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -211,7 +205,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Shadow_SkinnedMesh.cso",
 			 L"PShader_Shadow.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -228,7 +221,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Terrain.cso",
 			 L"PShader_Terrain.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -251,7 +243,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Water.cso",
 			 L"PShader_Water.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -271,7 +262,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Billboard.cso",
 			 L"PShader_Billboard.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -291,7 +281,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Sprite.cso",
 			 L"PShader_Billboard.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -310,7 +299,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Tex.cso",
 			 L"PShader_Final.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -330,7 +318,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Canvas.cso",
 			 L"PShader_Canvas.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -352,7 +339,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Wired.cso",
 			 L"PShader_Wired.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -371,7 +357,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Tex.cso",
 			 L"PShader_OffScreen.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -390,7 +375,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Tex.cso",
 			 L"PShader_DirLighting.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -408,7 +392,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_SpotPointLighting.cso",
 			 L"PShader_SpotPointLighting.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -428,7 +411,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Standard.cso",
 			 L"PShader_Standard.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -447,7 +429,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Skybox.cso",
 			 L"PShader_Skybox.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -466,7 +447,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Ssao.cso",
 			 L"PShader_Ssao.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -485,12 +465,33 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Ssao.cso",
 			 L"PShader_SsaoBlur.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("SsaoBlur", shader);
+	}
+#pragma endregion
+#pragma region GraphicsParticle
+	{
+		ShaderInfo info{
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::Less_No_Write,
+			BlendType::Alpha_Blend,
+			InputLayoutType::Default,
+			D3D_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_POINTLIST,
+		};
+
+		ShaderPath path = {
+			 L"VShader_Particle.cso",
+			 L"PShader_Particle.cso",
+			 L"GShader_Particle.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("GraphicsParticle", shader);
 	}
 #pragma endregion
 // ComputeShader
@@ -502,6 +503,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
+			 L"",
 			 L"",
 			 L"",
 			 L"CShader_HorzBlur.cso"
@@ -521,6 +523,7 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"",
 			 L"",
+			 L"",
 			 L"CShader_VertBlur.cso"
 		};
 
@@ -538,6 +541,7 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"",
 			 L"",
+			 L"",
 			 L"CShader_LUT.cso"
 		};
 
@@ -553,6 +557,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
+			 L"",
 			 L"",
 			 L"",
 			 L"CShader_Particle.cso"

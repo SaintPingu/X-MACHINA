@@ -93,8 +93,7 @@ void GraphicsRootSignature::Create()
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
 
 	// description
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
@@ -128,17 +127,13 @@ void GraphicsRootSignature::CreateDefaultGraphicsRootSignature()
 	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
 	Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 	Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	Push(RootParam::Particle, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 2, D3D12_SHADER_VISIBILITY_ALL);
 
 	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
 	PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, gkDescHeapSkyBoxCount, D3D12_SHADER_VISIBILITY_PIXEL);
 	PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, gkDescHeapSrvCount, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	Create();
-}
-
-void GraphicsRootSignature::CreateParticleGraphicsRootSignature()
-{
-
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 8> GraphicsRootSignature::GetStaticSamplers()
@@ -250,10 +245,12 @@ void ComputeRootSignature::CreateDefaultComputeRootSignature()
 
 void ComputeRootSignature::CreateParticleComputeRootSignature()
 {
-	// 파티클 시스템 데이터 (t0)
+	// 파티클 시스템 데이터 (t0, space0)
 	Push(RootParam::ParticleSystem, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-	// 인풋 파티클 데이터 (u0)
-	Push(RootParam::OutputParticle, D3D12_ROOT_PARAMETER_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	// 파티클 시스템 데이터 (u0, space1)
+	Push(RootParam::ParticleShared, D3D12_ROOT_PARAMETER_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	// 인풋 파티클 데이터 (u0, space2)
+	Push(RootParam::ComputeParticle, D3D12_ROOT_PARAMETER_TYPE_UAV, 0, 2, D3D12_SHADER_VISIBILITY_ALL);
 	// 파티클 시스템 인덱스 (b0)
 	Push(RootParam::ParticleIndex, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 1);
 

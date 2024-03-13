@@ -77,7 +77,6 @@ private:
 	// root signature
 	sptr<GraphicsRootSignature>			mGraphicsRootSignature{};
 	sptr<ComputeRootSignature>			mComputeRootSignature{};
-	sptr<GraphicsRootSignature>			mParticleGraphicsRootSignature{};
 	sptr<ComputeRootSignature>			mParticleComputeRootSignature{};
 
 	// descriptor heap
@@ -130,7 +129,6 @@ public:
 	UINT GetParticleComputeRootParamIndex(RootParam param) const;
 	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
 	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;	
-	RComPtr<ID3D12RootSignature> GetParticleGraphicsRootSignature() const;
 	RComPtr<ID3D12RootSignature> GetParticleComputeRootSignature() const;
 
 #pragma endregion

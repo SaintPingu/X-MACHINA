@@ -24,6 +24,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, Buffer
 
 	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, bufferCounts[static_cast<int>(BufferType::Material)], false);
 	ParticleSystemBuffer = std::make_unique<UploadBuffer<ParticleSystemData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleSystem)], false);
+	ParticleSharedBuffer = std::make_unique<UploadBuffer<ParticleSharedData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleShared)], false);
 }
 #pragma endregion
 
@@ -40,8 +41,8 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mBufferCounts[static_cast<int>(BufferType::SkinMesh)]		= 100;
 	mBufferCounts[static_cast<int>(BufferType::Ssao)]			= 1;
 	mBufferCounts[static_cast<int>(BufferType::Material)]		= 500;
-	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 100;
-	mBufferCounts[static_cast<int>(BufferType::Particle)]		= 500;
+	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 500;
+	mBufferCounts[static_cast<int>(BufferType::ParticleShared)]	= 500;
 
 	for (int bufferType = 0; bufferType < BufferTypeCount; ++bufferType) {
 		for (int index = 0; index < mBufferCounts[bufferType]; ++index) {
@@ -90,6 +91,12 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetParticleSystemGpuAddr(int e
 {
 	const auto& particleSystemBuffer = mCurrFrameResource->ParticleSystemBuffer;
 	return particleSystemBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * particleSystemBuffer->GetElementByteSize();
+}
+
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetParticleSharedGpuAddr(int elementIndex) const
+{
+	const auto& particleSharedBuffer = mCurrFrameResource->ParticleSharedBuffer;
+	return particleSharedBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * particleSharedBuffer->GetElementByteSize();
 }
 
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
@@ -155,6 +162,12 @@ void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSystemData& dat
 {
 	AllocIndex(elementIndex, BufferType::ParticleSystem);
 	mCurrFrameResource->ParticleSystemBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSharedData& data)
+{
+	AllocIndex(elementIndex, BufferType::ParticleSystem);
+	mCurrFrameResource->ParticleSharedBuffer->CopyData(elementIndex, data);
 }
 
 void FrameResourceMgr::AllocIndex(int& elementIndex, BufferType bufferType)

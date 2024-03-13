@@ -63,13 +63,6 @@ RComPtr<ID3D12RootSignature> DXGIMgr::GetComputeRootSignature() const
 	return mComputeRootSignature->Get();
 }
 
-RComPtr<ID3D12RootSignature> DXGIMgr::GetParticleGraphicsRootSignature() const
-{
-	assert(mParticleGraphicsRootSignature);
-
-	return mParticleGraphicsRootSignature->Get();
-}
-
 RComPtr<ID3D12RootSignature> DXGIMgr::GetParticleComputeRootSignature() const
 {
 	assert(mParticleComputeRootSignature);
@@ -303,6 +296,7 @@ void DXGIMgr::MainPassRenderBegin()
 	// 파티클 컴퓨트 쉐이더 관련 설정
 	cmdList->SetComputeRootSignature(GetParticleComputeRootSignature().Get());
 	cmdList->SetComputeRootShaderResourceView(GetParticleComputeRootParamIndex(RootParam::ParticleSystem), frmResMgr->GetParticleSystemGpuAddr());
+	cmdList->SetComputeRootUnorderedAccessView(GetParticleComputeRootParamIndex(RootParam::ParticleShared), frmResMgr->GetParticleSharedGpuAddr());
 }
 
 void DXGIMgr::PostPassRenderBegin()
@@ -451,9 +445,6 @@ void DXGIMgr::CreateGraphicsRootSignature()
 {
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
 	mGraphicsRootSignature->CreateDefaultGraphicsRootSignature();
-
-	mParticleGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
-	mParticleGraphicsRootSignature->CreateParticleGraphicsRootSignature();
 }
 
 void DXGIMgr::CreateComputeRootSignature()

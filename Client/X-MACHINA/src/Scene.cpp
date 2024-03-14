@@ -236,8 +236,24 @@ void Scene::BuildPlayers()
 	mPlayers.push_back(airplanePlayer);
 	mPlayer = mPlayers.front();
 
-	mPlayer->AddComponent<ParticleSystem>()->SetTexture(res->Get<Texture>("greenParticle")->GetSrvIdx());
-	mPlayer->AddComponent<ParticleSystem>()->SetTexture(res->Get<Texture>("fireParticle")->GetSrvIdx());
+	{
+		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
+		psComponent->GetPSData().TextureIndex = res->Get<Texture>("greenParticle")->GetSrvIdx();
+		psComponent->GetPSData().StartScale = 0.05;
+		psComponent->GetPSData().EndScale = 0.05;
+		psComponent->GetPSData().MaxLifeTime = 0.5;
+		psComponent->GetPSData().MinLifeTime = 0.5;
+		psComponent->SetTarget("Humanoid__L_Hand");
+	}
+	{
+		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
+		psComponent->GetPSData().TextureIndex = res->Get<Texture>("fireParticle")->GetSrvIdx();
+		psComponent->GetPSData().StartScale = 0.05;
+		psComponent->GetPSData().EndScale = 0.05;
+		psComponent->GetPSData().MaxLifeTime = 0.5;
+		psComponent->GetPSData().MinLifeTime = 0.5;
+		psComponent->SetTarget("Humanoid__R_Hand");
+	}
 }
 
 void Scene::BuildTerrain()
@@ -263,8 +279,9 @@ void Scene::BuildTest()
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
 	mParticle = std::make_shared<GameObject>();
-	mParticle->AddComponent<ParticleSystem>()->SetTexture(res->Get<Texture>("lightParticle")->GetSrvIdx());
 	mParticle->SetPosition(Vec3{ 167.5f, 10.f, 150.f });
+	auto& psComponent = mParticle->AddComponent<ParticleSystem>();
+	psComponent->GetPSData().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
 }
 
 void Scene::BuildGrid()

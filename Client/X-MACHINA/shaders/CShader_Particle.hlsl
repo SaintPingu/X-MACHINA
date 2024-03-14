@@ -76,6 +76,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         if (gOutputParticles[threadID.x].Alive == 1)
         {
             gOutputParticles[threadID.x].CurTime = 0.f;
+            gOutputParticles[threadID.x].StartEndScale = float2(ps.StartScale, ps.EndScale);
             gOutputParticles[threadID.x].WorldPos = gOutputParticles[threadID.x].LocalPos + ps.WorldPos;
         }
     }

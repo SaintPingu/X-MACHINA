@@ -396,20 +396,20 @@ struct SceneLight {
 
 struct ParticleSystemData
 {
-	Vec3  WorldPos = { 0.f, 0.f, 0.f };
-	int   AddCount = 0;
-	int   MaxCount = 0;
-	float DeltaTime = 0.f;
-	float AccTime = 0.f;
-	float MinLifeTime = 0.f;
-	float MaxLifeTime = 0.f;
-	float MinSpeed = 0.f;
-	float MaxSpeed = 0.f;
-	float StartScale = 0.f;
-	Vec4  Color = { 1.f, 1.f, 1.f, 1.f };
-	float EndScale = 0.f;
-	int	  TextureIndex = -1;
-	Vec2  Padding;
+	Vec3	WorldPos = { 0.f, 0.f, 0.f };
+	int		AddCount = 0;
+	int		MaxCount = 1000;
+	float	DeltaTime = 0.f;
+	float	AccTime = 0.f;
+	float	MinLifeTime = 1.f;
+	float	MaxLifeTime = 1.f;
+	float	MinSpeed = 100;
+	float	MaxSpeed = 50;
+	float	StartScale = 0.1f;
+	Vec4	Color = { 1.f, 1.f, 1.f, 1.f };
+	float	EndScale = 0.1f;
+	int		TextureIndex = -1;
+	Vec2	Padding;
 };
 
 struct ParticleData

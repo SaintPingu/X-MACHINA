@@ -34,7 +34,7 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE			GetDsvCpuDescriptorHandle() const { return mDsvDescriptorHandle; }
 	D3D12_CPU_DESCRIPTOR_HANDLE			GetRtvCpuDescriptorHandle() const { return mRtvDescriptorHandle; }
 	
-	const UINT							GetGpuDescriptorHandleIndex() const { return mSrvDescriptorHandleIndex; }
+	const UINT							GetSrvIdx() const { return mSrvDescriptorHandleIndex; }
 	D3D12_SHADER_RESOURCE_VIEW_DESC		GetShaderResourceViewDesc() const;
 	D3D12_UNORDERED_ACCESS_VIEW_DESC	GetUnorderedAccessViewDesc() const;
 	D3D12_DEPTH_STENCIL_VIEW_DESC		GetDepthStencilViewDesc() const;

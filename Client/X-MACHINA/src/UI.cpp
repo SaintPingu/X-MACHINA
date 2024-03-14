@@ -91,7 +91,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
 	objectConstants.MtxSprite	= XMMatrix::Transpose(spriteMtx);
-	objectConstants.MatIndex	= mTexture->GetGpuDescriptorHandleIndex(); 
+	objectConstants.MatIndex	= mTexture->GetSrvIdx(); 
 
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
 	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));

@@ -10,7 +10,6 @@
 class GridObject;
 class Material;
 class Texture;
-struct ParticleSystemData;
 #pragma endregion
 
 
@@ -22,44 +21,23 @@ class ParticleSystem : public Component {
 	friend class ParticleSystemObject;
 
 private:
-	float mCreateInterval = 0.005f;
-	ParticleSystemData	mParticleSystemData;
-	uptr<UploadBuffer<ParticleData>> mParticles;
+	int mParticleSystemIndex = -1;	// 파티클 시스템 구조적 버퍼 인덱스
+	float mCreateInterval = 0.005f;	// 파티클 생성 주기
 
-public:
-	virtual void Awake() override;
-
-public:
-	void Update();
-};
-
-
-/* object with particle system */
-class ParticleSystemObject : public Object {
-	using base = Object;
-
-private:
-	int mParticleSystemIndex = -1;
-	sptr<ParticleSystem> mParticleSystem{};
-
-public:
-	ParticleSystemObject(Vec3 worldPos);
-	virtual ~ParticleSystemObject() = default;
+	ParticleSystemData	mParticleSystemData{};		// 모든 파티클에 공통적으로 적용되는 데이터
+	uptr<UploadBuffer<ParticleData>> mParticles;	// 모든 파티클에 특수적으로 적용되는 데이터
 
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
-
-public:
-	void SetTexture(rsptr<Texture> texture);
-
-public:
-	// 컴퓨트 쉐이더에서 사용하는 상수 
-	void UpdateComputeShaderVars();
-	// 그래픽스 쉐이더에서 사용하는 상수
-	void UpdateGraphicsShaderVars();
-
 	void Render();
+
+public:
+	void SetTexture(int textureIndex) { mParticleSystemData.TextureIndex = textureIndex; }
+
+private:
+	void UpdateComputeShaderVars();	
+	void UpdateGraphicsShaderVars();
 };
 #pragma endregion

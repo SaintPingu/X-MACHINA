@@ -253,7 +253,7 @@ void DXGIMgr::Render()
 
 	UINT offScreenIndex{};
 	if (mFilterOption & FilterOption::None)
-		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetGpuDescriptorHandleIndex();
+		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetSrvIdx();
 	if (mFilterOption & FilterOption::Blur)
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0), 4);
 	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)

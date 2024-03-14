@@ -35,7 +35,7 @@ void Material::UpdateShaderVars()
 
 	for (UINT8 i = 0; i < TextureMapCount; ++i) {
 		if (mTextures[i]) {
-			materialData.MapIndices[i] = mTextures[i]->GetGpuDescriptorHandleIndex();
+			materialData.MapIndices[i] = mTextures[i]->GetSrvIdx();
 		}
 	}
 

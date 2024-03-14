@@ -63,11 +63,11 @@ void Ssao::BlurSsaoMap(bool horzBlur)
 	// 수평 흐리기인 경우 ssao 렌더 타겟의 0번 텍스처를 인풋으로 설정
 	// 수직 흐리기인 경우 ssao 렌더 타겟의 1번 텍스처를 인풋으로 설정
 	if (horzBlur) {
-		inputMapHandleIndex = mSsao0Map->GetGpuDescriptorHandleIndex();
+		inputMapHandleIndex = mSsao0Map->GetSrvIdx();
 		outputMapIndex = static_cast<UINT8>(SsaoMap::Ssao1);
 	}
 	else {
-		inputMapHandleIndex = mSsao1Map->GetGpuDescriptorHandleIndex();
+		inputMapHandleIndex = mSsao1Map->GetSrvIdx();
 		outputMapIndex = static_cast<UINT8>(SsaoMap::Ssao0);
 	}
 

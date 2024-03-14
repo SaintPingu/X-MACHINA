@@ -114,19 +114,19 @@ void Scene::UpdateMainPassCB()
 	passCB.TotalTime					= timeElapsed;
 	passCB.FrameBufferWidth				= gkFrameBufferWidth;
 	passCB.FrameBufferHeight			= gkFrameBufferHeight;
-	passCB.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
-	passCB.DefaultDsIndex				= res->Get<Texture>("DefaultDepthStencil")->GetGpuDescriptorHandleIndex();
-	passCB.ShadowDsIndex				= res->Get<Texture>("ShadowDepthStencil")->GetGpuDescriptorHandleIndex();
-	passCB.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT2G_DiffuseIndex			= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT4G_MetallicSmoothnessIndex = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT0L_DiffuseIndex			= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT2L_AmbientIndex			= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();
-	passCB.RT0S_SsaoIndex				= res->Get<Texture>("SSAOTarget_0")->GetGpuDescriptorHandleIndex();
+	passCB.SkyBoxIndex					= mSkyBox->GetTexture()->GetSrvIdx();
+	passCB.DefaultDsIndex				= res->Get<Texture>("DefaultDepthStencil")->GetSrvIdx();
+	passCB.ShadowDsIndex				= res->Get<Texture>("ShadowDepthStencil")->GetSrvIdx();
+	passCB.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetSrvIdx();
+	passCB.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetSrvIdx();
+	passCB.RT2G_DiffuseIndex			= res->Get<Texture>("DiffuseTarget")->GetSrvIdx();
+	passCB.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetSrvIdx();
+	passCB.RT4G_MetallicSmoothnessIndex = res->Get<Texture>("MetallicSmoothnessTarget")->GetSrvIdx();
+	passCB.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetSrvIdx();
+	passCB.RT0L_DiffuseIndex			= res->Get<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
+	passCB.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
+	passCB.RT2L_AmbientIndex			= res->Get<Texture>("AmbientTarget")->GetSrvIdx();
+	passCB.RT0S_SsaoIndex				= res->Get<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.LightCount					= mLight->GetLightCount();
 	passCB.GlobalAmbient				= Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption					= dxgi->GetFilterOption();
@@ -177,7 +177,7 @@ void Scene::UpdateSsaoCB()
 	ssaoCB.SurfaceEpsilon = 0.05f;
 	ssaoCB.AccessContrast = 12;
 
-	ssaoCB.RandomVectorIndex = res->Get<Texture>("RandomVector")->GetGpuDescriptorHandleIndex();
+	ssaoCB.RandomVectorIndex = res->Get<Texture>("RandomVector")->GetSrvIdx();
 
 	frmResMgr->CopyData(ssaoCB);
 }
@@ -235,6 +235,9 @@ void Scene::BuildPlayers()
 	
 	mPlayers.push_back(airplanePlayer);
 	mPlayer = mPlayers.front();
+
+	mPlayer->AddComponent<ParticleSystem>()->SetTexture(res->Get<Texture>("greenParticle")->GetSrvIdx());
+	mPlayer->AddComponent<ParticleSystem>()->SetTexture(res->Get<Texture>("fireParticle")->GetSrvIdx());
 }
 
 void Scene::BuildTerrain()
@@ -259,11 +262,9 @@ void Scene::BuildTest()
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
-	mParticle = std::make_shared<ParticleSystemObject>(Vec3{ 167.5f, 10.f, 150.f });
-	mParticle->SetTexture(res->Get<Texture>("lightParticle"));
-
-	mParticle2 = std::make_shared<ParticleSystemObject>(Vec3{ 172.5f, 10.f, 150.f });
-	mParticle2->SetTexture(res->Get<Texture>("fireParticle"));
+	mParticle = std::make_shared<GameObject>();
+	mParticle->AddComponent<ParticleSystem>()->SetTexture(res->Get<Texture>("lightParticle")->GetSrvIdx());
+	mParticle->SetPosition(Vec3{ 167.5f, 10.f, 150.f });
 }
 
 void Scene::BuildGrid()
@@ -589,8 +590,11 @@ void Scene::RenderSkyBox()
 
 void Scene::RenderParticles()
 {
-	mParticle->Render();
-	mParticle2->Render();
+	for (auto& particle : mPlayer->GetComponents<ParticleSystem>()) {
+		particle->Render();
+	}
+
+	mParticle->GetComponent<ParticleSystem>()->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -755,7 +759,6 @@ void Scene::Start()
 		object->Awake();
 		});
 	mParticle->Awake();
-	mParticle2->Awake();
 
 	/* Enable & Start */
 	mTerrain->OnEnable();
@@ -773,7 +776,6 @@ void Scene::Update()
 
 	UpdateObjects();
 	mParticle->Update();
-	mParticle2->Update();
 	mainCameraObject->Update();
 	mLight->Update();
 	canvas->Update();

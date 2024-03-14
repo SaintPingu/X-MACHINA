@@ -12,8 +12,8 @@
 #pragma region ParticleSystem
 void ParticleSystem::Awake()
 {
-	base::Awake();
-
+#pragma region Init_ParticleSystem
+	mParticleSystemData.WorldPos	= mObject->GetPosition();
 	mParticleSystemData.AddCount	= 0;
 	mParticleSystemData.MaxCount	= 1000;
 	mParticleSystemData.DeltaTime	= 0.f;
@@ -24,11 +24,10 @@ void ParticleSystem::Awake()
 	mParticleSystemData.MaxSpeed	= 50;
 	mParticleSystemData.StartScale	= 10.f;
 	mParticleSystemData.EndScale	= 0.f;
-	mParticleSystemData.TextureIndex = res->Get<Texture>("lightParticle")->GetGpuDescriptorHandleIndex();
+#pragma endregion
 
+#pragma region Init_Particles
 	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mParticleSystemData.MaxCount, false);
-	
-	// TODO : shape에 따른 파티클들의 시작 지점과 방향 설정
 	for (int i = 0; i < mParticleSystemData.MaxCount; ++i) {
 		ParticleData particleData;
 		particleData.LocalPos.x = 0;
@@ -43,14 +42,14 @@ void ParticleSystem::Awake()
 		particleData.Alive = 0;
 		mParticles->CopyData(i, particleData);
 	}
+#pragma endregion
 }
-
 
 void ParticleSystem::Update()
 {
+	mParticleSystemData.WorldPos = mObject->GetPosition();
 	mParticleSystemData.AccTime += DeltaTime();
 	mParticleSystemData.DeltaTime = DeltaTime();
-	
 
 	mParticleSystemData.AddCount = 0;
 	if (mCreateInterval < mParticleSystemData.AccTime) {
@@ -58,71 +57,37 @@ void ParticleSystem::Update()
 		mParticleSystemData.AddCount = 1;
 	}
 }
-#pragma endregion
 
-
-
-
-
-#pragma region ParticleSystemObject
-ParticleSystemObject::ParticleSystemObject(Vec3 worldPos) : Object()
+void ParticleSystem::OnDestroy()
 {
-	mParticleSystem = AddComponent<ParticleSystem>();
-	SetPosition(worldPos);
-}
-
-void ParticleSystemObject::Awake()
-{
-	base::Awake();
-}
-
-void ParticleSystemObject::Update()
-{
-	base::Update();					// update base
-	mParticleSystem->Update();		// update particle system 
-}
-
-void ParticleSystemObject::OnDestroy()
-{
-	base::OnDestroy();
 	frmResMgr->ReturnIndex(mParticleSystemIndex, BufferType::ParticleSystem);
 	frmResMgr->ReturnIndex(mParticleSystemIndex, BufferType::ParticleShared);
 }
 
-void ParticleSystemObject::SetTexture(rsptr<Texture> texture)
+void ParticleSystem::Render()
 {
+	UpdateComputeShaderVars();
+	cmdList->Dispatch(1, 1, 1);
+
+	UpdateGraphicsShaderVars();
+	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mParticleSystemData.MaxCount);
 }
 
-void ParticleSystemObject::UpdateComputeShaderVars()
+void ParticleSystem::UpdateComputeShaderVars()
 {
 	res->Get<Shader>("ComputeParticle")->Set();
 
-	mParticleSystem->mParticleSystemData.WorldPos = GetPosition();
-	frmResMgr->CopyData(mParticleSystemIndex, mParticleSystem->mParticleSystemData);
-
-	cmdList->SetComputeRootUnorderedAccessView(dxgi->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticleSystem->mParticles->Resource()->GetGPUVirtualAddress());
+	frmResMgr->CopyData(mParticleSystemIndex, mParticleSystemData);
+	cmdList->SetComputeRootUnorderedAccessView(dxgi->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticles->Resource()->GetGPUVirtualAddress());
 	cmdList->SetComputeRoot32BitConstants(dxgi->GetParticleComputeRootParamIndex(RootParam::ParticleIndex), 1, &mParticleSystemIndex, 0);
-
-	cmdList->Dispatch(1, 1, 1);
 }
 
-void ParticleSystemObject::UpdateGraphicsShaderVars()
+void ParticleSystem::UpdateGraphicsShaderVars()
 {
 	res->Get<Shader>("GraphicsParticle")->Set();
 
-	Transform::UpdateShaderVars();
-
-	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticleSystem->mParticles->Resource()->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticles->Resource()->GetGPUVirtualAddress());
 }
-
-void ParticleSystemObject::Render()
-{
-	UpdateComputeShaderVars();
-	UpdateGraphicsShaderVars();
-	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mParticleSystem->mParticleSystemData.MaxCount);
-}
-
-
 
 #pragma endregion
 

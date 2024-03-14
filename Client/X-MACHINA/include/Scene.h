@@ -39,13 +39,13 @@ private:
 	sptr<Light> mLight{};
 
 	/* SkyBox */
-	sptr<SkyBox> mSkyBox{};					// sky box object
+	sptr<SkyBox> mSkyBox{};
 
 	/* Object */
 	sptr<GameObject>				mWater{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
-	std::list<sptr<GridObject>>		mExplosiveObjects{};		// dynamic
+	std::list<sptr<GridObject>>		mExplosiveObjects{};
 	std::list<sptr<GameObject>>		mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
 
@@ -55,18 +55,17 @@ private:
 	std::set<GridObject*>	mSkinMeshObjects{};
 
 	/* Player */
-	std::vector<sptr<GridObject>> mPlayers{};
-	sptr<GridObject>			  mPlayer{};			// main player
-	int							  mCurrPlayerIndex{};	// main player index from [mPlayers]
+	std::vector<sptr<GridObject>>	mPlayers{};
+	sptr<GridObject>				mPlayer{};			 // main player
+	int								mCurrPlayerIndex{};	 // main player index from [mPlayers]
 
 	/* TestCube */
-	std::vector<sptr<TestCube>> mTestCubes{};
-	sptr<ParticleSystemObject> mParticle{};
-	sptr<ParticleSystemObject> mParticle2{};
+	std::vector<sptr<TestCube>>		mTestCubes{};
+	sptr<GameObject>				mParticle{};		
 
 	/* Map */
-	sptr<Terrain>	mTerrain{};
-	BoundingBox		mMapBorder{};				// max scene range	(grid will be generated within this border)
+	sptr<Terrain>		mTerrain{};
+	BoundingBox			mMapBorder{};			// max scene range	(grid will be generated within this border)
 
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids

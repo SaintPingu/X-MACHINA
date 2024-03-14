@@ -77,7 +77,7 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COMMON);
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
-	return input->GetGpuDescriptorHandleIndex();
+	return input->GetSrvIdx();
 }
 
 void BlurFilter::CreateDescriptors()

@@ -45,7 +45,7 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 	D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COMMON);
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
-	return mOutput->GetGpuDescriptorHandleIndex();
+	return mOutput->GetSrvIdx();
 }
 
 void LUTFilter::CreateDescriptors()

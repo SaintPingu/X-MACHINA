@@ -75,7 +75,10 @@ struct ParticleInfo
 	float	LifeTime;
 	float3	WorldDir;
 	int	    Alive;
+    float4  Color;
 	float2	StartEndScale;
+    int		TextureIndex;
+	int		Padding;
 };
 
 struct ObjectInfo {

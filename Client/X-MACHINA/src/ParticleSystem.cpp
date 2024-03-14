@@ -7,7 +7,6 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "FrameResource.h"
-#include "Model.h"
 
 
 #pragma region ParticleSystem
@@ -25,6 +24,7 @@ void ParticleSystem::Awake()
 	mParticleSystemData.MaxSpeed	= 50;
 	mParticleSystemData.StartScale	= 10.f;
 	mParticleSystemData.EndScale	= 0.f;
+	mParticleSystemData.TextureIndex = res->Get<Texture>("lightParticle")->GetGpuDescriptorHandleIndex();
 
 	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mParticleSystemData.MaxCount, false);
 	
@@ -68,7 +68,6 @@ void ParticleSystem::Update()
 ParticleSystemObject::ParticleSystemObject(Vec3 worldPos) : Object()
 {
 	mParticleSystem = AddComponent<ParticleSystem>();
-	mMaterial = std::make_shared<Material>();
 	SetPosition(worldPos);
 }
 
@@ -92,7 +91,6 @@ void ParticleSystemObject::OnDestroy()
 
 void ParticleSystemObject::SetTexture(rsptr<Texture> texture)
 {
-	mMaterial->SetTexture(TextureMap::DiffuseMap0, texture);
 }
 
 void ParticleSystemObject::UpdateComputeShaderVars()
@@ -112,8 +110,7 @@ void ParticleSystemObject::UpdateGraphicsShaderVars()
 {
 	res->Get<Shader>("GraphicsParticle")->Set();
 
-	mMaterial->UpdateShaderVars();
-	Transform::UpdateShaderVars(0, mMaterial->mMatIndex);
+	Transform::UpdateShaderVars();
 
 	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticleSystem->mParticles->Resource()->GetGPUVirtualAddress());
 }

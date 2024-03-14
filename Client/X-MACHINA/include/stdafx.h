@@ -406,8 +406,10 @@ struct ParticleSystemData
 	float MinSpeed = 0.f;
 	float MaxSpeed = 0.f;
 	float StartScale = 0.f;
+	Vec4  Color = { 1.f, 1.f, 1.f, 1.f };
 	float EndScale = 0.f;
-	Vec3  Padding;
+	int	  TextureIndex = -1;
+	Vec2  Padding;
 };
 
 struct ParticleData
@@ -418,7 +420,10 @@ struct ParticleData
 	float	LifeTime = 0.f;
 	Vec3	WorldDir = { 0.f, 0.f, 0.f };
 	int	    Alive = 0;
+	Vec4	Color = { 1.f, 1.f, 1.f, 1.f };
 	Vec2	StartEndScale = { 0.f, 0.f };
+	int		TextureIndex = -1;
+	int		Padding;
 };
 
 struct ParticleSharedData

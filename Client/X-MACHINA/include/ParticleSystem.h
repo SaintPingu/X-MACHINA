@@ -41,7 +41,6 @@ class ParticleSystemObject : public Object {
 private:
 	int mParticleSystemIndex = -1;
 	sptr<ParticleSystem> mParticleSystem{};
-	sptr<Material> mMaterial{};
 
 public:
 	ParticleSystemObject(Vec3 worldPos);

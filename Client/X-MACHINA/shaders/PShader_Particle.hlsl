@@ -9,10 +9,5 @@ struct GSOutput_Particle
 
 float4 PSParticle(GSOutput_Particle pin) : SV_TARGET
 {
-    MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];
-    
-    float4 color = gTextureMaps[matInfo.DiffuseMap0Index].Sample(gsamLinearWrap, pin.UV);
-    color.a *= 1 - abs((gInputPraticles[pin.ID].CurTime / gInputPraticles[pin.ID].LifeTime) * 2 - 1);
-    
-    return color;
+    return gTextureMaps[gInputPraticles[pin.ID].TextureIndex].Sample(gsamLinearWrap, pin.UV) * gInputPraticles[pin.ID].Color;
 }

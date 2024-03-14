@@ -24,8 +24,10 @@ struct ParticleSystemInfo
 	float	MinSpeed;
 	float	MaxSpeed;
 	float	StartScale;
+	float4  Color;
 	float	EndScale;
-	float3  Padding;
+    int	    TextureIndex;
+	float2  Padding;
 };
 
 StructuredBuffer<ParticleSystemInfo> gParticleSystem : register(t0, space0);
@@ -40,10 +42,16 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
 
     if (threadID.x >= ps.MaxCount)
         return;
+    
+    // particle color
+    gOutputParticles[threadID.x].TextureIndex = ps.TextureIndex;
+    gOutputParticles[threadID.x].Color = ps.Color;
 
+    // particle shared 
     gParticleShared[gIndex.Index].AddCount = ps.AddCount;
     GroupMemoryBarrierWithGroupSync();
 	
+    // particle logic
     if (gOutputParticles[threadID.x].Alive == 0)
     {
         while (true)
@@ -80,9 +88,10 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
             return;
         }
         
-        float t = gOutputParticles[threadID.x].CurTime / gOutputParticles[threadID.x].LifeTime;
-        float3 v = float3(0.f, 10.f, 0.f);
-        gOutputParticles[threadID.x].WorldPos += normalize(gOutputParticles[threadID.x].WorldDir) * 0.01;
+        float lifeRatio = gOutputParticles[threadID.x].CurTime / gOutputParticles[threadID.x].LifeTime;
+        
+        gOutputParticles[threadID.x].Color.a = 1 - lifeRatio;
+        gOutputParticles[threadID.x].WorldPos += normalize(gOutputParticles[threadID.x].WorldDir) * ps.DeltaTime;
     }
 	
 }

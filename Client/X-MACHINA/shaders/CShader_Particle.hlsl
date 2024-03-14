@@ -39,14 +39,16 @@ ConstantBuffer<ParticleSystemIndexInfo> gIndex : register(b0);
 void CSParticle(int3 threadID : SV_DispatchThreadID)
 {
     ParticleSystemInfo ps = gParticleSystem[gIndex.Index];
-
+    NumberGenerator rand;
+    rand.SetSeed(threadID.x);
+    
     if (threadID.x >= ps.MaxCount)
         return;
     
     // particle color
     gOutputParticles[threadID.x].TextureIndex = ps.TextureIndex;
     gOutputParticles[threadID.x].Color = ps.Color;
-
+    
     // particle shared 
     gParticleShared[gIndex.Index].AddCount = ps.AddCount;
     GroupMemoryBarrierWithGroupSync();
@@ -78,6 +80,9 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
             gOutputParticles[threadID.x].CurTime = 0.f;
             gOutputParticles[threadID.x].StartEndScale = float2(ps.StartScale, ps.EndScale);
             gOutputParticles[threadID.x].WorldPos = gOutputParticles[threadID.x].LocalPos + ps.WorldPos;
+            gOutputParticles[threadID.x].WorldDir = rand.GetRandomFloat3(-1.f, 1.f);
+            gOutputParticles[threadID.x].LifeTime = rand.GetRandomFloat(1.f, 1.f);
+            gOutputParticles[threadID.x].StartSpeed = rand.GetRandomFloat(1.f, 1.f);
         }
     }
     else
@@ -90,9 +95,10 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         }
         
         float lifeRatio = gOutputParticles[threadID.x].CurTime / gOutputParticles[threadID.x].LifeTime;
+        float speed = gOutputParticles[threadID.x].StartSpeed;
         
         gOutputParticles[threadID.x].Color.a = 1 - lifeRatio;
-        gOutputParticles[threadID.x].WorldPos += normalize(gOutputParticles[threadID.x].WorldDir) * ps.DeltaTime;
+        gOutputParticles[threadID.x].WorldPos += normalize(gOutputParticles[threadID.x].WorldDir) * speed * ps.DeltaTime;
     }
 	
 }

@@ -125,7 +125,7 @@ public:
     uptr<UploadBuffer<SsaoConstants>>       SsaoCB{};               // SSAO 상수 버퍼
 
     uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};       // 머티리얼 버퍼
-    uptr<UploadBuffer<ParticleSystemData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
+    uptr<UploadBuffer<ParticleSystemGPUData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
     uptr<UploadBuffer<ParticleSharedData>>  ParticleSharedBuffer{}; // 파티클 공유 버퍼 
 
 public:
@@ -188,7 +188,7 @@ public:
     // 스킨메쉬 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const SkinnedConstants& data);
     // 파티클 시스템 데이터 당 구조적 버퍼에 데이터 복사
-    void CopyData(int& elementIndex, const ParticleSystemData& data);
+    void CopyData(int& elementIndex, const ParticleSystemGPUData& data);
     // 파티클 공유 데이터 당 구조적 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ParticleSharedData& data);
 

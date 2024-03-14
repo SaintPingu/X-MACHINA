@@ -238,20 +238,20 @@ void Scene::BuildPlayers()
 
 	{
 		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetPSData().TextureIndex = res->Get<Texture>("greenParticle")->GetSrvIdx();
-		psComponent->GetPSData().StartScale = 0.05;
-		psComponent->GetPSData().EndScale = 0.05;
-		psComponent->GetPSData().MaxLifeTime = 0.5;
-		psComponent->GetPSData().MinLifeTime = 0.5;
+		psComponent->GetPSGD().TextureIndex = res->Get<Texture>("greenParticle")->GetSrvIdx();
+		psComponent->GetPSGD().StartScale = 0.05f;
+		psComponent->GetPSGD().EndScale = 0.05f;
+		psComponent->GetPSGD().MaxLifeTime = 0.5f;
+		psComponent->GetPSGD().MinLifeTime = 0.5f;
 		psComponent->SetTarget("Humanoid__L_Hand");
 	}
 	{
 		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetPSData().TextureIndex = res->Get<Texture>("fireParticle")->GetSrvIdx();
-		psComponent->GetPSData().StartScale = 0.05;
-		psComponent->GetPSData().EndScale = 0.05;
-		psComponent->GetPSData().MaxLifeTime = 0.5;
-		psComponent->GetPSData().MinLifeTime = 0.5;
+		psComponent->GetPSGD().TextureIndex = res->Get<Texture>("fireParticle")->GetSrvIdx();
+		psComponent->GetPSGD().StartScale = 0.05f;
+		psComponent->GetPSGD().EndScale = 0.05f;
+		psComponent->GetPSGD().MaxLifeTime = 0.5f;
+		psComponent->GetPSGD().MinLifeTime = 0.5f;
 		psComponent->SetTarget("Humanoid__R_Hand");
 	}
 }
@@ -281,7 +281,7 @@ void Scene::BuildTest()
 	mParticle = std::make_shared<GameObject>();
 	mParticle->SetPosition(Vec3{ 167.5f, 10.f, 150.f });
 	auto& psComponent = mParticle->AddComponent<ParticleSystem>();
-	psComponent->GetPSData().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
+	psComponent->GetPSGD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
 }
 
 void Scene::BuildGrid()
@@ -607,11 +607,7 @@ void Scene::RenderSkyBox()
 
 void Scene::RenderParticles()
 {
-	for (auto& particle : mPlayer->GetComponents<ParticleSystem>()) {
-		particle->Render();
-	}
-
-	mParticle->GetComponent<ParticleSystem>()->Render();
+	pr->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -944,9 +940,8 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			timer->Start();
 			break;
 		case '0':
-			scene->BlowAllExplosiveObjects();
+			mParticle->GetComponent<ParticleSystem>()->PlayToggle();
 			break;
-
 		case VK_OEM_6:
 			ChangeToNextPlayer();
 			break;

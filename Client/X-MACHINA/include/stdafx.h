@@ -394,7 +394,7 @@ struct SceneLight {
 };
 
 
-struct ParticleSystemData
+struct ParticleSystemGPUData
 {
 	Vec3	WorldPos = { 0.f, 0.f, 0.f };
 	int		AddCount = 0;
@@ -423,7 +423,7 @@ struct ParticleData
 	Vec4	Color = { 1.f, 1.f, 1.f, 1.f };
 	Vec2	StartEndScale = { 0.f, 0.f };
 	int		TextureIndex = -1;
-	int		Padding;
+	float	StartSpeed = 0.f;
 };
 
 struct ParticleSharedData

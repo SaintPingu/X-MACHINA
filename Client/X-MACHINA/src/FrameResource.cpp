@@ -23,7 +23,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, Buffer
 	SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Ssao)], true);
 
 	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, bufferCounts[static_cast<int>(BufferType::Material)], false);
-	ParticleSystemBuffer = std::make_unique<UploadBuffer<ParticleSystemData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleSystem)], false);
+	ParticleSystemBuffer = std::make_unique<UploadBuffer<ParticleSystemGPUData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleSystem)], false);
 	ParticleSharedBuffer = std::make_unique<UploadBuffer<ParticleSharedData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleShared)], false);
 }
 #pragma endregion
@@ -158,7 +158,7 @@ void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
 	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
 }
 
-void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSystemData& data)
+void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSystemGPUData& data)
 {
 	AllocIndex(elementIndex, BufferType::ParticleSystem);
 	mCurrFrameResource->ParticleSystemBuffer->CopyData(elementIndex, data);

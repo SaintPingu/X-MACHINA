@@ -12,6 +12,7 @@
 #include "BlurFilter.h"
 #include "LUTFilter.h"
 #include "Ssao.h"
+#include "ParticleSystem.h"
 
 #pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
 #include "../Imgui/ImguiMgr.h"
@@ -127,6 +128,8 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateFilter();
 	CreateSsao();
 
+	pr->Init();
+
 	BuildScene();
 }
 
@@ -136,6 +139,7 @@ void DXGIMgr::Release()
 	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
 	res->Destroy();
+	pr->Destroy();
 	Destroy();
 }
 

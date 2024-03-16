@@ -2,6 +2,7 @@
 #include "FrameResource.h"
 
 #include "Light.h"
+#include "ParticleSystem.h"
 #pragma region MaterialData
 MaterialData::MaterialData()
 {

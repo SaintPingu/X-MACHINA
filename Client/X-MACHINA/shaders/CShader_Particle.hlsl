@@ -16,17 +16,22 @@ struct ParticleSystemInfo
 {
     float3  WorldPos;
 	int		AddCount;
+    
 	int		MaxCount;
 	float	DeltaTime;
 	float	AccTime;
 	float	MinLifeTime;
+    
 	float	MaxLifeTime;
 	float	MinSpeed;
 	float	MaxSpeed;
-	float	StartScale;
-	float4  Color;
-	float	EndScale;
     int	    TextureIndex;
+    
+	float4  Color;
+    
+    float2	StartLifeTime;
+	float2	StartSpeed;
+	float2	StartSize;
 	float2  Padding;
 };
 
@@ -78,11 +83,11 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         if (gOutputParticles[threadID.x].Alive == 1)
         {
             gOutputParticles[threadID.x].CurTime = 0.f;
-            gOutputParticles[threadID.x].StartEndScale = float2(ps.StartScale, ps.EndScale);
             gOutputParticles[threadID.x].WorldPos = gOutputParticles[threadID.x].LocalPos + ps.WorldPos;
             gOutputParticles[threadID.x].WorldDir = rand.GetRandomFloat3(-1.f, 1.f);
-            gOutputParticles[threadID.x].LifeTime = rand.GetRandomFloat(1.f, 1.f);
-            gOutputParticles[threadID.x].StartSpeed = rand.GetRandomFloat(1.f, 1.f);
+            gOutputParticles[threadID.x].LifeTime = rand.GetRandomFloat(ps.StartLifeTime);
+            gOutputParticles[threadID.x].StartSpeed = rand.GetRandomFloat(ps.StartSpeed);
+            gOutputParticles[threadID.x].StartEndScale = rand.GetRandomFloat(ps.StartSize);
         }
     }
     else

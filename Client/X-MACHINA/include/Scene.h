@@ -20,7 +20,6 @@ class Light;
 class SkyBox;
 class ObjectPool;
 class TestCube;
-class ParticleSystemObject;
 #pragma endregion
 
 
@@ -62,6 +61,7 @@ private:
 	/* TestCube */
 	std::vector<sptr<TestCube>>		mTestCubes{};
 	sptr<GameObject>				mParticle{};		
+	bool bp = true;
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};

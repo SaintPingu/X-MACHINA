@@ -305,28 +305,32 @@ float ComputeShadowFactor(float4 shadowPosH)
 }
 
 // random generator
-struct NumberGenerator {
+struct NumberGenerator
+{
     int seed; // Used to generate values.
 
     // Returns the current random float.
-    float GetCurrentFloat() {
+    float GetCurrentFloat()
+    {
         Cycle();
         return RANDOM_AM * seed;
     }
 
     // Returns the current random int.
-    int GetCurrentInt() {
+    int GetCurrentInt()
+    {
         Cycle();
         return seed;
     }
 
     // Generates the next number in the sequence.
-    void Cycle() {  
+    void Cycle()
+    {
         seed ^= RANDOM_MASK;
         int k = seed / RANDOM_IQ;
-        seed = RANDOM_IA * (seed - k * RANDOM_IQ ) - RANDOM_IR * k;
+        seed = RANDOM_IA * (seed - k * RANDOM_IQ) - RANDOM_IR * k;
 
-        if (seed < 0 ) 
+        if (seed < 0) 
             seed += RANDOM_IM;
 
         seed ^= RANDOM_MASK;
@@ -334,19 +338,29 @@ struct NumberGenerator {
 
     // Cycles the generator based on the input count. Useful for generating a thread unique seed.
     // PERFORMANCE - O(N)
-    void Cycle(const uint _count) {
+    void Cycle(const uint _count)
+    {
         for (uint i = 0; i < _count; ++i)
             Cycle();
     }
 
     // Returns a random float within the input range.
-    float GetRandomFloat(const float low, const float high) {
+    float GetRandomFloat(const float low, const float high)
+    {
         float v = GetCurrentFloat();
-        return low * ( 1.0f - v ) + high * v;
+        return low * (1.0f - v) + high * v;
     }
     
     // Returns a random float within the input range.
-    float3 GetRandomFloat3(const float low, const float high) {
+    float GetRandomFloat(const float2 value)
+    {
+        float v = GetCurrentFloat();
+        return value.x * (1.0f - v) + value.y * v;
+    }
+    
+    // Returns a random float within the input range.
+    float3 GetRandomFloat3(const float low, const float high)
+    {
         float v = GetCurrentFloat();
         float x = low * (1.0f - v) + high * v;
         v = GetCurrentFloat();
@@ -358,7 +372,8 @@ struct NumberGenerator {
     }
 
     // Sets the seed
-    void SetSeed(const uint value) {
+    void SetSeed(const uint value)
+    {
         seed = int(value);
         Cycle();
     }

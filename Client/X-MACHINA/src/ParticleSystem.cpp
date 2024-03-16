@@ -31,7 +31,9 @@ void ParticleSystem::Awake()
 	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mPSGD.MaxCount, false);
 #pragma endregion
 
-	Play();
+	if (mPSCD.PlayOnAwake) {
+		Play();
+	}
 }
 
 void ParticleSystem::Update()
@@ -54,17 +56,26 @@ void ParticleSystem::Update()
 		mPSCD.StopElapsed += DeltaTime();
 		if (mPSCD.StopElapsed >= (!mPSCD.Prewarm ? mPSGD.MaxLifeTime : 0)) {
 			SetActive(false);
+
 			pr->RemoveParticleSystem(mPSIdx);
+
+			if (mIsDeprecated)
+				ReturnIndex();
+
 			return;
 		}
 	}
 #pragma endregion
 
 #pragma region Update
+	mPSCD.LoopingElapsed += DeltaTime();
 	mPSGD.WorldPos = mTarget->GetPosition();
 	mPSGD.AccTime += DeltaTime();
 	mPSGD.DeltaTime = DeltaTime();
-	mPSCD.LoopingElapsed += DeltaTime();
+
+	mPSGD.StartLifeTime = mPSCD.StartLifeTime;
+	mPSGD.StartSpeed = mPSCD.StartSpeed;
+	mPSGD.StartSize = mPSCD.StartSize;
 
 	if (mPSCD.CreateInterval < mPSGD.AccTime) {
 		mPSGD.AccTime = mPSGD.AccTime - mPSCD.CreateInterval;
@@ -77,8 +88,12 @@ void ParticleSystem::Update()
 
 void ParticleSystem::OnDestroy()
 {
-	frmResMgr->ReturnIndex(mPSIdx, BufferType::ParticleSystem);
-	frmResMgr->ReturnIndex(mPSIdx, BufferType::ParticleShared);
+	if (mIsDeprecated)
+		return;
+
+	Stop();
+	mIsDeprecated = true;
+	pr->AddParticleSystem(shared_from_this());
 }
 
 void ParticleSystem::Play()
@@ -118,6 +133,12 @@ void ParticleSystem::RenderParticleSystem() const
 	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticles->Resource()->GetGPUVirtualAddress());
 	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mPSGD.MaxCount);
 }
+
+void ParticleSystem::ReturnIndex()
+{
+	frmResMgr->ReturnIndex(mPSIdx, BufferType::ParticleSystem);
+	frmResMgr->ReturnIndex(mPSIdx, BufferType::ParticleShared);
+}
 #pragma endregion
 
 
@@ -129,16 +150,35 @@ void ParticleSystem::RenderParticleSystem() const
 void ParticleRenderer::Init()
 {
 	mParticleSystems.reserve(300);
+	mDeprecations.reserve(300);
 }
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
 {
-	mParticleSystems.emplace(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
+	mParticleSystems.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
+
+	if (particleSystem->IsDeprecated()) {
+		mDeprecations.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
+	}
 }
 
 void ParticleRenderer::RemoveParticleSystem(int particleSystemIdx)
 {
-	mParticleSystems.erase(particleSystemIdx);
+	mRemoval.push(particleSystemIdx);
+}
+
+void ParticleRenderer::Update()
+{
+	for (const auto& ps : mDeprecations) {
+		ps.second->Update();
+	}
+
+	while (!mRemoval.empty()) {
+		int deprecated = mRemoval.front();
+		mDeprecations.erase(deprecated);
+		mParticleSystems.erase(deprecated);
+		mRemoval.pop();
+	}
 }
 
 void ParticleRenderer::Render() const

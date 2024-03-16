@@ -4,6 +4,11 @@
 #include "UploadBuffer.h"
 #pragma endregion
 
+#pragma region ClassForwardDecl
+struct ParticleSharedData;
+struct ParticleSystemGPUData;
+#pragma endregion
+
 #pragma region EnumClass
 enum class BufferType : UINT {
     Pass = 0,

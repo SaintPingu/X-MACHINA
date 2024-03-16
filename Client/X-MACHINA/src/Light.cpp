@@ -88,6 +88,7 @@ void Light::BuildLights()
 void Light::Update()
 {
 	auto& sunLight = mLights->Lights[gkSunLightIdx];
+
 	mSceneBounds.Center = scene->GetPlayer()->GetPosition();
 
 	// 태양 조명 뷰 행렬 생성

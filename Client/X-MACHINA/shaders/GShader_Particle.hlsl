@@ -32,7 +32,7 @@ void GSParticle(point VSOutput_Particle gin[1], inout TriangleStream<GSOutput_Pa
     float3 right = gPassCB.CameraRight;
     float3 up = cross(right, look);
     
-    float halfWidth = gInputPraticles[id].StartEndScale.x;
+    float halfWidth = gInputPraticles[id].StartEndScale.y;
     float halfHeight = gInputPraticles[id].StartEndScale.x;
     
     float4 posW[4];

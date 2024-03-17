@@ -28,7 +28,7 @@ void ParticleSystem::Awake()
 #pragma endregion
 
 #pragma region Init_Particles
-	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mPSGD.MaxCount, false);
+	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mPSCD.MaxParticles, false);
 #pragma endregion
 
 	if (mPSCD.PlayOnAwake) {
@@ -38,14 +38,29 @@ void ParticleSystem::Awake()
 
 void ParticleSystem::Update()
 {
+	mPSGD.StartLifeTime = mPSCD.StartLifeTime;
+	mPSGD.StartSpeed = mPSCD.StartSpeed;
+	mPSGD.MaxParticles = mPSCD.MaxParticles;
+	mPSGD.TextureIndex = mPSCD.TextureIndex;
+	mPSGD.StartSize3D = mPSCD.StartSize3D;
+	mPSGD.StartSize = mPSCD.StartSize;
+	mPSGD.StartRotation3D = mPSCD.StartRotation3D;
+	mPSGD.StartRotation = mPSCD.StartRotation;
+	mPSGD.StartColor = mPSCD.StartColor;
+	mPSGD.GravityModifier = mPSCD.GravityModifier;
+	mPSGD.SimulationSpace = mPSCD.SimulationSpace;
+	mPSGD.SimulationSpeed = mPSCD.SimulationSpeed;
+
+	const float kSimulationDeltaTime = DeltaTime() * mPSCD.SimulationSpeed;
+
 #pragma region Check_Looping
-	if (!mPSCD.IsLooping && mPSCD.LoopingElapsed >= mPSCD.Duration) {
+	if (!mPSCD.Looping && mPSCD.LoopingElapsed >= mPSCD.Duration) {
 		Stop();
 	}
 #pragma endregion
 
 #pragma region Check_StartDelay
-	mPSCD.StartElapsed += DeltaTime();
+	mPSCD.StartElapsed += kSimulationDeltaTime;
 	if (mPSCD.StartElapsed <= mPSCD.StartDelay) {
 		return;
 	}
@@ -53,8 +68,8 @@ void ParticleSystem::Update()
 
 #pragma region Check_StopDelay
 	if (mPSCD.IsStop) {
-		mPSCD.StopElapsed += DeltaTime();
-		if (mPSCD.StopElapsed >= (!mPSCD.Prewarm ? mPSGD.MaxLifeTime : 0)) {
+		mPSCD.StopElapsed += kSimulationDeltaTime;
+		if (mPSCD.StopElapsed >= (!mPSCD.Prewarm ? mPSGD.StartLifeTime.y : 0)) {
 			SetActive(false);
 
 			pr->RemoveParticleSystem(mPSIdx);
@@ -66,19 +81,16 @@ void ParticleSystem::Update()
 		}
 	}
 #pragma endregion
-
 #pragma region Update
-	mPSCD.LoopingElapsed += DeltaTime();
 	mPSGD.WorldPos = mTarget->GetPosition();
-	mPSGD.AccTime += DeltaTime();
-	mPSGD.DeltaTime = DeltaTime();
+	mPSGD.DeltaTime = kSimulationDeltaTime;
+	mPSCD.LoopingElapsed += kSimulationDeltaTime;
+	mPSCD.AccTime += kSimulationDeltaTime;
+	mPSGD.TotalTime += kSimulationDeltaTime;
 
-	mPSGD.StartLifeTime = mPSCD.StartLifeTime;
-	mPSGD.StartSpeed = mPSCD.StartSpeed;
-	mPSGD.StartSize = mPSCD.StartSize;
-
-	if (mPSCD.CreateInterval < mPSGD.AccTime) {
-		mPSGD.AccTime = mPSGD.AccTime - mPSCD.CreateInterval;
+	mPSGD.AddCount = 0;
+	if ((1.f / mPSCD.RateOverTime) < mPSCD.AccTime) {
+		mPSCD.AccTime = mPSCD.AccTime - (1.f / mPSCD.RateOverTime);
 		mPSGD.AddCount = mPSCD.IsStop ? 0 : mPSCD.MaxAddCount;
 	}
 
@@ -131,7 +143,7 @@ void ParticleSystem::ComputeParticleSystem() const
 void ParticleSystem::RenderParticleSystem() const
 {
 	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticles->Resource()->GetGPUVirtualAddress());
-	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mPSGD.MaxCount);
+	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mPSCD.MaxParticles);
 }
 
 void ParticleSystem::ReturnIndex()

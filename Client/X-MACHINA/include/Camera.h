@@ -42,6 +42,7 @@ public:
 	Vec3 GetOffset() const { return mOffset; }
 	Vec3 GetPosition() const { return mObject->GetPosition(); }
 	Vec3 GetRight() const { return mObject->GetRight(); }
+	Vec3 GetUp() const { return mObject->GetUp(); }
 	const Matrix& GetViewMtx() const { return mViewTransform; }
 	const Matrix& GetProjMtx() const { return mProjTransform; }
 

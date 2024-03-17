@@ -36,19 +36,19 @@ struct PassConstants {
     Vec3    CameraPos{};
     UINT    LightCount{};
     Vec3    CameraRight{};
-    UINT    Padding{};
+    int     FrameBufferWidth{};
+    Vec3    CameraUp{};
+    int     FrameBufferHeight{};
     std::array<LightInfo, gkMaxSceneLight> Lights{};
 
     float   DeltaTime{};
     float   TotalTime{};
-    int     FrameBufferWidth{};
-    int     FrameBufferHeight{};
-    
+    float   FogStart = 100.f;
+    float   FogRange = 300.f;
+
     Vec4    GlobalAmbient = {0.15f, 0.15f, 0.15f, 0.0f};
     Vec4    FogColor{};
 
-    float   FogStart = 100.f;
-    float   FogRange = 300.f;
     int     FilterOption{};
     float   ShadowIntensity{};
 

@@ -26,7 +26,7 @@ DXGIMgr::DXGIMgr()
 	mDescriptorHeap(std::make_shared<DescriptorHeap>())
 {
 	DWORD filterOptione = 0;
-	//filterOptione |= FilterOption::None;
+	filterOptione |= FilterOption::None;
 	filterOptione |= FilterOption::LUT;
 	filterOptione |= FilterOption::Tone;
 	filterOptione |= FilterOption::Ssao;

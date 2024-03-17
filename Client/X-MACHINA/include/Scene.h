@@ -61,7 +61,6 @@ private:
 	/* TestCube */
 	std::vector<sptr<TestCube>>		mTestCubes{};
 	sptr<GameObject>				mParticle{};		
-	bool bp = true;
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};

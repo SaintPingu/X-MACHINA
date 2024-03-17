@@ -76,16 +76,20 @@ struct MaterialInfo {
 
 struct ParticleInfo
 {
-	float3	WorldPos;
+	float3	StartPos;
 	float	CurTime;
 	float3	LocalPos;
 	float	LifeTime;
-	float3	WorldDir;
+	float3	WorldPos;
 	int	    Alive;
-    float4  Color;
-	float2	StartEndScale;
+	float3	WorldDir;
     int		TextureIndex;
+    float4  StartColor;
+	float2	StartSize;
     float	StartSpeed;
+	int		Padding;
+	float3	StartRotation;
+	int		Padding2;
 };
 
 struct ObjectInfo {
@@ -103,19 +107,19 @@ struct PassInfo {
     float3      CameraPos;
     uint        LightCount;
     float3      CameraRight;
-    uint        Padding;
+    int         FrameBufferWidth;
+    float3      CameraUp;
+    int         FrameBufferHeight;
     LightInfo   Lights[gkMaxSceneLight];
     
     float       DeltaTime;
     float       TotalTime;
-    int         FrameBufferWidth;
-    int         FrameBufferHeight;
+    float       FogStart;
+    float       FogRange;
     
     float4      GlobalAmbient;
     float4      FogColor;
-    
-    float       FogStart;
-    float       FogRange;
+
     int         FilterOption;
     float       ShadowIntensity;
     
@@ -347,20 +351,19 @@ struct NumberGenerator
     // Returns a random float within the input range.
     float GetRandomFloat(const float low, const float high)
     {
+        if (low == high)
+            return low;
+        
         float v = GetCurrentFloat();
         return low * (1.0f - v) + high * v;
     }
     
     // Returns a random float within the input range.
-    float GetRandomFloat(const float2 value)
-    {
-        float v = GetCurrentFloat();
-        return value.x * (1.0f - v) + value.y * v;
-    }
-    
-    // Returns a random float within the input range.
     float3 GetRandomFloat3(const float low, const float high)
     {
+        if (low == high)
+            return float3(low, low, low);
+        
         float v = GetCurrentFloat();
         float x = low * (1.0f - v) + high * v;
         v = GetCurrentFloat();
@@ -379,4 +382,44 @@ struct NumberGenerator
     }
 };
 
+void RotationVector(inout float3 right, inout float3 up, inout float3 look, float3 axis, float angle)
+{
+    if (angle == 0)
+        return;
+    
+    // 축을 정규화
+    axis = normalize(axis);
+
+    // 회전 각도를 라디안으로 변환
+    float cosTheta = cos(radians(angle));
+    float sinTheta = sin(radians(angle));
+
+    // 회전 행렬을 구성
+    float3x3 rotationMatrix = float3x3(
+        cosTheta + (1 - cosTheta) * axis.x * axis.x, 
+        (1 - cosTheta) * axis.x * axis.y - sinTheta * axis.z, 
+        (1 - cosTheta) * axis.x * axis.z + sinTheta * axis.y,
+
+        (1 - cosTheta) * axis.y * axis.x + sinTheta * axis.z,
+        cosTheta + (1 - cosTheta) * axis.y * axis.y, 
+        (1 - cosTheta) * axis.y * axis.z - sinTheta * axis.x,
+
+        (1 - cosTheta) * axis.z * axis.x - sinTheta * axis.y,
+        (1 - cosTheta) * axis.z * axis.y + sinTheta * axis.x,
+        cosTheta + (1 - cosTheta) * axis.z * axis.z
+    );
+
+    // 회전 행렬을 right, look, up 벡터에 적용
+    right = mul(right, rotationMatrix);
+    look = mul(look, rotationMatrix);
+    up = mul(up, rotationMatrix);
+}
+
+
+void RotationAxis(inout float3 right, inout float3 up, inout float3 look, float3 angle)
+{
+    RotationVector(right, look, up, right, angle.x);
+    RotationVector(right, look, up, look, angle.y);
+    RotationVector(right, look, up, up, angle.z);
+}
 #endif

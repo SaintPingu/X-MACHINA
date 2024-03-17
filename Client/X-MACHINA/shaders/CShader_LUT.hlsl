@@ -36,7 +36,7 @@ float3 aces_fitted(float3 color)
 {
     color = mul(aces_input_matrix, color);
     color = rtt_and_odt_fit(color);
-    return mul(aces_output_matrix, color);
+    return saturate(mul(aces_output_matrix, color));
 }
 
 

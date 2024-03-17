@@ -101,17 +101,15 @@ void Scene::UpdateShaderVars()
 
 void Scene::UpdateMainPassCB()
 {
-	static float timeElapsed{};
-	timeElapsed += DeltaTime();
-
 	PassConstants passCB;
 	passCB.MtxView						= mainCamera->GetViewMtx().Transpose();
 	passCB.MtxProj						= mainCamera->GetProjMtx().Transpose();
 	passCB.MtxShadow					= mLight->GetShadowMtx().Transpose();
 	passCB.CameraPos					= mainCamera->GetPosition();
 	passCB.CameraRight					= mainCamera->GetRight();
+	passCB.CameraUp						= mainCamera->GetUp();
 	passCB.DeltaTime					= DeltaTime();
-	passCB.TotalTime					= timeElapsed;
+	passCB.TotalTime					= timer->GetTotalTime();
 	passCB.FrameBufferWidth				= gkFrameBufferWidth;
 	passCB.FrameBufferHeight			= gkFrameBufferHeight;
 	passCB.SkyBoxIndex					= mSkyBox->GetTexture()->GetSrvIdx();
@@ -238,17 +236,34 @@ void Scene::BuildPlayers()
 
 	{
 		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetPSGD().TextureIndex = res->Get<Texture>("greenParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = Vec2{0.05f, 0.1f};
+		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("greenParticle")->GetSrvIdx();
+		psComponent->GetPSCD().StartSize = 0.2f;
+		psComponent->GetPSCD().StartLifeTime = 0.3f;
 
 		psComponent->SetTarget("Humanoid__L_Hand");
 	}
 	{
 		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetPSGD().TextureIndex = res->Get<Texture>("fireParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = Vec2{ 0.05f, 0.1f };
+		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("fireParticle")->GetSrvIdx();
+		psComponent->GetPSCD().StartSize = 0.2f;
+		psComponent->GetPSCD().StartLifeTime = 0.3f;
 
 		psComponent->SetTarget("Humanoid__R_Hand");
+	}
+
+	{
+		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
+		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
+		psComponent->GetPSCD().StartSize = Vec2{ 0.1f, 0.3f };
+		psComponent->GetPSCD().StartSpeed = 3.f;
+		psComponent->GetPSCD().StartLifeTime = Vec2{ 0.1f, 0.5f };
+		psComponent->GetPSCD().GravityModifier = 1.f;
+		psComponent->GetPSCD().RateOverTime = 100;
+		psComponent->GetPSCD().MaxAddCount = 3;
+		psComponent->GetPSCD().SimulationSpace = SimulationSpace::Local;
+		psComponent->GetPSCD().SimulationSpeed = 0.5f;
+		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::RandomBetweenTwoColors, Vec4(0.f, 0.8f, 1.f, 1.f), Vec4(1.f, 0.f, 1.f, 1.f));
+		psComponent->SetTarget("Humanoid__Head");
 	}
 }
 
@@ -274,11 +289,19 @@ void Scene::BuildTest()
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
-	mParticle = std::make_shared<GameObject>();
-	mParticle->SetPosition(Vec3{ 167.5f, 10.f, 150.f });
-	auto& psComponent = mParticle->AddComponent<ParticleSystem>();
-	psComponent->GetPSGD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
-	psComponent->GetPSCD().StartSize = Vec2{ 0.1f, 0.2f };
+	{
+		mParticle = std::make_shared<GameObject>();
+		mParticle->SetPosition(Vec3{ 167.5f, 10.f, 150.f });
+		auto& psComponent = mParticle->AddComponent<ParticleSystem>();
+		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
+		psComponent->GetPSCD().StartSize = 0.5f;
+		psComponent->GetPSCD().StartSpeed = 3.f;
+		psComponent->GetPSCD().StartLifeTime = 1.f;
+		psComponent->GetPSCD().GravityModifier = 1.f;
+		psComponent->GetPSCD().RateOverTime = 300;
+		psComponent->GetPSCD().MaxAddCount = 3;
+		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::RandomBetweenTwoGradient, Vec4(1.f, 0.f, 1.f, 1.f), Vec4(1.f, 0.5f, 0.f, 1.f), Vec4(0.f, 0.8f, 1.f, 1.f), Vec4(0.5f, 1.f, 0.f, 1.f));
+	}
 }
 
 void Scene::BuildGrid()
@@ -785,8 +808,8 @@ void Scene::Update()
 	CheckCollisions();
 
 	UpdateObjects();
-	if (bp)
-		mParticle->Update();
+	mParticle->Update();
+
 	mainCameraObject->Update();
 	mLight->Update();
 	canvas->Update();
@@ -939,9 +962,7 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			timer->Start();
 			break;
 		case '0':
-			bp = false;
-			mParticle->OnDestroy();
-			//mParticle->GetComponent<ParticleSystem>()->PlayToggle();
+			mParticle->GetComponent<ParticleSystem>()->PlayToggle();
 			break;
 		case VK_OEM_6:
 			ChangeToNextPlayer();

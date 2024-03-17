@@ -151,10 +151,14 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         gOutputParticles[threadID.x].StartColor.a = 1 - lifeRatio;
         gOutputParticles[threadID.x].LocalPos += normalize(gOutputParticles[threadID.x].WorldDir) * speed + gravity;
         
+        float3 prevPos = gOutputParticles[threadID.x].WorldPos;
+        
         if (ps.SimulationSpace == gkSimulationSpace_Local)
             gOutputParticles[threadID.x].WorldPos = gOutputParticles[threadID.x].LocalPos + ps.WorldPos;
         else if (ps.SimulationSpace == gkSimulationSpace_World)
             gOutputParticles[threadID.x].WorldPos = gOutputParticles[threadID.x].LocalPos + gOutputParticles[threadID.x].StartPos;
+
+        gOutputParticles[threadID.x].MoveDir = normalize(gOutputParticles[threadID.x].WorldPos - prevPos);
     }
 	
 }

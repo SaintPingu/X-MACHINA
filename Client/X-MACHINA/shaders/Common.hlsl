@@ -84,12 +84,13 @@ struct ParticleInfo
 	int	    Alive;
 	float3	WorldDir;
     int		TextureIndex;
-    float4  StartColor;
-	float2	StartSize;
+	float3	MoveDir;
     float	StartSpeed;
-	int		Padding;
 	float3	StartRotation;
-	int		Padding2;
+	float	Padding1;
+	float2	StartSize;
+	float2  Padding2;
+    float4  StartColor;
 };
 
 struct ObjectInfo {

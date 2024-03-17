@@ -51,6 +51,19 @@ void ParticleSystem::Update()
 	mPSGD.SimulationSpace = mPSCD.SimulationSpace;
 	mPSGD.SimulationSpeed = mPSCD.SimulationSpeed;
 
+	if (mRenderer.RenderMode == PSRenderMode::StretchedBillboard) {
+		if (mPSCD.StartSize3D.w == 0.f) {
+			mPSGD.StartSize3D.x = mPSCD.StartSize.x;
+			mPSGD.StartSize3D.y = mPSCD.StartSize.x * mRenderer.LengthScale;
+			mPSGD.StartSize3D.w = 1.f;
+		}
+		else {
+			mPSGD.StartSize3D.x = mPSCD.StartSize3D.x;
+			mPSGD.StartSize3D.y = mPSGD.StartSize3D.y * mRenderer.LengthScale;
+			mPSGD.StartSize3D.w = 1.f;
+		}
+	}
+
 	const float kSimulationDeltaTime = DeltaTime() * mPSCD.SimulationSpeed;
 
 #pragma region Check_Looping
@@ -163,6 +176,9 @@ void ParticleRenderer::Init()
 {
 	mParticleSystems.reserve(300);
 	mDeprecations.reserve(300);
+	mComputeShader = res->Get<Shader>("ComputeParticle");
+	mBillboardShader = res->Get<Shader>("GraphicsParticle");
+	mStretchedBillboardShader = res->Get<Shader>("GraphicsStretchedParticle");
 }
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
@@ -195,13 +211,28 @@ void ParticleRenderer::Update()
 
 void ParticleRenderer::Render() const
 {
-	res->Get<Shader>("ComputeParticle")->Set();
+	mComputeShader->Set();
 	for (const auto& ps : mParticleSystems) {
 		ps.second->ComputeParticleSystem();
 	}
 
-	res->Get<Shader>("GraphicsParticle")->Set();
+	PSRenderMode prevMode = PSRenderMode::None;
 	for (const auto& ps : mParticleSystems) {
+		const PSRenderMode currMode = ps.second->GetRenderer().RenderMode;
+
+		if (prevMode != currMode) {
+			switch (currMode)
+			{
+			case PSRenderMode::Billboard:
+				mBillboardShader->Set();
+				break;
+			case PSRenderMode::StretchedBillboard:
+				mStretchedBillboardShader->Set();
+				break;
+			}
+			prevMode = currMode;
+		}
+
 		ps.second->RenderParticleSystem();
 	}
 }

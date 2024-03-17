@@ -10,6 +10,12 @@
 #define pr ParticleRenderer::Inst()
 #pragma endregion
 
+
+#pragma region ClassForwardDecl
+class Shader;
+#pragma endregion
+
+
 #pragma region EnumClass
 enum class PSColorOption : UINT32 {
 	Color = 0,
@@ -21,6 +27,14 @@ enum class PSColorOption : UINT32 {
 enum class SimulationSpace : UINT32 {
 	Local = 0,
 	World,
+};
+
+enum class PSRenderMode : UINT32 {
+	None = 0,
+	Billboard,
+	StretchedBillboard,
+	HorizontalBillboard,
+	VerticalBillboard,
 };
 #pragma endregion
 
@@ -78,11 +92,11 @@ public:
 	/* unity value */
 	float			 Duration = 1.f;
 	bool			 Looping = true;
-	bool			 Prewarm = true;
+	bool			 Prewarm = false;
 	float			 StartDelay = 0.f;
 	Vec2			 StartLifeTime = Vec2{ 1.f };
 	Vec2			 StartSpeed = Vec2{ 1.f };
-	Vec4			 StartSize3D = Vec4{ 0.1f, 0.1f, 0.1f, 0.f};	// w값이 0이면 StartSize3D를 사용하지 않음
+	Vec4			 StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// w값이 0이면 StartSize3D를 사용하지 않음
 	Vec2			 StartSize = Vec2{ 0.1f };
 	Vec4			 StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w값이 0이면 StartRotation3D를 사용하지 않음
 	Vec2			 StartRotation = Vec2{ 0.f };
@@ -126,17 +140,24 @@ struct ParticleData {
 	int				 Alive{};
 	Vec3			 WorldDir{};
 	int				 TextureIndex{};
-	Vec4			 StartColor{};
-	Vec2			 StartSize{};
+	Vec3			 MoveDir{};
 	float			 StartSpeed{};
-	int				 Padding{};
 	Vec3			 StartRotation{};
-	int				 Padding2{};
+	float			 Padding1{};
+	Vec2			 StartSize{};
+	Vec2			 Padding2{};
+	Vec4			 StartColor{};
 };
 
 struct ParticleSharedData {
 	int				 AddCount{};
 	Vec3			 Padding{};
+};
+
+struct PSRenderer {
+	PSRenderMode RenderMode = PSRenderMode::Billboard;
+	float SpeedScale = 0.f;
+	float LengthScale = 1.f;
 };
 #pragma endregion
 
@@ -150,13 +171,17 @@ private:
 	Transform*				mTarget = mObject;		// 파티클을 부착시킬 타겟
 	bool					mIsDeprecated = false;	// 파티클 시스템 삭제 예정 플래그
 	int						mPSIdx = -1;			// 파티클 시스템 구조적 버퍼 인덱스
+
 	ParticleSystemCPUData	mPSCD{};				// 모든 파티클에 공통적으로 적용되는 CPU 데이터
 	ParticleSystemGPUData	mPSGD{};				// 모든 파티클에 공통적으로 적용되는 GPU 데이터
+	PSRenderer				mRenderer{};
+
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
 
 public:
 #pragma region Getter
 	ParticleSystemCPUData& GetPSCD() { return mPSCD; }
+	PSRenderer& GetRenderer() { return mRenderer; }
 	int GetPSIdx() const { return mPSIdx; }
 	bool IsDeprecated() const { return mIsDeprecated; }
 #pragma endregion
@@ -189,6 +214,10 @@ private:
 	std::unordered_map<int, sptr<ParticleSystem>> mParticleSystems;
 	std::unordered_map<int, sptr<ParticleSystem>> mDeprecations;
 	std::queue<int> mRemoval;
+
+	sptr<Shader> mComputeShader;
+	sptr<Shader> mBillboardShader;
+	sptr<Shader> mStretchedBillboardShader;
 
 public:
 #pragma region C/Dtor

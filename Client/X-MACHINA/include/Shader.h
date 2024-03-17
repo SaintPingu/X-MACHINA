@@ -60,10 +60,10 @@ struct ShaderInfo {
 
 struct ShaderPath
 {
-	const std::wstring	VS = L"";
-	const std::wstring	PS = L"";
-	const std::wstring	GS = L"";
-	const std::wstring	CS = L"";
+	std::wstring VS = L"";
+	std::wstring PS = L"";
+	std::wstring GS = L"";
+	std::wstring CS = L"";
 };
 #pragma endregion
 

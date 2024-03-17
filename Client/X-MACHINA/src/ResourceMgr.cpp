@@ -489,9 +489,17 @@ void ResourceMgr::LoadShaders()
 			 L"GShader_Particle.cso",
 		};
 
-		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
-		Add<Shader>("GraphicsParticle", shader);
+		{
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("GraphicsParticle", shader);
+		}
+		{
+			path.GS = L"GShader_StretchedParticle.cso";
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("GraphicsStretchedParticle", shader);
+		}
 	}
 #pragma endregion
 // ComputeShader

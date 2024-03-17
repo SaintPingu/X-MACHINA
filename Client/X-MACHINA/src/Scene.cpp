@@ -197,9 +197,6 @@ void Scene::UpdateMaterialBuffer()
 #pragma region Build
 void Scene::BuildObjects()
 {
-	// load all resources
-	res->LoadResources();
-
 	// load canvas (UI)
 	canvas->Init();
 
@@ -291,16 +288,19 @@ void Scene::BuildTest()
 
 	{
 		mParticle = std::make_shared<GameObject>();
-		mParticle->SetPosition(Vec3{ 167.5f, 10.f, 150.f });
+		mParticle->SetPosition(Vec3{ 166.f, 10.5f, 149.f });
 		auto& psComponent = mParticle->AddComponent<ParticleSystem>();
 		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = 0.5f;
-		psComponent->GetPSCD().StartSpeed = 3.f;
-		psComponent->GetPSCD().StartLifeTime = 1.f;
-		psComponent->GetPSCD().GravityModifier = 1.f;
-		psComponent->GetPSCD().RateOverTime = 300;
-		psComponent->GetPSCD().MaxAddCount = 3;
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::RandomBetweenTwoGradient, Vec4(1.f, 0.f, 1.f, 1.f), Vec4(1.f, 0.5f, 0.f, 1.f), Vec4(0.f, 0.8f, 1.f, 1.f), Vec4(0.5f, 1.f, 0.f, 1.f));
+		psComponent->GetPSCD().StartSize = 0.05f;
+		psComponent->GetRenderer().RenderMode = PSRenderMode::StretchedBillboard;
+		psComponent->GetRenderer().LengthScale = 5.f;
+		psComponent->GetPSCD().StartSpeed = 2.f;
+		psComponent->GetPSCD().StartLifeTime = 0.3f;
+		psComponent->GetPSCD().GravityModifier = 2.f;
+		psComponent->GetPSCD().RateOverTime = 200;
+		psComponent->GetPSCD().SimulationSpeed = 0.6;
+		psComponent->GetPSCD().MaxAddCount = 1;
+		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::RandomBetweenTwoGradient, Vec4(2.f, 1.5f, 0.f, 1.f), Vec4(1.f, 0.f, 0.3f, 1.f), Vec4(1.f, 0.5f, 0.f, 0.f), Vec4(2.f, 1.5f, 0.f, 0.f));
 	}
 }
 

@@ -128,6 +128,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateFilter();
 	CreateSsao();
 
+	res->LoadResources();
 	pr->Init();
 
 	BuildScene();

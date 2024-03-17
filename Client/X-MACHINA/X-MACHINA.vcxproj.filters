@@ -635,6 +635,9 @@
     <FxCompile Include="shaders\GShader_Particle.hlsl">
       <Filter>소스 파일\Shader\Particle</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\GShader_StretchedParticle.hlsl">
+      <Filter>소스 파일\Shader\Particle</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\SimpleMath.inl">

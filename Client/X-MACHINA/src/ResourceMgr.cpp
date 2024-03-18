@@ -486,19 +486,35 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Particle.cso",
 			 L"PShader_Particle.cso",
-			 L"GShader_Particle.cso",
 		};
 
 		{
+			path.GS = L"GShader_Particle.cso";
+			info.BlendType = BlendType::Alpha_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
 			shader->Load(info, path);
 			Add<Shader>("GraphicsParticle", shader);
 		}
 		{
 			path.GS = L"GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::Alpha_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
 			shader->Load(info, path);
 			Add<Shader>("GraphicsStretchedParticle", shader);
+		}
+		{
+			path.GS = L"GShader_Particle.cso";
+			info.BlendType = BlendType::One_To_One_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("OneToOneBlend_GraphicsParticle", shader);
+		}
+		{
+			path.GS = L"GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::One_To_One_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("OneToOneBlend_GraphicsStretchedParticle", shader);
 		}
 	}
 #pragma endregion

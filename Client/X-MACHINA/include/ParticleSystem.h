@@ -75,12 +75,24 @@ struct PSColor {
 	}
 };
 
+struct ColorOverLifetime {
+	UINT IsOn = false;
+	Vec3 Padding;
+	Vec4 StartColor{};
+	Vec4 EndColor{};
+
+	void SetColor(Vec4 startColor, Vec4 endColor) {
+		IsOn = true;
+		StartColor = startColor;
+		EndColor = endColor;
+	}
+};
+
 struct ParticleSystemCPUData {
 public:
 	/* my value */
 	bool			 IsStop = true;
 	int				 MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
-	int				 RateOverTime = 200;	// 초당 생성되는 파티클 개수
 	int				 TextureIndex = -1;
 	float			 AccTime = 0.f;
 
@@ -106,58 +118,87 @@ public:
 	float			 SimulationSpeed = 1.f;
 	bool			 PlayOnAwake = true;
 	int				 MaxParticles = 1000;
+
+	int				 SizeOverLifeTime = false;
 };
 
 struct ParticleSystemGPUData {
-	Vec3			 WorldPos{};
-	int				 TextureIndex{};
-	Vec4			 Color{};
-					 
-	int				 AddCount{};
-	int				 MaxParticles{};
-	float			 DeltaTime{};
-	float			 TotalTime{};
-					 
-	Vec2			 StartLifeTime{};
-	Vec2			 StartSpeed{};
-	Vec4			 StartSize3D{};
-	Vec4			 StartRotation3D{};
-	Vec2			 StartSize{};
-	Vec2			 StartRotation{};
-	PSColor			 StartColor{};
-	float			 GravityModifier{};
-	SimulationSpace  SimulationSpace{};
-	float			 SimulationSpeed{};
-	float			 Padding{};
+	Vec3			  WorldPos{};
+	int				  TextureIndex{};
+	Vec4			  Color{};
+					  
+	int				  AddCount{};
+	int				  MaxParticles{};
+	float			  DeltaTime{};
+	float			  TotalTime{};
+					  
+	Vec2			  StartLifeTime{};
+	Vec2			  StartSpeed{};
+	Vec4			  StartSize3D{};
+	Vec4			  StartRotation3D{};
+	Vec2			  StartSize{};
+	Vec2			  StartRotation{};
+	PSColor			  StartColor{};
+	float			  GravityModifier{};
+	SimulationSpace   SimulationSpace{};
+	float			  SimulationSpeed{};
+	int				  SizeOverLifeTime{};
+	ColorOverLifetime ColorOverLifeTime{};
 };
 
 struct ParticleData {
-	Vec3			 StartPos{};
-	float			 CurTime{};
-	Vec3			 LocalPos{};
-	float			 LifeTime{};
-	Vec3			 WorldPos{};
-	int				 Alive{};
-	Vec3			 WorldDir{};
-	int				 TextureIndex{};
-	Vec3			 MoveDir{};
-	float			 StartSpeed{};
-	Vec3			 StartRotation{};
-	float			 Padding1{};
-	Vec2			 StartSize{};
-	Vec2			 Padding2{};
-	Vec4			 StartColor{};
+	Vec3	StartPos{};
+	float	CurTime{};
+	Vec3	LocalPos{};
+	float	LifeTime{};
+	Vec3	WorldPos{};
+	int		Alive{};
+	Vec3	WorldDir{};
+	int		TextureIndex{};
+	Vec3	MoveDir{};
+	float	StartSpeed{};
+	Vec3	StartRotation{};
+	float	Padding1{};
+	Vec2	StartSize{};
+	Vec2	FinalSize{};
+	Vec4	StartColor{};
+	Vec4	FinalColor{};
 };
 
 struct ParticleSharedData {
-	int				 AddCount{};
-	Vec3			 Padding{};
+	int		AddCount{};
+	Vec3	Padding{};
 };
 
 struct PSRenderer {
-	PSRenderMode RenderMode = PSRenderMode::Billboard;
-	float SpeedScale = 0.f;
-	float LengthScale = 1.f;
+	PSRenderMode	RenderMode = PSRenderMode::Billboard;
+	BlendType		BlendType = BlendType::Alpha_Blend;
+	float			SpeedScale = 0.f;
+	float			LengthScale = 1.f;
+};
+
+struct Burst {
+	int		Count = 10;
+	float	BurstElapsed = 0.f;
+};
+
+struct Emission {
+	bool				IsOn = true;
+	int					RateOverTime = 200;
+	std::vector<Burst>	Bursts;
+
+	void UpdateDeltaTime(float deltaTime) {
+		if (!IsOn)
+			return;
+
+		for (auto& burst : Bursts) {
+			burst.BurstElapsed += deltaTime;
+		}
+	}
+
+	void SetBurst(int count) {
+		Bursts.emplace_back(count, 0.f);
+	}
 };
 #pragma endregion
 
@@ -175,12 +216,16 @@ private:
 	ParticleSystemCPUData	mPSCD{};				// 모든 파티클에 공통적으로 적용되는 CPU 데이터
 	ParticleSystemGPUData	mPSGD{};				// 모든 파티클에 공통적으로 적용되는 GPU 데이터
 	PSRenderer				mRenderer{};
+	Emission				mEmission{};
+	ColorOverLifetime		mColorOverLifeTime{};
 
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
 
 public:
 #pragma region Getter
 	ParticleSystemCPUData& GetPSCD() { return mPSCD; }
+	Emission& GetEmission() { return mEmission; }
+	ColorOverLifetime& GetColorOverLifeTime() { return mColorOverLifeTime; }
 	PSRenderer& GetRenderer() { return mRenderer; }
 	int GetPSIdx() const { return mPSIdx; }
 	bool IsDeprecated() const { return mIsDeprecated; }
@@ -216,8 +261,10 @@ private:
 	std::queue<int> mRemoval;
 
 	sptr<Shader> mComputeShader;
-	sptr<Shader> mBillboardShader;
-	sptr<Shader> mStretchedBillboardShader;
+	sptr<Shader> mAlphaShader;
+	sptr<Shader> mAlphaStretchedShader;
+	sptr<Shader> mOneToOneShader;
+	sptr<Shader> mOneToOneStretchedShader;
 
 public:
 #pragma region C/Dtor

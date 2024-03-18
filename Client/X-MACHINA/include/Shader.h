@@ -34,12 +34,6 @@ enum class DepthStencilType : UINT8 {
 	Less_No_Write,
 };
 
-enum class BlendType : UINT8 {
-	Default,
-	Alpha_Blend,
-	One_To_One_Blend,
-};
-
 enum class InputLayoutType : UINT8 {
 	None,
 	Default,

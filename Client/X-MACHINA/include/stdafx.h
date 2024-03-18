@@ -229,6 +229,12 @@ enum class CameraMode {
 	Third = 0,
 };
 
+enum class BlendType : UINT8 {
+	Default,
+	Alpha_Blend,
+	One_To_One_Blend,
+};
+
 // [ root parameter index alias ]
 // usage:
 // index = scene->GetGraphicsRootParamIndex(RootParam);

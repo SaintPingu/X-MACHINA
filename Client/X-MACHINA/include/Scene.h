@@ -60,7 +60,7 @@ private:
 
 	/* TestCube */
 	std::vector<sptr<TestCube>>		mTestCubes{};
-	sptr<GameObject>				mParticle{};		
+	std::vector<sptr<GameObject>>	mParticles{};
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};

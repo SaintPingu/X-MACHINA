@@ -89,8 +89,9 @@ struct ParticleInfo
 	float3	StartRotation;
 	float	Padding1;
 	float2	StartSize;
-	float2  Padding2;
+	float2	FinalSize;
     float4  StartColor;
+    float4  FinalColor;
 };
 
 struct ObjectInfo {

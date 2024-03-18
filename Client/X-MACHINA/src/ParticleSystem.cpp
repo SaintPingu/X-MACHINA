@@ -50,6 +50,8 @@ void ParticleSystem::Update()
 	mPSGD.GravityModifier = mPSCD.GravityModifier;
 	mPSGD.SimulationSpace = mPSCD.SimulationSpace;
 	mPSGD.SimulationSpeed = mPSCD.SimulationSpeed;
+	mPSGD.SizeOverLifeTime = mPSCD.SizeOverLifeTime;
+	mPSGD.ColorOverLifeTime = mColorOverLifeTime;
 
 	if (mRenderer.RenderMode == PSRenderMode::StretchedBillboard) {
 		if (mPSCD.StartSize3D.w == 0.f) {
@@ -100,11 +102,21 @@ void ParticleSystem::Update()
 	mPSCD.LoopingElapsed += kSimulationDeltaTime;
 	mPSCD.AccTime += kSimulationDeltaTime;
 	mPSGD.TotalTime += kSimulationDeltaTime;
+	mEmission.UpdateDeltaTime(kSimulationDeltaTime);
 
 	mPSGD.AddCount = 0;
-	if ((1.f / mPSCD.RateOverTime) < mPSCD.AccTime) {
-		mPSCD.AccTime = mPSCD.AccTime - (1.f / mPSCD.RateOverTime);
+	const float createInterval = mEmission.IsOn ? (1.f / mEmission.RateOverTime) : 0.f;
+	if (createInterval < mPSCD.AccTime) {
+		mPSCD.AccTime = mPSCD.AccTime - (1.f / mEmission.RateOverTime);
 		mPSGD.AddCount = mPSCD.IsStop ? 0 : mPSCD.MaxAddCount;
+	}
+
+	// 모든 버스트에 대하여 경과 시간이 지나면 count만큼 추가
+	for (auto& burst : mEmission.Bursts) {
+		if (burst.BurstElapsed >= mPSCD.Duration) {
+			mPSGD.AddCount += burst.Count;
+			burst.BurstElapsed = 0.f;
+		}
 	}
 
 	frmResMgr->CopyData(mPSIdx, mPSGD);
@@ -177,8 +189,10 @@ void ParticleRenderer::Init()
 	mParticleSystems.reserve(300);
 	mDeprecations.reserve(300);
 	mComputeShader = res->Get<Shader>("ComputeParticle");
-	mBillboardShader = res->Get<Shader>("GraphicsParticle");
-	mStretchedBillboardShader = res->Get<Shader>("GraphicsStretchedParticle");
+	mAlphaShader = res->Get<Shader>("GraphicsParticle");
+	mOneToOneShader = res->Get<Shader>("OneToOneBlend_GraphicsParticle");
+	mAlphaStretchedShader = res->Get<Shader>("GraphicsStretchedParticle");
+	mOneToOneStretchedShader = res->Get<Shader>("OneToOneBlend_GraphicsStretchedParticle");
 }
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
@@ -217,20 +231,29 @@ void ParticleRenderer::Render() const
 	}
 
 	PSRenderMode prevMode = PSRenderMode::None;
+	BlendType prevBlendType = BlendType::Alpha_Blend;
 	for (const auto& ps : mParticleSystems) {
 		const PSRenderMode currMode = ps.second->GetRenderer().RenderMode;
+		const BlendType currBlendType = ps.second->GetRenderer().BlendType;
 
-		if (prevMode != currMode) {
+		if (prevMode != currMode || prevBlendType != currBlendType) {
 			switch (currMode)
 			{
 			case PSRenderMode::Billboard:
-				mBillboardShader->Set();
+				if (currBlendType == BlendType::Alpha_Blend)
+					mAlphaShader->Set();
+				else if (currBlendType == BlendType::One_To_One_Blend)
+					mOneToOneShader->Set();
 				break;
 			case PSRenderMode::StretchedBillboard:
-				mStretchedBillboardShader->Set();
+				if (currBlendType == BlendType::Alpha_Blend)
+					mAlphaStretchedShader->Set();
+				else if (currBlendType == BlendType::One_To_One_Blend)
+					mOneToOneStretchedShader->Set();
 				break;
 			}
 			prevMode = currMode;
+			prevBlendType = currBlendType;
 		}
 
 		ps.second->RenderParticleSystem();

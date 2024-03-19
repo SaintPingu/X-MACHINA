@@ -3,8 +3,11 @@
 #pragma region Include
 #include "Component.h"
 #include "UploadBuffer.h"
-#pragma endregion
 
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#pragma endregion
 
 #pragma region Define
 #define pr ParticleRenderer::Inst()
@@ -48,6 +51,7 @@ struct PSColor {
 	PSColorOption ColorOption = PSColorOption::Color;
 	Vec3 Padding;
 
+public:
 	void SetColor(PSColorOption colorOption, Vec4 value1, Vec4 value2 = Vec4{ 1.f }, Vec4 value3 = Vec4{ 1.f }, Vec4 value4 = Vec4{ 1.f }) {
 		ColorOption = colorOption;
 		switch (colorOption)
@@ -73,6 +77,72 @@ struct PSColor {
 			break;
 		}
 	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(FirstColor);
+		ar& BOOST_SERIALIZATION_NVP(SecondColor);
+		ar& BOOST_SERIALIZATION_NVP(FirstGradient);
+		ar& BOOST_SERIALIZATION_NVP(SecondGradient);
+		ar& BOOST_SERIALIZATION_NVP(ColorOption);
+	}
+};
+
+
+//struct MyData {
+//	int x;
+//	float y;
+//	double z;
+//	std::string n;
+//	Vec2 a;
+//
+//	// 구조체를 직렬화하는 serialize 함수
+//	template<class Archive>
+//	void serialize(Archive& ar, const unsigned int version) {
+//		ar& BOOST_SERIALIZATION_NVP(x);
+//		ar& BOOST_SERIALIZATION_NVP(y);
+//		ar& BOOST_SERIALIZATION_NVP(z);
+//		ar& BOOST_SERIALIZATION_NVP(n);
+//		ar& BOOST_SERIALIZATION_NVP(a);
+//	}
+//};
+
+struct Emission {
+	struct Burst {
+		int		Count = 10;
+		float	BurstElapsed = 0.f;
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version) {
+			ar& BOOST_SERIALIZATION_NVP(Count);
+			ar& BOOST_SERIALIZATION_NVP(BurstElapsed);
+		}
+	};
+
+	bool				IsOn = true;
+	int					RateOverTime = 200;
+	std::vector<Burst>	Bursts;
+
+public:
+	void UpdateDeltaTime(float deltaTime) {
+		if (!IsOn)
+			return;
+
+		for (auto& burst : Bursts) {
+			burst.BurstElapsed += deltaTime;
+		}
+	}
+
+	void SetBurst(int count) {
+		Bursts.emplace_back(count, 0.f);
+	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(RateOverTime);
+		ar& BOOST_SERIALIZATION_NVP(Bursts);
+	}
 };
 
 struct ColorOverLifetime {
@@ -81,19 +151,44 @@ struct ColorOverLifetime {
 	Vec4 StartColor{};
 	Vec4 EndColor{};
 
+public:
 	void SetColor(Vec4 startColor, Vec4 endColor) {
 		IsOn = true;
 		StartColor = startColor;
 		EndColor = endColor;
+	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(StartColor);
+		ar& BOOST_SERIALIZATION_NVP(EndColor);
+	}
+};
+
+struct PSRenderer {
+	PSRenderMode	RenderMode = PSRenderMode::Billboard;
+	BlendType		BlendType = BlendType::Alpha_Blend;
+	float			SpeedScale = 0.f;
+	float			LengthScale = 1.f;
+	std::string		TextureName{};
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(RenderMode);
+		ar& BOOST_SERIALIZATION_NVP(BlendType);
+		ar& BOOST_SERIALIZATION_NVP(SpeedScale);
+		ar& BOOST_SERIALIZATION_NVP(LengthScale);
+		ar& BOOST_SERIALIZATION_NVP(TextureName);
 	}
 };
 
 struct ParticleSystemCPUData {
 public:
 	/* my value */
+	std::string		 mName;
 	bool			 IsStop = true;
 	int				 MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
-	int				 TextureIndex = -1;
 	float			 AccTime = 0.f;
 
 	/* elapsed time */
@@ -101,7 +196,7 @@ public:
 	float			 StartElapsed = 0.f;
 	float			 LoopingElapsed = 0.f;
 
-	/* unity value */
+	/* unity particle system */
 	float			 Duration = 1.f;
 	bool			 Looping = true;
 	bool			 Prewarm = false;
@@ -119,7 +214,36 @@ public:
 	bool			 PlayOnAwake = true;
 	int				 MaxParticles = 1000;
 
-	int				 SizeOverLifeTime = false;
+	/* unity particle system module */
+	Emission			Emission{};
+	int					SizeOverLifeTime = false;
+	ColorOverLifetime	ColorOverLifeTime{};
+	PSRenderer			Renderer{};
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(MaxAddCount);
+		ar& BOOST_SERIALIZATION_NVP(Duration);
+		ar& BOOST_SERIALIZATION_NVP(Looping);
+		ar& BOOST_SERIALIZATION_NVP(Prewarm);
+		ar& BOOST_SERIALIZATION_NVP(StartDelay);
+		ar& BOOST_SERIALIZATION_NVP(StartLifeTime);
+		ar& BOOST_SERIALIZATION_NVP(StartSpeed);
+		ar& BOOST_SERIALIZATION_NVP(StartSize3D);
+		ar& BOOST_SERIALIZATION_NVP(StartSize);
+		ar& BOOST_SERIALIZATION_NVP(StartRotation3D);
+		ar& BOOST_SERIALIZATION_NVP(StartRotation);
+		ar& BOOST_SERIALIZATION_NVP(StartColor);
+		ar& BOOST_SERIALIZATION_NVP(GravityModifier);
+		ar& BOOST_SERIALIZATION_NVP(SimulationSpace);
+		ar& BOOST_SERIALIZATION_NVP(SimulationSpeed);
+		ar& BOOST_SERIALIZATION_NVP(PlayOnAwake);
+		ar& BOOST_SERIALIZATION_NVP(MaxParticles);
+		ar& BOOST_SERIALIZATION_NVP(Emission);
+		ar& BOOST_SERIALIZATION_NVP(SizeOverLifeTime);
+		ar& BOOST_SERIALIZATION_NVP(ColorOverLifeTime);
+		ar& BOOST_SERIALIZATION_NVP(Renderer);
+	}
 };
 
 struct ParticleSystemGPUData {
@@ -170,36 +294,11 @@ struct ParticleSharedData {
 	Vec3	Padding{};
 };
 
-struct PSRenderer {
-	PSRenderMode	RenderMode = PSRenderMode::Billboard;
-	BlendType		BlendType = BlendType::Alpha_Blend;
-	float			SpeedScale = 0.f;
-	float			LengthScale = 1.f;
+struct aaa {
+	int a;
+	float b;
 };
 
-struct Burst {
-	int		Count = 10;
-	float	BurstElapsed = 0.f;
-};
-
-struct Emission {
-	bool				IsOn = true;
-	int					RateOverTime = 200;
-	std::vector<Burst>	Bursts;
-
-	void UpdateDeltaTime(float deltaTime) {
-		if (!IsOn)
-			return;
-
-		for (auto& burst : Bursts) {
-			burst.BurstElapsed += deltaTime;
-		}
-	}
-
-	void SetBurst(int count) {
-		Bursts.emplace_back(count, 0.f);
-	}
-};
 #pragma endregion
 
 
@@ -215,18 +314,16 @@ private:
 
 	ParticleSystemCPUData	mPSCD{};				// 모든 파티클에 공통적으로 적용되는 CPU 데이터
 	ParticleSystemGPUData	mPSGD{};				// 모든 파티클에 공통적으로 적용되는 GPU 데이터
-	PSRenderer				mRenderer{};
-	Emission				mEmission{};
-	ColorOverLifetime		mColorOverLifeTime{};
+
 
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
 
 public:
 #pragma region Getter
 	ParticleSystemCPUData& GetPSCD() { return mPSCD; }
-	Emission& GetEmission() { return mEmission; }
-	ColorOverLifetime& GetColorOverLifeTime() { return mColorOverLifeTime; }
-	PSRenderer& GetRenderer() { return mRenderer; }
+	Emission& GetEmission() { return mPSCD.Emission; }
+	ColorOverLifetime& GetColorOverLifeTime() { return mPSCD.ColorOverLifeTime; }
+	PSRenderer& GetRenderer() { return mPSCD.Renderer; }
 	int GetPSIdx() const { return mPSIdx; }
 	bool IsDeprecated() const { return mIsDeprecated; }
 #pragma endregion
@@ -249,6 +346,10 @@ public:
 	void RenderParticleSystem() const;
 
 	void ReturnIndex();
+
+public:
+	void Save();
+	sptr<ParticleSystem> Load(const std::string& fileName);
 };
 
 

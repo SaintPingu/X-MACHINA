@@ -230,41 +230,9 @@ void Scene::BuildPlayers()
 	
 	mPlayers.push_back(airplanePlayer);
 	mPlayer = mPlayers.front();
-
-	{
-		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("greenParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = 0.2f;
-		psComponent->GetPSCD().StartLifeTime = 0.3f;
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(1.f, 1.f, 1.f, 0.f));
-
-		psComponent->SetTarget("Humanoid__L_Hand");
-	}
-	{
-		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("fireParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = 0.2f;
-		psComponent->GetPSCD().StartLifeTime = 0.3f;
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(1.f, 1.f, 1.f, 0.f));
-
-		psComponent->SetTarget("Humanoid__R_Hand");
-	}
-
-	{
-		auto& psComponent = mPlayer->AddComponent<ParticleSystem>();
-		psComponent->GetEmission().RateOverTime = 100;
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = Vec2{ 0.1f, 0.3f };
-		psComponent->GetPSCD().StartSpeed = 3.f;
-		psComponent->GetPSCD().StartLifeTime = Vec2{ 0.1f, 0.5f };
-		psComponent->GetPSCD().GravityModifier = 1.f;
-		psComponent->GetPSCD().MaxAddCount = 3;
-		psComponent->GetPSCD().SimulationSpace = SimulationSpace::Local;
-		psComponent->GetPSCD().SimulationSpeed = 0.5f;
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::RandomBetweenTwoColors, Vec4(0.f, 0.8f, 1.f, 1.f), Vec4(1.f, 0.f, 1.f, 1.f));
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(1.f, 1.f, 1.f, 0.f));
-		psComponent->SetTarget("Humanoid__Head");
-	}
+	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid__R_Hand");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid__L_Hand");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid__Head");
 }
 
 void Scene::BuildTerrain()
@@ -294,93 +262,17 @@ void Scene::BuildTest()
 #pragma region light
 	mParticles[0] = std::make_shared<GameObject>();
 	mParticles[0]->SetPosition(Vec3{ 166.f, 10.5f, 149.f });
-	{
-		auto& psComponent = mParticles[0]->AddComponent<ParticleSystem>();
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("lightParticle")->GetSrvIdx();
-		psComponent->GetPSCD().StartSize = 0.05f;
-		psComponent->GetEmission().RateOverTime = 200;
-		psComponent->GetRenderer().RenderMode = PSRenderMode::StretchedBillboard;
-		psComponent->GetRenderer().LengthScale = 5.f;
-		psComponent->GetPSCD().StartSpeed = 2.f;
-		psComponent->GetPSCD().StartLifeTime = 0.3f;
-		psComponent->GetPSCD().GravityModifier = 2.f;
-		psComponent->GetPSCD().SimulationSpeed = 0.6f;
-		psComponent->GetPSCD().MaxAddCount = 1;
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::RandomBetweenTwoGradient, Vec4(2.f, 1.5f, 0.f, 1.f), Vec4(1.f, 0.f, 0.3f, 1.f), Vec4(1.f, 0.5f, 0.f, 0.f), Vec4(2.f, 1.5f, 0.f, 0.f));
-	}
+	mParticles[0]->AddComponent<ParticleSystem>()->Load("Light");
 #pragma endregion
 
 #pragma region MagicMissile
 	mParticles[1] = std::make_shared<GameObject>();
 	mParticles[1]->SetPosition(Vec3{ 167.5f, 11.f, 150.f });
-	{
-		auto& psComponent = mParticles[1]->AddComponent<ParticleSystem>();
-		psComponent->GetRenderer().RenderMode = PSRenderMode::Billboard;
-		psComponent->GetRenderer().BlendType = BlendType::One_To_One_Blend;
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("MagicMissile_Out")->GetSrvIdx();
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::Color, Vec4{ 0.3f, 0.6f, 1.f, 1.f });
-		psComponent->GetPSCD().StartSize = Vec2{ 1.5f, 2.f };
-		psComponent->GetPSCD().StartSpeed = 0.f;
-		psComponent->GetPSCD().StartLifeTime = Vec2{ 0.1f, 0.15f };
-		psComponent->GetPSCD().StartRotation = Vec2{ 0, 360.f };
-		psComponent->GetPSCD().Duration = 0.1f;
-		psComponent->GetEmission().RateOverTime = 5;
-		psComponent->GetEmission().SetBurst(2);
-		psComponent->GetPSCD().MaxAddCount = 1;
-		psComponent->GetPSCD().SizeOverLifeTime = true;
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(0.f, 0.f, 0.f, 0.f));
-	}
-	{
-		auto& psComponent = mParticles[1]->AddComponent<ParticleSystem>();
-		psComponent->GetRenderer().RenderMode = PSRenderMode::Billboard;
-		psComponent->GetRenderer().BlendType = BlendType::One_To_One_Blend;
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("MagicMissile_Out")->GetSrvIdx();
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::Color, Vec4{ 0.3f, 0.6f, 1.f, 1.f });
-		psComponent->GetPSCD().StartSize = Vec2{ 3.f, 4.f };
-		psComponent->GetPSCD().StartSpeed = 0.f;
-		psComponent->GetPSCD().StartLifeTime = Vec2{ 0.1f, 0.15f };
-		psComponent->GetPSCD().StartRotation = Vec2{ 0, 360.f };
-		psComponent->GetPSCD().Duration = 0.1f;
-		psComponent->GetEmission().RateOverTime = 3;
-		psComponent->GetEmission().SetBurst(1);
-		psComponent->GetPSCD().MaxAddCount = 1;
-		psComponent->GetPSCD().SizeOverLifeTime = true;
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(0.f, 0.f, 0.f, 0.f));
-	}
-	{
-		auto& psComponent = mParticles[1]->AddComponent<ParticleSystem>();
-		psComponent->GetRenderer().RenderMode = PSRenderMode::Billboard;
-		psComponent->GetRenderer().BlendType = BlendType::One_To_One_Blend;
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("MagicMissile_light")->GetSrvIdx();
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::Color, Vec4{ 0.3f, 0.6f, 1.f, 1.f });
-		psComponent->GetPSCD().StartSize = Vec2{ 6.f, 8.f };
-		psComponent->GetPSCD().StartSpeed = 0.f;
-		psComponent->GetPSCD().StartLifeTime = 0.1;
-		psComponent->GetPSCD().StartRotation = Vec2{ 0, 360.f };
-		psComponent->GetPSCD().Duration = 0.05f;
-		psComponent->GetEmission().RateOverTime = 0;
-		psComponent->GetEmission().SetBurst(2);
-		psComponent->GetPSCD().MaxAddCount = 1;
-		psComponent->GetPSCD().SizeOverLifeTime = true;
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(0.f, 0.f, 0.f, 0.f));
-	}
-	{
-		auto& psComponent = mParticles[1]->AddComponent<ParticleSystem>();
-		psComponent->GetRenderer().RenderMode = PSRenderMode::Billboard;
-		psComponent->GetRenderer().BlendType = BlendType::One_To_One_Blend;
-		psComponent->GetPSCD().TextureIndex = res->Get<Texture>("MagicMissile_light")->GetSrvIdx();
-		psComponent->GetPSCD().StartColor.SetColor(PSColorOption::Color, Vec4{ 0.2f, 0.5f, 1.f, 1.f });
-		psComponent->GetPSCD().StartSize = Vec2{ 3.f, 4.f };
-		psComponent->GetPSCD().StartSpeed = 0.f;
-		psComponent->GetPSCD().StartLifeTime = 0.2;
-		psComponent->GetPSCD().StartRotation = Vec2{ 0, 360.f };
-		psComponent->GetPSCD().Duration = 0.05f;
-		psComponent->GetEmission().RateOverTime = 0;
-		psComponent->GetEmission().SetBurst(2);
-		psComponent->GetPSCD().MaxAddCount = 1;
-		psComponent->GetPSCD().SizeOverLifeTime = true;
-		psComponent->GetColorOverLifeTime().SetColor(Vec4(1.f, 1.f, 1.f, 1.f), Vec4(0.f, 0.f, 0.f, 0.f));
-	}
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
+
 #pragma endregion
 }
 

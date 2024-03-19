@@ -66,4 +66,7 @@ namespace FileIO {
 	// [folder]의 모든 dds Texutre파일들을 로드한다.
 	// <texture name, Texture>
 	void LoadTextures(const std::string& folder, D3DResource textureType = D3DResource::Texture2D);
+
+	// 파티클 시스템의 데이터 PSCD를 로드한다.
+	
 }

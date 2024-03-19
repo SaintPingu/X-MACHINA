@@ -144,8 +144,7 @@ class Script_GroundPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
 
 private:
-	float v{}, h{};
-	float paramV{}, paramH{};
+	float mParamV{}, mParamH{};
 
 	sptr<Animator> mAnimator{};
 
@@ -163,7 +162,7 @@ public:
 	virtual void OnCollisionStay(Object& other) override;
 
 public:
-	void UpdateParams();
+	void UpdateParams(float v, float h);
 	virtual void ProcessInput() override;
 
 	virtual void FireBullet() override;
@@ -175,7 +174,7 @@ public:
 
 private:
 	void SetWeapon(int weaponIdx);
-	void UpdateParam(int val, float& param);
+	void UpdateParam(float val, float& param);
 };
 
 #pragma endregion

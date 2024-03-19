@@ -858,9 +858,7 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 	mBoundingShader->Set();
 	RenderObjectBounds(renderedObjects);
 	RenderGridBounds();
-	MeshRenderer::RenderBox(Vec3(300, 32, 300), Vec3(.2f,.2f,.2f));
-	MeshRenderer::RenderBox(Vec3(300, 32, 301), Vec3(.2f,.2f,.2f));
-	MeshRenderer::RenderBox(Vec3(300, 32, 302), Vec3(.2f,.2f,.2f));
+	MeshRenderer::RenderBox(Vec3(300, 107, 300), Vec3(.2f,.2f,.2f));
 
 	return true;
 }

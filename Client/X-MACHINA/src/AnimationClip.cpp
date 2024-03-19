@@ -32,8 +32,9 @@ Vec4x4 AnimationClip::GetSRT(int boneIndex, float position) const
 	if (keyFramePosition != mKeyFrameTimes.begin()) {
 		keyFramePosition = std::prev(keyFramePosition);
 	}
-	const size_t keyFrameIndex = std::distance(mKeyFrameTimes.begin(), keyFramePosition);
 
+	const size_t keyFrameIndex = std::distance(mKeyFrameTimes.begin(), keyFramePosition);
 	const float t = (position - mKeyFrameTimes[keyFrameIndex]) / (mKeyFrameTimes[keyFrameIndex + 1] - mKeyFrameTimes[keyFrameIndex]);
+
 	return Matrix4x4::Interpolate(mKeyFrameTransforms[keyFrameIndex][boneIndex], mKeyFrameTransforms[keyFrameIndex + 1][boneIndex], t);
 }

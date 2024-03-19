@@ -12,6 +12,8 @@ class AnimatorStateMachine;
 class AnimatorMotion abstract {
 private:
 
+	const float mkTransitionSpeed      = 4.5f;
+
 	float 	mSpeed      = 1.f;
 	float 	mCrntLength = 0.f;
 	float	mMaxLength  = 0.f;
@@ -43,13 +45,16 @@ public:
 	virtual void Init(const AnimatorController* controller) {};
 	void Reset();
 
-	void Reverse() { mIsReverse *= -1; }
+	void Reverse(bool val) { mIsReverse = (val == true) ? -1 : 1; }
 
 	bool IsEndAnimation() const;
 	bool IsSameStateMachine(rsptr<const AnimatorMotion> other) const;
 	bool IsReverse() const { return mIsReverse == -1 ? true : false; }
 
 	virtual bool Animate();
+
+	void DecWeight();
+	void IncWeight();
 };
 
 

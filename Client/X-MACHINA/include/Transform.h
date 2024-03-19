@@ -58,6 +58,8 @@ public:
 	Vec3 GetLook()  const			{ return Vector3::Normalize(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
 	// returns a quaternion in local space
 	Vec4 GetLocalRotation() const;
+	// returns a quaternion in world space
+	Vec4 GetRotation() const;
 	// [dwDirection]에 따른 이 Transform의 diretion을 반환한다.
 	// [dwDirection]=Right&Front ==> return mRight + mLook
 	Vec3 GetDirection(DWORD dwDirection, float distance = 1.f) const;

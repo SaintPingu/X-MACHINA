@@ -66,39 +66,55 @@ void AnimatorLayer::Animate()
 		return;
 	}
 
-	sptr<AnimatorMotion> lastState = mNextStates.back();
+	sptr<AnimatorMotion> nextState = mNextStates.front();
 	for (auto& nextState : mNextStates) {
 		nextState->Animate();
 	}
 
+	if (!mIsReverse) {
+		mCrntState->DecWeight();
+
+		if (mCrntState->GetWeight() <= 0.f) {
+			ChangeState(nextState);
+			if (!mNextStates.empty()) {
+				mCrntState->DecWeight();
+			}
+		}
+	}
+	else {
+		mCrntState->IncWeight();
+
+		if (mCrntState->GetWeight() >= 1.f) {
+			mIsReverse = false;
+		}
+	}
+
+	if (mNextStates.empty()) {
+		return;
+	}
+
+	float totalWeight = mCrntState->GetWeight();
+	for (auto& nextState : mNextStates) {
+		if (nextState != mNextStates.back()) {
+			nextState->DecWeight();
+			float weight = nextState->GetWeight();
+			if (weight > 0.f) {
+				totalWeight += weight;
+			}
+		}
+	}
+
+	mNextStates.back()->SetWeight(1.f - totalWeight);
+
 	std::erase_if(mNextStates, [](const auto& state) {
-		if (state->IsEndAnimation()) {
-			state->Reset();
+		if (state->GetWeight() <= 0.f) {
 			return true;
 		}
 		return false;
 		});
 
-	if (lastState) {
-		if (lastState->IsEndAnimation()) {
-			ChangeState(lastState);
-		}
-		else {
-			constexpr float kMaxDuration = .25f;
-			const float crntDuration = lastState->GetLength();
-
-			const float t = crntDuration / kMaxDuration;
-			if (t < 1.f) {
-				mCrntState->SetWeight(1 - t);
-				const float t2 = t / mNextStates.size();
-				for (auto& nextState : mNextStates) {
-					nextState->SetWeight(t2);
-				}
-			}
-			else {
-				ChangeState(lastState);
-			}
-		}
+	if (mNextStates.empty()) {
+		mCrntState->SetWeight(1);
 	}
 }
 
@@ -116,8 +132,7 @@ void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 			return;
 		}
 		else {
-			auto& lastState = mNextStates.back();
-			lastState->Reverse();
+			mIsReverse = true;
 		}
 	}
 	else if (nextState != nullptr) {
@@ -127,8 +142,14 @@ void AnimatorLayer::CheckTransition(const AnimatorController* controller)
 				nextState->SetLength(mCrntState->GetLength());
 			}
 		}
-		
-		mNextStates.push_back(nextState);
+
+		nextState->SetWeight(0);
+		if (mIsReverse) {
+			mNextStates.insert(mNextStates.begin(), nextState);
+		}
+		else {
+			mNextStates.push_back(nextState);
+		}
 	}
 }
 
@@ -138,16 +159,19 @@ void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
 		return;
 	}
 
-	if (!state->IsReverse()) {
-		mCrntState->Reset();
-		state->SetWeight(1);
-		mCrntState = state;
+	mCrntState->Reset();
+	mCrntState = state;
+
+	for (auto it = mNextStates.begin(); it != mNextStates.end(); ++it) {
+		if (*it == state) {
+			mNextStates.erase(it);
+			break;
+		}
 	}
-	else {
+
+	if (mNextStates.empty()) {
 		mCrntState->SetWeight(1);
-		state->Reset();
 	}
-	mNextStates.clear();
 
 	if (mController) {
 		mController->SyncAnimation();

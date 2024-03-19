@@ -734,10 +734,10 @@ namespace FileIO {
 		std::string clipName;
 		FileIO::ReadString(file, clipName); //Animation Set Name
 
-		float length    = FileIO::ReadVal<float>(file);
-		int frameRate   = FileIO::ReadVal<int>(file);
-		int keyFrameCnt = FileIO::ReadVal<int>(file);
-		int boneCnt		= FileIO::ReadVal<int>(file);
+		const float length    = FileIO::ReadVal<float>(file);
+		const int frameRate   = FileIO::ReadVal<int>(file);
+		const int boneCnt	  = FileIO::ReadVal<int>(file);
+		const int keyFrameCnt = static_cast<int>(ceil(length * frameRate));
 
 		sptr<AnimationClip> clip = std::make_shared<AnimationClip>(length, frameRate, keyFrameCnt, boneCnt, clipName);
 

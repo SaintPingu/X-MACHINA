@@ -1246,6 +1246,13 @@ namespace Quaternion
 
 		return result;
 	}
+
+	inline Vec4 ToQuaternion(const Vec3& euler)
+	{
+		Vec4 result{};
+		XMStoreFloat4(&result, XMQuaternionRotationRollPitchYaw(XMConvertToRadians(euler.x), XMConvertToRadians(euler.y), XMConvertToRadians(euler.z)));
+		return result;
+	}
 }
 	#pragma endregion
 #pragma endregion

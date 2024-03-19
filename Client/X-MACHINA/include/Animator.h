@@ -20,9 +20,6 @@ private:
 	std::vector<std::vector<Transform*>>	mBoneFramesList{};
 	std::vector<sptr<SkinMesh>>				mSkinMeshes{};
 
-	// for lookAt
-	Transform* mSpineBone{};
-
 public:
 	Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 	~Animator();

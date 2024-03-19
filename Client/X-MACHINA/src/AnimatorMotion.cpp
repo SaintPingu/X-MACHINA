@@ -74,7 +74,15 @@ bool AnimatorMotion::Animate()
 	return false;
 }
 
+void AnimatorMotion::DecWeight()
+{
+	mWeight -= DeltaTime() * mkTransitionSpeed;
+}
 
+void AnimatorMotion::IncWeight()
+{
+	mWeight += DeltaTime() * mkTransitionSpeed;
+}
 
 AnimatorTrack::AnimatorTrack(rsptr<const AnimationClip> clip)
 	:

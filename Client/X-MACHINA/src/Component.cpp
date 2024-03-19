@@ -128,6 +128,7 @@ void Object::Update()
 			component->Update();
 		}
 		});
+	Transform::ComputeWorldTransform();
 }
 
 void Object::Animate()
@@ -146,6 +147,7 @@ void Object::LateUpdate()
 			component->LateUpdate();
 		}
 		});
+	Transform::ComputeWorldTransform();
 }
 
 void Object::OnDestroy()

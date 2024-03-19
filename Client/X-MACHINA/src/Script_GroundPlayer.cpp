@@ -87,45 +87,59 @@ void Script_GroundPlayer::LateUpdate()
 	mObject->SetPositionY(terrainHeight);
 
 	if (mAnimator) {
-		mAnimator->LookAt(Vec3(300, 32, 300));
+		mAnimator->LookAt(Vec3(300, 107, 300));
 	}
 }
 
 
-void Script_GroundPlayer::UpdateParams()
+void Script_GroundPlayer::UpdateParams(float v, float h)
 {
-	UpdateParam(v, paramV);
-	UpdateParam(h, paramH);
+	UpdateParam(v, mParamV);
+	UpdateParam(h, mParamH);
 }
 
 
 void Script_GroundPlayer::ProcessInput()
 {
-	v = 0, h = 0;
+	bool isRun{};
+	float v{}, h{};
 
-	DWORD dwDirection = 0;
-	DWORD rotationDir = 0;
+	DWORD dwDirection{};
+	DWORD rotationDir{};
 	if (KEY_PRESSED('W')) { dwDirection |= Dir::Front; v += 1; }
 	if (KEY_PRESSED('S')) { dwDirection |= Dir::Back; v -= 1; }
 	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left; h -= 1; }
 	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
+	if (KEY_PRESSED(VK_LSHIFT) && (v != 0 || h != 0)) { isRun = true; }
+
 	if (dwDirection) {
 		base::Move(dwDirection);
 	}
 
 	if (mAnimator) {
-		Vec3 velocity = mRigid->GetVelocity();
 		const auto& controller = mAnimator->GetController();
 		if (controller) {
-			UpdateParams();
-			if (Vector3::Length(velocity) > 0.1f) {
-				controller->SetValue("Walk", true);
+			UpdateParams(v, h);
+
+			Vec3 velocity = mRigid->GetVelocity();
+			if (!isRun) {
+				mRigid->SetMaxSpeed(3.3f);
+				controller->SetValue("Run", false);
+
+				if (Vector3::Length(velocity) > 0.1f) {
+					controller->SetValue("Walk", true);
+				}
+				else {
+					controller->SetValue("Walk", false);
+				}
 			}
 			else {
+				mRigid->SetMaxSpeed(5.f);
+				controller->SetValue("Run", true);
 				controller->SetValue("Walk", false);
 			}
-			controller->SetValue("Vertical", paramV);
-			controller->SetValue("Horizontal", paramH);
+			controller->SetValue("Vertical", mParamV);
+			controller->SetValue("Horizontal", mParamH);
 		}
 	}
 
@@ -278,7 +292,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 
 
 
-void Script_GroundPlayer::UpdateParam(int val, float& param)
+void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
 	constexpr float speed = 4.f;				// 파라미터 전환 속도
 	constexpr float oppositeExtraSpeed = 20.f;	// 반대편 이동 시 추가 이동 전환 속도

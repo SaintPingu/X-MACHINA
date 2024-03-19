@@ -277,6 +277,12 @@
     <ClCompile Include="src\AnimatorStateMachine.cpp">
       <Filter>소스 파일\Animation</Filter>
     </ClCompile>
+    <ClCompile Include="src\AnimatorBlendTree.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorMotion.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -459,9 +465,6 @@
     <ClInclude Include="include\Animator.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\AnimatorState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\AnimatorController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -475,6 +478,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\AnimatorStateMachine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimatorMotion.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

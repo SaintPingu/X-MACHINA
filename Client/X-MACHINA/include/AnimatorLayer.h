@@ -7,6 +7,7 @@ class AnimatorController;
 
 class AnimatorLayer {
 private:
+	bool mIsReverse{};
 	bool mIsSyncSM{};
 	sptr<const AnimatorMotion> mSyncState{};
 
@@ -16,7 +17,7 @@ private:
 	const AnimatorController* mController{};
 	sptr<AnimatorStateMachine> mRootStateMachine{};
 
-	sptr<AnimatorMotion>					mCrntState{};
+	sptr<AnimatorMotion>				mCrntState{};
 	std::vector<sptr<AnimatorMotion>>	mNextStates{};
 
 public:

@@ -37,13 +37,7 @@ void Animator::UpdateShaderVariables()
 
 void Animator::LookAt(const Vec3& target)
 {
-	// 기존 local rotation의 x회전을 유지한다.
-	float originXAngle = Quaternion::ToEuler(mSpineBone->GetLocalRotation()).x;
 
-	Vec3 newTarget = Vec3(target.x, mSpineBone->GetPosition().y, target.z);
-	mSpineBone->LookAtWorld(newTarget, Vector3::Right());
-	// Bone 모델 자체가 Up(Vector3::Right) 기준으로 -90도 회전해 있다.
-	mSpineBone->Rotate(90 + originXAngle, 0, 0);
 }
 
 void Animator::Animate()
@@ -86,11 +80,6 @@ void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar)
 		boneFrames.resize(boneNames.size());
 		for (size_t j = 0; j < boneNames.size(); ++j) {
 			boneFrames[j] = avatar->FindFrame(boneNames[j]);
-
-			if (mSkinMeshes[i]->GetBoneType(j) == BoneType::Spine) {
-				mSpineBone = boneFrames[j];
-			}
 		}
-
 	}
 }

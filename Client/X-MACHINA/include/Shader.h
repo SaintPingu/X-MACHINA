@@ -11,7 +11,9 @@ enum class ShaderType : UINT8 {
 	Shadow,
 	Deferred,
 	Lighting,
+	Ssao,
 	Compute,
+	Particle,
 };
 
 enum class RasterizerType : UINT8 {
@@ -30,12 +32,6 @@ enum class DepthStencilType : UINT8 {
 	No_DepthTest,
 	No_DepthTest_No_Write,
 	Less_No_Write,
-};
-
-enum class BlendType : UINT8 {
-	Default,
-	Alpha_Blend,
-	One_To_One_Blend,
 };
 
 enum class InputLayoutType : UINT8 {
@@ -58,9 +54,10 @@ struct ShaderInfo {
 
 struct ShaderPath
 {
-	const std::wstring	VS = L"";
-	const std::wstring	PS = L"";
-	const std::wstring	CS = L"";
+	std::wstring VS = L"";
+	std::wstring PS = L"";
+	std::wstring GS = L"";
+	std::wstring CS = L"";
 };
 #pragma endregion
 
@@ -77,6 +74,7 @@ private:
 
 	ComPtr<ID3DBlob> mVSBlob{};
 	ComPtr<ID3DBlob> mPSBlob{};
+	ComPtr<ID3DBlob> mGSBlob{};
 	ComPtr<ID3DBlob> mCSBlob{};
 
 public:

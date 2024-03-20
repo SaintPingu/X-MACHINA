@@ -88,6 +88,7 @@ void Light::BuildLights()
 void Light::Update()
 {
 	auto& sunLight = mLights->Lights[gkSunLightIdx];
+
 	mSceneBounds.Center = scene->GetPlayer()->GetPosition();
 
 	// 태양 조명 뷰 행렬 생성
@@ -169,7 +170,7 @@ void Light::SetSunlight()
 	LightLoadInfo& light = mLoadLights->Lights[gkSunLightIdx];
 	light.Type           = static_cast<int>(LightType::Directional);
 	light.Ambient        = Vec4(0.1f, 0.1f, 0.1f, 1.f);
-	light.Diffuse        = Vec4(0.9f, 0.9f, 0.9f, 1.f);
+	light.Diffuse        = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Direction		 = Vec3(0.57735f, -0.57735f, -0.57735f);
 	light.IsEnable		 = true;

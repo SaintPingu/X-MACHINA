@@ -21,23 +21,14 @@ constexpr float gkAspectRatio = (float(gkFrameBufferWidth) / float(gkFrameBuffer
 #pragma endregion
 
 
-#pragma region Struct
-struct CB_CameraInfo {
-	Vec4x4 View{};			// View 행렬
-	Vec4x4 Projection{};	// Projection 행렬
-	Vec3   Position{};		// 카메라 위치
-};
-#pragma endregion
-
-
 #pragma region Class
 
 class Camera : public Component {
 	COMPONENT(Camera, Component)
 
 private:
-	Vec4x4 mViewTransform = Matrix4x4::Identity();
-	Vec4x4 mProjTransform = Matrix4x4::Identity();
+	Matrix mViewTransform = Matrix4x4::Identity();
+	Matrix mProjTransform = Matrix4x4::Identity();
 
 	Vec3 mOffset{};
 
@@ -50,8 +41,10 @@ private:
 public:
 	Vec3 GetOffset() const { return mOffset; }
 	Vec3 GetPosition() const { return mObject->GetPosition(); }
-	const Vec4x4& GetViewMtx() const { return mViewTransform; }
-	const Vec4x4& GetProjMtx() const { return mProjTransform; }
+	Vec3 GetRight() const { return mObject->GetRight(); }
+	Vec3 GetUp() const { return mObject->GetUp(); }
+	const Matrix& GetViewMtx() const { return mViewTransform; }
+	const Matrix& GetProjMtx() const { return mProjTransform; }
 
 	void SetOffset(const Vec3& offset) { mOffset = offset; }
 

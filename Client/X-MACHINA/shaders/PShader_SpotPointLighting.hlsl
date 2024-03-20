@@ -17,7 +17,7 @@ PSOutput_Lighting PSSpotPointLighting(VSOutput_Lighting pin)
     LightInfo light = gPassCB.Lights[gObjectCB.LightIndex];
     
     float2 Uv = float2(pin.PosH.x / gPassCB.FrameBufferWidth, pin.PosH.y / gPassCB.FrameBufferHeight);
-    float3 posW = gTextureMaps[gPassCB.RT0_PositionIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
+    float3 posW = gTextureMaps[gPassCB.RT0G_PositionIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
 
     // 카메라 기준 z값이 뒤에 있다면 그리지 않는다.
     float3 posV = mul(float4(posW, 1.f), gPassCB.MtxView);
@@ -31,9 +31,9 @@ PSOutput_Lighting PSSpotPointLighting(VSOutput_Lighting pin)
     
     float3 toCameraW = normalize(gPassCB.CameraPos - posW);
     
-    float3 normalW = gTextureMaps[gPassCB.RT1_NormalIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
-    float4 diffuse = gTextureMaps[gPassCB.RT2_DiffuseIndex].Sample(gsamAnisotropicWrap, Uv);
-    float2 metallicSmoothness = gTextureMaps[gPassCB.RT4_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, Uv).xy;
+    float3 normalW = gTextureMaps[gPassCB.RT1G_NormalIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
+    float4 diffuse = gTextureMaps[gPassCB.RT2G_DiffuseIndex].Sample(gsamAnisotropicWrap, Uv);
+    float2 metallicSmoothness = gTextureMaps[gPassCB.RT4G_MetallicSmoothnessIndex].Sample(gsamAnisotropicWrap, Uv).xy;
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallicSmoothness.x);

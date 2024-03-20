@@ -14,6 +14,7 @@ class MultipleRenderTarget;
 class Texture;
 class BlurFilter;
 class LUTFilter;
+class Ssao;
 class DescriptorHeap;
 class GraphicsRootSignature;
 class ComputeRootSignature;
@@ -23,16 +24,15 @@ struct PassConstants;
 #pragma region EnumClass
 enum class DrawOption {
 	Main = 0,
-	Texture,
-	Normal,
-	Depth,
+	Debug,
 };
 
 enum class FilterOption : DWORD {
-	None = 0x01,
-	Blur = 0x02,
-	Tone = 0x04,
-	LUT	 = 0x08,
+	None = 0x001,
+	Blur = 0x002,
+	Tone = 0x004,
+	LUT	 = 0x008,
+	Ssao = 0x010,
 };
 #pragma endregion
 
@@ -77,6 +77,7 @@ private:
 	// root signature
 	sptr<GraphicsRootSignature>			mGraphicsRootSignature{};
 	sptr<ComputeRootSignature>			mComputeRootSignature{};
+	sptr<ComputeRootSignature>			mParticleComputeRootSignature{};
 
 	// descriptor heap
 	sptr<DescriptorHeap>				mDescriptorHeap{};
@@ -92,6 +93,9 @@ private:
 	DWORD								mFilterOption{};
 	uptr<BlurFilter>					mBlurFilter;
 	uptr<LUTFilter>						mLUTFilter;
+
+	// SSAO
+	uptr<Ssao>							mSsao;
 
 	// draw option
 	DrawOption							mDrawOption{};
@@ -117,12 +121,15 @@ public:
 	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
 	const DWORD GetFilterOption() const						{ return mFilterOption; }
 	rsptr<DescriptorHeap> GetDescHeap() const				{ return mDescriptorHeap; }
+	Ssao* GetSsao() const									{ return mSsao.get(); }
 
 	// [param]에 해당하는 root parameter index를 반환한다.
 	UINT GetGraphicsRootParamIndex(RootParam param) const;
 	UINT GetComputeRootParamIndex(RootParam param) const;
+	UINT GetParticleComputeRootParamIndex(RootParam param) const;
 	RComPtr<ID3D12RootSignature> GetGraphicsRootSignature() const;
-	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;
+	RComPtr<ID3D12RootSignature> GetComputeRootSignature() const;	
+	RComPtr<ID3D12RootSignature> GetParticleComputeRootSignature() const;
 
 #pragma endregion
 
@@ -135,6 +142,7 @@ public:
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
+	void SetGraphicsRoot32BitConstants(RootParam param, int data, UINT offset);
 
 	// gpuAddr에 있는 CBV를 Set한다.
 	void SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr);
@@ -170,7 +178,8 @@ public:
 
 private:
 	// reset command 
-	void RenderBegin();
+	void MainPassRenderBegin();
+	void PostPassRenderBegin();
 
 	// close command
 	void RenderEnd();
@@ -195,8 +204,8 @@ private:
 
 	// full screen on/off (resize swap chain buffer)
 	void ChangeSwapChainState();
-
 	void CreateFilter();
+	void CreateSsao();
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();

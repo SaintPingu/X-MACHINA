@@ -60,7 +60,6 @@ public:
 #pragma region Class
 #pragma endregion
 /*---------------------------------------*/
-
 #pragma region Pragma
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -119,6 +118,9 @@ public:
 #include <D3d12SDKLayers.h>
 #include <d3dx12.h>
 #include "SimpleMath.h"
+
+/* Boost */
+#include <boost/serialization/nvp.hpp>
 
 /* Custom */
 #include "Singleton.h"
@@ -229,21 +231,30 @@ enum class CameraMode {
 	Third = 0,
 };
 
+enum class BlendType : UINT8 {
+	Default,
+	Alpha_Blend,
+	One_To_One_Blend,
+};
+
 // [ root parameter index alias ]
 // usage:
 // index = scene->GetGraphicsRootParamIndex(RootParam);
 // 32BitConstant => scene->SetGraphicsRoot32BitConstants(RootParam, ...);
 enum class RootParam {
-	// Compute RootParam
+	// Graphics RootParam
 	Object = 0,
 	Pass,
 	SkinMesh,
 	PostPass,
+	Ssao,
+	SsaoBlur,
 	Instancing,
 	Material,
 	SkyBox,
 	Texture,
 	Collider,
+	Particle,
 
 	// Compute RootParam
 	Weight = 0,
@@ -251,6 +262,12 @@ enum class RootParam {
 	LUT0,
 	LUT1,
 	Write,
+
+	// Particle
+	ParticleSystem = 0,
+	ParticleShared,
+	ComputeParticle,
+	ParticleIndex,
 };
 
 enum class TextureMap : UINT8 {
@@ -289,12 +306,13 @@ enum class Lighting : UINT8 {
 };
 enum { LightingCount = static_cast<UINT8>(Lighting::_count) };
 
-enum class OffScreen : UINT8 {
-	Texture = 0,
+enum class SsaoMap : UINT8 {
+	Ssao0 = 0,
+	Ssao1,
 
 	_count
 };
-enum { OffScreenCount = static_cast<UINT8>(OffScreen::_count) };
+enum { SsaoCount = static_cast<UINT8>(SsaoMap::_count) };
 
 enum class GroupType : UINT8 {
 	SwapChain = 0,
@@ -302,6 +320,7 @@ enum class GroupType : UINT8 {
 	GBuffer,
 	Lighting,
 	OffScreen,
+	Ssao,
 
 	_count
 };
@@ -315,8 +334,16 @@ enum { MRTGroupTypeCount = static_cast<UINT8>(GroupType::_count) };
 constexpr short gkFrameBufferWidth  = 1280;
 constexpr short gkFrameBufferHeight = 960;
 
-constexpr int	gkMaxSceneLight		= 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
-constexpr int	gkSkinBoneSize		= 128;
+constexpr int gkDescHeapCbvCount	= 0;
+constexpr int gkDescHeapSrvCount	= 1024;
+constexpr int gkDescHeapUavCount	= 256;
+constexpr int gkDescHeapSkyBoxCount = 16;
+constexpr int gkDescHeapDsvCount	= 8;
+
+constexpr int gkMaxSceneLight		= 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
+constexpr int gkSkinBoneSize		= 128;
+
+constexpr int gkMaxParticleCount	= 1000;
 #pragma endregion
 
 
@@ -371,7 +398,7 @@ struct SceneLoadLight {
 
 struct SceneLight {
 	std::array<LightInfo, gkMaxSceneLight> Lights{};
-	std::array<sptr<class ModelObjectMesh>, gkMaxSceneLight>	VolumeMeshes{};
+	std::array<sptr<class ModelObjectMesh>, gkMaxSceneLight> VolumeMeshes{};
 };
 #pragma endregion
 
@@ -508,7 +535,7 @@ namespace Math {
 	inline bool IsEqual(float a, float b) { return Math::IsZero(a - b); }
 	inline float InverseSqrt(float f) { return 1.f / sqrtf(f); }
 
-	inline float RandF(float min, float max)
+	inline float RandF(float min = 0.f, float max = 1.f)
 	{
 		return min + ((float)rand() / (float)RAND_MAX) * (max - min);
 	}
@@ -1139,7 +1166,42 @@ namespace XMMatrix
 		::memcpy(&matrix.m[3], &p, sizeof(Vector));
 	}
 }
-	#pragma endregion
+#pragma endregion
+
+namespace Filter
+{
+	static constexpr UINT mMaxBlurRadius = 5;
+
+	inline std::vector<float> CalcGaussWeights(float sigma)
+	{
+		float twoSigma2 = 2.0f * sigma * sigma;
+
+		int blurRadius = (int)ceil(2.0f * sigma);
+
+		assert(blurRadius <= mMaxBlurRadius);
+
+		std::vector<float> weights;
+		weights.resize(2 * blurRadius + 1);
+
+		float weightSum = 0.0f;
+
+		for (int i = -blurRadius; i <= blurRadius; ++i)
+		{
+			float x = (float)i;
+
+			weights[i + blurRadius] = expf(-x * x / twoSigma2);
+
+			weightSum += weights[i + blurRadius];
+		}
+
+		for (int i = 0; i < weights.size(); ++i)
+		{
+			weights[i] /= weightSum;
+		}
+
+		return weights;
+	}
+}
 #pragma endregion
 
 
@@ -1214,4 +1276,30 @@ public:
 		return static_cast<const BoundingSphere&>(*this);
 	}
 };
+
+namespace boost {
+	namespace serialization {
+		template<class Archive>
+		void serialize(Archive& ar, Vec2& s, const unsigned int version) {
+			ar& BOOST_SERIALIZATION_NVP(s.x);
+			ar& BOOST_SERIALIZATION_NVP(s.y);
+		}
+
+		template<class Archive>
+		void serialize(Archive& ar, Vec3& s, const unsigned int version) {
+			ar& BOOST_SERIALIZATION_NVP(s.x);
+			ar& BOOST_SERIALIZATION_NVP(s.y);
+			ar& BOOST_SERIALIZATION_NVP(s.z);
+		}
+
+		template<class Archive>
+		void serialize(Archive& ar, Vec4& s, const unsigned int version) {
+			ar& BOOST_SERIALIZATION_NVP(s.x);
+			ar& BOOST_SERIALIZATION_NVP(s.y);
+			ar& BOOST_SERIALIZATION_NVP(s.z);
+			ar& BOOST_SERIALIZATION_NVP(s.w);
+		}
+	}
+}
+
 #pragma endregion

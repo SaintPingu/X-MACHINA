@@ -5,12 +5,14 @@
 
 #include "Texture.h"
 
-void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, sptr<Texture> dsTexture)
+void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>&& rts, sptr<Texture> dsTexture, Vec4 clearValue)
 {
 	mGroupType = groupType;
 	mRts = std::move(rts);
 	mRtCnt = static_cast<UINT>(mRts.size());
-	mDsvHeapBegin = dsTexture->GetDsvCpuDescriptorHandle();
+
+	if (dsTexture)
+		mTextureDs = dsTexture;
 
 	assert(mMaxRtCnt >= mRtCnt);
 
@@ -45,7 +47,9 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 	mRtvHeapBegin = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < mRtCnt; ++i) {
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = { mRtvHeapBegin.ptr + i * dxgi->GetRtvDescriptorIncSize() };
-		mRts[i].RtvHandle = rtvHandle;
+		mRts[i].Target->SetRtvGpuDescriptorHandle(rtvHandle);
+		std::array<float, 4> clearColor{ clearValue.x, clearValue.y, clearValue.z, clearValue.w };
+		mRts[i].ClearColor = clearColor;
 
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
@@ -59,6 +63,7 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 			break;
 		case GroupType::GBuffer:	
 		case GroupType::Lighting:
+		case GroupType::Ssao:
 			dxgi->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:
@@ -67,7 +72,7 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 			break;
 		}
 
-		device->CreateRenderTargetView(mRts[i].Target->GetResource().Get(), &rtvDesc, mRts[i].RtvHandle);
+		device->CreateRenderTargetView(mRts[i].Target->GetResource().Get(), &rtvDesc, mRts[i].Target->GetRtvCpuDescriptorHandle());
 	}
 
 	// 전이 장벽을 설정한다.
@@ -85,7 +90,7 @@ void MultipleRenderTarget::OMSetRenderTargets()
 	cmdList->RSSetViewports(1, &mViewport);
 	cmdList->RSSetScissorRects(1, &mScissorRect);
 
-	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, &mDsvHeapBegin);
+	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, (mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
 }
 
 void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
@@ -93,7 +98,8 @@ void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 	cmdList->RSSetViewports(1, &mViewport);
 	cmdList->RSSetScissorRects(1, &mScissorRect);
 
-	cmdList->OMSetRenderTargets(count, (mRtCnt != 0) ? &mRts[index].RtvHandle : nullptr, FALSE, &mDsvHeapBegin);
+	cmdList->OMSetRenderTargets(count, (mRtCnt != 0) ? &mRts[index].Target->GetRtvCpuDescriptorHandle() : nullptr, FALSE, 
+		(mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
 }
 
 void MultipleRenderTarget::ClearRenderTargetView()
@@ -103,11 +109,13 @@ void MultipleRenderTarget::ClearRenderTargetView()
 
 	// 모든 렌더 타겟 텍스처들을 클리어한다.
 	for (UINT i = 0; i < mRtCnt; ++i) {
-		cmdList->ClearRenderTargetView(mRts[i].RtvHandle, mRts[i].ClearColor.data(), 0, nullptr);
+		cmdList->ClearRenderTargetView(mRts[i].Target->GetRtvCpuDescriptorHandle(), mRts[i].ClearColor.data(), 0, nullptr);
 	}
 
-	// 사용할 깊이 버퍼도 클리어한다.
-	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+	if (mTextureDs) {
+		// 사용할 깊이 버퍼도 클리어한다.
+		cmdList->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+	}
 }
 
 void MultipleRenderTarget::ClearRenderTargetView(UINT index)
@@ -115,9 +123,11 @@ void MultipleRenderTarget::ClearRenderTargetView(UINT index)
 	WaitResourceToTarget(index);
 
 	// index 해당 렌더 타겟만 클리어한다.
-	cmdList->ClearRenderTargetView(mRts[index].RtvHandle, mRts[index].ClearColor.data(), 0, nullptr);
+	cmdList->ClearRenderTargetView(mRts[index].Target->GetRtvCpuDescriptorHandle(), mRts[index].ClearColor.data(), 0, nullptr);
 
-	cmdList->ClearDepthStencilView(mDsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+	if (mTextureDs) {
+		cmdList->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+	}
 }
 
 void MultipleRenderTarget::WaitTargetToResource()

@@ -11,18 +11,13 @@
 #include "MultipleRenderTarget.h"
 #include "BlurFilter.h"
 #include "LUTFilter.h"
+#include "Ssao.h"
+#include "ParticleSystem.h"
 
 #pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
 #include "../Imgui/ImguiMgr.h"
 #pragma endregion
 
-namespace {
-	constexpr int kDescHeapCbvCount		= 0;	
-	constexpr int kDescHeapSrvCount		= 1024;						
-	constexpr int kDescHeapUavCount		= 256;	
-	constexpr int kDescHeapSkyBoxCount	= 16;	
-	constexpr int kDescHeapDsvCount		= 8;	
-}
 
 DXGIMgr::DXGIMgr()
 	:
@@ -31,9 +26,10 @@ DXGIMgr::DXGIMgr()
 	mDescriptorHeap(std::make_shared<DescriptorHeap>())
 {
 	DWORD filterOptione = 0;
-	//filterOptione |= FilterOption::None;
+	filterOptione |= FilterOption::None;
 	filterOptione |= FilterOption::LUT;
 	filterOptione |= FilterOption::Tone;
+	filterOptione |= FilterOption::Ssao;
 	//filterOptione |= FilterOption::Blur;
 
 	mFilterOption = filterOptione;
@@ -49,6 +45,11 @@ UINT DXGIMgr::GetComputeRootParamIndex(RootParam param) const
 	return mComputeRootSignature->GetRootParamIndex(param);
 }
 
+UINT DXGIMgr::GetParticleComputeRootParamIndex(RootParam param) const
+{
+	return mParticleComputeRootSignature->GetRootParamIndex(param);
+}
+
 RComPtr<ID3D12RootSignature> DXGIMgr::GetGraphicsRootSignature() const
 {
 	assert(mGraphicsRootSignature);
@@ -61,6 +62,13 @@ RComPtr<ID3D12RootSignature> DXGIMgr::GetComputeRootSignature() const
 	assert(mComputeRootSignature);
 
 	return mComputeRootSignature->Get();
+}
+
+RComPtr<ID3D12RootSignature> DXGIMgr::GetParticleComputeRootSignature() const
+{
+	assert(mParticleComputeRootSignature);
+
+	return mParticleComputeRootSignature->Get();
 }
 
 void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
@@ -87,6 +95,12 @@ void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT of
 	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
+void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, int data, UINT offset)
+{
+	constexpr UINT kNum32Bit = 1U;
+	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+}
+
 void DXGIMgr::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
 {
 	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
@@ -108,10 +122,14 @@ void DXGIMgr::Init(HINSTANCE hInstance, HWND hMainWnd)
 	CreateFrameResources();
 	CreateGraphicsRootSignature();
 	CreateComputeRootSignature();
-	CreateDescriptorHeaps(kDescHeapCbvCount, kDescHeapSrvCount, kDescHeapUavCount, kDescHeapSkyBoxCount, kDescHeapDsvCount);
+	CreateDescriptorHeaps(gkDescHeapCbvCount, gkDescHeapSrvCount, gkDescHeapCbvCount, gkDescHeapSkyBoxCount, gkDescHeapDsvCount);
 	CreateDSV();
 	CreateMRTs();
 	CreateFilter();
+	CreateSsao();
+
+	res->LoadResources();
+	pr->Init();
 
 	BuildScene();
 }
@@ -122,6 +140,7 @@ void DXGIMgr::Release()
 	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
 	res->Destroy();
+	pr->Destroy();
 	Destroy();
 }
 
@@ -201,55 +220,51 @@ void DXGIMgr::Render()
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 	cmdAllocator->Reset();
 
-	RenderBegin();
+#pragma region MainRender
+	MainPassRenderBegin();
 
-#pragma region ClearRTVs
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
 	GetMRT(GroupType::Shadow)->ClearRenderTargetView();
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
 	GetMRT(GroupType::Lighting)->ClearRenderTargetView();
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView();
-#pragma endregion
 
-#pragma region MainRender
-	switch (mDrawOption) {
-	case DrawOption::Main:
-	{
-		// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
-		GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
-		scene->RenderShadow();
-		GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
-		// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
-		GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
-		scene->RenderDeferred();
-		GetMRT(GroupType::GBuffer)->WaitTargetToResource();
+	// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
+	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
+	scene->RenderShadow();
+	GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
-		// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
-		GetMRT(GroupType::Lighting)->OMSetRenderTargets();
-		scene->RenderLights();
-		GetMRT(GroupType::Lighting)->WaitTargetToResource();
+	// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
+	GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
+	scene->RenderDeferred();
+	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
-		// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
-		GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
-		scene->RenderFinal();
-		scene->RenderForward();
-		GetMRT(GroupType::OffScreen)->WaitTargetToResource();
-	}
-	break;
-	}
+	// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
+	GetMRT(GroupType::Lighting)->OMSetRenderTargets();
+	scene->RenderLights();
+	GetMRT(GroupType::Lighting)->WaitTargetToResource();
+
+	// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
+	GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
+	scene->RenderFinal();
+	scene->RenderForward();
+	GetMRT(GroupType::OffScreen)->WaitTargetToResource();
 #pragma endregion
 
 #pragma region PostProcessing
-	UINT offScreenIndex{};
+	PostPassRenderBegin();
 
+	UINT offScreenIndex{};
 	if (mFilterOption & FilterOption::None)
-		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture)->GetGpuDescriptorHandleIndex();
+		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetSrvIdx();
 	if (mFilterOption & FilterOption::Blur)
-		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture), 4);
+		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0), 4);
 	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
-		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(OffScreen::Texture));
+		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0));
+	if (mFilterOption & FilterOption::Ssao)
+		mSsao->Execute(4);
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
@@ -269,18 +284,30 @@ void DXGIMgr::ToggleFullScreen()
 	ChangeSwapChainState();
 }
 
-void DXGIMgr::RenderBegin()
+void DXGIMgr::MainPassRenderBegin()
 {
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
 
-	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
 	mDescriptorHeap->Set();
 
-	// 모든 Pass, Material, Texture는 한 프레임에 한 번만 설정한다.
+	// 그래픽스 쉐이더 관련 설정
+	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
+	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Ssao), frmResMgr->GetSSAOCBGpuAddr());
 	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
+
+	// 파티클 컴퓨트 쉐이더 관련 설정
+	cmdList->SetComputeRootSignature(GetParticleComputeRootSignature().Get());
+	cmdList->SetComputeRootShaderResourceView(GetParticleComputeRootParamIndex(RootParam::ParticleSystem), frmResMgr->GetParticleSystemGpuAddr());
+	cmdList->SetComputeRootUnorderedAccessView(GetParticleComputeRootParamIndex(RootParam::ParticleShared), frmResMgr->GetParticleSharedGpuAddr());
+}
+
+void DXGIMgr::PostPassRenderBegin()
+{
+	// 포스트 프로세싱 컴퓨트 쉐이더 관련 설정
+	cmdList->SetComputeRootSignature(GetComputeRootSignature().Get());
 }
 
 void DXGIMgr::RenderEnd()
@@ -379,8 +406,6 @@ void DXGIMgr::CreateCmdQueueAndList()
 	AssertHResult(hResult);
 	hResult = mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCmdAllocator.Get(), nullptr, IID_PPV_ARGS(&mCmdList));
 	AssertHResult(hResult);
-	hResult = mCmdList->Close();
-	AssertHResult(hResult);
 }
 
 void DXGIMgr::CreateSwapChain()
@@ -424,44 +449,16 @@ void DXGIMgr::CreateSwapChain()
 void DXGIMgr::CreateGraphicsRootSignature()
 {
 	mGraphicsRootSignature = std::make_shared<GraphicsRootSignature>();
-
-	// 자주 사용되는 것을 앞에 배치할 것. (빠른 메모리 접근)
-	mGraphicsRootSignature->Push(RootParam::Object, D3D12_ROOT_PARAMETER_TYPE_CBV, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Pass, D3D12_ROOT_PARAMETER_TYPE_CBV, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::PostPass, D3D12_ROOT_PARAMETER_TYPE_CBV, 2, 0, D3D12_SHADER_VISIBILITY_ALL);
-	mGraphicsRootSignature->Push(RootParam::Collider, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 3, 0, D3D12_SHADER_VISIBILITY_ALL, 16);
-	mGraphicsRootSignature->Push(RootParam::SkinMesh, D3D12_ROOT_PARAMETER_TYPE_CBV, 4, 0, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 머티리얼은 space1을 사용하여 t0을 TextureCube와 같이 사용하여도 겹치지 않음
-	mGraphicsRootSignature->Push(RootParam::Instancing, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-	mGraphicsRootSignature->Push(RootParam::Material, D3D12_ROOT_PARAMETER_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-	// TextureCube 형식을 제외한 모든 텍스처들은 Texture2D 배열에 저장된다.
-	mGraphicsRootSignature->PushTable(RootParam::SkyBox, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, kDescHeapSkyBoxCount, D3D12_SHADER_VISIBILITY_PIXEL);
-	mGraphicsRootSignature->PushTable(RootParam::Texture, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, kDescHeapSrvCount, D3D12_SHADER_VISIBILITY_PIXEL);
-
-
-	mGraphicsRootSignature->Create();
+	mGraphicsRootSignature->CreateDefaultGraphicsRootSignature();
 }
 
 void DXGIMgr::CreateComputeRootSignature()
 {
 	mComputeRootSignature = std::make_shared<ComputeRootSignature>();
+	mComputeRootSignature->CreateDefaultComputeRootSignature();
 
-	// 가중치 루트 상수 (b0)
-	mComputeRootSignature->Push(RootParam::Weight, D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, 0, 0, D3D12_SHADER_VISIBILITY_ALL, 12);
-
-	// 읽기 전용 SRV 서술자 테이블 (t0)
-	mComputeRootSignature->PushTable(RootParam::Read, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 읽기 전용 SRV 서술자 테이블 (t1, t2)
-	mComputeRootSignature->PushTable(RootParam::LUT0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	mComputeRootSignature->PushTable(RootParam::LUT1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	// 쓰기 전용 UAV 서술자 테이블 (u0)
-	mComputeRootSignature->PushTable(RootParam::Write, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-
-	mComputeRootSignature->Create();
+	mParticleComputeRootSignature = std::make_shared<ComputeRootSignature>();
+	mParticleComputeRootSignature->CreateParticleComputeRootSignature();
 }
 
 void DXGIMgr::CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount, int dsvCount)
@@ -558,13 +555,28 @@ void DXGIMgr::CreateMRTs()
 
 #pragma region OffScreen
 	{
-		std::vector<RenderTarget> rts(OffScreenCount);
+		std::vector<RenderTarget> rts(1);
 
 		rts[0].Target = res->CreateTexture("OffScreenTarget", gkFrameBufferWidth, gkFrameBufferHeight,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDefaultDs);
+	}
+#pragma endregion
+
+#pragma region SSAO
+	{
+		std::vector<RenderTarget> rts(SsaoCount);
+
+		rts[0].Target = res->CreateTexture("SSAOTarget_0", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{ 1.f });
+
+		rts[1].Target = res->CreateTexture("SSAOTarget_1", gkFrameBufferWidth, gkFrameBufferHeight,
+			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{ 1.f });
+
+		mMRTs[static_cast<UINT8>(GroupType::Ssao)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::Ssao)]->Create(GroupType::Ssao, std::move(rts), nullptr, Vec4{ 1.f });
 	}
 #pragma endregion
 }
@@ -640,6 +652,11 @@ void DXGIMgr::CreateFilter()
 	mLUTFilter->Create();
 }
 
+void DXGIMgr::CreateSsao()
+{
+	mSsao = std::make_unique<Ssao>(mCmdList.Get());
+}
+
 void DXGIMgr::WaitForGpuComplete()
 {
 	UINT64 fenceValue = ++mFenceValues;
@@ -663,9 +680,6 @@ void DXGIMgr::MoveToNextFrame()
 
 void DXGIMgr::BuildScene()
 {
-	// 처음 빌드할때는 프레임 리소스의 명령 할당자가 아니어야 한다.
-	mCmdList->Reset(mCmdAllocator.Get(), nullptr);
-
 	scene->BuildObjects();
 
 	mCmdList->Close();

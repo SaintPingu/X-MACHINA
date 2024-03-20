@@ -2,6 +2,7 @@
 #include "FrameResource.h"
 
 #include "Light.h"
+#include "ParticleSystem.h"
 #pragma region MaterialData
 MaterialData::MaterialData()
 {
@@ -10,17 +11,21 @@ MaterialData::MaterialData()
 #pragma endregion
 
 #pragma region FrameResource
-FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int postPassCount, int objectCount, int skinBoneCount, int materialCount)
+FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, BufferTypeCount>& bufferCounts)
 {
 	THROW_IF_FAILED(pDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(CmdAllocator.GetAddressOf())));
 
-	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, passCount, true);
-	PostPassCB = std::make_unique<UploadBuffer<PostPassConstants>>(pDevice, postPassCount, true);
-	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, objectCount, true);
-	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, skinBoneCount, true);
-	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, materialCount, false);
+	PassCB = std::make_unique<UploadBuffer<PassConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Pass)], true);
+	PostPassCB = std::make_unique<UploadBuffer<PostPassConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::PostPass)], true);
+	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Object)], true);
+	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::SkinMesh)], true);
+	SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Ssao)], true);
+
+	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, bufferCounts[static_cast<int>(BufferType::Material)], false);
+	ParticleSystemBuffer = std::make_unique<UploadBuffer<ParticleSystemGPUData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleSystem)], false);
+	ParticleSharedBuffer = std::make_unique<UploadBuffer<ParticleSharedData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleShared)], false);
 }
 #pragma endregion
 
@@ -29,36 +34,21 @@ FrameResource::FrameResource(ID3D12Device* pDevice, int passCount, int postPassC
 FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence),
-	mFrameResourceCount(3),
-	mPassCount(2),
-	mPostPassCount(1),
-	mObjectCount(2000),
-	mSkinBoneCount(mObjectCount * gkSkinBoneSize),	// 임시, Object 개수 * SkinBone 최대크기(128)
-	mMaterialCount(500)
+	mFrameResourceCount(3)
 {
-	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
-	for (int i = 0; i < mPassCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::Pass)].push(i);
-	}
+	mBufferCounts[static_cast<int>(BufferType::Pass)]			= 2;
+	mBufferCounts[static_cast<int>(BufferType::PostPass)]		= 1;
+	mBufferCounts[static_cast<int>(BufferType::Object)]			= 2000;
+	mBufferCounts[static_cast<int>(BufferType::SkinMesh)]		= 100;
+	mBufferCounts[static_cast<int>(BufferType::Ssao)]			= 1;
+	mBufferCounts[static_cast<int>(BufferType::Material)]		= 500;
+	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 500;
+	mBufferCounts[static_cast<int>(BufferType::ParticleShared)]	= 500;
 
-	mActiveIndices[static_cast<int>(BufferType::Pass)].reserve(mPassCount);
-	for (int i = 0; i < mPostPassCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::PostPass)].push(i);
-	}
-
-	mActiveIndices[static_cast<int>(BufferType::Object)].reserve(mObjectCount);
-	for (int i = 0; i < mObjectCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::Object)].push(i);
-	}
-
-	mActiveIndices[static_cast<int>(BufferType::SkinMesh)].reserve(mSkinBoneCount);
-	for (int i = 0; i < mSkinBoneCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::SkinMesh)].push(i);
-	}
-
-	mActiveIndices[static_cast<int>(BufferType::Material)].reserve(mMaterialCount);
-	for (int i = 0; i < mMaterialCount; ++i) {
-		mAvailableIndices[static_cast<int>(BufferType::Material)].push(i);
+	for (int bufferType = 0; bufferType < BufferTypeCount; ++bufferType) {
+		for (int index = 0; index < mBufferCounts[bufferType]; ++index) {
+			mAvailableIndices[bufferType].push(index);
+		}
 	}
 }
 
@@ -66,12 +56,6 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPassCBGpuAddr(int elementIn
 {
 	const auto& passCB = mCurrFrameResource->PassCB;
 	return passCB->Resource()->GetGPUVirtualAddress() + elementIndex * passCB->GetElementByteSize();
-}
-
-const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPostPassCBGpuAddr(int elementIndex) const
-{
-	const auto& postPassCB = mCurrFrameResource->PostPassCB;
-	return postPassCB->Resource()->GetGPUVirtualAddress() + elementIndex * postPassCB->GetElementByteSize();
 }
 
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetObjCBGpuAddr(int elementIndex) const
@@ -86,6 +70,17 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetSKinMeshCBGpuAddr(int eleme
 	return skinMeshCB->Resource()->GetGPUVirtualAddress() + elementIndex * skinMeshCB->GetElementByteSize();
 }
 
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetPostPassCBGpuAddr(int elementIndex) const
+{
+	const auto& postPassCB = mCurrFrameResource->PostPassCB;
+	return postPassCB->Resource()->GetGPUVirtualAddress() + elementIndex * postPassCB->GetElementByteSize();
+}
+
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetSSAOCBGpuAddr(int elementIndex) const
+{
+	const auto& ssaoCB = mCurrFrameResource->SsaoCB;
+	return ssaoCB->Resource()->GetGPUVirtualAddress() + elementIndex * ssaoCB->GetElementByteSize();
+}
 
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr(int elementIndex) const
 {
@@ -93,11 +88,23 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr(int elemen
 	return materialBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * materialBuffer->GetElementByteSize();
 }
 
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetParticleSystemGpuAddr(int elementIndex) const
+{
+	const auto& particleSystemBuffer = mCurrFrameResource->ParticleSystemBuffer;
+	return particleSystemBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * particleSystemBuffer->GetElementByteSize();
+}
+
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetParticleSharedGpuAddr(int elementIndex) const
+{
+	const auto& particleSharedBuffer = mCurrFrameResource->ParticleSharedBuffer;
+	return particleSharedBuffer->Resource()->GetGPUVirtualAddress() + elementIndex * particleSharedBuffer->GetElementByteSize();
+}
+
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
 	for (int i = 0; i < mFrameResourceCount; ++i) {
-		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mPassCount, mPostPassCount, mObjectCount, mSkinBoneCount, mMaterialCount));
+		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mBufferCounts));
 	}
 
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
@@ -119,6 +126,67 @@ void FrameResourceMgr::Update()
 	}
 }
 
+void FrameResourceMgr::CopyData(int elementIndex, const PassConstants& data)
+{
+	mCurrFrameResource->PassCB->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(const PostPassConstants& data)
+{
+	mCurrFrameResource->PostPassCB->CopyData(0, data);
+}
+
+void FrameResourceMgr::CopyData(const SsaoConstants& data)
+{
+	mCurrFrameResource->SsaoCB->CopyData(0, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
+{
+	AllocIndex(elementIndex, BufferType::Object);
+	mCurrFrameResource->ObjectCB->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const SkinnedConstants& data)
+{
+	AllocIndex(elementIndex, BufferType::SkinMesh);
+	mCurrFrameResource->SkinMeshCB->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
+{
+	AllocIndex(elementIndex, BufferType::Material);
+	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSystemGPUData& data)
+{
+	AllocIndex(elementIndex, BufferType::ParticleSystem);
+	mCurrFrameResource->ParticleSystemBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const ParticleSharedData& data)
+{
+	AllocIndex(elementIndex, BufferType::ParticleSystem);
+	mCurrFrameResource->ParticleSharedBuffer->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::AllocIndex(int& elementIndex, BufferType bufferType)
+{
+	const UINT type = static_cast<UINT>(bufferType);
+
+	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
+
+		if (mAvailableIndices[type].empty()) {
+			return;
+		}
+
+		elementIndex = mAvailableIndices[type].front();
+		mAvailableIndices[type].pop();
+		mActiveIndices[type].insert(elementIndex);
+	}
+}
+
 void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
 {
 	const UINT& type = static_cast<UINT>(bufferType);
@@ -130,71 +198,4 @@ void FrameResourceMgr::ReturnIndex(int elementIndex, BufferType bufferType)
 		}
 	}
 }
-
-void FrameResourceMgr::CopyData(const int elementIndex, const PassConstants& data)
-{
-	// 패스 당 상수 버퍼는 메인 패스 한 개만 존재하며 나중에 추가될 수 있다.
-	mCurrFrameResource->PassCB->CopyData(elementIndex, data);
-}
-
-void FrameResourceMgr::CopyData(const PostPassConstants& data)
-{
-	mCurrFrameResource->PostPassCB->CopyData(0, data);
-}
-
-void FrameResourceMgr::CopyData(int& elementIndex, const ObjectConstants& data)
-{
-	constexpr UINT type = static_cast<UINT>(BufferType::Object);
-	// 사용중인 인덱스 집합에서 elementIndex를 찾지 못한 경우
-	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
-
-		// 사용 가능한 인덱스가 없을 경우 메모리를 복사하지 않는다.
-		if (mAvailableIndices[type].empty()) {
-			return;
-		}
-
-		// 사용 가능한 인덱스 큐에서 맨 앞의 인덱스를 가져오고 삭제한다.
-		elementIndex = mAvailableIndices[type].front();
-		mAvailableIndices[type].pop();
-		mActiveIndices[type].insert(elementIndex);
-	}
-
-	// 매핑된 메모리에 데이터 복사
-	mCurrFrameResource->ObjectCB->CopyData(elementIndex, data);
-}
-
-void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)
-{
-	constexpr UINT type = static_cast<UINT>(BufferType::Material);
-	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
-
-		if (mAvailableIndices[type].empty()) {
-			return;
-		}
-
-		elementIndex = mAvailableIndices[type].front();
-		mAvailableIndices[type].pop();
-		mActiveIndices[type].insert(elementIndex);
-	}
-
-	mCurrFrameResource->MaterialBuffer->CopyData(elementIndex, data);
-}
-
-void FrameResourceMgr::CopyData(int& elementIndex, const SkinnedConstants& data)
-{
-	constexpr UINT type = static_cast<UINT>(BufferType::SkinMesh);
-	if (mActiveIndices[type].find(elementIndex) == mActiveIndices[type].end()) {
-
-		if (mAvailableIndices[type].empty()) {
-			return;
-		}
-
-		elementIndex = mAvailableIndices[type].front();
-		mAvailableIndices[type].pop();
-		mActiveIndices[type].insert(elementIndex);
-	}
-
-	mCurrFrameResource->SkinMeshCB->CopyData(elementIndex, data);
-}
-
 #pragma endregion

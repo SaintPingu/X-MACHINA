@@ -88,6 +88,11 @@ void Texture::SetDsvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE dsvGpuDescri
 	mDsvDescriptorHandle = dsvGpuDescriptorHandle;
 }
 
+void Texture::SetRtvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptorHandle)
+{
+	mRtvDescriptorHandle = rtvDescriptorHandle;
+}
+
 void Texture::ReleaseUploadBuffers()
 {
 	mTextureUploadBuffer = nullptr;

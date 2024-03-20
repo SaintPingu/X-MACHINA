@@ -27,6 +27,8 @@
 #include "Script_Sprite.h"
 
 #include "TestCube.h"
+#include "Ssao.h"
+#include "ParticleSystem.h"
 #pragma endregion
 
 
@@ -93,51 +95,89 @@ void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
 	UpdateShadowPassCB();
+	UpdateSsaoCB();
 	UpdateMaterialBuffer();
 }
 
 void Scene::UpdateMainPassCB()
 {
-	static float timeElapsed{};
-	timeElapsed += DeltaTime();
-
-	PassConstants passConstants;
-	passConstants.MtxView						= XMMatrixTranspose(_MATRIX(mainCamera->GetViewMtx()));
-	passConstants.MtxProj						= XMMatrixTranspose(_MATRIX(mainCamera->GetProjMtx()));
-	passConstants.MtxShadow						= mLight->GetShadowMtx().Transpose();
-	passConstants.EyeW							= mainCamera->GetPosition();
-	passConstants.DeltaTime						= DeltaTime();
-	passConstants.TotalTime						= timeElapsed;
-	passConstants.FrameBufferWidth				= gkFrameBufferWidth;
-	passConstants.FrameBufferHeight				= gkFrameBufferHeight;
-	passConstants.SkyBoxIndex					= mSkyBox->GetTexture()->GetGpuDescriptorHandleIndex();
-	passConstants.ShadowIndex					= res->Get<Texture>("ShadowDepthStencil")->GetGpuDescriptorHandleIndex();
-	passConstants.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT2G_DiffuseIndex				= res->Get<Texture>("DiffuseTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT4G_MetallicSmoothnessIndex  = res->Get<Texture>("MetallicSmoothnessTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT0L_DiffuseIndex				= res->Get<Texture>("DiffuseAlbedoTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.RT2L_AmbientIndex				= res->Get<Texture>("AmbientTarget")->GetGpuDescriptorHandleIndex();
-	passConstants.LightCount					= mLight->GetLightCount();
-	passConstants.GlobalAmbient					= Vec4(0.05f, 0.05f, 0.05f, 1.f);
-	passConstants.FilterOption					= dxgi->GetFilterOption();
-	passConstants.ShadowIntensity				= 0.1f;
-	passConstants.FogColor						= Colors::Gray;
-	memcpy(&passConstants.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passConstants.Lights));
+	PassConstants passCB;
+	passCB.MtxView						= mainCamera->GetViewMtx().Transpose();
+	passCB.MtxProj						= mainCamera->GetProjMtx().Transpose();
+	passCB.MtxShadow					= mLight->GetShadowMtx().Transpose();
+	passCB.CameraPos					= mainCamera->GetPosition();
+	passCB.CameraRight					= mainCamera->GetRight();
+	passCB.CameraUp						= mainCamera->GetUp();
+	passCB.DeltaTime					= DeltaTime();
+	passCB.TotalTime					= timer->GetTotalTime();
+	passCB.FrameBufferWidth				= gkFrameBufferWidth;
+	passCB.FrameBufferHeight			= gkFrameBufferHeight;
+	passCB.SkyBoxIndex					= mSkyBox->GetTexture()->GetSrvIdx();
+	passCB.DefaultDsIndex				= res->Get<Texture>("DefaultDepthStencil")->GetSrvIdx();
+	passCB.ShadowDsIndex				= res->Get<Texture>("ShadowDepthStencil")->GetSrvIdx();
+	passCB.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetSrvIdx();
+	passCB.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetSrvIdx();
+	passCB.RT2G_DiffuseIndex			= res->Get<Texture>("DiffuseTarget")->GetSrvIdx();
+	passCB.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetSrvIdx();
+	passCB.RT4G_MetallicSmoothnessIndex = res->Get<Texture>("MetallicSmoothnessTarget")->GetSrvIdx();
+	passCB.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetSrvIdx();
+	passCB.RT0L_DiffuseIndex			= res->Get<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
+	passCB.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
+	passCB.RT2L_AmbientIndex			= res->Get<Texture>("AmbientTarget")->GetSrvIdx();
+	passCB.RT0S_SsaoIndex				= res->Get<Texture>("SSAOTarget_0")->GetSrvIdx();
+	passCB.LightCount					= mLight->GetLightCount();
+	passCB.GlobalAmbient				= Vec4(0.4f, 0.4f, 0.4f, 1.f);
+	passCB.FilterOption					= dxgi->GetFilterOption();
+	passCB.ShadowIntensity				= 0.0f;
+	passCB.FogColor						= Colors::Gray;
+	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
 	
-	frmResMgr->CopyData(0, passConstants);
+	frmResMgr->CopyData(0, passCB);
 }
 
 void Scene::UpdateShadowPassCB()
 {
-	PassConstants passConstants;
-	passConstants.MtxView = mLight->GetLightViewMtx().Transpose();
-	passConstants.MtxProj = mLight->GetLightProjMtx().Transpose();
+	PassConstants passCB;
+	passCB.MtxView = mLight->GetLightViewMtx().Transpose();
+	passCB.MtxProj = mLight->GetLightProjMtx().Transpose();
 
-	frmResMgr->CopyData(1, passConstants);
+	frmResMgr->CopyData(1, passCB);
+}
+
+void Scene::UpdateSsaoCB()
+{
+	SsaoConstants ssaoCB;
+
+	Matrix mtxProj = mainCamera->GetProjMtx();
+	Matrix mtxTex = {
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f };
+
+	ssaoCB.MtxInvProj = mainCamera->GetProjMtx().Invert().Transpose();
+	ssaoCB.MtxProjTex = (mtxProj * mtxTex).Transpose();
+	dxgi->GetSsao()->GetOffsetVectors(ssaoCB.OffsetVectors);
+	
+	// for Blur 
+	auto blurWeights = Filter::CalcGaussWeights(2.5f);
+	ssaoCB.BlurWeights[0] = Vec4(&blurWeights[0]);
+	ssaoCB.BlurWeights[1] = Vec4(&blurWeights[4]);
+	ssaoCB.BlurWeights[2] = Vec4(&blurWeights[8]);
+
+	auto ssaoTarget = res->Get<Texture>("SSAOTarget_0");
+	ssaoCB.InvRenderTargetSize = Vec2{ 1.f / ssaoTarget->GetWidth(), 1.f / ssaoTarget->GetHeight() };
+
+	// coordinates given in view space.
+	ssaoCB.OcclusionRadius = 0.5f;
+	ssaoCB.OcclusionFadeStart = 0.2f;
+	ssaoCB.OcclusionFadeEnd = 1.0f;
+	ssaoCB.SurfaceEpsilon = 0.05f;
+	ssaoCB.AccessContrast = 12;
+
+	ssaoCB.RandomVectorIndex = res->Get<Texture>("RandomVector")->GetSrvIdx();
+
+	frmResMgr->CopyData(ssaoCB);
 }
 
 void Scene::UpdateMaterialBuffer()
@@ -157,9 +197,6 @@ void Scene::UpdateMaterialBuffer()
 #pragma region Build
 void Scene::BuildObjects()
 {
-	// load all resources
-	res->LoadResources();
-
 	// load canvas (UI)
 	canvas->Init();
 
@@ -169,7 +206,7 @@ void Scene::BuildObjects()
 	// build settings
 	BuildPlayers();
 	BuildTerrain();
-	BuildTestCube();
+	BuildTest();
 
 	// build static meshes
 	MeshRenderer::BuildMeshes();
@@ -193,6 +230,9 @@ void Scene::BuildPlayers()
 	
 	mPlayers.push_back(airplanePlayer);
 	mPlayer = mPlayers.front();
+	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid__R_Hand");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid__L_Hand");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid__Head");
 }
 
 void Scene::BuildTerrain()
@@ -202,7 +242,7 @@ void Scene::BuildTerrain()
 	BuildGrid();
 }
 
-void Scene::BuildTestCube()
+void Scene::BuildTest()
 {
 	mTestCubes.resize(2);
 	mTestCubes[0] = std::make_shared<TestCube>(Vec2(170, 150));
@@ -216,6 +256,33 @@ void Scene::BuildTestCube()
 	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
+
+	mParticles.resize(3);
+
+#pragma region light
+	mParticles[0] = std::make_shared<GameObject>();
+	mParticles[0]->SetPosition(Vec3{ 166.f, 10.5f, 149.f });
+	mParticles[0]->AddComponent<ParticleSystem>()->Load("Light");
+#pragma endregion
+
+#pragma region MagicMissile
+	mParticles[1] = std::make_shared<GameObject>();
+	mParticles[1]->SetPosition(Vec3{ 167.5f, 11.f, 150.f });
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
+	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
+#pragma endregion
+
+#pragma region ShapeTest
+	mParticles[2] = std::make_shared<GameObject>();
+	mParticles[2]->SetPosition(Vec3{ 173.f, 11.f, 150.f });
+	auto& component = mParticles[2]->AddComponent<ParticleSystem>()->Load("Green");
+	component->GetPSCD().StartLifeTime = 0.3f;
+	component->GetPSCD().Emission.SetBurst(100);
+	component->GetPSCD().Duration = 0.2f;
+	component->GetPSCD().Shape.SetSphere(1.5f, 0.f, 360.f, true);
+#pragma endregion
 }
 
 void Scene::BuildGrid()
@@ -483,7 +550,11 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	RenderFXObjects(); 
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	RenderParticles();
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	RenderFXObjects();
 	RenderBillboards();
 
 	RenderTransparentObjects(mTransparentObjects); 
@@ -492,8 +563,6 @@ void Scene::RenderForward()
 
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
@@ -535,6 +604,11 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 void Scene::RenderSkyBox()
 {
 	mSkyBox->Render();
+}
+
+void Scene::RenderParticles()
+{
+	pr->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -699,6 +773,9 @@ void Scene::Start()
 		object->Awake();
 		});
 
+	for (auto& p : mParticles)
+		p->Awake();
+
 	/* Enable & Start */
 	mTerrain->OnEnable();
 	ProcessObjects([](sptr<GameObject> object) {
@@ -714,9 +791,13 @@ void Scene::Update()
 	CheckCollisions();
 
 	UpdateObjects();
+	for (auto& p : mParticles)
+		p->Update();
+
 	mainCameraObject->Update();
 	mLight->Update();
 	canvas->Update();
+	pr->Update();
 
 	Animate();
 
@@ -865,9 +946,9 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			timer->Start();
 			break;
 		case '0':
-			scene->BlowAllExplosiveObjects();
+			for (auto& p : mParticles[1]->GetComponents<ParticleSystem>())
+				p->PlayToggle();
 			break;
-
 		case VK_OEM_6:
 			ChangeToNextPlayer();
 			break;

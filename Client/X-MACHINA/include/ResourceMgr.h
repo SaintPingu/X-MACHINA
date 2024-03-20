@@ -55,6 +55,7 @@ public:
 	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4());
 	sptr<Texture> CreateTexture(const std::string& name, ComPtr<ID3D12Resource> resource);
 	sptr<ModelObjectMesh> LoadRectangleMesh();
+	sptr<ModelObjectMesh> LoadPointMesh();
 
 private:
 	void LoadTextures();

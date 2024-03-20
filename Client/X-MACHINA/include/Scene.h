@@ -38,13 +38,13 @@ private:
 	sptr<Light> mLight{};
 
 	/* SkyBox */
-	sptr<SkyBox> mSkyBox{};					// sky box object
+	sptr<SkyBox> mSkyBox{};
 
 	/* Object */
 	sptr<GameObject>				mWater{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
-	std::list<sptr<GridObject>>		mExplosiveObjects{};		// dynamic
+	std::list<sptr<GridObject>>		mExplosiveObjects{};
 	std::list<sptr<GameObject>>		mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
 
@@ -54,16 +54,17 @@ private:
 	std::set<GridObject*>	mSkinMeshObjects{};
 
 	/* Player */
-	std::vector<sptr<GridObject>> mPlayers{};
-	sptr<GridObject>			  mPlayer{};			// main player
-	int							  mCurrPlayerIndex{};	// main player index from [mPlayers]
+	std::vector<sptr<GridObject>>	mPlayers{};
+	sptr<GridObject>				mPlayer{};			 // main player
+	int								mCurrPlayerIndex{};	 // main player index from [mPlayers]
 
 	/* TestCube */
-	std::vector<sptr<TestCube>> mTestCubes{};
+	std::vector<sptr<TestCube>>		mTestCubes{};
+	std::vector<sptr<GameObject>>	mParticles{};
 
 	/* Map */
-	sptr<Terrain>	mTerrain{};
-	BoundingBox		mMapBorder{};				// max scene range	(grid will be generated within this border)
+	sptr<Terrain>		mTerrain{};
+	BoundingBox			mMapBorder{};			// max scene range	(grid will be generated within this border)
 
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids
@@ -99,6 +100,7 @@ private:
 	void UpdateShaderVars();
 	void UpdateMainPassCB();
 	void UpdateShadowPassCB();
+	void UpdateSsaoCB();
 	void UpdateMaterialBuffer();
 #pragma endregion
 
@@ -111,7 +113,7 @@ private:
 	/* Object */
 	void BuildPlayers();
 	void BuildTerrain();
-	void BuildTestCube();
+	void BuildTest();
 
 	/* Grid */
 	// generate grids
@@ -163,6 +165,7 @@ private:
 	// render [transparentObjects]
 	void RenderTransparentObjects(const std::set<GridObject*>& transparentObjects);
 	void RenderSkyBox();
+	void RenderParticles();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
 	bool RenderBounds(const std::set<GridObject*>& renderedObjects);

@@ -6,20 +6,28 @@
 #define _WITH_REFLECT
 #define POST_PROCESSING
 
-#define LightType_Spot          0
-#define LightType_Directional   1
-#define LightType_Point         2
-#define gkMaxTextureCount       1024
-#define gkMaxSkyBoxCount        16
-#define gkMaxSceneLight         32
+#define LightType_Spot           0
+#define LightType_Directional    1
+#define LightType_Point          2
+#define gkMaxTextureCount        1024
+#define gkMaxSkyBoxCount         16
+#define gkMaxSceneLight          32
+                                 
+#define MAX_VERTEX_INFLUENCES	 4
+#define SKINNED_ANIMATION_BONES  128
+                                 
+#define Filter_None              0x001
+#define Filter_Blur              0x002
+#define Filter_Tone              0x004
+#define Filter_LUT               0x008
+#define Filter_Ssao              0x010
 
-#define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			128
-
-#define Filter_None           0x01
-#define Filter_Blur           0x02
-#define Filter_Tone           0x04
-#define Filter_LUT            0x08
+#define RANDOM_IA 16807
+#define RANDOM_IM 2147483647
+#define RANDOM_AM (1.0f/float(RANDOM_IM))
+#define RANDOM_IQ 127773u
+#define RANDOM_IR 2836
+#define RANDOM_MASK 123459876
 
 struct LightInfo
 {
@@ -66,6 +74,26 @@ struct MaterialInfo {
     int OcclusionMapIndex;
 };
 
+struct ParticleInfo
+{
+	float3	StartPos;
+	float	CurTime;
+	float3	LocalPos;
+	float	LifeTime;
+	float3	WorldPos;
+	int	    Alive;
+	float3	WorldDir;
+    int		TextureIndex;
+	float3	MoveDir;
+    float	StartSpeed;
+	float3	StartRotation;
+	float	Padding1;
+	float2	StartSize;
+	float2	FinalSize;
+    float4  StartColor;
+    float4  FinalColor;
+};
+
 struct ObjectInfo {
     matrix  MtxWorld;
     matrix  MtxSprite;
@@ -80,36 +108,39 @@ struct PassInfo {
     matrix      MtxShadow;
     float3      CameraPos;
     uint        LightCount;
+    float3      CameraRight;
+    int         FrameBufferWidth;
+    float3      CameraUp;
+    int         FrameBufferHeight;
     LightInfo   Lights[gkMaxSceneLight];
     
     float       DeltaTime;
     float       TotalTime;
-    int         FrameBufferWidth;
-    int         FrameBufferHeight;
+    float       FogStart;
+    float       FogRange;
     
     float4      GlobalAmbient;
     float4      FogColor;
-    
-    float       FogStart;
-    float       FogRange;
-    int         SkyBoxIndex;
-    int         ShadowIndex;
-    
+
     int         FilterOption;
     float       ShadowIntensity;
-    float2      Padding;
     
-    int         RT0_PositionIndex;
-    int         RT1_NormalIndex;
-    int         RT2_DiffuseIndex;
-    int         RT3_EmissiveIndex;
+    int         SkyBoxIndex;
+    int         DefaultDsIndex;
+    int         ShadowDsIndex;
+    int         RT0G_PositionIndex;
     
-    int         RT4_MetallicSmoothnessIndex;
-    int         RT5_OcclusionIndex;
+    int         RT1G_NormalIndex;
+    int         RT2G_DiffuseIndex;
+    int         RT3G_EmissiveIndex;
+    int         RT4G_MetallicSmoothnessIndex;
+    
+    int         RT5G_OcclusionIndex;
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
-    
     int         RT2L_AmbientIndex;
+    
+    int         RT0S_SsaoIndex;
 };
 
 struct PostPassInfo {
@@ -125,13 +156,35 @@ struct BoneTransformInfo {
     float4x4 BoneTransforms[SKINNED_ANIMATION_BONES];
 };
 
+struct SsaoInfo {
+    matrix  MtxInvProj;
+    matrix  MtxProjTex;
+    float4  OffsetVectors[14];
+
+    float4  BlurWeights[3];
+    float2  InvRenderTargetSize;
+    
+    float   OcclusionRadius;
+    float   OcclusionFadeStart;
+    float   OcclusionFadeEnd;
+    float   SurfaceEpsilon;
+    
+    int     AccessContrast;
+    int     RandomVectorIndex;
+};
+
+struct SsaoBlurInfo {
+    int     InputMapIndex;
+    int     IsHorzBlur;
+};
+
 struct SB_StandardInst {
-    matrix MtxObject;
+    matrix  MtxObject;
 };
 
 struct SB_ColorInst {
-    matrix MtxObject;
-    float4 Color;
+    matrix  MtxObject;
+    float4  Color;
 };
 
 ConstantBuffer<ObjectInfo> gObjectCB            : register(b0);
@@ -139,10 +192,13 @@ ConstantBuffer<PassInfo> gPassCB                : register(b1);
 ConstantBuffer<PostPassInfo> gPostPassCB        : register(b2);
 ConstantBuffer<ColliderInfo> gColliderCB        : register(b3);
 ConstantBuffer<BoneTransformInfo> gSkinMeshCB   : register(b4);
+ConstantBuffer<SsaoInfo> gSsaoCB                : register(b5);
+ConstantBuffer<SsaoBlurInfo> gSsaoBlurCB        : register(b6);
 
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
 StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);
+StructuredBuffer<ParticleInfo> gInputPraticles   : register(t0, space2);
 
 TextureCube gSkyBoxMaps[gkMaxSkyBoxCount]       : register(t1, space1);
 Texture2D gTextureMaps[gkMaxTextureCount]       : register(t1); // t1, t2, t3...
@@ -154,6 +210,7 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 SamplerComparisonState gsamShadow : register(s6);
+SamplerState gsamDepthMap         : register(s7);
 
 // 디스플레이 출력은 어두운 부분을 더 자세히 표현하기 위해서 이미지를 Decoding(어둡게)하여 출력한다.
 // 이로 인해, 대부분의 텍스처는 전체적으로 어두운 부분을 해결하기 위해 Encoding(밝게)되어 저장된다.
@@ -230,7 +287,7 @@ float ComputeShadowFactor(float4 shadowPosH)
     float depth = shadowPosH.z;
     
     uint width, height, numMips;
-    gTextureMaps[gPassCB.ShadowIndex].GetDimensions(0, width, height, numMips);
+    gTextureMaps[gPassCB.ShadowDsIndex].GetDimensions(0, width, height, numMips);
     
     // 텍셀 사이즈
     float dx = 1.f / (float)width;
@@ -247,10 +304,124 @@ float ComputeShadowFactor(float4 shadowPosH)
     [unroll]
     for(int i = 0; i < 9; ++i)
     {
-        percentLit += gTextureMaps[gPassCB.ShadowIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
+        percentLit += gTextureMaps[gPassCB.ShadowDsIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
     }
     
     return percentLit / 9.f;
 }
 
+// random generator
+struct NumberGenerator
+{
+    int seed; // Used to generate values.
+
+    // Returns the current random float.
+    float GetCurrentFloat()
+    {
+        Cycle();
+        return RANDOM_AM * seed;
+    }
+
+    // Returns the current random int.
+    int GetCurrentInt()
+    {
+        Cycle();
+        return seed;
+    }
+
+    // Generates the next number in the sequence.
+    void Cycle()
+    {
+        seed ^= RANDOM_MASK;
+        int k = seed / RANDOM_IQ;
+        seed = RANDOM_IA * (seed - k * RANDOM_IQ) - RANDOM_IR * k;
+
+        if (seed < 0) 
+            seed += RANDOM_IM;
+
+        seed ^= RANDOM_MASK;
+    }
+
+    // Cycles the generator based on the input count. Useful for generating a thread unique seed.
+    // PERFORMANCE - O(N)
+    void Cycle(const uint _count)
+    {
+        for (uint i = 0; i < _count; ++i)
+            Cycle();
+    }
+
+    // Returns a random float within the input range.
+    float GetRandomFloat(const float low, const float high)
+    {
+        if (low == high)
+            return low;
+        
+        float v = GetCurrentFloat();
+        return low * (1.0f - v) + high * v;
+    }
+    
+    // Returns a random float within the input range.
+    float3 GetRandomFloat3(const float low, const float high)
+    {
+        if (low == high)
+            return float3(low, low, low);
+        
+        float v = GetCurrentFloat();
+        float x = low * (1.0f - v) + high * v;
+        v = GetCurrentFloat();
+        float y = low * (1.0f - v) + high * v;
+        v = GetCurrentFloat();
+        float z = low * (1.0f - v) + high * v;
+        
+        return float3(x, y, z);
+    }
+
+    // Sets the seed
+    void SetSeed(const uint value)
+    {
+        seed = int(value);
+        Cycle();
+    }
+};
+
+void RotationVector(inout float3 right, inout float3 up, inout float3 look, float3 axis, float angle)
+{
+    if (angle == 0)
+        return;
+    
+    // 축을 정규화
+    axis = normalize(axis);
+
+    // 회전 각도를 라디안으로 변환
+    float cosTheta = cos(radians(angle));
+    float sinTheta = sin(radians(angle));
+
+    // 회전 행렬을 구성
+    float3x3 rotationMatrix = float3x3(
+        cosTheta + (1 - cosTheta) * axis.x * axis.x, 
+        (1 - cosTheta) * axis.x * axis.y - sinTheta * axis.z, 
+        (1 - cosTheta) * axis.x * axis.z + sinTheta * axis.y,
+
+        (1 - cosTheta) * axis.y * axis.x + sinTheta * axis.z,
+        cosTheta + (1 - cosTheta) * axis.y * axis.y, 
+        (1 - cosTheta) * axis.y * axis.z - sinTheta * axis.x,
+
+        (1 - cosTheta) * axis.z * axis.x - sinTheta * axis.y,
+        (1 - cosTheta) * axis.z * axis.y + sinTheta * axis.x,
+        cosTheta + (1 - cosTheta) * axis.z * axis.z
+    );
+
+    // 회전 행렬을 right, look, up 벡터에 적용
+    right = mul(right, rotationMatrix);
+    look = mul(look, rotationMatrix);
+    up = mul(up, rotationMatrix);
+}
+
+
+void RotationAxis(inout float3 right, inout float3 up, inout float3 look, float3 angle)
+{
+    RotationVector(right, look, up, right, angle.x);
+    RotationVector(right, look, up, look, angle.y);
+    RotationVector(right, look, up, up, angle.z);
+}
 #endif

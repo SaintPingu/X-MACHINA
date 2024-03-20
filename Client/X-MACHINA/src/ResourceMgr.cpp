@@ -13,6 +13,7 @@ void ResourceMgr::LoadResources()
 {
 	LoadTextures();
 	LoadRectangleMesh();
+	LoadPointMesh();
 	LoadModels();
 	LoadShaders();
 	LoadAnimationClips();
@@ -54,6 +55,18 @@ sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()
 	return mesh;
 }
 
+sptr<ModelObjectMesh> ResourceMgr::LoadPointMesh()
+{
+	sptr<ModelObjectMesh> findMesh = Get<ModelObjectMesh>("Point");
+	if (findMesh)
+		return findMesh;
+
+	sptr<ModelObjectMesh> mesh = std::make_shared<ModelObjectMesh>();
+	mesh->CreatePointMesh();
+	Add<ModelObjectMesh>("Point", mesh);
+	return mesh;
+}
+
 void ResourceMgr::LoadTextures()
 {
 	FileIO::LoadTextures("Import/Textures/");
@@ -91,7 +104,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Shadow.cso",
 			 L"PShader_Shadow.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -111,7 +123,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Standard.cso",
 			 L"PShader_Deferred.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -127,7 +138,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Shadow.cso",
 			 L"PShader_Shadow.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -144,7 +154,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_StandardInstance.cso",
 			 L"PShader_Deferred.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -165,7 +174,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Instance.cso",
 			 L"PShader_Instance.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -182,7 +190,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_SkinnedMesh.cso",
 			 L"PShader_Deferred.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -198,7 +205,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Shadow_SkinnedMesh.cso",
 			 L"PShader_Shadow.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -215,7 +221,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Terrain.cso",
 			 L"PShader_Terrain.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -238,7 +243,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Water.cso",
 			 L"PShader_Water.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -258,7 +262,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Billboard.cso",
 			 L"PShader_Billboard.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -278,7 +281,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Sprite.cso",
 			 L"PShader_Billboard.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -297,7 +299,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Tex.cso",
 			 L"PShader_Final.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -317,7 +318,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Canvas.cso",
 			 L"PShader_Canvas.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -339,7 +339,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Wired.cso",
 			 L"PShader_Wired.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -358,7 +357,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Tex.cso",
 			 L"PShader_OffScreen.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -377,7 +375,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Tex.cso",
 			 L"PShader_DirLighting.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -395,7 +392,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_SpotPointLighting.cso",
 			 L"PShader_SpotPointLighting.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -415,7 +411,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Standard.cso",
 			 L"PShader_Standard.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -434,7 +429,6 @@ void ResourceMgr::LoadShaders()
 		ShaderPath path = {
 			 L"VShader_Skybox.cso",
 			 L"PShader_Skybox.cso",
-			 L""
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -442,14 +436,98 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("SkyBox", shader);
 	}
 #pragma endregion
+#pragma region SSAO
+	{
+		ShaderInfo info = {
+			ShaderType::Ssao,
+			RasterizerType::Cull_None,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
 
+		ShaderPath path = {
+			 L"VShader_Ssao.cso",
+			 L"PShader_Ssao.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Ssao", shader);
+	}
+#pragma endregion
+#pragma region SSAOBlur
+	{
+		ShaderInfo info = {
+			ShaderType::Ssao,
+			RasterizerType::Cull_None,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 L"VShader_Ssao.cso",
+			 L"PShader_SsaoBlur.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("SsaoBlur", shader);
+	}
+#pragma endregion
+#pragma region GraphicsParticle
+	{
+		ShaderInfo info{
+			ShaderType::HDR,
+			RasterizerType::Cull_None,
+			DepthStencilType::Less_No_Write,
+			BlendType::Alpha_Blend,
+			InputLayoutType::Default,
+			D3D_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_POINTLIST,
+		};
+
+		ShaderPath path = {
+			 L"VShader_Particle.cso",
+			 L"PShader_Particle.cso",
+		};
+
+		{
+			path.GS = L"GShader_Particle.cso";
+			info.BlendType = BlendType::Alpha_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("GraphicsParticle", shader);
+		}
+		{
+			path.GS = L"GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::Alpha_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("GraphicsStretchedParticle", shader);
+		}
+		{
+			path.GS = L"GShader_Particle.cso";
+			info.BlendType = BlendType::One_To_One_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("OneToOneBlend_GraphicsParticle", shader);
+		}
+		{
+			path.GS = L"GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::One_To_One_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("OneToOneBlend_GraphicsStretchedParticle", shader);
+		}
+	}
+#pragma endregion
 // ComputeShader
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region HorzBlur
 	{
-		ShaderInfo info{};
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
 
 		ShaderPath path = {
+			 L"",
 			 L"",
 			 L"",
 			 L"CShader_HorzBlur.cso"
@@ -462,9 +540,12 @@ void ResourceMgr::LoadShaders()
 #pragma endregion
 #pragma region VertBlur
 	{
-		ShaderInfo info{};
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
 
 		ShaderPath path = {
+			 L"",
 			 L"",
 			 L"",
 			 L"CShader_VertBlur.cso"
@@ -477,9 +558,12 @@ void ResourceMgr::LoadShaders()
 #pragma endregion
 #pragma region VertBlur
 	{
-		ShaderInfo info{};
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
 
 		ShaderPath path = {
+			 L"",
 			 L"",
 			 L"",
 			 L"CShader_LUT.cso"
@@ -488,6 +572,24 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("LUT", shader);
+	}
+#pragma endregion
+#pragma region ComputeParticle
+	{
+		ShaderInfo info{
+			ShaderType::Particle,
+		};
+
+		ShaderPath path = {
+			 L"",
+			 L"",
+			 L"",
+			 L"CShader_Particle.cso"
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("ComputeParticle", shader);
 	}
 #pragma endregion
 }

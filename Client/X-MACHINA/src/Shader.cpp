@@ -25,7 +25,8 @@ void Shader::Load(ShaderInfo info, ShaderPath path, bool isClose)
 			mVSBlob = D3DUtil::ReadCompiledShaderFile(path.VS);
 		if (!path.PS.empty())
 			mPSBlob = D3DUtil::ReadCompiledShaderFile(path.PS);
-
+		if (!path.GS.empty())
+			mGSBlob = D3DUtil::ReadCompiledShaderFile(path.GS);
 		CreateGraphicsShader(isClose);
 	}
 }
@@ -34,8 +35,9 @@ void Shader::CreateGraphicsShader(bool isClose)
 {
 	assert(!mIsClosed);
 
-	mGraphicsPipelineStateDesc.VS = { (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize() };
-	mGraphicsPipelineStateDesc.PS = { (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize() };
+	mGraphicsPipelineStateDesc.VS = mVSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
+	mGraphicsPipelineStateDesc.PS = mPSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
+	mGraphicsPipelineStateDesc.GS = mGSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mGSBlob->GetBufferPointer()), mGSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
 	mGraphicsPipelineStateDesc.pRootSignature			= dxgi->GetGraphicsRootSignature().Get();
 	mGraphicsPipelineStateDesc.RasterizerState			= CreateRasterizerState();
 	mGraphicsPipelineStateDesc.BlendState				= CreateBlendState();
@@ -76,6 +78,11 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.RTVFormats[1]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mGraphicsPipelineStateDesc.RTVFormats[2]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		break;
+	case ShaderType::Ssao:
+		mGraphicsPipelineStateDesc.NumRenderTargets = SsaoCount;
+		mGraphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16_UNORM;
+		mGraphicsPipelineStateDesc.RTVFormats[1] = DXGI_FORMAT_R16_UNORM;
+		break;
 	default:
 		break;
 	}
@@ -97,7 +104,17 @@ void Shader::CreateComputeShader(bool isClose)
 {
 	assert(!mIsClosed);
 
-	mComputePipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
+	switch (mInfo.ShaderType) {
+	case ShaderType::Compute:
+		mComputePipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
+		break;
+	case ShaderType::Particle:
+		mComputePipelineStateDesc.pRootSignature = dxgi->GetParticleComputeRootSignature().Get();
+		break;
+	default:
+		break;
+	}
+
 	mComputePipelineStateDesc.CS = { (BYTE*)(mCSBlob->GetBufferPointer()), mCSBlob->GetBufferSize() };
 	mComputePipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 

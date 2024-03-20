@@ -37,8 +37,8 @@
 	</StartRotation>
 	<StartColor class_id="3" tracking_level="0" version="0">
 		<FirstColor>
-			<s.x>0.000000000e+00</s.x>
-			<s.y>8.000000119e-01</s.y>
+			<s.x>0.2</s.x>
+			<s.y>0.5</s.y>
 			<s.z>1.000000000e+00</s.z>
 			<s.w>1.000000000e+00</s.w>
 		</FirstColor>

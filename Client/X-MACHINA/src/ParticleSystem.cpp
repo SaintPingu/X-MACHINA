@@ -55,6 +55,7 @@ void ParticleSystem::Update()
 	mPSGD.SimulationSpeed = mPSCD.SimulationSpeed;
 	mPSGD.SizeOverLifeTime = mPSCD.SizeOverLifeTime;
 	mPSGD.ColorOverLifeTime = mPSCD.ColorOverLifeTime;
+	mPSGD.Shape = mPSCD.Shape;
 	mPSGD.TextureIndex = res->Get<Texture>(mPSCD.Renderer.TextureName)->GetSrvIdx();
 
 	// 렌더 모드가 Stretched일 경우 StartSize3D를 사용하여 y축의 값만 변경
@@ -207,13 +208,10 @@ void ParticleSystem::Save()
 
 	std::ofstream out(filePath);
 
-	if (!out) {
-		return;
+	if (out) {
+		boost::archive::xml_oarchive oa(out);
+		oa << BOOST_SERIALIZATION_NVP(mPSCD);
 	}
-
-	boost::archive::xml_oarchive oa(out);
-
-	oa << BOOST_SERIALIZATION_NVP(mPSCD);
 }
 
 sptr<ParticleSystem> ParticleSystem::Load(const std::string& fileName)
@@ -222,13 +220,10 @@ sptr<ParticleSystem> ParticleSystem::Load(const std::string& fileName)
 
 	std::ifstream in(filePath);
 
-	if (!in) {
-		return nullptr;
+	if (in) {
+		boost::archive::xml_iarchive ia(in);
+		ia >> BOOST_SERIALIZATION_NVP(mPSCD);
 	}
-	
-	boost::archive::xml_iarchive ia(in);
-
-	ia >> BOOST_SERIALIZATION_NVP(mPSCD);
 
 	return shared_from_this();
 }

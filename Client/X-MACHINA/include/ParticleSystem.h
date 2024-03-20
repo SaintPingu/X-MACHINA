@@ -20,16 +20,16 @@ class Shader;
 
 
 #pragma region EnumClass
+enum class PSSimulationSpace : UINT32 {
+	Local = 0,
+	World,
+};
+
 enum class PSColorOption : UINT32 {
 	Color = 0,
 	Gradient,
 	RandomBetweenTwoColors,
 	RandomBetweenTwoGradient,
-};
-
-enum class SimulationSpace : UINT32 {
-	Local = 0,
-	World,
 };
 
 enum class PSRenderMode : UINT32 {
@@ -38,6 +38,14 @@ enum class PSRenderMode : UINT32 {
 	StretchedBillboard,
 	HorizontalBillboard,
 	VerticalBillboard,
+};
+
+enum class PSShapeType : UINT32 {
+	None = 0,
+	Sphere,
+	HemiSphere,
+	Cone,
+	Box,
 };
 #pragma endregion
 
@@ -88,25 +96,6 @@ public:
 	}
 };
 
-
-//struct MyData {
-//	int x;
-//	float y;
-//	double z;
-//	std::string n;
-//	Vec2 a;
-//
-//	// 구조체를 직렬화하는 serialize 함수
-//	template<class Archive>
-//	void serialize(Archive& ar, const unsigned int version) {
-//		ar& BOOST_SERIALIZATION_NVP(x);
-//		ar& BOOST_SERIALIZATION_NVP(y);
-//		ar& BOOST_SERIALIZATION_NVP(z);
-//		ar& BOOST_SERIALIZATION_NVP(n);
-//		ar& BOOST_SERIALIZATION_NVP(a);
-//	}
-//};
-
 struct Emission {
 	struct Burst {
 		int		Count = 10;
@@ -142,6 +131,32 @@ public:
 		ar& BOOST_SERIALIZATION_NVP(IsOn);
 		ar& BOOST_SERIALIZATION_NVP(RateOverTime);
 		ar& BOOST_SERIALIZATION_NVP(Bursts);
+	}
+};
+
+struct PSShape {
+	PSShapeType ShapeType = PSShapeType::None;
+	Vec3		Padding;
+	float		Angle = 25.f;
+	float		Radius = 1.f;
+	float		RadiusThickness = 1.f;
+	float		Arc = 360.f;
+
+	void SetSphere(float radius, float radiusThickness = 1.f, float arc = 360.f, bool isHemiSphere = false) {
+		ShapeType = isHemiSphere ? PSShapeType::HemiSphere : PSShapeType::Sphere;
+		Radius = radius;
+		RadiusThickness = radiusThickness;
+		Arc = arc;
+	}
+	void SetCone(float angle, float radius, float radiusThickness = 1.f, float arc = 360.f) {
+		ShapeType = PSShapeType::Cone;
+		Angle = angle;
+		Radius = radius;
+		RadiusThickness = radiusThickness;
+		Arc = arc;
+	}
+	void SetBox() {
+		ShapeType = PSShapeType::Box;
 	}
 };
 
@@ -186,36 +201,37 @@ struct PSRenderer {
 struct ParticleSystemCPUData {
 public:
 	/* my value */
-	std::string		 mName;
-	bool			 IsStop = true;
-	int				 MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
-	float			 AccTime = 0.f;
+	std::string			mName;
+	bool				IsStop = true;
+	int					MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
+	float				AccTime = 0.f;
 
 	/* elapsed time */
-	float			 StopElapsed = 0.f;
-	float			 StartElapsed = 0.f;
-	float			 LoopingElapsed = 0.f;
+	float				StopElapsed = 0.f;
+	float				StartElapsed = 0.f;
+	float				LoopingElapsed = 0.f;
 
 	/* unity particle system */
-	float			 Duration = 1.f;
-	bool			 Looping = true;
-	bool			 Prewarm = false;
-	float			 StartDelay = 0.f;
-	Vec2			 StartLifeTime = Vec2{ 1.f };
-	Vec2			 StartSpeed = Vec2{ 1.f };
-	Vec4			 StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// w값이 0이면 StartSize3D를 사용하지 않음
-	Vec2			 StartSize = Vec2{ 0.1f };
-	Vec4			 StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w값이 0이면 StartRotation3D를 사용하지 않음
-	Vec2			 StartRotation = Vec2{ 0.f };
-	PSColor			 StartColor{};
-	float			 GravityModifier = 0.f;
-	SimulationSpace  SimulationSpace = SimulationSpace::World;
-	float			 SimulationSpeed = 1.f;
-	bool			 PlayOnAwake = true;
-	int				 MaxParticles = 1000;
+	float				Duration = 1.f;
+	bool				Looping = true;
+	bool				Prewarm = false;
+	float				StartDelay = 0.f;
+	Vec2				StartLifeTime = Vec2{ 1.f };
+	Vec2				StartSpeed = Vec2{ 1.f };
+	Vec4				StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// w값이 0이면 StartSize3D를 사용하지 않음
+	Vec2				StartSize = Vec2{ 0.1f };
+	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w값이 0이면 StartRotation3D를 사용하지 않음
+	Vec2				StartRotation = Vec2{ 0.f };
+	PSColor				StartColor{};
+	float				GravityModifier = 0.f;
+	PSSimulationSpace	SimulationSpace = PSSimulationSpace::World;
+	float				SimulationSpeed = 1.f;
+	bool				PlayOnAwake = true;
+	int					MaxParticles = 1000;
 
 	/* unity particle system module */
 	Emission			Emission{};
+	PSShape 			Shape;
 	int					SizeOverLifeTime = false;
 	ColorOverLifetime	ColorOverLifeTime{};
 	PSRenderer			Renderer{};
@@ -247,27 +263,28 @@ public:
 };
 
 struct ParticleSystemGPUData {
-	Vec3			  WorldPos{};
-	int				  TextureIndex{};
-	Vec4			  Color{};
-					  
-	int				  AddCount{};
-	int				  MaxParticles{};
-	float			  DeltaTime{};
-	float			  TotalTime{};
-					  
-	Vec2			  StartLifeTime{};
-	Vec2			  StartSpeed{};
-	Vec4			  StartSize3D{};
-	Vec4			  StartRotation3D{};
-	Vec2			  StartSize{};
-	Vec2			  StartRotation{};
-	PSColor			  StartColor{};
-	float			  GravityModifier{};
-	SimulationSpace   SimulationSpace{};
-	float			  SimulationSpeed{};
-	int				  SizeOverLifeTime{};
-	ColorOverLifetime ColorOverLifeTime{};
+	Vec3				WorldPos{};
+	int					TextureIndex{};
+	Vec4				Color{};
+						
+	int					AddCount{};
+	int					MaxParticles{};
+	float				DeltaTime{};
+	float				TotalTime{};
+						
+	Vec2				StartLifeTime{};
+	Vec2				StartSpeed{};
+	Vec4				StartSize3D{};
+	Vec4				StartRotation3D{};
+	Vec2				StartSize{};
+	Vec2				StartRotation{};
+	PSColor				StartColor{};
+	float				GravityModifier{};
+	PSSimulationSpace   SimulationSpace{};
+	float				SimulationSpeed{};
+	int					SizeOverLifeTime{};
+	ColorOverLifetime	ColorOverLifeTime{};
+	PSShape 			Shape;
 };
 
 struct ParticleData {

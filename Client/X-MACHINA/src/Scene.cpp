@@ -257,7 +257,7 @@ void Scene::BuildTest()
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
-	mParticles.resize(2);
+	mParticles.resize(3);
 
 #pragma region light
 	mParticles[0] = std::make_shared<GameObject>();
@@ -272,7 +272,16 @@ void Scene::BuildTest()
 	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
 	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
 	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
+#pragma endregion
 
+#pragma region ShapeTest
+	mParticles[2] = std::make_shared<GameObject>();
+	mParticles[2]->SetPosition(Vec3{ 173.f, 11.f, 150.f });
+	auto& component = mParticles[2]->AddComponent<ParticleSystem>()->Load("Green");
+	component->GetPSCD().StartLifeTime = 0.3f;
+	component->GetPSCD().Emission.SetBurst(100);
+	component->GetPSCD().Duration = 0.2f;
+	component->GetPSCD().Shape.SetSphere(1.5f, 0.f, 360.f, true);
 #pragma endregion
 }
 

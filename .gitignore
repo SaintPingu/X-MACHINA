@@ -35,7 +35,8 @@
 .vs/
 .x64/
 *.ipch
-Debug/
+Client/Debug/
+Client/X-MACHINA/x64/
 Release/
 Client/X-MACHINA/shaders/cso/
 *.pdb

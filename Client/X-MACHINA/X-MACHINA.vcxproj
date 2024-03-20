@@ -182,7 +182,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Imgui\ImguiMgr.cpp" />
+    <ClCompile Include="Imgui\ImGuiManager.cpp" />
     <ClCompile Include="Log\LogMgr.cpp" />
     <ClCompile Include="src\AnimatorBlendTree.cpp" />
     <ClCompile Include="src\AnimatorState.cpp" />
@@ -264,7 +264,7 @@
     <ClInclude Include="Imgui\ImguiCode\imstb_rectpack.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_textedit.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h" />
-    <ClInclude Include="Imgui\ImguiMgr.h" />
+    <ClInclude Include="Imgui\ImGuiManager.h" />
     <ClInclude Include="include\AnimatorStateMachine.h" />
     <ClInclude Include="include\BlurFilter.h" />
     <ClInclude Include="include\AnimationClip.h" />

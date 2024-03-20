@@ -14,8 +14,8 @@
 #include "Ssao.h"
 #include "ParticleSystem.h"
 
-#pragma region Imgui - 장재문 - 일단 여기다가 넣겠습니다.
-#include "../Imgui/ImguiMgr.h"
+#pragma region Imgui
+#include "../Imgui/ImguiManager.h"
 #pragma endregion
 
 
@@ -270,6 +270,13 @@ void DXGIMgr::Render()
 	scene->RenderPostProcessing(offScreenIndex);
 	//scene->RenderUI();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
+#pragma endregion
+
+
+#pragma region Imgui - 장재문 - 
+	imgui->Render_Prepare();
+	imgui->Update();
+	imgui->Render_Present();
 #pragma endregion
 
 	RenderEnd();

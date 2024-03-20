@@ -7,7 +7,7 @@
 #include "Scene.h"
 
 #pragma region  - 장재문 -
-#include "../Imgui/ImguiMgr.h"
+#include "../Imgui/ImguiManager.h"
 #include "../Log/LogMgr.h"
 #pragma endregion
 
@@ -27,7 +27,7 @@ void Framework::Init(HINSTANCE hInstance, HWND hMainWnd)
 	BuildObjects();
 
 #pragma region Imgui - 장재문 - 
-	//imgui->Init();
+	imgui->Init();
 #pragma endregion
 
 #pragma region Log - 장재문 -
@@ -46,7 +46,7 @@ void Framework::Release()
 	scene->Release();
 
 #pragma region Imgui,Log - 장재문 -
-	//imgui->Destroy();
+	imgui->Destroy();
 	//LOG_MGR->Destroy();
 #pragma endregion
 
@@ -81,13 +81,11 @@ void Framework::FrameAdvance()
 	// update scene
 	scene->Update();
 
-#pragma region Imgui - 장재문 - 
-	//imgui->RenderPrepare();
-	//imgui->Render();
-#pragma endregion
-
 	// rendering
 	dxgi->Render();
+
+
+
 
 	// update title with fps
 	std::wstring title = mTitle + L" | FPS : " + timer->GetFrameRate();

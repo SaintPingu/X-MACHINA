@@ -20,6 +20,7 @@ class Light;
 class SkyBox;
 class ObjectPool;
 class TestCube;
+class Script_GroundPlayer;
 #pragma endregion
 
 
@@ -44,6 +45,7 @@ private:
 	sptr<GameObject>				mWater{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
+	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::list<sptr<GridObject>>		mExplosiveObjects{};
 	std::list<sptr<GameObject>>		mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
@@ -56,6 +58,7 @@ private:
 	/* Player */
 	std::vector<sptr<GridObject>>	mPlayers{};
 	sptr<GridObject>				mPlayer{};			 // main player
+	sptr<Script_GroundPlayer>		mPlayerScript{};			 // main player
 	int								mCurrPlayerIndex{};	 // main player index from [mPlayers]
 
 	/* TestCube */

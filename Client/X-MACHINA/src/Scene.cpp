@@ -261,8 +261,6 @@ void Scene::BuildTest()
 	mPlayerScript = mPlayer->GetComponent<Script_GroundPlayer>();
 
 	mParticles.resize(3);
-}
-
 #pragma region light
 	mParticles[0] = std::make_shared<GameObject>();
 	mParticles[0]->SetPosition(Vec3{ 166.f, 10.5f, 149.f });
@@ -379,9 +377,7 @@ void Scene::LoadGameObjects(FILE* file)
 
 			std::string meshName{};
 			FileIO::ReadString(file, meshName);
-			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + meshName + ".bin");
-			res->Add<MasterModel>(meshName, model);
-			mModels.insert(std::make_pair(meshName, model));
+			model = res->Get<MasterModel>(meshName);
 
 			FileIO::ReadString(file, token); //"<Transforms>:"
 			FileIO::ReadVal(file, sameObjectCount);
@@ -421,8 +417,7 @@ void Scene::LoadGameObjects(FILE* file)
 		--sameObjectCount;
 	}
 }
-void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
-void Scene::InitObjectByTag(const void* pTag, sptr<GridObject> object)
+void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 {
 	object->SetTag(tag);
 
@@ -1113,7 +1108,7 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 
 sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable) const
 {
-	const auto& model = GetModel(modelName);
+	const auto& model = res->Get<MasterModel>(modelName);
 	if (!model) {
 		return nullptr;
 	}

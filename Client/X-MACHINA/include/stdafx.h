@@ -467,7 +467,7 @@ enum class HumanBone : DWORD;
 enum class FilterOption : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, HumanBone> || std::is_same_v<T, FilterOption>));
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, HumanBone> || std::is_same_v<T, FilterOption>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)
@@ -1029,20 +1029,6 @@ namespace Vector3 {
 	{
 		return Vec3(-1.f, -1.f, -1.f);
 	}
-}
-inline Vec3 operator-(const Vec3& v) noexcept
-{
-	return Vector3::Negative(v);
-}
-
-inline Vec3 operator-(const Vec3& lhs, const Vec3& rhs) noexcept
-{
-	return Vector3::Subtract(lhs, rhs);
-}
-
-inline Vec3 operator+(const Vec3& lhs, const Vec3& rhs) noexcept
-{
-	return Vector3::Add(lhs, rhs);
 }
 
 namespace Vector4 {

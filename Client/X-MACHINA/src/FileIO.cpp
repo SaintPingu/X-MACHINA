@@ -557,7 +557,7 @@ namespace {
 		std::string clipFolder, clipName;
 		FileIO::ReadString(file, clipFolder);
 		FileIO::ReadString(file, clipName);
-		return scene->GetAnimationClip(clipFolder, clipName);
+		return res->Get<AnimationClip>(clipFolder + '/' + clipName);
 	}
 
 	sptr<AnimatorStateMachine> LoadAnimatorStateMachine(FILE* file)

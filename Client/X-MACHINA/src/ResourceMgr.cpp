@@ -76,17 +76,18 @@ void ResourceMgr::LoadTextures()
 
 void ResourceMgr::LoadModels()
 {
-	const std::vector<std::string> binModelNames = { "tank_bullet", "sprite_explosion", };
+	const std::string rootFolder = "Import/Meshes/";
 
 	sptr<MasterModel> model;
-	for (auto& name : binModelNames) {
-		if (!mResources[static_cast<UINT8>(ResourceType::Model)].contains(name)) {
-			model = FileIO::LoadGeometryFromFile("Import/Meshes/" + name + ".bin");
-			if (name.substr(0, 6) == "sprite") {
-				model->SetSprite();
-			}
-			Add<MasterModel>(name, model);
+	for (const auto& modelFile : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = modelFile.path().filename().string();
+		const std::string modelName = FileIO::RemoveExtension(fileName);
+
+		model = FileIO::LoadGeometryFromFile(rootFolder + fileName);
+		if (fileName.substr(0, 6) == "sprite") {
+			model->SetSprite();
 		}
+		res->Add(modelName, model);
 	}
 }
 

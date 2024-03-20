@@ -23,7 +23,7 @@ public:
 	bool Init();
 	void Render_Prepare();
 	void Update();
-	void Render_Present();
+	void Render();
 
 	void DestroyImGui();
 	void ImGuiWindow(std::string Label, std::function<void(ImGuiManager&)> function);

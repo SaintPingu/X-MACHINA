@@ -268,15 +268,8 @@ void DXGIMgr::Render()
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	scene->RenderPostProcessing(offScreenIndex);
-	//scene->RenderUI();
+	imgui->Render();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
-#pragma endregion
-
-
-#pragma region Imgui - 장재문 - 
-	imgui->Render_Prepare();
-	imgui->Update();
-	imgui->Render_Present();
 #pragma endregion
 
 	RenderEnd();
@@ -313,6 +306,10 @@ void DXGIMgr::MainPassRenderBegin()
 
 void DXGIMgr::PostPassRenderBegin()
 {
+	// imgui 렌더 준비 및 업데이트
+	imgui->Render_Prepare();
+	imgui->Update();
+
 	// 포스트 프로세싱 컴퓨트 쉐이더 관련 설정
 	cmdList->SetComputeRootSignature(GetComputeRootSignature().Get());
 }

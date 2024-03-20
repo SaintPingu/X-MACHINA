@@ -230,9 +230,9 @@ void Scene::BuildPlayers()
 	
 	mPlayers.push_back(airplanePlayer);
 	mPlayer = mPlayers.front();
-	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid__R_Hand");
-	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid__L_Hand");
-	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid__Head");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
+	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");
 }
 
 void Scene::BuildTerrain()
@@ -554,15 +554,16 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-	RenderParticles();
-
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	RenderFXObjects();
 	RenderBillboards();
 
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	RenderParticles();
+
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Scene::RenderPostProcessing(int offScreenIndex)

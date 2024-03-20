@@ -97,6 +97,8 @@ private:
 	// SSAO
 	uptr<Ssao>							mSsao;
 
+	D3D12_RESOURCE_BARRIER				mBarrier;
+
 	// draw option
 	DrawOption							mDrawOption{};
 

@@ -74,7 +74,6 @@ void ImGuiManager::Render_Prepare()
 
 void ImGuiManager::Update()
 {
-
     if (mIsShowDemo)
         ImGui::ShowDemoWindow(&mIsShowDemo);
 
@@ -91,13 +90,13 @@ void ImGuiManager::Update()
         }
     }
     ImGui::End();
-
-    cmdList->SetDescriptorHeaps(1, mSrvDescHeap.GetAddressOf());
 }
 
-void ImGuiManager::Render_Present()
+void ImGuiManager::Render()
 {
     // Rendering
+    cmdList->SetDescriptorHeaps(1, mSrvDescHeap.GetAddressOf());
+
     ImGui::Render();
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmdList.Get());
 

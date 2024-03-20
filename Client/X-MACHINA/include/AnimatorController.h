@@ -30,26 +30,37 @@ namespace Animations {
 
 class AnimatorController : public Resource {
 private:
+	bool mIsCheckTransition{};
 	Animations::ParamMap mParameters{};
 
-	const sptr<AnimatorLayer> mBaseLayer{};
-	sptr<AnimatorLayer> mCrntLayer{};
-
-	sptr<AnimatorState>	mCrntState{};
-	sptr<AnimatorState>	mNextState{};
+	std::vector<sptr<AnimatorLayer>> mLayers;
 
 public:
-	AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer);
+	AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers);
 	AnimatorController(const AnimatorController& other);
 	virtual ~AnimatorController() = default;
+
+	bool HasParam(const std::string paramName) const { return mParameters.contains(paramName); }
+
+	Vec4x4 GetTransform(int boneIndex, HumanBone boneType);
+	const Animations::ParamMap& GetParams() const { return mParameters; }
+	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
+	float GetParamValue(const std::string& paramName) const { return mParameters.at(paramName).val.f; }
+	const AnimatorParameter* GetParamRef(const std::string& paramName) const { return &mParameters.at(paramName); }
+
+	template<class T, typename std::enable_if<	std::is_same<T, bool>::value ||
+												std::is_same<T, int>::value ||
+												std::is_same<T, float>::value>::type* = nullptr>
+	void SetValue(const std::string& paramName, T value) { SetValue(paramName, &value); }
 
 public:
 	void Animate();
 
-	Vec4x4 GetTransform(int boneIndex);
-
-	void SetBool(const std::string& name, bool value);
+	void SyncAnimation() const;
 
 private:
-	void ChangeToNextState();
+	void InitLayers();
+	void CheckTransition();
+
+	void SetValue(const std::string& paramName, void* value);
 };

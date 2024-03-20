@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ #include "stdafx.h"
 #include "Script_MainCamera.h"
 
 #include "Object.h"
@@ -57,7 +57,6 @@ void Script_MainCamera::Update()
 		mObject->Translate(dir, distance);
 		UpdateHeight();
 		LookPlayer();
-		mainCameraObject->Rotate(-10, 0, 0);
 		mainCamera->UpdateViewMtx();
 	}
 
@@ -92,12 +91,11 @@ void Script_MainCamera::ChangeCameraMode(CameraMode mode)
 
 	switch (mode) {
 	case CameraMode::Third:
-		mTimeLag = 0.f;
-		//SetCameraOffset(Vec3(0.f, 12.f, -4.f));	// top1
-		SetCameraOffset(Vec3(0.f, 9.f, -3.f));	// top2
-		//SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));	// perspective
-		//SetCameraOffset(Vec3(0.f, 2.2f, 2.f));	// front
-		//SetCameraOffset(Vec3(0.f, 12.2f, -12.f));	// temp
+		mTimeLag = 0.1f;
+		SetCameraOffset(Vec3(0.f, 12.f, -1.f));
+		//SetCameraOffset(Vec3(1.5f, 2.5f, 1.5f));
+		//SetCameraOffset(Vec3(0.f, 10.f, -30.f));
+		//SetCameraOffset(Vec3(0.f, 30.f, -50.f));
 		mainCamera->SetProjMtx(1.01f, maxPlaneDistance, gkAspectRatio, 80.f);
 		break;
 	default:
@@ -113,5 +111,6 @@ void Script_MainCamera::LookPlayer()
 {
 	if (mPlayer) {
 		mainCamera->LookAt(mPlayer->GetPosition(), mPlayer->GetUp());
+		mainCameraObject->Rotate(-10, 0, 0);
 	}
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "HumanBone.h"
 
 #pragma region Include
 #include "Resources.h"
@@ -191,14 +192,24 @@ private:
 	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt = 1) const;
 };
 
+class Avatar {
+private:
+	std::unordered_map<std::string, BoneType> mBoneTypes{};
 
+public:
+	Avatar() = default;
+	virtual ~Avatar() = default;
 
-
+public:
+	BoneType GetBoneType(const std::string& boneName) const;
+	void SetBoneType(const std::string& boneName, const std::string& boneType);
+};
 
 class SkinMesh : public Mesh {
 public:
 	std::vector<std::string> mBoneNames;
 	std::vector<Transform*>* mBoneFrames{};
+	std::vector<BoneType> mBoneTypes{};
 
 private:
 	std::vector<Vec4x4> mBoneOffsets{};
@@ -208,8 +219,11 @@ public:
 	virtual ~SkinMesh() = default;
 
 public:
+	BoneType GetBoneType(int boneIndex) const;
+	HumanBone GetHumanBone(int boneIndex) const;
 	void SetBoneOffsets(const std::vector<Vec4x4>& boneOffsets) { mBoneOffsets = boneOffsets; }
 
+public:
 	void UpdateShaderVariables();
 };
 #pragma endregion

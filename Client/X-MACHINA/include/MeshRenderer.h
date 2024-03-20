@@ -20,7 +20,9 @@ public:
 	static void Render(const BoundingBox& box);
 	static void Render(const BoundingOrientedBox& box);
 	static void Render(const BoundingSphere& bs);
+
 	static void RenderPlane(const Vec3& pos, float width, float length);
+	static void RenderBox(const Vec3& pos, const Vec3& size);
 
 private:
 	static void BuildMeshes();

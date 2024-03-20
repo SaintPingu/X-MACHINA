@@ -2,94 +2,121 @@
 #include "AnimatorController.h"
 
 #include "Animator.h"
-#include "AnimatorState.h"
+#include "AnimatorMotion.h"
 #include "AnimatorLayer.h"
 #include "AnimationClip.h"
 #include "Scene.h"
 #include "Timer.h"
 
-AnimatorController::AnimatorController(const Animations::ParamMap& parameters, rsptr<AnimatorLayer> baseLayer)
+AnimatorController::AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers)
 	:
 	Resource(ResourceType::AnimatorController),
 	mParameters(parameters),
-	mBaseLayer(baseLayer)
+	mLayers(layers)
 {
-	mCrntLayer = mBaseLayer;
-	mCrntState = mCrntLayer->Entry();
+	InitLayers();
 }
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
 	Resource(ResourceType::AnimatorController),
-	mParameters(other.mParameters),
-	mBaseLayer(std::make_shared<AnimatorLayer>(*other.mBaseLayer))
+	mParameters(other.mParameters)
 {
-	mCrntLayer = mBaseLayer;
-	mCrntState = mCrntLayer->Entry();
+	// layers 복사 하기
+	mLayers.reserve(other.mLayers.size());
+	for (auto& layer : other.mLayers) {
+		mLayers.push_back(std::make_shared<AnimatorLayer>(*layer));
+	}
+
+	InitLayers();
 }
 
 void AnimatorController::Animate()
 {
-	mCrntState->Animate();
+	if (mIsCheckTransition) {
+		mIsCheckTransition = false;
+		CheckTransition();
+	}
 
-	if (mNextState) {
-		bool isEndAnimation = mNextState->Animate();
+	for (auto& layer : mLayers) {
+		layer->Animate();
+	}
+}
 
-		if (isEndAnimation) {
-			ChangeToNextState();
-		}
-		else {
-			constexpr float kMaxDuration = .25f;
-			const float crntDuration = mNextState->GetCrntLength();
-
-			const float t = crntDuration / kMaxDuration;
-			if (t < 1.f) {
-				mCrntState->SetWeight(1 - t);
-				mNextState->SetWeight(t);
-			}
-			else {
-				ChangeToNextState();
-			}
+Vec4x4 AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
+{
+	for (auto& layer : mLayers) {
+		if (layer->CheckBoneMask(boneType)) {
+			return layer->GetTransform(boneIndex, boneType);
 		}
 	}
+
+	return Matrix4x4::Identity();
 }
 
-Vec4x4 AnimatorController::GetTransform(int boneIndex)
+void AnimatorController::SyncAnimation() const
 {
-	Vec4x4 transform = Matrix4x4::Scale(mCrntState->GetSRT(boneIndex), mCrntState->GetWeight());
-	if (mNextState) {
-		transform = Matrix4x4::Add(transform, Matrix4x4::Scale(mNextState->GetSRT(boneIndex), mNextState->GetWeight()));
-	}
+	if (mLayers.size() >= 2) {
+		auto& srcLayer = mLayers.back();
+		rsptr<const AnimatorMotion> srcState = srcLayer->GetSyncState();
 
-	return transform;
-}
-
-void AnimatorController::SetBool(const std::string& name, bool value)
-{
-	if (mNextState) {
-		return;
-	}
-	if (!mParameters.contains(name)) {
-		return;
-	}
-
-	mParameters[name].val.b = value;
-
-	mNextState = mCrntState->CheckTransition(name, value);
-	if (mNextState != nullptr) {
-		mNextState->Init();
+		for (size_t i = 0; i < mLayers.size(); ++i) {
+			if (mLayers[i] == srcLayer) {
+				continue;
+			}
+			mLayers[i]->SyncAnimation(srcState);
+		}
 	}
 }
 
-
-void AnimatorController::ChangeToNextState()
+void AnimatorController::CheckTransition()
 {
-	if (!mNextState) {
+	for (auto& layer : mLayers) {
+		layer->CheckTransition(this);
+	}
+}
+
+void AnimatorController::InitLayers()
+{
+	for (auto& layer : mLayers) {
+		layer->Init(this);
+		if (layer->GetName().contains("Legs")) {
+			layer->SetSyncStateMachine(true);
+		}
+	}
+}	
+
+void AnimatorController::SetValue(const std::string& paramName, void* value)
+{
+	if (!HasParam(paramName)) {
 		return;
 	}
 
-	mCrntState->Init();
-	mNextState->SetWeight(1.f);
-	mCrntState = mNextState;
-	mNextState = nullptr;
+	AnimatorParameter::value val;
+
+	auto& param = mParameters[paramName];
+	switch (param.type) {
+	case AnimatorParameter::Type::Bool:
+	case AnimatorParameter::Type::Trigger:
+		val.b = *(bool*)value;
+		if (param.val.b == val.b) {
+			return;
+		}
+		break;
+	case AnimatorParameter::Type::Int:
+		val.i = *(int*)value;
+		if (param.val.i == val.i) {
+			return;
+		}
+		break;
+	case AnimatorParameter::Type::Float:
+		val.f = *(float*)value;
+		if (Math::IsEqual(param.val.f, val.f)) {
+			return;
+		}
+		break;
+	}
+
+	mParameters[paramName].val = val;
+	mIsCheckTransition = true;
 }

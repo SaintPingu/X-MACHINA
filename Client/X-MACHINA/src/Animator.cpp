@@ -36,24 +36,29 @@ void Animator::UpdateShaderVariables()
 	}
 }
 
+void Animator::LookAt(const Vec3& target)
+{
+
+}
+
 void Animator::Animate()
 {
+	if (!mController) {
+		return;
+	}
+
 	mController->Animate();
 
 	auto& boneFrames = mBoneFramesList.front();
+	auto& skinMesh = mSkinMeshes.front();
 
 	for (int j = 0; j < boneFrames.size(); ++j) {
 		Vec4x4 transform{ Matrix4x4::Zero() };
 
-		transform = mController->GetTransform(j);
+		transform = mController->GetTransform(j, skinMesh->GetHumanBone(j));
 		
 		boneFrames[j]->SetLocalTransform(transform);
 	}
-}
-
-void Animator::SetBool(const std::string& name, bool value)
-{
-	mController->SetBool(name, value);
 }
 
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
@@ -63,6 +68,11 @@ void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 
 void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar)
 {
+	// Bone이 가장 많은 것이 맨 앞으로
+	std::sort(mSkinMeshes.begin(), mSkinMeshes.end(), [](const auto& first, const auto& second) {
+		return first->mBoneNames.size() > second->mBoneNames.size();
+		});
+
 	mBoneFramesList.resize(skinMeshCount);
 	for (size_t i = 0; i < skinMeshCount; ++i) {
 		const auto& boneNames = mSkinMeshes[i]->mBoneNames;
@@ -70,10 +80,7 @@ void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar)
 
 		boneFrames.resize(boneNames.size());
 		for (size_t j = 0; j < boneNames.size(); ++j) {
-			boneFrames[j] = avatar->FindFrame(boneNames[j])->GetObj<Transform>();
+			boneFrames[j] = avatar->FindFrame(boneNames[j]);
 		}
 	}
-	std::sort(mBoneFramesList.begin(), mBoneFramesList.end(), [](const auto& first, const auto& second) {
-		return first.size() > second.size();
-		});
 }

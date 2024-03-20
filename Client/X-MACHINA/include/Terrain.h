@@ -38,36 +38,6 @@ public:
 	const std::vector<float>& GetHeightMapPixels() const { return mHeightMapPixels; }
 	int GetHeightMapWidth() const { return mWidth; }
 	int GetHeightMapLength() const { return mLength; }
-
-private:
-	template<typename T>
-	void LoadHeightMap(const std::wstring& fileName) {
-		std::vector<T> pHeightMapPixels((size_t)mWidth * mLength);
-
-		std::ifstream in{ fileName, std::ios::binary };
-		if (!in) {
-			throw std::runtime_error("terrain file dose not exist!");
-		}
-		in.read(reinterpret_cast<char*>(pHeightMapPixels.data()), mWidth * mLength * sizeof(T));
-
-		// float 타입일 경우 빠르게 이동
-		if constexpr (std::is_same_v<T, float>) {
-			mHeightMapPixels = std::move(pHeightMapPixels);
-			return;
-		}
-
-		mHeightMapPixels.resize((size_t)mWidth * mLength);
-
-		// uint16_t 타입일 경우 변환 진행
-		for (int y = 0; y < mLength; y++) {
-			for (int x = 0; x < mWidth; x++) {
-				const size_t index = (size_t)x + ((size_t)y * mWidth);
-				if constexpr (std::is_same_v<T, uint16_t>) {
-					mHeightMapPixels[index] = Math::uint16ToFloat(pHeightMapPixels[index]);
-				}
-			}
-		}
-	}
 };
 
 

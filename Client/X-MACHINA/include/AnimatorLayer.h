@@ -1,37 +1,49 @@
 #pragma once
+#include "HumanBone.h"
 
-struct AnimatorTransition;
-class AnimatorState;
-class AnimatorLayer;
-
-namespace Animations {
-	using StateMap = std::unordered_map<std::string, sptr<AnimatorState>>;
-	using LayerMap = std::unordered_map<std::string, sptr<AnimatorLayer>>;
-}
+class AnimatorMotion;
+class AnimatorStateMachine;
+class AnimatorController;
 
 class AnimatorLayer {
 private:
+	bool mIsReverse{};
+	bool mIsSyncSM{};
+	sptr<const AnimatorMotion> mSyncState{};
+
 	std::string mName{};
-	AnimatorLayer* mParent{};
+	HumanBone mBoneMask{};
 
-	std::vector<sptr<const AnimatorTransition>> mEntryTransitions{};
+	const AnimatorController* mController{};
+	sptr<AnimatorStateMachine> mRootStateMachine{};
 
-	Animations::StateMap mStates{};
-	Animations::LayerMap mLayers{};
+	sptr<AnimatorMotion>				mCrntState{};
+	std::vector<sptr<AnimatorMotion>>	mNextStates{};
 
 public:
-	AnimatorLayer(std::string name, const std::vector<sptr<const AnimatorTransition>>& entryTransitions);
+	AnimatorLayer(const std::string& name, sptr<AnimatorStateMachine> rootStateMachine, HumanBone boneMask = HumanBone::None);
 	AnimatorLayer(const AnimatorLayer& other);
 	virtual ~AnimatorLayer() = default;
 
 	std::string GetName() const { return mName; }
-	sptr<AnimatorState> GetState(const std::string& name) const { return mStates.at(name); }
+	sptr<const AnimatorMotion> GetSyncState() const { return mNextStates.empty() ? mCrntState : mNextStates.back(); }
+	Vec4x4 GetTransform(int boneIndex, HumanBone boneType) const;
 
-	void AddState(rsptr<AnimatorState> state);
-	void SetParent(AnimatorLayer* parent) { mParent = parent; }
+	void SetCrntStateLength(float length) const;
+	void SetSyncStateMachine(bool val) { mIsSyncSM = val; }
 
 public:
-	sptr<AnimatorState> Entry() const;
+	void Init(const AnimatorController* controller);
 
-	void AddLayer(rsptr<AnimatorLayer> layer);
+	bool CheckBoneMask(HumanBone boneType) { return boneType == HumanBone::None ? true : mBoneMask & boneType; }
+
+	void Animate();
+
+	void CheckTransition(const AnimatorController* controller);
+
+	void SyncAnimation(rsptr<const AnimatorMotion> srcState);
+
+private:
+	void SyncComplete();
+	void ChangeState(rsptr<AnimatorMotion> state);
 };

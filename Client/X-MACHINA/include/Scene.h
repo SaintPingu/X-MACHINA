@@ -129,7 +129,8 @@ private:
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)
-	void InitObjectByTag(const void* tag, sptr<GridObject> object);
+	void InitObjectByTag(ObjectTag tag, sptr<GridObject> object);
+
 #pragma endregion
 
 #pragma region Render
@@ -178,7 +179,6 @@ private:
 public:
 	void Start();
 	void Update();
-	void Animate();
 
 private:
 	void CheckCollisions();
@@ -209,6 +209,9 @@ public:
 	// update objects' grid indices
 	void UpdateObjectGrid(GridObject* object, bool isCheckAdj = true);
 	void RemoveObjectFromGrid(GridObject* object);
+
+	// create new game object from model
+	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true) const;
 
 private:
 	// do [processFunc] for all objects

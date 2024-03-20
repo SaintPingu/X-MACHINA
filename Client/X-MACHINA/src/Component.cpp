@@ -138,6 +138,15 @@ void Object::Animate()
 			component->Animate();
 		}
 		});
+}
+
+void Object::LateUpdate()
+{
+	ProcessComponents([](rsptr<Component> component) {
+		if (component->IsActive()) {
+			component->LateUpdate();
+		}
+		});
 	Transform::ComputeWorldTransform();
 }
 

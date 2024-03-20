@@ -184,12 +184,15 @@
     </ClCompile>
     <ClCompile Include="Imgui\ImguiMgr.cpp" />
     <ClCompile Include="Log\LogMgr.cpp" />
+    <ClCompile Include="src\AnimatorBlendTree.cpp" />
+    <ClCompile Include="src\AnimatorState.cpp" />
+    <ClCompile Include="src\AnimatorStateMachine.cpp" />
     <ClCompile Include="src\BlurFilter.cpp" />
     <ClCompile Include="src\AnimationClip.cpp" />
     <ClCompile Include="src\AnimatorController.cpp" />
     <ClCompile Include="src\Animator.cpp" />
     <ClCompile Include="src\AnimatorLayer.cpp" />
-    <ClCompile Include="src\AnimatorState.cpp">
+    <ClCompile Include="src\AnimatorMotion.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
@@ -249,6 +252,7 @@
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\UI.cpp" />
+    <ClCompile Include="src\Weapon.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -261,12 +265,13 @@
     <ClInclude Include="Imgui\ImguiCode\imstb_textedit.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h" />
     <ClInclude Include="Imgui\ImguiMgr.h" />
+    <ClInclude Include="include\AnimatorStateMachine.h" />
     <ClInclude Include="include\BlurFilter.h" />
     <ClInclude Include="include\AnimationClip.h" />
     <ClInclude Include="include\AnimatorController.h" />
     <ClInclude Include="include\Animator.h" />
     <ClInclude Include="include\AnimatorLayer.h" />
-    <ClInclude Include="include\AnimatorState.h" />
+    <ClInclude Include="include\AnimatorMotion.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Collider.h" />
     <ClInclude Include="include\Component.h" />
@@ -280,6 +285,7 @@
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
     <ClInclude Include="include\Grid.h" />
+    <ClInclude Include="include\HumanBone.h" />
     <ClInclude Include="include\InputMgr.h" />
     <ClInclude Include="include\Light.h" />
     <ClInclude Include="include\LUTFilter.h" />
@@ -324,6 +330,7 @@
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\UI.h" />
     <ClInclude Include="include\UploadBuffer.h" />
+    <ClInclude Include="include\Weapon.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>

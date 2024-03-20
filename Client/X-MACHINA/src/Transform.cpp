@@ -4,6 +4,20 @@
 #include "FrameResource.h"
 
 #pragma region Getter
+Vec4 Transform::GetLocalRotation() const
+{
+	Vec4 result;
+	XMStoreFloat4(&result, XMQuaternionRotationMatrix(_MATRIX(mLocalTransform)));
+	return result;
+}
+
+Vec4 Transform::GetRotation() const
+{
+	Vec4 result;
+	XMStoreFloat4(&result, XMQuaternionRotationMatrix(_MATRIX(mWorldTransform)));
+	return result;
+}
+
 Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
 {
 	if (!dwDirection) {
@@ -107,6 +121,10 @@ void Transform::SetUp(const Vec3& up)
 
 void Transform::SetChild(rsptr<Transform> child)
 {
+	if (child) {
+		child->mParent = this;
+	}
+
 	if (mChild) {
 		if (mChild->mSibling) {
 			Transform* tail = mChild->mSibling.get();
@@ -123,9 +141,8 @@ void Transform::SetChild(rsptr<Transform> child)
 		}
 	}
 	else {
-		mChild = child;;
+		mChild = child;
 	}
-	if (child) child->mParent = this;
 }
 
 void Transform::SetLocalTransform(const Vec4x4& transform)
@@ -232,14 +249,30 @@ void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 	UpdateAxis();
 }
 
+void Transform::SetRotation(const Vec4& quaternion)
+{
+	Vector quat = XMLoadFloat4(&quaternion);
+
+	Matrix rotationMatrix = XMMatrixRotationQuaternion(quat);
+
+	mLocalTransform = Matrix4x4::Multiply(mLocalTransform, rotationMatrix);
+
+	UpdateAxis();
+}
+
 void Transform::LookTo(const Vec3& lookTo, const Vec3& up)
 {
-	SetAxis(Matrix4x4::LookToLH(GetPosition(), lookTo, up, true));
+	SetAxis(Matrix4x4::LookToLH(GetPosition(), lookTo, up, false));
 }
 
 void Transform::LookAt(const Vec3& lookAt, const Vec3& up)
 {
-	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, true));
+	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, false));
+}
+
+void Transform::LookAtWorld(const Vec3& lookAt, const Vec3& up)
+{
+
 }
 
 

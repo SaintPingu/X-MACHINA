@@ -14,6 +14,7 @@ void Script_Gunship::Start()
 
 void Script_Gunship::Animate()
 {
+	mObject->Rotate(0, 90 * DeltaTime(), 0);
 	if (mMainRotor) {
 		const float rotorSpeed = 360.f * 7.0f * DeltaTime();
 		mMainRotor->Rotate(Vector3::Up(), rotorSpeed);

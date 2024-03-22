@@ -46,7 +46,7 @@ SphereCollider& SphereCollider::operator=(const SphereCollider& other)
 
 void SphereCollider::Update()
 {
-	mBS.Center = Vector3::Add(mBS.GetOrigin(), mObject->GetPosition());
+	mBS.Transform(mObject->GetWorldTransform());
 }
 
 
@@ -107,7 +107,7 @@ void ObjectCollider::Render() const
 		boxCollider->Render();
 	}
 
-	//#define RENDER_BOUNDING_SPHERE
+	#define RENDER_BOUNDING_SPHERE
 #ifdef RENDER_BOUNDING_SPHERE
 	if (mSphereCollider) {
 		mSphereCollider->Render();

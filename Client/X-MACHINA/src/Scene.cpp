@@ -559,6 +559,7 @@ void Scene::RenderForward()
 
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
+	RenderUI();
 
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	RenderParticles();

@@ -742,6 +742,13 @@ namespace Vector3 {
 		return result;
 	}
 
+	inline Vec3 Rotate(const Vec3& v, const Vec4& quat) noexcept
+	{
+		Vec3 result;
+		XMStoreFloat3(&result, XMVector3Rotate(_VECTOR(v), _VECTOR4(quat)));
+		return result;
+	}
+
 	inline Vec3 Add(const Vec3& v1, const Vec3& v2) noexcept
 	{
 		Vec3 result;

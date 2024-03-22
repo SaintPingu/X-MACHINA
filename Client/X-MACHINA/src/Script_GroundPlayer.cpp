@@ -57,7 +57,7 @@ void Script_GroundPlayer::Start()
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 60.f;
 
-	SetSpawn(Vec3(170.f, 100.f, 145.f));
+	SetSpawn(Vec3(250, 100.f, 300));
 	SetHP(150.f);
 
 	mRigid->SetMass(100.f);
@@ -85,10 +85,6 @@ void Script_GroundPlayer::LateUpdate()
 	Vec3 pos = mObject->GetPosition();
 	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 	mObject->SetPositionY(terrainHeight);
-
-	if (mAnimator) {
-		mAnimator->LookAt(Vec3(300, 107, 300));
-	}
 }
 
 
@@ -123,7 +119,7 @@ void Script_GroundPlayer::ProcessInput()
 
 			Vec3 velocity = mRigid->GetVelocity();
 			if (!isRun) {
-				mRigid->SetMaxSpeed(3.3f);
+				mRigid->SetMaxSpeed(600.f);
 				controller->SetValue("Run", false);
 
 				if (Vector3::Length(velocity) > 0.1f) {

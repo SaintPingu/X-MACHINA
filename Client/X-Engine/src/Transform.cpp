@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Transform.h"
+#include "Component/Transform.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 

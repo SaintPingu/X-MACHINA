@@ -3,9 +3,7 @@
 
 #include "pch.h"
 #include "X-MACHINA.h"
-#include "X-Engine.h"
-
-#pragma comment(lib, "lib/X-Engine.lib")
+#include "GameFramework.h"
 
 #define MAX_LOADSTRING 100
 
@@ -49,11 +47,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			}
 		}
 		else {
-			engine->Update();
+			framework->Update();
 		}
 	}
 
-	engine->Release();
+	framework->Release();
 
 #if defined(_DEBUG)
 	_CrtDumpMemoryLeaks();
@@ -96,7 +94,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	engine->Init(hInstance, hMainWnd, 1280, 960);
+	framework->Init(hInstance, hMainWnd, 1280, 960);
 
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);
@@ -110,7 +108,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	engine->ProcessMessage(hWnd, message, wParam, lParam);
+	framework->ProcessMessage(hWnd, message, wParam, lParam);
 
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;

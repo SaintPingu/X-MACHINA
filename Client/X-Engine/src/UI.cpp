@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "UI.h"
+#include "Component/UI.h"
 
 #include "Scene.h"
 #include "ResourceMgr.h"

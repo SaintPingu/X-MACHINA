@@ -6,29 +6,24 @@
 #include "FrameResource.h"
 
 #include "ResourceMgr.h"
-#include "UI.h"
+#include "Component/UI.h"
 #include "Object.h"
 #include "Model.h"
 #include "Terrain.h"
 #include "Shader.h"
-#include "Camera.h"
+#include "Component/Camera.h"
 #include "MeshRenderer.h"
 #include "Timer.h"
 #include "FileIO.h"
 #include "Light.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 #include "SkyBox.h"
 #include "Texture.h"
 #include "ObjectPool.h"
 
-#include "Script_Player.h"
-#include "Script_ExplosiveObject.h"
-#include "Script_Billboard.h"
-#include "Script_Sprite.h"
-
 #include "TestCube.h"
 #include "Ssao.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 #pragma endregion
 
 
@@ -72,6 +67,17 @@ float Scene::GetTerrainHeight(float x, float z) const
 	assert(mTerrain);
 
 	return mTerrain->GetHeight(x, z);
+}
+
+std::vector<sptr<GameObject>> Scene::GetAllObjects() const
+{
+	std::vector<sptr<GameObject>> result;
+	result.reserve(mEnvironments.size() + mStaticObjects.size() + mDynamicObjects.size());
+	result.insert(result.end(), mEnvironments.begin(), mEnvironments.end());
+	result.insert(result.end(), mStaticObjects.begin(), mStaticObjects.end());
+	result.insert(result.end(), mDynamicObjects.begin(), mDynamicObjects.end());
+
+	return result;
 }
 
 #pragma endregion
@@ -204,7 +210,6 @@ void Scene::BuildObjects()
 	LoadSceneObjects("Import/Scene.bin");
 
 	// build settings
-	BuildPlayers();
 	BuildTerrain();
 	BuildTest();
 
@@ -220,20 +225,20 @@ void Scene::ReleaseObjects()
 	MeshRenderer::Release();
 }
 
-void Scene::BuildPlayers()
-{
-	mPlayers.reserve(1);
-	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(res->Get<MasterModel>("tank_bullet"));
-	//airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
-	airplanePlayer->SetModel(res->Get<MasterModel>("EliteTrooper"));
-	
-	mPlayers.push_back(airplanePlayer);
-	mPlayer = mPlayers.front();
-	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
-	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
-	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");
-}
+//void Scene::BuildPlayers()
+//{
+//	mPlayers.reserve(1);
+//	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
+//	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(res->Get<MasterModel>("tank_bullet"));
+//	//airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
+//	airplanePlayer->SetModel(res->Get<MasterModel>("EliteTrooper"));
+//	
+//	mPlayers.push_back(airplanePlayer);
+//	mPlayer = mPlayers.front();
+//	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
+//	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
+//	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");
+//}
 
 void Scene::BuildTerrain()
 {
@@ -257,8 +262,8 @@ void Scene::BuildTest()
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
-	mPlayer = mPlayers.front();
-	mPlayerScript = mPlayer->GetComponent<Script_GroundPlayer>();
+	//mPlayer = mPlayers.front();
+	//mPlayerScript = mPlayer->GetComponent<Script_GroundPlayer>();
 
 	mParticles.resize(3);
 #pragma region light
@@ -423,30 +428,12 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 
 	switch (tag) {
 	case ObjectTag::Unspecified:
-	{
-		mDynamicObjects.push_back(object);
-		return;
-	}
-
-	break;
-	case ObjectTag::ExplosiveSmall:
-	{
-		mDynamicObjects.push_back(object);
-
-		const auto& script = object->AddComponent<Script_ExplosiveObject>();
-		script->SetFX([&](const Vec3& pos) { CreateSmallExpFX(pos); });
-		return;
-	}
-
-	break;
 	case ObjectTag::Tank:
 	case ObjectTag::Helicopter:
 	case ObjectTag::ExplosiveBig:
+	case ObjectTag::ExplosiveSmall:
 	{
 		mDynamicObjects.push_back(object);
-
-		const auto& script = object->AddComponent<Script_ExplosiveObject>();
-		script->SetFX([&](const Vec3& pos) { CreateBigExpFX(pos); });
 		return;
 	}
 
@@ -454,19 +441,6 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 	case ObjectTag::Environment:
 	{
 		mEnvironments.push_back(object);
-		return;
-	}
-
-	break;
-	case ObjectTag::Billboard:
-	{
-		object->AddComponent<Script_Billboard>();
-	}
-
-	break;
-	case ObjectTag::Sprite:
-	{
-		object->AddComponent<Script_Sprite>();
 		return;
 	}
 
@@ -528,7 +502,7 @@ void Scene::RenderDeferred()
 	RenderInstanceObjects();
 #pragma endregion
 #pragma region ColorInst
-	RenderBullets();
+	
 #pragma endregion
 #pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects();
@@ -554,9 +528,6 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	RenderFXObjects();
-	RenderBillboards();
-
 	RenderTransparentObjects(mTransparentObjects); 
 	RenderSkyBox();
 
@@ -685,25 +656,10 @@ void Scene::RenderInstanceObjects()
 	}
 }
 
-void Scene::RenderFXObjects()
-{
-
-}
-
 void Scene::RenderEnvironments()
 {
 	for (auto& env : mEnvironments) {
 		env->Render();
-	}
-}
-
-void Scene::RenderBullets()
-{
-	res->Get<Shader>("ColorInst")->Set();
-	for (auto& player : mPlayers) {
-		if (player->IsActive()) {
-			player->GetComponent<Script_ShootingPlayer>()->RenderBullets();
-		}
 	}
 }
 
@@ -725,12 +681,6 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 
 void Scene::RenderObjectBounds(const std::set<GridObject*>& renderedObjects)
 {
-	for (auto& player : mPlayers) {
-		if (player->IsActive()) {
-			player->RenderBounds();
-		}
-	}
-
 	for (auto& object : renderedObjects) {
 		object->RenderBounds();
 	}
@@ -748,18 +698,6 @@ void Scene::RenderGridBounds()
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridhWidth, (float)mGridhWidth);
 #endif
-	}
-}
-
-void Scene::RenderBillboards()
-{
-	res->Get<Shader>("Billboard")->Set();
-	for (auto& object : mBillboardObjects) {
-		object->Render();
-	}
-	res->Get<Shader>("Sprite")->Set();
-	for (auto& object : mSpriteEffectObjects) {
-		object->Render();
 	}
 }
 #pragma endregion
@@ -810,19 +748,8 @@ void Scene::Update()
 
 void Scene::CheckCollisions()
 {
-	UpdatePlayerGrid();
-
 	for (Grid& grid : mGrids) {
 		grid.CheckCollisions();
-	}
-
-	DeleteExplodedObjects();
-}
-
-void Scene::UpdatePlayerGrid()
-{
-	for (auto& player : mPlayers) {
-		UpdateObjectGrid(player.get());
 	}
 }
 
@@ -839,29 +766,6 @@ void Scene::UpdateObjects()
 	ProcessObjects([this](sptr<GridObject> object) {
 		object->LateUpdate();
 		});
-
-	UpdateFXObjects();
-	UpdateSprites();
-}
-
-void Scene::UpdateFXObjects()
-{
-
-}
-
-void Scene::UpdateSprites()
-{
-	for (auto it = mSpriteEffectObjects.begin(); it != mSpriteEffectObjects.end(); ) {
-		auto& object = *it;
-		if (object->GetComponent<Script_Sprite>()->IsEndAnimation()) {
-			object->OnDestroy();
-			it = mSpriteEffectObjects.erase(it);
-		}
-		else {
-			object->Update();
-			++it;
-		}
-	}
 }
 #pragma endregion
 
@@ -870,33 +774,6 @@ void Scene::UpdateSprites()
 
 
 //////////////////* Others *//////////////////
-void Scene::CreateSpriteEffect(Vec3 pos, float speed, float scale)
-{
-	sptr<GameObject> effect = std::make_shared<GameObject>();
-	effect->SetModel(res->Get<MasterModel>("sprite_explosion"));
-	
-	effect->RemoveComponent<ObjectCollider>();
-	const auto& script = effect->AddComponent<Script_Sprite>();
-	script->SetSpeed(speed);
-	script->SetScale(scale);
-
-	pos.y += 2;	// º¸Á¤
-	effect->SetPosition(pos);
-
-	effect->OnEnable();
-	mSpriteEffectObjects.emplace_back(effect);
-}
-
-void Scene::CreateSmallExpFX(const Vec3& pos)
-{
-	CreateSpriteEffect(pos, 0.0001f);
-}
-
-void Scene::CreateBigExpFX(const Vec3& pos)
-{
-	CreateSpriteEffect(pos, 0.025f, 5.f);
-}
-
 int Scene::GetGridIndexFromPos(Vec3 pos) const
 {
 	pos.x -= mGridStartPoint;
@@ -908,29 +785,10 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 	return gridZ * mGridCols + gridX;
 }
 
-void Scene::DeleteExplodedObjects()
-{
-	for (auto it = mDynamicObjects.begin(); it != mDynamicObjects.end(); ) {
-		auto& object = *it;
-		const auto& script = object->GetComponent<Script_ExplosiveObject>();
-		if (script && script->IsExploded()) {
-			// remove objects in grid
-			for (int index : object->GetGridIndices()) {
-				mGrids[index].RemoveObject(object.get());
-			}
-
-			object->OnDestroy();
-			it = mDynamicObjects.erase(it);
-		}
-		else {
-			++it;
-		}
-	}
-}
-
 void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	mPlayerScript->ProcessMouseMsg(messageID, wParam, lParam);
+	// use callback here
+	//mPlayerScript->ProcessMouseMsg(messageID, wParam, lParam);
 }
 
 void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -950,12 +808,6 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			for (auto& p : mParticles[1]->GetComponents<ParticleSystem>())
 				p->PlayToggle();
 			break;
-		case VK_OEM_6:
-			ChangeToNextPlayer();
-			break;
-		case VK_OEM_4:
-			ChangeToPrevPlayer();
-			break;
 
 		case VK_F5:
 			ToggleDrawBoundings();
@@ -970,7 +822,8 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	mPlayerScript->ProcessKeyboardMsg(messageID, wParam, lParam);
+	// use callback here
+	//mPlayerScript->ProcessKeyboardMsg(messageID, wParam, lParam);
 }
 
 void Scene::ToggleDrawBoundings()
@@ -980,59 +833,6 @@ void Scene::ToggleDrawBoundings()
 	ProcessObjects([](sptr<GridObject> object) {
 		object->ToggleDrawBoundings();
 		});
-}
-
-void Scene::CreateFX(FXType type, const Vec3& pos)
-{
-	switch (type) {
-	case FXType::SmallExplosion:
-		CreateSmallExpFX(pos);
-		break;
-	case FXType::BigExplosion:
-		CreateBigExpFX(pos);
-		break;
-	default:
-		assert(0);
-		break;
-	}
-}
-
-void Scene::BlowAllExplosiveObjects()
-{
-	for (auto& object : mDynamicObjects)
-	{
-		const auto& script = object->GetComponent<Script_ExplosiveObject>();
-		if (!script) {
-			return;
-		}
-
-		script->Explode();
-		for (int index : object->GetGridIndices()) {
-			mGrids[index].RemoveObject(object.get());
-		}
-		object->OnDestroy();
-	}
-	mDynamicObjects.clear();
-}
-
-void Scene::ChangeToNextPlayer()
-{
-	++mCurrPlayerIndex;
-	if (mCurrPlayerIndex >= mPlayers.size()) {
-		mCurrPlayerIndex = 0;
-	}
-
-	mPlayer = mPlayers[mCurrPlayerIndex];
-}
-
-void Scene::ChangeToPrevPlayer()
-{
-	--mCurrPlayerIndex;
-	if (mCurrPlayerIndex < 0) {
-		mCurrPlayerIndex = static_cast<int>(mPlayers.size() - 1);
-	}
-
-	mPlayer = mPlayers[mCurrPlayerIndex];
 }
 
 void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
@@ -1124,13 +924,8 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable) c
 }
 
 
-
 void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
-	for (auto& player : mPlayers) {
-		processFunc(player);
-	}
-
 	for (auto& object : mStaticObjects) {
 		processFunc(object);
 	}

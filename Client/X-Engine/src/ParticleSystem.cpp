@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 #include "Timer.h"
 #include "ResourceMgr.h"
 #include "Mesh.h"

@@ -19,6 +19,24 @@
     <Filter Include="PCH">
       <UniqueIdentifier>{5dbed6da-d971-4f5b-8775-ecfcda0fdd2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{abae44c3-9c68-4cd7-8146-d5780f6b97a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script">
+      <UniqueIdentifier>{6cf3e7f1-b3f5-4ea4-8b73-2d27a96f6366}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Object">
+      <UniqueIdentifier>{b2925dd5-ec23-4ed3-a3c6-908ccd36d9ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Object\Billboard">
+      <UniqueIdentifier>{5b5d8b5c-8fac-4d5d-b41f-581b44b2791f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Player">
+      <UniqueIdentifier>{3e65203b-4102-494b-b5c5-4710b62de873}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Component">
+      <UniqueIdentifier>{8a4481ad-56d6-4d33-ab6e-25e2d535a8b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -49,6 +67,69 @@
     <ClInclude Include="include\Resource.h">
       <Filter>헤더 파일\Dummy</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\SimpleMath.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Singleton.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Camera.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Collider.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Component.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\ParticleSystem.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Rigidbody.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Transform.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\UI.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Apache.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Billboard.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Bullet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_ExplosiveObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Fragment.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Gunship.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Sprite.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ObjectMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Object.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameFramework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Script_MainCamera.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -57,8 +138,53 @@
     <ClCompile Include="src\X-MACHINA.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_AirplanePlayer.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_GroundPlayer.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Player.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_ShootingPlayer.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Billboard.cpp">
+      <Filter>Script\Object\Billboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Sprite.cpp">
+      <Filter>Script\Object\Billboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Apache.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Bullet.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_ExplosiveObject.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Fragment.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Gunship.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_MainCamera.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectMgr.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameFramework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\Common\SimpleMath.inl">
+      <Filter>Common</Filter>
+    </None>
   </ItemGroup>
 </Project>

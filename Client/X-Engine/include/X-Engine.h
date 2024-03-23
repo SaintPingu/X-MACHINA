@@ -2,15 +2,20 @@
 
 #define engine Engine::Inst()
 
+class GridObject;
+
 class Engine : public Singleton<Engine> {
 	friend Singleton;
 
 private:
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열
+	sptr<GridObject> mPlayer{};
 
-private:
+public:
 	Engine();
 	virtual ~Engine() = default;
+
+	sptr<GridObject> GetPlayer() const { return mPlayer; }
 
 public:
 	void Init(HINSTANCE hInstance, HWND hWnd, short width, short height);

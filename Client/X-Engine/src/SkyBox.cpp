@@ -2,7 +2,7 @@
 #include "SkyBox.h"
 #include "DXGIMgr.h"
 
-#include "Camera.h"
+#include "Component/Camera.h"
 
 #include "ResourceMgr.h"
 #include "Texture.h"

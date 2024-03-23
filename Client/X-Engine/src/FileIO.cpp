@@ -6,7 +6,7 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "Light.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 #include "Texture.h"
 #include "Animator.h"
 #include "AnimationClip.h"

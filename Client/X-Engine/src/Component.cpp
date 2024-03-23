@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "Component.h"
-#include "Collider.h"
+#include "Component/Component.h"
+#include "Component/Collider.h"
 
 
 
@@ -125,7 +125,7 @@ void Object::Update()
 	mCollisionObjects.clear();
 	ProcessComponents([](rsptr<Component> component) {
 		if (component->IsActive()) {
-			component->Update();
+			component->UpdateFunc();
 		}
 		});
 	Transform::ComputeWorldTransform();
@@ -319,3 +319,11 @@ ObjectType GetObjectType(ObjectTag tag)
 	return ObjectType::Static;
 }
 #pragma endregion
+
+void Component::FirstUpdate()
+{
+	Awake();
+	OnEnable();
+	Start();
+	UpdateFunc = std::bind(&Component::Update, this);
+}

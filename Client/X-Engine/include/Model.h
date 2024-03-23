@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma region Include
-#include "Component.h"
+#include "Component/Component.h"
 #include "ResourceMgr.h"
 #pragma endregion
 

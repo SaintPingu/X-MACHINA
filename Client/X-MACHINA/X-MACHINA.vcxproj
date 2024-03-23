@@ -71,11 +71,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -158,22 +158,58 @@
     <Image Include="X-MACHINA.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\Component\Camera.h" />
+    <ClInclude Include="..\Common\Component\Collider.h" />
+    <ClInclude Include="..\Common\Component\Component.h" />
+    <ClInclude Include="..\Common\Component\ParticleSystem.h" />
+    <ClInclude Include="..\Common\Component\Rigidbody.h" />
+    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
+    <ClInclude Include="..\Common\Component\Transform.h" />
+    <ClInclude Include="..\Common\Component\UI.h" />
+    <ClInclude Include="..\Common\Object.h" />
+    <ClInclude Include="..\Common\SimpleMath.h" />
+    <ClInclude Include="..\Common\Singleton.h" />
     <ClInclude Include="include\framework.h" />
+    <ClInclude Include="include\GameFramework.h" />
+    <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\Resource.h" />
+    <ClInclude Include="include\Script_Apache.h" />
+    <ClInclude Include="include\Script_Billboard.h" />
+    <ClInclude Include="include\Script_Bullet.h" />
+    <ClInclude Include="include\Script_ExplosiveObject.h" />
+    <ClInclude Include="include\Script_Fragment.h" />
+    <ClInclude Include="include\Script_Gunship.h" />
+    <ClInclude Include="include\Script_Player.h" />
+    <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\X-MACHINA.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\GameFramework.cpp" />
+    <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\Script_AirplanePlayer.cpp" />
+    <ClCompile Include="src\Script_Apache.cpp" />
+    <ClCompile Include="src\Script_Billboard.cpp" />
+    <ClCompile Include="src\Script_Bullet.cpp" />
+    <ClCompile Include="src\Script_ExplosiveObject.cpp" />
+    <ClCompile Include="src\Script_Fragment.cpp" />
+    <ClCompile Include="src\Script_GroundPlayer.cpp" />
+    <ClCompile Include="src\Script_Gunship.cpp" />
+    <ClCompile Include="src\Script_MainCamera.cpp" />
+    <ClCompile Include="src\Script_Player.cpp" />
+    <ClCompile Include="src\Script_ShootingPlayer.cpp" />
+    <ClCompile Include="src\Script_Sprite.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Common\SimpleMath.inl" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

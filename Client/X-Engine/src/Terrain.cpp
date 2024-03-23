@@ -8,7 +8,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 #include "FileIO.h"
 
 #define _WITH_APPROXIMATE_OPPOSITE_CORNER

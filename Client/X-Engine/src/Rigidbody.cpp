@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Rigidbody.h"
+#include "Component/Rigidbody.h"
 
 #include "Timer.h"
 

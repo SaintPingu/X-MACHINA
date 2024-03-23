@@ -2,7 +2,7 @@
 #include "Grid.h"
 
 #include "Object.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 
 
 

@@ -5,11 +5,8 @@
 #include "FrameResource.h"
 #include "Model.h"
 #include "Scene.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 #include "ObjectPool.h"
-
-#include "Script_Apache.h"
-#include "Script_Gunship.h"
 
 #include "Animator.h"
 
@@ -32,20 +29,13 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 		mAnimator = std::make_shared<Animator>(animationInfo, this);
 	}
 
-	// 모델의 이름에 따라 설정한다.
-	switch (Hash(mMasterModel->GetName())) {
-	case Hash("Apache"):
-		AddComponent<Script_Apache>();
-		break;
-	case Hash("Gunship"):
-		AddComponent<Script_Gunship>();
-		break;
-	default:
-		break;
-	}
-
 	// 이 객체의 계층구조를 [mMergedTransform]에 저장한다 (캐싱)
 	Transform::MergeTransform(mMergedTransform, this);
+}
+
+void GameObject::SetModel(const std::string& modelName)
+{
+	SetModel(res->Get<MasterModel>(modelName));
 }
 
 void GameObject::Animate()

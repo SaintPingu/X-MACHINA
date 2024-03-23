@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "Camera.h"
+#include "Component/Camera.h"
 #include "DXGIMgr.h"
 
 #include "Object.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 #include "Scene.h"
 
-#include "Script_MainCamera.h"
+#include "Component/Script_MainCamera.h"
 
 
 

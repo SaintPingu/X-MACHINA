@@ -120,7 +120,7 @@ public:
 #include "SimpleMath.h"
 
 /* Custom */
-#include "Singleton.h"
+#include "Common.h"
 #pragma endregion
 
 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Collider.h"
+#include "Component/Collider.h"
 
 #include "MeshRenderer.h"
 #include "Object.h"

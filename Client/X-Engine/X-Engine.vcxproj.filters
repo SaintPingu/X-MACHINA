@@ -13,23 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\PCH">
-      <UniqueIdentifier>{421f7dc8-70f7-4cad-bea7-16f6ebc283ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Component">
       <UniqueIdentifier>{1ba9903d-bc1c-4e2b-b960-bd3ebe52fa30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Component\Script">
-      <UniqueIdentifier>{94e6d42b-59a6-482a-ba44-a355ca3fd834}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Component\Script\Object">
-      <UniqueIdentifier>{36f0d734-9cdc-4375-be04-d324ca2bf6ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Component\Script\Object\Billboard">
-      <UniqueIdentifier>{6371ec7f-05d6-4e32-9039-7dce88c036ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Component\Script\Player">
-      <UniqueIdentifier>{9e2bad42-ad54-47d4-8eab-339f33a10bb7}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\Component\UI">
       <UniqueIdentifier>{fe1fe98f-9d15-4d63-b22a-ecea512f394c}</UniqueIdentifier>
@@ -94,43 +79,19 @@
     <Filter Include="소스 파일\Shader\Lighting">
       <UniqueIdentifier>{c674e0af-79b1-44ba-833b-624a002f5066}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PCH">
+      <UniqueIdentifier>{421f7dc8-70f7-4cad-bea7-16f6ebc283ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{a2024ff8-2baa-4d06-8185-237d97ea53e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Component">
+      <UniqueIdentifier>{7f2e2d83-c260-4e5d-9ffb-a51b337db942}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">
-      <Filter>소스 파일\PCH</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Billboard.cpp">
-      <Filter>소스 파일\Component\Script\Object\Billboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Sprite.cpp">
-      <Filter>소스 파일\Component\Script\Object\Billboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Apache.cpp">
-      <Filter>소스 파일\Component\Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Bullet.cpp">
-      <Filter>소스 파일\Component\Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_ExplosiveObject.cpp">
-      <Filter>소스 파일\Component\Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Fragment.cpp">
-      <Filter>소스 파일\Component\Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Gunship.cpp">
-      <Filter>소스 파일\Component\Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_AirplanePlayer.cpp">
-      <Filter>소스 파일\Component\Script\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Player.cpp">
-      <Filter>소스 파일\Component\Script\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_ShootingPlayer.cpp">
-      <Filter>소스 파일\Component\Script\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_MainCamera.cpp">
-      <Filter>소스 파일\Component\Script\Object</Filter>
+      <Filter>PCH</Filter>
     </ClCompile>
     <ClCompile Include="src\UI.cpp">
       <Filter>소스 파일\Component\UI</Filter>
@@ -231,9 +192,6 @@
     <ClCompile Include="src\LUTFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_GroundPlayer.cpp">
-      <Filter>소스 파일\Component\Script\Player</Filter>
-    </ClCompile>
     <ClCompile Include="src\AnimatorState.cpp">
       <Filter>소스 파일\Animation</Filter>
     </ClCompile>
@@ -279,35 +237,26 @@
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Imgui\ImGuiManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AnimatorBlendTree.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AnimatorStateMachine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AnimatorMotion.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Weapon.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="src\X-Engine.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="src\AnimatorBlendTree.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorMotion.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnimatorStateMachine.cpp">
+      <Filter>소스 파일\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImGuiManager.cpp">
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Weapon.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Camera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Collider.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Component.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\DDSTextureLoader12.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -338,46 +287,13 @@
     <ClInclude Include="include\Model.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Object.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\ObjectPool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Rigidbody.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\RootSignature.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Scene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Apache.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Billboard.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Bullet.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_ExplosiveObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Fragment.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Gunship.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_MainCamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Player.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Sprite.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Shader.h">
@@ -393,12 +309,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Timer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Transform.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\UI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\d3dx12.h">
@@ -453,7 +363,7 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\stdafx.h">
-      <Filter>소스 파일\PCH</Filter>
+      <Filter>PCH</Filter>
     </ClInclude>
     <ClInclude Include="include\AnimationClip.h">
       <Filter>헤더 파일</Filter>
@@ -476,16 +386,7 @@
     <ClInclude Include="include\Resources.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Singleton.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SimpleMath.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Ssao.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ParticleSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Imgui\ImGuiManager.h">
@@ -505,6 +406,42 @@
     </ClInclude>
     <ClInclude Include="include\X-Engine.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\SimpleMath.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Singleton.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Camera.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Collider.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Component.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\ParticleSystem.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Rigidbody.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Transform.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\UI.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Object.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Common.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Script_MainCamera.h">
+      <Filter>Common\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -636,9 +573,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\SimpleMath.inl">
-      <Filter>헤더 파일</Filter>
-    </None>
     <None Include="packages.config" />
+    <None Include="..\Common\SimpleMath.inl">
+      <Filter>Common</Filter>
+    </None>
   </ItemGroup>
 </Project>

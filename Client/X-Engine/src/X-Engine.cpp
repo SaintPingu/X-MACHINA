@@ -7,6 +7,7 @@
 
 #include "Timer.h"
 #include "Scene.h"
+#include "Object.h"
 
 #pragma region  - 장재문 -
 #include "../Imgui/ImguiCode/imgui.h"
@@ -26,6 +27,8 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 	WindowInfo windowInfo{ hWnd, width, height };
 	dxgi->Init(hInstance, windowInfo);
 
+	mPlayer = std::make_shared<GridObject>();
+	scene->AddDynamicObject(mPlayer);
 	BuildObjects();
 
 #pragma region Imgui - 장재문 - 

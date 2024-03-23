@@ -10,8 +10,6 @@
 #include "ObjectPool.h"
 
 
-#include "Script_Sprite.h"
-
 
 
 #pragma region Mesh
@@ -611,21 +609,21 @@ void MergedMesh::Render(const ObjectPool* objectPool) const
 
 void MergedMesh::RenderSprite(const GameObject* object) const
 {
-	constexpr int kRootIndex{ 0 };
-	if (!HasMesh(kRootIndex)) {	// 스프라이트는 루트의 메쉬를 사용해 렌더링한다.
-		return;
-	}
+	//constexpr int kRootIndex{ 0 };
+	//if (!HasMesh(kRootIndex)) {	// 스프라이트는 루트의 메쉬를 사용해 렌더링한다.
+	//	return;
+	//}
 
-	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
-	cmdList->IASetIndexBuffer(&mIndexBufferView);
+	//cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
+	//cmdList->IASetIndexBuffer(&mIndexBufferView);
 
-	constexpr UINT kTransformIndex{ 0 };
-	const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[kTransformIndex];
+	//constexpr UINT kTransformIndex{ 0 };
+	//const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[kTransformIndex];
 
-	object->GetComponent<Script_Sprite>()->UpdateSpriteVariable(modelMeshInfo.Materials.front()->mMatIndex);
+	//object->GetComponent<Script_Sprite>()->UpdateSpriteVariable(modelMeshInfo.Materials.front()->mMatIndex);
 
-	constexpr UINT kIndexCnt{ 6 };
-	cmdList->DrawIndexedInstanced(kIndexCnt, 1, 0, 0, 0);
+	//constexpr UINT kIndexCnt{ 6 };
+	//cmdList->DrawIndexedInstanced(kIndexCnt, 1, 0, 0, 0);
 }
 
 // sub meshes는 한 정점 버퍼에 대한 여러개의 indices만을 가진다.

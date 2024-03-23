@@ -12,7 +12,7 @@
 #include "BlurFilter.h"
 #include "LUTFilter.h"
 #include "Ssao.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 
 #pragma region Imgui
 #include "../Imgui/ImguiManager.h"

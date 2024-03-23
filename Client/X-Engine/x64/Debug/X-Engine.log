@@ -1,2 +1,10 @@
-﻿  Script_MainCamera.cpp
+﻿  Camera.cpp
+  Collider.cpp
+  Component.cpp
+  FileIO.cpp
+  Grid.cpp
+  Object.cpp
+  Scene.cpp
+  Terrain.cpp
+  코드를 생성하고 있습니다...
   X-Engine.vcxproj -> C:\Users\alseh\Desktop\X-MACHINA\Client\X-MACHINA\lib\X-Engine.lib

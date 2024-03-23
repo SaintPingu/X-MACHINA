@@ -8,9 +8,8 @@
 #include "ImGuiManager.h"
 #include "DXGIMgr.h"
 #include "Scene.h"
-#include "Script_Player.h"
 #include "Object.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 
 
 
@@ -79,16 +78,6 @@ void ImGuiManager::Update()
 
     ImGui::Begin("test");
 
-    if (ImGui::Button("Stop Particle")) {
-        for (auto& component : scene->GetPlayer()->GetComponents<ParticleSystem>()) {
-            component->Stop();
-        }
-    }
-    if (ImGui::Button("Start Particle")) {
-        for (auto& component : scene->GetPlayer()->GetComponents<ParticleSystem>()) {
-            component->Play();
-        }
-    }
     ImGui::End();
 }
 

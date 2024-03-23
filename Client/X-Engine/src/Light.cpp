@@ -8,9 +8,10 @@
 #include "FileIO.h"
 #include "Mesh.h"
 #include "Shader.h"
-#include "Camera.h"
+#include "Component/Camera.h"
 #include "Scene.h"
 #include "Object.h"
+#include "X-Engine.h"
 
 namespace {
 	constexpr int	gkSunLightIdx = 0;
@@ -89,7 +90,7 @@ void Light::Update()
 {
 	auto& sunLight = mLights->Lights[gkSunLightIdx];
 
-	mSceneBounds.Center = scene->GetPlayer()->GetPosition();
+	mSceneBounds.Center = engine->GetPlayer()->GetPosition();
 
 	// 태양 조명 뷰 행렬 생성
 	Vec3 lightDir = sunLight.Direction;

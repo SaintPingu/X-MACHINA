@@ -20,7 +20,6 @@ class Light;
 class SkyBox;
 class ObjectPool;
 class TestCube;
-class Script_GroundPlayer;
 #pragma endregion
 
 
@@ -46,20 +45,12 @@ private:
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
-	std::list<sptr<GridObject>>		mExplosiveObjects{};
-	std::list<sptr<GameObject>>		mSpriteEffectObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
 
 	std::set<GridObject*>	mRenderedObjects{};
 	std::set<GridObject*>	mTransparentObjects{};
 	std::set<GridObject*>	mBillboardObjects{};
 	std::set<GridObject*>	mSkinMeshObjects{};
-
-	/* Player */
-	std::vector<sptr<GridObject>>	mPlayers{};
-	sptr<GridObject>				mPlayer{};			 // main player
-	sptr<Script_GroundPlayer>		mPlayerScript{};			 // main player
-	int								mCurrPlayerIndex{};	 // main player index from [mPlayers]
 
 	/* TestCube */
 	std::vector<sptr<TestCube>>		mTestCubes{};
@@ -92,7 +83,7 @@ private:
 public:
 #pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
-	rsptr<GridObject> GetPlayer() const { return mPlayers.front(); } // return the first inserted player
+	std::vector<sptr<GameObject>> GetAllObjects() const;
 #pragma endregion
 
 #pragma region DirectX
@@ -114,7 +105,6 @@ public:
 
 private:
 	/* Object */
-	void BuildPlayers();
 	void BuildTerrain();
 	void BuildTest();
 
@@ -157,12 +147,7 @@ private:
 	void RenderTestCubes(bool isShadowed = false);
 	void RenderSkinMeshObjects(bool isShadowed = false);
 	void RenderEnvironments();
-	void RenderBullets();
 	void RenderInstanceObjects();
-	void RenderFXObjects();
-
-	// render [billboards]
-	void RenderBillboards();
 
 	void RenderTerrain();
 
@@ -185,14 +170,9 @@ public:
 
 private:
 	void CheckCollisions();
-	void UpdatePlayerGrid();
 
 	// update all objects
 	void UpdateObjects();
-	// update effect objects
-	void UpdateFXObjects();
-
-	void UpdateSprites();
 
 #pragma endregion
 
@@ -202,13 +182,6 @@ public:
 
 	void ToggleDrawBoundings();
 
-	// create explosion effect at [pos]
-	void CreateFX(FXType type, const Vec3& pos);
-	void BlowAllExplosiveObjects();
-
-	void ChangeToNextPlayer();
-	void ChangeToPrevPlayer();
-
 	// update objects' grid indices
 	void UpdateObjectGrid(GridObject* object, bool isCheckAdj = true);
 	void RemoveObjectFromGrid(GridObject* object);
@@ -216,17 +189,13 @@ public:
 	// create new game object from model
 	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true) const;
 
+	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
+
 private:
 	// do [processFunc] for all objects
 	void ProcessObjects(std::function<void(sptr<GridObject>)> processFunc);
 
-	void CreateSpriteEffect(Vec3 pos, float speed, float scale = 1);
-	void CreateSmallExpFX(const Vec3& pos);
-	void CreateBigExpFX(const Vec3& pos);
-
 	int GetGridIndexFromPos(Vec3 pos) const;
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
-
-	void DeleteExplodedObjects();
 };
 #pragma endregion

@@ -7,7 +7,7 @@
 #include "Scene.h"
 #include "Mesh.h"
 #include "Timer.h"
-#include "Transform.h"
+#include "Component/Transform.h"
 #include "ResourceMgr.h"
 
 #include "Object.h"

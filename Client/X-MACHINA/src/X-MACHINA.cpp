@@ -1,15 +1,11 @@
 ﻿// LabProject04-6.cpp : 응용 프로그램에 대한 진입점을 정의합니다.
 //
 
-#include "stdafx.h"
+#include "pch.h"
 #include "X-MACHINA.h"
-#include "GameFramework.h"
-#include "InputMgr.h"
+#include "X-Engine.h"
 
-#pragma region Imgui - 장재문 -
-#include "../Imgui/ImguiCode/imgui.h"
-#pragma endregion
-
+#pragma comment(lib, "lib/X-Engine.lib")
 
 #define MAX_LOADSTRING 100
 
@@ -21,15 +17,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
-
-void ReportLiveObjects()
-{
-#if defined(_DEBUG)
-	ComPtr<IDXGIDebug1> pdxgiDebug{};
-	DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pdxgiDebug));
-	HRESULT hResult = pdxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
-#endif
-}
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -49,9 +36,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 #if defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	std::atexit(ReportLiveObjects);
 #endif
-
 
 	while (true) {
 		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -64,11 +49,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			}
 		}
 		else {
-			framework->FrameAdvance();
+			engine->Update();
 		}
 	}
 
-	framework->Release();
+	engine->Release();
 
 #if defined(_DEBUG)
 	_CrtDumpMemoryLeaks();
@@ -102,7 +87,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	ghAppInstance = hInstance;
 
-	RECT rc = { 0, 0, gkFrameBufferWidth, gkFrameBufferHeight };
+	RECT rc = { 0, 0, 1280, 960 };
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
@@ -111,7 +96,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	framework->Init(hInstance, hMainWnd);
+	engine->Init(hInstance, hMainWnd, 1280, 960);
 
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);
@@ -123,23 +108,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-#pragma region Imgui - 장재문 - 
-/*
-	extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	...
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-			return true;
-	이 두 문장 넣었어요..
-
-	이 두 문장을 넣어야 Imgui 클릭이 됩니다. ( Hover , Drag , Click 등등.. )
-*/
-#pragma endregion
-
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return true;
+	engine->ProcessMessage(hWnd, message, wParam, lParam);
 
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
@@ -155,7 +126,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		InputMgr::Inst()->ProcessWndMsg(hWnd, message, wParam, lParam);
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);

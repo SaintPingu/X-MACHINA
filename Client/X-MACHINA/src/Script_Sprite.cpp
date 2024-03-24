@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "stdafx.h"
 #include "Script_Sprite.h"
 //#include "DXGIMgr.h"
 

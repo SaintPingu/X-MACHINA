@@ -152,8 +152,8 @@ private:
 	sptr<Animator> mAnimator{};
 
 	float mRotationSpeed{};
-	sptr<Weapon> mWeapon{};
-	std::vector<sptr<Weapon>> mWeapons{};
+	sptr<GameObject> mWeapon{};
+	std::vector<sptr<GameObject>> mWeapons{};
 	Transform* mSpine{};
 
 public:

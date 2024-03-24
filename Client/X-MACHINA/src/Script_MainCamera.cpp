@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "stdafx.h"
 #include "Component/Script_MainCamera.h"
 
 #include "Object.h"

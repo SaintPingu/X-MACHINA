@@ -44,12 +44,11 @@ C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Shader.cpp;C:\Users\alseh\D
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\SimpleMath.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\SimpleMath.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\SkyBox.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\SkyBox.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Ssao.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\Ssao.obj
-C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\stdafx.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\stdafx.obj
+C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\EnginePch.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\EnginePch.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Terrain.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\Terrain.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\TestCube.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\TestCube.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Texture.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\Texture.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Timer.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\Timer.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Transform.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\Transform.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\UI.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\UI.obj
-C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\Weapon.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\Weapon.obj
 C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\src\X-Engine.cpp;C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\x64\Debug\X-Engine.obj

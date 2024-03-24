@@ -90,7 +90,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\stdafx.cpp">
+    <ClCompile Include="src\EnginePch.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
     <ClCompile Include="src\UI.cpp">
@@ -252,9 +252,6 @@
     <ClCompile Include="Imgui\ImGuiManager.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\Weapon.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DDSTextureLoader12.h">
@@ -362,7 +359,7 @@
     <ClInclude Include="include\LUTFilter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\stdafx.h">
+    <ClInclude Include="include\EnginePch.h">
       <Filter>PCH</Filter>
     </ClInclude>
     <ClInclude Include="include\AnimationClip.h">
@@ -399,9 +396,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\HumanBone.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Weapon.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\X-Engine.h">

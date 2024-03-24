@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+﻿#include "stdafx.h"
 #include "ObjectMgr.h"
 
 #include "Scene.h"

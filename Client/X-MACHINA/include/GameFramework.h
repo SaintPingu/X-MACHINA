@@ -8,6 +8,7 @@ class Script_Player;
 class GameFramework : public Singleton<GameFramework>{
 	friend Singleton;
 
+	sptr<GridObject> mTestObject{};
 	sptr<Script_Player> mPlayerScript{};
 
 public:

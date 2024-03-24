@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "stdafx.h"
 #include "Script_Bullet.h"
 
 #include "Object.h"

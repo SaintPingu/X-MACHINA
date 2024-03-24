@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "EnginePch.h"
 #include "Resources.h"
 
 Resource::Resource(ResourceType resourceType)

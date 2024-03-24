@@ -1,7 +1,7 @@
-﻿#include "stdafx.h"
+﻿#include "EnginePch.h"
 #include "X-Engine.h"
 
-#include "stdafx.h"
+#include "EnginePch.h"
 #include "DXGIMgr.h"
 #include "InputMgr.h"
 

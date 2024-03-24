@@ -1,5 +1,5 @@
 #pragma region Include
-#include "stdafx.h"
+#include "EnginePch.h"
 #include "Scene.h"
 #include "DXGIMgr.h"
 #include "MultipleRenderTarget.h"
@@ -744,6 +744,8 @@ void Scene::Update()
 	pr->Update();
 
 	UpdateShaderVars();
+
+	PopObjectBuffer();
 }
 
 void Scene::CheckCollisions()
@@ -772,6 +774,12 @@ void Scene::UpdateObjects()
 
 
 
+
+void Scene::PopObjectBuffer()
+{
+	mDynamicObjects.insert(mDynamicObjects.end(), mObjectBuffer.begin(), mObjectBuffer.end());
+	mObjectBuffer.clear();
+}
 
 //////////////////* Others *//////////////////
 int Scene::GetGridIndexFromPos(Vec3 pos) const
@@ -907,7 +915,7 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 	object->ClearGridIndices();
 }
 
-sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable) const
+sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 {
 	const auto& model = res->Get<MasterModel>(modelName);
 	if (!model) {
@@ -919,6 +927,7 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable) c
 	if (enable) {
 		instance->OnEnable();
 	}
+	mObjectBuffer.push_back(instance);
 
 	return instance;
 }

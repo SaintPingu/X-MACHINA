@@ -122,7 +122,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,7 +141,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,7 +172,7 @@
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
     <ClInclude Include="include\ObjectMgr.h" />
-    <ClInclude Include="include\pch.h" />
+    <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_Apache.h" />
     <ClInclude Include="include\Script_Billboard.h" />
@@ -183,16 +183,17 @@
     <ClInclude Include="include\Script_Player.h" />
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\Script_Weapon.h" />
     <ClInclude Include="include\X-MACHINA.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
-    <ClCompile Include="src\pch.cpp">
+    <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="src\Script_AirplanePlayer.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="src\Script_Player.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />
+    <ClCompile Include="src\Script_Weapon.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>

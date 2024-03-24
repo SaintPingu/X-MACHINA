@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "stdafx.h"
 #include "Script_ExplosiveObject.h"
 
 #include "Script_Player.h"

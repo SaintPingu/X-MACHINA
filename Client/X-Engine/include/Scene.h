@@ -46,6 +46,7 @@ private:
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
+	std::vector<sptr<GridObject>>	mObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
 
 	std::set<GridObject*>	mRenderedObjects{};
 	std::set<GridObject*>	mTransparentObjects{};
@@ -187,13 +188,17 @@ public:
 	void RemoveObjectFromGrid(GridObject* object);
 
 	// create new game object from model
-	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true) const;
+	// sceneObject : 씬 객체인가? (충돌검사and Update())
+	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
 
 private:
 	// do [processFunc] for all objects
 	void ProcessObjects(std::function<void(sptr<GridObject>)> processFunc);
+
+	// move mObjectBuffer's objects to mDynamicObjects
+	void PopObjectBuffer();
 
 	int GetGridIndexFromPos(Vec3 pos) const;
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }

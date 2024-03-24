@@ -1,11 +1,11 @@
-#include "pch.h"
+#include "stdafx.h"
 #include "Script_Player.h"
 
 #include "Scene.h"
 #include "Object.h"
 #include "InputMgr.h"
 #include "Component/Rigidbody.h"
-#include "Weapon.h"
+#include "Script_Weapon.h"
 #include "Timer.h"
 
 #include "Animator.h"
@@ -37,16 +37,17 @@ void Script_GroundPlayer::Awake()
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
 		auto& weapon = mWeapons[i];
 		WeaponType weaponType = static_cast<WeaponType>(i);
-		const auto& weaponObject = scene->Instantiate(defaultWeapons.at(weaponType), false);
-		if (!weaponObject) {
+		weapon = scene->Instantiate(defaultWeapons.at(weaponType), false);
+		if (!weapon) {
 			continue;
 		}
+
+		weapon->AddComponent<Script_Weapon>();
 		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
 		if (!transform) {
 			continue;
 		}
-
-		weapon = std::make_shared<Weapon>(weaponObject, transform);
+		transform->SetChild(weapon);
 	}
 }
 
@@ -57,7 +58,7 @@ void Script_GroundPlayer::Start()
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 60.f;
 
-	SetSpawn(Vec3(250, 100.f, 300));
+	SetSpawn(Vec3(100, 0, 100));
 	SetHP(150.f);
 
 	mRigid->SetMass(100.f);
@@ -264,7 +265,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	if (weaponIdx == 0) {
 		animator->GetController()->SetValue("Weapon", 0);
 		if (mWeapon) {
-			mWeapon->Disable();
+			mWeapon->OnDisable();
 			mWeapon = nullptr;
 		}
 		return;
@@ -275,13 +276,13 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 			return;
 		}
 		else {
-			mWeapon->Disable();
+			mWeapon->OnDisable();
 		}
 	}
 
 	mWeapon = mWeapons[weaponIdx - 1];
 	if (mWeapon) {
-		mWeapon->Enable();
+		mWeapon->OnEnable();
 		animator->GetController()->SetValue("Weapon", weaponIdx);
 	}
 }

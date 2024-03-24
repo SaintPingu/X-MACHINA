@@ -123,6 +123,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,6 +142,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,9 +227,11 @@
     </ClCompile>
     <ClCompile Include="src\SkyBox.cpp" />
     <ClCompile Include="src\Ssao.cpp" />
-    <ClCompile Include="src\stdafx.cpp">
+    <ClCompile Include="src\EnginePch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnginePch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\TestCube.cpp" />
@@ -235,7 +239,6 @@
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\UI.cpp" />
-    <ClCompile Include="src\Weapon.cpp" />
     <ClCompile Include="src\X-Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -291,14 +294,13 @@
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SkyBox.h" />
     <ClInclude Include="include\Ssao.h" />
-    <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="include\EnginePch.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Terrain.h" />
     <ClInclude Include="include\TestCube.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\UploadBuffer.h" />
-    <ClInclude Include="include\Weapon.h" />
     <ClInclude Include="include\X-Engine.h" />
     <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>

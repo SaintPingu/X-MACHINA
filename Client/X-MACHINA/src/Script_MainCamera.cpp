@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Component/Script_MainCamera.h"
+#include "Script_MainCamera.h"
 
 #include "Object.h"
 #include "Timer.h"
@@ -14,7 +14,6 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 	mOffset = offset;
 	mainCamera->SetOffset(mOffset);
 	LookPlayer();
-	mainCamera->UpdateViewMtx();
 }
 
 
@@ -59,7 +58,6 @@ void Script_MainCamera::Update()
 		mObject->Translate(dir, distance);
 		UpdateHeight();
 		LookPlayer();
-		mainCamera->UpdateViewMtx();
 	}
 
 }

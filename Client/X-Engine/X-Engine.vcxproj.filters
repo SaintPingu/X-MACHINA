@@ -434,8 +434,8 @@
     <ClInclude Include="..\Common\Common.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h">
-      <Filter>Common\Component</Filter>
+    <ClInclude Include="..\X-MACHINA\include\Script_MainCamera.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

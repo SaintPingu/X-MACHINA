@@ -225,21 +225,6 @@ void Scene::ReleaseObjects()
 	MeshRenderer::Release();
 }
 
-//void Scene::BuildPlayers()
-//{
-//	mPlayers.reserve(1);
-//	sptr<GridObject> airplanePlayer = std::make_shared<GridObject>();
-//	airplanePlayer->AddComponent<Script_GroundPlayer>()->CreateBullets(res->Get<MasterModel>("tank_bullet"));
-//	//airplanePlayer->AddComponent<Script_AirplanePlayer>()->CreateBullets(GetModel("tank_bullet"));
-//	airplanePlayer->SetModel(res->Get<MasterModel>("EliteTrooper"));
-//	
-//	mPlayers.push_back(airplanePlayer);
-//	mPlayer = mPlayers.front();
-//	mPlayer->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
-//	mPlayer->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
-//	mPlayer->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");
-//}
-
 void Scene::BuildTerrain()
 {
 	mTerrain = std::make_shared<Terrain>("Import/Terrain.bin");
@@ -739,6 +724,7 @@ void Scene::Update()
 		p->Update();
 
 	mainCameraObject->Update();
+	mainCamera->UpdateViewMtx();
 	mLight->Update();
 	canvas->Update();
 	pr->Update();

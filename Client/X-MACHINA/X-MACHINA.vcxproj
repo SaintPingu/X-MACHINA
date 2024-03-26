@@ -163,7 +163,6 @@
     <ClInclude Include="..\Common\Component\Component.h" />
     <ClInclude Include="..\Common\Component\ParticleSystem.h" />
     <ClInclude Include="..\Common\Component\Rigidbody.h" />
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
     <ClInclude Include="..\Common\Component\Transform.h" />
     <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\Object.h" />

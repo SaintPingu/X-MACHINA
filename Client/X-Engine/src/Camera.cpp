@@ -6,8 +6,6 @@
 #include "Component/Collider.h"
 #include "Scene.h"
 
-#include "Component/Script_MainCamera.h"
-
 
 
 
@@ -118,6 +116,5 @@ void MainCameraObject::Awake()
 	base::Awake();
 
 	SetPosition(1, 2, 3);	// must be non-zero
-	AddComponent<Script_MainCamera>();
 }
 #pragma endregion

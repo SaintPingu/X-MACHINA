@@ -7,13 +7,16 @@
 #include "Scene.h"
 #include "ObjectMgr.h"
 #include "Object.h"
-
-#include "Script_Player.h"
+#include "Component/Camera.h"
 #include "Component/ParticleSystem.h"
+
+#include "Script_MainCamera.h"
+#include "Script_Player.h"
 
 
 void GameFramework::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 {
+	mainCameraObject->AddComponent<Script_MainCamera>();
 	engine->Init(hInstance, hWnd, width, height);
 	InitPlayer();
 	objectMgr->InitObjectsScript();

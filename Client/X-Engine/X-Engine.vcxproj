@@ -248,12 +248,12 @@
     <ClInclude Include="..\Common\Component\Component.h" />
     <ClInclude Include="..\Common\Component\ParticleSystem.h" />
     <ClInclude Include="..\Common\Component\Rigidbody.h" />
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
     <ClInclude Include="..\Common\Component\Transform.h" />
     <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
+    <ClInclude Include="..\X-MACHINA\include\Script_MainCamera.h" />
     <ClInclude Include="Imgui\ImguiCode\imconfig.h" />
     <ClInclude Include="Imgui\ImguiCode\imgui.h" />
     <ClInclude Include="Imgui\ImguiCode\imgui_impl_dx12.h" />

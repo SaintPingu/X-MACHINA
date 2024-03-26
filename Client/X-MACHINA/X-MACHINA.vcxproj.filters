@@ -127,9 +127,6 @@
     <ClInclude Include="include\GameFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_Weapon.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

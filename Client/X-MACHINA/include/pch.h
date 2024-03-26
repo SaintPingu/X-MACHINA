@@ -76,6 +76,15 @@ public:
 #pragma comment(lib, "Release\\XMachinaServerLib.lib")
 #endif
 
+/// +-----------------------
+///		  Engine Lib 
+/// -----------------------+
+#ifdef _DEBUG
+#pragma comment(lib, "Debug\\X-Engine.lib")
+#else 
+#pragma comment(lib, "Release\\X-Engine.lib")
+#endif
+
 /// +------------------------
 ///			WINSOCK
 /// ------------------------+

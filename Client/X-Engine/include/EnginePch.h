@@ -557,48 +557,6 @@ private:
 	UnCopyable& operator=(const UnCopyable&);
 };
 
-class MyBoundingOrientedBox : public BoundingOrientedBox {
-private:
-	Vec3 mOriginCenter{};	// ¸ðµ¨ÁÂÇ¥°è Center
-
-public:
-	MyBoundingOrientedBox() = default;
-	virtual ~MyBoundingOrientedBox() = default;
-
-	Vec3 GetOrigin() const { return mOriginCenter; }
-
-	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
-
-public:
-	// no apply scale
-	void Transform(const Vec4x4& transform);
-
-	operator const BoundingOrientedBox& () const {
-		return static_cast<const BoundingOrientedBox&>(*this);
-	}
-};
-
-class MyBoundingSphere : public BoundingSphere {
-private:
-	Vec3 mOriginCenter{};	// ¸ðµ¨ÁÂÇ¥°è Center
-
-public:
-	MyBoundingSphere() = default;
-	virtual ~MyBoundingSphere() = default;
-
-	Vec3 GetOrigin() const { return mOriginCenter; }
-
-	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
-
-public:
-	void Transform(const Vec4x4& transform);
-
-	bool IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const;
-
-	operator const BoundingSphere& () const {
-		return static_cast<const BoundingSphere&>(*this);
-	}
-};
 
 namespace boost {
 	namespace serialization {

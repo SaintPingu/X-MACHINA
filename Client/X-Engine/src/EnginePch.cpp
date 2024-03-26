@@ -369,30 +369,30 @@ namespace Quaternion {
 
 
 #pragma region Class
-void MyBoundingOrientedBox::Transform(const Vec4x4& transform)
-{
-	const Matrix kMatrix = _MATRIX(transform);
-	const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
-
-	XMStoreFloat4(&Orientation, kRotation);
-	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
-}
-
-void MyBoundingSphere::Transform(const Vec4x4& transform)
-{
-	Center = Matrix4x4::Multiply(transform, mOriginCenter);
-}
-
-bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const
-{
-	for (auto& box : boxes) {
-		if (Intersects(*box)) {
-			return true;
-		}
-	}
-
-	return false;
-}
+//void MyBoundingOrientedBox::Transform(const Vec4x4& transform)
+//{
+//	const Matrix kMatrix = _MATRIX(transform);
+//	const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
+//
+//	XMStoreFloat4(&Orientation, kRotation);
+//	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
+//}
+//
+//void MyBoundingSphere::Transform(const Vec4x4& transform)
+//{
+//	Center = Matrix4x4::Multiply(transform, mOriginCenter);
+//}
+//
+//bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const
+//{
+//	for (auto& box : boxes) {
+//		if (Intersects(*box)) {
+//			return true;
+//		}
+//	}
+//
+//	return false;
+//}
 #pragma endregion
 
 DxException::DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& fileName, int lineNumber)

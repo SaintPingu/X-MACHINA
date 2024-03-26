@@ -95,6 +95,9 @@ public:
 	// Collider가 사용될 수 없다면, 이 함수를 통해 제거하도록 한다.
 	void RemoveCollider();
 
+	// Collider를 다시 추가해 적용한다.
+	void ResetCollider();
+
 	// 내가 위치한 grid indices를 모두 제거한다.
 	void ClearGridIndices() { mGridIndices.clear(); }
 	// collision bounds 렌더링 토글

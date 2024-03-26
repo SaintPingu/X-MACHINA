@@ -849,3 +849,69 @@ namespace Quaternion
 #pragma endregion
 
 #pragma endregion
+
+
+#pragma region Class
+class MyBoundingOrientedBox : public BoundingOrientedBox {
+private:
+	Vec3 mOriginCenter{};	// ¸ðµ¨ÁÂÇ¥°è Center
+
+public:
+	MyBoundingOrientedBox() = default;
+	virtual ~MyBoundingOrientedBox() = default;
+
+	Vec3 GetOrigin() const { return mOriginCenter; }
+
+	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
+
+public:
+	// no apply scale
+	void Transform(const Vec4x4& transform)
+	{
+		const Matrix kMatrix = _MATRIX(transform);
+		const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
+
+		XMStoreFloat4(&Orientation, kRotation);
+		XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
+	}
+
+	operator const BoundingOrientedBox& () const {
+		return static_cast<const BoundingOrientedBox&>(*this);
+	}
+};
+
+class MyBoundingSphere : public BoundingSphere {
+private:
+	Vec3 mOriginCenter{};	// ¸ðµ¨ÁÂÇ¥°è Center
+
+public:
+	MyBoundingSphere() = default;
+	virtual ~MyBoundingSphere() = default;
+
+	Vec3 GetOrigin() const { return mOriginCenter; }
+
+	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
+
+public:
+	void Transform(const Vec4x4& transform)
+	{
+		Center = Matrix4x4::Multiply(transform, mOriginCenter);
+	}
+
+	bool IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const
+	{
+		for (auto& box : boxes) {
+			if (Intersects(*box)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	operator const BoundingSphere& () const {
+		return static_cast<const BoundingSphere&>(*this);
+	}
+};
+
+#pragma endregion

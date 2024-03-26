@@ -777,8 +777,10 @@ void Scene::UpdateObjects()
 
 void Scene::PopObjectBuffer()
 {
-	mDynamicObjects.insert(mDynamicObjects.end(), mObjectBuffer.begin(), mObjectBuffer.end());
-	mObjectBuffer.clear();
+	if (!mObjectBuffer.empty()) {
+		mDynamicObjects.insert(mDynamicObjects.end(), mObjectBuffer.begin(), mObjectBuffer.end());
+		mObjectBuffer.clear();
+	}
 }
 
 //////////////////* Others *//////////////////
@@ -795,8 +797,6 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	// use callback here
-	//mPlayerScript->ProcessMouseMsg(messageID, wParam, lParam);
 }
 
 void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -829,9 +829,6 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	default:
 		break;
 	}
-
-	// use callback here
-	//mPlayerScript->ProcessKeyboardMsg(messageID, wParam, lParam);
 }
 
 void Scene::ToggleDrawBoundings()

@@ -57,10 +57,10 @@ void GameFramework::Release()
 void GameFramework::InitPlayer()
 {
 	mTestObject = scene->Instantiate("EliteTrooper", true);
-	//scene->AddDynamicObject(mTestObject);
 	mTestObject->SetPosition(105, 13, 105);
 
 	sptr<GridObject> player = engine->GetPlayer();
+	player->ResetCollider();
 	mPlayerScript = player->AddComponent<Script_GroundPlayer>();
 	player->SetModel("EliteTrooper");
 	

@@ -120,6 +120,10 @@ void GridObject::RemoveCollider()
 	RemoveComponent<ObjectCollider>();
 	mCollider = nullptr;
 }
+void GridObject::ResetCollider()
+{
+	mCollider = AddComponent<ObjectCollider>().get();
+}
 #pragma endregion
 
 

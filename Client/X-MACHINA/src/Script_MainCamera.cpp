@@ -87,7 +87,7 @@ void Script_MainCamera::Init()
 {
 	constexpr float maxPlaneDistance = 1000.f;
 	mTimeLag = 0.1f;
-	SetCameraOffset(Vec3(0.f, 5.f, -10.f));	// back
+	SetCameraOffset(Vec3(0.f, 12.f, -4.f));
 	mainCamera->SetProjMtx(0.01f, maxPlaneDistance, 80.f);
 }
 
@@ -96,6 +96,5 @@ void Script_MainCamera::LookPlayer()
 {
 	if (mPlayer) {
 		mainCamera->LookAt(mPlayer->GetPosition(), mPlayer->GetUp());
-		mainCameraObject->Rotate(-10, 0, 0);
 	}
 }

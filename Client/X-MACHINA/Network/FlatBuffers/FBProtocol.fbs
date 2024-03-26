@@ -1,0 +1,85 @@
+
+// +------------------------
+//		Protocol.fbs
+// ------------------------+
+
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+namespace FBProtocol;
+
+
+// +------------------------
+//		   LOG IN
+// ------------------------+
+table CPkt_LogIn
+{
+
+}
+
+table SPkt_LogIn
+{
+	success: bool;
+	players: [Player];
+}
+
+// +------------------------
+//		  ENTER GAME 
+// ------------------------+
+table CPkt_EnterGame
+{
+	player_index: ulong;
+}
+
+table SPkt_EnterGame
+{
+	success: bool;
+}
+
+
+// +------------------------
+//		     CHAT 
+// ------------------------+
+table CPkt_Chat
+{
+	message: string;
+}
+
+table SPkt_Chat
+{
+	player_id: ulong; // uint64
+	message: string;
+}
+
+
+// +------------------------
+//		  TRANSFORM
+// ------------------------+
+table CPkt_Transform
+{
+	trans: Transform;
+}
+
+table SPkt_Transform
+{
+	object_id: ulong;
+	trans: Transform;
+}
+
+
+// +------------------------
+//		    KEY 
+// ------------------------+
+table CPkt_KeyInput
+{
+	keyinput_state : ubyte; // UINT8
+	keyinput	   : ubyte; // UINT8;
+
+}
+
+table SPkt_KeyInput
+{
+	
+}

@@ -71,18 +71,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,6 +96,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -104,6 +113,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -184,8 +196,15 @@
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\X-MACHINA.h" />
+    <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
+    <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
+    <ClInclude Include="Network\FlatBuffers\Player_generated.h" />
+    <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h" />
+    <ClInclude Include="Network\FlatBuffers\Struct_generated.h" />
+    <ClInclude Include="Network\FlatBuffers\Transform_generated.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\pch.cpp">
@@ -193,6 +212,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Script_AirplanePlayer.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
@@ -210,6 +231,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\SimpleMath.inl" />
+    <None Include="Network\FlatBuffers\Enum.fbs" />
+    <None Include="Network\FlatBuffers\FBProtocol.fbs" />
+    <None Include="Network\FlatBuffers\GenFlatBuffersHeader.bat" />
+    <None Include="Network\FlatBuffers\Player.fbs" />
+    <None Include="Network\FlatBuffers\Struct.fbs" />
+    <None Include="Network\FlatBuffers\Transform.fbs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

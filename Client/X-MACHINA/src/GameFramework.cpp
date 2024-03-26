@@ -1,7 +1,11 @@
 ﻿#include "pch.h"
 #include "GameFramework.h"
 
-#pragma comment(lib, "lib/X-Engine.lib")
+#ifdef _DEBUG
+#pragma comment(lib, "Debug\\X-Engine.lib")
+#else 
+#pragma comment(lib, "Release\\X-Engine.lib")
+#endif
 #include "X-Engine.h"
 
 //#include "Scene.h"

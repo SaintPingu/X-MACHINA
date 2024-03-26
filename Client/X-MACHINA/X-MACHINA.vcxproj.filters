@@ -37,6 +37,15 @@
     <Filter Include="Common\Component">
       <UniqueIdentifier>{8a4481ad-56d6-4d33-ab6e-25e2d535a8b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{135fd63a-dea6-463b-84e3-cf6fb4a4f9bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\FlatBuffers">
+      <UniqueIdentifier>{6e7595cd-582b-44cd-80fd-c681f24858c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\FlatBuffers\bat">
+      <UniqueIdentifier>{cec0777d-1af8-4e54-a87c-2e0963bbb77d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -130,6 +139,24 @@
     <ClInclude Include="..\Common\Component\Script_MainCamera.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\Player_generated.h">
+      <Filter>Network\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\Struct_generated.h">
+      <Filter>Network\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\Transform_generated.h">
+      <Filter>Network\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\Enum_generated.h">
+      <Filter>Network\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h">
+      <Filter>Network\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -180,11 +207,32 @@
     <ClCompile Include="src\GameFramework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\Common\SimpleMath.inl">
       <Filter>Common</Filter>
+    </None>
+    <None Include="Network\FlatBuffers\FBProtocol.fbs">
+      <Filter>Network\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\FlatBuffers\Player.fbs">
+      <Filter>Network\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\FlatBuffers\Struct.fbs">
+      <Filter>Network\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\FlatBuffers\Transform.fbs">
+      <Filter>Network\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\FlatBuffers\Enum.fbs">
+      <Filter>Network\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\FlatBuffers\GenFlatBuffersHeader.bat">
+      <Filter>Network\FlatBuffers\bat</Filter>
     </None>
   </ItemGroup>
 </Project>

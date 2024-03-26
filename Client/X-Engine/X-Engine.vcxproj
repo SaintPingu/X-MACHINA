@@ -72,18 +72,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\..\Client\X-MACHINA\lib\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\..\Client\X-MACHINA\lib\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,6 +97,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,6 +113,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -228,6 +238,8 @@
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\TestCube.cpp" />

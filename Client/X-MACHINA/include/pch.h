@@ -67,6 +67,28 @@ public:
 #pragma comment(lib, "dxguid.lib")
 #pragma endregion
 
+/// +-----------------------
+///		   Library 
+/// -----------------------+
+#ifdef _DEBUG
+#pragma comment(lib, "Debug\\XMachinaServerLib.lib")
+#else
+#pragma comment(lib, "Release\\XMachinaServerLib.lib")
+#endif
+
+/// +------------------------
+///			WINSOCK
+/// ------------------------+
+#pragma region WinSock 
+#include <winsock2.h>
+#include <mswsock.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+#include <iphlpapi.h>
+#pragma comment(lib, "iphlpapi.lib")
+#pragma endregion
+
 
 #pragma region Include
 /* Windows */
@@ -85,6 +107,9 @@ public:
 #include <shellapi.h>
 
 /* C++ */
+#include <iostream>
+#include <functional>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <fstream>
@@ -120,7 +145,24 @@ public:
 #include "SimpleMath.h"
 
 /* Custom */
+
+
+#include "Types.h"
+#include "ServerMacro.h"
+#include "ThreadLocalStorage.h"
+#include "Container.h"
+
+#include "Lock.h"
+#include "NetObjectPool.h"
+#include "TypeCast.h"
+#include "NetMemory.h"
+#include "SendBuffer.h"
+#include "Session.h"
+#include "JobQueue.h"
+
+#include "PacketSession.h"
 #include "Common.h"
+
 #pragma endregion
 
 

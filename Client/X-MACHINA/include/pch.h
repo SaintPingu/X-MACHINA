@@ -103,6 +103,7 @@ public:
 /* Windows */
 #include <windows.h>
 #include <Mmsystem.h>
+#include <thread>
 
 /* C */
 #include <stdlib.h>
@@ -154,6 +155,7 @@ public:
 #include "SimpleMath.h"
 
 /* Custom */
+#include "Common.h"
 
 
 #include "Types.h"
@@ -168,9 +170,10 @@ public:
 #include "SendBuffer.h"
 #include "Session.h"
 #include "JobQueue.h"
+#include "Log/LogMgr.h"
 
 #include "PacketSession.h"
-#include "Common.h"
+
 
 #pragma endregion
 

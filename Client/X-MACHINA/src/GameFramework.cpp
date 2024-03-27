@@ -12,6 +12,17 @@
 //#include "Component/ParticleSystem.h"
 
 #include "ThreadManager.h"
+#include "Log/LogMgr.h"
+#include "FlatBuffers/ServerFBsPktFactory.h"
+#include "ServerSession.h"
+#include "IocpLibrary/include/Service.h"
+#include "IocpLibrary/include/Session.h"
+#include "IocpLibrary/include/SocketUtils.h"
+#include "InputMgr.h"
+#include "PacketFactory.h"
+
+
+
 
 HINSTANCE GameFramework::mhInst = nullptr;
 HWND      GameFramework::mhWnd = nullptr;
@@ -27,6 +38,71 @@ GameFramework::~GameFramework()
 
 }
 
+void GameFramework::KeyInputBroadcast()
+{
+	/* 키 입력은 메인쓰레드에서 동작해야한다. */
+	/* TAP */
+	if (KEY_TAP('A')) {
+		std::string Chatting = "LEFT 키를 눌렀습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_TAP('D')) {
+		std::string Chatting = "RIGHT 키를 눌렀습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_TAP('W')) {
+		std::string Chatting = "UP 키를 눌렀습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_TAP('S')) {
+		std::string Chatting = "DOWN 키를 눌렀습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_TAP(VK_SHIFT)) {
+		std::string Chatting = "SHIFT 키를 눌렀습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+
+	}
+
+	/* AWAY */
+	if (KEY_AWAY(VK_SHIFT)) {
+		std::string Chatting = "SHIFT 키를 뗐습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_AWAY('A')) {
+		std::string Chatting = "LEFT 키를 뗐습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_AWAY('D')) {
+		std::string Chatting = "RIGHT 키를 뗐습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_AWAY('W')) {
+		std::string Chatting = "UP 키를 뗐습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_AWAY('S')) {
+		std::string Chatting = "DOWN 키를 뗐습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+	}
+	if (KEY_AWAY(VK_SHIFT)) {
+		std::string Chatting = "SHIFT 키를 뗐습니다.\n";
+		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
+		mClientNetworkService->Broadcast(CPktBuf);
+
+	}
+}
+
 bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
 {
 	mhInst = hInstance;
@@ -38,6 +114,17 @@ bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
 	InitPlayer();
 	objectMgr->InitObjectsScript();
 
+	SocketUtils::Init();
+	ServerFBsPktFactory::Init();
+	mClientNetworkService = MakeShared<ClientService>(
+		NetAddress(L"127.0.0.1", 7777),
+		MakeShared<Iocp>(),
+		MakeShared<ServerSession>, // TODO : SessionManager 등
+		1);
+	mClientNetworkService->Start();
+	THREAD_MGR->InitTLS();
+
+
 	return true;
 }
 
@@ -48,10 +135,6 @@ void GameFramework::Release()
 
 
 
-void GameFramework::Update()
-{
-	engine->Update();
-}
 
 int GameFramework::GameLoop()
 {
@@ -83,13 +166,64 @@ int GameFramework::GameLoop()
 	return (int)msg.wParam;
 }
 
+void GameFramework::Update()
+{
+	engine->Update();
+
+	KeyInputBroadcast(); 
+}
+
+
 void GameFramework::Launch()
 {
+	LOG_MGR->SetColor(TextColor::BrightCyan);
+	LOG_MGR->Cout("+--------------------------------------\n");
+	LOG_MGR->Cout("       X-MACHINA CLIENT NETWORK        \n");
+	LOG_MGR->Cout("--------------------------------------+\n");
+	LOG_MGR->SetColor(TextColor::Default);
+
+
+	/* Server Thread */
+	for (int32 i = 0; i < 2; i++)
+	{
+		THREAD_MGR->Launch([=]()
+			{
+				while (true)
+				{
+					mClientNetworkService->GetIocp()->Dispatch();
+				}
+			});
+	}
+
+
+	//THREAD_MGR->Launch([&]() {
+	//	flatbuffers::FlatBufferBuilder builder;
+	//	std::string message = "안녕 서버! Hello IocpServer Im X-Machina Client \n";
+	//	auto messageOffset = builder.CreateString(message);
+	//	auto SPacket = FBProtocol::CreateCPkt_Chat(builder, messageOffset);
+	//	builder.Finish(SPacket);
+
+	//	const uint8_t* bufferPointer = builder.GetBufferPointer();
+	//	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
+
+	//	auto sendBuffer = ServerFBsPktFactory::MakeFBsSendPktBuf(bufferPointer, SerializeddataSize, SPacket);
+
+	//	while (true)
+	//	{
+	//		std::cout << "<---[SEND] ";
+	//		std::cout << message.c_str();
+	//		mClientNetworkService->Broadcast(sendBuffer);
+
+	//		std::this_thread::sleep_for(std::chrono::seconds(1));
+	//	}
+
+	//	});
+
 	/* main Thread */
 	GameLoop();
 
-	/* Server Thread */
-	//...
+	THREAD_MGR->Join();
+
 }
 
 void GameFramework::InitPlayer()

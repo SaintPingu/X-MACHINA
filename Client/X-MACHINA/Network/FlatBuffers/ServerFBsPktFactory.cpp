@@ -4,6 +4,9 @@
 #include "FBProtocol_generated.h"
 #include "Struct_generated.h"
 #include "Transform_generated.h"
+#include "../PacketFactory.h"
+FlatPacketHandlerFunc GFlatPacketHandler[UINT16_MAX]{};
+
 
 bool ProcessFBsPkt_Invalid(SPtr_PacketSession& session, BYTE* buffer, int32 len)
 {
@@ -25,18 +28,9 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	}
 
 	// 입장 UI 버튼 눌러서 게임 입장
-	flatbuffers::FlatBufferBuilder builder;
-
-	uint64_t PlayerIndex = 0;
-	auto enterGamePkt = FBProtocol::CreateCPkt_EnterGame(builder, PlayerIndex);
-	builder.Finish(enterGamePkt);
-
-	const uint8_t* bufferPointer = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-
-
-	auto sendbuffer = ServerFBsPktFactory::MakeFBsSendPktBuf(bufferPointer, SerializeddataSize, enterGamePkt);
-	session->Send(sendbuffer);
+	uint64_t playerIdx = 0; /* 임시 */
+	auto CPktBuf       = PacketFactory::CreateSendBuffer_CPkt_CEnterGame(playerIdx);
+	session->Send(CPktBuf);
 
 	return true;
 }
@@ -48,7 +42,8 @@ bool ProcessFBsPkt_SPkt_EnterGame(SPtr_PacketSession& session, const FBProtocol:
 
 bool ProcessFBsPkt_SPkt_Chat(SPtr_PacketSession& session, const FBProtocol::SPkt_Chat& pkt)
 {
-	return false;
+	std::cout << "--->[RECV]" << pkt.message()->c_str() << std::endl;
+	return true;
 }
 
 bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol::SPkt_Transform& pkt)

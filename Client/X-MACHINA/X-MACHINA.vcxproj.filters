@@ -157,6 +157,12 @@
     <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="Network\ServerSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\PacketFactory.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -208,6 +214,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ServerSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\PacketFactory.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>

@@ -71,23 +71,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)</OutDir>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)</OutDir>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)$(Configuration)</OutDir>
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)$(Configuration)</OutDir>
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -202,9 +202,13 @@
     <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h" />
     <ClInclude Include="Network\FlatBuffers\Struct_generated.h" />
     <ClInclude Include="Network\FlatBuffers\Transform_generated.h" />
+    <ClInclude Include="Network\PacketFactory.h" />
+    <ClInclude Include="Network\ServerSession.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
+    <ClCompile Include="Network\PacketFactory.cpp" />
+    <ClCompile Include="Network\ServerSession.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\pch.cpp">

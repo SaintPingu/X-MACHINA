@@ -52,7 +52,7 @@ public:
 	// 새로운 조명 모델을 삽입한다.
 	void InsertLightModel(const std::string& name, const LightLoadInfo* light) { mLightModels.insert(std::make_pair(name, light)); }
 
-	void BuildLights(FILE* file);
+	void BuildLights(std::ifstream& file);
 	void BuildLights();
 
 	void Update();
@@ -69,6 +69,6 @@ private:
 	// 조명 모델 폴더에서 조명 모델들을 불러온다.
 	void LoadLightModels();
 	// [file]에서 조명 모델을 불러오고 할당한다.
-	void LoadLightObjects(FILE* file);
+	void LoadLightObjects(std::ifstream& file);
 };
 #pragma endregion

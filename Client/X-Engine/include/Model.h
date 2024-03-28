@@ -67,7 +67,7 @@ public:
 public:
 	void UpdateShaderVars();
 
-	void LoadTextureFromFile(TextureMap map, FILE* file);
+	void LoadTextureFromFile(TextureMap map, std::ifstream& file);
 };
 
 

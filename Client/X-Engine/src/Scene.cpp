@@ -322,16 +322,13 @@ void Scene::UpdateGridInfo()
 
 void Scene::LoadSceneObjects(const std::string& fileName)
 {
-	FILE* file = nullptr;
-	::fopen_s(&file, fileName.c_str(), "rb");
-	assert(file);
-	::rewind(file);
+	std::ifstream file = FileIO::OpenBinFile(fileName);
 
 	mLight->BuildLights(file);
 	LoadGameObjects(file);
 }
 
-void Scene::LoadGameObjects(FILE* file)
+void Scene::LoadGameObjects(std::ifstream& file)
 {
 	std::string token{};
 	std::string name{};

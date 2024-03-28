@@ -66,9 +66,7 @@ namespace {
 #pragma region HeightMapImage
 HeightMapImage::HeightMapImage(const std::string& fileName)
 {
-	FILE* file = nullptr;
-	::fopen_s(&file, fileName.c_str(), "rb");
-	::rewind(file);
+	std::ifstream file = FileIO::OpenBinFile(fileName);
 
 	FileIO::ReadVal(file, mWidth);
 	FileIO::ReadVal(file, mLength);

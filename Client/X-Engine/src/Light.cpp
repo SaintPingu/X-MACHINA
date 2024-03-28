@@ -47,7 +47,7 @@ const LightLoadInfo* Light::GetLightModel(const std::string& modelName) const
 	return mLightModels.at(modelName);
 }
 
-void Light::BuildLights(FILE* file)
+void Light::BuildLights(std::ifstream& file)
 {
 	LoadLightObjects(file);
 	LoadLightModels();
@@ -186,7 +186,7 @@ void Light::LoadLightModels()
 	}
 }
 
-void Light::LoadLightObjects(FILE* file)
+void Light::LoadLightObjects(std::ifstream& file)
 {
 	std::string token{};
 	std::string name{};

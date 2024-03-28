@@ -481,7 +481,7 @@ namespace D3DUtil {
 		ComPtr<ID3DBlob>& shaderBlob);
 
 	ComPtr<ID3DBlob> ReadCompiledShaderFile(
-		const std::wstring& fileName);
+		const std::string& fileName);
 
 	inline UINT CalcConstantBuffSize(UINT byteSize)
 	{

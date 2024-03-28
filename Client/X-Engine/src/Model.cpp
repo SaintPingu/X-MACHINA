@@ -42,7 +42,7 @@ void Material::UpdateShaderVars()
 	frmResMgr->CopyData(mMatIndex, materialData);
 }
 
-void Material::LoadTextureFromFile(TextureMap map, FILE* file)
+void Material::LoadTextureFromFile(TextureMap map, std::ifstream& file)
 {
 	std::string textureName{};
 	FileIO::ReadString(file, textureName);

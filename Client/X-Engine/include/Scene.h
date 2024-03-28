@@ -119,7 +119,7 @@ private:
 	// 씬 파일에서 모든 객체와 조명의 정보를 불러온다.
 	void LoadSceneObjects(const std::string& fileName);
 	// 씬 파일에서 모든 객체의 정보를 불러온다. - call from Scene::LoadSceneObjects()
-	void LoadGameObjects(FILE* file);
+	void LoadGameObjects(std::ifstream& file);
 
 	/* Other */
 	// 태그별에 따라 객체를 초기화하고 씬 컨테이너에 객체를 삽입한다.(static, explosive, environments, ...)

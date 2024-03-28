@@ -2,6 +2,8 @@
 #include "DDSTextureLoader12.h"
 #include "DXGIMgr.h"
 
+#include "FileIO.h"
+
 
 
 #pragma region Functions
@@ -278,24 +280,23 @@ namespace D3DUtil {
 		return shaderByteCode;
 	}
 
-	ComPtr<ID3DBlob> ReadCompiledShaderFile(const std::wstring& fileName)
+	ComPtr<ID3DBlob> ReadCompiledShaderFile(const std::string& fileName)
 	{
-		std::wstring filePath = L"shaders/cso/" + fileName;
+		std::string filePath = "shaders/cso/" + fileName;
 
-		FILE* file{};
-		::_wfopen_s(&file, filePath.data(), L"rb");
-		::fseek(file, 0, SEEK_END);
-		int fileSize = ::ftell(file);
+		std::ifstream file = FileIO::OpenBinFile(filePath);
+		file.seekg(0, std::ios::end);
+		size_t fileSize = static_cast<size_t>(file.tellg());
+		file.seekg(0, std::ios::beg);
 
 		BYTE* byteCode = new BYTE[fileSize];
-		::rewind(file);
-		UINT byteSize = (UINT)::fread(byteCode, sizeof(BYTE), fileSize, file);
-		::fclose(file);
+		file.read(reinterpret_cast<char*>(byteCode), sizeof(BYTE) * fileSize);
+		file.close();
 
 		ComPtr<ID3DBlob> blob;
-		HRESULT hResult = D3DCreateBlob(byteSize, &blob);
+		HRESULT hResult = D3DCreateBlob(fileSize, &blob);
 		AssertHResult(hResult);
-		::memcpy(blob->GetBufferPointer(), byteCode, byteSize);
+		::memcpy(blob->GetBufferPointer(), byteCode, fileSize);
 
 		delete[] byteCode;
 

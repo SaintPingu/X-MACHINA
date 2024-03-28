@@ -1,2 +1,56 @@
-﻿  FileIO.cpp
+﻿  EnginePch.cpp
+  ImGuiManager.cpp
+  LogMgr.cpp
+C:\Users\alseh\Desktop\X-MACHINA\Client\X-Engine\Log\LogMgr.cpp(59,13): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/Log/LogMgr.cpp'을(를) 컴파일하는 중)
+  
+  AnimationClip.cpp
+  Animator.cpp
+  AnimatorBlendTree.cpp
+  AnimatorController.cpp
+  AnimatorLayer.cpp
+  AnimatorMotion.cpp
+  AnimatorState.cpp
+  AnimatorStateMachine.cpp
+  BlurFilter.cpp
+  Camera.cpp
+  Collider.cpp
+  Component.cpp
+  DDSTextureLoader12.cpp
+  DXGIMgr.cpp
+  DescriptorHeap.cpp
+  FileIO.cpp
+  FrameResource.cpp
+  Grid.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  InputMgr.cpp
+  LUTFilter.cpp
+  Light.cpp
+  Mesh.cpp
+  MeshRenderer.cpp
+  Model.cpp
+  MultipleRenderTarget.cpp
+  Object.cpp
+  ObjectPool.cpp
+  ParticleSystem.cpp
+  ResourceMgr.cpp
+  Resources.cpp
+  Rigidbody.cpp
+  RootSignature.cpp
+  Scene.cpp
+  Shader.cpp
+  SimpleMath.cpp
+  SkyBox.cpp
+  Ssao.cpp
+  Terrain.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  TestCube.cpp
+  Texture.cpp
+  Timer.cpp
+  Transform.cpp
+  UI.cpp
+  X-Engine.cpp
+  코드를 생성하고 있습니다...
   X-Engine.vcxproj -> C:\Users\alseh\Desktop\X-MACHINA\Client\X-MACHINA\lib\X-Engine.lib

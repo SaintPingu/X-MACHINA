@@ -15,36 +15,42 @@ class AnimatorController;
 
 namespace FileIO {
 	// 단일 문자열을 읽어 out으로 반환한다.
-	void ReadString(FILE* file, std::string& out);
-	inline std::string ReadString(FILE* file)
+	inline void ReadString(std::ifstream& file, std::string& out)
 	{
-		std::string token;
-		FileIO::ReadString(file, token);
-		return token;
+		BYTE length{};
+		file.read(reinterpret_cast<char*>(&length), sizeof(BYTE));
+		out.resize(length);
+		file.read(reinterpret_cast<char*>(out.data()), length);
+	}
+	inline std::string ReadString(std::ifstream& file)
+	{
+		std::string out;
+		FileIO::ReadString(file, out);
+		return out;
 	}
 
 	// T의 size만큼 file의 내용을 읽어 out으로 반환한다.
 	template<class T>
-	inline void ReadVal(FILE* file, T& out)
+	inline void ReadVal(std::ifstream& file, T& out)
 	{
-		::fread(&out, sizeof(T), 1, file);
+		file.read(reinterpret_cast<char*>(&out), sizeof(T));
 	}
 
 	// T의 size만큼 file의 내용을 읽어 반환한다.
 	template<class T>
-	inline T ReadVal(FILE* file)
+	inline T ReadVal(std::ifstream& file)
 	{
 		T val;
-		::fread(&val, sizeof(T), 1, file);
+		file.read(reinterpret_cast<char*>(&val), sizeof(T));
 		return val;
 	}
 
 	// T의 size * (cnt)만큼 file의 내용을 읽어 out으로 반환한다.
 	template<class T>
-	inline void ReadRange(FILE* file, std::vector<T>& out, int cnt)
+	inline void ReadRange(std::ifstream& file, std::vector<T>& out, int cnt)
 	{
 		out.resize(cnt);
-		::fread(out.data(), sizeof(T), cnt, file);
+		file.read(reinterpret_cast<char*>(out.data()), sizeof(T) * cnt);
 	}
 
 	// remove extension of [filePath]
@@ -71,9 +77,19 @@ namespace FileIO {
 	}
 
 	namespace AnimationIO {
-		void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo);
+		void LoadAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo);
 		sptr<AnimationClip> LoadAnimationClip(const std::string& filePath);
 
 		sptr<AnimatorController> LoadAnimatorController(const std::string& filePath);
+	}
+
+	inline std::ifstream OpenBinFile(const std::string& filePath)
+	{
+		std::ifstream file(filePath, std::ios::binary);
+		if (!file) {
+			throw std::runtime_error("Can not open the file : " + filePath);
+		}
+
+		return file;
 	}
 }

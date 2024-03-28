@@ -21,7 +21,7 @@ namespace {
 	namespace {	// Model IO
 
 		// Mesh 정보를 불러온다. (Positions, Normals, ...)
-		sptr<MeshLoadInfo> LoadMesh(FILE* file)
+		sptr<MeshLoadInfo> LoadMesh(std::ifstream& file)
 		{
 			std::string token;
 
@@ -155,7 +155,7 @@ namespace {
 
 
 
-		sptr<SkinMesh> LoadSkinMesh(FILE* file, sptr<MeshLoadInfo>& meshInfo)
+		sptr<SkinMesh> LoadSkinMesh(std::ifstream& file, sptr<MeshLoadInfo>& meshInfo)
 		{
 			sptr<SkinMesh> mesh = std::make_shared<SkinMesh>();
 			std::string token;
@@ -252,7 +252,7 @@ namespace {
 		}
 
 		// 재질의 정보를 불러온다. (Albedo, Emissive, ...)
-		std::vector<sptr<Material>> LoadMaterial(FILE* file)
+		std::vector<sptr<Material>> LoadMaterial(std::ifstream& file)
 		{
 			std::string token;
 
@@ -361,7 +361,7 @@ namespace {
 
 
 		// 한 프레임의 정보를 불러온다. (FrameName, Transform, BoundingBox, ...)
-		sptr<Model> LoadFrameHierarchy(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
+		sptr<Model> LoadFrameHierarchy(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
 		{
 			std::string token;
 
@@ -383,10 +383,7 @@ namespace {
 					FileIO::ReadVal(file, nFrame);
 					FileIO::ReadVal(file, nTextures);
 
-					std::string name;
-					FileIO::ReadString(file, name);
-
-					model->SetName(name);
+					model->SetName(FileIO::ReadString(file));
 				}
 
 				break;
@@ -505,7 +502,7 @@ namespace {
 	}
 
 	namespace { // Animation IO
-		std::vector<sptr<const AnimatorTransition>> LoadTransitions(FILE* file)
+		std::vector<sptr<const AnimatorTransition>> LoadTransitions(std::ifstream& file)
 		{
 			std::vector<sptr<const AnimatorTransition>> transitions{};
 
@@ -540,7 +537,7 @@ namespace {
 			return transitions;
 		}
 
-		HumanBone LoadAvatarMask(FILE* file)
+		HumanBone LoadAvatarMask(std::ifstream& file)
 		{
 			HumanBone result = HumanBone::None;
 			result |= FileIO::ReadVal<bool>(file) ? HumanBone::Root : HumanBone::None;
@@ -556,15 +553,14 @@ namespace {
 			return result;
 		}
 
-		sptr<const AnimationClip> ReadAnimationClip(FILE* file)
+		sptr<const AnimationClip> ReadAnimationClip(std::ifstream& file)
 		{
-			std::string clipFolder, clipName;
-			FileIO::ReadString(file, clipFolder);
-			FileIO::ReadString(file, clipName);
+			std::string clipFolder = FileIO::ReadString(file);
+			std::string clipName = FileIO::ReadString(file);
 			return res->Get<AnimationClip>(clipFolder + '/' + clipName);
 		}
 
-		sptr<BlendTree> LoadAnimatorBlendTree(FILE* file, AnimatorMotionInfo& motionInfo)
+		sptr<BlendTree> LoadAnimatorBlendTree(std::ifstream& file, AnimatorMotionInfo& motionInfo)
 		{
 			FileIO::ReadString(file, motionInfo.Name);
 
@@ -582,14 +578,14 @@ namespace {
 			return std::make_shared<BlendTree>(motionInfo, childMotions);
 		}
 
-		sptr<AnimatorState> LoadAnimatorState(FILE* file, AnimatorMotionInfo& motionInfo)
+		sptr<AnimatorState> LoadAnimatorState(std::ifstream& file, AnimatorMotionInfo& motionInfo)
 		{
 			sptr<const AnimationClip> clip = ReadAnimationClip(file);
 
 			return std::make_shared<AnimatorState>(motionInfo, clip);
 		}
 
-		sptr<AnimatorStateMachine> LoadAnimatorStateMachine(FILE* file)
+		sptr<AnimatorStateMachine> LoadAnimatorStateMachine(std::ifstream& file)
 		{
 			std::string token;
 
@@ -648,7 +644,7 @@ namespace {
 			return stateMachine;
 		}
 
-		sptr<AnimatorLayer> LoadAnimatorLayer(FILE* file)
+		sptr<AnimatorLayer> LoadAnimatorLayer(std::ifstream& file)
 		{
 			std::string token;
 
@@ -686,29 +682,10 @@ namespace {
 
 
 namespace FileIO {
-	void ReadString(FILE* file, std::string& token)
-	{
-		constexpr int kTokenBuffSize = 256;
-
-		BYTE length{};
-		token.resize(kTokenBuffSize);
-
-		::fread(&length, sizeof(BYTE), 1, file);
-		UINT nReads = (UINT)::fread(token.data(), sizeof(char), length, file);
-
-		if (nReads == 0) {
-			throw std::runtime_error("Failed to read a file!\n");
-		}
-
-		token.resize(length);
-	}
-
 	namespace ModelIO {
 		sptr<MasterModel> LoadGeometryFromFile(const std::string& filePath)
 		{
-			FILE* file = nullptr;
-			::fopen_s(&file, filePath.c_str(), "rb");
-			::rewind(file);
+			std::ifstream file = OpenBinFile(filePath);
 
 			sptr<Model> model = std::make_shared<Model>();
 			sptr<MasterModel> masterModelA = std::make_shared<MasterModel>();
@@ -752,13 +729,9 @@ namespace FileIO {
 		{
 			LightLoadInfo* light = *out;
 
-			FILE* file = nullptr;
-			::fopen_s(&file, filePath.c_str(), "rb");
-			assert(file);
-			::rewind(file);
+			std::ifstream file = OpenBinFile(filePath);
 
 			std::string token{};
-			std::string name{};
 
 			light->Ambient = Vec4(0.f, 0.f, 0.f, 1.f);
 
@@ -822,7 +795,7 @@ namespace FileIO {
 	}
 
 	namespace AnimationIO {
-		void LoadAnimation(FILE* file, sptr<AnimationLoadInfo>& animationInfo)
+		void LoadAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
 		{
 			FileIO::ReadString(file, animationInfo->AnimatorControllerFile);
 		}
@@ -830,12 +803,9 @@ namespace FileIO {
 
 		sptr<AnimationClip> LoadAnimationClip(const std::string& filePath)
 		{
-			FILE* file = nullptr;
-			::fopen_s(&file, filePath.c_str(), "rb");
-			::rewind(file);
+			std::ifstream file = OpenBinFile(filePath);
 
-			std::string clipName;
-			FileIO::ReadString(file, clipName); //Animation Set Name
+			std::string clipName = FileIO::ReadString(file); //Animation Set Name
 
 			const float length = FileIO::ReadVal<float>(file);
 			const int frameRate = FileIO::ReadVal<int>(file);
@@ -855,9 +825,7 @@ namespace FileIO {
 		sptr<AnimatorController> LoadAnimatorController(const std::string& filePath)
 		{
 			std::string token{};
-			FILE* file = nullptr;
-			::fopen_s(&file, filePath.c_str(), "rb");
-			::rewind(file);
+			std::ifstream file = OpenBinFile(filePath);
 
 			// Params //
 			Animations::ParamMap params{};
@@ -867,12 +835,10 @@ namespace FileIO {
 
 			for (int i = 0; i < paramSize; ++i) {
 				AnimatorParameter param{};
-				std::string paramName;
-				FileIO::ReadString(file, paramName);
+				std::string paramName = FileIO::ReadString(file);
 
 				// Set param type and default value
-				std::string paramType;
-				FileIO::ReadString(file, paramType);
+				std::string paramType = FileIO::ReadString(file);
 				switch (Hash(paramType)) {
 				case Hash("Float"):
 					param.type = AnimatorParameter::Type::Float;

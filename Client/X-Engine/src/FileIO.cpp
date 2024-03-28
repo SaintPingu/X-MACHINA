@@ -579,8 +579,6 @@ namespace {
 				childMotions.push_back(std::make_shared<ChildMotion>(clip, position));
 			}
 
-			FileIO::ReadVal<float>(file, motionInfo.Speed);
-			motionInfo.Transitions = LoadTransitions(file);
 			return std::make_shared<BlendTree>(motionInfo, childMotions);
 		}
 
@@ -588,8 +586,6 @@ namespace {
 		{
 			sptr<const AnimationClip> clip = ReadAnimationClip(file);
 
-			FileIO::ReadVal<float>(file, motionInfo.Speed);
-			motionInfo.Transitions = LoadTransitions(file);
 			return std::make_shared<AnimatorState>(motionInfo, clip);
 		}
 
@@ -618,6 +614,9 @@ namespace {
 			for (int i = 0; i < stateSize; ++i) {
 
 				sptr<AnimatorMotion> motion{};
+
+				FileIO::ReadVal<float>(file, motionInfo.Speed);
+				motionInfo.Transitions = LoadTransitions(file);
 
 				std::string motionType = FileIO::ReadString(file);
 

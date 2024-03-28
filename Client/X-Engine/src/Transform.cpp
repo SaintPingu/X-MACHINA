@@ -6,16 +6,12 @@
 #pragma region Getter
 Vec4 Transform::GetLocalRotation() const
 {
-	Vec4 result;
-	XMStoreFloat4(&result, XMQuaternionRotationMatrix(_MATRIX(mLocalTransform)));
-	return result;
+	return Quaternion::CreateFromRotationMatrix(mLocalTransform);
 }
 
 Vec4 Transform::GetRotation() const
 {
-	Vec4 result;
-	XMStoreFloat4(&result, XMQuaternionRotationMatrix(_MATRIX(mWorldTransform)));
-	return result;
+	return Quaternion::CreateFromRotationMatrix(mWorldTransform);;
 }
 
 Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
@@ -26,13 +22,13 @@ Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
 
 	Vec3 result{};
 
-	if (dwDirection & Dir::Front)	result = Vector3::Add(result, mLook, 1.f);
-	if (dwDirection & Dir::Back)	result = Vector3::Add(result, mLook, -1.f);
-	if (dwDirection & Dir::Right)	result = Vector3::Add(result, mRight, 1.f);
-	if (dwDirection & Dir::Left)	result = Vector3::Add(result, mRight, -1.f);
+	if (dwDirection & Dir::Front)	result += mLook * 1.f;
+	if (dwDirection & Dir::Back)	result += mLook * -1.f;
+	if (dwDirection & Dir::Right)	result += mRight * 1.f;
+	if (dwDirection & Dir::Left)	result += mRight * -1.f;
 
-	if (dwDirection & Dir::Up)		result = Vector3::Add(result, mUp, 1.f);
-	if (dwDirection & Dir::Down)	result = Vector3::Add(result, mUp, -1.f);
+	if (dwDirection & Dir::Up)		result += mUp * 1.f;
+	if (dwDirection & Dir::Down)	result += mUp * -1.f;
 
 	return result;
 }
@@ -52,13 +48,6 @@ void Transform::SetPosition(float x, float y, float z)
 void Transform::SetPosition(const Vec3& pos)
 {
 	SetPosition(pos.x, pos.y, pos.z);
-}
-
-void Transform::SetPosition(const Vector& pos)
-{
-	XMStoreFloat3(&mPosition, pos);
-
-	UpdateLocalTransform();
 }
 
 void Transform::SetPositionX(float x)
@@ -85,36 +74,36 @@ void Transform::SetAxis(const Vec3& look, const Vec3& up, const Vec3& right)
 	UpdateLocalTransform();
 }
 
-void Transform::SetAxis(const Vec4x4& axisMatrix)
+void Transform::SetAxis(const Matrix& axisMatrix)
 {
-	::memcpy(&mLocalTransform, &axisMatrix, sizeof(Vec4x3));
+	::memcpy(&mLocalTransform, &axisMatrix, sizeof(XMFLOAT4X3));
 
 	UpdateAxis();
 }
 
 void Transform::SetRight(const Vec3& right)
 {
-	mRight = Vector3::Normalize(right);
-	mUp = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
-	mLook = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
+	mRight = Vector3::Normalized(right);
+	mUp = Vector3::Normalized(mLook.Cross(mRight));
+	mLook = Vector3::Normalized(mRight.Cross(mUp));
 
 	UpdateLocalTransform();
 }
 
 void Transform::SetLook(const Vec3& look)
 {
-	mLook = Vector3::Normalize(look);
-	mUp = Vector3::Normalize(Vector3::CrossProduct(mLook, mRight));
-	mRight = Vector3::Normalize(Vector3::CrossProduct(mLook, mUp));
+	mLook = Vector3::Normalized(look);
+	mUp = Vector3::Normalized(mLook.Cross(mRight));
+	mRight = Vector3::Normalized(mLook.Cross(mUp));
 
 	UpdateLocalTransform();
 }
 
 void Transform::SetUp(const Vec3& up)
 {
-	mUp = Vector3::Normalize(up);
-	mRight = Vector3::Normalize(Vector3::CrossProduct(mLook, mUp));
-	mLook = Vector3::Normalize(Vector3::CrossProduct(mRight, mUp));
+	mUp = Vector3::Normalized(up);
+	mRight = Vector3::Normalized(mLook.Cross(mUp));
+	mLook = Vector3::Normalized(mRight.Cross(mUp));
 
 	UpdateLocalTransform();
 }
@@ -145,11 +134,11 @@ void Transform::SetChild(rsptr<Transform> child)
 	}
 }
 
-void Transform::SetLocalTransform(const Vec4x4& transform)
+void Transform::SetLocalTransform(const Matrix& transform)
 {
 	mLocalTransform = transform;
 	mPrevTransform = transform;
-	UpdateAxis(false);
+	UpdateAxis();
 }
 #pragma endregion
 
@@ -159,18 +148,18 @@ void Transform::SetLocalTransform(const Vec4x4& transform)
 ///////////////////////////* Translate *///////////////////////////
 void Transform::Translate(const Vec3& translation)
 {
-	if (Vector3::Length(translation) <= FLT_EPSILON) {
+	if (translation.Length() <= FLT_EPSILON) {
 		return;
 	}
 
-	mPosition = Vector3::Add(mPosition, translation);
+	mPosition += translation;
 
 	UpdateLocalTransform();
 }
 
 void Transform::Translate(const Vec3& direction, float distance)
 {
-	Translate(Vector3::ScalarProduct(direction, distance));
+	Translate(direction * distance);
 }
 
 void Transform::Translate(float x, float y, float z)
@@ -182,11 +171,11 @@ void Transform::Translate(float x, float y, float z)
 ///////////////////////////* Movement *///////////////////////////
 void Transform::MoveLocal(const Vec3& translation)
 {
-	Vec3 right = Vector3::ScalarProduct(mRight, translation.x);
-	Vec3 up = Vector3::ScalarProduct(mUp, translation.y);
-	Vec3 left = Vector3::ScalarProduct(mLook, translation.z);
+	Vec3 right = mRight * translation.x;
+	Vec3 up = mUp * translation.y;
+	Vec3 left = mLook * translation.z;
 
-	Translate(Vector3::Add(right, up, left));
+	Translate(right + up + left);
 }
 
 void Transform::MoveStrafe(float distance)
@@ -225,37 +214,34 @@ void Transform::Rotate(float pitch, float yaw, float roll)
 	}
 
 	Matrix mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll));
-	mLocalTransform = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
+	mLocalTransform = mtxRotate * mLocalTransform;
 
 	UpdateAxis();
 }
 
 void Transform::Rotate(const Vec3& axis, float angle)
 {
-	mLocalTransform = Matrix4x4::Multiply(XMMatrix::RotationAxis(axis, angle), mLocalTransform);
+	
+	mLocalTransform = Matrix::CreateFromAxisAngle(axis, angle) * mLocalTransform;
 	SetLocalTransform(mLocalTransform);
 }
 
 void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 {
-	Vec4x4 mtxTranslateToOrigin = Matrix4x4::Translate(-offset.x, -offset.y, -offset.z);
-	Vec4x4 mtxRotate = Matrix4x4::RotationAxis(axis, angle);
-	Vec4x4 mtxTranslateBack = Matrix4x4::Translate(offset.x, offset.y, offset.z);
+	Matrix mtxTranslateToOrigin = Matrix::CreateTranslation(-offset.x, -offset.y, -offset.z);
+	Matrix mtxRotate = Matrix::CreateFromAxisAngle(axis, angle);
+	Matrix mtxTranslateBack = Matrix::CreateTranslation(offset.x, offset.y, offset.z);
 
-	mLocalTransform = Matrix4x4::Multiply(mtxTranslateToOrigin, mLocalTransform);
-	mLocalTransform = Matrix4x4::Multiply(mtxRotate, mLocalTransform);
-	mLocalTransform = Matrix4x4::Multiply(mtxTranslateBack, mLocalTransform);
+	mLocalTransform = mtxTranslateToOrigin * mLocalTransform;
+	mLocalTransform = mtxRotate * mLocalTransform;
+	mLocalTransform = mtxTranslateBack * mLocalTransform;
 
 	UpdateAxis();
 }
 
 void Transform::SetRotation(const Vec4& quaternion)
 {
-	Vector quat = XMLoadFloat4(&quaternion);
-
-	Matrix rotationMatrix = XMMatrixRotationQuaternion(quat);
-
-	mLocalTransform = Matrix4x4::Multiply(mLocalTransform, rotationMatrix);
+	mLocalTransform = Matrix::Transform(mLocalTransform, quaternion);
 
 	UpdateAxis();
 }
@@ -277,11 +263,11 @@ void Transform::LookAtWorld(const Vec3& lookAt, const Vec3& up)
 
 
 ///////////////////////////* Transform *///////////////////////////
-void Transform::SetWorldTransform(const Vec4x4& transform)
+void Transform::SetWorldTransform(const Matrix& transform)
 {
-	::memcpy(&mWorldTransform, &transform, sizeof(Vec4x4));
-	::memcpy(&mLocalTransform, &transform, sizeof(Vec4x4));
-	::memcpy(&mPrevTransform, &transform, sizeof(Vec4x4));
+	::memcpy(&mWorldTransform, &transform, sizeof(Matrix));
+	::memcpy(&mLocalTransform, &transform, sizeof(Matrix));
+	::memcpy(&mPrevTransform, &transform, sizeof(Matrix));
 
 	UpdateAxis();
 }
@@ -319,31 +305,17 @@ void Transform::UpdateLocalTransform(bool isComputeWorldTransform)
 	}
 }
 
-void Transform::RequestTransform(Vec4x4& parentTransform)
+void Transform::ComputeWorldTransform(const Matrix* parentTransform)
 {
-	if (mParent) {
-		mParent->RequestTransform(parentTransform);
-		parentTransform = Matrix4x4::Multiply(mLocalTransform, parentTransform);
-		return;
-	}
-
-	parentTransform = mWorldTransform;
-}
-
-void Transform::ComputeWorldTransform(const Vec4x4* parentTransform)
-{
-	// must be start from parent
 	if (!parentTransform && mParent) {
-		Vec4x4 transform;
-		mParent->RequestTransform(transform);
-		mWorldTransform = Matrix4x4::Multiply(mLocalTransform, transform);
+		mWorldTransform = mLocalTransform * mParent->GetWorldTransform();
 
 		if (mSibling) {
-			mSibling->ComputeWorldTransform(&transform);
+			mSibling->ComputeWorldTransform();
 		}
 	}
 	else {
-		mWorldTransform = (parentTransform) ? Matrix4x4::Multiply(mLocalTransform, *parentTransform) : mLocalTransform;
+		mWorldTransform = (parentTransform) ? (mLocalTransform * *parentTransform) : mLocalTransform;
 
 		if (mSibling) {
 			mSibling->ComputeWorldTransform(parentTransform);
@@ -407,9 +379,9 @@ void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 
 void Transform::NormalizeAxis()
 {
-	mLook = Vector3::Normalize(mLook);
-	mRight = Vector3::CrossProduct(mUp, mLook, true);
-	mUp = Vector3::CrossProduct(mLook, mRight, true);
+	mLook = Vector3::Normalized(mLook);
+	mRight = Vector3::Normalized(mUp.Cross(mLook));
+	mUp = Vector3::Normalized(mLook.Cross(mRight));
 
 	UpdateLocalTransform(false);
 }
@@ -429,4 +401,11 @@ void Transform::MergeTransform(std::vector<const Transform*>& out, const Transfo
 void Transform::UpdateShaderVars(const Matrix& matrix)
 {
 	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
+}
+
+void Transform::UpdateShaderVars(const XMMATRIX& matrix)
+{
+	Matrix m;
+	XMStoreFloat4x4(&m, matrix);
+	UpdateShaderVars(m);
 }

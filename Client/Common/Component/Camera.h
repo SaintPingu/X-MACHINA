@@ -23,8 +23,8 @@ class Camera : public Component {
 private:
 	float mAspectRatio{};
 
-	Matrix mViewTransform = Matrix4x4::Identity();
-	Matrix mProjTransform = Matrix4x4::Identity();
+	Matrix mViewTransform{};
+	Matrix mProjTransform{};
 
 	Vec3 mOffset{};
 

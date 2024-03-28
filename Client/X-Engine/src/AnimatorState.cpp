@@ -19,7 +19,7 @@ AnimatorState::AnimatorState(const AnimatorState& other)
 
 }
 
-Vec4x4 AnimatorState::GetSRT(int boneIndex) const
+Matrix AnimatorState::GetSRT(int boneIndex) const
 {
 	return AnimatorTrack::GetSRT(boneIndex, GetLength());
 }

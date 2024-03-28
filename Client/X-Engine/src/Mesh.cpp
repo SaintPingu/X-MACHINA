@@ -90,14 +90,14 @@ void ModelObjectMesh::CreateMeshFromOBB(const BoundingOrientedBox& box)
 
 	vertices.resize(mVertexCnt);
 
-	vertices[0] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::LDB()));
-	vertices[1] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::RDB()));
-	vertices[2] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::LUB()));
-	vertices[3] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::RDB()));
-	vertices[4] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::LDF()));
-	vertices[5] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::RDB()));
-	vertices[6] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::LUF()));
-	vertices[7] = Vector3::Add(box.Center, Vector3::Multiply(box.Extents, Vector3::RUF()));
+	vertices[0] = box.Center + (box.Extents * Vector3::LDB());
+	vertices[1] = box.Center + (box.Extents * Vector3::RDB());
+	vertices[2] = box.Center + (box.Extents * Vector3::LUB());
+	vertices[3] = box.Center + (box.Extents * Vector3::RDB());
+	vertices[4] = box.Center + (box.Extents * Vector3::LDF());
+	vertices[5] = box.Center + (box.Extents * Vector3::RDB());
+	vertices[6] = box.Center + (box.Extents * Vector3::LUF());
+	vertices[7] = box.Center + (box.Extents * Vector3::RUF());
 
 	indices.resize(mIndexCnt);
 	indices = {
@@ -578,7 +578,7 @@ void MergedMesh::UpdateMaterialBuffer()
 	}
 }
 
-//void UpdateShaderVars(const Vec4x4& transform)
+//void UpdateShaderVars(const Matrix& transform)
 //{
 //	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
 //}
@@ -996,7 +996,7 @@ void SkinMesh::UpdateShaderVariables()
 	
 	for (int i = 0; i < (*mBoneFrames).size(); ++i)
 	{
-		Vec4x4 transform = Matrix4x4::Multiply(mBoneOffsets[i], (*mBoneFrames)[i]->GetWorldTransform());
+		Matrix transform = mBoneOffsets[i] * (*mBoneFrames)[i]->GetWorldTransform();
 		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
 

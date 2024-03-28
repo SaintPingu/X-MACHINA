@@ -21,7 +21,7 @@ private:
 	float mSpeed{ 0.01f };	// 애니메이션 속도
 	float mElapsedTime{};	// 애니메이션 실행 경과시간
 
-	Vec4x4 mTextureMtx{ Matrix4x4::Identity() };
+	Matrix mTextureMtx{ };
 
 public:
 	bool IsEndAnimation() const { return mIsEndAnimation; }

@@ -42,7 +42,7 @@ public:
 
 	bool HasParam(const std::string paramName) const { return mParameters.contains(paramName); }
 
-	Vec4x4 GetTransform(int boneIndex, HumanBone boneType);
+	Matrix GetTransform(int boneIndex, HumanBone boneType);
 	const Animations::ParamMap& GetParams() const { return mParameters; }
 	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
 	float GetParamValue(const std::string& paramName) const { return mParameters.at(paramName).val.f; }

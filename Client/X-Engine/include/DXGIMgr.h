@@ -141,7 +141,6 @@ public:
 
 	// [data]를 32BitConstants에 Set한다.
 	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);
-	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset);
 	void SetGraphicsRoot32BitConstants(RootParam param, int data, UINT offset);

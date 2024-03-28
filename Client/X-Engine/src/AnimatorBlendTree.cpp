@@ -21,7 +21,7 @@ ChildMotion::ChildMotion(const ChildMotion& other)
 	mPosition = other.mPosition;
 }
 
-Vec4x4 ChildMotion::GetSRT(int boneIndex) const
+Matrix ChildMotion::GetSRT(int boneIndex) const
 {
 	return AnimatorTrack::GetSRT(boneIndex, GetLength());
 }
@@ -56,7 +56,7 @@ void BlendTree::CalculateWeights() const
 	bool onlyOne = false;
 	Vec2 position{ -x->val.f, -y->val.f };
 	for (size_t i = 0; i < mMotions.size(); ++i) {
-		float distance = Vector2::LengthExact(position, mMotions[i]->GetPosition());
+		float distance = (position + mMotions[i]->GetPosition()).Length();
 		weights[i] += max(0, 1 - distance);
 		totalWight += weights[i];
 
@@ -87,13 +87,13 @@ void BlendTree::CalculateWeights() const
 	}
 }
 
-Vec4x4 BlendTree::GetSRT(int boneIndex) const
+Matrix BlendTree::GetSRT(int boneIndex) const
 {
-	Vec4x4 transform{};
+	Matrix transform = Matrix4x4::Zero();
 	for (auto& motion : mMotions) {
 		float weight = motion->GetWeight();
 		if (weight > 0.f) {
-			transform = Matrix4x4::Add(transform, Matrix4x4::Scale(motion->GetSRT(boneIndex), weight));
+			transform += (motion->GetSRT(boneIndex) * weight);
 		}
 	}
 

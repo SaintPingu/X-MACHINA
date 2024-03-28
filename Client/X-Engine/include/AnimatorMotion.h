@@ -40,7 +40,7 @@ public:
 	AnimatorMotion(const AnimatorMotion& other);
 	virtual ~AnimatorMotion() = default;
 
-	virtual Vec4x4 GetSRT(int boneIndex) const abstract;
+	virtual Matrix GetSRT(int boneIndex) const abstract;
 	std::string GetName() const { return mName; }
 	float GetLength() const { return mCrntLength; }
 	float GetMaxLength() const { return mMaxLength; }
@@ -82,7 +82,7 @@ public:
 	rsptr<const AnimationClip> GetClip() const { return mClip; }
 
 protected:
-	Vec4x4 GetSRT(int boneIndex, float length) const;
+	Matrix GetSRT(int boneIndex, float length) const;
 };
 
 
@@ -95,7 +95,7 @@ public:
 	AnimatorState(const AnimatorState& other);
 	virtual ~AnimatorState() = default;
 
-	virtual Vec4x4 GetSRT(int boneIndex) const override;
+	virtual Matrix GetSRT(int boneIndex) const override;
 };
 
 
@@ -116,7 +116,7 @@ public:
 	float GetLength() const { return mCrntLength; }
 	float GetWeight() const { return mWeight; }
 	Vec2 GetPosition() const { return mPosition; }
-	Vec4x4 GetSRT(int boneIndex) const;
+	Matrix GetSRT(int boneIndex) const;
 
 	void SetLength(float length) { mCrntLength = length; }
 	void SetWeight(float weight) { mWeight = weight; }
@@ -140,7 +140,7 @@ public:
 	BlendTree(const BlendTree& other);
 	virtual ~BlendTree() = default;
 
-	virtual Vec4x4 GetSRT(int boneIndex) const override;
+	virtual Matrix GetSRT(int boneIndex) const override;
 
 public:
 	virtual void Init(const AnimatorController* controller) override;

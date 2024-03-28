@@ -58,6 +58,8 @@ void GameFramework::Update()
 void GameFramework::Release()
 {
 	engine->Release();
+	objectMgr->Destroy();
+	Destroy();
 }
 
 void GameFramework::InitPlayer()

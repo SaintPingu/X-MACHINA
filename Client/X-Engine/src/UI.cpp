@@ -79,7 +79,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	const float col = (float)(ch % int(kCols));
 	const float row = (float)(int(ch / kCols));
 
-	Vec4x4 spriteMtx = Matrix4x4::Identity();
+	Matrix spriteMtx{};
 
 	spriteMtx._11 = 1.f / kCols;
 	spriteMtx._22 = 1.f / kRows;
@@ -93,7 +93,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	// 머티리얼을 사용하지 않는 경우 MatIndex에 텍스처 인덱스를 넣어준다.
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
-	objectConstants.MtxSprite	= XMMatrix::Transpose(spriteMtx);
+	objectConstants.MtxSprite	= spriteMtx.Transpose();
 	objectConstants.MatIndex	= mTexture->GetSrvIdx(); 
 
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);

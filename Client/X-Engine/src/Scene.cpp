@@ -397,7 +397,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 
 		object->SetModel(model);
 
-		Vec4x4 transform;
+		Matrix transform;
 		FileIO::ReadVal(file, transform);
 		object->SetWorldTransform(transform);
 
@@ -605,6 +605,7 @@ void Scene::RenderGridObjects(bool isShadowed)
 				mSkinMeshObjects.insert(object);
 				break;
 			}
+			object->ComputeWorldTransform();
 			object->Render();
 			break;
 		}
@@ -741,15 +742,21 @@ void Scene::CheckCollisions()
 void Scene::UpdateObjects()
 {
 	ProcessObjects([this](sptr<GridObject> object) {
-		object->Update();
+		if (object->IsActive()) {
+			object->Update();
+		}
 		});
 
 	ProcessObjects([this](sptr<GridObject> object) {
-		object->Animate();
+		if (object->IsActive()) {
+			object->Animate();
+		}
 		});
 
 	ProcessObjects([this](sptr<GridObject> object) {
-		object->LateUpdate();
+		if (object->IsActive()) {
+			object->LateUpdate();
+		}
 		});
 }
 #pragma endregion
@@ -904,6 +911,7 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 
 	sptr<GridObject> instance = std::make_shared<GridObject>();
 	instance->SetModel(model);
+	instance->SetTag(instance->GetTag());
 	if (enable) {
 		instance->OnEnable();
 	}

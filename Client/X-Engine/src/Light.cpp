@@ -221,7 +221,7 @@ void Light::LoadLightObjects(std::ifstream& file)
 
 		*light = *modelLight;
 
-		Vec4x4 transform;
+		Matrix transform;
 		FileIO::ReadVal(file, transform);
 
 		light->Position.x = transform._41;

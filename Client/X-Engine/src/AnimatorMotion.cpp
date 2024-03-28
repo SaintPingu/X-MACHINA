@@ -102,7 +102,7 @@ AnimatorTrack::AnimatorTrack(const AnimatorTrack& other)
 	mClip = other.mClip;
 }
 
-Vec4x4 AnimatorTrack::GetSRT(int boneIndex, float length) const
+Matrix AnimatorTrack::GetSRT(int boneIndex, float length) const
 {
 	return mClip->GetSRT(boneIndex, length);
 }

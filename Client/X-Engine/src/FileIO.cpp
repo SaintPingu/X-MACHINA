@@ -204,7 +204,7 @@ namespace {
 				{
 					int skinBoneCnt = FileIO::ReadVal<int>(file);
 					if (skinBoneCnt > 0) {
-						std::vector<Vec4x4> boneOffsets(skinBoneCnt);
+						std::vector<Matrix> boneOffsets(skinBoneCnt);
 						FileIO::ReadRange(file, boneOffsets, skinBoneCnt);
 
 						mesh->SetBoneOffsets(boneOffsets);
@@ -400,7 +400,7 @@ namespace {
 				break;
 				case Hash("<TransformMatrix>:"):
 				{
-					Vec4x4 transform;
+					Matrix transform;
 					FileIO::ReadVal(file, transform);
 
 					model->SetLocalTransform(transform);

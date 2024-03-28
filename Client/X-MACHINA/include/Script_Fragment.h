@@ -19,7 +19,7 @@ private:
 	float mRotationSpeed{};
 
 public:
-	void SetRotationAxis(const Vec3& rotationAxis) { mRotationAxis = Vector3::Normalize(rotationAxis); }
+	void SetRotationAxis(const Vec3& rotationAxis) { mRotationAxis = Vector3::Normalized(rotationAxis); }
 	void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
 	void SetMovingSpeed(float speed) { mMovingSpeed = speed; }
 	void SetMovingDir(const Vec3& dir) { mMovingDir = dir; }

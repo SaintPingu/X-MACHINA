@@ -75,12 +75,6 @@ void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data,
 	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
-void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4x4& data, UINT offset)
-{
-	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
-}
-
 void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 4U;

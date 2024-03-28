@@ -354,13 +354,6 @@ void PrintMsgBox(const char* message);
 // print error msg if blob has error
 void PrintErrorBlob(RComPtr<ID3DBlob> errorBlob);
 
-inline Vector GetUnitVector(float x, float y, float z)
-{
-	return XMVector3NormalizeEst(XMVectorSet(x, y, z, 0.f));
-}
-Vector RandVectorOnSphere();
-Vector RandVectorOnDom();
-
 template<class T>
 // copy src's data to end of dst
 inline void CopyBack(const std::vector<T>& src, std::vector<T>& dst)

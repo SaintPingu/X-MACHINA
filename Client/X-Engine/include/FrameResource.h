@@ -84,7 +84,7 @@ struct ObjectConstants {
 };
 
 struct SkinnedConstants {
-    Vec4x4  BoneTransforms[gkSkinBoneSize];
+    Matrix  BoneTransforms[gkSkinBoneSize];
 };
 
 struct SsaoConstants {

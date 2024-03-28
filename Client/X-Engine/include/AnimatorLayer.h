@@ -27,7 +27,7 @@ public:
 
 	std::string GetName() const { return mName; }
 	sptr<const AnimatorMotion> GetSyncState() const { return mNextStates.empty() ? mCrntState : mNextStates.back(); }
-	Vec4x4 GetTransform(int boneIndex, HumanBone boneType) const;
+	Matrix GetTransform(int boneIndex, HumanBone boneType) const;
 
 	void SetCrntStateLength(float length) const;
 	void SetSyncStateMachine(bool val) { mIsSyncSM = val; }

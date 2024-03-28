@@ -119,7 +119,7 @@ void Script_GroundPlayer::ProcessInput()
 				mRigid->SetMaxSpeed(2.5f);
 				controller->SetValue("Run", false);
 
-				if (Vector3::Length(velocity) > 0.1f) {
+				if (velocity.Length() > 0.1f) {
 					controller->SetValue("Walk", true);
 				}
 				else {

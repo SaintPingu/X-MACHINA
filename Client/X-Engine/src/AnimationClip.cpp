@@ -17,7 +17,7 @@ AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int t
 	}
 }
 
-Vec4x4 AnimationClip::GetSRT(int boneIndex, float position) const
+Matrix AnimationClip::GetSRT(int boneIndex, float position) const
 {
 
 	const float lastPosition = mKeyFrameTimes.back();

@@ -22,14 +22,6 @@ void PrintErrorBlob(RComPtr<ID3DBlob> errorBlob)
 #endif
 }
 
-Vector RandVectorOnSphere()
-{
-	return GetUnitVector(Math::RandF(-1.f, 1.f), Math::RandF(-1.f, 1.f), Math::RandF(-1.f, 1.f));
-}
-Vector RandVectorOnDom()
-{
-	return GetUnitVector(Math::RandF(-1.f, 1.f), Math::RandF(0.f, 1.f), Math::RandF(-1.f, 1.f));
-}
 #pragma endregion
 
 
@@ -303,66 +295,6 @@ namespace D3DUtil {
 		return blob;
 	}
 }
-
-
-namespace Quaternion {
-	Vec4 LookRotation(const Vec3& direction, const Vec3& up)
-	{
-		XMVECTOR f = XMVector3Normalize(_VECTOR(direction));
-		XMVECTOR r = XMVector3Normalize(XMVector3Cross(_VECTOR(up), f));
-		XMVECTOR u = XMVector3Cross(f, r);
-
-		Vec4 quaternion;
-		float m00 = XMVectorGetX(r);
-		float m01 = XMVectorGetY(r);
-		float m02 = XMVectorGetZ(r);
-		float m10 = XMVectorGetX(u);
-		float m11 = XMVectorGetY(u);
-		float m12 = XMVectorGetZ(u);
-		float m20 = XMVectorGetX(f);
-		float m21 = XMVectorGetY(f);
-		float m22 = XMVectorGetZ(f);
-
-		float num8 = (m00 + m11) + m22;
-		if (num8 > 0.0f)
-		{
-			float num = sqrtf(num8 + 1.0f);
-			float num2 = 0.5f / num;
-			quaternion.x = (m12 - m21) * num2;
-			quaternion.y = (m20 - m02) * num2;
-			quaternion.z = (m01 - m10) * num2;
-			quaternion.w = num * 0.5f;
-			return quaternion;
-		}
-		if (m00 >= m11 && m00 >= m22)
-		{
-			float num7 = sqrtf((1.0f + m00) - m11 - m22);
-			float num4 = 0.5f / num7;
-			quaternion.x = 0.5f * num7;
-			quaternion.y = (m01 + m10) * num4;
-			quaternion.z = (m02 + m20) * num4;
-			quaternion.w = (m12 - m21) * num4;
-			return quaternion;
-		}
-		if (m11 > m22)
-		{
-			float num6 = sqrtf((1.0f + m11) - m00 - m22);
-			float num3 = 0.5f / num6;
-			quaternion.x = (m10 + m01) * num3;
-			quaternion.y = 0.5f * num6;
-			quaternion.z = (m21 + m12) * num3;
-			quaternion.w = (m20 - m02) * num3;
-			return quaternion;
-		}
-		float num5 = sqrtf((1.0f + m22) - m00 - m11);
-		float num2 = 0.5f / num5;
-		quaternion.x = (m20 + m02) * num2;
-		quaternion.y = (m21 + m12) * num2;
-		quaternion.z = 0.5f * num5;
-		quaternion.w = (m01 - m10) * num2;
-		return quaternion;
-	}
-}
 #pragma endregion
 
 
@@ -370,7 +302,7 @@ namespace Quaternion {
 
 
 #pragma region Class
-//void MyBoundingOrientedBox::Transform(const Vec4x4& transform)
+//void MyBoundingOrientedBox::Transform(const Matrix& transform)
 //{
 //	const Matrix kMatrix = _MATRIX(transform);
 //	const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
@@ -379,7 +311,7 @@ namespace Quaternion {
 //	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
 //}
 //
-//void MyBoundingSphere::Transform(const Vec4x4& transform)
+//void MyBoundingSphere::Transform(const Matrix& transform)
 //{
 //	Center = Matrix4x4::Multiply(transform, mOriginCenter);
 //}

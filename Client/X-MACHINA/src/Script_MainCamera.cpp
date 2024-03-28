@@ -20,13 +20,13 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 void Script_MainCamera::Start()
 {
 	mPlayer = engine->GetPlayer();
-	mObject->SetPosition(Vector3::Add(mPlayer->GetPosition(), Vector3::One()));
+	mObject->SetPosition(mPlayer->GetPosition() + Vector3::One());
 	Init();
 }
 
 void Script_MainCamera::Update()
 {
-	Vec4x4 rotationMtx = Matrix4x4::Identity();
+	Matrix rotationMtx{};
 	const Vec3 right   = mPlayer->GetRight();
 	const Vec3 up      = mPlayer->GetUp();
 	const Vec3 look    = mPlayer->GetLook();
@@ -35,13 +35,13 @@ void Script_MainCamera::Update()
 	std::memcpy(&rotationMtx._21, &up,	  sizeof(Vec3));
 	std::memcpy(&rotationMtx._31, &look,  sizeof(Vec3));
 
-	const Vec3 offset   = Vector3::TransformCoord(mOffset, rotationMtx);
-	const Vec3 position = Vector3::Add(mPlayer->GetPosition(), offset);
-	Vec3 dir            = Vector3::Subtract(position, mObject->GetPosition());
+	const Vec3 offset   = Vec3::Transform(mOffset, rotationMtx);
+	const Vec3 position = mPlayer->GetPosition() + offset;
+	Vec3 dir            = position - mObject->GetPosition();
 
 	const float timeScale = (mTimeLag) ? DeltaTime() * (1.f / mTimeLag) : 1.f;
-	const float length    = Vector3::Length(dir);
-	dir                   = Vector3::Normalize(dir);
+	const float length    = dir.Length();
+	dir.Normalize();
 
 	float distance = length * timeScale;
 

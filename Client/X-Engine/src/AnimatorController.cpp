@@ -43,7 +43,7 @@ void AnimatorController::Animate()
 	}
 }
 
-Vec4x4 AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
+Matrix AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 {
 	for (auto& layer : mLayers) {
 		if (layer->CheckBoneMask(boneType)) {
@@ -51,7 +51,7 @@ Vec4x4 AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 		}
 	}
 
-	return Matrix4x4::Identity();
+	return Matrix::Identity;
 }
 
 void AnimatorController::SyncAnimation() const

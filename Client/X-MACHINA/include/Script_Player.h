@@ -36,7 +36,7 @@ protected:
 	PlayerType		mPlayerType{};
 	GameObject*		mPlayer{};		// self GameObject
 	sptr<Rigidbody> mRigid{};
-	Vec4x4			mSpawnTransform{ Matrix4x4::Identity() };	// 리스폰 지점
+	Matrix			mSpawnTransform{};	// 리스폰 지점
 
 	int		mScore{};
 	float	mMaxHP{};

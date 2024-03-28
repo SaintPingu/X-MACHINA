@@ -8,9 +8,9 @@
 class Transform {
 private:
 	int mIndex{};
-	Vec4x4 mWorldTransform = Matrix4x4::Identity();	// transform of     affected by a parent (world)
-	Vec4x4 mLocalTransform = Matrix4x4::Identity();	// transform of not affected by a parent (local)
-	Vec4x4 mPrevTransform  = Matrix4x4::Identity();	// transform of previous frame
+	Matrix mWorldTransform{};	// transform of     affected by a parent (world)
+	Matrix mLocalTransform{};	// transform of not affected by a parent (local)
+	Matrix mPrevTransform {};	// transform of previous frame
 
 	Vec3 mPosition = Vector3::Zero();		// local space position
 	Vec3 mRight	   = Vector3::Right();		// right(x) axis in local space
@@ -51,11 +51,11 @@ public:
 
 	/* Axis */
 	// returns a right(x) axis in world space
-	Vec3 GetRight() const			{ return Vector3::Normalize(Vec3(mWorldTransform._11, mWorldTransform._12, mWorldTransform._13)); }
+	Vec3 GetRight() const			{ return Vector3::Normalized(Vec3(mWorldTransform._11, mWorldTransform._12, mWorldTransform._13)); }
 	// returns a up(y) axis in world space
-	Vec3 GetUp()    const			{ return Vector3::Normalize(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
+	Vec3 GetUp()    const			{ return Vector3::Normalized(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
 	// returns a look(z) axis in world space
-	Vec3 GetLook()  const			{ return Vector3::Normalize(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
+	Vec3 GetLook()  const			{ return Vector3::Normalized(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
 	// returns a quaternion in local space
 	Vec4 GetLocalRotation() const;
 	// returns a quaternion in world space
@@ -65,8 +65,8 @@ public:
 	Vec3 GetDirection(DWORD dwDirection, float distance = 1.f) const;
 
 	/* Transform */
-	const Vec4x4& GetWorldTransform() const { return mWorldTransform; }
-	const Vec4x4& GetLocalTransform() const { return mLocalTransform; }
+	const Matrix& GetWorldTransform() const { return mWorldTransform; }
+	const Matrix& GetLocalTransform() const { return mLocalTransform; }
 	float GetPitch() const					{ return mPitch; }
 	float GetYaw()   const					{ return mYaw; }
 	float GetRoll()  const					{ return mRoll; }
@@ -84,7 +84,6 @@ public:
 	/* Position */
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec3& pos);
-	void SetPosition(const Vector& pos);
 
 	void SetPositionX(float x);
 	void SetPositionY(float y);
@@ -94,7 +93,7 @@ public:
 	// set axis from the [look], [up], [right] vectors
 	void SetAxis(const Vec3& look, const Vec3& up, const Vec3& right);
 	// set axis from [axisMatrix]
-	void SetAxis(const Vec4x4& axisMatrix);
+	void SetAxis(const Matrix& axisMatrix);
 
 	void SetRight(const Vec3& right);
 	void SetLook (const Vec3& look);
@@ -116,7 +115,7 @@ public:
 	// set sibiling if already has a child
 	void SetChild(rsptr<Transform> child);
 
-	void SetLocalTransform(const Vec4x4& transform);
+	void SetLocalTransform(const Matrix& transform);
 
 	// 상수 버퍼 인덱스를 한 번이라도 설정 하였다면 오브젝트 카운트는 최소 1이다.
 	void SetObjCBIndex(int val, int index = 0) const { mObjCBIndices[index] = val; SetUseObjCB(true); }
@@ -161,21 +160,18 @@ public:
 	/* Transform */
 #pragma region Transform
 public:
-	void SetWorldTransform(const Vec4x4& transform);
+	void SetWorldTransform(const Matrix& transform);
 	// set local transform to previous transform
 	void ReturnToPrevTransform();
 
 	// 부모의 world transform과 내 local transform을 곱해 내 world transform을 계산한다.
-	void ComputeWorldTransform(const Vec4x4* parentTransform = nullptr);
+	void ComputeWorldTransform(const Matrix* parentTransform = nullptr);
 
 private:
 	// set axis vectors from local transform
 	void UpdateAxis(bool isComputeWorldTransform = true);
 	// set local transform from axis vectors
 	void UpdateLocalTransform(bool isComputeWorldTransform = true);
-
-	// 부모의 world transform을 적용한 transform을 반환
-	void RequestTransform(Vec4x4& transform);
 
 public:
 #pragma endregion
@@ -204,4 +200,5 @@ public:
 	static void MergeTransform(std::vector<const Transform*>& out, const Transform* rootTransform);
 	// set transform matrix (SetGraphicsRoot32BitConstants)
 	static void UpdateShaderVars(const Matrix& matrix);
+	static void UpdateShaderVars(const XMMATRIX& matrix);
 };

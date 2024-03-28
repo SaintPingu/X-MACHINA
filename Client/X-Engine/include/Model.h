@@ -23,7 +23,7 @@ class ObjectPool;
 #pragma region Struct
 // file에서 읽은 material 정보를 담는 구조체
 struct MaterialLoadInfo {
-	Vec4	DiffuseAlbedo = Vector4::One();
+	Vec4	DiffuseAlbedo = Vec4::One;
 	float	Metallic{};
 	float	Roughness{};
 };
@@ -33,12 +33,12 @@ struct MaterialColors {
 public:
 	MaterialColors(const MaterialLoadInfo& materialInfo);
 
-	operator const Vec4x4& () const {
-		return *(Vec4x4*)(this);
+	operator const Matrix& () const {
+		return *(Matrix*)(this);
 	}
 
 public:
-	Vec4    DiffuseAlbedo = Vector4::One();
+	Vec4    DiffuseAlbedo = Vec4::One;
 	float	Metallic{};
 	float	Roughness{};
 };

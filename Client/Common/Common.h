@@ -49,13 +49,11 @@ using namespace DirectX::PackedVector;
 using Microsoft::WRL::ComPtr;
 
 /* DirectX Math */
-using Vec2 = DirectX::SimpleMath::Vector2;
-using Vec3 = DirectX::SimpleMath::Vector3;
-using Vec4 = DirectX::SimpleMath::Vector4;
-using Matrix = DirectX::SimpleMath::Matrix;
-using Vec4x4 = XMFLOAT4X4;
-using Vec4x3 = XMFLOAT4X3;
-using Vector = XMVECTOR;
+using Vec2       = DirectX::SimpleMath::Vector2;
+using Vec3       = DirectX::SimpleMath::Vector3;
+using Vec4       = DirectX::SimpleMath::Vector4;
+using Matrix     = DirectX::SimpleMath::Matrix;
+using Quaternion = DirectX::SimpleMath::Quaternion;
 
 /* Abbreviation */
 template<class T>
@@ -206,64 +204,11 @@ namespace Math {
 }
 
 #pragma region DirectXMath
-namespace Vector2 {
-	inline Vec2 Add(const Vec2& v1, const Vec2& v2)
-	{
-		Vec2 result;
-		XMStoreFloat2(&result, _VECTOR2(v1) + _VECTOR2(v2));
-		return result;
-	}
-
-	inline float Length(const Vec2& vector)
-	{
-		Vec2 result;
-		XMStoreFloat2(&result, XMVector2LengthEst(_VECTOR2(vector)));
-		return result.x;
-	}
-
-	inline float Length(const Vec2& v1, const Vec2& v2)
-	{
-		return Vector2::Length(Vector2::Add(v1, v2));
-	}
-
-	inline float LengthExact(const Vec2& vector)
-	{
-		Vec2 result;
-		XMStoreFloat2(&result, XMVector2Length(_VECTOR2(vector)));
-		return result.x;
-	}
-
-	inline float LengthExact(const Vec2& v1, const Vec2& v2)
-	{
-		return Vector2::LengthExact(Vector2::Add(v1, v2));
-	}
-
-	inline Vec2 Normalize(const Vec2& vector) noexcept
-	{
-		Vec2 result;
-		XMStoreFloat2(&result, XMVector2NormalizeEst(_VECTOR2(vector)));
-		return result;
-	}
-
-	inline float AngleX(const Vec2& v1, const Vec2& v2) noexcept
-	{
-		Vector angle = XMVector2AngleBetweenNormalsEst(_VECTOR2(v1), _VECTOR2(v2));
-		return XMConvertToDegrees(acosf(XMVectorGetX(angle)));
-	}
-}
-
 namespace Vector3 {
-
-	inline Vec3 ScalarProduct(const Vec3& vector, float scalar, bool normalize = true) noexcept
+	inline Vec3 Normalized(const Vec3& vector) noexcept
 	{
 		Vec3 result;
-		if (normalize) {
-			XMStoreFloat3(&result, XMVector3NormalizeEst(_VECTOR(vector)) * scalar);
-		}
-		else {
-			XMStoreFloat3(&result, _VECTOR(vector) * scalar);
-		}
-
+		XMStoreFloat3(&result, XMVector3NormalizeEst(_VECTOR(vector)));
 		return result;
 	}
 
@@ -281,189 +226,9 @@ namespace Vector3 {
 		return result;
 	}
 
-	inline Vec3 Add(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, _VECTOR(v1) + _VECTOR(v2));
-		return result;
-	}
-
-	inline Vec3 Add(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, _VECTOR(v1) + _VECTOR(v2) + _VECTOR(v3));
-		return result;
-	}
-
-	inline Vec3 Add(const Vec3& v1, const Vec3& v2, float scalar) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, _VECTOR(v1) + (_VECTOR(v2) * scalar));
-		return result;
-	}
-
-	inline Vec3 Subtract(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, _VECTOR(v1) - _VECTOR(v2));
-		return result;
-	}
-
-	inline float DotProduct(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVector3Dot(_VECTOR(v1), _VECTOR(v2)));
-		return result.x;
-	}
-
-	inline Vec3 CrossProduct(const Vec3& v1, const Vec3& v2, bool normalize = true) noexcept
-	{
-		Vec3 result;
-		Vector cross = XMVector3Cross(_VECTOR(v1), _VECTOR(v2));
-		if (normalize) {
-			cross = XMVector3NormalizeEst(cross);
-		}
-
-		XMStoreFloat3(&result, cross);
-
-		return result;
-	}
-
-	inline Vec3 Normalize(const Vec3& vector) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVector3NormalizeEst(_VECTOR(vector)));
-		return result;
-	}
-
-
-	inline float Length(const Vec3& vector) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVector3LengthEst(_VECTOR(vector)));
-		return result.x;
-	}
-
-	inline float Length(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		return Vector3::Length(Vector3::Add(v1, v2));
-	}
-
-	inline float AngleX(const Vector& v1, const Vector& v2) noexcept
-	{
-		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
-		return XMConvertToDegrees(XMVectorGetX(angle));
-	}
-
-	inline float AngleX(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		return AngleX(_VECTOR(v1), _VECTOR(v2));
-	}
-
-	inline float AngleY(const Vector& v1, const Vector& v2) noexcept
-	{
-		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
-		return XMConvertToDegrees(acosf(XMVectorGetY(angle)));
-	}
-
-	inline float AngleY(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		return AngleY(_VECTOR(v1), _VECTOR(v2));
-	}
-
-	inline float AngleZ(const Vector& v1, const Vector& v2) noexcept
-	{
-		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
-		return XMConvertToDegrees(acosf(XMVectorGetZ(angle)));
-	}
-
-	inline float AngleZ(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		return AngleZ(_VECTOR(v1), _VECTOR(v2));
-	}
-
-	inline Vec3 Angle(const Vector& v1, const Vector& v2) noexcept
-	{
-		Vector angle = XMVector3AngleBetweenNormalsEst(v1, v2);
-		float x = XMConvertToDegrees(acosf(XMVectorGetX(angle)));
-		float y = XMConvertToDegrees(acosf(XMVectorGetY(angle)));
-		float z = XMConvertToDegrees(acosf(XMVectorGetZ(angle)));
-		return Vec3(x, y, z);
-	}
-
-	inline Vec3 Angle(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		return Angle(_VECTOR(v1), _VECTOR(v2));
-	}
-
-	inline Vec3 TransformNormal(const Vec3& vector, const Matrix& transform) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVector3TransformNormal(_VECTOR(vector), transform));
-		return result;
-	}
-
-	inline Vec3 TransformCoord(const Vec3& vector, const Matrix& transform) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVector3TransformCoord(_VECTOR(vector), transform));
-		return result;
-	}
-
-	inline Vec3 TransformCoord(const Vec3& vector, const Vec4x4& matrix) noexcept
-	{
-		return TransformCoord(vector, _MATRIX(matrix));
-	}
-
-	inline Vec3 Multiply(const Vec3& v1, const Vec3& v2) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, _VECTOR(v1) * _VECTOR(v2));
-		return result;
-	}
-
-	inline Vec3 Multiply(const Vec3& vector, float scalar) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, (_VECTOR(vector) * scalar));
-		return result;
-	}
-
-	inline Vec3 Divide(const Vec3& vector, float scalar) noexcept
-	{
-		if (Math::IsEqual(scalar, 0.f)) {
-			return Vec3{};
-		}
-
-		Vec3 result;
-		XMStoreFloat3(&result, (_VECTOR(vector) / scalar));
-		return result;
-	}
-
 	inline bool IsZero(const Vec3& vector) noexcept
 	{
 		return XMVector3Equal(_VECTOR(vector), XMVectorZero());
-	}
-
-	inline Vec3 Negative(const Vec3& vector) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVectorNegate(_VECTOR(vector)));
-		return result;
-	}
-
-	inline Vec3 Min(const Vec3& vector, float minValue) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVectorMax(_VECTOR(vector), XMVectorSet(minValue, minValue, minValue, 1.f)));
-		return result;
-	}
-
-	inline Vec3 Max(const Vec3& vector, float maxValue) noexcept
-	{
-		Vec3 result;
-		XMStoreFloat3(&result, XMVectorMin(_VECTOR(vector), XMVectorSet(maxValue, maxValue, maxValue, 1.f)));
-		return result;
 	}
 
 	inline Vec3 Resize(const Vec3& vector, float size) noexcept
@@ -570,152 +335,24 @@ namespace Vector3 {
 	}
 }
 
-namespace Vector4 {
-	inline Vec4 Add(const Vec4& v1, const Vec4& v2) noexcept
-	{
-		Vec4 result;
-		XMStoreFloat4(&result, XMLoadFloat4(&v1) + XMLoadFloat4(&v2));
-		return result;
-	}
-
-	inline Vec4 Multiply(const Vec4& v1, const Vec4& v2) noexcept
-	{
-		Vec4 result;
-		XMStoreFloat4(&result, XMLoadFloat4(&v1) * XMLoadFloat4(&v2));
-		return result;
-	}
-
-	inline Vec4 Normalize(const Vec4& v) noexcept
-	{
-		Vec4 result;
-		XMStoreFloat4(&result, XMVector4NormalizeEst(XMLoadFloat4(&v)));
-		return result;
-	}
-
-	inline Vec4 NormalizeColor(const Vec4& vector) noexcept
-	{
-		Vec3 v = Vec3(vector.x, vector.y, vector.z);
-		Vec3 normal;
-		XMStoreFloat3(&normal, XMVector3NormalizeEst(_VECTOR(v)));
-		return Vec4(normal.x, normal.y, normal.z, vector.w);
-	}
-
-	inline Vec4 Multiply(float scalar, const Vec4& vector) noexcept
-	{
-		Vec4 result;
-		XMStoreFloat4(&result, scalar * XMLoadFloat4(&vector));
-		return result;
-	}
-
-	// (1, 1, 1, 1)
-	inline Vec4 One()
-	{
-		return Vec4(1.f, 1.f, 1.f, 1.f);
-	}
-
-	// (0, 0, 0, 0)
-	inline Vec4 Zero()
-	{
-		return Vec4(0.f, 0.f, 0.f, 0.f);
-	}
-}
-
 namespace Matrix4x4 {
-	inline Vec4x4 Identity() noexcept
+	inline Matrix OrthographicOffCenterLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
 	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixIdentity());
-		return result;
-	}
-
-	inline Vec4x4 Translate(float x, float y, float z) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixTranslation(x, y, z));
-		return result;
-	}
-
-	inline Vec4x4 Multiply(const Vec4x4& matrix1, const Vec4x4& matrix2) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, _MATRIX(matrix1) * _MATRIX(matrix2));
-		return result;
-	}
-
-	inline Vec4x4 Multiply(const Vec4x4& matrix1, const Matrix& matrix2) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, (matrix1)*matrix2);
-		return result;
-	}
-
-	inline Vec4x4 Multiply(const Matrix& matrix1, const Vec4x4& matrix2) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, matrix1 * _MATRIX(matrix2));
-		return result;
-	}
-
-	inline Vec4x4 Multiply(const Matrix& matrix1, const Matrix& matrix2) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, matrix1 * matrix2);
-		return result;
-	}
-
-	inline Vec3 Multiply(const Vec4x4& matrix, const Vec3& vector) noexcept
-	{
-		Vector v = XMVectorSet(vector.x, vector.y, vector.z, 1.f);
-		Vec3 result;
-		XMStoreFloat3(&result, XMVector4Transform(v, _MATRIX(matrix)));
-		return result;
-	}
-
-	inline Vec4x4 RotationYawPitchRoll(float pitch, float yaw, float roll) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll)));
-		return result;
-	}
-
-	inline Vec4x4 RotationAxis(const Vec3& axis, float angle) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixRotationAxis(_VECTOR(axis), XMConvertToRadians(angle)));
-		return result;
-	}
-
-	inline Vec4x4 Inverse(const Vec4x4& matrix) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixInverse(nullptr, _MATRIX(matrix)));
-		return result;
-	}
-
-	inline Vec4x4 Transpose(const Vec4x4& matrix) noexcept
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, XMMatrixTranspose(_MATRIX(matrix)));
-		return result;
-	}
-
-	inline Vec4x4 OrthographicOffCenterLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
-	{
-		Vec4x4 result;
+		Matrix result;
 		XMStoreFloat4x4(&result, XMMatrixOrthographicLH(XMConvertToRadians(fFovAngleY), aspectRatio, fNearZ, fFarZ));
 		return result;
 	}
 
-	inline Vec4x4 PerspectiveFovLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
+	inline Matrix PerspectiveFovLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
 	{
-		Vec4x4 result;
+		Matrix result;
 		XMStoreFloat4x4(&result, XMMatrixPerspectiveFovLH(XMConvertToRadians(fFovAngleY), aspectRatio, fNearZ, fFarZ));
 		return result;
 	}
 
-	inline Vec4x4 LookAtLH(const Vec3& eyePos, const Vec3& lookAtPos, const Vec3& upDir, bool isTranspose = false)
+	inline Matrix LookAtLH(const Vec3& eyePos, const Vec3& lookAtPos, const Vec3& upDir, bool isTranspose = false)
 	{
-		Vec4x4 result;
+		Matrix result;
 		if (isTranspose) {
 			XMStoreFloat4x4(&result, XMMatrixTranspose(XMMatrixLookAtLH(_VECTOR(eyePos), _VECTOR(lookAtPos), _VECTOR(upDir))));
 		}
@@ -725,9 +362,9 @@ namespace Matrix4x4 {
 		return result;
 	}
 
-	inline Vec4x4 LookToLH(const Vec3& eyePos, const Vec3& lookTo, const Vec3& upDir, bool isTranspose = false)
+	inline Matrix LookToLH(const Vec3& eyePos, const Vec3& lookTo, const Vec3& upDir, bool isTranspose = false)
 	{
-		Vec4x4 result;
+		Matrix result;
 		if (isTranspose) {
 			XMStoreFloat4x4(&result, XMMatrixTranspose(XMMatrixLookToLH(_VECTOR(eyePos), _VECTOR(lookTo), _VECTOR(upDir))));
 		}
@@ -738,9 +375,9 @@ namespace Matrix4x4 {
 	}
 
 
-	inline Vec4x4 Interpolate(const Vec4x4& matrix1, const Vec4x4& matrix2, float t)
+	inline Matrix Interpolate(const Matrix& matrix1, const Matrix& matrix2, float t)
 	{
-		Vec4x4 result;
+		Matrix result;
 
 		XMVECTOR S0, R0, T0, S1, R1, T1;
 		XMMatrixDecompose(&S0, &R0, &T0, _MATRIX(matrix1));
@@ -754,98 +391,14 @@ namespace Matrix4x4 {
 		return result;
 	}
 
-	inline Vec4x4 Add(const Vec4x4& matrix1, const Vec4x4& matrix2)
+	inline Matrix Zero()
 	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, _MATRIX(matrix1) + _MATRIX(matrix2));
-		return result;
-	}
-
-	inline Vec4x4 Scale(const Vec4x4& matrix, float scale)
-	{
-		Vec4x4 result;
-		XMStoreFloat4x4(&result, _MATRIX(matrix) * scale);
-		return result;
-	}
-
-	inline Vec4x4 Zero()
-	{
-		Vec4x4 result;
+		Matrix result;
 		XMStoreFloat4x4(&result, XMMatrixSet(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f));
 		return result;
 	}
 }
 
-namespace XMMatrix
-{
-	inline Matrix RotationX(float degree)
-	{
-		return XMMatrixRotationX(XMConvertToRadians(degree));
-	}
-
-	inline Matrix RotationY(float degree)
-	{
-		return XMMatrixRotationY(XMConvertToRadians(degree));
-	}
-
-	inline Matrix RotationZ(float degree)
-	{
-		return XMMatrixRotationZ(XMConvertToRadians(degree));
-	}
-
-	inline Matrix RotationAxis(const Vec3& axis, float degree)
-	{
-		return XMMatrixRotationAxis(_VECTOR(axis), XMConvertToRadians(degree));
-	}
-
-	inline Matrix Transpose(const Vec4x4& matrix) noexcept
-	{
-		return XMMatrixTranspose(_MATRIX(matrix));
-	}
-
-	inline void SetPosition(Matrix& matrix, const Vec3& pos)
-	{
-		Vector p = XMVectorSet(pos.x, pos.y, pos.z, 1.f);
-		::memcpy(&matrix.m[3], &p, sizeof(Vector));
-	}
-}
-
-namespace Quaternion
-{
-	Vec4 LookRotation(const Vec3& direction, const Vec3& up);
-
-	inline Vec3 ToEuler(const Vec4& q)
-	{
-		Vec3 result{};
-
-		// Roll (x-axis rotation)
-		float sinr_cosp = +2.0f * (q.w * q.x + q.y * q.z);
-		float cosr_cosp = +1.0f - 2.0f * (q.x * q.x + q.y * q.y);
-		result.x = XMConvertToDegrees(atan2(sinr_cosp, cosr_cosp));
-
-		// Pitch (y-axis rotation)
-		float sinp = +2.0f * (q.w * q.y - q.z * q.x);
-		if (fabs(sinp) >= 1)
-			result.y = copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
-		else
-			result.y = asin(sinp);
-		result.y = XMConvertToDegrees(result.y);
-
-		// Yaw (z-axis rotation)
-		float siny_cosp = +2.0f * (q.w * q.z + q.x * q.y);
-		float cosy_cosp = +1.0f - 2.0f * (q.y * q.y + q.z * q.z);
-		result.z = XMConvertToDegrees(atan2(siny_cosp, cosy_cosp));
-
-		return result;
-	}
-
-	inline Vec4 ToQuaternion(const Vec3& euler)
-	{
-		Vec4 result{};
-		XMStoreFloat4(&result, XMQuaternionRotationRollPitchYaw(XMConvertToRadians(euler.x), XMConvertToRadians(euler.y), XMConvertToRadians(euler.z)));
-		return result;
-	}
-}
 #pragma endregion
 
 #pragma endregion
@@ -866,10 +419,10 @@ public:
 
 public:
 	// no apply scale
-	void Transform(const Vec4x4& transform)
+	void Transform(const Matrix& transform)
 	{
-		const Matrix kMatrix = _MATRIX(transform);
-		const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
+		const XMMATRIX kMatrix = _MATRIX(transform);
+		const XMVECTOR kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
 
 		XMStoreFloat4(&Orientation, kRotation);
 		XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
@@ -893,9 +446,9 @@ public:
 	void SetOrigin(const Vec3& origin) { mOriginCenter = origin; }
 
 public:
-	void Transform(const Vec4x4& transform)
+	void Transform(const Matrix& transform)
 	{
-		Center = Matrix4x4::Multiply(transform, mOriginCenter);
+		Center = Vec3::Transform(mOriginCenter, transform);
 	}
 
 	bool IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const

@@ -10,12 +10,12 @@ class InstObject;
 #pragma region Struct
 // 표준 인스턴싱 StructuredBuffer
 struct SB_StandardInst {
-	Vec4x4 LocalTransform{};
+	Matrix LocalTransform{};
 };
 
 // Color를 가지는 객체의 인스턴싱 StructuredBuffer
 struct SB_ColorInst {
-	Vec4x4	LocalTransform{};
+	Matrix	LocalTransform{};
 	Vec4	Color{};
 };
 #pragma endregion

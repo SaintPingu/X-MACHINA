@@ -53,9 +53,7 @@ void Animator::Animate()
 	auto& skinMesh = mSkinMeshes.front();
 
 	for (int j = 0; j < boneFrames.size(); ++j) {
-		Vec4x4 transform{ Matrix4x4::Zero() };
-
-		transform = mController->GetTransform(j, skinMesh->GetHumanBone(j));
+		Matrix transform = mController->GetTransform(j, skinMesh->GetHumanBone(j));
 		
 		boneFrames[j]->SetLocalTransform(transform);
 	}

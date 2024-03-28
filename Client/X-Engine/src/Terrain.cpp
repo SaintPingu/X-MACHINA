@@ -147,7 +147,7 @@ Vec3 HeightMapImage::GetHeightMapNormal(int x, int z) const
 
 	const Vec3 edge1 = Vec3(0.f, y3 - y1, 1.f);
 	const Vec3 edge2 = Vec3(1.f, y2 - y1, 0.f);
-	const Vec3 normal = Vector3::CrossProduct(edge1, edge2, true);
+	const Vec3 normal = Vector3::Normalized(edge1.Cross(edge2));
 
 	return normal;
 }

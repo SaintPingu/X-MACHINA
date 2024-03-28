@@ -213,6 +213,11 @@
     <None Include="..\Common\SimpleMath.inl" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\X-Engine\X-Engine.vcxproj">
+      <Project>{80144906-12d9-4697-8873-ec74cccc8da0}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\boost.1.84.0\build\boost.targets" Condition="Exists('..\packages\boost.1.84.0\build\boost.targets')" />

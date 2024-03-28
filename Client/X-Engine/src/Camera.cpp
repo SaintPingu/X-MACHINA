@@ -32,9 +32,9 @@ void Camera::UpdateViewMtx()
 	mViewTransform._11 = kRight.x; mViewTransform._12 = kUp.x; mViewTransform._13 = kLook.x;
 	mViewTransform._21 = kRight.y; mViewTransform._22 = kUp.y; mViewTransform._23 = kLook.y;
 	mViewTransform._31 = kRight.z; mViewTransform._32 = kUp.z; mViewTransform._33 = kLook.z;
-	mViewTransform._41 = -Vector3::DotProduct(kPos, kRight);
-	mViewTransform._42 = -Vector3::DotProduct(kPos, kUp);
-	mViewTransform._43 = -Vector3::DotProduct(kPos, kLook);
+	mViewTransform._41 = -kPos.Dot(kRight);
+	mViewTransform._42 = -kPos.Dot(kUp);
+	mViewTransform._43 = -kPos.Dot(kLook);
 
 	CalculateFrustumPlanes();
 }

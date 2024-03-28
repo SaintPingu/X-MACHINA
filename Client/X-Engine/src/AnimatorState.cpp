@@ -3,9 +3,9 @@
 
 #include "AnimationClip.h"
 
-AnimatorState::AnimatorState(rsptr<const AnimatorStateMachine> stateMachine, const std::vector<sptr<const AnimatorTransition>>& transitions, rsptr<const AnimationClip> clip)
+AnimatorState::AnimatorState(const AnimatorMotionInfo& info, rsptr<const AnimationClip> clip)
 	:
-	AnimatorMotion(stateMachine, transitions, clip->mName, clip->mLength),
+	AnimatorMotion(AnimatorMotionInfo{ clip->mName, clip->mLength, info.Speed, info.StateMachine, info.Transitions }),
 	AnimatorTrack(clip)
 {
 

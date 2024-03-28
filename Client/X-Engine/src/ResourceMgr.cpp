@@ -69,9 +69,9 @@ sptr<ModelObjectMesh> ResourceMgr::LoadPointMesh()
 
 void ResourceMgr::LoadTextures()
 {
-	FileIO::LoadTextures("Import/Textures/");
-	FileIO::LoadTextures("Import/UI/");
-	FileIO::LoadTextures("Import/Skybox/", D3DResource::TextureCube);
+	FileIO::ModelIO::LoadTextures("Import/Textures/");
+	FileIO::ModelIO::LoadTextures("Import/UI/");
+	FileIO::ModelIO::LoadTextures("Import/Skybox/", D3DResource::TextureCube);
 }
 
 void ResourceMgr::LoadModels()
@@ -83,7 +83,7 @@ void ResourceMgr::LoadModels()
 		const std::string fileName = modelFile.path().filename().string();
 		const std::string modelName = FileIO::RemoveExtension(fileName);
 
-		model = FileIO::LoadGeometryFromFile(rootFolder + fileName);
+		model = FileIO::ModelIO::LoadGeometryFromFile(rootFolder + fileName);
 		if (fileName.substr(0, 6) == "sprite") {
 			model->SetSprite();
 		}
@@ -603,7 +603,7 @@ void ResourceMgr::LoadAnimationClips()
 
 		for (const auto& file : std::filesystem::directory_iterator(rootFolder + clipFolderName + '/')) {
 			std::string fileName = file.path().filename().string();
-			sptr<AnimationClip> clip = FileIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
+			sptr<AnimationClip> clip = FileIO::AnimationIO::LoadAnimationClip(clipFolder.path().string() + '/' + fileName);
 
 			FileIO::RemoveExtension(fileName);
 			const std::string clipName = clipFolderName + '/' + fileName;
@@ -617,6 +617,6 @@ void ResourceMgr::LoadAnimatorControllers()
 	const std::string rootFolder = "Import/AnimatorControllers/";
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
-		res->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::LoadAnimatorController(rootFolder + fileName));
+		res->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::AnimationIO::LoadAnimatorController(rootFolder + fileName));
 	}
 }

@@ -5,6 +5,7 @@
 #include "X-Engine.h"
 
 #include "Scene.h"
+#include "Timer.h"
 #include "ObjectMgr.h"
 #include "Object.h"
 #include "Component/Camera.h"
@@ -48,6 +49,8 @@ void GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
 
 void GameFramework::Update()
 {
+	timer->Tick(60.0f);
+
 	engine->Update();
 	scene->UpdateObjectGrid(mTestObject.get());
 }

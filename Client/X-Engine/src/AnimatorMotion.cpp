@@ -5,25 +5,31 @@
 #include "AnimationClip.h"
 #include "Timer.h"
 
-AnimatorMotion::AnimatorMotion(rsptr<const AnimatorStateMachine> stateMachine, const std::vector<sptr<const AnimatorTransition>>& transitions, const std::string& name, float maxLength)
+AnimatorMotion::AnimatorMotion(const AnimatorMotionInfo& info)
 	:
-	mName(name),
-	mMaxLength(maxLength),
-	mStateMachine(stateMachine.get()),
-	mTransitions(transitions)
+	mName(info.Name),
+	mkOriginSpeed(info.Speed),
+	mCrntSpeed(info.Speed),
+	mCrntLength(0),
+	mMaxLength(info.Length),
+	mWeight(1),
+	mStateMachine(info.StateMachine.get()),
+	mTransitions(info.Transitions)
 {
 
 }
 
 AnimatorMotion::AnimatorMotion(const AnimatorMotion& other)
+	:
+	mName(other.mName),
+	mkOriginSpeed(other.mkOriginSpeed),
+	mCrntSpeed(other.mCrntSpeed),
+	mCrntLength(other.mCrntLength),
+	mMaxLength(other.mMaxLength),
+	mWeight(other.mWeight),
+	mStateMachine(other.mStateMachine),
+	mTransitions(other.mTransitions)
 {
-	mName         = other.mName;
-	mSpeed        = other.mSpeed;
-	mCrntLength   = other.mCrntLength;
-	mMaxLength    = other.mMaxLength;
-	mWeight       = other.mWeight;
-	mStateMachine = other.mStateMachine;
-	mTransitions  = other.mTransitions;
 }
 
 void AnimatorMotion::ResetLength()
@@ -48,7 +54,7 @@ void AnimatorMotion::Reset()
 {
 	mCrntLength = 0.f;
 	mWeight     = 1.f;
-	mSpeed      = 1.f;
+	mCrntSpeed  = mkOriginSpeed;
 	mIsReverse  = 1;
 }
 
@@ -65,7 +71,7 @@ bool AnimatorMotion::IsSameStateMachine(rsptr<const AnimatorMotion> other) const
 
 bool AnimatorMotion::Animate()
 {
-	mCrntLength += (mSpeed * mIsReverse) * DeltaTime();
+	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
 	if (IsEndAnimation()) {
 		ResetLength();
 		return true;

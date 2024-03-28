@@ -63,8 +63,6 @@ void Engine::Release()
 
 void Engine::Update()
 {
-	timer->Tick(60.0f);
-
 	// update input
 	InputMgr::Inst()->Update();
 

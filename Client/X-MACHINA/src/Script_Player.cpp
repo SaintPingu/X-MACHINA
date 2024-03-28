@@ -35,7 +35,7 @@ void Script_Player::Update()
 
 void Script_Player::Move(DWORD dwDirection)
 {
-	mRigid->AddForce(mObject->GetDirection(dwDirection));
+	mRigid->AddForce(mObject->GetDirection(dwDirection), ForceMode::Accleration);
 }
 
 void Script_Player::Rotate(float pitch, float yaw, float roll)

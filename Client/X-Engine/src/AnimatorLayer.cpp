@@ -220,7 +220,7 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
 
 void AnimatorLayer::SyncComplete()
 {
-	mCrntState->SetSpeed(1);
+	mCrntState->ResetSpeed();
 	float distance = mCrntState->GetLength() - mSyncState->GetLength();
 	if (distance > 0) {
 		int a = 5;

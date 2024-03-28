@@ -28,9 +28,9 @@ Vec4x4 ChildMotion::GetSRT(int boneIndex) const
 
 
 
-BlendTree::BlendTree(rsptr<const AnimatorStateMachine> stateMachine, const std::vector<sptr<const AnimatorTransition>>& transitions, const std::string& name, std::vector<sptr<ChildMotion>> motions)
+BlendTree::BlendTree(const AnimatorMotionInfo& info, std::vector<sptr<ChildMotion>> motions)
 	:
-	AnimatorMotion(stateMachine, transitions, name, motions.front()->GetClip()->mLength),
+	AnimatorMotion(AnimatorMotionInfo{ info.Name, motions.front()->GetClip()->mLength, info.Speed, info.StateMachine, info.Transitions }),
 	mMotions(motions)
 {
 

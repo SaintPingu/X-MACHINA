@@ -5,19 +5,29 @@ struct AnimatorParameter;
 class AnimatorController;
 class AnimationClip;
 class AnimatorStateMachine;
- 
+
+struct AnimatorMotionInfo {
+	std::string Name{};
+	float Length{};
+	float Speed{};
+
+	sptr<const AnimatorStateMachine> StateMachine;
+	std::vector<sptr<const AnimatorTransition>> Transitions{};
+};
 
 // AnimatorState과 BlendTree의 부모 클래스
 // 애니메이션 StateMachine에서 각 animation state의 현재 상태를 나타낸다.
 class AnimatorMotion abstract {
 private:
 
-	const float mkTransitionSpeed      = 4.5f;
+	const float mkTransitionSpeed = 4.5f;
+	const float mkOriginSpeed{};
 
-	float 	mSpeed      = 1.f;
-	float 	mCrntLength = 0.f;
-	float	mMaxLength  = 0.f;
-	float 	mWeight     = 1.f;
+	float 	mCrntSpeed{};
+
+	float 	mCrntLength{};
+	float	mMaxLength{};
+	float 	mWeight{};
 
 	int		mIsReverse = 1;
 
@@ -26,7 +36,7 @@ private:
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
 public:
-	AnimatorMotion(rsptr<const AnimatorStateMachine> stateMachine, const std::vector<sptr<const AnimatorTransition>>& transitions, const std::string& name, float maxLength);
+	AnimatorMotion(const AnimatorMotionInfo& info);
 	AnimatorMotion(const AnimatorMotion& other);
 	virtual ~AnimatorMotion() = default;
 
@@ -38,7 +48,8 @@ public:
 
 	void ResetLength();
 	void SetLength(float length);
-	void SetSpeed(float speed) { mSpeed = speed; }
+	void ResetSpeed() { mCrntSpeed = mkOriginSpeed; }
+	void SetSpeed(float speed) { mCrntSpeed = speed; }
 	void SetWeight(float weight) { mWeight = weight; }
 
 public:
@@ -80,7 +91,7 @@ class AnimatorState : public AnimatorMotion, public AnimatorTrack {
 	using base = AnimatorMotion;
 
 public:
-	AnimatorState(rsptr<const AnimatorStateMachine> stateMachine, const std::vector<sptr<const AnimatorTransition>>& transitions, rsptr<const AnimationClip> clip);
+	AnimatorState(const AnimatorMotionInfo& info, rsptr<const AnimationClip> clip);
 	AnimatorState(const AnimatorState& other);
 	virtual ~AnimatorState() = default;
 
@@ -125,7 +136,7 @@ private:
 	void CalculateWeights() const;
 
 public:
-	BlendTree(rsptr<const AnimatorStateMachine> stateMachine, const std::vector<sptr<const AnimatorTransition>>& transitions, const std::string& name, std::vector<sptr<ChildMotion>> motions);
+	BlendTree(const AnimatorMotionInfo& info, std::vector<sptr<ChildMotion>> motions);
 	BlendTree(const BlendTree& other);
 	virtual ~BlendTree() = default;
 

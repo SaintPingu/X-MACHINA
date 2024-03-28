@@ -109,10 +109,6 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
 	if (KEY_PRESSED(VK_LSHIFT) && (v != 0 || h != 0)) { isRun = true; }
 
-	if (dwDirection) {
-		base::Move(dwDirection);
-	}
-
 	if (mAnimator) {
 		const auto& controller = mAnimator->GetController();
 		if (controller) {
@@ -120,7 +116,7 @@ void Script_GroundPlayer::ProcessInput()
 
 			Vec3 velocity = mRigid->GetVelocity();
 			if (!isRun) {
-				mRigid->SetMaxSpeed(100.f);
+				mRigid->SetMaxSpeed(2.5f);
 				controller->SetValue("Run", false);
 
 				if (Vector3::Length(velocity) > 0.1f) {
@@ -138,6 +134,10 @@ void Script_GroundPlayer::ProcessInput()
 			controller->SetValue("Vertical", mParamV);
 			controller->SetValue("Horizontal", mParamH);
 		}
+	}
+
+	if (dwDirection) {
+		base::Move(dwDirection);
 	}
 
 
@@ -225,6 +225,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 
 		case VK_CONTROL:
 			if (mAnimator) {
+				mRigid->SetMaxSpeed(1.5f);
 				mAnimator->GetController()->SetValue("Sit", true);
 			}
 

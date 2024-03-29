@@ -22,6 +22,7 @@ Engine::Engine()
 
 }
 
+
 void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 {
 	WindowInfo windowInfo{ hWnd, width, height };
@@ -38,9 +39,8 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 #pragma region Log - 장재문 -
 	//LOG_MGR->Init("Sample"); // 이름을 지을 수 있다. 
 #pragma endregion
-
-
 }
+
 
 void Engine::Release()
 {
@@ -111,6 +111,7 @@ void Engine::BuildObjects()
 {
 	scene->Start();
 }
+
 
 void Engine::ReleaseObjects()
 {

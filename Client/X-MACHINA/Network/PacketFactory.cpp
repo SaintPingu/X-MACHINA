@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PacketFactory.h"
+#include "InputMgr.h"
 
 /* FlatBuffers - Packet */
 #undef max
@@ -11,7 +12,7 @@
 #include "FlatBuffers/ServerFBsPktFactory.h"
 
 /// +----------------------------
-///			 SPkt_Chat
+///			 CPkt_Chat
 /// ----------------------------+
 SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Chat(const std::string msg)
 {
@@ -30,6 +31,10 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Chat(const std::string msg)
 	return sendBuffer;
 }
 
+
+/// +----------------------------
+///			 CPkt_EnterGame
+/// ----------------------------+
 SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_CEnterGame(uint64_t playerIdx)
 {
 	flatbuffers::FlatBufferBuilder builder;
@@ -47,7 +52,7 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_CEnterGame(uint64_t playerI
 
 
 /// +----------------------------
-///			 SPkt_Trnasform
+///			 CPkt_Trnasform
 /// ----------------------------+
 SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale)
 {
@@ -71,7 +76,7 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Transform(Vec3 Pos, Vec3 Ro
 }
 
 /// +----------------------------
-///			 SPkt_LogIn
+///			 CPkt_LogIn
 /// ----------------------------+
 SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_LogIn(bool& success)
 {
@@ -83,6 +88,20 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_LogIn(bool& success)
 	const uint8_t* bufferPointer      = builder.GetBufferPointer();
 	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
 	SPtr_SendPktBuf sendBuffer        = ServerFBsPktFactory::MakeFBsSendPktBuf(bufferPointer, SerializeddataSize, pkt);
+
+	return sendBuffer;
+}
+
+SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY key, KEY_STATE KeyState)
+{
+	flatbuffers::FlatBufferBuilder builder; 
+
+	auto pkt = FBProtocol::CreateCPkt_KeyInput(builder, static_cast<UINT8>(KeyState), static_cast<UINT8>(key));
+	builder.Finish(pkt);
+
+	const uint8_t* bufferPointer = builder.GetBufferPointer();
+	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
+	SPtr_SendPktBuf sendBuffer = ServerFBsPktFactory::MakeFBsSendPktBuf(bufferPointer, SerializeddataSize, pkt);
 
 	return sendBuffer;
 }

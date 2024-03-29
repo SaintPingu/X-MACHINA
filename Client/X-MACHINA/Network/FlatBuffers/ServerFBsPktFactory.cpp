@@ -37,7 +37,7 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 
 bool ProcessFBsPkt_SPkt_EnterGame(SPtr_PacketSession& session, const FBProtocol::SPkt_EnterGame& pkt)
 {
-	return false;
+	return true;
 }
 
 bool ProcessFBsPkt_SPkt_Chat(SPtr_PacketSession& session, const FBProtocol::SPkt_Chat& pkt)
@@ -48,7 +48,24 @@ bool ProcessFBsPkt_SPkt_Chat(SPtr_PacketSession& session, const FBProtocol::SPkt
 
 bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol::SPkt_Transform& pkt)
 {
-	return false;
+	// 패킷에서 객체 ID와 위치 정보 가져오기
+	int objID = pkt.object_id();
+	float x   = 0.0f, y = 0.0f, z = 0.0f;
+
+	// 패킷에서 위치 정보가 있는지 확인하고 가져옴
+	if (pkt.trans() && pkt.trans()->position()) {
+		x = pkt.trans()->position()->x();
+		y = pkt.trans()->position()->y();
+		z = pkt.trans()->position()->z();
+	}
+	else {
+		std::cerr << "Error: Missing position information in transform packet!" << std::endl;
+		return false;
+	}
+
+	// 정보 출력
+	std::cout << "Object ID: " << objID << " (x: " << x << ", y: " << y << ", z: " << z << ")" << std::endl;
+	return true;
 }
 
 bool ProcessFBsPkt_SPkt_KeyInput(SPtr_PacketSession& session, const FBProtocol::SPkt_KeyInput& pkt)

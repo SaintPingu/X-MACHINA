@@ -1,10 +1,10 @@
 #pragma once
 
 #pragma region Define
-#define KEY_NONE(key)		InputMgr::Inst()->GetKeyState(key) == KeyState::None
-#define KEY_TAP(key)		InputMgr::Inst()->GetKeyState(key) == KeyState::Tap
-#define KEY_PRESSED(key)	InputMgr::Inst()->GetKeyState(key) == KeyState::Pressed
-#define KEY_AWAY(key)		InputMgr::Inst()->GetKeyState(key) == KeyState::Away
+#define KEY_NONE(key)		(InputMgr::Inst()->GetKeyState(key) == KeyState::None)
+#define KEY_TAP(key)		(InputMgr::Inst()->GetKeyState(key) == KeyState::Tap)
+#define KEY_PRESSED(key)	(InputMgr::Inst()->GetKeyState(key) == KeyState::Pressed)
+#define KEY_AWAY(key)		(InputMgr::Inst()->GetKeyState(key) == KeyState::Away)
 #pragma endregion
 
 

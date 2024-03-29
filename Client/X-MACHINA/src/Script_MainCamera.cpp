@@ -85,7 +85,7 @@ void Script_MainCamera::Init()
 {
 	constexpr float maxPlaneDistance = 1000.f;
 	mTimeLag = 0.1f;
-	SetCameraOffset(Vec3(0.f, 12.f, -4.f));
+	SetCameraOffset(Vec3(0.f, 3.f, -3.f));
 	mainCamera->SetProjMtx(0.01f, maxPlaneDistance, 80.f);
 }
 

@@ -61,12 +61,10 @@ void Script_GroundPlayer::Start()
 	SetSpawn(Vec3(100, 0, 100));
 	SetHP(150.f);
 
-	mRigid->SetMass(100.f);
-	mRigid->SetFriction(30.f);
-	mRigid->SetAcc(5000.f);
-	mRigid->SetMaxSpeed(1.5f);
-
 	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
+	if (mAnimator) {
+		mController = mAnimator->GetController();
+	}
 }
 
 
@@ -98,48 +96,147 @@ void Script_GroundPlayer::UpdateParams(float v, float h)
 
 void Script_GroundPlayer::ProcessInput()
 {
-	bool isRun{};
 	float v{}, h{};
 
 	DWORD dwDirection{};
 	DWORD rotationDir{};
 	if (KEY_PRESSED('W')) { dwDirection |= Dir::Front; v += 1; }
-	if (KEY_PRESSED('S')) { dwDirection |= Dir::Back; v -= 1; }
-	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left; h -= 1; }
+	if (KEY_PRESSED('S')) { dwDirection |= Dir::Back;  v -= 1; }
+	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left;  h -= 1; }
 	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
-	if (KEY_PRESSED(VK_LSHIFT) && (v != 0 || h != 0)) { isRun = true; }
 
-	if (mAnimator) {
-		const auto& controller = mAnimator->GetController();
-		if (controller) {
-			UpdateParams(v, h);
+	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
+	Movement crntMovement = Movement::None;
+	// Stand / Sit
+	if (KEY_PRESSED('C'))				    { crntMovement |= Movement::Sit; }
+	else						            { crntMovement |= Movement::Stand; }
+	// Walk / Run / Sprint
+	if (dwDirection) {
+		if (KEY_PRESSED(VK_LSHIFT))         { crntMovement |= Movement::Sprint; }
+		else if (KEY_PRESSED(VK_LCONTROL))  { crntMovement |= Movement::Walk; }
+		else						        { crntMovement |= Movement::Run; }
+	}
 
-			Vec3 velocity = mRigid->GetVelocity();
-			if (!isRun) {
-				mRigid->SetMaxSpeed(2.5f);
-				controller->SetValue("Run", false);
+	Movement crntState = static_cast<Movement>(crntMovement & 0x0F);
+	Movement prevState = static_cast<Movement>(mPrevMovement & 0x0F);
 
-				if (velocity.Length() > 0.1f) {
-					controller->SetValue("Walk", true);
-				}
-				else {
-					controller->SetValue("Walk", false);
-				}
-			}
-			else {
-				mRigid->SetMaxSpeed(5.f);
-				controller->SetValue("Run", true);
-				controller->SetValue("Walk", false);
-			}
-			controller->SetValue("Vertical", mParamV);
-			controller->SetValue("Horizontal", mParamH);
+	Movement crntMotion = static_cast<Movement>(crntMovement & 0xF0);
+	Movement prevMotion = static_cast<Movement>(mPrevMovement & 0xF0);
+
+	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
+	if (!(crntState & prevState)) {
+		switch (prevState) {
+		case Movement::None:
+		case Movement::Stand:
+			break;
+		case Movement::Sit:
+			mController->SetValue("Sit", false);
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
+
+		switch (crntState) {
+		case Movement::None:
+		case Movement::Stand:
+			break;
+		case Movement::Sit:
+			mController->SetValue("Sit", true);
+			break;
+
+		default:
+			assert(0);
+			break;
 		}
 	}
 
-	if (dwDirection) {
-		base::Move(dwDirection);
+	if (!(crntMotion & prevMotion)) {
+		switch (prevMotion) {
+		case Movement::None:
+			break;
+		case Movement::Walk:
+			mController->SetValue("Walk", false);
+			break;
+		case Movement::Run:
+			mController->SetValue("Run", false);
+			break;
+		case Movement::Sprint:
+			mController->SetValue("Sprint", false);
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
+
+		switch (crntMotion) {
+		case Movement::None:
+			break;
+		case Movement::Walk:
+			mController->SetValue("Walk", true);
+
+			break;
+		case Movement::Run:
+			if (crntState & Movement::Stand) {
+				mController->SetValue("Run", true);
+			}
+			else {
+				mController->SetValue("Walk", true);
+				crntMotion = Movement::Walk;
+			}
+
+			break;
+		case Movement::Sprint:
+			if (crntState & Movement::Stand) {
+				mController->SetValue("Sprint", true);
+			}
+			else {
+				mController->SetValue("Walk", true);
+				crntMotion = Movement::Walk;
+			}
+
+			break;
+		default:
+			assert(0);
+			break;
+		}
 	}
 
+	switch (crntMotion) {
+	case Movement::None:
+		mMovementSpeed = 0.f;
+		break;
+	case Movement::Walk:
+		if (crntState & Movement::Stand) {
+			mMovementSpeed = mkStandWalkSpeed;
+		}
+		else{
+			mMovementSpeed = mkSitWalkSpeed;
+		}
+		break;
+	case Movement::Run:
+		mMovementSpeed = mkRunSpeed;
+		break;
+	case Movement::Sprint:
+		mMovementSpeed = mkSprintSpeed;
+		break;
+
+	default:
+		assert(0);
+		break;
+	}
+
+	mPrevMovement = static_cast<Movement>(crntState | crntMotion);
+
+	if (mController) {
+		UpdateParams(v, h);
+		mController->SetValue("Vertical", mParamV);
+		mController->SetValue("Horizontal", mParamH);
+	}
+
+	Move(dwDirection);
 
 	if (KEY_PRESSED(VK_LBUTTON)) {
 		Vec2 mouseDelta = InputMgr::Inst()->GetMouseDelta();
@@ -148,6 +245,16 @@ void Script_GroundPlayer::ProcessInput()
 }
 
 
+
+void Script_GroundPlayer::Move(DWORD dwDirection)
+{
+	if (!dwDirection) {
+		return;
+	}
+
+	const Vec3 dir = Vector3::Normalized(mObject->GetDirection(dwDirection));
+	mObject->Translate(dir * mMovementSpeed * DeltaTime());
+}
 
 void Script_GroundPlayer::Rotate(DWORD rotationDir, float angle)
 {
@@ -223,13 +330,6 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 			SetWeapon(static_cast<int>(wParam - '0'));
 			break;
 
-		case VK_CONTROL:
-			if (mAnimator) {
-				mRigid->SetMaxSpeed(1.5f);
-				mAnimator->GetController()->SetValue("Sit", true);
-			}
-
-		break;
 		default:
 			break;
 		}
@@ -238,17 +338,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 	break;
 	case WM_KEYUP:
 	{
-		switch (wParam)
-		{
-		case VK_CONTROL:
-			if (mAnimator) {
-				mAnimator->GetController()->SetValue("Sit", false);
-			}
 
-		break;
-		default:
-			break;
-		}
 	}
 
 	break;

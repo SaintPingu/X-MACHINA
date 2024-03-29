@@ -797,11 +797,6 @@ void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	{
 		switch (wParam)
 		{
-		case VK_HOME:
-			timer->Stop();
-			break;
-		case VK_END:
-			timer->Start();
 		case '0':
 			for (auto& p : mParticles[1]->GetComponents<ParticleSystem>())
 				p->PlayToggle();

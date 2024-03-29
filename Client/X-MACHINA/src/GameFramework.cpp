@@ -44,7 +44,32 @@ void GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
 	default:
 		break;
 	}
+}
 
+void GameFramework::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case VK_HOME:
+			timer->Stop();
+			break;
+		case VK_END:
+			timer->Start();
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	break;
+	default:
+		break;
+	}
 }
 
 void GameFramework::Update()

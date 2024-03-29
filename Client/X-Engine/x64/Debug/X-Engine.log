@@ -1,26 +1,2 @@
-﻿  ImGuiManager.cpp
-  AnimatorBlendTree.cpp
-  AnimatorController.cpp
-  FileIO.cpp
-  FrameResource.cpp
-  Grid.cpp
-  InputMgr.cpp
-  Mesh.cpp
-  MeshRenderer.cpp
-  Model.cpp
-  MultipleRenderTarget.cpp
-  Object.cpp
-  ObjectPool.cpp
-  ParticleSystem.cpp
-  ResourceMgr.cpp
-  Resources.cpp
-  Scene.cpp
-  Shader.cpp
-  Terrain.cpp
-  TestCube.cpp
-  코드를 생성하고 있습니다...
-  컴파일하고 있습니다...
-  UI.cpp
-  X-Engine.cpp
-  코드를 생성하고 있습니다...
+﻿  Scene.cpp
   X-Engine.vcxproj -> C:\Users\alseh\Desktop\X-MACHINA\Client\X-MACHINA\lib\X-Engine.lib

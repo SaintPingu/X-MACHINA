@@ -29,6 +29,7 @@ void Script_AirplanePlayer::Start()
 	SetBulletDamage(10.f);
 	SetBulletSpeed(300.f);
 
+	mRigid = mObject->AddComponent<Rigidbody>();
 	mRigid->SetMass(100.f);
 	mRigid->SetFriction(30.f);
 	mRigid->SetAcc(5000.f);
@@ -60,7 +61,7 @@ void Script_AirplanePlayer::ProcessInput()
 	if (KEY_PRESSED(VK_SPACE))		dwDirection |= Dir::Up;
 	if (KEY_PRESSED(VK_LSHIFT))		dwDirection |= Dir::Down;
 	if (dwDirection) {
-		base::Move(dwDirection);
+		//base::Move(dwDirection);
 	}
 
 	if (KEY_PRESSED('A')) rotationDir |= Dir::Left;

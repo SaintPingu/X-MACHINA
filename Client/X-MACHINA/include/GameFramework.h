@@ -14,6 +14,7 @@ class GameFramework : public Singleton<GameFramework>{
 public:
 	void Init(HINSTANCE hInstance, HWND hWnd, short width, short height);
 	void ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	void ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam);
 
 	void Update();
 	void Release();

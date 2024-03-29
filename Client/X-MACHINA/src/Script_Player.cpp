@@ -21,7 +21,6 @@ void Script_Player::Start()
 {
 	mObject->SetTag(ObjectTag::Player);
 	mPlayer = mObject->GetObj<GameObject>();
-	mRigid = mObject->AddComponent<Rigidbody>();
 }
 
 void Script_Player::Update()
@@ -33,11 +32,6 @@ void Script_Player::Update()
 	}
 }
 
-void Script_Player::Move(DWORD dwDirection)
-{
-	mRigid->AddForce(mObject->GetDirection(dwDirection), ForceMode::Accleration);
-}
-
 void Script_Player::Rotate(float pitch, float yaw, float roll)
 {
 	mObject->Rotate(pitch, yaw, roll);
@@ -46,7 +40,6 @@ void Script_Player::Rotate(float pitch, float yaw, float roll)
 void Script_Player::Respawn()
 {
 	mObject->SetWorldTransform(mSpawnTransform);
-	mRigid->Stop();
 	mObject->Update();
 }
 

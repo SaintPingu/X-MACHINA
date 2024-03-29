@@ -101,9 +101,10 @@ enum class VertexType : DWORD;
 enum class MaterialMap : DWORD;
 enum class HumanBone : DWORD;
 enum class FilterOption : DWORD;
+enum class Movement : DWORD;
 
 template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, HumanBone> || std::is_same_v<T, FilterOption>);
+constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, HumanBone> || std::is_same_v<T, FilterOption> || std::is_same_v<T, Movement>);
 
 template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
 constexpr DWORD operator|(EnumType lhs, EnumType rhs)

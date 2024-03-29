@@ -13,6 +13,7 @@ class Rigidbody;
 class InstObject;
 class ObjectPool;
 class Animator;
+class AnimatorController;
 class Weapon;
 #pragma endregion
 
@@ -25,6 +26,15 @@ enum class PlayerType {
 	Airplane,
 	Human
 };
+
+enum class Movement : DWORD {
+	None   = 0x00,
+	Stand  = 0x01,
+	Sit    = 0x02,
+	Walk   = 0x10,
+	Run    = 0x20,
+	Sprint = 0x40
+};
 #pragma endregion
 
 
@@ -35,7 +45,6 @@ class Script_Player : public Component {
 protected:
 	PlayerType		mPlayerType{};
 	GameObject*		mPlayer{};		// self GameObject
-	sptr<Rigidbody> mRigid{};
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
 	int		mScore{};
@@ -58,8 +67,6 @@ public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
 
-	// direction 방향으로 이동한다.
-	virtual void Move(DWORD dwDirection);
 	virtual void Rotate(float pitch, float yaw, float roll);
 
 	void Respawn();
@@ -121,6 +128,7 @@ class Script_AirplanePlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_AirplanePlayer, Script_ShootingPlayer)
 
 private:
+	sptr<Rigidbody> mRigid{};
 	Transform* mGunFirePos{};	// 총알 발사 위치
 	float mRotationSpeed{};		// 회전 속도
 
@@ -146,12 +154,23 @@ public:
 class Script_GroundPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
 
+
 private:
+	const float mkSitWalkSpeed   = 1.5f;
+	const float mkStandWalkSpeed = 2.2f;
+	const float mkRunSpeed       = 5.f;
+	const float mkSprintSpeed    = 8.f;
+
+	Movement mPrevMovement{};
+
 	float mParamV{}, mParamH{};
 
 	sptr<Animator> mAnimator{};
+	sptr<AnimatorController> mController{};
 
+	float mMovementSpeed{};
 	float mRotationSpeed{};
+
 	sptr<GameObject> mWeapon{};
 	std::vector<sptr<GameObject>> mWeapons{};
 	Transform* mSpine{};
@@ -169,11 +188,14 @@ public:
 	virtual void ProcessInput() override;
 
 	virtual void FireBullet() override;
+
+	// direction 방향으로 이동한다.
+	virtual void Move(DWORD dwDirection);
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
 
-	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 private:
 	void SetWeapon(int weaponIdx);

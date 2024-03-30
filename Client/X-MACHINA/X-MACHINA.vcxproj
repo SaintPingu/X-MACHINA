@@ -158,6 +158,7 @@
     <Image Include="X-MACHINA.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\Common.h" />
     <ClInclude Include="..\Common\Component\Camera.h" />
     <ClInclude Include="..\Common\Component\Collider.h" />
     <ClInclude Include="..\Common\Component\Component.h" />

@@ -96,11 +96,13 @@ constexpr unsigned int Hash(const std::wstring& str) noexcept
 #pragma region EnumOperator_DWORD
 // 아래 정의된 EnumType의 DWORD 연산을 오버로딩하여 불필요한 static_cast를 줄인다.
 // is_valid_dword_type_v에 EnumType을 추가해주어야 한다.
+// Engine
 enum class ObjectTag : DWORD;
 enum class VertexType : DWORD;
 enum class MaterialMap : DWORD;
 enum class HumanBone : DWORD;
 enum class FilterOption : DWORD;
+// Client
 enum class Movement : DWORD;
 
 template <typename T>
@@ -206,8 +208,17 @@ namespace Math {
 
 #pragma region DirectXMath
 namespace Vector3 {
+	inline bool IsZero(const Vec3& vector) noexcept
+	{
+		return XMVector3Equal(_VECTOR(vector), XMVectorZero());
+	}
+
 	inline Vec3 Normalized(const Vec3& vector) noexcept
 	{
+		if (Vector3::IsZero(vector)) {
+			return Vec3::Zero;
+		}
+
 		Vec3 result;
 		XMStoreFloat3(&result, XMVector3NormalizeEst(_VECTOR(vector)));
 		return result;
@@ -227,15 +238,10 @@ namespace Vector3 {
 		return result;
 	}
 
-	inline bool IsZero(const Vec3& vector) noexcept
-	{
-		return XMVector3Equal(_VECTOR(vector), XMVectorZero());
-	}
-
 	inline Vec3 Resize(const Vec3& vector, float size) noexcept
 	{
 		Vec3 result;
-		XMStoreFloat3(&result, XMVector3NormalizeEst(_VECTOR(vector)) * size);
+		XMStoreFloat3(&result, _VECTOR(Vector3::Normalized(vector)) * size);
 		return result;
 	}
 

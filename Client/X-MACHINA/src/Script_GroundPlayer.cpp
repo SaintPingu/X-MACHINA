@@ -152,7 +152,7 @@ void Script_GroundPlayer::ProcessInput()
 		}
 	}
 
-	if (!(crntMotion & prevMotion)) {
+	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
 		switch (prevMotion) {
 		case Movement::None:
 			break;

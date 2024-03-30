@@ -25,4 +25,6 @@ constexpr size_t gkWeaponTypeCnt = static_cast<size_t>(WeaponType::_count);
 class Script_Weapon : public Component {
 	COMPONENT(Script_Weapon, Component)
 
+public:
+	virtual void Update() override;
 };

@@ -90,10 +90,13 @@ private:
 	float mBulletDamage{};
 	float mBulletSpeed{};
 	float mMaxFireDelay{};		// 총알 발사 딜레이
-	float mCurrFireDelay{};		// 현재 발사 딜레이
+	float mCrntFireDelay{};		// 현재 발사 딜레이
 	bool  mIsShooting{};		// 발사중인가?
 
 public:
+	float GetBulletDamage() const { return mBulletDamage; }
+	float GetBulletSpeed()  const { return mBulletSpeed; }
+
 	void SetBulletDamage(float damage) { mBulletDamage = damage; }
 	void SetBulletSpeed(float speed) { mBulletSpeed = speed; }
 	void SetFireDelay(float fDelay) { mMaxFireDelay = fDelay; }
@@ -101,53 +104,16 @@ public:
 public:
 	virtual void Update() override;
 
-public:
-	virtual void ProcessInput() override;
+	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
-	virtual void FireBullet() abstract;
-	virtual void RenderBullets() const;
-
+private:
 	void StartFire() { mIsShooting = true; }
 	void StopFire() { mIsShooting = false; }
 
-	// [bulletModel]에 대한 BulletShader를 생성한다.
-	void CreateBullets(rsptr<const MasterModel> bulletModel);
-
-protected:
-	void FireBullet(const Vec3& pos, const Vec3& dir, const Vec3& up);
-
-	void InitBullet(rsptr<InstObject> object);
+	virtual void FireBullet() abstract;
 };
 
 
-
-
-
-// 헬리콥터 플레이어
-class Script_AirplanePlayer : public Script_ShootingPlayer {
-	COMPONENT(Script_AirplanePlayer, Script_ShootingPlayer)
-
-private:
-	sptr<Rigidbody> mRigid{};
-	Transform* mGunFirePos{};	// 총알 발사 위치
-	float mRotationSpeed{};		// 회전 속도
-
-public:
-	virtual void SetRotationSpeed(float speed) { mRotationSpeed = speed; }
-
-public:
-	virtual void Start() override;
-	virtual void Update() override;
-
-	virtual void OnCollisionStay(Object& other) override;
-
-public:
-	virtual void ProcessInput() override;
-
-	virtual void FireBullet() override;
-	// [rotationDir]방향으로 [angle]만큼 회전한다.
-	virtual void Rotate(DWORD rotationDir, float angle);
-};
 
 
 // 지상 플레이어
@@ -160,6 +126,8 @@ private:
 	const float mkStandWalkSpeed = 2.2f;
 	const float mkRunSpeed       = 5.f;
 	const float mkSprintSpeed    = 8.f;
+
+	sptr<ObjectPool> mBulletPool{};
 
 	Movement mPrevMovement{};
 
@@ -174,6 +142,7 @@ private:
 	sptr<GameObject> mWeapon{};
 	std::vector<sptr<GameObject>> mWeapons{};
 	Transform* mSpine{};
+	Transform* mFirePos{};
 
 public:
 	virtual void Awake() override;
@@ -187,8 +156,6 @@ public:
 	void UpdateParams(float v, float h);
 	virtual void ProcessInput() override;
 
-	virtual void FireBullet() override;
-
 	// direction 방향으로 이동한다.
 	virtual void Move(DWORD dwDirection);
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
@@ -198,6 +165,8 @@ public:
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 private:
+	virtual void FireBullet() override;
+
 	void SetWeapon(int weaponIdx);
 	void UpdateParam(float val, float& param);
 };

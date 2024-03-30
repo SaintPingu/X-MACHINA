@@ -195,7 +195,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\Script_AirplanePlayer.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
     <ClCompile Include="src\Script_Billboard.cpp" />
     <ClCompile Include="src\Script_Bullet.cpp" />

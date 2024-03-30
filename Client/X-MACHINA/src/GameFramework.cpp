@@ -10,8 +10,12 @@
 #include "Scene.h"
 #include "Timer.h"
 #include "Object.h"
+
+#include "ObjectPool.h"
+
 #include "Component/Camera.h"
 #include "Component/ParticleSystem.h"
+
 
 #include "Script_MainCamera.h"
 #include "Script_Player.h"
@@ -78,6 +82,10 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 			timer->Start();
 			break;
 
+		case VK_F5:
+			scene->ToggleDrawBoundings();
+			break;
+
 		case 192:	// '`'
 			::SetFocus(NULL);
 			break;
@@ -137,7 +145,7 @@ void GameFramework::InitPlayer()
 	player->ResetCollider();
 	mPlayerScript = player->AddComponent<Script_GroundPlayer>();
 	player->SetModel("EliteTrooper");
-	
+
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
 	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
 	//player->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");

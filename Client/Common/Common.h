@@ -343,6 +343,21 @@ namespace Vector3 {
 }
 
 namespace Matrix4x4 {
+	inline Matrix SetRotation(const Matrix& matrix, const Vec4& quaternion) noexcept
+	{
+		// 회전값
+		XMVECTOR quat = _VECTOR4(quaternion);
+
+		// 행렬 분해
+		XMVECTOR scale, rotation, translation;
+		XMMatrixDecompose(&scale, &rotation, &translation, matrix);
+
+		// 회전값을 재적용한 행렬 재구성
+		Matrix result;
+		XMStoreFloat4x4(&result, XMMatrixScalingFromVector(scale) * XMMatrixRotationQuaternion(quat) * XMMatrixTranslationFromVector(translation));
+		return result;
+	}
+
 	inline Matrix OrthographicOffCenterLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
 	{
 		Matrix result;

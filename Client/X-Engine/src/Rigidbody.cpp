@@ -28,8 +28,8 @@ void Rigidbody::Update()
 		
 		const float friction = mFriction * normalForce;		// 마찰 계수 = 마찰 계수 * 수직항력
 
-		const float mag = mVelocity.Length();		// 현재 속도 크기
-		if (mag > FLT_EPSILON) {							// 현재 속도가 있다면
+		const float mag = mVelocity.Length();			// 현재 속도 크기
+		if (mag > FLT_EPSILON) {						// 현재 속도가 있다면
 			const Vec3 frictionDir = -mVelocity / mag;	// 마찰력 방향(현재 속도의 반대방향)
 
 			const Vec3 frictionForce = frictionDir * friction;			// 마찰력 = 마찰력 방향 * 마찰계수

@@ -83,6 +83,13 @@ void ObjectPool::DoActiveObjects(std::function<void(rsptr<InstObject>)> func)
 	}
 }
 
+void ObjectPool::DoAllObjects(std::function<void(rsptr<InstObject>)> func)
+{
+	for (const auto& object : mObjectPool) {
+		func(object);
+	}
+}
+
 void ObjectPool::CreateShaderVars()
 {
 	D3DUtil::CreateBufferResource(nullptr, mStructSize * mObjectPool.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mSB_Inst);

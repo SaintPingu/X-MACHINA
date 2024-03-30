@@ -121,8 +121,6 @@ public:
 	// 동적 리소스를 해제한다.
 	virtual void Release() {}
 
-	virtual void ReleaseUploadBuffers() {}
-
 	// 객체(other)와 충돌 시 호출된다.
 	virtual void OnCollisionStay(Object& other) {}
 
@@ -258,7 +256,6 @@ public:
 	virtual void LateUpdate();
 	virtual void OnDestroy();
 	virtual void Release();
-	virtual void ReleaseUploadBuffers();
 
 	// 객체(other)와 충돌 시 호출된다.
 	virtual void OnCollisionStay(Object& other);

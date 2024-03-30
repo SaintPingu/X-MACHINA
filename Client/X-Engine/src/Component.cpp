@@ -166,13 +166,6 @@ void Object::Release()
 		});
 }
 
-void Object::ReleaseUploadBuffers()
-{
-	ProcessComponents([](rsptr<Component> component) {
-		component->ReleaseUploadBuffers();
-		});
-}
-
 void Object::OnCollisionStay(Object& other)
 {
 	// 한 프레임 내에 중복 호출된 경우 무시한다.

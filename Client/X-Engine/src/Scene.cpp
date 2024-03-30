@@ -90,10 +90,6 @@ std::vector<sptr<GameObject>> Scene::GetAllObjects() const
 #pragma region DirectX
 void Scene::ReleaseUploadBuffers()
 {
-	ProcessObjects([](sptr<GameObject> object) {
-		object->ReleaseUploadBuffers();
-		});
-
 	MeshRenderer::ReleaseUploadBuffers();
 }
 
@@ -312,7 +308,7 @@ void Scene::BuildGrid()
 
 void Scene::UpdateGridInfo()
 {
-	ProcessObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<GridObject> object) {
 		UpdateObjectGrid(object.get());
 		});
 
@@ -373,9 +369,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 			FileIO::ReadVal(file, isInstancing);
 
 			if (isInstancing) {
-				objectPool = std::make_shared<ObjectPool>(model, sameObjectCount, sizeof(SB_StandardInst));
-				objectPool->CreateObjects<InstObject>();
-				mObjectPools.emplace_back(objectPool);
+				objectPool = CreateObjectPool(model, sameObjectCount);
 			}
 		}
 
@@ -696,7 +690,7 @@ void Scene::Start()
 	/* Awake */
 	mainCameraObject->Awake();
 	mTerrain->Awake();
-	ProcessObjects([](sptr<GameObject> object) {
+	ProcessAllObjects([](sptr<GameObject> object) {
 		object->Awake();
 		});
 
@@ -705,7 +699,7 @@ void Scene::Start()
 
 	/* Enable & Start */
 	mTerrain->OnEnable();
-	ProcessObjects([](sptr<GameObject> object) {
+	ProcessAllObjects([](sptr<GameObject> object) {
 		object->OnEnable();
 		});
 	mainCameraObject->OnEnable();
@@ -741,19 +735,19 @@ void Scene::CheckCollisions()
 
 void Scene::UpdateObjects()
 {
-	ProcessObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<GridObject> object) {
 		if (object->IsActive()) {
 			object->Update();
 		}
 		});
 
-	ProcessObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<GridObject> object) {
 		if (object->IsActive()) {
 			object->Animate();
 		}
 		});
 
-	ProcessObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<GridObject> object) {
 		if (object->IsActive()) {
 			object->LateUpdate();
 		}
@@ -790,7 +784,7 @@ void Scene::ToggleDrawBoundings()
 {
 	mIsRenderBounds = !mIsRenderBounds;
 
-	ProcessObjects([](sptr<GridObject> object) {
+	ProcessAllObjects([](sptr<GridObject> object) {
 		object->ToggleDrawBoundings();
 		});
 }
@@ -885,8 +879,39 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 	return instance;
 }
 
+sptr<ObjectPool> Scene::CreateObjectPool(const std::string& modelName, int maxSize, std::function<void(rsptr<InstObject>)> objectInitFunc)
+{
+	return CreateObjectPool(res->Get<MasterModel>(modelName), maxSize, objectInitFunc);
+}
 
-void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
+sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int maxSize, std::function<void(rsptr<InstObject>)> objectInitFunc)
+{
+	sptr<ObjectPool> pool = mObjectPools.emplace_back(std::make_shared<ObjectPool>(model, maxSize, sizeof(SB_StandardInst)));
+	pool->CreateObjects<InstObject>(objectInitFunc);
+
+	return pool;
+}
+
+void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
+{
+	for (auto& object : mStaticObjects) {
+		if (object->IsActive()) {
+			processFunc(object);
+		}
+	}
+
+	for (auto& object : mDynamicObjects) {
+		if (object->IsActive()) {
+			processFunc(object);
+		}
+	}
+
+	for (auto& object : mObjectPools) {
+		object->DoActiveObjects(processFunc);
+	}
+}
+
+void Scene::ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	for (auto& object : mStaticObjects) {
 		processFunc(object);
@@ -894,5 +919,9 @@ void Scene::ProcessObjects(std::function<void(sptr<GridObject>)> processFunc)
 
 	for (auto& object : mDynamicObjects) {
 		processFunc(object);
+	}
+
+	for (auto& object : mObjectPools) {
+		object->DoAllObjects(processFunc);
 	}
 }

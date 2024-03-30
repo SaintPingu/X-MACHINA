@@ -11,7 +11,9 @@ void Script_Bullet::Awake()
 {
 	mGameObject = mObject->GetObj<GameObject>();
 
-	mObject->GetComponent<Rigidbody>()->SetFriction(0.f);
+	const auto& rb = mObject->GetComponent<Rigidbody>();
+	rb->SetFriction(0.001f);
+	rb->SetDrag(0.001f);
 
 	Reset();
 }
@@ -27,7 +29,6 @@ void Script_Bullet::Update()
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
 		Explode();
 	}
-
 }
 
 void Script_Bullet::OnCollisionStay(Object& other)
@@ -48,12 +49,17 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed)
 {
-	mObject->LookTo(dir, up);
 	mObject->SetPosition(pos);
 
 	const auto& rigid = mObject->GetComponent<Rigidbody>();
 	rigid->Stop();
 	rigid->AddForce(dir, speed, ForceMode::Impulse);
+}
+
+void Script_Bullet::Fire(const Transform& transform, float speed)
+{
+	mObject->SetRotation(transform.GetRotation());
+	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp(), speed);
 }
 
 void Script_Bullet::Explode()

@@ -83,6 +83,8 @@ public:
 
 	// 활성화된(Get) 객체들에 대해 [func]을 실행한다.
 	void DoActiveObjects(std::function<void(rsptr<InstObject>)> func);
+	// pool 내의 모든 객체들에 대해 [func]을 실행한다.
+	void DoAllObjects(std::function<void(rsptr<InstObject>)> func);
 
 protected:
 	// 렌더링 버퍼[mSBMap_Inst]에 객체를 더 추가할 수 없으면 false를 반환한다.

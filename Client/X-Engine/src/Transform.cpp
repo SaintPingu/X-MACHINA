@@ -241,7 +241,7 @@ void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 
 void Transform::SetRotation(const Vec4& quaternion)
 {
-	mLocalTransform = Matrix::Transform(mLocalTransform, quaternion);
+	mLocalTransform = Matrix4x4::SetRotation(mLocalTransform, quaternion);
 
 	UpdateAxis();
 }

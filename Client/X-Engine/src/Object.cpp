@@ -84,7 +84,9 @@ void GridObject::Update()
 {
 	base::Update();
 
-	UpdateGrid();
+	if (IsActive()) {
+		UpdateGrid();
+	}
 }
 
 void GridObject::OnEnable()

@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include "Object.h"
+#include "ObjectPool.h"
 #include "InputMgr.h"
 #include "Component/Rigidbody.h"
 #include "Script_Weapon.h"
@@ -11,7 +12,15 @@
 #include "Animator.h"
 #include "AnimatorController.h"
 
+#include "Script_Bullet.h"
 
+
+static void BulletInitFunc(rsptr<InstObject> bullet)
+{
+	bullet->SetTag(ObjectTag::Bullet);
+	bullet->AddComponent<Script_Bullet>();
+	bullet->AddComponent<Rigidbody>();
+}
 
 void Script_GroundPlayer::Awake()
 {
@@ -49,6 +58,11 @@ void Script_GroundPlayer::Awake()
 		}
 		transform->SetChild(weapon);
 	}
+
+	// Bullet
+	mBulletPool = scene->CreateObjectPool("bullet", 100, BulletInitFunc);
+	SetFireDelay(0.1f);
+	SetBulletSpeed(30.f);
 }
 
 void Script_GroundPlayer::Start()
@@ -96,6 +110,8 @@ void Script_GroundPlayer::UpdateParams(float v, float h)
 
 void Script_GroundPlayer::ProcessInput()
 {
+	base::ProcessInput();
+
 	float v{}, h{};
 
 	DWORD dwDirection{};
@@ -275,7 +291,14 @@ void Script_GroundPlayer::Rotate(DWORD rotationDir, float angle)
 
 void Script_GroundPlayer::FireBullet()
 {
-	// TODO : FireBullet
+	if (!mWeapon) {
+		return;
+	}
+
+	Transform* firePos = mWeapon->FindFrame("FirePos");
+	auto& bullet = mBulletPool->Get(true);
+	auto& bulletScript = bullet->GetComponent<Script_Bullet>();
+	bulletScript->Fire(*firePos, GetBulletSpeed());
 }
 
 
@@ -293,6 +316,8 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 
 void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	base::ProcessMouseMsg(messageID, wParam, lParam);
+
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
 		if (mAnimator) {

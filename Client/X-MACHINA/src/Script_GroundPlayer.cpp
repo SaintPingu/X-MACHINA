@@ -238,10 +238,8 @@ void Script_GroundPlayer::ProcessInput()
 
 	Move(dwDirection);
 
-	if (KEY_PRESSED(VK_LBUTTON)) {
-		Vec2 mouseDelta = InputMgr::Inst()->GetMouseDelta();
-		mPlayer->Rotate(0.f, mouseDelta.x);
-	}
+	Vec2 mouseDelta = InputMgr::Inst()->GetMouseDelta();
+	mPlayer->Rotate(0.f, mouseDelta.x);
 }
 
 

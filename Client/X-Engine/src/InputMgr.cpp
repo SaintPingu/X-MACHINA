@@ -39,12 +39,18 @@ void InputMgr::Init()
 	}
 }
 
+void InputMgr::UpdateClient()
+{
+	mClientCenter = { dxgi->GetWindowWidth() / 2, dxgi->GetWindowHeight() / 2 };
+}
+
 void InputMgr::Update()
 {
-	const HWND hFocusedHwnd = GetFocus();
+	const HWND hFocusedHwnd = ::GetFocus();
 
 	// 윈도우가 포커싱 되어 있다면, 각 키들의 정보를 업데이트한다.
 	if (hFocusedHwnd) {
+
 		for(auto& keyInfo : mKeys) {
 			int key = keyInfo.first;
 			KeyInfo& info = keyInfo.second;
@@ -74,13 +80,14 @@ void InputMgr::Update()
 		}
 
 		POINT ptMouse{};
-		GetCursorPos(&ptMouse);
-		ScreenToClient(dxgi->GetHwnd(), &ptMouse);
+		::GetCursorPos(&ptMouse);
+		::ScreenToClient(dxgi->GetHwnd(), &ptMouse);
 
-		mMousePrevPos = mMousePos;
 		mMousePos     = Vec2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
-		mMouseDir.x   = mMousePos.x - mMousePrevPos.x;
-		mMouseDir.y   = -(mMousePos.y - mMousePrevPos.y);
+		mMouseDir.x   = mMousePos.x - mClientCenter.x;
+		mMouseDir.y   = -(mMousePos.y - mClientCenter.y);
+
+		SetCursorCenter();
 	}
 	// 윈도우가 포커싱 되어있지 않다면, 각 키들의 상태를 away or none으로 변경한다.
 	else {
@@ -96,76 +103,24 @@ void InputMgr::Update()
 			}
 		}
 	}
+
+	mPrevFocusedHwnd = hFocusedHwnd;
 }
 
 
-void InputMgr::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+void InputMgr::WindowFocusOn() const
 {
-	scene->ProcessMouseMsg(messageID, wParam, lParam);
+	SetCursorCenter();
 }
 
-void InputMgr::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+void InputMgr::WindowFocusOff()
 {
-	switch (messageID)
-	{
-	case WM_KEYUP:
-		switch (wParam)
-		{
-		case VK_ESCAPE:
-		{
-			dxgi->Terminate();
-			::PostQuitMessage(0);
-		}
-		break;
-		case VK_RETURN:
-			break;
-		case VK_F3:
-			break;
-		case VK_F9:
-			dxgi->ToggleFullScreen();
-			break;
-		default:
-			break;
-		}
-		break;
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_HOME:
-			timer->Stop();
-			break;
-		case VK_END:
-			timer->Start();
-			break;
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-
-	scene->ProcessKeyboardMsg(messageID, wParam, lParam);
+	mMousePos = Vec2(static_cast<float>(mClientCenter.x), static_cast<float>(mClientCenter.y));
 }
 
-LRESULT CALLBACK InputMgr::ProcessWndMsg(HWND hWnd, UINT messageID, WPARAM wParam, LPARAM lParam)
+void InputMgr::SetCursorCenter() const
 {
-	switch (messageID)
-	{
-	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
-	case WM_MOUSEMOVE:
-		ProcessMouseMsg(messageID, wParam, lParam);
-		break;
-	case WM_KEYDOWN:
-	case WM_KEYUP:
-		ProcessKeyboardMsg(messageID, wParam, lParam);
-		break;
-
-	default:
-		break;
-	}
-	return 0;
+	POINT clientCenter = mClientCenter;
+	::ClientToScreen(dxgi->GetHwnd(), &clientCenter);
+	::SetCursorPos(clientCenter.x, clientCenter.y);
 }

@@ -178,9 +178,6 @@ private:
 #pragma endregion
 
 public:
-	void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-	void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-
 	void ToggleDrawBoundings();
 
 	// update objects' grid indices

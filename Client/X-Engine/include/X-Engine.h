@@ -24,8 +24,6 @@ public:
 	// call per once frame
 	void Update();
 
-	void ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 private:
 	void BuildObjects();
 	void ReleaseObjects();

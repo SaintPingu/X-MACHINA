@@ -12,6 +12,7 @@
 #include "BlurFilter.h"
 #include "LUTFilter.h"
 #include "Ssao.h"
+#include "InputMgr.h"
 #include "Component/ParticleSystem.h"
 
 #pragma region Imgui
@@ -122,12 +123,15 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 
 	res->LoadResources();
 	pr->Init();
+	input->UpdateClient();
 
 	BuildScene();
 }
 
 void DXGIMgr::Release()
 {
+	Terminate();
+
 	mGraphicsRootSignature = nullptr;
 	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);

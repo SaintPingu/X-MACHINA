@@ -47,7 +47,7 @@ void Engine::Release()
 	ReleaseObjects();
 
 	timer->Destroy();
-	InputMgr::Inst()->Destroy();
+	input->Destroy();
 	scene->Release();
 
 #pragma region Imgui,Log - 장재문 -
@@ -64,7 +64,7 @@ void Engine::Release()
 void Engine::Update()
 {
 	// update input
-	InputMgr::Inst()->Update();
+	input->Update();
 
 	// update dxgi
 	dxgi->Update();
@@ -85,26 +85,6 @@ void Engine::Update()
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void Engine::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return;
-
-	switch (message) {
-	case WM_SIZE:
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_MOUSEMOVE:
-	case WM_KEYDOWN:
-	case WM_KEYUP:
-		InputMgr::Inst()->ProcessWndMsg(hWnd, message, wParam, lParam);
-		break;
-	default:
-		break;
-	}
-}
 
 
 void Engine::BuildObjects()

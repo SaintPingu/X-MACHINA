@@ -4,9 +4,11 @@
 #pragma comment(lib, "lib/X-Engine.lib")
 #include "X-Engine.h"
 
+#include "ObjectMgr.h"
+#include "InputMgr.h"
+
 #include "Scene.h"
 #include "Timer.h"
-#include "ObjectMgr.h"
 #include "Object.h"
 #include "Component/Camera.h"
 #include "Component/ParticleSystem.h"
@@ -23,30 +25,41 @@ void GameFramework::Init(HINSTANCE hInstance, HWND hWnd, short width, short heig
 	objectMgr->InitObjectsScript();
 }
 
-void GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	engine->ProcessMessage(hWnd, message, wParam, lParam);
 
+LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
 	switch (message)
 	{
+	case WM_SETFOCUS:
+		input->WindowFocusOn();
+		while (ShowCursor(FALSE) >= 0);
+		mIsFocused = true;
+		break;
+	case WM_KILLFOCUS:
+		input->WindowFocusOff();
+		while (ShowCursor(TRUE) <= 0);
+		mIsFocused = false;
+		break;
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
-		mPlayerScript->ProcessMouseMsg(message, wParam, lParam);
+		ProcessMouseMsg(hWnd, message, wParam, lParam);
 		break;
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		mPlayerScript->ProcessKeyboardMsg(message, wParam, lParam);
+		ProcessKeyboardMsg(hWnd, message, wParam, lParam);
 		break;
 
 	default:
 		break;
 	}
+
+	return 0;
 }
 
-void GameFramework::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
+void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -54,11 +67,19 @@ void GameFramework::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lPara
 	{
 		switch (wParam)
 		{
+		case VK_ESCAPE:
+			engine->Release();
+			::PostQuitMessage(0);
+			break;
 		case VK_HOME:
 			timer->Stop();
 			break;
 		case VK_END:
 			timer->Start();
+			break;
+
+		case 192:	// '`'
+			::SetFocus(NULL);
 			break;
 
 		default:
@@ -70,6 +91,26 @@ void GameFramework::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lPara
 	default:
 		break;
 	}
+
+	mPlayerScript->ProcessKeyboardMsg(message, wParam, lParam);
+}
+
+void GameFramework::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		if (!mIsFocused) {
+			::SetFocus(hWnd);
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	mPlayerScript->ProcessMouseMsg(message, wParam, lParam);
 }
 
 void GameFramework::Update()

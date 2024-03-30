@@ -785,36 +785,6 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 	return gridZ * mGridCols + gridX;
 }
 
-void Scene::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-}
-
-void Scene::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-	switch (messageID)
-	{
-	case WM_KEYDOWN:
-	{
-		switch (wParam)
-		{
-		case '0':
-			for (auto& p : mParticles[1]->GetComponents<ParticleSystem>())
-				p->PlayToggle();
-			break;
-
-		case VK_F5:
-			ToggleDrawBoundings();
-			break;
-		default:
-			break;
-		}
-	}
-
-	break;
-	default:
-		break;
-	}
-}
 
 void Scene::ToggleDrawBoundings()
 {

@@ -128,7 +128,7 @@ void Script_GroundPlayer::ProcessInput()
 	else						            { crntMovement |= Movement::Stand; }
 	// Walk / Run / Sprint
 	if (dwDirection) {
-		if (KEY_PRESSED(VK_LSHIFT))         { crntMovement |= Movement::Sprint; }
+		     if (KEY_PRESSED(VK_LSHIFT))    { crntMovement |= Movement::Sprint; }
 		else if (KEY_PRESSED(VK_LCONTROL))  { crntMovement |= Movement::Walk; }
 		else						        { crntMovement |= Movement::Run; }
 	}
@@ -254,7 +254,7 @@ void Script_GroundPlayer::ProcessInput()
 
 	Move(dwDirection);
 
-	Vec2 mouseDelta = InputMgr::Inst()->GetMouseDelta();
+	Vec2 mouseDelta = input->GetMouseDelta();
 	mPlayer->Rotate(0.f, mouseDelta.x);
 }
 

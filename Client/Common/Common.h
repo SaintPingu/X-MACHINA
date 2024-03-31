@@ -345,10 +345,8 @@ namespace Vector3 {
 namespace Matrix4x4 {
 	inline Matrix SetRotation(const Matrix& matrix, const Vec4& quaternion) noexcept
 	{
-		// 회전값
 		XMVECTOR quat = _VECTOR4(quaternion);
 
-		// 행렬 분해
 		XMVECTOR scale, rotation, translation;
 		XMMatrixDecompose(&scale, &rotation, &translation, matrix);
 

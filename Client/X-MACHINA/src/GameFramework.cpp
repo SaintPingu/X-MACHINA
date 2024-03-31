@@ -72,7 +72,6 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			engine->Release();
 			::PostQuitMessage(0);
 			break;
 		case VK_HOME:

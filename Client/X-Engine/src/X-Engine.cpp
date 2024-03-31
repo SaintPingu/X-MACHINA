@@ -44,6 +44,7 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 
 void Engine::Release()
 {
+	Sleep(100);
 	ReleaseObjects();
 
 	timer->Destroy();

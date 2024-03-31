@@ -7,18 +7,26 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
 #pragma endregion
 
 
 #pragma region Class
-class Script_GameManager : public Component {
-	COMPONENT(Script_GameManager, Component)
+class Script_LiveObject : public Component {
+	COMPONENT_ABSTRACT(Script_LiveObject, Component)
+
+private:
+	float mMaxHP{};
+	float mCrntHP{};
 
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+
+	void SetMaxHP(float hp) { mMaxHP = hp; }
+
+	virtual void Hit(float damage);
+	virtual void Dead();
 };
 
 #pragma endregion

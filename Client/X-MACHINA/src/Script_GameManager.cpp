@@ -11,9 +11,9 @@
 void Script_GameManager::Awake()
 {
 	sptr<GridObject> enemy = scene->Instantiate("Droid_OII_DesertCamo");
-	enemy->AddComponent<Script_Enemy>();
+	auto& script = enemy->AddComponent<Script_Enemy>();
 	enemy->SetPosition(95, 0, 105);
-	mEnemies.push_back(enemy);
+	script->SetMaxHP(10);
 }
 
 void Script_GameManager::Start()

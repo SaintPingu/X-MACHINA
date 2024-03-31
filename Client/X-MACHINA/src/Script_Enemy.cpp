@@ -10,17 +10,27 @@
 
 void Script_Enemy::Awake()
 {
+	base::Awake();
+
 	mObject->AddComponent<Script_GroundObject>();
 	Transform* gunPos = mObject->FindFrame("WeaponAction");
-	sptr<GridObject> gun = scene->Instantiate("SM_SciFiAssaultPistol");
-	gunPos->SetChild(gun);
+	mGun = scene->Instantiate("SM_SciFiAssaultPistol");
+	gunPos->SetChild(mGun);
 	mObject->SetTag(ObjectTag::Enemy);
 }
 
 void Script_Enemy::Start()
 {
+	base::Start();
 }
 
 void Script_Enemy::Update()
 {
+	base::Update();
+
+}
+
+void Script_Enemy::OnDestroy()
+{
+	mGun->OnDestroy();
 }

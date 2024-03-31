@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "Script_Bullet.h"
 
+#include "Script_Enemy.h"
+
 #include "Object.h"
 #include "Timer.h"
 #include "Scene.h"
+
 #include "Component/Rigidbody.h"
 
 
@@ -44,22 +47,35 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	case ObjectTag::Building:
 		Explode();
 		break;
+
+	case ObjectTag::Enemy:
+	{
+		auto& enemy = other.GetComponent<Script_Enemy>();
+		enemy->Hit(GetDamage());
+		Explode();
+	}
+
+	break;
+	default:
+		break;
 	}
 }
 
-void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed)
+void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed, float damage)
 {
 	mObject->SetPosition(pos);
 
 	const auto& rigid = mObject->GetComponent<Rigidbody>();
 	rigid->Stop();
 	rigid->AddForce(dir, speed, ForceMode::Impulse);
+
+	SetDamage(damage);
 }
 
-void Script_Bullet::Fire(const Transform& transform, float speed)
+void Script_Bullet::Fire(const Transform& transform, float speed, float damage)
 {
 	mObject->SetRotation(transform.GetRotation());
-	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp(), speed);
+	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp(), speed, damage);
 }
 
 void Script_Bullet::Explode()

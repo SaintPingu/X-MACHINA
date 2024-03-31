@@ -175,6 +175,7 @@
     <ClInclude Include="include\Script_Enemy.h" />
     <ClInclude Include="include\Script_GameManager.h" />
     <ClInclude Include="include\Script_GroundObject.h" />
+    <ClInclude Include="include\Script_LiveObject.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_Apache.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="src\Script_Enemy.cpp" />
     <ClCompile Include="src\Script_GameManager.cpp" />
     <ClCompile Include="src\Script_GroundObject.cpp" />
+    <ClCompile Include="src\Script_LiveObject.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

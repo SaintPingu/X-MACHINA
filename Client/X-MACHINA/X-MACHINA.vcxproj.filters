@@ -151,6 +151,9 @@
     <ClInclude Include="include\Script_GroundObject.h">
       <Filter>헤더 파일\Script</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_LiveObject.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">
@@ -208,6 +211,9 @@
       <Filter>Script\Object\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_GroundObject.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_LiveObject.cpp">
       <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>

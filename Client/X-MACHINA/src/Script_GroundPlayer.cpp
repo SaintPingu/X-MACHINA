@@ -63,6 +63,7 @@ void Script_GroundPlayer::Awake()
 	mBulletPool = scene->CreateObjectPool("bullet", 100, BulletInitFunc);
 	SetFireDelay(0.1f);
 	SetBulletSpeed(30.f);
+	SetBulletDamage(1.f);
 
 	// others
 	mObject->AddComponent<Script_GroundObject>();
@@ -291,7 +292,7 @@ void Script_GroundPlayer::FireBullet()
 	Transform* firePos = mWeapon->FindFrame("FirePos");
 	auto& bullet = mBulletPool->Get(true);
 	auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-	bulletScript->Fire(*firePos, GetBulletSpeed());
+	bulletScript->Fire(*firePos, GetBulletSpeed(), GetBulletDamage());
 }
 
 

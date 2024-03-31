@@ -28,19 +28,20 @@ class Object;
 
 #pragma region EnumClass
 enum class ObjectTag : DWORD {
-	Unspecified    = 0x000,
-	Player         = 0x001,
-	Building       = 0x002,
-	ExplosiveSmall = 0x004,
-	ExplosiveBig   = 0x008,
-	Tank           = 0x010,
-	Helicopter     = 0x020,
-	Environment	   = 0x040,
-	Bullet         = 0x080,
-	Billboard      = 0x100,
-	Terrain        = 0x200,
-	Water          = 0x400,
-	Sprite         = 0x800,
+	Unspecified    = 0x0000,
+	Player         = 0x0001,
+	Building       = 0x0002,
+	ExplosiveSmall = 0x0004,
+	ExplosiveBig   = 0x0008,
+	Tank           = 0x0010,
+	Helicopter     = 0x0020,
+	Environment	   = 0x0040,
+	Bullet         = 0x0080,
+	Billboard      = 0x0100,
+	Terrain        = 0x0200,
+	Water          = 0x0400,
+	Sprite         = 0x0800,
+	Enemy          = 0x1000,
 };
 
 

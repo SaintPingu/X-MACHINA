@@ -37,6 +37,15 @@
     <Filter Include="Common\Component">
       <UniqueIdentifier>{8a4481ad-56d6-4d33-ab6e-25e2d535a8b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Manager">
+      <UniqueIdentifier>{ea105158-40c0-4eca-b776-fde3576411b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Script">
+      <UniqueIdentifier>{4b0c3634-cc7e-4916-94ab-eaf5bf501d49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Object\Enemy">
+      <UniqueIdentifier>{f548fc7d-e4a7-4e20-b9d4-50c7cdd81544}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -94,30 +103,6 @@
     <ClInclude Include="..\Common\Component\UI.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_Apache.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Billboard.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Bullet.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_ExplosiveObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Fragment.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Gunship.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Player.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Sprite.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\ObjectMgr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -127,11 +112,44 @@
     <ClInclude Include="include\GameFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_Weapon.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\Common.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Apache.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Billboard.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Bullet.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_ExplosiveObject.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Fragment.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_GameManager.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Gunship.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Player.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Sprite.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Weapon.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Enemy.h">
+      <Filter>헤더 파일\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_GroundObject.h">
+      <Filter>헤더 파일\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +199,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Weapon.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_GameManager.cpp">
+      <Filter>Script\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Enemy.cpp">
+      <Filter>Script\Object\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_GroundObject.cpp">
       <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>

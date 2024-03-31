@@ -19,14 +19,17 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Player.h"
+#include "Script_GameManager.h"
 
 
 void GameFramework::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 {
 	mainCameraObject->AddComponent<Script_MainCamera>();
 	engine->Init(hInstance, hWnd, width, height);
+
 	InitPlayer();
 	objectMgr->InitObjectsScript();
+	gameManager->AddComponent<Script_GameManager>();
 }
 
 

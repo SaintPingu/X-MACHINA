@@ -61,7 +61,9 @@ void Animator::Animate()
 
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 {
-	mController = std::make_shared<AnimatorController>(*res->Get<AnimatorController>(animationInfo->AnimatorControllerFile));
+	if (!animationInfo->AnimatorControllerFile.empty()) {
+		mController = std::make_shared<AnimatorController>(*res->Get<AnimatorController>(animationInfo->AnimatorControllerFile));
+	}
 }
 
 void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar)

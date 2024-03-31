@@ -11,14 +11,16 @@ namespace {
 		ObjectTag::Helicopter		|
 		ObjectTag::Bullet			|
 		ObjectTag::ExplosiveBig		|
-		ObjectTag::ExplosiveSmall
+		ObjectTag::ExplosiveSmall	|
+		ObjectTag::Enemy
 	};
 
 	constexpr DWORD gkDynamicMoveObjects {
 		ObjectTag::Player			|
 		ObjectTag::Tank				|
 		ObjectTag::Helicopter		|
-		ObjectTag::Bullet
+		ObjectTag::Bullet			|
+		ObjectTag::Enemy
 	};
 
 	constexpr DWORD gkEnvObjects {

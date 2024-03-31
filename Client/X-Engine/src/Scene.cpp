@@ -6,24 +6,25 @@
 #include "FrameResource.h"
 
 #include "ResourceMgr.h"
-#include "Component/UI.h"
 #include "Object.h"
 #include "Model.h"
 #include "Terrain.h"
 #include "Shader.h"
-#include "Component/Camera.h"
 #include "MeshRenderer.h"
 #include "Timer.h"
 #include "FileIO.h"
 #include "Light.h"
-#include "Component/Collider.h"
 #include "SkyBox.h"
 #include "Texture.h"
 #include "ObjectPool.h"
+#include "Component/UI.h"
+#include "Component/Camera.h"
+#include "Component/Collider.h"
+#include "Component/Component.h"
+#include "Component/ParticleSystem.h"
 
 #include "TestCube.h"
 #include "Ssao.h"
-#include "Component/ParticleSystem.h"
 #pragma endregion
 
 
@@ -204,6 +205,7 @@ void Scene::BuildObjects()
 
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
+	mGameManager = std::make_shared<Object>();
 
 	// build settings
 	BuildTerrain();
@@ -334,6 +336,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 	FileIO::ReadVal(file, objectCount);
 
 	mStaticObjects.reserve(objectCount);
+	mDynamicObjects.reserve(objectCount);
 
 	int sameObjectCount{};			// get one unique model from same object
 	sptr<MasterModel> model{};
@@ -384,10 +387,6 @@ void Scene::LoadGameObjects(std::ifstream& file)
 		InitObjectByTag(tag, object);
 
 		object->SetLayer(layer);
-		if (layer == ObjectLayer::Water) {
-			mEnvironments.pop_back();
-			mWater = object;
-		}
 
 		object->SetModel(model);
 
@@ -425,7 +424,7 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 		break;
 	}
 
-	mStaticObjects.emplace_back(object);
+	mStaticObjects.push_back(object);
 }
 #pragma endregion
 
@@ -546,10 +545,6 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 	res->Get<Shader>("Transparent")->Set();
 	for (auto& object : transparentObjects) {
 		object->Render();
-	}
-	if (mWater) {
-		res->Get<Shader>("Water")->Set();
-		mWater->Render();
 	}
 }
 
@@ -697,12 +692,15 @@ void Scene::Start()
 	for (auto& p : mParticles)
 		p->Awake();
 
+	mGameManager->Awake();
+
 	/* Enable & Start */
 	mTerrain->OnEnable();
 	ProcessAllObjects([](sptr<GameObject> object) {
 		object->OnEnable();
 		});
 	mainCameraObject->OnEnable();
+	mGameManager->OnEnable();
 
 	UpdateGridInfo();
 }
@@ -711,7 +709,9 @@ void Scene::Update()
 {
 	CheckCollisions();
 
+	mGameManager->Update();
 	UpdateObjects();
+	mGameManager->LateUpdate();
 	for (auto& p : mParticles)
 		p->Update();
 
@@ -761,9 +761,9 @@ void Scene::UpdateObjects()
 
 void Scene::PopObjectBuffer()
 {
-	if (!mObjectBuffer.empty()) {
-		mDynamicObjects.insert(mDynamicObjects.end(), mObjectBuffer.begin(), mObjectBuffer.end());
-		mObjectBuffer.clear();
+	if (!mDynamicObjectBuffer.empty()) {
+		mDynamicObjects.insert(mDynamicObjects.end(), mDynamicObjectBuffer.begin(), mDynamicObjectBuffer.end());
+		mDynamicObjectBuffer.clear();
 	}
 }
 
@@ -874,7 +874,7 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 	if (enable) {
 		instance->OnEnable();
 	}
-	mObjectBuffer.push_back(instance);
+	mDynamicObjectBuffer.push_back(instance);
 
 	return instance;
 }

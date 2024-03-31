@@ -8,11 +8,13 @@
 
 #pragma region Define
 #define scene Scene::Inst()
+#define gameManager scene->GetGameManager()
 #pragma endregion
 
 
 #pragma region ClassForwardDecl
 class Camera;
+class Object;
 class GameObject;
 class GridObject;
 class InstObject;
@@ -43,12 +45,12 @@ private:
 	sptr<SkyBox> mSkyBox{};
 
 	/* Object */
-	sptr<GameObject>				mWater{};
+	sptr<Object>					mGameManager{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
-	std::vector<sptr<GridObject>>	mObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
+	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
 
 	std::set<GridObject*>	mRenderedObjects{};
 	std::set<GridObject*>	mTransparentObjects{};
@@ -87,6 +89,7 @@ public:
 #pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
+	rsptr<Object> GetGameManager() const { return mGameManager; }
 #pragma endregion
 
 #pragma region DirectX
@@ -187,7 +190,6 @@ public:
 	void RemoveObjectFromGrid(GridObject* object);
 
 	// create new game object from model
-	// sceneObject : 씬 객체인가? (충돌검사and Update())
 	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }

@@ -1,0 +1,23 @@
+#pragma once
+
+
+#pragma region Include
+#include "Component/Component.h"
+#pragma endregion
+
+
+#pragma region ClassForwardDecl
+#pragma endregion
+
+
+#pragma region Class
+class Script_Enemy : public Component {
+	COMPONENT(Script_Enemy, Component)
+
+public:
+	virtual void Awake() override;
+	virtual void Start() override;
+	virtual void Update() override;
+};
+
+#pragma endregion

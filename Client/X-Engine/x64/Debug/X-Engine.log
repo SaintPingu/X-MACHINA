@@ -1,4 +1,27 @@
-﻿  UI.cpp
+﻿  ImGuiManager.cpp
+  Animator.cpp
+  Camera.cpp
+  Collider.cpp
+  Component.cpp
+  DXGIMgr.cpp
+  FileIO.cpp
+  FrameResource.cpp
+  Grid.cpp
+  Light.cpp
+  Mesh.cpp
+  Model.cpp
+  Object.cpp
+  ObjectPool.cpp
+  ParticleSystem.cpp
+  ResourceMgr.cpp
+  Rigidbody.cpp
+  Scene.cpp
+  SkyBox.cpp
+  Terrain.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  TestCube.cpp
+  UI.cpp
   X-Engine.cpp
   코드를 생성하고 있습니다...
   X-Engine.vcxproj -> C:\Users\alseh\Desktop\X-MACHINA\Client\X-MACHINA\lib\X-Engine.lib

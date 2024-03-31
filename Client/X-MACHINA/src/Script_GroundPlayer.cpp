@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "Script_Player.h"
 
+#include "Script_Bullet.h"
+#include "Script_GroundObject.h"
+
 #include "Scene.h"
 #include "Object.h"
 #include "ObjectPool.h"
@@ -8,11 +11,8 @@
 #include "Component/Rigidbody.h"
 #include "Script_Weapon.h"
 #include "Timer.h"
-
 #include "Animator.h"
 #include "AnimatorController.h"
-
-#include "Script_Bullet.h"
 
 
 static void BulletInitFunc(rsptr<InstObject> bullet)
@@ -63,6 +63,9 @@ void Script_GroundPlayer::Awake()
 	mBulletPool = scene->CreateObjectPool("bullet", 100, BulletInitFunc);
 	SetFireDelay(0.1f);
 	SetBulletSpeed(30.f);
+
+	// others
+	mObject->AddComponent<Script_GroundObject>();
 }
 
 void Script_GroundPlayer::Start()
@@ -88,16 +91,6 @@ void Script_GroundPlayer::Update()
 
 	base::ProcessInput();
 	ProcessInput();
-}
-
-
-void Script_GroundPlayer::LateUpdate()
-{
-	base::LateUpdate();
-
-	Vec3 pos = mObject->GetPosition();
-	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
-	mObject->SetPositionY(terrainHeight);
 }
 
 

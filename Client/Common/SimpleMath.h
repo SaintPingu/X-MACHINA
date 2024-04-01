@@ -266,6 +266,10 @@ namespace DirectX
             void Clamp(const Vector3& vmin, const Vector3& vmax) noexcept;
             void Clamp(const Vector3& vmin, const Vector3& vmax, Vector3& result) const noexcept;
 
+            // ¹Îµ¿Çö-Ãß°¡ 24.04.02
+            // y = 0
+            Vector3 xz() const noexcept;
+
             // Static functions
             static float Distance(const Vector3& v1, const Vector3& v2) noexcept;
             static float DistanceSquared(const Vector3& v1, const Vector3& v2) noexcept;

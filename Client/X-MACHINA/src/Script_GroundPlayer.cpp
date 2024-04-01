@@ -60,13 +60,14 @@ void Script_GroundPlayer::Awake()
 	}
 
 	// Bullet
-	mBulletPool = scene->CreateObjectPool("bullet", 100, BulletInitFunc);
+	mBulletPool = scene->CreateObjectPool("bullet", 200, BulletInitFunc);
 	SetFireDelay(0.1f);
 	SetBulletSpeed(30.f);
 	SetBulletDamage(1.f);
 
 	// others
 	mObject->AddComponent<Script_GroundObject>();
+	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
 }
 
 void Script_GroundPlayer::Start()
@@ -92,6 +93,35 @@ void Script_GroundPlayer::Update()
 
 	base::ProcessInput();
 	ProcessInput();
+}
+
+void Script_GroundPlayer::LateUpdate()
+{
+	base::LateUpdate();
+
+	// lock aim forwards //
+	if (mIsAim) {
+		constexpr float targetDistance = 10;					// the target is always 10m ahead
+		Vec3 bonePos = mSpineBone->GetPosition();
+		const Vec3 target(bonePos + mObject->GetLook() * targetDistance);
+
+		Vec3 lookTo = target - bonePos;							// direction of the target
+		Vec3 look = mSpineBone->GetUp();						// direction of the bone
+
+		mSpineBone->LookToWorld2(lookTo, look, Vec3::Up);		// rotates bone toward the target
+
+		// keep the muzzle facing the target
+		if (mFirePos) {
+			// rotates only in the xz-plane
+			Vec3 forward = mFirePos->GetLook().xz();
+			Vec3 dir = (target - mFirePos->GetPosition()).xz();
+
+			constexpr float err = 0.93f;						// rotation error correction value
+			float gunAngle = Vector3::SignedAngle(forward, dir, Vec3::Up) * err;	// angle to target
+
+			mSpineBone->RotateGlobal(Vec3::Up, gunAngle);
+		}
+	}
 }
 
 
@@ -289,11 +319,10 @@ void Script_GroundPlayer::FireBullet()
 		return;
 	}
 
-	Transform* firePos = mWeapon->FindFrame("FirePos");
 	auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
 		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-		bulletScript->Fire(*firePos, GetBulletSpeed(), GetBulletDamage());
+		bulletScript->Fire(*mFirePos, GetBulletSpeed(), GetBulletDamage());
 	}
 }
 
@@ -318,12 +347,14 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 	case WM_RBUTTONDOWN:
 		if (mAnimator) {
 			mAnimator->GetController()->SetValue("Aim", true);
+			mIsAim = true;
 		}
 
 	break;
 	case WM_RBUTTONUP:
 		if (mAnimator) {
 			mAnimator->GetController()->SetValue("Aim", false);
+			mIsAim = false;
 		}
 
 	break;
@@ -392,6 +423,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	if (mWeapon) {
 		mWeapon->OnEnable();
 		mAnimator->GetController()->SetValue("Weapon", weaponIdx);
+		mFirePos = mWeapon->FindFrame("FirePos");
 	}
 }
 

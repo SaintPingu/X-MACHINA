@@ -6,12 +6,12 @@
 #pragma region Getter
 Vec4 Transform::GetLocalRotation() const
 {
-	return Quaternion::CreateFromRotationMatrix(mLocalTransform);
+	return Quat::CreateFromRotationMatrix(mLocalTransform);
 }
 
 Vec4 Transform::GetRotation() const
 {
-	return Quaternion::CreateFromRotationMatrix(mWorldTransform);;
+	return Quat::CreateFromRotationMatrix(mWorldTransform);
 }
 
 Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
@@ -84,16 +84,16 @@ void Transform::SetAxis(const Matrix& axisMatrix)
 void Transform::SetRight(const Vec3& right)
 {
 	mRight = Vector3::Normalized(right);
-	mUp = Vector3::Normalized(mLook.Cross(mRight));
-	mLook = Vector3::Normalized(mRight.Cross(mUp));
+	mUp    = Vector3::Normalized(mLook.Cross(mRight));
+	mLook  = Vector3::Normalized(mRight.Cross(mUp));
 
 	UpdateLocalTransform();
 }
 
 void Transform::SetLook(const Vec3& look)
 {
-	mLook = Vector3::Normalized(look);
-	mUp = Vector3::Normalized(mLook.Cross(mRight));
+	mLook  = Vector3::Normalized(look);
+	mUp    = Vector3::Normalized(mLook.Cross(mRight));
 	mRight = Vector3::Normalized(mLook.Cross(mUp));
 
 	UpdateLocalTransform();
@@ -101,9 +101,9 @@ void Transform::SetLook(const Vec3& look)
 
 void Transform::SetUp(const Vec3& up)
 {
-	mUp = Vector3::Normalized(up);
+	mUp    = Vector3::Normalized(up);
 	mRight = Vector3::Normalized(mLook.Cross(mUp));
-	mLook = Vector3::Normalized(mRight.Cross(mUp));
+	mLook  = Vector3::Normalized(mRight.Cross(mUp));
 
 	UpdateLocalTransform();
 }
@@ -197,22 +197,6 @@ void Transform::MoveForward(float distance)
 ///////////////////////////* Rotation *///////////////////////////
 void Transform::Rotate(float pitch, float yaw, float roll)
 {
-	if (pitch != 0.f) {
-		mPitch += pitch;
-	}
-	if (yaw != 0.f) {
-		mYaw += yaw;
-		if (mYaw > 360.f) {
-			mYaw -= 360.f;
-		}
-		if (mYaw < 0.f) {
-			mYaw += 360.f;
-		}
-	}
-	if (roll != 0.f) {
-		mRoll += roll;
-	}
-
 	Matrix mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll));
 	mLocalTransform = mtxRotate * mLocalTransform;
 
@@ -223,6 +207,54 @@ void Transform::Rotate(const Vec3& axis, float angle)
 {
 	mLocalTransform = Matrix::CreateFromAxisAngle(axis, XMConvertToRadians(angle)) * mLocalTransform;
 	SetLocalTransform(mLocalTransform);
+}
+
+void Transform::Rotate(const Vec4 quaternion)
+{
+	mLocalTransform = Matrix::CreateFromQuaternion(quaternion) * mLocalTransform;
+	SetLocalTransform(mLocalTransform);
+}
+
+void Transform::RotateGlobal(const Vec3& axis, float angle)
+{
+	//// <Algorithm>
+	//// 1. 기존 회전값과 월드 회전값을 미리 저장한다.
+	//// 2. 월드 회전값의 역으로 회전하여 좌표축을 정상(왼손 좌표계)으로 되돌린다.
+	//// 3. 해당 좌표축은 월드 공간이다. 원하는 축으로 회전한다.
+	//// 4. 1에서 저장한 월드 회전값과 기존 회전값을 적용한다.
+
+	XMVECTOR originLocalRotation = _VECTOR4(GetLocalRotation());
+	SetLocalRotation(Quat::Identity);
+	XMVECTOR worldRotation = _VECTOR4(GetRotation());
+	XMVECTOR localRotation = XMQuaternionInverse(worldRotation);
+
+	XMVECTOR quatAngle = XMQuaternionRotationAxis(_VECTOR(axis), XMConvertToRadians(angle));
+
+	localRotation = XMQuaternionMultiply(quatAngle, localRotation);
+	localRotation = XMQuaternionMultiply(worldRotation, localRotation);
+	localRotation = XMQuaternionMultiply(originLocalRotation, localRotation);
+
+	Quat result;
+	XMStoreFloat4(&result, localRotation);
+	SetLocalRotation(result);
+}
+
+void Transform::RotateGlobal(const Vec3& eulerAngles)
+{
+	XMVECTOR originLocalRotation = _VECTOR4(GetLocalRotation());
+	SetLocalRotation(Quat::Identity);
+	XMVECTOR worldRotation = _VECTOR4(GetRotation());
+	XMVECTOR localRotation = XMQuaternionInverse(worldRotation);
+
+	XMVECTOR quatAngle = _VECTOR4(Quaternion::ToQuaternion(eulerAngles));
+
+	localRotation = XMQuaternionMultiply(quatAngle, localRotation);
+	localRotation = XMQuaternionMultiply(worldRotation, localRotation);
+	localRotation = XMQuaternionMultiply(originLocalRotation, localRotation);
+
+	Quat result;
+	XMStoreFloat4(&result, localRotation);
+	SetLocalRotation(result);
 }
 
 void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
@@ -255,9 +287,9 @@ bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 	return true;
 }
 
-void Transform::SetRotation(const Vec4& quaternion)
+void Transform::SetLocalRotation(const Vec4& quaternion)
 {
-	mLocalTransform = Matrix4x4::SetRotation(mLocalTransform, quaternion);
+	Matrix4x4::SetRotation(mLocalTransform, quaternion);
 
 	UpdateAxis();
 }
@@ -272,11 +304,36 @@ void Transform::LookAt(const Vec3& lookAt, const Vec3& up)
 	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, false));
 }
 
-void Transform::LookAtWorld(const Vec3& lookAt, const Vec3& up)
+void Transform::LookToWorld(const Vec3& lookTo, const Vec3& up)
 {
-
+	LookToWorld2(lookTo, GetLook(), up);
 }
 
+void Transform::LookToWorld2(const Vec3& lookTo, const Vec3& look, const Vec3& up)
+{
+	Vec3 from = look.xz();
+	Vec3 to   = lookTo.xz();
+
+	float angle = Vector3::SignedAngle(from, to, up);
+
+	RotateGlobal(up, angle);
+}
+
+
+// <보류-민동현>
+//Quat originLocalRotation = GetLocalRotation();
+//SetLocalRotation(Quat::Identity);
+//Quat worldRotation = GetRotation();
+//Quat localRotation = Quaternion::Inverse(worldRotation);
+//
+//Quat angle1 = Quaternion::LookRotation(lookTo, up);
+//Quat angle2 = Quaternion::LookRotation(GetUp(), up);
+//
+//localRotation = angle1 * localRotation;
+//localRotation = Quaternion::Inverse(angle2) * localRotation;
+//localRotation = worldRotation * localRotation;
+//localRotation = originLocalRotation * localRotation;
+//SetLocalRotation(localRotation);
 
 ///////////////////////////* Transform *///////////////////////////
 void Transform::SetWorldTransform(const Matrix& transform)
@@ -325,10 +382,6 @@ void Transform::ComputeWorldTransform(const Matrix* parentTransform)
 {
 	if (!parentTransform && mParent) {
 		mWorldTransform = mLocalTransform * mParent->GetWorldTransform();
-
-		if (mSibling) {
-			mSibling->ComputeWorldTransform();
-		}
 	}
 	else {
 		mWorldTransform = (parentTransform) ? (mLocalTransform * *parentTransform) : mLocalTransform;

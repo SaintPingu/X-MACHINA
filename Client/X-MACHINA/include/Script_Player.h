@@ -131,6 +131,7 @@ private:
 
 	Movement mPrevMovement{};
 
+	bool mIsAim{};
 	float mParamV{}, mParamH{};
 
 	sptr<Animator> mAnimator{};
@@ -141,13 +142,14 @@ private:
 
 	sptr<GameObject> mWeapon{};
 	std::vector<sptr<GameObject>> mWeapons{};
-	Transform* mSpine{};
+	Transform* mSpineBone{};
 	Transform* mFirePos{};
 
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+	virtual void LateUpdate() override;
 
 	virtual void OnCollisionStay(Object& other) override;
 

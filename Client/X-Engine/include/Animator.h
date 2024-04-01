@@ -29,7 +29,6 @@ public:
 public:
 	void UpdateShaderVariables();
 
-	void LookAt(const Vec3& target);
 	void Animate();
 
 private:

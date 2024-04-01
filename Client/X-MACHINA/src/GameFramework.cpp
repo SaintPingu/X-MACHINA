@@ -77,10 +77,10 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
 			break;
-		case VK_HOME:
+		case VK_F1:
 			timer->Stop();
 			break;
-		case VK_END:
+		case VK_F2:
 			timer->Start();
 			break;
 

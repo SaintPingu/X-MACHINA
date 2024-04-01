@@ -981,6 +981,11 @@ inline void Vector3::Clamp(const Vector3& vmin, const Vector3& vmax, Vector3& re
     XMStoreFloat3(&result, X);
 }
 
+inline Vector3 Vector3::xz() const noexcept
+{
+    return Vector3(x, 0, z);
+}
+
 //------------------------------------------------------------------------------
 // Static functions
 //------------------------------------------------------------------------------

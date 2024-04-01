@@ -74,7 +74,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float
 
 void Script_Bullet::Fire(const Transform& transform, float speed, float damage)
 {
-	mObject->SetRotation(transform.GetRotation());
+	mObject->SetLocalRotation(transform.GetRotation());
 	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp(), speed, damage);
 }
 

@@ -22,7 +22,7 @@ private:
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
 
 	float mDamage{};				// damage of bullet
-	float mMaxLifeTime{ 3.f };		// 총알 수명(발사 후 최대 유지시간)
+	float mMaxLifeTime{ 6.f };		// 총알 수명(발사 후 최대 유지시간)
 	float mCurrLifeTime{};			// 현재 수명
 
 public:

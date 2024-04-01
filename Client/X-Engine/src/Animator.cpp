@@ -36,11 +36,6 @@ void Animator::UpdateShaderVariables()
 	}
 }
 
-void Animator::LookAt(const Vec3& target)
-{
-
-}
-
 void Animator::Animate()
 {
 	if (!mController) {

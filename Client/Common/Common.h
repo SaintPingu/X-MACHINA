@@ -53,7 +53,7 @@ using Vec2       = DirectX::SimpleMath::Vector2;
 using Vec3       = DirectX::SimpleMath::Vector3;
 using Vec4       = DirectX::SimpleMath::Vector4;
 using Matrix     = DirectX::SimpleMath::Matrix;
-using Quaternion = DirectX::SimpleMath::Quaternion;
+using Quat	     = DirectX::SimpleMath::Quaternion;
 
 /* Abbreviation */
 template<class T>
@@ -245,6 +245,30 @@ namespace Vector3 {
 		return result;
 	}
 
+	inline float Angle(const Vec3& from, const Vec3& to)
+	{
+		float num = sqrtf(from.LengthSquared() * to.LengthSquared());
+		if (num < FLT_EPSILON) {
+			return 0.f;
+		}
+
+		float num2 = std::clamp(from.Dot(to) / num, -1.f, 1.f);
+		return acosf(num2) * 57.29578f;
+	}
+
+	inline float SignedAngle(const Vec3& from, const Vec3& to, const Vec3& axis)
+	{
+		XMVECTOR v1 = XMVector3NormalizeEst(_VECTOR(from));
+		XMVECTOR v2 = XMVector3NormalizeEst(_VECTOR(to));
+
+		float angle    = XMVectorGetX(XMVector3AngleBetweenVectors(v1, v2));
+		XMVECTOR cross = XMVector3Cross(v1, v2);
+		float dot      = XMVectorGetX(XMVector3Dot(cross, _VECTOR(axis)));
+		float sign     = (dot >= 0.0f) ? 1.0f : -1.0f;
+
+		return XMConvertToDegrees(angle * sign);
+	}
+
 	// (0, 0, 0)
 	inline Vec3 Zero()
 	{
@@ -343,7 +367,7 @@ namespace Vector3 {
 }
 
 namespace Matrix4x4 {
-	inline Matrix SetRotation(const Matrix& matrix, const Vec4& quaternion) noexcept
+	inline void SetRotation(Matrix& matrix, const Quat& quaternion) noexcept
 	{
 		XMVECTOR quat = _VECTOR4(quaternion);
 
@@ -351,9 +375,7 @@ namespace Matrix4x4 {
 		XMMatrixDecompose(&scale, &rotation, &translation, matrix);
 
 		// 회전값을 재적용한 행렬 재구성
-		Matrix result;
-		XMStoreFloat4x4(&result, XMMatrixScalingFromVector(scale) * XMMatrixRotationQuaternion(quat) * XMMatrixTranslationFromVector(translation));
-		return result;
+		XMStoreFloat4x4(&matrix, XMMatrixScalingFromVector(scale) * XMMatrixRotationQuaternion(quat) * XMMatrixTranslationFromVector(translation));
 	}
 
 	inline Matrix OrthographicOffCenterLH(float fFovAngleY, float aspectRatio, float fNearZ, float fFarZ) noexcept
@@ -411,6 +433,29 @@ namespace Matrix4x4 {
 		return result;
 	}
 
+	inline Matrix CreateRotationMatrix(const Vec3& from, const Vec3& to)
+	{
+		// 벡터의 길이를 정규화합니다.
+		XMVECTOR v1 = XMVector3NormalizeEst(_VECTOR(from));
+		XMVECTOR v2 = XMVector3NormalizeEst(_VECTOR(to));
+
+		// 내적을 통해 두 벡터 사이의 각도를 계산합니다.
+		float dotProduct = XMVectorGetX(XMVector3Dot(v1, v2));
+		float angle = XMConvertToDegrees(acosf(dotProduct));
+
+		// 벡터의 외적을 계산합니다.
+		XMVECTOR crossProduct = XMVector3Cross(v1, v2);
+
+		// 회전 축을 결정합니다.
+		XMVECTOR rotationAxis = XMVector3Normalize(crossProduct);
+
+		// 회전 행렬을 생성합니다.
+		Matrix result;
+		XMStoreFloat4x4(&result, XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle)));
+
+		return result;
+	}
+
 	inline Matrix Zero()
 	{
 		Matrix result;
@@ -419,6 +464,66 @@ namespace Matrix4x4 {
 	}
 }
 
+namespace Quaternion {
+	inline Vec3 ToEuler(const Quat& q)
+	{
+		Vec3 result{};
+
+		// Roll (x-axis rotation)
+		float sinr_cosp = +2.0f * (q.w * q.x + q.y * q.z);
+		float cosr_cosp = +1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+		result.x = XMConvertToDegrees(atan2(sinr_cosp, cosr_cosp));
+
+		// Pitch (y-axis rotation)
+		float sinp = +2.0f * (q.w * q.y - q.z * q.x);
+		if (fabs(sinp) >= 1)
+			result.y = copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
+		else
+			result.y = asin(sinp);
+		result.y = XMConvertToDegrees(result.y);
+
+		// Yaw (z-axis rotation)
+		float siny_cosp = +2.0f * (q.w * q.z + q.x * q.y);
+		float cosy_cosp = +1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+		result.z = XMConvertToDegrees(atan2(siny_cosp, cosy_cosp));
+
+		return result;
+	}
+
+	inline Quat ToQuaternion(const Vec3& euler)
+	{
+		XMVECTOR eulerRad = XMVectorScale(_VECTOR(euler), XM_PI / 180.0f);
+
+		Quat result;
+		XMStoreFloat4(&result, XMQuaternionRotationRollPitchYawFromVector(eulerRad));
+		return result;
+	}
+
+	inline Quat LookRotation(const Vec3& forward, const Vec3& up)
+	{
+		XMVECTOR zAxis = XMVector3NormalizeEst(_VECTOR(forward));
+		XMVECTOR xAxis = XMVector3NormalizeEst(XMVector3Cross(_VECTOR(up), zAxis));
+		XMVECTOR yAxis = XMVector3Cross(zAxis, xAxis);
+
+		XMMATRIX rotationMatrix(
+			xAxis,
+			yAxis,
+			zAxis,
+			g_XMIdentityR3
+		);
+
+		Quat result;
+		XMStoreFloat4(&result, XMQuaternionRotationMatrix(rotationMatrix));
+		return result;
+	}
+
+	inline Quat Inverse(const Quat& quaternion) noexcept
+	{
+		Quat result;
+		XMStoreFloat4(&result, XMQuaternionInverse(_VECTOR4(quaternion)));
+		return result;
+	}
+}
 #pragma endregion
 
 #pragma endregion

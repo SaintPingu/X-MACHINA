@@ -1,10 +1,10 @@
 #pragma once
 #include "Singleton.h"
 
-#define IMGUI_MGR ImGuiManager::GetInst()
-#define IMGUI_COUT(logString) ImGuiManager::GetInst()->Text(logString)
-#define IMGUI_LOG(consoleStrID, logMsg) ImGuiManager::GetInst()->AddLog(consoleStrID, logMsg)
-#define IMGUI_MAIN_LOG(logMsg) ImGuiManager::GetInst()->AddMainLog(logMsg)
+#define IMGUI_MGR ImGuiManager::Inst()
+#define IMGUI_COUT(logString) ImGuiManager::Inst()->Text(logString)
+#define IMGUI_LOG(consoleStrID, logMsg) ImGuiManager::Inst()->AddLog(consoleStrID, logMsg)
+#define IMGUI_MAIN_LOG(logMsg) ImGuiManager::Inst()->AddMainLog(logMsg)
 
 #define imgui ImGuiManager::Inst()
 class ImGuiManager : public Singleton<ImGuiManager>

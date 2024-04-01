@@ -526,7 +526,7 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 
 void Scene::RenderUI()
 {
-	canvas->Render();
+	//canvas->Render();
 	RenderBounds(mRenderedObjects);
 }
 
@@ -637,16 +637,16 @@ void Scene::RenderEnvironments()
 
 bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 {
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	res->Get<Shader>("Wire")->Set();
+	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 	if (!mIsRenderBounds) {
 		return false;
 	}
 
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	res->Get<Shader>("Wire")->Set();
 	RenderObjectBounds(renderedObjects);
 	RenderGridBounds();
-	MeshRenderer::RenderBox(Vec3(300, 107, 300), Vec3(.2f,.2f,.2f));
 
 	return true;
 }

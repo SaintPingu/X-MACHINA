@@ -221,15 +221,14 @@ void Transform::Rotate(float pitch, float yaw, float roll)
 
 void Transform::Rotate(const Vec3& axis, float angle)
 {
-	
-	mLocalTransform = Matrix::CreateFromAxisAngle(axis, angle) * mLocalTransform;
+	mLocalTransform = Matrix::CreateFromAxisAngle(axis, XMConvertToRadians(angle)) * mLocalTransform;
 	SetLocalTransform(mLocalTransform);
 }
 
 void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 {
 	Matrix mtxTranslateToOrigin = Matrix::CreateTranslation(-offset.x, -offset.y, -offset.z);
-	Matrix mtxRotate = Matrix::CreateFromAxisAngle(axis, angle);
+	Matrix mtxRotate = Matrix::CreateFromAxisAngle(axis, XMConvertToRadians(angle));
 	Matrix mtxTranslateBack = Matrix::CreateTranslation(offset.x, offset.y, offset.z);
 
 	mLocalTransform = mtxTranslateToOrigin * mLocalTransform;
@@ -237,6 +236,23 @@ void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 	mLocalTransform = mtxTranslateBack * mLocalTransform;
 
 	UpdateAxis();
+}
+
+bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
+{
+	float dot = mRight.Dot(target - GetPosition());
+
+	if (fabs(dot) < 0.1f) {
+		return false;
+	}
+
+	int dir = 1;
+	if (dot < 0) {
+		dir = -1;
+	}
+	
+	Rotate(Vec3::Up, dir * rotationSpeed);
+	return true;
 }
 
 void Transform::SetRotation(const Vec4& quaternion)

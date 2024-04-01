@@ -9,6 +9,7 @@
   Grid.cpp
   Light.cpp
   Mesh.cpp
+  MeshRenderer.cpp
   Model.cpp
   Object.cpp
   ObjectPool.cpp
@@ -17,10 +18,11 @@
   Rigidbody.cpp
   Scene.cpp
   SkyBox.cpp
-  Terrain.cpp
   코드를 생성하고 있습니다...
   컴파일하고 있습니다...
+  Terrain.cpp
   TestCube.cpp
+  Transform.cpp
   UI.cpp
   X-Engine.cpp
   코드를 생성하고 있습니다...

@@ -291,8 +291,10 @@ void Script_GroundPlayer::FireBullet()
 
 	Transform* firePos = mWeapon->FindFrame("FirePos");
 	auto& bullet = mBulletPool->Get(true);
-	auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-	bulletScript->Fire(*firePos, GetBulletSpeed(), GetBulletDamage());
+	if (bullet) {
+		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
+		bulletScript->Fire(*firePos, GetBulletSpeed(), GetBulletDamage());
+	}
 }
 
 
@@ -368,10 +370,8 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 
 void Script_GroundPlayer::SetWeapon(int weaponIdx)
 {
-	rsptr<Animator> animator = mObject->GetObj<GameObject>()->GetAnimator();
-
 	if (weaponIdx == 0) {
-		animator->GetController()->SetValue("Weapon", 0);
+		mAnimator->GetController()->SetValue("Weapon", 0);
 		if (mWeapon) {
 			mWeapon->OnDisable();
 			mWeapon = nullptr;
@@ -391,7 +391,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	mWeapon = mWeapons[weaponIdx - 1];
 	if (mWeapon) {
 		mWeapon->OnEnable();
-		animator->GetController()->SetValue("Weapon", weaponIdx);
+		mAnimator->GetController()->SetValue("Weapon", weaponIdx);
 	}
 }
 

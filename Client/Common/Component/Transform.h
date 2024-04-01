@@ -148,6 +148,9 @@ public:
 	void Rotate(const Vec3& axis, float angle);
 	// (local) rotates around [offset] by [axis] and [angle]
 	void RotateOffset(const Vec3& axis, float angle, const Vec3& offset);
+	// (local) rotates to target by Y-axis 
+	bool RotateTargetAxisY(const Vec3& target, float rotationSpeed);
+	// (local) set rotation to quaternion
 	void SetRotation(const Vec4& quaternion);
 
 	// (local) rotates to the [lookTo] direction

@@ -46,7 +46,7 @@ public:
 public:
 	virtual void Animate() override;
 	virtual void Render();
-	rsptr<Animator> GetAnimator() const { return mAnimator; }
+	sptr<Animator> GetAnimator() const { return mAnimator; }
 
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.

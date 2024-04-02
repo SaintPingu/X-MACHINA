@@ -90,9 +90,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\EnginePch.cpp">
-      <Filter>PCH</Filter>
-    </ClCompile>
     <ClCompile Include="src\UI.cpp">
       <Filter>소스 파일\Component\UI</Filter>
     </ClCompile>
@@ -252,6 +249,9 @@
     <ClCompile Include="Imgui\ImGuiManager.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\EnginePch.cpp">
+      <Filter>PCH</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DDSTextureLoader12.h">
@@ -359,9 +359,6 @@
     <ClInclude Include="include\LUTFilter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\EnginePch.h">
-      <Filter>PCH</Filter>
-    </ClInclude>
     <ClInclude Include="include\AnimationClip.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -434,8 +431,8 @@
     <ClInclude Include="..\Common\Common.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\X-MACHINA\include\Script_MainCamera.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="include\EnginePch.h">
+      <Filter>PCH</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

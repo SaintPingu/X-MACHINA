@@ -268,24 +268,7 @@ void GameFramework::Launch()
 
 }
 
-void GameFramework::InitPlayer()
-{
-	sptr<GridObject> player = engine->GetPlayer();
-	mPlayerScript = player->AddComponent<Script_GroundPlayer>();
-	player->SetModel("EliteTrooper");
-	player->SetPosition(300, 0, 300);
 
-	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
-	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
-	//player->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");
-}
-
-
-
-
-void GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	engine->ProcessMessage(hWnd, message, wParam, lParam);
 
 LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -473,10 +456,11 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	}
 	return (INT_PTR)FALSE;
+}
+
 void GameFramework::InitPlayer()
 {
 	mTestObject = scene->Instantiate("EliteTrooper", true);
-	mTestObject->SetPosition(105, 13, 105);
 
 	sptr<GridObject> player = engine->GetPlayer();
 	player->ResetCollider();

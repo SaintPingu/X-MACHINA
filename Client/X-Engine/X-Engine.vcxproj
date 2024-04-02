@@ -99,6 +99,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -115,6 +116,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +135,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,6 +154,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -208,6 +212,12 @@
     <ClCompile Include="src\DDSTextureLoader12.cpp" />
     <ClCompile Include="src\DescriptorHeap.cpp" />
     <ClCompile Include="src\DXGIMgr.cpp" />
+    <ClCompile Include="src\EnginePch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\FileIO.cpp" />
     <ClCompile Include="src\FrameResource.cpp" />
     <ClCompile Include="src\Grid.cpp" />
@@ -235,19 +245,12 @@
     </ClCompile>
     <ClCompile Include="src\SkyBox.cpp" />
     <ClCompile Include="src\Ssao.cpp" />
-    <ClCompile Include="src\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\TestCube.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\UI.cpp" />
-    <ClCompile Include="src\Weapon.cpp" />
     <ClCompile Include="src\X-Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -257,7 +260,6 @@
     <ClInclude Include="..\Common\Component\Component.h" />
     <ClInclude Include="..\Common\Component\ParticleSystem.h" />
     <ClInclude Include="..\Common\Component\Rigidbody.h" />
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
     <ClInclude Include="..\Common\Component\Transform.h" />
     <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\Object.h" />
@@ -283,6 +285,7 @@
     <ClInclude Include="include\DDSTextureLoader12.h" />
     <ClInclude Include="include\DescriptorHeap.h" />
     <ClInclude Include="include\DXGIMgr.h" />
+    <ClInclude Include="include\EnginePch.h" />
     <ClInclude Include="include\FileIO.h" />
     <ClInclude Include="include\FrameResource.h" />
     <ClInclude Include="include\framework.h" />
@@ -303,14 +306,12 @@
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SkyBox.h" />
     <ClInclude Include="include\Ssao.h" />
-    <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Terrain.h" />
     <ClInclude Include="include\TestCube.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\UploadBuffer.h" />
-    <ClInclude Include="include\Weapon.h" />
     <ClInclude Include="include\X-Engine.h" />
     <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>

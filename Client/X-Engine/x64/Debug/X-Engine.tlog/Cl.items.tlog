@@ -22,6 +22,7 @@ C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Component.cpp;
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\DDSTextureLoader12.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\DDSTextureLoader12.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\DescriptorHeap.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\DescriptorHeap.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\DXGIMgr.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\DXGIMgr.obj
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\EnginePch.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\EnginePch.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\FileIO.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\FileIO.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\FrameResource.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\FrameResource.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Grid.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Grid.obj
@@ -44,12 +45,10 @@ C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Shader.cpp;C:\
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\SimpleMath.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\SimpleMath.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\SkyBox.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\SkyBox.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Ssao.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Ssao.obj
-C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\stdafx.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\stdafx.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Terrain.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Terrain.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\TestCube.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\TestCube.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Texture.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Texture.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Timer.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Timer.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Transform.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Transform.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\UI.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\UI.obj
-C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\Weapon.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\Weapon.obj
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\src\X-Engine.cpp;C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-Engine\x64\Debug\X-Engine.obj

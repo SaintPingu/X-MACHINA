@@ -46,6 +46,12 @@
     <Filter Include="Network\FlatBuffers\bat">
       <UniqueIdentifier>{cec0777d-1af8-4e54-a87c-2e0963bbb77d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Enemy">
+      <UniqueIdentifier>{7805d217-2134-408e-8e6c-c771ed0e7d61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Manager">
+      <UniqueIdentifier>{fe5f51ad-398a-47a2-aa2c-865017a90c96}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -69,9 +75,6 @@
     </ClInclude>
     <ClInclude Include="include\X-MACHINA.h">
       <Filter>헤더 파일\Dummy</Filter>
-    </ClInclude>
-    <ClInclude Include="include\pch.h">
-      <Filter>PCH</Filter>
     </ClInclude>
     <ClInclude Include="include\Resource.h">
       <Filter>헤더 파일\Dummy</Filter>
@@ -163,16 +166,28 @@
     <ClInclude Include="Network\PacketFactory.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="include\stdafx.h">
+      <Filter>PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Enemy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_GameManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_GroundObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_LiveObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Weapon.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pch.cpp">
-      <Filter>PCH</Filter>
-    </ClCompile>
     <ClCompile Include="src\X-MACHINA.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_AirplanePlayer.cpp">
-      <Filter>Script\Player</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_GroundPlayer.cpp">
       <Filter>Script\Player</Filter>
@@ -221,6 +236,24 @@
     </ClCompile>
     <ClCompile Include="Network\PacketFactory.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Enemy.cpp">
+      <Filter>Script\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_GameManager.cpp">
+      <Filter>Script\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_LiveObject.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_GroundObject.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Weapon.cpp">
+      <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

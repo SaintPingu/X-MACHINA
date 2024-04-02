@@ -42,41 +42,41 @@ void GameFramework::KeyInputBroadcast()
 {
 	/* 키 입력은 메인쓰레드에서 동작해야한다. */
 	/* TAP */
-	if (KEY_TAP('A')) {
+	if (KEY_PRESSED('A')) {
 		std::string Chatting = "LEFT 키를 눌렀습니다.\n";
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::A, KEY_STATE::TAP);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::A, KEY_STATE::PRESSED);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 	}
-	if (KEY_TAP('D')) {
+	if (KEY_PRESSED('D')) {
 		std::string Chatting = "RIGHT 키를 눌렀습니다.\n";
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::D, KEY_STATE::TAP);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::D, KEY_STATE::PRESSED);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 
 	}
-	if (KEY_TAP('W')) {
+	if (KEY_PRESSED('W')) {
 		std::string Chatting = "UP 키를 눌렀습니다.\n";
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::W, KEY_STATE::TAP);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::W, KEY_STATE::PRESSED);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 
 	}
-	if (KEY_TAP('S')) {
+	if (KEY_PRESSED('S')) {
 		std::string Chatting = "DOWN 키를 눌렀습니다.\n";
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::S, KEY_STATE::TAP);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::S, KEY_STATE::PRESSED);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 
@@ -213,6 +213,11 @@ int GameFramework::GameLoop()
 void GameFramework::Update()
 {
 	engine->Update();
+
+	sptr<GridObject> player = engine->GetPlayer();
+	Vec3 pos = player->GetLocalPosition();
+	printf("PLAYER POS : %f %f %f\n", pos.x, pos.y, pos.z);
+
 
 	KeyInputBroadcast(); 
 }

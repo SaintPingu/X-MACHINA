@@ -297,6 +297,7 @@ void Transform::ReturnToPrevTransform()
 
 void Transform::UpdateAxis(bool isComputeWorldTransform)
 {
+
 	::memcpy(&mRight, &mLocalTransform._11, sizeof(Vec3));
 	::memcpy(&mUp, &mLocalTransform._21, sizeof(Vec3));
 	::memcpy(&mLook, &mLocalTransform._31, sizeof(Vec3));
@@ -309,6 +310,7 @@ void Transform::UpdateAxis(bool isComputeWorldTransform)
 
 void Transform::UpdateLocalTransform(bool isComputeWorldTransform)
 {
+
 	::memcpy(&mLocalTransform._11, &mRight, sizeof(Vec3));
 	::memcpy(&mLocalTransform._21, &mUp, sizeof(Vec3));
 	::memcpy(&mLocalTransform._31, &mLook, sizeof(Vec3));

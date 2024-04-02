@@ -85,6 +85,9 @@ void Script_GroundPlayer::LateUpdate()
 	Vec3 pos = mObject->GetPosition();
 	float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
 	mObject->SetPositionY(terrainHeight);
+
+	//std::cout << pos.x << " " << terrainHeight << " " << pos.z << std::endl;
+
 }
 
 

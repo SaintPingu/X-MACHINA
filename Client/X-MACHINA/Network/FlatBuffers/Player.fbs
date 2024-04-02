@@ -1,0 +1,6 @@
+table Player{
+  name:string;
+  level:int;
+}
+ 
+root_type Player;

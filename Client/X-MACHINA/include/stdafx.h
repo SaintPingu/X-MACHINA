@@ -67,11 +67,43 @@ public:
 #pragma comment(lib, "dxguid.lib")
 #pragma endregion
 
+/// +-----------------------
+///		   Library 
+/// -----------------------+
+#ifdef _DEBUG
+#pragma comment(lib, "Debug\\XMachinaServerLib.lib")
+#else
+#pragma comment(lib, "Release\\XMachinaServerLib.lib")
+#endif
+
+/// +-----------------------
+///		  Engine Lib 
+/// -----------------------+
+#ifdef _DEBUG
+#pragma comment(lib, "Debug\\X-Engine.lib")
+#else 
+#pragma comment(lib, "Release\\X-Engine.lib")
+#endif
+
+/// +------------------------
+///			WINSOCK
+/// ------------------------+
+#pragma region WinSock 
+#include <winsock2.h>
+#include <mswsock.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+#include <iphlpapi.h>
+#pragma comment(lib, "iphlpapi.lib")
+#pragma endregion
+
 
 #pragma region Include
 /* Windows */
 #include <windows.h>
 #include <Mmsystem.h>
+#include <thread>
 
 /* C */
 #include <stdlib.h>
@@ -85,6 +117,9 @@ public:
 #include <shellapi.h>
 
 /* C++ */
+#include <iostream>
+#include <functional>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <fstream>
@@ -121,6 +156,25 @@ public:
 
 /* Custom */
 #include "Common.h"
+
+
+#include "Types.h"
+#include "ServerMacro.h"
+#include "ThreadLocalStorage.h"
+#include "Container.h"
+
+#include "Lock.h"
+#include "NetObjectPool.h"
+#include "TypeCast.h"
+#include "NetMemory.h"
+#include "SendBuffer.h"
+#include "Session.h"
+#include "JobQueue.h"
+#include "Log/LogMgr.h"
+
+#include "PacketSession.h"
+
+
 #pragma endregion
 
 

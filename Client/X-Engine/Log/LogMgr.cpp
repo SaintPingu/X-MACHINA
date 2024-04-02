@@ -1,91 +1,37 @@
 #include "EnginePch.h"
 #include "LogMgr.h"
 
+#include <iostream>
 #include <ctime>
 #include <iomanip>
 #include <fstream>
 #include <filesystem>
-#include <iostream>
 
-LogMgr::LogMgr()
+LogManager::LogManager()
 {
 	AllocConsole();
 
 	freopen_s(&mConsoleStream, "CONOUT$", "w", stdout); // 표준 출력을 콘솔로 리디렉션
 	freopen_s(&mConsoleStream, "CONIN$", "r", stdin);	// 표준 입력을 콘솔로 리디렉션
+
 }
 
-LogMgr::~LogMgr()
+LogManager::~LogManager()
 {
 	FreeConsole();
 	if (mLogWriteFile.is_open())
 		mLogWriteFile.close();
-}
 
-std::string LogMgr::LogLevelString(LogLevel level)
-{
-	switch (level)
-	{
-	case LogLevel::Trace:
-		return "TRACE";
-		break;
-	case LogLevel::Debug:
-		return "DEBUG";
-		break;
-	case LogLevel::Info:
-		return "INFO";
-		break;
-	case LogLevel::Warning:
-		return "WARNING";
-		break;
-	case LogLevel::Error:
-		return "ERROR";
-		break;
-	case LogLevel::Fatal:
-		return "FATAL";
-		break;
-	default:
-		return "";
-		break;
-	}
-	return "";
-}
-
-std::string LogMgr::GetCurFileName(std::string& src_File)
-{
-	if (src_File.size() == 0) return "";
-
-	std::string name{};
-	for (int i = src_File.size() - 1; src_File[i] != '\\'; --i)
-	{
-		name += src_File[i];
-	}
-	std::reverse(name.begin(), name.end());
-	return name;
-}
-
-void LogMgr::Sample()
-{
-	LOG_CONSOLE(LogLevel::Info, "Sample() 함수에서 로그 사용 예시코드를 작성했습니다.\n\n");
-		
-	LOG_CONSOLE(LogLevel::Basic, "콘솔창에만 로그를 찍습니다.\n");
-	
-	COUT("로그 레벨 Basic 이며 콘솔창에만 로그 찍습니다.\n");
-	
-	LOG_CONSOLE(LogLevel::Debug,	"Magenta 로그\n");
-	LOG_CONSOLE(LogLevel::Error,	"Red 로그\n");
-	LOG_CONSOLE(LogLevel::Fatal,	"Green 로그\n");
-	LOG_CONSOLE(LogLevel::Info,		"White 로그\n");
-	LOG_CONSOLE(LogLevel::Trace,	"Cyan 로그\n");
-	LOG_CONSOLE(LogLevel::Warning,	"Yellow 로그\n");
-
-	LOG_FILE(LogLevel::Debug, "파일에만 로그 작성\n");
-	LOG_CONSOLE_FILE(LogLevel::Debug, "콘솔창 과 파일 둘다 로그 작성\n");
+	fclose(mConsoleStream);
 
 }
 
-void LogMgr::LogConsole(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
+
+void LogManager::LogConsole(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
 {
+	if (mIsConsoleLogWrite == false)
+		return;
+
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	std::string result{};
 	std::string logLv = "[ " + LogLevelString(level) + " ]\t";
@@ -97,54 +43,52 @@ void LogMgr::LogConsole(LogLevel level, const char* file, const char* func, cons
 
 	switch (level)
 	{
-	case LogLevel::Basic:
-	{
-		std::cout << logstr;
-	}
-	break;
 	case LogLevel::Trace:
 	{
-		SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::Cyan);
+		SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::Cyan);
 		std::cout << result;
 	}
 	break;
 	case LogLevel::Debug:
 	{
-		SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::Magenta);
+		SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::Magenta);
 		std::cout << result;
 	}
 	break;
 	case LogLevel::Info:
 	{
-		SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::White);
+		SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::White);
 		std::cout << result;
 	}
 	break;
 	case LogLevel::Warning:
 	{
-		SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::Yellow);
+		SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::Yellow);
 		std::cout << result;
 	}
 	break;
 	case LogLevel::Error:
 	{
-		SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::Red);
+		SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::Red);
 		std::cout << result;
 	}
 	break;
 	case LogLevel::Fatal:
 	{
-		SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::Green);
+		SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::Green);
 		std::cout << result;
 	}
 	break;
 	}
 
-	SetConsoleTextAttribute(hConsole, (DWORD)ConsoleColor::White); // 기본 색상으로 복원
+	SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::White); // 기본 색상으로 복원
 }
 
-void LogMgr::LogFile(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
+void LogManager::LogFile(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
 {
+	if (mIsFileLogWrite == false)
+		return;
+
 	if (mLogWriteFile)
 	{
 		std::string result{};
@@ -167,23 +111,19 @@ void LogMgr::LogFile(LogLevel level, const char* file, const char* func, const i
 
 	}
 }
-std::string LogMgr::tmToString(const std::tm& timeStruct, const std::string& format)
-{
-	std::stringstream ss;
-	ss << std::put_time(&timeStruct, format.c_str());
-	return ss.str();
-}
 
-bool LogMgr::Init(std::string name)
-{
-	mIsLogWrite = true;
 
+bool LogManager::Init(std::string name)
+{
+	/// +-----------------------------
+	///		   CREATE LOG FILE
+	/// -----------------------------+
+	///
 	std::time_t currentTime = std::time(nullptr);
-	std::tm		localTime{};	  
+	std::tm		localTime{};
 	localtime_s(&localTime, &currentTime);
 
-	std::string FileName   = name + " " + tmToString(localTime, "%Y_%m%d_%Hh%Mm%Ss.log");
-
+	std::string FileName = name + " " + tmToString(localTime, "%Y_%m%d_%Hh%Mm%Ss.log");
 	std::string FolderName = "Log\\LogFile\\" + tmToString(localTime, "%Y_%m%d_Log");
 
 	std::filesystem::path currentPath = std::filesystem::current_path();	// 현재 경로
@@ -193,8 +133,117 @@ bool LogMgr::Init(std::string name)
 	std::filesystem::path filePath = currentPath / FolderName / FileName;	// 파일 경로 및 이름 
 	mLogWriteFile.open(filePath, std::ios::out | std::ios::trunc);
 
-	Sample();
+	mConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	/// +-----------------------------
+	///		INIT WCOUT LOCALE KOREA
+	/// -----------------------------+
+	std::wcout.imbue(std::locale("kor"));
 
 	return mLogWriteFile.is_open();
 }
 
+void LogManager::On()
+{
+	mIsConsoleLogWrite = true;
+	mIsFileLogWrite = true;
+}
+
+void LogManager::Off()
+{
+	mIsConsoleLogWrite = false;
+	mIsFileLogWrite = false;
+
+}
+
+void LogManager::On_ConsoleLog()
+{
+	mIsConsoleLogWrite = true;
+
+}
+
+void LogManager::Off_ConsoleLog()
+{
+	mIsConsoleLogWrite = false;
+
+}
+
+void LogManager::On_FileLog()
+{
+	mIsFileLogWrite = true;
+
+}
+
+void LogManager::Off_FileLog()
+{
+	mIsFileLogWrite = false;
+
+}
+
+std::string LogManager::tmToString(const std::tm& timeStruct, const std::string& format)
+{
+	std::stringstream ss;
+	ss << std::put_time(&timeStruct, format.c_str());
+	return ss.str();
+}
+
+
+std::string LogManager::LogLevelString(LogLevel level)
+{
+	switch (level)
+	{
+	case LogLevel::Trace:
+		return "TRACE";
+		break;
+	case LogLevel::Debug:
+		return "DEBUG";
+		break;
+	case LogLevel::Info:
+		return "INFO";
+		break;
+	case LogLevel::Warning:
+		return "WARNING";
+		break;
+	case LogLevel::Error:
+		return "ERROR";
+		break;
+	case LogLevel::Fatal:
+		return "FATAL";
+		break;
+	}
+	return "";
+}
+
+std::string LogManager::GetCurFileName(std::string& src_File)
+{
+	if (src_File.size() == 0) return "";
+
+	std::string name{};
+	for (size_t i = src_File.size() - 1; src_File[i] != '\\'; --i)
+	{
+		name += src_File[i];
+	}
+	std::reverse(name.begin(), name.end());
+	return name;
+}
+
+std::string LogManager::CharToString(char* c)
+{
+	std::string str = c;
+	return str;
+}
+
+std::string LogManager::WstringToString(const WCHAR* wc)
+{
+	std::wstring wstr = wc;
+
+	// wstring을 string으로 변환하는 부분
+	std::string str;
+	str.reserve(wstr.size());  // 성능을 위해 미리 메모리를 할당
+
+	// 레인지와 범위 기반 for 루프를 사용하여 변환
+	std::ranges::transform(wstr, std::back_inserter(str), [](wchar_t wc) {
+		return static_cast<char>(wc);
+		});
+	return str;
+}

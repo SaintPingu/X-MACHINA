@@ -1,2 +1,54 @@
-﻿  Transform.cpp
-  X-Engine.vcxproj -> C:\Users\alseh\Desktop\X-MACHINA\Client\X-MACHINA\lib\X-Engine.lib
+﻿  stdafx.cpp
+  ImGuiManager.cpp
+  LogMgr.cpp
+  AnimationClip.cpp
+  Animator.cpp
+  AnimatorBlendTree.cpp
+  AnimatorController.cpp
+  AnimatorLayer.cpp
+  AnimatorMotion.cpp
+  AnimatorState.cpp
+  AnimatorStateMachine.cpp
+  BlurFilter.cpp
+  Camera.cpp
+  Collider.cpp
+  Component.cpp
+  DDSTextureLoader12.cpp
+  DXGIMgr.cpp
+  DescriptorHeap.cpp
+  FileIO.cpp
+  FrameResource.cpp
+  Grid.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  InputMgr.cpp
+  LUTFilter.cpp
+  Light.cpp
+  Mesh.cpp
+  MeshRenderer.cpp
+  Model.cpp
+  MultipleRenderTarget.cpp
+  Object.cpp
+  ObjectPool.cpp
+  ParticleSystem.cpp
+  ResourceMgr.cpp
+  Resources.cpp
+  Rigidbody.cpp
+  RootSignature.cpp
+  Scene.cpp
+  Shader.cpp
+  SimpleMath.cpp
+  SkyBox.cpp
+  Ssao.cpp
+  Terrain.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  TestCube.cpp
+  Texture.cpp
+  Timer.cpp
+  Transform.cpp
+  UI.cpp
+  Weapon.cpp
+  X-Engine.cpp
+  코드를 생성하고 있습니다...
+  X-Engine.vcxproj -> C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-MACHINA\lib\Debug\X-Engine.lib

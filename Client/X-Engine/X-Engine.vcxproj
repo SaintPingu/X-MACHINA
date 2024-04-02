@@ -72,18 +72,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\..\Client\X-MACHINA\lib\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)include;$(SolutionDir)Common;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\..\Client\X-MACHINA\lib\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\X-MACHINA\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,6 +97,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,6 +113,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -123,7 +133,6 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,7 +151,6 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -227,11 +235,11 @@
     </ClCompile>
     <ClCompile Include="src\SkyBox.cpp" />
     <ClCompile Include="src\Ssao.cpp" />
-    <ClCompile Include="src\EnginePch.cpp">
+    <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnginePch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">EnginePch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\TestCube.cpp" />
@@ -239,6 +247,7 @@
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\UI.cpp" />
+    <ClCompile Include="src\Weapon.cpp" />
     <ClCompile Include="src\X-Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -248,12 +257,12 @@
     <ClInclude Include="..\Common\Component\Component.h" />
     <ClInclude Include="..\Common\Component\ParticleSystem.h" />
     <ClInclude Include="..\Common\Component\Rigidbody.h" />
+    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
     <ClInclude Include="..\Common\Component\Transform.h" />
     <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
-    <ClInclude Include="..\X-MACHINA\include\Script_MainCamera.h" />
     <ClInclude Include="Imgui\ImguiCode\imconfig.h" />
     <ClInclude Include="Imgui\ImguiCode\imgui.h" />
     <ClInclude Include="Imgui\ImguiCode\imgui_impl_dx12.h" />
@@ -294,13 +303,14 @@
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SkyBox.h" />
     <ClInclude Include="include\Ssao.h" />
-    <ClInclude Include="include\EnginePch.h" />
+    <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Terrain.h" />
     <ClInclude Include="include\TestCube.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\UploadBuffer.h" />
+    <ClInclude Include="include\Weapon.h" />
     <ClInclude Include="include\X-Engine.h" />
     <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>

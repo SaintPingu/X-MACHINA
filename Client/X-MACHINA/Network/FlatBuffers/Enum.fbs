@@ -1,0 +1,15 @@
+
+// +------------
+// Enum.fbs
+// ------------+
+
+namespace FBProtocol;
+
+
+
+enum OBJECTTYPE : byte {
+  NONE,
+  PlayerInfo,
+  OBJECT,
+  GAMEOBJECT
+}

@@ -184,6 +184,12 @@
     <ClInclude Include="include\Script_Weapon.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Aranobot.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Droid.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -254,6 +260,12 @@
     </ClCompile>
     <ClCompile Include="src\Script_Weapon.cpp">
       <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Aranobot.cpp">
+      <Filter>Script\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Droid.cpp">
+      <Filter>Script\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

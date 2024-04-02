@@ -9,11 +9,10 @@ class AnimatorState;
 class AnimatorLayer;
 
 struct AnimatorParameter {
-	enum class Type {
+	enum class Type : BYTE {
 		Float,
 		Int,
 		Bool,
-		Trigger
 	};
 
 	Type type{};

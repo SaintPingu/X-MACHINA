@@ -523,7 +523,6 @@ namespace {
 					switch (Hash(condition.mode)) {
 					case Hash("If"):
 					case Hash("IfNot"):
-					case Hash("Trigger"):
 						break;
 					default:
 						FileIO::ReadVal(file, condition.threshold);
@@ -851,10 +850,6 @@ namespace FileIO {
 				case Hash("Bool"):
 					param.type = AnimatorParameter::Type::Bool;
 					FileIO::ReadVal(file, param.val.b);
-					break;
-				case Hash("Trigger"):
-					param.type = AnimatorParameter::Type::Trigger;
-					param.val.b = false;
 					break;
 				default:
 					assert(0);

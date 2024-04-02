@@ -97,7 +97,6 @@ void AnimatorController::SetValue(const std::string& paramName, void* value)
 	auto& param = mParameters[paramName];
 	switch (param.type) {
 	case AnimatorParameter::Type::Bool:
-	case AnimatorParameter::Type::Trigger:
 		val.b = *(bool*)value;
 		if (param.val.b == val.b) {
 			return;

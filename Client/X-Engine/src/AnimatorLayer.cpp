@@ -50,6 +50,7 @@ void AnimatorLayer::Init(const AnimatorController* controller)
 {
 	mController = controller;
 	mRootStateMachine->Init(controller);
+	CheckTransition(controller);
 }
 
 void AnimatorLayer::Animate()

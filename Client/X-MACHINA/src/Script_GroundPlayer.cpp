@@ -86,15 +86,18 @@ void Script_GroundPlayer::Start()
 		mController = mAnimator->GetController();
 		auto& runMotion = mController->FindMotionByName("BT_Run", "Legs");	// Legs 레이어의 BT_Run 모션을 찾는다.
 		if (runMotion) {
-			runMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback00, this), 10);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
-			runMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback01, this), 5);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
+			// 해당 모션의 프레임이 n에 도달하면 함수를 콜백한다.
+			runMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback00, this), 10);
+			runMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback01, this), 5);
 		}
-		auto& sitMotion = mController->FindMotionByName("BT_WalkCrouch", "Legs");	// Legs 레이어의 BT_Run 모션을 찾는다.
+		auto& sitMotion = mController->FindMotionByName("BT_WalkCrouch", "Legs");	// Legs 레이어의 BT_WalkCrouch 모션을 찾는다.
 		if (sitMotion) {
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback10, this), 10);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback11, this), 3);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback12, this), 7);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback13, this), 13);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
+			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback10, this), 10);
+			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback11, this), 3);
+			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback12, this), 7);
+			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback13, this), 13);
+			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback14, this), 8);
+			sitMotion->DeleteCallback(7);
 		}
 	}
 }
@@ -472,9 +475,6 @@ void Script_GroundPlayer::AnimationCallback01()
 void Script_GroundPlayer::AnimationCallback00()
 {
 	printf("Run_Callback :: frame 10\n");
-	mController->SetValue("Run", false);
-	mController->SetValue("Walk", true);
-	mController->SetValue("Sit", true);
 }
 
 void Script_GroundPlayer::AnimationCallback10()
@@ -492,7 +492,8 @@ void Script_GroundPlayer::AnimationCallback12()
 void Script_GroundPlayer::AnimationCallback13()
 {
 	printf("WalkCrouch_Callback :: frame 13\n");
-	mController->SetValue("Run", true);
-	mController->SetValue("Walk", false);
-	mController->SetValue("Sit", false);
+}
+void Script_GroundPlayer::AnimationCallback14()
+{
+	printf("WalkCrouch_Callback :: frame 8\n");
 }

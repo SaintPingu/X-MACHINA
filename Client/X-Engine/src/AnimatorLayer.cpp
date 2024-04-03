@@ -109,6 +109,7 @@ void AnimatorLayer::Animate()
 
 	std::erase_if(mNextStates, [](const auto& state) {
 		if (state->GetWeight() <= 0.f) {
+			state->Reset();
 			return true;
 		}
 		return false;

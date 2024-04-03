@@ -16,7 +16,6 @@ struct AnimatorMotionInfo {
 };
 
 struct MotionCallback {
-	float Time;
 	std::function<void()> Callback;
 	bool Called;
 
@@ -46,7 +45,7 @@ private:
 	const AnimatorStateMachine* mStateMachine{};
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
-	std::vector<MotionCallback> mCallbackList;
+	std::map<float, MotionCallback> mCallbacks;
 
 public:
 	AnimatorMotion(const AnimatorMotionInfo& info);
@@ -66,6 +65,7 @@ public:
 	void SetWeight(float weight) { mWeight = weight; }
 
 	void AddCallback(const std::function<void()>& callback, int frame);
+	void DeleteCallback(int frame);
 
 public:
 	virtual void Init(const AnimatorController* controller) {};
@@ -84,6 +84,9 @@ public:
 
 protected:
 	virtual float GetFrameTime(int frame) abstract;
+
+private:
+	void ResetCallbacks();
 };
 
 

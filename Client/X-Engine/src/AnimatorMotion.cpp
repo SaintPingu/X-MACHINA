@@ -40,6 +40,8 @@ void AnimatorMotion::ResetLength()
 	else {
 		mCrntLength = 0.f;
 	}
+
+	ResetCallbacks();
 }
 
 void AnimatorMotion::SetLength(float length)
@@ -52,23 +54,12 @@ void AnimatorMotion::SetLength(float length)
 
 void AnimatorMotion::AddCallback(const std::function<void()>& callback, int frame)
 {
-	MotionCallback motionCallback{ GetFrameTime(frame), callback };
+	mCallbacks.insert(std::make_pair(GetFrameTime(frame), MotionCallback{ callback }));
+}
 
-	if (mCallbackList.empty()) {
-		mCallbackList.push_back(motionCallback);
-		return;
-	}
-
-	for (auto& it = mCallbackList.begin(); ; ++it) {
-		if (it == mCallbackList.end()) {
-			mCallbackList.push_back(motionCallback);
-			break;
-		}
-		else if (it->Time > motionCallback.Time) {
-			mCallbackList.insert(it, motionCallback);
-			break;
-		}
-	}
+void AnimatorMotion::DeleteCallback(int frame)
+{
+	mCallbacks.erase(GetFrameTime(frame));
 }
 
 void AnimatorMotion::Reset()
@@ -77,6 +68,8 @@ void AnimatorMotion::Reset()
 	mWeight     = 1.f;
 	mCrntSpeed  = mkOriginSpeed;
 	mIsReverse  = 1;
+
+	ResetCallbacks();
 }
 
 
@@ -95,19 +88,16 @@ bool AnimatorMotion::Animate()
 	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
 	if (IsEndAnimation()) {
 		ResetLength();
-		for (auto& callback : mCallbackList) {
-			callback.Reset();
-		}
 		return true;
 	}
 
-	for (auto& callback : mCallbackList) {
-		if (mCrntLength > callback.Time) {
+	for (auto& [time, callback] : mCallbacks | std::views::reverse) {
+		if (mCrntLength >= time) {
 			if (!callback.Called) {
 				callback.Callback();
 				callback.Called = true;
-				break;
 			}
+			break;
 		}
 	}
 
@@ -122,6 +112,13 @@ void AnimatorMotion::DecWeight()
 void AnimatorMotion::IncWeight()
 {
 	mWeight += DeltaTime() * mkTransitionSpeed;
+}
+
+void AnimatorMotion::ResetCallbacks()
+{
+	for (auto& callback : mCallbacks) {
+		callback.second.Reset();
+	}
 }
 
 

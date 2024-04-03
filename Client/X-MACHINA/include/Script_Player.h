@@ -177,6 +177,7 @@ private:
 	void AnimationCallback11();
 	void AnimationCallback12();
 	void AnimationCallback13();
+	void AnimationCallback14();
 };
 
 #pragma endregion

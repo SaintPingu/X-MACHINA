@@ -3,8 +3,8 @@
 
 #define LOG_MGR LogManager::Inst()
 
-#define CHAR_TO_STRING(c) LogManager::Inst()->CharToString(c)
-#define WSTR_TO_STRING(str) LogManager::Inst()->WstringToString(str)
+#define CHAR_TO_STRING(c) LOG_MGR->CharToString(c)
+#define WSTR_TO_STRING(str) LOG_MGR->WstringToString(str)
 
 enum class TextColor {
 	Default = 0x07,    // White
@@ -81,7 +81,7 @@ public:
 
 
 public:
-	bool Init(std::string name = "");
+	bool Init(const std::string& name = "");
 
 	/// +-----------------------------
 	///			   ON / OFF
@@ -97,7 +97,6 @@ public:
 
 	void LogConsole(LogLevel level, const char* file, const char* func, const int& line, std::string logstr);		/// 콘솔창에 로그를 띄웁니다.
 	void LogFile(LogLevel level, const char* file, const char* func, const int& line, std::string logstr);			/// 파일에   로그를 기록합니다.
-
 
 	/// +-----------------------------
 	///			Log Utility

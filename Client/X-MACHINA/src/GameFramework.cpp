@@ -31,7 +31,7 @@
 #include "InputMgr.h"
 #include "PacketFactory.h"
 
-
+//#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -44,12 +44,14 @@ GameFramework::GameFramework()
 
 GameFramework::~GameFramework()
 {
-	THREAD_MGR->Destroy();
-
 }
 
 void GameFramework::KeyInputBroadcast()
 {
+#ifndef SERVER_COMMUNICATION
+	return;
+#endif
+
 	/* 키 입력은 메인쓰레드에서 동작해야한다. */
 	/* TAP */
 	if (KEY_PRESSED('A')) {
@@ -159,19 +161,21 @@ void GameFramework::KeyInputBroadcast()
 
 bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
 {
+	/* mhWnd 초기화 */
 	mhInst = hInstance;
 	mResolution.Width = width;
 	mResolution.Height = height;
-	CreateGameClientWindow(); /* mhWnd 초기화 */
+	CreateGameClientWindow();
 
+	// Init //
 	engine->Init(hInstance, mhWnd, width, height);
 	mainCameraObject->AddComponent<Script_MainCamera>();
 	gameManager->AddComponent<Script_GameManager>();
-
-
-	InitPlayer();
 	objectMgr->InitObjectsScript();
+	InitPlayer();
 
+#ifdef SERVER_COMMUNICATION
+	// Communication //
 	SocketUtils::Init();
 	ServerFBsPktFactory::Init();
 	mClientNetworkService = MakeShared<ClientService>(
@@ -181,15 +185,17 @@ bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
 		1);
 	mClientNetworkService->Start();
 	THREAD_MGR->InitTLS();
-
+#endif
 
 	return true;
 }
 
 void GameFramework::Release()
 {
-	engine->Release();
 	objectMgr->Destroy();
+	THREAD_MGR->Destroy();
+
+	engine->Release();
 	Destroy();
 }
 
@@ -220,6 +226,8 @@ int GameFramework::GameLoop()
 		}
 	}
 
+	Release();
+
 	::DestroyWindow(mhWnd);
 	::UnregisterClass(L"X-MACHINA", mhInst);
 
@@ -242,30 +250,32 @@ void GameFramework::Update()
 
 void GameFramework::Launch()
 {
+#ifdef SERVER_COMMUNICATION
 	LOG_MGR->SetColor(TextColor::BrightCyan);
 	LOG_MGR->Cout("+--------------------------------------\n");
 	LOG_MGR->Cout("       X-MACHINA CLIENT NETWORK        \n");
 	LOG_MGR->Cout("--------------------------------------+\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
-
 	/* Server Thread */
-	//for (int32 i = 0; i < 2; i++)
-	//{
-	//	THREAD_MGR->Launch([=]()
-	//		{
-	//			while (true)
-	//			{
-	//				mClientNetworkService->GetIocp()->Dispatch();
-	//			}
-	//		});
-	//}
+	for (int32 i = 0; i < 2; i++)
+	{
+		THREAD_MGR->Launch([=]()
+			{
+				while (true)
+				{
+					mClientNetworkService->GetIocp()->Dispatch();
+				}
+			});
+	}
+#endif
 
 	/* main Thread */
 	GameLoop();
 
-	//THREAD_MGR->Join();
-
+#ifdef SERVER_COMMUNICATION
+	THREAD_MGR->Join();
+#endif
 }
 
 
@@ -280,6 +290,9 @@ LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LP
 		mIsFocused = true;
 		break;
 	case WM_KILLFOCUS:
+		if (!framework->IsAlive() || !input->IsAlive()) {
+			return 0;
+		}
 		input->WindowFocusOff();
 		while (ShowCursor(TRUE) <= 0);
 		mIsFocused = false;

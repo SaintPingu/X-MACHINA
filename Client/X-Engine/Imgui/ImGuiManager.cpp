@@ -20,7 +20,6 @@ ImGuiManager::ImGuiManager()
 ImGuiManager::~ImGuiManager()
 {
     DestroyImGui();
-    Destroy();
 }
 
 bool ImGuiManager::Init()

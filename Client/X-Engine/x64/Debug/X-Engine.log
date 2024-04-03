@@ -1,9 +1,5 @@
-﻿  AnimatorBlendTree.cpp
-  AnimatorController.cpp
-  AnimatorLayer.cpp
-  AnimatorMotion.cpp
-  AnimatorState.cpp
-  AnimatorStateMachine.cpp
-  FileIO.cpp
+﻿  ImGuiManager.cpp
+  LogMgr.cpp
+  X-Engine.cpp
   코드를 생성하고 있습니다...
-  X-Engine.vcxproj -> C:\Users\MDH\Desktop\DirectX12_Project\Client\X-MACHINA\lib\Debug\X-Engine.lib
+  X-Engine.vcxproj -> C:\Users\alseh\Desktop\X-MACHINA\Client\X-MACHINA\lib\Debug\X-Engine.lib

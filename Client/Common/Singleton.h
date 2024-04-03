@@ -41,6 +41,11 @@ public:
 		mSingletonInstance = nullptr;
 	}
 
+	static bool IsAlive()
+	{
+		return mSingletonInstance != nullptr;
+	}
+
 private:
 	static void CheckDestroy()
 	{

@@ -60,13 +60,12 @@ void AnimatorMotion::AddCallback(const std::function<void()>& callback, int fram
 	}
 
 	for (auto& it = mCallbackList.begin(); ; ++it) {
-		float time = (*it).Time;
-		if (time > motionCallback.Time) {
-			mCallbackList.insert(it, motionCallback);
+		if (it == mCallbackList.end()) {
+			mCallbackList.push_back(motionCallback);
 			break;
 		}
-		else if (it == mCallbackList.end()) {
-			mCallbackList.push_back(motionCallback);
+		else if (it->Time > motionCallback.Time) {
+			mCallbackList.insert(it, motionCallback);
 			break;
 		}
 	}
@@ -107,8 +106,8 @@ bool AnimatorMotion::Animate()
 			if (!callback.Called) {
 				callback.Callback();
 				callback.Called = true;
+				break;
 			}
-			break;
 		}
 	}
 

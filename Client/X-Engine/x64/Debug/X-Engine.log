@@ -1,9 +1,2 @@
-﻿  Animator.cpp
-  AnimatorBlendTree.cpp
-  AnimatorController.cpp
-  AnimatorLayer.cpp
-  AnimatorStateMachine.cpp
-  FileIO.cpp
-  ResourceMgr.cpp
-  코드를 생성하고 있습니다...
+﻿  AnimatorMotion.cpp
   X-Engine.vcxproj -> C:\Users\MDH\Desktop\DirectX12_Project\Client\X-MACHINA\lib\Debug\X-Engine.lib

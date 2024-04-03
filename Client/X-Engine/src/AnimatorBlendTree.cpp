@@ -118,3 +118,8 @@ bool BlendTree::Animate()
 
 	return result;
 }
+
+float BlendTree::GetFrameTime(int frame)
+{
+	return mMotions.front()->GetClip()->GetFrameTime(frame);
+}

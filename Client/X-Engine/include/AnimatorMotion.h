@@ -15,6 +15,17 @@ struct AnimatorMotionInfo {
 	std::vector<sptr<const AnimatorTransition>> Transitions{};
 };
 
+struct MotionCallback {
+	float Time;
+	std::function<void()> Callback;
+	bool Called;
+
+	void Reset()
+	{
+		Called = false;
+	}
+};
+
 // AnimatorState과 BlendTree의 부모 클래스
 // 애니메이션 StateMachine에서 각 animation state의 현재 상태를 나타낸다.
 class AnimatorMotion abstract {
@@ -35,6 +46,8 @@ private:
 	const AnimatorStateMachine* mStateMachine{};
 	std::vector<sptr<const AnimatorTransition>> mTransitions{};
 
+	std::vector<MotionCallback> mCallbackList;
+
 public:
 	AnimatorMotion(const AnimatorMotionInfo& info);
 	AnimatorMotion(const AnimatorMotion& other);
@@ -52,6 +65,8 @@ public:
 	void SetSpeed(float speed) { mCrntSpeed = speed; }
 	void SetWeight(float weight) { mWeight = weight; }
 
+	void AddCallback(const std::function<void()>& callback, int frame);
+
 public:
 	virtual void Init(const AnimatorController* controller) {};
 	void Reset();
@@ -66,6 +81,9 @@ public:
 
 	void DecWeight();
 	void IncWeight();
+
+protected:
+	virtual float GetFrameTime(int frame) abstract;
 };
 
 
@@ -96,6 +114,9 @@ public:
 	virtual ~AnimatorState() = default;
 
 	virtual Matrix GetSRT(int boneIndex) const override;
+
+protected:
+	virtual float GetFrameTime(int frame) override;
 };
 
 
@@ -147,4 +168,6 @@ public:
 
 	virtual bool Animate() override;
 
+protected:
+	virtual float GetFrameTime(int frame) override;
 };

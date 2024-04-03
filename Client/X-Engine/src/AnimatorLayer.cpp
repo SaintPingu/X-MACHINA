@@ -219,6 +219,11 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
 	mCrntState->SetSpeed(speed);
 }
 
+sptr<AnimatorMotion> AnimatorLayer::FindMotionByName(const std::string& motionName) const
+{
+	return mRootStateMachine->FindMotionByName(motionName);
+}
+
 void AnimatorLayer::SyncComplete()
 {
 	mCrntState->ResetSpeed();

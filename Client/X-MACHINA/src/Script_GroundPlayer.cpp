@@ -12,6 +12,7 @@
 #include "Script_Weapon.h"
 #include "Timer.h"
 #include "Animator.h"
+#include "AnimatorMotion.h"
 #include "AnimatorController.h"
 
 
@@ -83,6 +84,10 @@ void Script_GroundPlayer::Start()
 	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
 	if (mAnimator) {
 		mController = mAnimator->GetController();
+		auto& motion = mController->FindMotionByName("BT_Run", "Legs");	// Legs 레이어의 BT_Run 모션을 찾는다.
+		if (motion) {
+			motion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback, this), 10);	// 해당 모션의 프레임이 10에 도달하면 함수를 콜백한다.
+		}
 	}
 }
 
@@ -449,4 +454,11 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 사이로 고정
+}
+
+void Script_GroundPlayer::AnimationCallback()
+{
+	printf("Callback\n");
+	mController->SetValue("Run", false);
+	mController->SetValue("Sit", true);
 }

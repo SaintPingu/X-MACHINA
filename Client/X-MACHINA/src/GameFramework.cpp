@@ -250,21 +250,21 @@ void GameFramework::Launch()
 
 
 	/* Server Thread */
-	for (int32 i = 0; i < 2; i++)
-	{
-		THREAD_MGR->Launch([=]()
-			{
-				while (true)
-				{
-					mClientNetworkService->GetIocp()->Dispatch();
-				}
-			});
-	}
+	//for (int32 i = 0; i < 2; i++)
+	//{
+	//	THREAD_MGR->Launch([=]()
+	//		{
+	//			while (true)
+	//			{
+	//				mClientNetworkService->GetIocp()->Dispatch();
+	//			}
+	//		});
+	//}
 
 	/* main Thread */
 	GameLoop();
 
-	THREAD_MGR->Join();
+	//THREAD_MGR->Join();
 
 }
 

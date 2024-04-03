@@ -69,6 +69,11 @@ void AnimatorController::SyncAnimation() const
 	}
 }
 
+sptr<AnimatorMotion> AnimatorController::FindMotionByName(const std::string& motionName, const std::string& layerName) const
+{
+	return FindLayerByName(layerName)->FindMotionByName(motionName);
+}
+
 void AnimatorController::CheckTransition()
 {
 	for (auto& layer : mLayers) {
@@ -118,4 +123,15 @@ void AnimatorController::SetValue(const std::string& paramName, void* value)
 
 	mParameters[paramName].val = val;
 	mIsCheckTransition = true;
+}
+
+sptr<AnimatorLayer> AnimatorController::FindLayerByName(const std::string& layerName) const
+{
+	for (auto& layer : mLayers) {
+		if (layer->GetName() == layerName) {
+			return layer;
+		}
+	}
+
+	throw std::runtime_error("there's no layer name in controller");
 }

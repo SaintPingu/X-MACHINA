@@ -54,4 +54,5 @@ public:
 
 	sptr<AnimatorMotion> Entry() const;
 	sptr<AnimatorMotion> CheckTransition(const AnimatorController* controller) const;
+	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
 };

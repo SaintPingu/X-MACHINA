@@ -170,6 +170,8 @@ private:
 
 	void SetWeapon(int weaponIdx);
 	void UpdateParam(float val, float& param);
+
+	void AnimationCallback();
 };
 
 #pragma endregion

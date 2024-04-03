@@ -50,6 +50,28 @@ void AnimatorMotion::SetLength(float length)
 	}
 }
 
+void AnimatorMotion::AddCallback(const std::function<void()>& callback, int frame)
+{
+	MotionCallback motionCallback{ GetFrameTime(frame), callback };
+
+	if (mCallbackList.empty()) {
+		mCallbackList.push_back(motionCallback);
+		return;
+	}
+
+	for (auto& it = mCallbackList.begin(); ; ++it) {
+		float time = (*it).Time;
+		if (time > motionCallback.Time) {
+			mCallbackList.insert(it, motionCallback);
+			break;
+		}
+		else if (it == mCallbackList.end()) {
+			mCallbackList.push_back(motionCallback);
+			break;
+		}
+	}
+}
+
 void AnimatorMotion::Reset()
 {
 	mCrntLength = 0.f;
@@ -74,7 +96,20 @@ bool AnimatorMotion::Animate()
 	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
 	if (IsEndAnimation()) {
 		ResetLength();
+		for (auto& callback : mCallbackList) {
+			callback.Reset();
+		}
 		return true;
+	}
+
+	for (auto& callback : mCallbackList) {
+		if (mCrntLength > callback.Time) {
+			if (!callback.Called) {
+				callback.Callback();
+				callback.Called = true;
+			}
+			break;
+		}
 	}
 
 	return false;
@@ -89,6 +124,7 @@ void AnimatorMotion::IncWeight()
 {
 	mWeight += DeltaTime() * mkTransitionSpeed;
 }
+
 
 AnimatorTrack::AnimatorTrack(rsptr<const AnimationClip> clip)
 	:

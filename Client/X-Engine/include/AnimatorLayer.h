@@ -26,7 +26,8 @@ public:
 	virtual ~AnimatorLayer() = default;
 
 	std::string GetName() const { return mName; }
-	sptr<const AnimatorMotion> GetSyncState() const { return mNextStates.empty() ? mCrntState : mNextStates.back(); }
+	sptr<const AnimatorMotion> GetSyncState() const { return GetLastMotion(); }
+	sptr<AnimatorMotion> GetLastMotion() const		{ return mNextStates.empty() ? mCrntState : mNextStates.back(); }
 	Matrix GetTransform(int boneIndex, HumanBone boneType) const;
 
 	void SetCrntStateLength(float length) const;
@@ -42,6 +43,8 @@ public:
 	void CheckTransition(const AnimatorController* controller);
 
 	void SyncAnimation(rsptr<const AnimatorMotion> srcState);
+
+	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
 
 private:
 	void SyncComplete();

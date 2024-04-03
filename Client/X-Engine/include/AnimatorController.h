@@ -7,6 +7,7 @@
 struct AnimationLoadInfo;
 class AnimatorState;
 class AnimatorLayer;
+class AnimatorMotion;
 
 struct AnimatorParameter {
 	enum class Type : BYTE {
@@ -52,14 +53,18 @@ public:
 												std::is_same<T, float>::value>::type* = nullptr>
 	void SetValue(const std::string& paramName, T value) { SetValue(paramName, &value); }
 
+
 public:
 	void Animate();
 
 	void SyncAnimation() const;
+
+	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName, const std::string& layerName = "Base Layer") const;
 
 private:
 	void InitLayers();
 	void CheckTransition();
 
 	void SetValue(const std::string& paramName, void* value);
-};
+	sptr<AnimatorLayer> FindLayerByName(const std::string& layerName) const;
+};	

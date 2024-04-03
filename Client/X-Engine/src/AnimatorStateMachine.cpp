@@ -201,4 +201,22 @@ sptr<AnimatorMotion> AnimatorStateMachine::CheckTransition(const AnimatorControl
 
 	return nullptr;
 }
+
+sptr<AnimatorMotion> AnimatorStateMachine::FindMotionByName(const std::string& motionName) const
+{
+	for (auto& state : mStates) {
+		auto& motion = state.second;
+		if (motion->GetName() == motionName) {
+			return motion;
+		}
+	}
+
+	for (auto& stateMachine : mStateMachines) {
+		if (auto& motion = stateMachine.second->FindMotionByName(motionName)) {
+			return motion;
+		}
+	}
+
+	return nullptr;
+}
 #pragma endregion

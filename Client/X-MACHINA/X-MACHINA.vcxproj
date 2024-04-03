@@ -72,21 +72,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)$(Configuration)</OutDir>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
     <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>

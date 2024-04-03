@@ -17,7 +17,7 @@ LogManager::~LogManager()
 	if (mConsoleStream) {
 		FreeConsole();
 
-		if (mLogWriteFile.is_open()) {
+		if (mLogWriteFile && mLogWriteFile.is_open()) {
 			mLogWriteFile.close();
 		}
 	}

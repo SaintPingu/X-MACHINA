@@ -13,7 +13,7 @@ class ImGuiManager : public Singleton<ImGuiManager>
 
 private:
 	ComPtr<ID3D12DescriptorHeap>						mSrvDescHeap{};
-	bool												mIsShowDemo = true;
+	bool mIsFocused{};
 
 public:
 	ImGuiManager();
@@ -28,4 +28,5 @@ public:
 	void DestroyImGui();
 	void ImGuiWindow(std::string Label, std::function<void(ImGuiManager&)> function);
 
+	bool IsFocused() const { return mIsFocused ; }
 };

@@ -130,6 +130,8 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 
 void DXGIMgr::Release()
 {
+	WaitForGpuComplete();
+
 	Terminate();
 
 	mGraphicsRootSignature = nullptr;

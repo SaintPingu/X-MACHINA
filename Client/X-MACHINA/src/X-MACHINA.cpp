@@ -14,6 +14,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	if (framework->Init(hInstance, 1280, 960)) {
 		framework->Launch();
+		framework->Release();
 	}
 
 #if defined(_DEBUG)

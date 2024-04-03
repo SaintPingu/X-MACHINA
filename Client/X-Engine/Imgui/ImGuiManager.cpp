@@ -24,7 +24,6 @@ ImGuiManager::~ImGuiManager()
 
 bool ImGuiManager::Init()
 {
-
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -72,11 +71,8 @@ void ImGuiManager::Render_Prepare()
 
 void ImGuiManager::Update()
 {
-    if (mIsShowDemo)
-        ImGui::ShowDemoWindow(&mIsShowDemo);
-
-    ImGui::Begin("test");
-
+    ImGui::Begin("test", NULL, ImGuiWindowFlags_NoFocusOnAppearing);
+    mIsFocused = ImGui::IsWindowFocused();
     ImGui::End();
 }
 

@@ -84,21 +84,6 @@ void Script_GroundPlayer::Start()
 	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
 	if (mAnimator) {
 		mController = mAnimator->GetController();
-		auto& runMotion = mController->FindMotionByName("BT_Run", "Legs");	// Legs 레이어의 BT_Run 모션을 찾는다.
-		if (runMotion) {
-			// 해당 모션의 프레임이 n에 도달하면 함수를 콜백한다.
-			runMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback00, this), 10);
-			runMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback01, this), 5);
-		}
-		auto& sitMotion = mController->FindMotionByName("BT_WalkCrouch", "Legs");	// Legs 레이어의 BT_WalkCrouch 모션을 찾는다.
-		if (sitMotion) {
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback10, this), 10);
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback11, this), 3);
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback12, this), 7);
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback13, this), 13);
-			sitMotion->AddCallback(std::bind(&Script_GroundPlayer::AnimationCallback14, this), 8);
-			sitMotion->DeleteCallback(7);
-		}
 	}
 }
 
@@ -161,16 +146,35 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left;  h -= 1; }
 	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
 
+	// Test for InputManager //
+	static int z;
+	if (KEY_TAP('W') && z != 0) {
+		z = 0;
+		printf("W Tapped\n");
+	}
+	if (KEY_PRESSED('W') && z < 5) {
+		++z;
+		printf("W Pressed\n");
+	}
+	if (KEY_AWAY('W') && z != -1) {
+		z = -1;
+		printf("W Away\n");
+	}
+	if (KEY_NONE('W') && z > -5) {
+		--z;
+		printf("W None\n");
+	}
+
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
 	Movement crntMovement = Movement::None;
 	// Stand / Sit
-	if (KEY_PRESSED('C'))				    { crntMovement |= Movement::Sit; }
-	else						            { crntMovement |= Movement::Stand; }
+	if (KEY_PRESSED('C'))				   { crntMovement |= Movement::Sit; }
+	else						           { crntMovement |= Movement::Stand; }
 	// Walk / Run / Sprint
 	if (dwDirection) {
-		     if (KEY_PRESSED(VK_LSHIFT))    { crntMovement |= Movement::Sprint; }
-		else if (KEY_PRESSED(VK_LCONTROL))  { crntMovement |= Movement::Walk; }
-		else						        { crntMovement |= Movement::Run; }
+		     if (KEY_PRESSED(VK_SHIFT))    { crntMovement |= Movement::Sprint; }
+		else if (KEY_PRESSED(VK_CONTROL))  { crntMovement |= Movement::Walk; }
+		else						       { crntMovement |= Movement::Run; }
 	}
 
 	Movement crntState = static_cast<Movement>(crntMovement & 0x0F);
@@ -465,35 +469,4 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 사이로 고정
-}
-
-void Script_GroundPlayer::AnimationCallback01()
-{
-	printf("Run_Callback :: frame 5\n");
-}
-
-void Script_GroundPlayer::AnimationCallback00()
-{
-	printf("Run_Callback :: frame 10\n");
-}
-
-void Script_GroundPlayer::AnimationCallback10()
-{
-	printf("WalkCrouch_Callback :: frame 10\n");
-}
-void Script_GroundPlayer::AnimationCallback11()
-{
-	printf("WalkCrouch_Callback :: frame 3\n");
-}
-void Script_GroundPlayer::AnimationCallback12()
-{
-	printf("WalkCrouch_Callback :: frame 7\n");
-}
-void Script_GroundPlayer::AnimationCallback13()
-{
-	printf("WalkCrouch_Callback :: frame 13\n");
-}
-void Script_GroundPlayer::AnimationCallback14()
-{
-	printf("WalkCrouch_Callback :: frame 8\n");
 }

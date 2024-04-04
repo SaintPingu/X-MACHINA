@@ -47,10 +47,11 @@ void Script_GroundPlayer::Awake()
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
 		auto& weapon = mWeapons[i];
 		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = scene->Instantiate(defaultWeapons.at(weaponType), false);
-		if (!weapon) {
-			continue;
-		}
+
+		// scene->Instantiate 호출 시 두 번 업데이트, 렌더링이 되지 않는가? 
+		weapon = std::make_shared<GridObject>();
+		weapon->SetModel(defaultWeapons.at(weaponType));
+		weapon->SetTag(weapon->GetTag());
 
 		weapon->AddComponent<Script_Weapon>();
 		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));

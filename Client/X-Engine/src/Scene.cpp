@@ -81,6 +81,11 @@ std::vector<sptr<GameObject>> Scene::GetAllObjects() const
 	return result;
 }
 
+std::vector<sptr<GameObject>> Scene::GetAllPartilceSystems() const
+{
+	return mParticles;
+}
+
 #pragma endregion
 
 
@@ -233,31 +238,28 @@ void Scene::BuildTerrain()
 void Scene::BuildTest()
 {
 	mTestCubes.resize(2);
-	mTestCubes[0] = std::make_shared<TestCube>(Vec2(170, 150));
+	mTestCubes[0] = std::make_shared<TestCube>(Vec2(100, 105));
 	mTestCubes[0]->GetMaterial()->SetMatallic(0.f);
 	mTestCubes[0]->GetMaterial()->SetRoughness(0.f);
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Rock_BaseColor"));
 	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Rock_Normal"));
 
-	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
+	mTestCubes[1] = std::make_shared<TestCube>(Vec2(95, 105));
 	mTestCubes[1]->GetMaterial()->SetMatallic(0.f);
 	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
 	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
 
-	//mPlayer = mPlayers.front();
-	//mPlayerScript = mPlayer->GetComponent<Script_GroundPlayer>();
-
 	mParticles.resize(3);
 #pragma region light
 	mParticles[0] = std::make_shared<GameObject>();
-	mParticles[0]->SetPosition(Vec3{ 166.f, 10.5f, 149.f });
+	mParticles[0]->SetPosition(Vec3{ 96.f, GetTerrainHeight(106.f, 104.f) + 1.f, 104.f});
 	mParticles[0]->AddComponent<ParticleSystem>()->Load("Light");
 #pragma endregion
-	// HeightMap_1024x1024_R32
+
 #pragma region MagicMissile
 	mParticles[1] = std::make_shared<GameObject>();
-	mParticles[1]->SetPosition(Vec3{ 167.5f, 11.f, 150.f });
+	mParticles[1]->SetPosition(Vec3{ 97.5f, GetTerrainHeight(97.5f, 100.f) + 2.f, 104.f });
 	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
 	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
 	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
@@ -266,7 +268,7 @@ void Scene::BuildTest()
 
 #pragma region ShapeTest
 	mParticles[2] = std::make_shared<GameObject>();
-	mParticles[2]->SetPosition(Vec3{ 173.f, 11.f, 150.f });
+	mParticles[2]->SetPosition(Vec3{ 103.f, GetTerrainHeight(103.f, 100.f) + 2.f, 104.f });
 	auto& component = mParticles[2]->AddComponent<ParticleSystem>()->Load("Green");
 	component->GetPSCD().StartLifeTime = 0.3f;
 	component->GetPSCD().Emission.SetBurst(100);

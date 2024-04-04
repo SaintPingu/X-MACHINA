@@ -90,6 +90,7 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
+	std::vector<sptr<GameObject>> GetAllPartilceSystems() const;
 #pragma endregion
 
 #pragma region DirectX

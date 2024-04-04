@@ -38,4 +38,5 @@ void Script_GameManager::Start()
 
 void Script_GameManager::Update()
 {
+
 }

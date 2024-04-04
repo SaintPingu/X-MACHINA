@@ -58,7 +58,6 @@ private:
 	std::set<GridObject*>	mSkinMeshObjects{};
 
 	/* TestCube */
-	std::vector<sptr<TestCube>>		mTestCubes{};
 	std::vector<sptr<GameObject>>	mParticles{};
 
 	/* Map */
@@ -151,7 +150,6 @@ private:
 	// [transparentObjects] : ≈ı∏Ì ∞¥√º
 	// [billboardObjects]	: ∫Ù∫∏µÂ ∞¥√º (plane)
 	void RenderGridObjects(bool isShadowed = false);
-	void RenderTestCubes(bool isShadowed = false);
 	void RenderSkinMeshObjects(bool isShadowed = false);
 	void RenderEnvironments();
 	void RenderInstanceObjects();

@@ -180,6 +180,8 @@ public:
     // 프레임 리소스 배열을 순환하며 사용 가능 프레임 리소스를 얻어온다.
     void Update();
 
+    void Destroy();
+
     // 패스 당 상수 버퍼에 데이터 복사
     void CopyData(int elementIndex, const PassConstants& data);
     // 포스트 패스 당 상수 버퍼에 데이터 복사

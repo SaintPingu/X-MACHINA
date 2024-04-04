@@ -1,2 +1,2 @@
-PlatformToolSet=v143:VCToolArchitecture=Native64Bit:VCToolsVersion=14.39.33519:TargetPlatformVersion=10.0.22000.0:
-Debug|x64|C:\Users\sueng\OneDrive\문서\GitHub\X-MACHINA\Client\|
+PlatformToolSet=v143:VCToolArchitecture=Native64Bit:VCToolsVersion=14.33.31629:TargetPlatformVersion=10.0.22621.0:VcpkgTriplet=x64-windows:
+Debug|x64|C:\Github\DirectX12_Project\Client\|

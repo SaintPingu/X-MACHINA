@@ -4,6 +4,7 @@
 #include "InputMgr.h"
 
 #include "Script_GroundObject.h"
+#include "Script_EnemyManager.h"
 
 #include "X-Engine.h"
 #include "Timer.h"
@@ -12,28 +13,37 @@
 
 
 
+void Script_Aranobot::Awake()
+{
+	base::Awake();
+
+	mEnemyMgr->mRotationSpeed = 270.f;
+	mEnemyMgr->mMoveSpeed = 1.8f;
+	mEnemyMgr->mDetectionRange = 10.f;
+}
+
 void Script_Aranobot::Update()
 {
 	base::Update();
 
 	if (KEY_PRESSED(VK_UP)) {
-		mController->SetValue("Jump", true);
+		mEnemyMgr->mController->SetValue("Jump", true);
 	}
 	else {
-		mController->SetValue("Jump", false);
+		mEnemyMgr->mController->SetValue("Jump", false);
 	}
 
 	if (KEY_PRESSED(VK_DOWN)) {
-		mController->SetValue("Landing", true);
+		mEnemyMgr->mController->SetValue("Landing", true);
 	}
 	else {
-		mController->SetValue("Landing", false);
+		mEnemyMgr->mController->SetValue("Landing", false);
 	}
 
 	if (KEY_PRESSED(VK_LEFT)) {
-		mController->SetValue("Dodge", true);
+		mEnemyMgr->mController->SetValue("Dodge", true);
 	}
 	else {
-		mController->SetValue("Dodge", false);
+		mEnemyMgr->mController->SetValue("Dodge", false);
 	}
 }

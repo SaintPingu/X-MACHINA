@@ -79,6 +79,8 @@ class ImGuiManager : public Singleton<ImGuiManager>
 	friend Singleton;
 
 private:
+	bool							mIsOn = false;
+	
 	ComPtr<ID3D12DescriptorHeap>	mSrvDescHeap{};
 	bool							mIsShowDemo = true;
 
@@ -90,6 +92,7 @@ public:
 	~ImGuiManager();
 
 public:
+	void ToggleImGui() { mIsOn = !mIsOn; }
 	bool Init();
 	void Render_Prepare();
 	void Update();

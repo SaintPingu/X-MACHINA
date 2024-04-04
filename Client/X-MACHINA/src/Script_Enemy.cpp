@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Script_Enemy.h"
 
+#include "Script_EnemyManager.h"
 #include "Script_GroundObject.h"
+#include "Script_MeleeBT.h"
 
 #include "X-Engine.h"
 #include "Object.h"
@@ -16,6 +18,7 @@ void Script_Enemy::Awake()
 
 	mObject->AddComponent<Script_GroundObject>();
 	mObject->SetTag(ObjectTag::Enemy);
-	mPlayer = engine->GetPlayer();
-	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+
+	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
+	mEnemyMgr->mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 }

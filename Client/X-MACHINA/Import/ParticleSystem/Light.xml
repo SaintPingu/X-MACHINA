@@ -22,8 +22,8 @@
 		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
-		<s.x>5.000000075e-02</s.x>
-		<s.y>5.000000075e-02</s.y>
+		<s.x>3.000000075e-02</s.x>
+		<s.y>3.000000075e-02</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -52,18 +52,18 @@
 			<s.x>1.000000000e+00</s.x>
 			<s.y>5.000000000e-01</s.y>
 			<s.z>0.000000000e+00</s.z>
-			<s.w>0.000000000e+00</s.w>
+			<s.w>1.000000000e+00</s.w>
 		</FirstGradient>
 		<SecondGradient>
 			<s.x>2.000000000e+00</s.x>
 			<s.y>1.500000000e+00</s.y>
 			<s.z>0.000000000e+00</s.z>
-			<s.w>0.000000000e+00</s.w>
+			<s.w>1.000000000e+00</s.w>
 		</SecondGradient>
 		<ColorOption>3</ColorOption>
 	</StartColor>
 	<GravityModifier>2.000000000e+00</GravityModifier>
-	<SimulationSpace>1</SimulationSpace>
+	<SimulationSpace>0</SimulationSpace>
 	<SimulationSpeed>6.000000238e-01</SimulationSpeed>
 	<PlayOnAwake>1</PlayOnAwake>
 	<MaxParticles>1000</MaxParticles>

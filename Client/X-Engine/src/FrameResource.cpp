@@ -126,6 +126,16 @@ void FrameResourceMgr::Update()
 	}
 }
 
+void FrameResourceMgr::Destroy()
+{
+	for (int i = 0; i < mFrameResourceCount; ++i) {
+		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		THROW_IF_FAILED(mFence->SetEventOnCompletion(mFrameResources[i]->Fence, eventHandle));
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+}
+
 void FrameResourceMgr::CopyData(int elementIndex, const PassConstants& data)
 {
 	mCurrFrameResource->PassCB->CopyData(elementIndex, data);

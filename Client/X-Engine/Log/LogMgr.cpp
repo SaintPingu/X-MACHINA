@@ -17,6 +17,9 @@ LogManager::~LogManager()
 	if (mConsoleStream) {
 		FreeConsole();
 
+		if (mIsRead)
+			return;
+
 		if (mLogWriteFile.is_open()) {
 			mLogWriteFile.close();
 		}
@@ -140,6 +143,7 @@ bool LogManager::Init(const std::string& name)
 		std::filesystem::create_directory(currentPath / FolderName);			// 새로운 폴더 생성 (만약 이미 존재하면 무시됨)
 		std::filesystem::path filePath = currentPath / FolderName / FileName;	// 파일 경로 및 이름 
 		mLogWriteFile.open(filePath, std::ios::out | std::ios::trunc);
+		mIsRead = true;
 	}
 
 

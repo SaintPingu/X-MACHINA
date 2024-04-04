@@ -2,6 +2,7 @@
 #include "Script_Droid.h"
 
 #include "Script_GroundObject.h"
+#include "Script_EnemyManager.h"
 
 #include "X-Engine.h"
 #include "Timer.h"
@@ -14,6 +15,10 @@ void Script_Droid::Awake()
 {
 	base::Awake();
 
+	mEnemyMgr->mRotationSpeed = 270.f;
+	mEnemyMgr->mMoveSpeed = 1.8f;
+	mEnemyMgr->mDetectionRange = 10.f;
+
 	Transform* gunPos = mObject->FindFrame("WeaponAction");
 	mGun = scene->Instantiate("SM_SciFiAssaultPistol");
 	gunPos->SetChild(mGun);
@@ -21,24 +26,7 @@ void Script_Droid::Awake()
 
 void Script_Droid::Update()
 {
-	const float kMinDistance = 0.1f;
-
-	float distance = (mObject->GetPosition() - mPlayer->GetPosition()).Length();
-	if (distance < mDetectionRange && distance > kMinDistance) {
-		mTarget = mPlayer;
-	}
-	else if (mTarget) {
-		mTarget = nullptr;
-		mController->SetValue("Walk", false);
-	}
-
-	if (mTarget) {
-		mObject->RotateTargetAxisY(mTarget->GetPosition(), mRotationSpeed * DeltaTime());
-		mObject->Translate(mObject->GetLook(), mMoveSpeed * DeltaTime());
-		if (mController) {
-			mController->SetValue("Walk", true);
-		}
-	}
+	base::Update();
 }
 
 void Script_Droid::OnDestroy()

@@ -6,6 +6,7 @@
 
 #include "ObjectMgr.h"
 #include "InputMgr.h"
+#include "Imgui/ImGuiManager.h"
 
 #include "Scene.h"
 #include "Timer.h"
@@ -237,7 +238,8 @@ int GameFramework::GameLoop()
 void GameFramework::Update()
 {
 	engine->Update();
-	timer->Tick(60.f);
+	//timer->Tick(60.f);
+	timer->Tick(0);
 
 	sptr<GridObject> player = engine->GetPlayer();
 	Vec3 pos = player->GetLocalPosition();
@@ -333,11 +335,12 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_F2:
 			timer->Start();
 			break;
-
 		case VK_F5:
 			scene->ToggleDrawBoundings();
 			break;
-
+		case VK_F6:
+			imgui->ToggleImGui();
+			break;
 		case 192:	// '`'
 			::SetFocus(NULL);
 			break;

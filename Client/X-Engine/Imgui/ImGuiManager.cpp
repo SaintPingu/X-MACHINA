@@ -63,6 +63,9 @@ bool ImGuiManager::Init()
 
 void ImGuiManager::Render_Prepare()
 {
+    if (!mIsOn)
+        return;
+
     // Start the Dear ImGui frame
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -71,6 +74,9 @@ void ImGuiManager::Render_Prepare()
 
 void ImGuiManager::Update()
 {
+    if (!mIsOn)
+        return;
+
     if (mIsShowDemo)
         ImGui::ShowDemoWindow(&mIsShowDemo);
 
@@ -80,6 +86,9 @@ void ImGuiManager::Update()
 
 void ImGuiManager::Render()
 {
+    if (!mIsOn)
+        return;
+
     // Rendering
     cmdList->SetDescriptorHeaps(1, mSrvDescHeap.GetAddressOf());
 

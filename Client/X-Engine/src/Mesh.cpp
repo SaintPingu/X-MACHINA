@@ -15,6 +15,14 @@
 #pragma region Mesh
 void Mesh::ReleaseUploadBuffers()
 {
+	mVertexUploadBuffer.Reset();
+	mNormalUploadBuffer.Reset();
+	mUV0UploadBuffer.Reset();
+	mUV1UploadBuffer.Reset();
+	mTangentUploadBuffer.Reset();
+	mBiTangentUploadBuffer.Reset();
+	mIndexUploadBuffer.Reset();
+
 	mVertexUploadBuffer    = nullptr;
 	mNormalUploadBuffer    = nullptr;
 	mUV0UploadBuffer       = nullptr;

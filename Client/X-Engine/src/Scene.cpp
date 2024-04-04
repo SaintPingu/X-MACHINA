@@ -53,6 +53,10 @@ void Scene::Release()
 	mainCameraObject->Destroy();
 	canvas->Release();
 
+	ProcessAllObjects([](sptr<GameObject> object) {
+		object->OnDestroy();
+		});
+
 	Destroy();
 }
 #pragma endregion
@@ -237,44 +241,26 @@ void Scene::BuildTerrain()
 
 void Scene::BuildTest()
 {
-	mTestCubes.resize(2);
-	mTestCubes[0] = std::make_shared<TestCube>(Vec2(100, 105));
-	mTestCubes[0]->GetMaterial()->SetMatallic(0.f);
-	mTestCubes[0]->GetMaterial()->SetRoughness(0.f);
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Rock_BaseColor"));
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Rock_Normal"));
-
-	mTestCubes[1] = std::make_shared<TestCube>(Vec2(95, 105));
-	mTestCubes[1]->GetMaterial()->SetMatallic(0.f);
-	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
-
-	mParticles.resize(3);
-#pragma region light
-	mParticles[0] = std::make_shared<GameObject>();
-	mParticles[0]->SetPosition(Vec3{ 96.f, GetTerrainHeight(106.f, 104.f) + 1.f, 104.f});
-	mParticles[0]->AddComponent<ParticleSystem>()->Load("Light");
-#pragma endregion
+	mParticles.resize(1);
 
 #pragma region MagicMissile
-	mParticles[1] = std::make_shared<GameObject>();
-	mParticles[1]->SetPosition(Vec3{ 97.5f, GetTerrainHeight(97.5f, 100.f) + 2.f, 104.f });
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
+	mParticles[0] = std::make_shared<GameObject>();
+	mParticles[0]->SetPosition(Vec3{ 97.5f, GetTerrainHeight(97.5f, 100.f) + 2.f, 104.f });
+	mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
+	mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
+	mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
+	mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
 #pragma endregion
 
-#pragma region ShapeTest
-	mParticles[2] = std::make_shared<GameObject>();
-	mParticles[2]->SetPosition(Vec3{ 103.f, GetTerrainHeight(103.f, 100.f) + 2.f, 104.f });
-	auto& component = mParticles[2]->AddComponent<ParticleSystem>()->Load("Green");
-	component->GetPSCD().StartLifeTime = 0.3f;
-	component->GetPSCD().Emission.SetBurst(100);
-	component->GetPSCD().Duration = 0.2f;
-	component->GetPSCD().Shape.SetSphere(1.5f, 0.f, 360.f, true);
-#pragma endregion
+//#pragma region ShapeTest
+//	mParticles[1] = std::make_shared<GameObject>();
+//	mParticles[1]->SetPosition(Vec3{ 103.f, GetTerrainHeight(103.f, 100.f) + 2.f, 104.f });
+//	auto& component = mParticles[1]->AddComponent<ParticleSystem>()->Load("Green");
+//	component->GetPSCD().StartLifeTime = 0.3f;
+//	component->GetPSCD().Emission.SetBurst(100);
+//	component->GetPSCD().Duration = 0.2f;
+//	component->GetPSCD().Shape.SetSphere(1.5f, 0.f, 360.f, true);
+//#pragma endregion
 }
 
 void Scene::BuildGrid()
@@ -452,7 +438,6 @@ void Scene::RenderShadow()
 
 #pragma region Shadow_Global
 	RenderGridObjects(true);
-	RenderTestCubes(true);
 #pragma endregion
 #pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects(true);
@@ -472,7 +457,6 @@ void Scene::RenderDeferred()
 
 #pragma region Global
 	RenderGridObjects();
-	RenderTestCubes();
 	RenderEnvironments();
 #pragma endregion
 #pragma region ObjectInst
@@ -600,13 +584,6 @@ void Scene::RenderGridObjects(bool isShadowed)
 			object->Render();
 			break;
 		}
-	}
-}
-
-void Scene::RenderTestCubes(bool isShadowed)
-{
-	for (const auto& testCube : mTestCubes) {
-		testCube->Render();
 	}
 }
 

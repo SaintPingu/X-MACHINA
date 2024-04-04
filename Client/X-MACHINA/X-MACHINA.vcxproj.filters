@@ -52,6 +52,18 @@
     <Filter Include="Script\Manager">
       <UniqueIdentifier>{fe5f51ad-398a-47a2-aa2c-865017a90c96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Enemy\AI">
+      <UniqueIdentifier>{ba51f2f7-18cd-4bc9-bb37-a134fd3acdbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Enemy\AI\BehaviorTree">
+      <UniqueIdentifier>{e889f05a-6440-4ea6-ab3f-9605e8419e0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Enemy\AI\Task">
+      <UniqueIdentifier>{3f29a8d7-c78c-4eed-a599-76cdd6bf723f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script\Enemy\Object">
+      <UniqueIdentifier>{c005f32c-5d45-47ec-ada1-ce1293b5c26b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -190,6 +202,30 @@
     <ClInclude Include="include\Script_Droid.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_BehaviorTree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_MeleeBT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TaskPatrol.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_EnemyManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CheckDetectionRange.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CheckAttackRange.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TaskMoveToTarget.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TaskAttack.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -246,9 +282,6 @@
     <ClCompile Include="src\stdafx.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_Enemy.cpp">
-      <Filter>Script\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_GameManager.cpp">
       <Filter>Script\Manager</Filter>
     </ClCompile>
@@ -261,11 +294,38 @@
     <ClCompile Include="src\Script_Weapon.cpp">
       <Filter>Script\Object</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_BehaviorTree.cpp">
+      <Filter>Script\Enemy\AI\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_MeleeBT.cpp">
+      <Filter>Script\Enemy\AI\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CheckDetectionRange.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskPatrol.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
     <ClCompile Include="src\Script_Aranobot.cpp">
-      <Filter>Script\Enemy</Filter>
+      <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Droid.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Enemy.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CheckAttackRange.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_EnemyManager.cpp">
       <Filter>Script\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskMoveToTarget.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskAttack.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

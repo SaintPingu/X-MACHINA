@@ -31,13 +31,10 @@
 *.app
 
 
-.vs/
-.x64/
-*.ipch
-Client/Debug/
-Client/X-MACHINA/x64/
+Client/.vs/
+Client/X-MACHINA/build/
 Client/X-MACHINA/lib/
 Client/X-Engine/x64/
-Release/
+
 Client/X-MACHINA/shaders/cso/
 *.pdb

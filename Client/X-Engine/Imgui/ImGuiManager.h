@@ -29,4 +29,5 @@ public:
 	void ImGuiWindow(std::string Label, std::function<void(ImGuiManager&)> function);
 
 	bool IsFocused() const { return mIsFocused ; }
+	void FocusOff();
 };

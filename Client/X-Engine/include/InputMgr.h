@@ -72,6 +72,7 @@ public:
 
 	// 사용할 키들을 설정한다.
 	void Init();
+	void InitFocus();
 
 	void UpdateClient();
 

@@ -340,12 +340,16 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		break;
 	}
 
-	mPlayerScript.lock()->ProcessKeyboardMsg(message, wParam, lParam);
+	if (const auto& playerScript = mPlayerScript.lock()) {
+		playerScript->ProcessKeyboardMsg(message, wParam, lParam);
+	}
 }
 
 void GameFramework::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	mPlayerScript.lock()->ProcessMouseMsg(message, wParam, lParam);
+	if (const auto& playerScript = mPlayerScript.lock()) {
+		playerScript->ProcessMouseMsg(message, wParam, lParam);
+	}
 }
 
 ATOM GameFramework::CreateGameClientWindow()

@@ -24,6 +24,8 @@ Engine::Engine()
 
 void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 {
+	input->Init();
+
 	WindowInfo windowInfo{ hWnd, width, height };
 	dxgi->Init(hInstance, windowInfo);
 
@@ -34,7 +36,6 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 #pragma region Imgui - 장재문 - 
 	imgui->Init();
 #pragma endregion
-
 #pragma region Log - 장재문 -
 	LOG_MGR->Init(""); // 이름을 지을 수 있다. 
 #pragma endregion
@@ -82,20 +83,31 @@ void Engine::Update()
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#include <iostream>
+
 LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	// 미사용 메시지 처리x //
+	switch (msg) {
+	case WM_SETTEXT:
+	case WM_SETCURSOR:
+	case WM_GETICON:
+	case WM_NCHITTEST:
+	case WM_NCMOUSEMOVE:
+	case 174:
+		return true;
+
+	default:
+		break;
+	}
+
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
 		return true;
 	}
 
-	// TODO : ShowCursor 코드 개선 필요 //
 	if (imgui->IsFocused()) {
 		ShowCursor(TRUE);
+		imgui->FocusOff();
 		return true;
-	}
-	else if (::GetFocus()) {
-		ShowCursor(FALSE);
 	}
 
 	switch (msg)
@@ -117,7 +129,9 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	input->WndProc(hWnd, msg, wParam, lParam);
+	if (mIsWindowFocused) {
+		input->WndProc(hWnd, msg, wParam, lParam);
+	}
 
 	return false;
 }

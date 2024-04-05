@@ -10,7 +10,6 @@
 
 InputMgr::InputMgr()
 {
-	Init();
 }
 
 
@@ -44,14 +43,24 @@ void InputMgr::Init()
 	for (int key : kKeyList) {
 		mKeys.insert(std::make_pair(key, KeyState::None));
 	}
+}
 
+void InputMgr::InitFocus()
+{
+	POINT clientCenter = mClientCenter;
+	::ClientToScreen(dxgi->GetHwnd(), &clientCenter);
+	::SetCursorPos(clientCenter.x, clientCenter.y);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, clientCenter.x, clientCenter.y, 0, 0);
+	::ShowCursor(FALSE);
 }
 
 void InputMgr::UpdateClient()
 {
 	mClientCenter = { dxgi->GetWindowWidth() / 2, dxgi->GetWindowHeight() / 2 };
 	mMousePos = Vec2(static_cast<float>(mClientCenter.x), static_cast<float>(mClientCenter.y));
+	InitFocus();
 }
+
 
 void InputMgr::Update()
 {
@@ -162,6 +171,9 @@ void InputMgr::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			mMouseDir.y = -(mMousePos.y - mClientCenter.y);
 
 			SetCursorCenter();
+		}
+		else {
+			WindowFocusOff();
 		}
 	}
 	return;

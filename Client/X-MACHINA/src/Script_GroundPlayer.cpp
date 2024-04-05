@@ -146,25 +146,6 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left;  h -= 1; }
 	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
 
-	// Test for InputManager //
-	static int z;
-	if (KEY_TAP('W') && z != 0) {
-		z = 0;
-		printf("W Tapped\n");
-	}
-	if (KEY_PRESSED('W') && z < 5) {
-		++z;
-		printf("W Pressed\n");
-	}
-	if (KEY_AWAY('W') && z != -1) {
-		z = -1;
-		printf("W Away\n");
-	}
-	if (KEY_NONE('W') && z > -5) {
-		--z;
-		printf("W None\n");
-	}
-
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
 	Movement crntMovement = Movement::None;
 	// Stand / Sit

@@ -71,8 +71,8 @@ void ImGuiManager::Render_Prepare()
 
 void ImGuiManager::Update()
 {
-    ImGui::Begin("test", NULL, ImGuiWindowFlags_NoFocusOnAppearing);
-    mIsFocused = ImGui::IsWindowFocused();
+    ImGui::Begin("test", NULL);
+    mIsFocused = ImGui::IsWindowFocused() || ImGui::IsWindowHovered();
     ImGui::End();
 }
 
@@ -108,6 +108,12 @@ void ImGuiManager::ImGuiWindow(std::string Label, std::function<void(ImGuiManage
     function(*this);
 
     ImGui::End();
+}
+
+void ImGuiManager::FocusOff()
+{
+    ImGui::FocusWindow(NULL);
+    mIsFocused = false;
 }
 
 

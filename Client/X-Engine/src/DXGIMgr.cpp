@@ -123,13 +123,16 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 
 	res->LoadResources();
 	pr->Init();
-	input->UpdateClient();
 
 	BuildScene();
+
+	input->UpdateClient();
 }
 
 void DXGIMgr::Release()
 {
+	WaitForGpuComplete();
+
 	Terminate();
 
 	mGraphicsRootSignature = nullptr;

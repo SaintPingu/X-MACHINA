@@ -8,6 +8,7 @@ class Engine : public Singleton<Engine> {
 	friend Singleton;
 
 private:
+	bool mIsWindowFocused{ true };
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열
 	sptr<GridObject> mPlayer{};
 
@@ -24,7 +25,12 @@ public:
 	// call per once frame
 	void Update();
 
+	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 private:
 	void BuildObjects();
 	void ReleaseObjects();
+
+	void WindowFocusOn();
+	void WindowFocusOff();
 };

@@ -36,16 +36,6 @@ Matrix AnimatorLayer::GetTransform(int boneIndex, HumanBone boneType) const
 	return transform;
 }
 
-void AnimatorLayer::SetCrntStateLength(float length) const
-{
-	if (!mNextStates.empty()) {
-		return;
-	}
-
-	mCrntState->SetLength(length);
-}
-
-
 void AnimatorLayer::Init(const AnimatorController* controller)
 {
 	mController = controller;

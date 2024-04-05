@@ -68,15 +68,6 @@ namespace {
 				}
 
 				break;
-				case Hash("<Indices>:"):
-				{
-					FileIO::ReadVal(file, nIndices);
-					if (nIndices > 0) {
-						FileIO::ReadRange(file, meshInfo->Buffer.Indices, nIndices);
-					}
-				}
-
-				break;
 				case Hash("<SubMeshes>:"):
 				{
 					FileIO::ReadVal(file, meshInfo->SubMeshCnt);
@@ -498,7 +489,6 @@ namespace {
 				out.emplace_back(file.path().filename().string());
 			}
 		}
-
 	}
 
 	namespace { // Animation IO
@@ -680,6 +670,24 @@ namespace {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 namespace FileIO {
 	namespace ModelIO {
 		sptr<MasterModel> LoadGeometryFromFile(const std::string& filePath)
@@ -790,6 +798,20 @@ namespace FileIO {
 				texture->LoadTexture(textureName, folder);
 				res->Add<Texture>(textureName, texture);
 			}
+		}
+
+		// path = Import//NavMesh.bin
+		NavMesh LoadNavMesh(const std::string& filePath)
+		{
+			std::ifstream file = OpenBinFile(filePath);
+			NavMesh navMesh;
+
+			int vertexCnt = FileIO::ReadVal<int>(file);
+			FileIO::ReadRange(file, navMesh.Vertices, vertexCnt);
+			int	indexCnt = FileIO::ReadVal<int>(file);
+			FileIO::ReadRange(file, navMesh.Indices, vertexCnt);
+
+			return navMesh;
 		}
 	}
 

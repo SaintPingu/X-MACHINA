@@ -302,32 +302,6 @@ namespace D3DUtil {
 
 
 #pragma region Class
-//void MyBoundingOrientedBox::Transform(const Matrix& transform)
-//{
-//	const Matrix kMatrix = _MATRIX(transform);
-//	const Vector kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
-//
-//	XMStoreFloat4(&Orientation, kRotation);
-//	XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
-//}
-//
-//void MyBoundingSphere::Transform(const Matrix& transform)
-//{
-//	Center = Matrix4x4::Multiply(transform, mOriginCenter);
-//}
-//
-//bool MyBoundingSphere::IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const
-//{
-//	for (auto& box : boxes) {
-//		if (Intersects(*box)) {
-//			return true;
-//		}
-//	}
-//
-//	return false;
-//}
-#pragma endregion
-
 DxException::DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& fileName, int lineNumber)
 	:
 	mErrorCode(hr),
@@ -345,3 +319,5 @@ std::wstring DxException::ToString() const
 
 	return mFunctionName + L" failed in " + mFilename + L"; line " + std::to_wstring(mLineNumber) + L"; error: " + msg;
 }
+
+#pragma endregion

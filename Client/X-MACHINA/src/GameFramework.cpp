@@ -193,10 +193,10 @@ bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
 
 void GameFramework::Release()
 {
+	engine->Release();
 	objectMgr->Destroy();
 	THREAD_MGR->Destroy();
 
-	engine->Release();
 	Destroy();
 }
 
@@ -227,8 +227,6 @@ int GameFramework::GameLoop()
 		}
 	}
 
-	Release();
-
 	::DestroyWindow(mhWnd);
 	::UnregisterClass(L"X-MACHINA", mhInst);
 
@@ -245,7 +243,6 @@ void GameFramework::Update()
 	Vec3 pos = player->GetLocalPosition();
 	//printf("PLAYER POS : %f %f %f\n", pos.x, pos.y, pos.z);
 
-	scene->UpdateObjectGrid(mTestObject.get());
 	KeyInputBroadcast(); 
 }
 
@@ -284,21 +281,12 @@ void GameFramework::Launch()
 
 LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (engine->WndProc(hWnd, message, wParam, lParam)) {
+		return true;
+	}
+
 	switch (message)
 	{
-	case WM_SETFOCUS:
-		input->WindowFocusOn();
-		while (ShowCursor(FALSE) >= 0);
-		mIsFocused = true;
-		break;
-	case WM_KILLFOCUS:
-		if (!framework->IsAlive() || !input->IsAlive()) {
-			return 0;
-		}
-		input->WindowFocusOff();
-		while (ShowCursor(TRUE) <= 0);
-		mIsFocused = false;
-		break;
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -355,25 +343,16 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		break;
 	}
 
-	mPlayerScript->ProcessKeyboardMsg(message, wParam, lParam);
+	if (const auto& playerScript = mPlayerScript.lock()) {
+		playerScript->ProcessKeyboardMsg(message, wParam, lParam);
+	}
 }
 
 void GameFramework::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message)
-	{
-	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		if (!mIsFocused) {
-			::SetFocus(hWnd);
-		}
-		break;
-
-	default:
-		break;
+	if (const auto& playerScript = mPlayerScript.lock()) {
+		playerScript->ProcessMouseMsg(message, wParam, lParam);
 	}
-
-	mPlayerScript->ProcessMouseMsg(message, wParam, lParam);
 }
 
 ATOM GameFramework::CreateGameClientWindow()
@@ -411,7 +390,9 @@ ATOM GameFramework::CreateGameClientWindow()
 
 LRESULT GameFramework::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	framework->ProcessMessage(hWnd, message, wParam, lParam);
+	if (framework->ProcessMessage(hWnd, message, wParam, lParam)) {
+		return true;
+	}
 
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
@@ -476,8 +457,6 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 void GameFramework::InitPlayer()
 {
-	mTestObject = scene->Instantiate("EliteTrooper", true);
-
 	sptr<GridObject> player = engine->GetPlayer();
 	player->ResetCollider();
 	mPlayerScript = player->AddComponent<Script_GroundPlayer>();

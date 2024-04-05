@@ -23,9 +23,7 @@ class GameFramework : public Singleton<GameFramework> {
 	friend Singleton;
 
 private:
-	bool mIsFocused = true;
-	sptr<GridObject> mTestObject{};
-	sptr<Script_Player> mPlayerScript{};
+	wptr<Script_Player> mPlayerScript{};
 	SPtr_ClientService  mClientNetworkService{};
 
 private:

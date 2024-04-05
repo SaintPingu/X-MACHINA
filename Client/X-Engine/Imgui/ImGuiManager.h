@@ -86,6 +86,8 @@ private:
 
 	ImGuiHierachy					mHierachyFunc;
 	ImGuiInspector					mInspector;
+	ComPtr<ID3D12DescriptorHeap>						mSrvDescHeap{};
+	bool mIsFocused{};
 
 public:
 	ImGuiManager();
@@ -98,5 +100,9 @@ public:
 	void Update();
 	void Render();
 	void DestroyImGui();
+	void ImGuiWindow(std::string Label, std::function<void(ImGuiManager&)> function);
+
+	bool IsFocused() const { return mIsFocused ; }
+	void FocusOff();
 };
 

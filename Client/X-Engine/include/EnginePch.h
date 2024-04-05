@@ -106,6 +106,7 @@ public:
 #include <unordered_set>
 #include <unordered_map>
 #include <queue>
+#include <stack>
 
 /* DirectX */
 #include <d3d12.h>

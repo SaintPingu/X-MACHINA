@@ -23,7 +23,6 @@ ImGuiManager::~ImGuiManager()
 
 bool ImGuiManager::Init()
 {
-
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -82,6 +81,9 @@ void ImGuiManager::Update()
 
     mHierachyFunc.Execute(nullptr);
     mInspector.Execute(mHierachyFunc.GetSelectedObject());
+    ImGui::Begin("test", NULL);
+    mIsFocused = ImGui::IsWindowFocused() || ImGui::IsWindowHovered();
+    ImGui::End();
 }
 
 void ImGuiManager::Render()
@@ -137,6 +139,14 @@ void ImGuiHierachy::Execute(GameObject* selectedObject)
 
 	ImGui::End();
 }
+
+
+void ImGuiManager::FocusOff()
+{
+    ImGui::FocusWindow(NULL);
+    mIsFocused = false;
+}
+
 
 void ImGuiHierachy::DrawNode(GameObject* node, size_t& entityID)
 {

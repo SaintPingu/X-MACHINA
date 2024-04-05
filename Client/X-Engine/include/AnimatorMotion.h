@@ -30,7 +30,7 @@ struct MotionCallback {
 class AnimatorMotion abstract {
 private:
 
-	const float mkTransitionSpeed = 4.5f;
+	static constexpr float mkTransitionSpeed = 4.5f;
 	const float mkOriginSpeed{};
 
 	float 	mCrntSpeed{};

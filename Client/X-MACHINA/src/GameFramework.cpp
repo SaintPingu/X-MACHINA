@@ -387,7 +387,9 @@ ATOM GameFramework::CreateGameClientWindow()
 
 LRESULT GameFramework::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	framework->ProcessMessage(hWnd, message, wParam, lParam);
+	if (framework->ProcessMessage(hWnd, message, wParam, lParam)) {
+		return true;
+	}
 
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;

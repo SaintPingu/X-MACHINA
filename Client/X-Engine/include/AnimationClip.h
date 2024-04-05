@@ -11,7 +11,7 @@ public:
 	std::string mName;
 
 	float	mLength = 0.0f;
-	int		mFrameRate = 0; //m_fTicksPerSecond
+	int		mFrameRate = 0;
 	int		mTransformCnt = 0;
 
 	std::vector<float> mKeyFrameTimes{};

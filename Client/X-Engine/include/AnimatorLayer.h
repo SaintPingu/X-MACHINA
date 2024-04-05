@@ -30,7 +30,6 @@ public:
 	sptr<AnimatorMotion> GetLastMotion() const		{ return mNextStates.empty() ? mCrntState : mNextStates.back(); }
 	Matrix GetTransform(int boneIndex, HumanBone boneType) const;
 
-	void SetCrntStateLength(float length) const;
 	void SetSyncStateMachine(bool val) { mIsSyncSM = val; }
 
 public:

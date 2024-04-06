@@ -42,6 +42,7 @@ enum class ObjectTag : DWORD {
 	Water          = 0x0400,
 	Sprite         = 0x0800,
 	Enemy          = 0x1000,
+	Wall           = 0x2000,
 };
 
 

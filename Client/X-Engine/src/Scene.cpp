@@ -42,7 +42,7 @@ namespace {
 Scene::Scene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
-	mGridhWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
+	mGridWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
 	mLight(std::make_shared<Light>())
 {
 
@@ -233,6 +233,27 @@ void Scene::ReleaseObjects()
 	MeshRenderer::Release();
 }
 
+void Scene::TestOutputTile()
+{
+	std::ofstream out{ "Tile.txt" };
+
+	static int cnt = 0;
+	for (const auto& grid : mGrids) {
+		if (cnt % (mGridWidth - 1) == 0)
+			out << "\n";
+		for (const auto& width : grid.mTiles) {
+			for (const auto& tile : width) {
+				if (tile.mType == TileObjectType::Static)
+					out << "-";
+				else
+					out << '.';
+			}
+		}
+
+		cnt++;
+	}
+}
+
 void Scene::BuildTerrain()
 {
 	mTerrain = std::make_shared<Terrain>("Import/Terrain.bin");
@@ -274,30 +295,30 @@ void Scene::BuildGrid()
 	constexpr float kMaxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	const int adjusted = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridhWidth);
+	const int adjusted = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridWidth);
 	mMapBorder.Extents = Vec3((float)adjusted, mMapBorder.Extents.y, (float)adjusted);
 
 	// set grid start pos
 	mGridStartPoint = mMapBorder.Center.x - mMapBorder.Extents.x / 2;
 
 	// set grid count
-	mGridCols = adjusted / mGridhWidth;
+	mGridCols = adjusted / mGridWidth;
 	const int gridCount = mGridCols * mGridCols;
 	mGrids.resize(gridCount);
 
 	// set grid bounds
-	const float gridExtent = (float)mGridhWidth / 2.0f;
+	const float gridExtent = (float)mGridWidth / 2.0f;
 	for (int y = 0; y < mGridCols; ++y) {
 		for (int x = 0; x < mGridCols; ++x) {
-			float gridX = (mGridhWidth * x) + ((float)mGridhWidth / 2) + mGridStartPoint;
-			float gridZ = (mGridhWidth * y) + ((float)mGridhWidth / 2) + mGridStartPoint;
+			float gridX = (mGridWidth * x) + ((float)mGridWidth / 2) + mGridStartPoint;
+			float gridZ = (mGridWidth * y) + ((float)mGridWidth / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
 			bb.Center = Vec3(gridX, kMaxHeight / 2, gridZ);
 			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
 
 			int index = (y * mGridCols) + x;
-			mGrids[index].Init(index, bb);
+			mGrids[index].Init(index, mGridCols, mGridWidth, mGridStartPoint + mGridWidth / 2.f, bb);
 		}
 	}
 }
@@ -414,6 +435,9 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 	}
 
 	break;
+	case ObjectTag::Building:
+		mStaticObjects.push_back(object);
+		return;
 	default:
 		break;
 	}
@@ -653,7 +677,7 @@ void Scene::RenderGridBounds()
 		constexpr float kGirdHeight = 30.f;
 		Vec3 pos = grid.GetBB().Center;
 		pos.y = kGirdHeight;
-		MeshRenderer::RenderPlane(pos, (float)mGridhWidth, (float)mGridhWidth);
+		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
 #endif
 	}
 }
@@ -690,6 +714,7 @@ void Scene::Start()
 	UpdateGridInfo();
 }
 
+#include "X-Engine.h"
 void Scene::Update()
 {
 	CheckCollisions();
@@ -709,6 +734,23 @@ void Scene::Update()
 	UpdateShaderVars();
 
 	PopObjectBuffer();
+
+	//const Vec3 pos = engine->GetPlayer()->GetPosition();
+	//TileObjectType type = GetTileObjectTypeFromPos(pos);
+	//switch (type)
+	//{
+	//case TileObjectType::None:
+	//	printf("None");
+	//	break;
+	//case TileObjectType::Static:
+	//	printf("Static");
+	//	break;
+	//case TileObjectType::Dynamic:
+	//	printf("Dynamic");
+	//	break;
+	//default:
+	//	break;
+	//}
 }
 
 void Scene::CheckCollisions()
@@ -758,10 +800,31 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
 
-	const int gridX = static_cast<int>(pos.x / mGridhWidth);
-	const int gridZ = static_cast<int>(pos.z / mGridhWidth);
+	const int gridX = static_cast<int>(pos.x / mGridWidth);
+	const int gridZ = static_cast<int>(pos.z / mGridWidth);
 
 	return gridZ * mGridCols + gridX;
+}
+
+Vec3 Scene::GetTilePosFromIndex(const Pos& index, const int gridIndex) const
+{
+	return mGrids[gridIndex].GetTilePosFromIndex(index);
+}
+
+Pos Scene::GetTileIndexFromPos(const Vec3& pos, const int gridIndex) const
+{
+	return mGrids[gridIndex].GetTileIndexFromPos(pos);
+}
+
+TileObjectType Scene::GetTileObjectTypeFromPos(const Vec3& pos) const
+{
+	int gridIndex = GetGridIndexFromPos(pos);
+	return mGrids[gridIndex].GetTileObjectTypeFromPos(pos);
+}
+
+TileObjectType Scene::GetTileObjectTypeFromIndex(const Pos& index, const int gridIndex) const
+{
+	return mGrids[gridIndex].GetTileObjectTypeFromIndex(index);
 }
 
 

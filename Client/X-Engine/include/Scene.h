@@ -68,7 +68,7 @@ private:
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids
 	float				mGridStartPoint{};		// leftmost coord of the entire grid
-	int					mGridhWidth{};			// length of x for one grid
+	int					mGridWidth{};			// length of x for one grid
 	int					mGridCols{};			// number of columns in the grid
 
 	/* Others */
@@ -81,6 +81,7 @@ private:
 
 public:
 	void Release();
+	void TestOutputTile();
 
 private:
 #pragma endregion
@@ -91,6 +92,12 @@ public:
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
 	std::vector<sptr<GameObject>> GetAllPartilceSystems() const;
+
+	int GetGridIndexFromPos(Vec3 pos) const;
+	Vec3 GetTilePosFromIndex(const Pos& index, const int gridIndex) const;
+	Pos GetTileIndexFromPos(const Vec3& pos, const int gridIndex) const;
+	TileObjectType GetTileObjectTypeFromPos(const Vec3& pos) const;
+	TileObjectType GetTileObjectTypeFromIndex(const Pos& index, const int gridIndex) const;
 #pragma endregion
 
 #pragma region DirectX
@@ -207,7 +214,6 @@ private:
 	// move mObjectBuffer's objects to mDynamicObjects
 	void PopObjectBuffer();
 
-	int GetGridIndexFromPos(Vec3 pos) const;
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
 };
 #pragma endregion

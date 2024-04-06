@@ -9,7 +9,6 @@ namespace BehaviorTree {
 		Failure
 	};
 
-
 	class Node {
 	public:
 		Node* mParent{};

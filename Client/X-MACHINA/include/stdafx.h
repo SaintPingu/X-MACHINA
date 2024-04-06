@@ -201,3 +201,42 @@ public:
 #define new new
 
 #endif
+
+
+struct Pos
+{
+	bool operator==(Pos& other)
+	{
+		return Z == other.Z && X == other.X;
+	}
+
+	bool operator!=(Pos& other)
+	{
+		return !(*this == other);
+	}
+
+	bool operator<(const Pos& other) const
+	{
+		if (Z != other.Z)
+			return Z < other.Z;
+		return X < other.X;
+	}
+
+	Pos operator+(Pos& other)
+	{
+		Pos ret;
+		ret.Z = Z + other.Z;
+		ret.X = X + other.X;
+		return ret;
+	}
+
+	Pos& operator+=(Pos& other)
+	{
+		Z += other.Z;
+		X += other.X;
+		return *this;
+	}
+
+	INT32 Z{};
+	INT32 X{};
+};

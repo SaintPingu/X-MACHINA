@@ -52,33 +52,10 @@ namespace {
 
 
 
-Pos Grid::GetTileIndexFromPos(const Vec3& pos) const
-{
-	// 오브젝트의 타일 기준 인덱스 계산
-	Vec2 index = Vec2{ Vec2{fabs(mStartPoint)} + Vec2{pos.x, pos.z} } - Vec2{ static_cast<float>(mWidth) } * mVec2Index;
-
-	return Pos{ static_cast<int>(index.y), static_cast<int>(index.x) };
-}
-
-
-Vec3 Grid::GetTilePosFromIndex(const Pos& tPos) const
-{
-	return Vec3{ tPos.X * mkTileWidth + mStartPoint, 0, tPos.Z * mkTileHeight + mStartPoint };
-}
-
-
-TileObjectType Grid::GetTileObjectTypeFromPos(const Vec3& pos) const
-{
-	Pos tPos = GetTileIndexFromPos(pos);
-	return mTiles[tPos.Z][tPos.X].mType;
-}
-
-
 TileObjectType Grid::GetTileObjectTypeFromUniqueIndex(const Pos& tPos) const
 {
 	return mTiles[tPos.Z][tPos.X].mType;
 }
-
 
 void Grid::Init(int index, int cols, int width, float startPoint, const BoundingBox& bb)
 {

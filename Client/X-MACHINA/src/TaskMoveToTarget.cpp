@@ -59,6 +59,10 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 	if (!mPath.empty())
 		return;
 
+	mParent.clear();
+	mDist.clear();
+	mVisited.clear();
+
 	Pos start = scene->GetTileUniqueIndexFromPos(mObject->GetPosition());
 	Pos dest = scene->GetTileUniqueIndexFromPos(targetPos);
 
@@ -88,33 +92,27 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 		14,
 	};
 
-	const INT32 size = 500;
-	
-	//std::vector<std::vector<INT32>> dist(size, std::vector<int32>(size, INT_MAX));
-	//std::vector<std::vector<bool>> visited(size, std::vector<bool>(size, false));
-	std::map<Pos, Pos> parent;
-	std::map<Pos, INT32> dist;
-	std::map<Pos, bool> visited;
-
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
 	INT32 g = 0;
 	INT32 h = (abs(dest.Z - start.Z) + abs(dest.X - start.X)) * 10;
 	pq.push({ g + h, g, start });
-	dist[start] = g + h;
-	parent[start] = start;
+	mDist[start] = g + h;
+	mParent[start] = start;
 
 	while (!pq.empty()) {
 		PQNode curNode = pq.top();
 		pq.pop();
 
+		if (mVisited.size() > mMaxVisited)
+			return;
+
 		if (curNode.Pos == dest)
 			break;
 
-		if (visited.find(curNode.Pos) != visited.end()) {
+		if (mVisited.find(curNode.Pos) != mVisited.end())
 			continue;
-		}
 
-		visited[curNode.Pos] = true;
+		mVisited[curNode.Pos] = true;
 
 		for (int dir = 0; dir < DirCount; ++dir) {
 			Pos nextPos = curNode.Pos + front[dir];
@@ -125,13 +123,13 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 			int g = curNode.G + cost[dir];
 			int h = (abs(dest.Z - nextPos.Z) + abs(dest.X - nextPos.X)) * 10;
 
-			if (dist.find(nextPos) == dist.end())
-				dist[nextPos] = INT32_MAX;
+			if (mDist.find(nextPos) == mDist.end())
+				mDist[nextPos] = INT32_MAX;
 
-			if (dist[nextPos] > dist[curNode.Pos] + cost[dir]) {
-				dist[nextPos] = dist[curNode.Pos] + cost[dir];
+			if (mDist[nextPos] > mDist[curNode.Pos] + cost[dir]) {
+				mDist[nextPos] = mDist[curNode.Pos] + cost[dir];
 				pq.push({ g + h, g, nextPos });
-				parent[nextPos] = curNode.Pos;
+				mParent[nextPos] = curNode.Pos;
 			}
 		}
 	}
@@ -141,11 +139,11 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 
 	Pos pos = dest;
 	while (true) {
-		mPath.push(scene->GetTilePosFromIndex(pos));
+		mPath.push(scene->GetTilePosFromUniqueIndex(pos));
 
-		if (pos == parent[pos])
+		if (pos == mParent[pos])
 			break;
 
-		pos = parent[pos];
+		pos = mParent[pos];
 	}
 }

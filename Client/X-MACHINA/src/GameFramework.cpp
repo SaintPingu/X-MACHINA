@@ -167,9 +167,9 @@ bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
 	mResolution.Width = width;
 	mResolution.Height = height;
 	CreateGameClientWindow();
-
+	int a = 3;
 	// Init //
-	engine->Init(hInstance, mhWnd, width, height);
+	engine->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
 	mainCameraObject->AddComponent<Script_MainCamera>();
 	gameManager->AddComponent<Script_GameManager>();
 	objectMgr->InitObjectsScript();
@@ -237,7 +237,7 @@ void GameFramework::Update()
 {
 	engine->Update();
 	//timer->Tick(60.f);
-	timer->Tick(0);
+	timer->Tick();
 
 	sptr<GridObject> player = engine->GetPlayer();
 	Vec3 pos = player->GetLocalPosition();

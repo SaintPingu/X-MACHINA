@@ -47,9 +47,6 @@ public:
 	// return all objects
 	const auto& GetObjects() const		{ return mObjects; }
 
-	Pos GetTileIndexFromPos(const Vec3& pos) const;
-	Vec3 GetTilePosFromIndex(const Pos& tPos) const;
-	TileObjectType GetTileObjectTypeFromPos(const Vec3& pos) const;
 	TileObjectType GetTileObjectTypeFromUniqueIndex(const Pos& tPos) const;
 
 public:

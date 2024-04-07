@@ -27,10 +27,14 @@ struct PQNode {
 #pragma region Class
 class TaskMoveToTarget : public BT::Node {
 private:
-	sptr<Script_EnemyManager> mEnemyMgr;
+	std::stack<Vec3>		mPath{};
+	std::map<Pos, Pos>		mParent;
+	std::map<Pos, INT32>	mDist;
+	std::map<Pos, bool>		mVisited;
+	static constexpr UINT	mMaxVisited = 1000;
 
-	float mAStarAcctime{};
-	std::stack<Vec3> mPath{};
+	float						mAStarAcctime{};
+	sptr<Script_EnemyManager>	mEnemyMgr;
 
 public:
 	TaskMoveToTarget(Object* object);

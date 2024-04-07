@@ -94,10 +94,12 @@ public:
 	std::vector<sptr<GameObject>> GetAllPartilceSystems() const;
 
 	int GetGridIndexFromPos(Vec3 pos) const;
+
 	Pos GetTileUniqueIndexFromPos(const Vec3& pos) const;
+	Vec3 GetTilePosFromUniqueIndex(const Pos& index) const;
+
 	TileObjectType GetTileObjectTypeFromUniqueIndex(const Pos& index) const;
 
-	Vec3 GetTilePosFromIndex(const Pos& index) const;
 #pragma endregion
 
 #pragma region DirectX

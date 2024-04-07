@@ -816,9 +816,15 @@ Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
 	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
 
-	printf("%d, %d\n", tileGroupIndexZ, tileGroupIndexX);
-
 	return Pos{ tileGroupIndexZ, tileGroupIndexX };
+}
+
+Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
+{
+	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
+	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
+
+	return Vec3{ posX, 0, posZ };
 }
 
 TileObjectType Scene::GetTileObjectTypeFromUniqueIndex(const Pos& index) const
@@ -830,14 +836,6 @@ TileObjectType Scene::GetTileObjectTypeFromUniqueIndex(const Pos& index) const
 	const int tileZ = index.Z % Grid::mTileCols;
 
 	return mGrids[gridZ * mGridCols + gridX].GetTileObjectTypeFromUniqueIndex(Pos{tileZ, tileX});
-}
-
-Vec3 Scene::GetTilePosFromIndex(const Pos& index) const
-{
-	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
-	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
-
-	return Vec3{ posX, 0, posZ };
 }
 
 

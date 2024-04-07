@@ -97,6 +97,7 @@ public:
 	Pos GetTileUniqueIndexFromPos(const Vec3& pos) const;
 	Vec3 GetTilePosFromUniqueIndex(const Pos& index) const;
 	Tile GetTileFromUniqueIndex(const Pos& index) const;
+	Tile GetTileFromPos(const Vec3& index) const;
 #pragma endregion
 
 #pragma region DirectX

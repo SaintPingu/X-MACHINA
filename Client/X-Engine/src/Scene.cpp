@@ -693,7 +693,6 @@ void Scene::Start()
 	UpdateGridInfo();
 }
 
-#include "X-Engine.h"
 void Scene::Update()
 {
 	CheckCollisions();
@@ -713,28 +712,6 @@ void Scene::Update()
 	UpdateShaderVars();
 
 	PopObjectBuffer();
-
-	const Vec3 pos = engine->GetPlayer()->GetPosition();
-	Pos pPos = scene->GetTileUniqueIndexFromPos(pos);
-
-	printf("%d, %d\n", pPos.Z, pPos.X);
-
-	//TileObjectType type = GetTileObjectTypeFromUniqueIndex(pPos);
-
-	// switch (type)
-	// {
-	// case TileObjectType::None:
-	//	 printf("None\n");
-	//	 break;
-	// case TileObjectType::Static:
-	//	 printf("Static\n");
-	//	 break;
-	// case TileObjectType::Dynamic:
-	//	 printf("Dynamic\n");
-	//	 break;
-	// default:
-	//	 break;
-	// }
 }
 
 void Scene::CheckCollisions()
@@ -806,6 +783,11 @@ Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
 	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
 
 	return Vec3{ posX, 0, posZ };
+}
+
+Tile Scene::GetTileFromPos(const Vec3& pos) const
+{
+	return GetTileFromUniqueIndex(GetTileUniqueIndexFromPos(pos));
 }
 
 Tile Scene::GetTileFromUniqueIndex(const Pos& index) const

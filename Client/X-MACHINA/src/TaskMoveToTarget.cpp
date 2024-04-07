@@ -31,27 +31,31 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (distanceToTarget > kMinDistance) {
+		if (scene->GetTileFromPos(mObject->GetLook() * 0.5 + mObject->GetPosition()) == Tile::Static || !mPath.empty()) {
+			if (mAStarAcctime >= 5.f) {
+				if (false == PathPlanningAStar(target->GetPosition()))
+					return BT::NodeState::Running;
 
-		// AStar가 일정 시간 지났으면 다시 실행
-		if (mAStarAcctime >= 5.f) {
-			if (false == PathPlanningAStar(target->GetPosition()))
+				mAStarAcctime = 0.f;
+			}
+
+			// 결과인 경로가 비었다면 리턴
+			if (mPath.empty())
 				return BT::NodeState::Running;
 
-			mAStarAcctime = 0.f;
-		}
+			// 첫 번째 경로까지 이동 및 회전
+			Vec3 toFirstPath = (mPath.top() - mObject->GetPosition()).xz();
+			mObject->RotateTargetAxisY(mPath.top(), mEnemyMgr->mRotationSpeed * DeltaTime());
+			mObject->Translate(XMVector3Normalize(toFirstPath), mEnemyMgr->mMoveSpeed * DeltaTime());
 
-		// 결과인 경로가 비었다면 리턴
-		if (mPath.empty())
-			return BT::NodeState::Running;
-		
-		// 첫 번째 경로까지 이동 및 회전
-		Vec3 toFirstPath = (mPath.top() - mObject->GetPosition()).xz();
-		mObject->RotateTargetAxisY(mPath.top(), mEnemyMgr->mRotationSpeed * DeltaTime());
-		mObject->Translate(XMVector3Normalize(toFirstPath), mEnemyMgr->mMoveSpeed * DeltaTime());
-		
-		// 첫 번째 경로까지 도착했다면 첫 번째 경로 제거
-		if (toFirstPath.Length() < kMinDistance) {
-			mPath.pop();
+			// 첫 번째 경로까지 도착했다면 첫 번째 경로 제거
+			if (toFirstPath.Length() < kMinDistance) {
+				mPath.pop();
+			}
+		}
+		else {
+			mObject->RotateTargetAxisY(target->GetPosition(), mEnemyMgr->mRotationSpeed * DeltaTime());
+			mObject->Translate(mObject->GetLook(), mEnemyMgr->mMoveSpeed * DeltaTime());
 		}
 	}
 

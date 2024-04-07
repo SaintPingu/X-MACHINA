@@ -236,7 +236,7 @@ int GameFramework::GameLoop()
 void GameFramework::Update()
 {
 	engine->Update();
-	//timer->Tick(60.f);
+	//timer->Tick(144.f);
 	timer->Tick();
 
 	sptr<GridObject> player = engine->GetPlayer();
@@ -282,7 +282,7 @@ void GameFramework::Launch()
 LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (engine->WndProc(hWnd, message, wParam, lParam)) {
-		return true;
+		return 0;
 	}
 
 	switch (message)
@@ -391,7 +391,7 @@ ATOM GameFramework::CreateGameClientWindow()
 LRESULT GameFramework::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (framework->ProcessMessage(hWnd, message, wParam, lParam)) {
-		return true;
+		return 0;
 	}
 
 	int wmId, wmEvent;

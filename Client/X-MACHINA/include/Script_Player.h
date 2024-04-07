@@ -124,7 +124,7 @@ class Script_GroundPlayer : public Script_ShootingPlayer {
 private:
 	const float mkSitWalkSpeed   = 1.5f;
 	const float mkStandWalkSpeed = 2.2f;
-	const float mkRunSpeed       = 5.f;
+	const float mkRunSpeed       = 100.f;
 	const float mkSprintSpeed    = 8.f;
 
 	sptr<ObjectPool> mBulletPool{};

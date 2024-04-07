@@ -46,24 +46,6 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 			mPath.pop();
 		}
 
-		int currIndex = scene->GetGridIndexFromPos(mObject->GetPosition());
-		Pos type = scene->GetTileIndexFromPos(mObject->GetPosition(), currIndex);
-		printf("%d, %d\n", type.Z, type.X);
-		//switch (type)
-		//{
-		//case TileObjectType::None:
-		//	printf("None");
-		//	break;
-		//case TileObjectType::Static:
-		//	printf("Static");
-		//	break;
-		//case TileObjectType::Dynamic:
-		//	printf("Dynamic");
-		//	break;
-		//default:
-		//	break;
-		//}
-
 		mEnemyMgr->mController->SetValue("Walk", true);
 	}
 
@@ -77,9 +59,8 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 	if (!mPath.empty())
 		return;
 
-	int currIndex = scene->GetGridIndexFromPos(mObject->GetPosition());
-	Pos start = scene->GetTileIndexFromPos(mObject->GetPosition(), currIndex);
-	Pos dest = scene->GetTileIndexFromPos(targetPos, currIndex);
+	Pos start = scene->GetTileUniqueIndexFromPos(mObject->GetPosition());
+	Pos dest = scene->GetTileUniqueIndexFromPos(targetPos);
 
 	enum {
 		DirCount = 8
@@ -109,43 +90,46 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 
 	const INT32 size = 500;
 	
-	std::vector<std::vector<INT32>> dist(size, std::vector<int32>(size, INT_MAX));
-	std::vector<std::vector<bool>> visited(size, std::vector<bool>(size, false));
+	//std::vector<std::vector<INT32>> dist(size, std::vector<int32>(size, INT_MAX));
+	//std::vector<std::vector<bool>> visited(size, std::vector<bool>(size, false));
 	std::map<Pos, Pos> parent;
+	std::map<Pos, INT32> dist;
+	std::map<Pos, bool> visited;
 
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
 	INT32 g = 0;
 	INT32 h = (abs(dest.Z - start.Z) + abs(dest.X - start.X)) * 10;
 	pq.push({ g + h, g, start });
-	dist[start.Z][start.X] = g + h;
+	dist[start] = g + h;
 	parent[start] = start;
 
 	while (!pq.empty()) {
 		PQNode curNode = pq.top();
 		pq.pop();
 
-		if (visited[curNode.Pos.Z][curNode.Pos.X])
-			continue;
-
-		visited[curNode.Pos.Z][curNode.Pos.X] = true;
-
 		if (curNode.Pos == dest)
 			break;
+
+		if (visited.find(curNode.Pos) != visited.end()) {
+			continue;
+		}
+
+		visited[curNode.Pos] = true;
 
 		for (int dir = 0; dir < DirCount; ++dir) {
 			Pos nextPos = curNode.Pos + front[dir];
 
-			if (nextPos.X >= 150 || nextPos.Z >= 150 || nextPos.X < 0 || nextPos.Z < 0)
-				continue;
-
-			if (scene->GetTileObjectTypeFromIndex(nextPos, currIndex) == TileObjectType::Static)
+			if (scene->GetTileObjectTypeFromUniqueIndex(nextPos) == TileObjectType::Static)
 				continue;
 
 			int g = curNode.G + cost[dir];
 			int h = (abs(dest.Z - nextPos.Z) + abs(dest.X - nextPos.X)) * 10;
 
-			if (dist[nextPos.Z][nextPos.X] > dist[curNode.Pos.Z][curNode.Pos.X] + cost[dir]) {
-				dist[nextPos.Z][nextPos.X] = dist[curNode.Pos.Z][curNode.Pos.X] + cost[dir];
+			if (dist.find(nextPos) == dist.end())
+				dist[nextPos] = INT32_MAX;
+
+			if (dist[nextPos] > dist[curNode.Pos] + cost[dir]) {
+				dist[nextPos] = dist[curNode.Pos] + cost[dir];
 				pq.push({ g + h, g, nextPos });
 				parent[nextPos] = curNode.Pos;
 			}
@@ -157,7 +141,7 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 
 	Pos pos = dest;
 	while (true) {
-		mPath.push(scene->GetTilePosFromIndex(pos, currIndex));
+		mPath.push(scene->GetTilePosFromIndex(pos));
 
 		if (pos == parent[pos])
 			break;

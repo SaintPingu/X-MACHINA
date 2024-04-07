@@ -5,6 +5,8 @@
 #include "Component/Collider.h"
 
 
+int Grid::mTileRows = 0;
+int Grid::mTileCols = 0;
 
 namespace {
 	// call collision function if collide
@@ -61,9 +63,7 @@ Pos Grid::GetTileIndexFromPos(const Vec3& pos) const
 
 Vec3 Grid::GetTilePosFromIndex(const Pos& tPos) const
 {
-	Vec2 pos = Vec2{ static_cast<float>(tPos.X), static_cast<float>(tPos.Z) } - Vec2{ fabs(mStartPoint) } + Vec2{ static_cast<float>(mWidth) } * mVec2Index;
-
-	return Vec3{ pos.x, 0, pos.y };
+	return Vec3{ tPos.X * mkTileWidth + mStartPoint, 0, tPos.Z * mkTileHeight + mStartPoint };
 }
 
 
@@ -74,7 +74,7 @@ TileObjectType Grid::GetTileObjectTypeFromPos(const Vec3& pos) const
 }
 
 
-TileObjectType Grid::GetTileObjectTypeFromIndex(const Pos& tPos) const
+TileObjectType Grid::GetTileObjectTypeFromUniqueIndex(const Pos& tPos) const
 {
 	return mTiles[tPos.Z][tPos.X].mType;
 }
@@ -88,10 +88,10 @@ void Grid::Init(int index, int cols, int width, float startPoint, const Bounding
 	mVec2Index = { static_cast<float>(index % cols), static_cast<float>(index / cols)};
 	mStartPoint = startPoint;
 
-	mNumTileRows = static_cast<int>(width / mTileHeight);
-	mNumTileCols = static_cast<int>(width / mTileWidth);
+	mTileRows = static_cast<int>(width / mkTileHeight);
+	mTileCols = static_cast<int>(width / mkTileWidth);
 
-	mTiles = std::vector<std::vector<Tile>>(mNumTileCols, std::vector<Tile>(mNumTileRows));
+	mTiles = std::vector<std::vector<Tile>>(mTileCols, std::vector<Tile>(mTileRows));
 }
 
 void Grid::AddObject(GridObject* object)
@@ -115,7 +115,7 @@ void Grid::AddObject(GridObject* object)
 		break;
 	}
 }
-
+#include "Scene.h"
 void Grid::AddObjectInTiles(TileObjectType objectType, GridObject* object)
 {
 	// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
@@ -124,16 +124,15 @@ void Grid::AddObjectInTiles(TileObjectType objectType, GridObject* object)
 
 	// 오브젝트의 타일 기준 인덱스 계산
 	Vec3 pos = object->GetPosition().xz();
-	Pos tPos = GetTileIndexFromPos(pos);
-
-	int tPosZ = static_cast<int>(tPos.Z);
-	int tPosX = static_cast<int>(tPos.X);
+	Pos index = scene->GetTileUniqueIndexFromPos(pos);
+	const int tileX = index.X % mTileRows;
+	const int tileZ = index.Z % mTileCols;
 
 	// 오브젝트의 바운딩 스피어의 크기만큼 해당하는 모든 타일을 업데이트
-	if (tPosZ < 0 || tPosZ >= mNumTileRows || tPosX < 0 || tPosX >= mNumTileCols)
+	if (tileZ < 0 || tileZ >= mTileRows || tileX < 0 || tileZ >= mTileCols)
 		return;
 
-	mTiles[tPosZ][tPosX].mType = objectType;
+	mTiles[tileZ][tileX].mType = objectType;
 
 	const auto& collider = object->GetCollider();
 	if (!collider)
@@ -143,10 +142,10 @@ void Grid::AddObjectInTiles(TileObjectType objectType, GridObject* object)
 
 	for (int offsetZ = -kRad; offsetZ <= kRad; ++offsetZ) {
 		for (int offsetX = -kRad; offsetX <= kRad; ++offsetX) {
-			const int neighborX = tPosX + offsetX;
-			const int neighborZ = tPosZ + offsetZ;
+			const int neighborX = tileX + offsetX;
+			const int neighborZ = tileZ + offsetZ;
 
-			if (neighborX >= 0 && neighborX < mNumTileRows && neighborZ >= 0 && neighborZ < mNumTileCols)
+			if (neighborX >= 0 && neighborX < mTileRows && neighborZ >= 0 && neighborZ < mTileCols)
 				mTiles[neighborZ][neighborX].mType = objectType;
 		}
 	}

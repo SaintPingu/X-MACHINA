@@ -735,22 +735,27 @@ void Scene::Update()
 
 	PopObjectBuffer();
 
-	//const Vec3 pos = engine->GetPlayer()->GetPosition();
-	//TileObjectType type = GetTileObjectTypeFromPos(pos);
-	//switch (type)
-	//{
-	//case TileObjectType::None:
-	//	printf("None");
-	//	break;
-	//case TileObjectType::Static:
-	//	printf("Static");
-	//	break;
-	//case TileObjectType::Dynamic:
-	//	printf("Dynamic");
-	//	break;
-	//default:
-	//	break;
-	//}
+	const Vec3 pos = engine->GetPlayer()->GetPosition();
+	Pos pPos = scene->GetTileUniqueIndexFromPos(pos);
+
+	printf("%d, %d\n", pPos.Z, pPos.X);
+
+	//TileObjectType type = GetTileObjectTypeFromUniqueIndex(pPos);
+
+	// switch (type)
+	// {
+	// case TileObjectType::None:
+	//	 printf("None\n");
+	//	 break;
+	// case TileObjectType::Static:
+	//	 printf("Static\n");
+	//	 break;
+	// case TileObjectType::Dynamic:
+	//	 printf("Dynamic\n");
+	//	 break;
+	// default:
+	//	 break;
+	// }
 }
 
 void Scene::CheckCollisions()
@@ -806,25 +811,33 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 	return gridZ * mGridCols + gridX;
 }
 
-Vec3 Scene::GetTilePosFromIndex(const Pos& index, const int gridIndex) const
+Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 {
-	return mGrids[gridIndex].GetTilePosFromIndex(index);
+	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
+	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
+
+	printf("%d, %d\n", tileGroupIndexZ, tileGroupIndexX);
+
+	return Pos{ tileGroupIndexZ, tileGroupIndexX };
 }
 
-Pos Scene::GetTileIndexFromPos(const Vec3& pos, const int gridIndex) const
+TileObjectType Scene::GetTileObjectTypeFromUniqueIndex(const Pos& index) const
 {
-	return mGrids[gridIndex].GetTileIndexFromPos(pos);
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
+
+	const int tileX = index.X % Grid::mTileRows;
+	const int tileZ = index.Z % Grid::mTileCols;
+
+	return mGrids[gridZ * mGridCols + gridX].GetTileObjectTypeFromUniqueIndex(Pos{tileZ, tileX});
 }
 
-TileObjectType Scene::GetTileObjectTypeFromPos(const Vec3& pos) const
+Vec3 Scene::GetTilePosFromIndex(const Pos& index) const
 {
-	int gridIndex = GetGridIndexFromPos(pos);
-	return mGrids[gridIndex].GetTileObjectTypeFromPos(pos);
-}
+	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
+	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
 
-TileObjectType Scene::GetTileObjectTypeFromIndex(const Pos& index, const int gridIndex) const
-{
-	return mGrids[gridIndex].GetTileObjectTypeFromIndex(index);
+	return Vec3{ posX, 0, posZ };
 }
 
 

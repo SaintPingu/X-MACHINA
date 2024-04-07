@@ -31,10 +31,11 @@ private:
 	std::unordered_set<GridObject*> mStaticObjects{};
 	std::unordered_set<GridObject*> mDynamicObjets{};
 
-	static constexpr float mTileHeight = 0.5f;
-	static constexpr float mTileWidth = 0.5f;
-	int mNumTileRows{};
-	int mNumTileCols{};
+public:
+	static constexpr float mkTileHeight = 0.5f;
+	static constexpr float mkTileWidth = 0.5f;
+	static int mTileRows;
+	static int mTileCols;
 
 public:
 	std::vector<std::vector<Tile>> mTiles{};
@@ -49,7 +50,7 @@ public:
 	Pos GetTileIndexFromPos(const Vec3& pos) const;
 	Vec3 GetTilePosFromIndex(const Pos& tPos) const;
 	TileObjectType GetTileObjectTypeFromPos(const Vec3& pos) const;
-	TileObjectType GetTileObjectTypeFromIndex(const Pos& tPos) const;
+	TileObjectType GetTileObjectTypeFromUniqueIndex(const Pos& tPos) const;
 
 public:
 	bool Empty() const { return mObjects.empty(); }

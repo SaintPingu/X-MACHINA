@@ -31,10 +31,10 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (distanceToTarget > kMinDistance) {
-		if (scene->GetTileFromPos(mObject->GetLook() * 0.5 + mObject->GetPosition()) == Tile::Static || !mPath.empty()) {
+		if (scene->GetTileFromPos(mObject->GetLook() * Grid::mkTileHeight + mObject->GetPosition()) == Tile::Static || !mPath.empty()) {
 			if (mAStarAcctime >= 5.f) {
 				if (false == PathPlanningAStar(target->GetPosition()))
-					return BT::NodeState::Running;
+					return BT::NodeState::Failure;
 
 				mAStarAcctime = 0.f;
 			}
@@ -79,14 +79,14 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 	};
 
 	Pos front[] = {
-		Pos {-1, +0},	// UP
+		Pos {+1, +0},	// UP
 		Pos {+0, -1},	// LEFT
-		Pos {+1, +0},	// DOWN
+		Pos {-1, +0},	// DOWN
 		Pos {+0, +1},	// RIGHT
-		Pos {-1, -1},
-		Pos {+1, -1},
-		Pos {+1, +1},
 		Pos {-1, +1},
+		Pos {+1, +1},
+		Pos {+1, -1},
+		Pos {-1, -1},
 	};
 
 	int cost[] = {
@@ -102,17 +102,16 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 
 	// 값 초기화 
 	mParent.clear();
-	mDist.clear();
+	mDistance.clear();
 	mVisited.clear();
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
 	constexpr int kWeight = 10;
 
 	// f = g + h
 	int g = 0;
-	int h = static_cast<int>(sqrtf(powf((float)dest.X - (float)start.X, 2) + powf((float)dest.X - (float)start.X, 2))) * kWeight;
+	int h = (abs(dest.Z - start.Z) + abs(dest.X - start.X)) * kWeight;
 	pq.push({ g + h, g, start });
-	
-	mDist[start] = g + h;
+	mDistance[start] = g + h;
 	mParent[start] = start;
 
 	// AStar 실행
@@ -120,15 +119,18 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 		PQNode curNode = pq.top();
 		pq.pop();
 
-		// 해당 지점이 목적지인 경우 종료
-		if (curNode.Pos == dest)
-			break;
-
 		// 방문하지 않은 노드들만 방문
-		if (mVisited.find(curNode.Pos) != mVisited.end())
+		if (mVisited.contains(curNode.Pos))
+			continue;
+
+		if (mDistance[curNode.Pos] < curNode.F)
 			continue;
 
 		mVisited[curNode.Pos] = true;
+
+		// 해당 지점이 목적지인 경우 종료
+		if (curNode.Pos == dest)
+			break;
 
 		// 8방향으로 탐색
 		for (int dir = 0; dir < DirCount; ++dir) {
@@ -138,23 +140,27 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 			if (scene->GetTileFromUniqueIndex(nextPos) == Tile::Static)
 				continue;
 
-			// 첫 방문이라면 최댓값으로 지정
-			if (mDist.find(nextPos) == mDist.end())
-				mDist[nextPos] = INT32_MAX;
+			// 이미 방문한 곳이면 continue
+			if (mVisited.contains(nextPos))
+				continue;
+			
+			// 현재 거리 정보가 없다면 거리 비용을 최댓값으로 설정
+			if (!mDistance.contains(nextPos))
+				mDistance[nextPos] = INT32_MAX;
 
 			// 비용 계산
 			int g = curNode.G + cost[dir];
-			int h = static_cast<int>(sqrtf(powf((float)dest.X - (float)start.X, 2) + powf((float)dest.X - (float)start.X, 2))) * kWeight;
+			int h = (abs(dest.Z - nextPos.Z) + abs(dest.X - nextPos.X)) * kWeight;
 
-			// 거리 맵 업데이트
-			if (mDist[nextPos] > mDist[curNode.Pos] + cost[dir]) {
-				mDist[nextPos] = mDist[curNode.Pos] + cost[dir];
-				pq.push({ g + h, g, nextPos });
-				mParent[nextPos] = curNode.Pos;
-			}
+			if (mDistance[nextPos] <= g + h)
+				continue;
+
+			mDistance[nextPos] = g + h;
+			pq.push({ g + h, g, nextPos });
+			mParent[nextPos] = curNode.Pos;
 		}
 	}
-	
+
 	// 경로 비우기
 	while (!mPath.empty())
 		mPath.pop();

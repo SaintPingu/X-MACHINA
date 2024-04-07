@@ -29,10 +29,10 @@ class TaskMoveToTarget : public BT::Node {
 private:
 	std::stack<Vec3>		mPath{};
 	std::map<Pos, Pos>		mParent;
-	std::map<Pos, INT32>	mDist;
+	std::map<Pos, INT32>	mDistance;
 	std::map<Pos, bool>		mVisited;
 
-	float						mAStarAcctime{};
+	float						mAStarAcctime = 5.f;
 	sptr<Script_EnemyManager>	mEnemyMgr;
 
 public:

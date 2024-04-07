@@ -238,11 +238,6 @@ void GameFramework::Update()
 	engine->Update();
 	//timer->Tick(144.f);
 	timer->Tick();
-
-	sptr<GridObject> player = engine->GetPlayer();
-	Vec3 pos = player->GetLocalPosition();
-	//printf("PLAYER POS : %f %f %f\n", pos.x, pos.y, pos.z);
-
 	KeyInputBroadcast(); 
 }
 

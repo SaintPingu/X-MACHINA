@@ -13,13 +13,13 @@
 
 void Script_GameManager::Awake()
 {
-	//{
-	//	sptr<GridObject> enemy = scene->Instantiate("Droid_OII_DesertCamo");
-	//	auto& script = enemy->AddComponent<Script_Droid>();
-	//	enemy->AddComponent<Script_MeleeBT>();
-	//	enemy->SetPosition(105, 0, 100);
-	//	script->SetMaxHP(10);
-	//}
+	{
+		sptr<GridObject> enemy = scene->Instantiate("Droid_OII_DesertCamo");
+		auto& script = enemy->AddComponent<Script_Droid>();
+		enemy->AddComponent<Script_MeleeBT>();
+		enemy->SetPosition(105, 0, 100);
+		script->SetMaxHP(10);
+	}
 
 	{
 		sptr<GridObject> enemy = scene->Instantiate("Aranobot_Army");

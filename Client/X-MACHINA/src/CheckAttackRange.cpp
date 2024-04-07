@@ -26,6 +26,7 @@ BT::NodeState CheckAttackRange::Evaluate()
 	// TODO : 공격 범위에 들어온 이후 공격 애니메이션 계속 진행(공격 애니메이션의 속도와 쿨타임을 맞출 것)
 	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
 
+		mEnemyMgr->mController->SetValue("Walk", false);
 		mEnemyMgr->mController->SetValue("Jump", true); // TODO : Attack으로 변경해야 함
 
 		return BT::NodeState::Success;

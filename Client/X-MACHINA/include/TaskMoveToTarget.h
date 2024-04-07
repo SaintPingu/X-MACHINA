@@ -17,7 +17,7 @@ struct PQNode {
 	bool operator<(const PQNode& rhs) const { return F < rhs.F; }
 	bool operator>(const PQNode& rhs) const { return F > rhs.F; }
 
-	INT32	F; // f = g + h
+	INT32	F; 
 	INT32	G;
 	Pos		Pos;
 };
@@ -31,7 +31,6 @@ private:
 	std::map<Pos, Pos>		mParent;
 	std::map<Pos, INT32>	mDist;
 	std::map<Pos, bool>		mVisited;
-	static constexpr UINT	mMaxVisited = 1000;
 
 	float						mAStarAcctime{};
 	sptr<Script_EnemyManager>	mEnemyMgr;
@@ -43,6 +42,6 @@ public:
 public:
 	virtual BT::NodeState Evaluate() override;
 	
-	void PathPlanningAStar(const Vec3& targetPos);
+	bool PathPlanningAStar(const Vec3& targetPos);
 };
 #pragma endregion

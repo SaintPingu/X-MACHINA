@@ -233,27 +233,6 @@ void Scene::ReleaseObjects()
 	MeshRenderer::Release();
 }
 
-void Scene::TestOutputTile()
-{
-	std::ofstream out{ "Tile.txt" };
-
-	static int cnt = 0;
-	for (const auto& grid : mGrids) {
-		if (cnt % (mGridWidth - 1) == 0)
-			out << "\n";
-		for (const auto& width : grid.mTiles) {
-			for (const auto& tile : width) {
-				if (tile.mType == TileObjectType::Static)
-					out << "-";
-				else
-					out << '.';
-			}
-		}
-
-		cnt++;
-	}
-}
-
 void Scene::BuildTerrain()
 {
 	mTerrain = std::make_shared<Terrain>("Import/Terrain.bin");
@@ -318,7 +297,7 @@ void Scene::BuildGrid()
 			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
 
 			int index = (y * mGridCols) + x;
-			mGrids[index].Init(index, mGridCols, mGridWidth, mGridStartPoint + mGridWidth / 2.f, bb);
+			mGrids[index].Init(index, mGridWidth, bb);
 		}
 	}
 }
@@ -813,6 +792,7 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 {
+	// 월드 포지션으로부터 타일의 고유 인덱스를 계산
 	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
 	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
 
@@ -821,21 +801,23 @@ Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 
 Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
 {
+	// 타일의 고유 인덱스로부터 월드 포지션을 계산
 	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
 	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
 
 	return Vec3{ posX, 0, posZ };
 }
 
-TileObjectType Scene::GetTileObjectTypeFromUniqueIndex(const Pos& index) const
+Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 {
+	// 타일의 고유 인덱스로부터 타일의 값을 반환
 	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
 	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
 
 	const int tileX = index.X % Grid::mTileRows;
 	const int tileZ = index.Z % Grid::mTileCols;
 
-	return mGrids[gridZ * mGridCols + gridX].GetTileObjectTypeFromUniqueIndex(Pos{tileZ, tileX});
+	return mGrids[gridZ * mGridCols + gridX].GetTileFromUniqueIndex(Pos{tileZ, tileX});
 }
 
 

@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "Grid.h"
 
+#include "Scene.h"
 #include "Object.h"
 #include "Component/Collider.h"
 
@@ -52,23 +53,19 @@ namespace {
 
 
 
-TileObjectType Grid::GetTileObjectTypeFromUniqueIndex(const Pos& tPos) const
+Tile Grid::GetTileFromUniqueIndex(const Pos& tPos) const
 {
-	return mTiles[tPos.Z][tPos.X].mType;
+	return mTiles[tPos.Z][tPos.X];
 }
 
-void Grid::Init(int index, int cols, int width, float startPoint, const BoundingBox& bb)
+void Grid::Init(int index, int width, const BoundingBox& bb)
 {
 	mIndex = index;
 	mBB    = bb;
-	mWidth = width;
-	mVec2Index = { static_cast<float>(index % cols), static_cast<float>(index / cols)};
-	mStartPoint = startPoint;
 
 	mTileRows = static_cast<int>(width / mkTileHeight);
 	mTileCols = static_cast<int>(width / mkTileWidth);
-
-	mTiles = std::vector<std::vector<Tile>>(mTileCols, std::vector<Tile>(mTileRows));
+	mTiles = std::vector<std::vector<Tile>>(mTileCols, std::vector<Tile>(mTileRows, Tile::None));
 }
 
 void Grid::AddObject(GridObject* object)
@@ -88,12 +85,12 @@ void Grid::AddObject(GridObject* object)
 		break;
 	default:
 		mStaticObjects.insert(object);
-		AddObjectInTiles(TileObjectType::Static, object);
+		AddObjectInTiles(Tile::Static, object);
 		break;
 	}
 }
-#include "Scene.h"
-void Grid::AddObjectInTiles(TileObjectType objectType, GridObject* object)
+
+void Grid::AddObjectInTiles(Tile objectType, GridObject* object)
 {
 	// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
 	if (object->GetTag() != ObjectTag::Building)
@@ -109,7 +106,7 @@ void Grid::AddObjectInTiles(TileObjectType objectType, GridObject* object)
 	if (tileZ < 0 || tileZ >= mTileRows || tileX < 0 || tileZ >= mTileCols)
 		return;
 
-	mTiles[tileZ][tileX].mType = objectType;
+	mTiles[tileZ][tileX] = objectType;
 
 	const auto& collider = object->GetCollider();
 	if (!collider)
@@ -123,7 +120,7 @@ void Grid::AddObjectInTiles(TileObjectType objectType, GridObject* object)
 			const int neighborZ = tileZ + offsetZ;
 
 			if (neighborX >= 0 && neighborX < mTileRows && neighborZ >= 0 && neighborZ < mTileCols)
-				mTiles[neighborZ][neighborX].mType = objectType;
+				mTiles[neighborZ][neighborX] = objectType;
 		}
 	}
 }
@@ -145,7 +142,7 @@ void Grid::RemoveObject(GridObject* object)
 		break;
 	default:
 		mStaticObjects.erase(object);
-		AddObjectInTiles(TileObjectType::None, object);
+		AddObjectInTiles(Tile::None, object);
 		break;
 	}
 }

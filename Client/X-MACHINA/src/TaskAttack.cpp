@@ -22,9 +22,6 @@ BT::NodeState TaskAttack::Evaluate()
 
 	mAttackAccTime += DeltaTime();
 	if (mAttackAccTime >= mEnemyMgr->mAttackCoolTime) {
-		// TODO : 타겟이 죽으면 ClearData(target)
-		// Attack에서 Walk로 애니메이션 전이
-
 		mAttackAccTime = 0.f;
 	}
 

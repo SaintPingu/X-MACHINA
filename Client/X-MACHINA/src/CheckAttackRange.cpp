@@ -27,7 +27,6 @@ BT::NodeState CheckAttackRange::Evaluate()
 	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
 
 		mEnemyMgr->mController->SetValue("Jump", true); // TODO : Attack으로 변경해야 함
-		mEnemyMgr->mController->SetValue("Walk", false);
 
 		return BT::NodeState::Success;
 	}

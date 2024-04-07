@@ -24,9 +24,11 @@ BT::NodeState CheckDetectionRange::Evaluate()
 
 	// Player가 여러 명일 경우 추후에 engine->GetPlayer를 수정한다.
 	if ((mObject->GetPosition() - player->GetPosition()).Length() < mEnemyMgr->mDetectionRange) {
-		if (!target)
+		if (!target) {
 			mRoot->SetData("target", player);
+		}
 
+		mEnemyMgr->mController->SetValue("Walk", true);
 		return BT::NodeState::Success;
 	}
 	else {

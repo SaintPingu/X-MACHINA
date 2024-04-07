@@ -6,23 +6,16 @@ class GridObject;
 
 
 #pragma region Class
-enum class TileObjectType : UINT8{
+enum class Tile: UINT8{
 	None = 0,
 	Static,
 	Dynamic,
 };
 
-struct Tile {
-	TileObjectType mType = TileObjectType::None;
-};
-
 class Grid {
 private:
 	int mIndex{};
-	int mWidth{};
-	int mCols{};
-	float mStartPoint{};
-	Vec2 mVec2Index{};
+	std::vector<std::vector<Tile>> mTiles{};
 
 	BoundingBox mBB{};
 
@@ -38,7 +31,6 @@ public:
 	static int mTileCols;
 
 public:
-	std::vector<std::vector<Tile>> mTiles{};
 	Grid()          = default;
 	virtual ~Grid() = default;
 
@@ -47,18 +39,18 @@ public:
 	// return all objects
 	const auto& GetObjects() const		{ return mObjects; }
 
-	TileObjectType GetTileObjectTypeFromUniqueIndex(const Pos& tPos) const;
+	Tile GetTileFromUniqueIndex(const Pos& tPos) const;
 
 public:
 	bool Empty() const { return mObjects.empty(); }
 
 	// set grid's index and bounding box
-	void Init(int index, int cols, int width, float startPoint, const BoundingBox& bb);
+	void Init(int index, int width, const BoundingBox& bb);
 
 	// add [object] to gird
 	void AddObject(GridObject* object);
 
-	void AddObjectInTiles(TileObjectType objectType, GridObject* object);
+	void AddObjectInTiles(Tile objectType, GridObject* object);
 
 	// remove [object] from gird
 	void RemoveObject(GridObject* object);

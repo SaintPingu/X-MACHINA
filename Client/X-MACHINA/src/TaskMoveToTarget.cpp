@@ -21,51 +21,55 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	sptr<Object> target = GetData("target");
 	mAStarAcctime += DeltaTime();
 
+	// 타겟이 있을 때만 실행
 	if (!target)
 		return BT::NodeState::Running;
 
+	// 오브젝트로부터 타겟까지의 벡터
 	const float kMinDistance = 0.1f;
-	float distance = (mObject->GetPosition() - target->GetPosition()).Length();
+	float distanceToTarget = (mObject->GetPosition() - target->GetPosition()).Length();
 
-	if (distance > kMinDistance) {
+	// 타겟에 도착하지 않았을 경우에만 이동
+	if (distanceToTarget > kMinDistance) {
+
+		// AStar가 일정 시간 지났으면 다시 실행
 		if (mAStarAcctime >= 5.f) {
-			PathPlanningAStar(target->GetPosition());
+			if (false == PathPlanningAStar(target->GetPosition()))
+				return BT::NodeState::Running;
+
 			mAStarAcctime = 0.f;
 		}
 
+		// 결과인 경로가 비었다면 리턴
 		if (mPath.empty())
 			return BT::NodeState::Running;
 		
-		Vec3 direction = (mPath.top() - mObject->GetPosition()).xz();
-
+		// 첫 번째 경로까지 이동 및 회전
+		Vec3 toFirstPath = (mPath.top() - mObject->GetPosition()).xz();
 		mObject->RotateTargetAxisY(mPath.top(), mEnemyMgr->mRotationSpeed * DeltaTime());
-		mObject->Translate(XMVector3Normalize(direction), mEnemyMgr->mMoveSpeed * DeltaTime());
-
-		float l = direction.Length();
-		if (l < 0.5f) {
+		mObject->Translate(XMVector3Normalize(toFirstPath), mEnemyMgr->mMoveSpeed * DeltaTime());
+		
+		// 첫 번째 경로까지 도착했다면 첫 번째 경로 제거
+		if (toFirstPath.Length() < kMinDistance) {
 			mPath.pop();
 		}
-
-		mEnemyMgr->mController->SetValue("Walk", true);
 	}
-
 
 	return BT::NodeState::Running;
 }
 
 
-void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
+bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 {
-	if (!mPath.empty())
-		return;
-
-	mParent.clear();
-	mDist.clear();
-	mVisited.clear();
-
+	// 시작 지점과 목적지 위치 값을 타일 고유 인덱스로 변환
 	Pos start = scene->GetTileUniqueIndexFromPos(mObject->GetPosition());
 	Pos dest = scene->GetTileUniqueIndexFromPos(targetPos);
 
+	// 목적지가 막혀 있다면 초기에 리턴
+	if (scene->GetTileFromUniqueIndex(dest) == Tile::Static)
+		return false;
+
+	// 상하좌우 대각선까지 8방향
 	enum {
 		DirCount = 8
 	};
@@ -81,7 +85,7 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 		Pos {-1, +1},
 	};
 
-	INT32 cost[] = {
+	int cost[] = {
 		10,
 		10,
 		10,
@@ -92,40 +96,53 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 		14,
 	};
 
+	// 값 초기화 
+	mParent.clear();
+	mDist.clear();
+	mVisited.clear();
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
-	INT32 g = 0;
-	INT32 h = (abs(dest.Z - start.Z) + abs(dest.X - start.X)) * 10;
+	constexpr int kWeight = 10;
+
+	// f = g + h
+	int g = 0;
+	int h = static_cast<int>(sqrtf(powf((float)dest.X - (float)start.X, 2) + powf((float)dest.X - (float)start.X, 2))) * kWeight;
 	pq.push({ g + h, g, start });
+	
 	mDist[start] = g + h;
 	mParent[start] = start;
 
+	// AStar 실행
 	while (!pq.empty()) {
 		PQNode curNode = pq.top();
 		pq.pop();
 
-		if (mVisited.size() > mMaxVisited)
-			return;
-
+		// 해당 지점이 목적지인 경우 종료
 		if (curNode.Pos == dest)
 			break;
 
+		// 방문하지 않은 노드들만 방문
 		if (mVisited.find(curNode.Pos) != mVisited.end())
 			continue;
 
 		mVisited[curNode.Pos] = true;
 
+		// 8방향으로 탐색
 		for (int dir = 0; dir < DirCount; ++dir) {
 			Pos nextPos = curNode.Pos + front[dir];
 
-			if (scene->GetTileObjectTypeFromUniqueIndex(nextPos) == TileObjectType::Static)
+			// 다음 방향 노드의 상태가 static이라면 continue
+			if (scene->GetTileFromUniqueIndex(nextPos) == Tile::Static)
 				continue;
 
-			int g = curNode.G + cost[dir];
-			int h = (abs(dest.Z - nextPos.Z) + abs(dest.X - nextPos.X)) * 10;
-
+			// 첫 방문이라면 최댓값으로 지정
 			if (mDist.find(nextPos) == mDist.end())
 				mDist[nextPos] = INT32_MAX;
 
+			// 비용 계산
+			int g = curNode.G + cost[dir];
+			int h = static_cast<int>(sqrtf(powf((float)dest.X - (float)start.X, 2) + powf((float)dest.X - (float)start.X, 2))) * kWeight;
+
+			// 거리 맵 업데이트
 			if (mDist[nextPos] > mDist[curNode.Pos] + cost[dir]) {
 				mDist[nextPos] = mDist[curNode.Pos] + cost[dir];
 				pq.push({ g + h, g, nextPos });
@@ -134,9 +151,11 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 		}
 	}
 	
+	// 경로 비우기
 	while (!mPath.empty())
 		mPath.pop();
 
+	// 부모 경로를 따라가 스택에 넣어준다. top이 first path이다.
 	Pos pos = dest;
 	while (true) {
 		mPath.push(scene->GetTilePosFromUniqueIndex(pos));
@@ -146,4 +165,6 @@ void TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 
 		pos = mParent[pos];
 	}
+
+	return true;
 }

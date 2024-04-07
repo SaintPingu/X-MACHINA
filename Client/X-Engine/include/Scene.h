@@ -81,7 +81,6 @@ private:
 
 public:
 	void Release();
-	void TestOutputTile();
 
 private:
 #pragma endregion
@@ -97,9 +96,7 @@ public:
 
 	Pos GetTileUniqueIndexFromPos(const Vec3& pos) const;
 	Vec3 GetTilePosFromUniqueIndex(const Pos& index) const;
-
-	TileObjectType GetTileObjectTypeFromUniqueIndex(const Pos& index) const;
-
+	Tile GetTileFromUniqueIndex(const Pos& index) const;
 #pragma endregion
 
 #pragma region DirectX

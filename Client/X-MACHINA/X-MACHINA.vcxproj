@@ -223,6 +223,7 @@
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\TaskAttack.h" />
     <ClInclude Include="include\TaskMoveToTarget.h" />
+    <ClInclude Include="include\TaskPathPlanning.h" />
     <ClInclude Include="include\TaskPatrol.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
@@ -275,6 +276,7 @@
     </ClCompile>
     <ClCompile Include="src\TaskAttack.cpp" />
     <ClCompile Include="src\TaskMoveToTarget.cpp" />
+    <ClCompile Include="src\TaskPathPlanning.cpp" />
     <ClCompile Include="src\TaskPatrol.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>

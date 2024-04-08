@@ -7,32 +7,13 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
 class Script_EnemyManager;
-#pragma endregion
-
-
-#pragma region ClassForwardDecl
-struct PQNode {
-	bool operator<(const PQNode& rhs) const { return F < rhs.F; }
-	bool operator>(const PQNode& rhs) const { return F > rhs.F; }
-
-	INT32	F; 
-	INT32	G;
-	Pos		Pos;
-};
 #pragma endregion
 
 
 #pragma region Class
 class TaskMoveToTarget : public BT::Node {
 private:
-	std::stack<Vec3>		mPath{};
-	std::map<Pos, Pos>		mParent;
-	std::map<Pos, INT32>	mDistance;
-	std::map<Pos, bool>		mVisited;
-
-	float						mAStarAcctime = 5.f;
 	sptr<Script_EnemyManager>	mEnemyMgr;
 
 public:

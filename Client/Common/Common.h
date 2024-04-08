@@ -114,6 +114,21 @@ struct Pos
 		return *this;
 	}
 
+	Pos operator-(Pos& other)
+	{
+		Pos ret;
+		ret.Z = Z - other.Z;
+		ret.X = X - other.X;
+		return ret;
+	}
+
+	Pos& operator-=(Pos& other)
+	{
+		Z -= other.Z;
+		X -= other.X;
+		return *this;
+	}
+
 	int Z{};
 	int X{};
 };

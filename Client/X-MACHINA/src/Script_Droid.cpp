@@ -17,7 +17,7 @@ void Script_Droid::Awake()
 
 	mEnemyMgr->mRotationSpeed = 270.f;
 	mEnemyMgr->mMoveSpeed = 1.8f;
-	mEnemyMgr->mDetectionRange = 15.f;
+	mEnemyMgr->mDetectionRange = 10.f;
 
 	Transform* gunPos = mObject->FindFrame("WeaponAction");
 	mGun = scene->Instantiate("SM_SciFiAssaultPistol");

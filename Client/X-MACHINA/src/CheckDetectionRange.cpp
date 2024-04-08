@@ -14,27 +14,29 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
+	mPlayer = engine->GetPlayer();
 }
 
 
 BT::NodeState CheckDetectionRange::Evaluate()
 {
 	sptr<Object> target = GetData("target");
-	sptr<Object> player = engine->GetPlayer();
 
-	// Player가 여러 명일 경우 추후에 engine->GetPlayer를 수정한다.
-	if ((mObject->GetPosition() - player->GetPosition()).Length() < mEnemyMgr->mDetectionRange) {
-		if (!target) {
-			mRoot->SetData("target", player);
-		}
+	if (!target) {
+		mRoot->SetData("target", mPlayer);
+		target = mPlayer;
+	}
+
+	// Player가 여러 명일 경우 추후에 수정
+	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mDetectionRange) {
+
+		// 타겟이 정적인 위치에 있다면 계속 정찰만 한다.
+		if (scene->GetTileFromPos(target->GetPosition()) == Tile::Static)
+			return BT::NodeState::Failure;
 
 		mEnemyMgr->mController->SetValue("Walk", true);
 		return BT::NodeState::Success;
 	}
-	else {
-		if (target)
-			mRoot->ClearData("target");
 
-		return BT::NodeState::Failure;
-	}
+	return BT::NodeState::Failure;
 }

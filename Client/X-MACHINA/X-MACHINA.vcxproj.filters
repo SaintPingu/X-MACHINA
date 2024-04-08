@@ -226,6 +226,9 @@
     <ClInclude Include="include\TaskAttack.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\TaskPathPlanning.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -326,6 +329,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_EnemyManager.cpp">
       <Filter>Script\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskPathPlanning.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

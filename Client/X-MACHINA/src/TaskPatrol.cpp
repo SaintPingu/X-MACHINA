@@ -22,6 +22,8 @@ BT::NodeState TaskPatrol::Evaluate()
 {
 	Vec3 wayPoint = mWayPoints[mCurrWayPointIdx];
 
+	mEnemyMgr->mIsMoveToPath = false;
+
 	const float kMinDistance = 1.f;
 	const Vec3 toWayPoint = wayPoint - mObject->GetPosition().xz();
 	
@@ -30,6 +32,7 @@ BT::NodeState TaskPatrol::Evaluate()
 		mObject->Translate(XMVector3Normalize(toWayPoint), mEnemyMgr->mMoveSpeed * DeltaTime());
 	}
 	else {
+		mEnemyMgr->mController->SetValue("Walk", false);
 		mCurrWayPointIdx = (mCurrWayPointIdx + 1) % mWayPoints.size();
 	}
 

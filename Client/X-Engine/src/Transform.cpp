@@ -469,14 +469,10 @@ void Transform::MergeTransform(std::vector<const Transform*>& out, const Transfo
 	}
 }
 
-void Transform::UpdateShaderVars(const Matrix& matrix)
-{
-	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
-}
-
-void Transform::UpdateShaderVars(const XMMATRIX& matrix)
+void Transform::UpdateColliderShaderVars(const Matrix& matrix, const Vec4& color)
 {
 	Matrix m;
 	XMStoreFloat4x4(&m, matrix);
-	UpdateShaderVars(m);
+	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
+	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, color, 16);
 }

@@ -318,14 +318,14 @@
     <ClCompile Include="src\CheckAttackRange.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_EnemyManager.cpp">
-      <Filter>Script\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="src\TaskMoveToTarget.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
     <ClCompile Include="src\TaskAttack.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_EnemyManager.cpp">
+      <Filter>Script\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

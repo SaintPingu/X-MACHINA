@@ -7,14 +7,13 @@
 #include "Scene.h"
 #include "Object.h"
 #include "AnimatorController.h"
-
+#include "MeshRenderer.h"
 
 TaskMoveToTarget::TaskMoveToTarget(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 }
-
 
 BT::NodeState TaskMoveToTarget::Evaluate()
 {
@@ -33,7 +32,10 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	if (distanceToTarget > kMinDistance) {
 		if (scene->GetTileFromPos(mObject->GetLook() * Grid::mkTileHeight + mObject->GetPosition()) == Tile::Static || !mPath.empty()) {
 			if (mAStarAcctime >= 5.f) {
-				if (false == PathPlanningAStar(target->GetPosition()))
+				scene->GetOpenList().clear();
+				scene->GetClosedList().clear();
+
+					if (false == PathPlanningAStar(target->GetPosition()))
 					return BT::NodeState::Failure;
 
 				mAStarAcctime = 0.f;
@@ -114,11 +116,12 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 	mDistance[start] = g + h;
 	mParent[start] = start;
 
+	int cnt{};
 	// AStar 실행
 	while (!pq.empty()) {
 		PQNode curNode = pq.top();
 		pq.pop();
-
+		cnt++;
 		// 방문하지 않은 노드들만 방문
 		if (mVisited.contains(curNode.Pos))
 			continue;
@@ -127,6 +130,7 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 			continue;
 
 		mVisited[curNode.Pos] = true;
+		scene->GetClosedList().push_back(scene->GetTilePosFromUniqueIndex(curNode.Pos));
 
 		// 해당 지점이 목적지인 경우 종료
 		if (curNode.Pos == dest)
@@ -160,7 +164,7 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 			mParent[nextPos] = curNode.Pos;
 		}
 	}
-
+	printf("%d\n", cnt);
 	// 경로 비우기
 	while (!mPath.empty())
 		mPath.pop();
@@ -169,6 +173,7 @@ bool TaskMoveToTarget::PathPlanningAStar(const Vec3& targetPos)
 	Pos pos = dest;
 	while (true) {
 		mPath.push(scene->GetTilePosFromUniqueIndex(pos));
+		scene->GetOpenList().push_back(mPath.top());
 
 		if (pos == mParent[pos])
 			break;

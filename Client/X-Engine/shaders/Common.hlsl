@@ -150,6 +150,7 @@ struct PostPassInfo {
 
 struct ColliderInfo {
     matrix MtxView;
+    float4 Color;
 };
 
 struct BoneTransformInfo {

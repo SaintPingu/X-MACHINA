@@ -74,6 +74,9 @@ private:
 	/* Others */
 	bool mIsRenderBounds = false;
 
+	std::vector<Vec3>	mOpenList{};
+	std::vector<Vec3>	mClosedList{};
+
 private:
 #pragma region C/Dtor
 	Scene();
@@ -98,6 +101,9 @@ public:
 	Vec3 GetTilePosFromUniqueIndex(const Pos& index) const;
 	Tile GetTileFromUniqueIndex(const Pos& index) const;
 	Tile GetTileFromPos(const Vec3& index) const;
+	std::vector<Vec3>& GetOpenList() { return mOpenList; }
+	std::vector<Vec3>& GetClosedList() { return mClosedList; }
+
 #pragma endregion
 
 #pragma region DirectX

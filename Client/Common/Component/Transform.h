@@ -203,6 +203,5 @@ public:
 	// Merge all under transforms from [rootTransform] except a parent
 	static void MergeTransform(std::vector<const Transform*>& out, const Transform* rootTransform);
 	// set transform matrix (SetGraphicsRoot32BitConstants)
-	static void UpdateShaderVars(const Matrix& matrix);
-	static void UpdateShaderVars(const XMMATRIX& matrix);
+	static void UpdateColliderShaderVars(const Matrix& matrix, const Vec4& color = Vec4{1.f, 0.f, 0.f, 1.f});
 };

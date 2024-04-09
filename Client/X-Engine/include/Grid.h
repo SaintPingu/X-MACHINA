@@ -57,5 +57,6 @@ public:
 
 	// collision check for objects contained in grid
 	void CheckCollisions();
+	float CheckCollisionsRay(const Ray& ray) const;
 };
 #pragma endregion

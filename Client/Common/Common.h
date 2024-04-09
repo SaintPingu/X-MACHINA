@@ -54,6 +54,7 @@ using Vec3       = DirectX::SimpleMath::Vector3;
 using Vec4       = DirectX::SimpleMath::Vector4;
 using Matrix     = DirectX::SimpleMath::Matrix;
 using Quat	     = DirectX::SimpleMath::Quaternion;
+using Ray	     = DirectX::SimpleMath::Ray;
 
 /* Abbreviation */
 template<class T>

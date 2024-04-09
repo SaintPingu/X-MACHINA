@@ -26,18 +26,18 @@ struct PQNode {
 #pragma region Class
 class TaskPathPlanning : public BT::Node {
 private:
+	sptr<Script_EnemyManager>	mEnemyMgr;
+
+	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
+
 	std::stack<Vec3>		mPath{};
 	std::map<Pos, Pos>		mParent;
-	std::map<Pos, INT32>	mDistance;
+	std::map<Pos, int>		mDistance;
 	std::map<Pos, bool>		mVisited;
-	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
+
 	static constexpr int	mkWeight = 10;
 	static constexpr int	mkMaxVisited = 1000;
 	static constexpr int	mkPathAdjust = 3;
-
-	float mAccTime = 0.f;
-
-	sptr<Script_EnemyManager>	mEnemyMgr;
 
 public:
 	TaskPathPlanning(Object* object);

@@ -199,6 +199,7 @@ private:
 #pragma endregion
 
 public:
+	float CheckCollisionsRay(const Ray& ray) const;
 	void ToggleDrawBoundings();
 
 	// update objects' grid indices

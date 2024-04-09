@@ -20,18 +20,21 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	sptr<Object> target = GetData("target");
 
 	// 오브젝트로부터 타겟까지의 벡터
-	Vec3 toTarget = mObject->GetPosition() - target->GetPosition();
+	Vec3 toTarget =  mObject->GetPosition() - target->GetPosition();
 
-	// 오브젝트의 다음 이동 위치 타일이 막혀있는 경우 AStar를 실행시켜야 한다.
-	Vec3 nextPos = mObject->GetLook() * mEnemyMgr->mMoveSpeed * DeltaTime() + mObject->GetPosition();
+	// 타겟으로부터 오브젝트로 광선을 쏜다.
+	Ray r{ target->GetPosition(), XMVector3Normalize(toTarget)};
 
-	// 다음 위치의 타일이 막혀 있거나 현재 길찾기 진행중이라면 진행하지 않는다.
-	if (scene->GetTileFromPos(nextPos) == Tile::Static || mEnemyMgr->mIsMoveToPath) {
+	// 해당 광선에 맞은 다른 Static 오브젝트의 거리가 타겟까지의 거리보다 가까운 경우 벽에 막혀있는 경우이다.
+	if (scene->CheckCollisionsRay(r) < toTarget.Length()) {
 		return BT::NodeState::Failure;
 	}
 
 	// 오브젝트로부터 타겟까지의 벡터
 	const float kMinDistance = 0.1f;
+	
+	// 한 번이라도 해당 노드가 실행됐다면 기존 길찾기 경로를 삭제 하기 위한 플래그
+	mEnemyMgr->mIsMoveToPath = false;
 
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (toTarget.Length() > kMinDistance) {

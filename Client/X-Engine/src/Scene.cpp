@@ -734,6 +734,11 @@ void Scene::CheckCollisions()
 	}
 }
 
+float Scene::CheckCollisionsRay(const Ray& ray) const
+{
+	return mGrids[GetGridIndexFromPos(ray.Position)].CheckCollisionsRay(ray);
+}
+
 void Scene::UpdateObjects()
 {
 	ProcessActiveObjects([this](sptr<GridObject> object) {

@@ -156,3 +156,18 @@ void Grid::CheckCollisions()
 		}
 	}
 }
+
+float Grid::CheckCollisionsRay(const Ray& ray) const
+{
+	for (const auto& object : mStaticObjects) {
+		if (object->GetTag() != ObjectTag::Building)
+			continue;
+
+		float temp;
+		float dist = Vec3::Distance(ray.Position, object->GetPosition());
+		if (ray.Intersects(object->GetCollider()->GetBS(), temp))
+			return dist;
+	}
+
+	return 999.f;
+}

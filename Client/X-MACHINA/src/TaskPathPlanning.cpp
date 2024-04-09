@@ -54,17 +54,17 @@ BT::NodeState TaskPathPlanning::Evaluate()
 
 	// 이전에 경로 이동이 취소 되었다면 모두 비워야함
 	if (!mEnemyMgr->mIsMoveToPath)
-		while (!mPath.empty()) 
-			mPath.pop();
+		mPath.clear();
+
 
 	// 이미 찾은 길이 있는 경우 해당 길을 찾아 이동 및 회전
 	if (!mPath.empty()) {
-		Vec3 toFirstPath = (mPath.top() - mObject->GetPosition()).xz();
-		mObject->RotateTargetAxisY(mPath.top(), mEnemyMgr->mRotationSpeed * DeltaTime());
+		Vec3 toFirstPath = (mPath.back() - mObject->GetPosition()).xz();
+		mObject->RotateTargetAxisY(mPath.back(), mEnemyMgr->mRotationSpeed * DeltaTime());
 		mObject->Translate(XMVector3Normalize(toFirstPath), mEnemyMgr->mMoveSpeed * DeltaTime());
 
 		if (toFirstPath.Length() < kMinDistance)
-			mPath.pop();
+			mPath.pop_back();
 
 		return BT::NodeState::Success;
 	}
@@ -82,6 +82,10 @@ BT::NodeState TaskPathPlanning::Evaluate()
 
 bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 {
+	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
+	if (scene->GetTileFromUniqueIndex(start) == Tile::Static)
+		return false;
+
 	// 값 초기화 
 	scene->GetOpenList().clear();
 	scene->GetClosedList().clear();
@@ -155,24 +159,21 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 	}
 
 	Pos pos = dest;
-
+	prevDir = { 0, 0 };
 	// 부모 경로를 따라가 스택에 넣어준다. top이 first path이다.
 	while (true) {
-		mPath.push(scene->GetTilePosFromUniqueIndex(pos));
-		scene->GetOpenList().push_back(mPath.top());
+		Pos dir = mParent[pos] - pos;
+
+		if (prevDir != dir)
+			mPath.push_back(scene->GetTilePosFromUniqueIndex(pos));
+
+		scene->GetOpenList().push_back(mPath.back());
 
 		if (pos == mParent[pos])
 			break;
 
 		pos = mParent[pos];
-	}
-
-	// 자연스러운 움직임을 위해 초반 몇 경로는 제거
-	for (int i = 0; i < mkPathAdjust; ++i) {
-		if (mPath.empty())
-			break;
-
-		mPath.pop();
+		prevDir = dir;
 	}
 
 	if (mPath.empty()) {

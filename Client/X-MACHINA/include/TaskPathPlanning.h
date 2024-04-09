@@ -30,7 +30,7 @@ private:
 
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
 
-	std::stack<Vec3>		mPath{};
+	std::vector<Vec3>		mPath{};
 	std::map<Pos, Pos>		mParent;
 	std::map<Pos, int>		mDistance;
 	std::map<Pos, bool>		mVisited;

@@ -24,6 +24,7 @@ class SkyBox;
 class ObjectPool;
 class TestCube;
 class MasterModel;
+class ObjectTag;
 #pragma endregion
 
 

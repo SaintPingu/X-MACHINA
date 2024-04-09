@@ -27,12 +27,14 @@ enum class DrawOption {
 	Debug,
 };
 
-enum class FilterOption : DWORD {
-	None = 0x001,
-	Blur = 0x002,
-	Tone = 0x004,
-	LUT	 = 0x008,
-	Ssao = 0x010,
+class FilterOption : public DwordOverloader<FilterOption> {
+	DWORD_OVERLOADER(FilterOption)
+
+	static const DWORD None = 0x001;
+	static const DWORD Blur = 0x002;
+	static const DWORD Tone = 0x004;
+	static const DWORD LUT = 0x008;
+	static const DWORD Ssao = 0x010;
 };
 #pragma endregion
 

@@ -4,6 +4,7 @@
 class AnimatorMotion;
 class AnimatorStateMachine;
 class AnimatorController;
+class HumanBone;
 
 class AnimatorLayer {
 private:

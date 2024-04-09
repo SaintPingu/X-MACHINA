@@ -37,12 +37,6 @@
     <Filter Include="Log">
       <UniqueIdentifier>{127cea7f-2717-442c-a4e2-dcd0cc7d0da7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Imgui">
-      <UniqueIdentifier>{ade47052-bd8e-43ee-88c2-440e86f60288}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Imgui\ImguiCode">
-      <UniqueIdentifier>{6000ed2b-6000-4c87-8344-ee1acb5b9ca7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\PostProcessing">
       <UniqueIdentifier>{d8b201cf-6796-4558-ae19-9f62bac3b2a0}</UniqueIdentifier>
     </Filter>
@@ -87,6 +81,12 @@
     </Filter>
     <Filter Include="Common\Component">
       <UniqueIdentifier>{7f2e2d83-c260-4e5d-9ffb-a51b337db942}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Imgui">
+      <UniqueIdentifier>{ade47052-bd8e-43ee-88c2-440e86f60288}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Imgui\ImguiCode">
+      <UniqueIdentifier>{6000ed2b-6000-4c87-8344-ee1acb5b9ca7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -433,6 +433,9 @@
     </ClInclude>
     <ClInclude Include="include\EnginePch.h">
       <Filter>PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\DwordOverloader.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

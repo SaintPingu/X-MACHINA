@@ -18,15 +18,17 @@ class Object;
 
 #pragma region EnumClass
 // 메쉬의 정점이 가지고 있는 정보
-enum class VertexType : DWORD {
-	Position  = 0x01,
-	Color     = 0x02,
-	Normal    = 0x04,
-	Tangent   = 0x08,
-	BiTangent = 0x10,
-	UV0       = 0x20,
-	UV1       = 0x40,
-	Weight    = 0x80,
+class VertexType : public DwordOverloader<VertexType> {
+	DWORD_OVERLOADER(VertexType)
+
+	static const DWORD Position  = 0x01;
+	static const DWORD Color     = 0x02;
+	static const DWORD Normal    = 0x04;
+	static const DWORD Tangent   = 0x08;
+	static const DWORD BiTangent = 0x10;
+	static const DWORD UV0       = 0x20;
+	static const DWORD UV1       = 0x40;
+	static const DWORD Weight    = 0x80;
 };
 #pragma endregion
 

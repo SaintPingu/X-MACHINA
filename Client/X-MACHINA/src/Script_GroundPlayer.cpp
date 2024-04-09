@@ -139,12 +139,12 @@ void Script_GroundPlayer::ProcessInput()
 
 	float v{}, h{};
 
-	DWORD dwDirection{};
-	DWORD rotationDir{};
-	if (KEY_PRESSED('W')) { dwDirection |= Dir::Front; v += 1; }
-	if (KEY_PRESSED('S')) { dwDirection |= Dir::Back;  v -= 1; }
-	if (KEY_PRESSED('A')) { dwDirection |= Dir::Left;  h -= 1; }
-	if (KEY_PRESSED('D')) { dwDirection |= Dir::Right; h += 1; }
+	Dir dir{};
+	Dir rotationDir{};
+	if (KEY_PRESSED('W')) { dir |= Dir::Front; v += 1; }
+	if (KEY_PRESSED('S')) { dir |= Dir::Back;  v -= 1; }
+	if (KEY_PRESSED('A')) { dir |= Dir::Left;  h -= 1; }
+	if (KEY_PRESSED('D')) { dir |= Dir::Right; h += 1; }
 
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
 	Movement crntMovement = Movement::None;
@@ -152,17 +152,17 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('C'))				   { crntMovement |= Movement::Sit; }
 	else						           { crntMovement |= Movement::Stand; }
 	// Walk / Run / Sprint
-	if (dwDirection) {
+	if (dir != Dir::None) {
 		     if (KEY_PRESSED(VK_SHIFT))    { crntMovement |= Movement::Sprint; }
 		else if (KEY_PRESSED(VK_CONTROL))  { crntMovement |= Movement::Walk; }
 		else						       { crntMovement |= Movement::Run; }
 	}
 
-	Movement crntState = static_cast<Movement>(crntMovement & 0x0F);
-	Movement prevState = static_cast<Movement>(mPrevMovement & 0x0F);
+	Movement crntState = crntMovement & 0x0F;
+	Movement prevState = mPrevMovement & 0x0F;
 
-	Movement crntMotion = static_cast<Movement>(crntMovement & 0xF0);
-	Movement prevMotion = static_cast<Movement>(mPrevMovement & 0xF0);
+	Movement crntMotion = crntMovement & 0xF0;
+	Movement prevMotion = mPrevMovement & 0xF0;
 
 	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
 	if (!(crntState & prevState)) {
@@ -269,7 +269,7 @@ void Script_GroundPlayer::ProcessInput()
 		break;
 	}
 
-	mPrevMovement = static_cast<Movement>(crntState | crntMotion);
+	mPrevMovement = crntState | crntMotion;
 
 	if (mController) {
 		UpdateParams(v, h);
@@ -277,7 +277,7 @@ void Script_GroundPlayer::ProcessInput()
 		mController->SetValue("Horizontal", mParamH);
 	}
 
-	Move(dwDirection);
+	Move(dir);
 
 	Vec2 mouseDelta = input->GetMouseDelta();
 	mPlayer->Rotate(0.f, mouseDelta.x);
@@ -285,14 +285,14 @@ void Script_GroundPlayer::ProcessInput()
 
 
 
-void Script_GroundPlayer::Move(DWORD dwDirection)
+void Script_GroundPlayer::Move(Dir dir)
 {
-	if (!dwDirection) {
+	if (dir == Dir::None) {
 		return;
 	}
 
-	const Vec3 dir = Vector3::Normalized(mObject->GetDirection(dwDirection));
-	mObject->Translate(dir * mMovementSpeed * DeltaTime());
+	const Vec3 dirVec = Vector3::Normalized(mObject->GetDirection(dir));
+	mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
 }
 
 void Script_GroundPlayer::Rotate(DWORD rotationDir, float angle)

@@ -1,16 +1,18 @@
 #pragma once
-enum class HumanBone : DWORD {
-	None		= 0x00,
-	Root		= 0x01,
-	Body		= 0x02,
-	LeftArm     = 0x04,
-	RightArm    = 0x08,
-	LeftLeg     = 0x10,
-	RightLeg    = 0x20,
-	Head        = 0x40,
-	LeftHand    = 0x80,
-	RightHand   = 0x100,
-	All			= 0xFFFFFFFF
+class HumanBone : public DwordOverloader<HumanBone> {
+	DWORD_OVERLOADER(HumanBone)
+
+	static const DWORD None      = 0x00;
+	static const DWORD Root      = 0x01;
+	static const DWORD Body      = 0x02;
+	static const DWORD LeftArm   = 0x04;
+	static const DWORD RightArm  = 0x08;
+	static const DWORD LeftLeg   = 0x10;
+	static const DWORD RightLeg  = 0x20;
+	static const DWORD Head      = 0x40;
+	static const DWORD LeftHand  = 0x80;
+	static const DWORD RightHand = 0x100;
+	static const DWORD All       = 0xFFFFFFFF;
 };
 
 enum class BoneType {

@@ -27,23 +27,24 @@ class Object;
 #pragma endregion
 
 #pragma region EnumClass
-enum class ObjectTag : DWORD {
-	Unspecified    = 0x0000,
-	Player         = 0x0001,
-	Building       = 0x0002,
-	ExplosiveSmall = 0x0004,
-	ExplosiveBig   = 0x0008,
-	Tank           = 0x0010,
-	Helicopter     = 0x0020,
-	Environment	   = 0x0040,
-	Bullet         = 0x0080,
-	Billboard      = 0x0100,
-	Terrain        = 0x0200,
-	Water          = 0x0400,
-	Sprite         = 0x0800,
-	Enemy          = 0x1000,
-};
+class ObjectTag : public DwordOverloader<ObjectTag> {
+	DWORD_OVERLOADER(ObjectTag)
 
+	static const DWORD Unspecified    = 0x0000;
+	static const DWORD Player         = 0x0001;
+	static const DWORD Building       = 0x0002;
+	static const DWORD ExplosiveSmall = 0x0004;
+	static const DWORD ExplosiveBig   = 0x0008;
+	static const DWORD Tank           = 0x0010;
+	static const DWORD Helicopter     = 0x0020;
+	static const DWORD Environment    = 0x0040;
+	static const DWORD Bullet         = 0x0080;
+	static const DWORD Billboard      = 0x0100;
+	static const DWORD Terrain        = 0x0200;
+	static const DWORD Water          = 0x0400;
+	static const DWORD Sprite         = 0x0800;
+	static const DWORD Enemy          = 0x1000;
+};
 
 // rendering layer
 enum class ObjectLayer {

@@ -8,6 +8,7 @@
 
 #include "Singleton.h"
 #include "SimpleMath.h"
+#include "DwordOverloader.h"
 #pragma endregion
 
 
@@ -24,13 +25,16 @@
 
 
 #pragma region EnumClass
-enum class Dir : WORD {
-	Front = 0x01,
-	Back = 0x02,
-	Left = 0x04,
-	Right = 0x08,
-	Up = 0x10,
-	Down = 0x20
+class Dir : public DwordOverloader<Dir> {
+	DWORD_OVERLOADER(Dir)
+
+	static const DWORD None  = 0x00;
+	static const DWORD Front = 0x01;
+	static const DWORD Back  = 0x02;
+	static const DWORD Left  = 0x04;
+	static const DWORD Right = 0x08;
+	static const DWORD Up    = 0x10;
+	static const DWORD Down  = 0x20;
 };
 
 enum class BlendType : UINT8 {
@@ -92,83 +96,6 @@ constexpr unsigned int Hash(const std::wstring& str) noexcept
 {
 	return Hash(str.data());
 }
-
-#pragma region EnumOperator_DWORD
-// 아래 정의된 EnumType의 DWORD 연산을 오버로딩하여 불필요한 static_cast를 줄인다.
-// is_valid_dword_type_v에 EnumType을 추가해주어야 한다.
-// Engine
-enum class ObjectTag : DWORD;
-enum class VertexType : DWORD;
-enum class MaterialMap : DWORD;
-enum class HumanBone : DWORD;
-enum class FilterOption : DWORD;
-// Client
-enum class Movement : DWORD;
-
-template <typename T>
-constexpr bool is_valid_dword_type_v = (std::is_same_v<T, Dir> || std::is_same_v<T, ObjectTag> || std::is_same_v<T, VertexType> || std::is_same_v<T, MaterialMap> || std::is_same_v<T, HumanBone> || std::is_same_v<T, FilterOption> || std::is_same_v<T, Movement>);
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator|(EnumType lhs, EnumType rhs)
-{
-	return static_cast<DWORD>(lhs) | static_cast<DWORD>(rhs);
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator|(DWORD lhs, EnumType rhs)
-{
-	return lhs | static_cast<DWORD>(rhs);
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator|(EnumType lhs, DWORD rhs)
-{
-	return static_cast<DWORD>(lhs) | rhs;
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator|=(DWORD& lhs, EnumType rhs)
-{
-	return lhs = lhs | static_cast<DWORD>(rhs);
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr EnumType operator|=(EnumType& lhs, EnumType rhs)
-{
-	return lhs = static_cast<EnumType>(static_cast<DWORD>(lhs) | static_cast<DWORD>(rhs));
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator&(EnumType lhs, EnumType rhs)
-{
-	return static_cast<DWORD>(lhs) & static_cast<DWORD>(rhs);
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator&(DWORD lhs, EnumType rhs)
-{
-	return lhs & static_cast<DWORD>(rhs);
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator&(EnumType lhs, DWORD rhs)
-{
-	return static_cast<DWORD>(lhs) & rhs;
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator&=(DWORD& lhs, EnumType rhs)
-{
-	return lhs = lhs & static_cast<DWORD>(rhs);
-}
-
-template <typename EnumType, typename = std::enable_if_t<is_valid_dword_type_v<EnumType>>>
-constexpr DWORD operator~(EnumType value)
-{
-	return ~static_cast<DWORD>(value);
-}
-#pragma endregion
-
 #pragma endregion
 
 

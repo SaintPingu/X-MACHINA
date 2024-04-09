@@ -159,7 +159,7 @@ void GameFramework::KeyInputBroadcast()
 	}
 }
 
-bool GameFramework::Init(HINSTANCE hInstance, LONG width, LONG height)
+bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 {
 	/* mhWnd 초기화 */
 	mhInst = hInstance;

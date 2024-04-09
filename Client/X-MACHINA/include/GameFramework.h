@@ -39,7 +39,7 @@ public:
 
 
 public:
-	bool Init(HINSTANCE hInstance, LONG width, LONG height);
+	bool Init(HINSTANCE hInstance, short width, short height);
 	LRESULT ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

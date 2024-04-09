@@ -8,6 +8,7 @@ struct AnimationLoadInfo;
 class AnimatorState;
 class AnimatorLayer;
 class AnimatorMotion;
+class HumanBone;
 
 struct AnimatorParameter {
 	enum class Type : BYTE {

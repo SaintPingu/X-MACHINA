@@ -56,9 +56,9 @@ public:
 	Vec4 GetLocalRotation() const;
 	// returns a quaternion in world space
 	Vec4 GetRotation() const;
-	// [dwDirection]에 따른 이 Transform의 diretion을 반환한다.
-	// [dwDirection]=Right&Front ==> return mRight + mLook
-	Vec3 GetDirection(DWORD dwDirection, float distance = 1.f) const;
+	// [dir]에 따른 이 Transform의 diretion을 반환한다.
+	// [dir]=Right&Front ==> return mRight + mLook
+	Vec3 GetDirection(Dir dir, float distance = 1.f) const;
 
 	/* Transform */
 	const Matrix& GetWorldTransform() const { return mWorldTransform; }

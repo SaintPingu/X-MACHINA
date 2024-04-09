@@ -27,13 +27,15 @@ enum class PlayerType {
 	Human
 };
 
-enum class Movement : DWORD {
-	None   = 0x00,
-	Stand  = 0x01,
-	Sit    = 0x02,
-	Walk   = 0x10,
-	Run    = 0x20,
-	Sprint = 0x40
+class Movement : public DwordOverloader<Movement> {
+	DWORD_OVERLOADER(Movement)
+
+	static const DWORD None   = 0x00;
+	static const DWORD Stand  = 0x01;
+	static const DWORD Sit    = 0x02;
+	static const DWORD Walk   = 0x10;
+	static const DWORD Run    = 0x20;
+	static const DWORD Sprint = 0x40;
 };
 #pragma endregion
 
@@ -158,7 +160,7 @@ public:
 	virtual void ProcessInput() override;
 
 	// direction 방향으로 이동한다.
-	virtual void Move(DWORD dwDirection);
+	virtual void Move(Dir dir);
 	// [rotationDir]방향으로 [angle]만큼 회전한다.
 	virtual void Rotate(DWORD rotationDir, float angle);
 

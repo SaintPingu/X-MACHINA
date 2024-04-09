@@ -14,21 +14,21 @@ Vec4 Transform::GetRotation() const
 	return Quat::CreateFromRotationMatrix(mWorldTransform);
 }
 
-Vec3 Transform::GetDirection(DWORD dwDirection, float distance) const
+Vec3 Transform::GetDirection(Dir dir, float distance) const
 {
-	if (!dwDirection) {
+	if (dir == Dir::None) {
 		return Vector3::Zero();
 	}
 
 	Vec3 result{};
 
-	if (dwDirection & Dir::Front)	result += mLook * 1.f;
-	if (dwDirection & Dir::Back)	result += mLook * -1.f;
-	if (dwDirection & Dir::Right)	result += mRight * 1.f;
-	if (dwDirection & Dir::Left)	result += mRight * -1.f;
+	if (dir & Dir::Front)	result += mLook * 1.f;
+	if (dir & Dir::Back)	result += mLook * -1.f;
+	if (dir & Dir::Right)	result += mRight * 1.f;
+	if (dir & Dir::Left)	result += mRight * -1.f;
 
-	if (dwDirection & Dir::Up)		result += mUp * 1.f;
-	if (dwDirection & Dir::Down)	result += mUp * -1.f;
+	if (dir & Dir::Up)		result += mUp * 1.f;
+	if (dir & Dir::Down)	result += mUp * -1.f;
 
 	return result;
 }

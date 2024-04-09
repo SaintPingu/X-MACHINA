@@ -100,13 +100,16 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
+	// ImGui 메시지 처리
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
 		return true;
 	}
 
+	// 개선 필요
+	// ImGui가 포커싱되어 있다면 마우스 커서를 보이게 한다.
 	if (imgui->IsFocused()) {
 		ShowCursor(TRUE);
-		imgui->FocusOff();
+		imgui->FocusOff();	// ImGui의 포커싱을 없앤다.
 		return true;
 	}
 

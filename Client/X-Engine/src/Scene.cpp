@@ -209,7 +209,6 @@ void Scene::BuildObjects()
 
 	// build settings
 	BuildTerrain();
-	BuildNavMesh();
 	BuildTest();
 
 	// build static meshes
@@ -229,11 +228,6 @@ void Scene::BuildTerrain()
 	mTerrain = std::make_shared<Terrain>("Import/Terrain.bin");
 
 	BuildGrid();
-}
-
-void Scene::BuildNavMesh()
-{
-	mNavMesh = FileIO::ModelIO::LoadNavMesh("Import/NavMesh.bin");
 }
 
 void Scene::BuildTest()

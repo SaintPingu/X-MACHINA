@@ -64,7 +64,6 @@ private:
 	/* Map */
 	sptr<Terrain>		mTerrain{};
 	BoundingBox			mMapBorder{};			// max scene range	(grid will be generated within this border)
-	NavMesh				mNavMesh{};
 
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids
@@ -113,7 +112,6 @@ public:
 private:
 	/* Object */
 	void BuildTerrain();
-	void BuildNavMesh();
 	void BuildTest();
 
 	/* Grid */

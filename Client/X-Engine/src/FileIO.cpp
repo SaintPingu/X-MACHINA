@@ -799,20 +799,6 @@ namespace FileIO {
 				res->Add<Texture>(textureName, texture);
 			}
 		}
-
-		// path = Import//NavMesh.bin
-		NavMesh LoadNavMesh(const std::string& filePath)
-		{
-			std::ifstream file = OpenBinFile(filePath);
-			NavMesh navMesh;
-
-			int vertexCnt = FileIO::ReadVal<int>(file);
-			FileIO::ReadRange(file, navMesh.Vertices, vertexCnt);
-			int	indexCnt = FileIO::ReadVal<int>(file);
-			FileIO::ReadRange(file, navMesh.Indices, vertexCnt);
-
-			return navMesh;
-		}
 	}
 
 	namespace AnimationIO {

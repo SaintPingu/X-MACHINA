@@ -74,14 +74,6 @@ using rwptr = const wptr<T>&;
 
 
 
-#pragma region Struct
-struct NavMesh {
-	std::vector<Vec2> Vertices;
-	std::vector<UINT> Indices;
-};
-#pragma endregion
-
-
 #pragma region Function
 /* string to hash code. can use string in switch statement. */
 constexpr unsigned int Hash(const char* str) noexcept

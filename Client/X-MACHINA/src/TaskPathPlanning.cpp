@@ -89,9 +89,9 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 	// 값 초기화 
 	scene->GetOpenList().clear();
 	scene->GetClosedList().clear();
-	mParent.clear();
-	mDistance.clear();
-	mVisited.clear();
+	std::map<Pos, Pos>	mParent;
+	std::map<Pos, int>	mDistance;
+	std::map<Pos, bool>	mVisited;
 
 	// f = g + h
 	int g = 0;
@@ -106,6 +106,11 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 		PQNode curNode = pq.top();
 		prevDir = curNode.Pos - mParent[curNode.Pos];
 		pq.pop();
+
+		// 경로에 오류가 있을 경우 임계값을 넘기면 리턴
+		if (mVisited.size() > mkMaxVisited) {
+			return false;
+		}
 
 		// 방문하지 않은 노드들만 방문
 		if (mVisited.contains(curNode.Pos))

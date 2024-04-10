@@ -31,9 +31,7 @@ private:
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
 
 	std::vector<Vec3>		mPath{};
-	std::map<Pos, Pos>		mParent;
-	std::map<Pos, int>		mDistance;
-	std::map<Pos, bool>		mVisited;
+
 
 	static constexpr int	mkWeight = 10;
 	static constexpr int	mkMaxVisited = 1000;

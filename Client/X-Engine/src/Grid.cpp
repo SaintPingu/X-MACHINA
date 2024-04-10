@@ -58,6 +58,11 @@ Tile Grid::GetTileFromUniqueIndex(const Pos& tPos) const
 	return mTiles[tPos.Z][tPos.X];
 }
 
+void Grid::SetTileFromUniqueIndex(const Pos& tPos, Tile tile)
+{
+	mTiles[tPos.Z][tPos.X] = tile;
+}
+
 void Grid::Init(int index, int width, const BoundingBox& bb)
 {
 	mIndex = index;
@@ -90,7 +95,7 @@ void Grid::AddObject(GridObject* object)
 	}
 }
 
-void Grid::AddObjectInTiles(Tile objectType, GridObject* object)
+void Grid::AddObjectInTiles(Tile tile, GridObject* object)
 {
 	// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
 	if (object->GetTag() != ObjectTag::Building)
@@ -99,14 +104,8 @@ void Grid::AddObjectInTiles(Tile objectType, GridObject* object)
 	// 오브젝트의 타일 기준 인덱스 계산
 	Vec3 pos = object->GetPosition().xz();
 	Pos index = scene->GetTileUniqueIndexFromPos(pos);
-	const int tileX = index.X % mTileRows;
-	const int tileZ = index.Z % mTileCols;
 
-	// 오브젝트의 바운딩 스피어의 크기만큼 해당하는 모든 타일을 업데이트
-	if (tileZ < 0 || tileZ >= mTileRows || tileX < 0 || tileZ >= mTileCols)
-		return;
-
-	mTiles[tileZ][tileX] = objectType;
+	scene->SetTileFromUniqueIndex(index, tile);
 
 	const auto& collider = object->GetCollider();
 	if (!collider)
@@ -116,11 +115,9 @@ void Grid::AddObjectInTiles(Tile objectType, GridObject* object)
 
 	for (int offsetZ = -kRad; offsetZ <= kRad; ++offsetZ) {
 		for (int offsetX = -kRad; offsetX <= kRad; ++offsetX) {
-			const int neighborX = tileX + offsetX;
-			const int neighborZ = tileZ + offsetZ;
-
-			if (neighborX >= 0 && neighborX < mTileRows && neighborZ >= 0 && neighborZ < mTileCols)
-				mTiles[neighborZ][neighborX] = objectType;
+			const int neighborX = index.X + offsetX;
+			const int neighborZ = index.Z + offsetZ;
+			scene->SetTileFromUniqueIndex(Pos{ neighborZ, neighborX }, tile);
 		}
 	}
 }

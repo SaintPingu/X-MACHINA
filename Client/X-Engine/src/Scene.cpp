@@ -636,11 +636,11 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 		MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
 	}
 
-	//// 클로즈드 리스트를 빨간색으로 출력
-	//for (auto& path : mClosedList) {
-	//	path.y = GetTerrainHeight(path.x, path.z);
-	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
-	//}
+	// 클로즈드 리스트를 빨간색으로 출력
+	for (auto& path : mClosedList) {
+		path.y = GetTerrainHeight(path.x, path.z);
+		MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
+	}
 
 	if (!mIsRenderBounds) {
 		return false;
@@ -818,6 +818,18 @@ Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 	const int tileZ = index.Z % Grid::mTileCols;
 
 	return mGrids[gridZ * mGridCols + gridX].GetTileFromUniqueIndex(Pos{tileZ, tileX});
+}
+
+void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
+{
+	// 타일의 고유 인덱스로부터 타일의 값을 반환
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
+
+	const int tileX = index.X % Grid::mTileRows;
+	const int tileZ = index.Z % Grid::mTileCols;
+
+	mGrids[gridZ * mGridCols + gridX].SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
 }
 
 

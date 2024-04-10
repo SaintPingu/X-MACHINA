@@ -101,6 +101,7 @@ public:
 	Vec3 GetTilePosFromUniqueIndex(const Pos& index) const;
 
 	Tile GetTileFromUniqueIndex(const Pos& index) const;
+	void SetTileFromUniqueIndex(const Pos& index, Tile tile);
 	Tile GetTileFromPos(const Vec3& index) const;
 
 	std::vector<Vec3>& GetOpenList() { return mOpenList; }

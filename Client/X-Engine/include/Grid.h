@@ -40,6 +40,7 @@ public:
 	const auto& GetObjects() const		{ return mObjects; }
 
 	Tile GetTileFromUniqueIndex(const Pos& tPos) const;
+	void SetTileFromUniqueIndex(const Pos& tPos, Tile tile);
 
 public:
 	bool Empty() const { return mObjects.empty(); }
@@ -50,7 +51,7 @@ public:
 	// add [object] to gird
 	void AddObject(GridObject* object);
 
-	void AddObjectInTiles(Tile objectType, GridObject* object);
+	void AddObjectInTiles(Tile tile, GridObject* object);
 
 	// remove [object] from gird
 	void RemoveObject(GridObject* object);

@@ -140,6 +140,7 @@ void Object::Animate()
 			component->Animate();
 		}
 		});
+	Transform::ComputeWorldTransform();
 }
 
 void Object::LateUpdate()

@@ -75,6 +75,23 @@ void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 	mObject->SetAxis(Matrix4x4::LookAtLH(mObject->GetPosition(), lookAt, upVector, true));
 }
 
+Vec2 Camera::WorldToScreenPoint(const Vec3& pos)
+{
+	// position을 클립 좌표 공간으로 변환
+	XMVECTOR screenPoint = XMVector3TransformCoord(XMVector3TransformCoord(_VECTOR(pos), _MATRIX(mViewTransform)), _MATRIX(mProjTransform));
+
+	// 클립 좌표를 NDC로 변환
+	screenPoint /= XMVectorGetW(screenPoint);
+
+	// NDC를 screen 좌표로 변환
+	screenPoint = XMVectorMultiplyAdd(screenPoint, XMVectorSet(mViewport.Width, mViewport.Height, 0.0f, 0.0f), XMVectorSet(mViewport.Width * 0.5f, mViewport.Height * 0.5f, 0.0f, 0.0f));
+	screenPoint = XMVectorSubtract(screenPoint, XMVectorSet(mViewport.Width * 0.5f, mViewport.Height * 0.5f, 0.f, 0.f));
+
+	Vec3 result;
+	XMStoreFloat3(&result, screenPoint);
+	return Vec2(result.x, result.y);
+}
+
 void Camera::CalculateFrustumPlanes()
 {
 	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));

@@ -134,6 +134,46 @@ namespace Math {
 }
 
 #pragma region DirectXMath
+namespace Vector2 {
+
+	static const Vec2 Zero  = { +0.f, +0.f };
+	static const Vec2 One   = { +1.f, +1.f };
+	static const Vec2 Right = { +1.f, +0.f };
+	static const Vec2 Left  = { -1.f, +0.f };
+	static const Vec2 Up    = { +0.f, +1.f };
+	static const Vec2 Down  = { +0.f, -1.f };
+
+	inline bool IsZero(const Vec2& vector) noexcept
+	{
+		return XMVector2Equal(_VECTOR2(vector), XMVectorZero());
+	}
+
+	inline Vec2 Normalized(const Vec2& vector) noexcept
+	{
+		if (Vector2::IsZero(vector)) {
+			return Vector2::Zero;
+		}
+
+		Vec2 result;
+		XMStoreFloat2(&result, XMVector2NormalizeEst(_VECTOR2(vector)));
+		return result;
+	}
+
+	inline float SignedAngle(const Vec2& from, const Vec2& to)
+	{
+		return XMConvertToDegrees(atan2(to.y, to.x) - atan2(from.y, from.x));
+		XMVECTOR v1 = XMVector2NormalizeEst(_VECTOR2(from));
+		XMVECTOR v2 = XMVector2NormalizeEst(_VECTOR2(to));
+
+		float angle = XMVectorGetX(XMVector2AngleBetweenNormals(v1, v2));
+		float det = XMVectorGetX(XMVector2Cross(v1, v2));
+		if (det < 0) {
+			angle = -angle;
+		}
+
+		return XMConvertToDegrees(angle);
+	}
+}
 namespace Vector3 {
 
 	static const Vec3 Zero  = { +0.f, +0.f, +0.f };
@@ -212,12 +252,14 @@ namespace Vector3 {
 		XMVECTOR v1 = XMVector3NormalizeEst(_VECTOR(from));
 		XMVECTOR v2 = XMVector3NormalizeEst(_VECTOR(to));
 
-		float angle    = XMVectorGetX(XMVector3AngleBetweenVectors(v1, v2));
+		float angle    = XMVectorGetX(XMVector3AngleBetweenNormals(v1, v2));
 		XMVECTOR cross = XMVector3Cross(v1, v2);
 		float dot      = XMVectorGetX(XMVector3Dot(cross, _VECTOR(axis)));
-		float sign     = (dot >= 0.0f) ? 1.0f : -1.0f;
+		if (dot < 0) {
+			angle = -angle;
+		}
 
-		return XMConvertToDegrees(angle * sign);
+		return XMConvertToDegrees(angle);
 	}
 
 	inline int Sign(const Vec3& from, const Vec3& to, const Vec3& axis)
@@ -412,7 +454,7 @@ public:
 	void Transform(const Matrix& transform)
 	{
 		const XMMATRIX kMatrix = _MATRIX(transform);
-		const XMVECTOR kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
+		const XMVECTOR kRotation = XMQuaternionRotationMatrix(kMatrix);
 
 		XMStoreFloat4(&Orientation, kRotation);
 		XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));

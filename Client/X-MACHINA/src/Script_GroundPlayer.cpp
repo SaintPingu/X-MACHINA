@@ -4,17 +4,22 @@
 #include "Script_Bullet.h"
 #include "Script_GroundObject.h"
 #include "Script_AimController.h"
+#include "Script_Weapon.h"
+
+#include "Component/Rigidbody.h"
+#include "Component/Camera.h"
 
 #include "Scene.h"
 #include "Object.h"
 #include "ObjectPool.h"
 #include "InputMgr.h"
-#include "Component/Rigidbody.h"
-#include "Script_Weapon.h"
 #include "Timer.h"
 #include "Animator.h"
 #include "AnimatorMotion.h"
 #include "AnimatorController.h"
+
+
+#include "Component/UI.h"
 
 
 static void BulletInitFunc(rsptr<InstObject> bullet)
@@ -103,27 +108,29 @@ void Script_GroundPlayer::LateUpdate()
 {
 	base::LateUpdate();
 
-	// lock aim forwards //
-	if (mIsAim) {
-		constexpr float targetDistance = 10;					// the target is always 10m ahead
-		Vec3 bonePos = mSpineBone->GetPosition();
-		const Vec3 target(bonePos + mObject->GetLook() * targetDistance);
+	// keep the muzzle facing the target //
+	if (mIsAim && mMuzzle) {
 
-		Vec3 lookTo = target - bonePos;							// direction of the target
-		Vec3 look = mSpineBone->GetUp();						// direction of the bone
+		// angle could be too large if aim is so close
+		constexpr float kAimMinDistance = 300.f;
+		Vec2 aimScreenPos = mAimController->GetAimPos();
+		if (aimScreenPos.Length() < kAimMinDistance) {
+			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
+		}
 
-		mSpineBone->LookToWorld2(lookTo, look, Vector3::Up);		// rotates bone toward the target
+		float angle = GetAngleToAim(aimScreenPos);
+		if (fabs(angle) > 0.1f) {
+			mSpineBone->RotateGlobal(Vector3::Up, angle);
 
-		// keep the muzzle facing the target
-		if (mFirePos) {
-			// rotates only in the xz-plane
-			Vec3 forward = mFirePos->GetLook().xz();
-			Vec3 dir = (target - mFirePos->GetPosition()).xz();
+			// second correction (maybe screen coordinate system is a little inaccurate) //
+			angle = GetAngleToAim(aimScreenPos);
+			mSpineBone->RotateGlobal(Vector3::Up, angle);
 
-			constexpr float err = 0.93f;						// rotation error correction value
-			float gunAngle = Vector3::SignedAngle(forward, dir, Vector3::Up) * err;	// angle to target
-
-			mSpineBone->RotateGlobal(Vector3::Up, gunAngle);
+			// [DEBUG CODE] show aim UI of muzzle's destination //
+			Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
+			Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook()) - muzzleScreenPos);
+			Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
+			mAimController->mUI2->SetPosition(bulletDstScreenPos);
 		}
 	}
 }
@@ -137,8 +144,8 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 			Vec3 direction = Transform::GetWorldDirection(dir);
 			float angle = Vector3::SignedAngle(mObject->GetLook().xz(), direction.xz(), Vector3::Up);
 			float angleAbs = fabs(angle);
-			v = (angleAbs > 50.f && angleAbs < 130.f) ? 0 : (angleAbs <= 50.f) ? 1 : -1;
-			h = (angleAbs < 5.f || angleAbs > 175.f) ? 0 : ((angle > 0) ? 1 : -1);
+			v = (angleAbs > 50.f && angleAbs < 130.f) ? 0.f : (angleAbs <= 50.f) ? 1.f : -1.f;
+			h = (angleAbs < 5.f || angleAbs > 175.f) ? 0.f : ((angle > 0) ? 1.f : -1.f);
 		}
 		else if (rotAngleAbs > 10.f) {
 			mController->SetValue("Walk", true);
@@ -181,13 +188,13 @@ void Script_GroundPlayer::ProcessInput()
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
 	Movement crntMovement = Movement::None;
 	// Stand / Sit
-	if (KEY_PRESSED('C'))				   { crntMovement |= Movement::Sit; }
-	else						           { crntMovement |= Movement::Stand; }
+	if (KEY_PRESSED('C')) { crntMovement |= Movement::Sit; }
+	else { crntMovement |= Movement::Stand; }
 	// Walk / Run / Sprint
 	if (dir != Dir::None) {
-		     if (KEY_PRESSED(VK_SHIFT))    { crntMovement |= Movement::Sprint; }
-		else if (KEY_PRESSED(VK_CONTROL))  { crntMovement |= Movement::Walk; }
-		else						       { crntMovement |= Movement::Run; }
+		if (KEY_PRESSED(VK_SHIFT)) { crntMovement |= Movement::Sprint; }
+		else if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= Movement::Walk; }
+		else { crntMovement |= Movement::Run; }
 	}
 
 	Movement crntState = crntMovement & 0x0F;
@@ -285,7 +292,7 @@ void Script_GroundPlayer::ProcessInput()
 		if (crntState & Movement::Stand) {
 			mMovementSpeed = mkStandWalkSpeed;
 		}
-		else{
+		else {
 			mMovementSpeed = mkSitWalkSpeed;
 		}
 		break;
@@ -310,10 +317,11 @@ void Script_GroundPlayer::ProcessInput()
 		RotateTo(dir);
 	}
 	else {
-		const Vec3 aimDir = mAimController->GetAimDirection();
-		rotAngle = Vector3::SignedAngle(mObject->GetLook().xz(), aimDir, Vector3::Up);
+		const Vec2 aimDir = mAimController->GetAimDirection();
+
+		rotAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vec3(aimDir.x, 0.f, aimDir.y), Vector3::Up);
 		const float angleAbs = fabs(rotAngle);
-		if (angleAbs > 0.1f) {
+		if (angleAbs > 10.f) {
 			const int sign = Math::Sign(rotAngle);
 
 			float rotationSpeed{};
@@ -382,10 +390,7 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 
 	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dstDir, Vector3::Up);
 
-	if (fabs(angle) < 5.f) {
-		mObject->Rotate(0, angle, 0);
-	}
-	else {
+	if(fabs(angle) > 10.f) {
 		mObject->Rotate(0, Math::Sign(angle) * mRotationSpeed * DeltaTime(), 0);
 	}
 }
@@ -400,7 +405,7 @@ void Script_GroundPlayer::FireBullet()
 	auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
 		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-		bulletScript->Fire(*mFirePos, GetBulletSpeed(), GetBulletDamage());
+		bulletScript->Fire(*mMuzzle, GetBulletSpeed(), GetBulletDamage());
 	}
 }
 
@@ -423,19 +428,19 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
-		if (mAnimator) {
+		if (mWeapon && mAnimator) {
 			mAnimator->GetController()->SetValue("Aim", true);
 			mIsAim = true;
 		}
 
-	break;
+		break;
 	case WM_RBUTTONUP:
-		if (mAnimator) {
+		if (mWeapon && mAnimator) {
 			mAnimator->GetController()->SetValue("Aim", false);
 			mIsAim = false;
 		}
 
-	break;
+		break;
 	default:
 		break;
 	}
@@ -501,7 +506,7 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	if (mWeapon) {
 		mWeapon->OnEnable();
 		mAnimator->GetController()->SetValue("Weapon", weaponIdx);
-		mFirePos = mWeapon->FindFrame("FirePos");
+		mMuzzle = mWeapon->FindFrame("FirePos");
 	}
 }
 
@@ -527,4 +532,16 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 사이로 고정
+}
+
+float Script_GroundPlayer::GetAngleToAim(const Vec2& aimScreenPos) const
+{
+	Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
+	Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook()) - muzzleScreenPos);
+
+	// muzzleScreenLook이 aimScreenPos 지점에 교차해야 한다. 
+	// 총알이 도달해야하는 지점이다.
+	Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
+
+	return -Vector2::SignedAngle(bulletDstScreenPos - muzzleScreenPos, aimScreenPos - muzzleScreenPos);
 }

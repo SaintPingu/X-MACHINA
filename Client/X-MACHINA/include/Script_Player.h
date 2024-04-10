@@ -146,7 +146,7 @@ private:
 	sptr<GameObject> mWeapon{};
 	std::vector<sptr<GameObject>> mWeapons{};
 	Transform* mSpineBone{};
-	Transform* mFirePos{};
+	Transform* mMuzzle{};
 
 	sptr<Script_AimController> mAimController{};
 
@@ -175,6 +175,8 @@ private:
 
 	void SetWeapon(int weaponIdx);
 	void UpdateParam(float val, float& param);
+
+	float GetAngleToAim(const Vec2& aimScreenPos) const;
 };
 
 #pragma endregion

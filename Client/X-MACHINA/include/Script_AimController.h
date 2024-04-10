@@ -22,10 +22,12 @@ private:
 	float mouseSensitivity{ 2.f };
 
 public:
+	sptr<UI> mUI2;
 	virtual void Awake() override;
 	virtual void Update() override;
 
 public:
-	Vec3 GetAimDirection() const;
+	Vec2 GetAimDirection() const { return Vector2::Normalized(mMousePos); }
+	Vec2 GetAimPos() const { return mMousePos; }
 };
 #pragma endregion

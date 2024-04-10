@@ -29,14 +29,11 @@ private:
 	sptr<Script_EnemyManager>	mEnemyMgr;
 
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
-
 	std::vector<Vec3>		mPath{};
-
 
 	static constexpr int	mkWeight = 10;
 	static constexpr int	mkMaxVisited = 1000;
 	static constexpr int	mkPathAdjust = 3;
-
 public:
 	TaskPathPlanning(Object* object);
 	virtual ~TaskPathPlanning() = default;

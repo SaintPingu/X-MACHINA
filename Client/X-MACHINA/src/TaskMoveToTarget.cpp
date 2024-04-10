@@ -19,6 +19,10 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 {
 	sptr<Object> target = GetData("target");
 
+	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
+	if (scene->GetTileFromPos(target->GetPosition()) == Tile::Static)
+		return BT::NodeState::Failure;
+
 	// 오브젝트로부터 타겟까지의 벡터
 	Vec3 toTarget =  mObject->GetPosition() - target->GetPosition();
 

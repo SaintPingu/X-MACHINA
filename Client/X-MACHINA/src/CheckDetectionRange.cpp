@@ -27,8 +27,8 @@ BT::NodeState CheckDetectionRange::Evaluate()
 		target = mPlayer;
 	}
 
-	// Player가 여러 명일 경우 추후에 수정
-	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mDetectionRange) {
+	// 경로 길찾기가 실행중이거나 감지 범위 내에 들어온 경우에만 다음 노드로 진행
+	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mDetectionRange || mEnemyMgr->mIsMoveToPath) {
 
 		// 타겟이 정적인 위치에 있다면 계속 정찰만 한다.
 		if (scene->GetTileFromPos(target->GetPosition()) == Tile::Static)

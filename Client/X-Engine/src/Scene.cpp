@@ -526,7 +526,7 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 
 void Scene::RenderUI()
 {
-	//canvas->Render();
+	canvas->Render();
 	RenderBounds(mRenderedObjects);
 }
 

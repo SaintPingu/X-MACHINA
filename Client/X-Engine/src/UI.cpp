@@ -14,12 +14,13 @@
 
 
 #pragma region UI
-void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
+UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height)
+	:
+	Transform(this),
+	mTexture(texture)
 {
-	mTexture = texture;
-
 	short windowWidth = dxgi->GetWindowWidth();
-	short windowHeight = dxgi->GetWindowWidth();
+	short windowHeight = dxgi->GetWindowHeight();
 
 	pos.x /= windowWidth;
 	pos.y /= windowHeight;
@@ -32,22 +33,25 @@ void UI::Create(rsptr<Texture> texture, Vec3 pos, float width, float height)
 	SetPosition(pos);
 }
 
-void UI::Update()
-{
-
-}
-
 void UI::UpdateShaderVars() const
 {
+	Transform::UpdateShaderVars();
+
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
-	frmResMgr->CopyData(mObjCBIndices.front(), objectConstants);
+	objectConstants.MatIndex = mTexture->GetSrvIdx();
 
+	frmResMgr->CopyData(mObjCBIndices.front(), objectConstants);
 	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
+
 void UI::Render()
 {
+	if (!mTexture) {
+		return;
+	}
+
 	UpdateShaderVars();
 
 	res->Get<ModelObjectMesh>("Rect")->Render();
@@ -60,9 +64,10 @@ void UI::Render()
 
 
 #pragma region Font
-void MyFont::Create(const Vec3& pos, float width, float height)
+MyFont::MyFont(const Vec2& pos, float width, float height)
+	:
+	UI(res->Get<Texture>("Alphabet"), pos, width, height)
 {
-	UI::Create(nullptr, pos, width, height);
 }
 
 void MyFont::UpdateShaderVars(char ch, int cnt) const
@@ -102,6 +107,10 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 
 void MyFont::Render()
 {
+	if (!mTexture) {
+		return;
+	}
+
 	Vec3 originPos = GetPosition();
 	Vec3 fontPos = GetPosition();
 
@@ -128,16 +137,6 @@ void MyFont::Render()
 
 	SetPosition(originPos);
 }
-
-void MyFont::CreateFontTexture()
-{
-	mTexture = res->Get<Texture>("Alphabet");
-}
-
-void MyFont::ReleaseFontTexture()
-{
-	mTexture = nullptr;
-}
 #pragma endregion
 
 
@@ -160,18 +159,14 @@ void Canvas::Init()
 
 void Canvas::Release()
 {
-	mFont->ReleaseFontTexture();
-	mFont->OnDestroy();
 	Destroy();
 }
 
 void Canvas::BuildUIs()
 {
-	mFont = std::make_shared<MyFont>();
-	mFont->Create(Vec3(-600, 900, 0), 100, 100);
-	mFont->CreateFontTexture();
-	mFont->SetText("YOUR SCORE IS ");
-	mFont->SetScore("0");
+	mFont = std::make_shared<MyFont>(Vec2(-600, 900), 100.f, 100.f);
+	//mFont->SetText("YOUR SCORE IS ");
+	//mFont->SetScore("0");
 }
 
 void Canvas::Update()
@@ -187,7 +182,14 @@ void Canvas::Render() const
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}
-	mFont->Render();
+
+	//mFont->Render();
 }
 
+sptr<UI> Canvas::CreateUI(const std::string& texture, const Vec2& pos, float width, float height)
+{
+	sptr<UI> ui = std::make_shared<UI>(res->Get<Texture>(texture), pos, width, height);
+	mUIs.insert(ui);
+	return ui;
+}
 #pragma endregion

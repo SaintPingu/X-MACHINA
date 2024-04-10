@@ -3,6 +3,7 @@
 
 #include "Script_Bullet.h"
 #include "Script_GroundObject.h"
+#include "Script_AimUI.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -69,6 +70,8 @@ void Script_GroundPlayer::Awake()
 	// others
 	mObject->AddComponent<Script_GroundObject>();
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
+
+	mObject->AddComponent<Script_AimUI>();
 }
 
 void Script_GroundPlayer::Start()

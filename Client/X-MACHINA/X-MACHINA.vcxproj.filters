@@ -190,6 +190,9 @@
     <ClInclude Include="include\Script_Droid.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_AimUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -266,6 +269,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_Droid.cpp">
       <Filter>Script\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_AimUI.cpp">
+      <Filter>Script\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

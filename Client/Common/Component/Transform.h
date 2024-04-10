@@ -78,6 +78,7 @@ public:
 #pragma region Setter
 	/* Position */
 	void SetPosition(float x, float y, float z);
+	void SetPosition(const Vec2& pos);
 	void SetPosition(const Vec3& pos);
 
 	void SetPositionX(float x);

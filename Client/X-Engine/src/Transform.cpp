@@ -61,6 +61,11 @@ void Transform::SetPosition(float x, float y, float z)
 	UpdateLocalTransform();
 }
 
+void Transform::SetPosition(const Vec2& pos)
+{
+	SetPosition(pos.x, pos.y, 0.f);
+}
+
 void Transform::SetPosition(const Vec3& pos)
 {
 	SetPosition(pos.x, pos.y, pos.z);

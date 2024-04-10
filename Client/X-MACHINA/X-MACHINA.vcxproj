@@ -193,7 +193,7 @@
     <ClInclude Include="include\GameFramework.h" />
     <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
-    <ClInclude Include="include\Script_AimUI.h" />
+    <ClInclude Include="include\Script_AimController.h" />
     <ClInclude Include="include\Script_Apache.h" />
     <ClInclude Include="include\Script_Aranobot.h" />
     <ClInclude Include="include\Script_Billboard.h" />
@@ -227,7 +227,7 @@
     <ClCompile Include="Network\ServerSession.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
-    <ClCompile Include="src\Script_AimUI.cpp" />
+    <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
     <ClCompile Include="src\Script_Aranobot.cpp" />
     <ClCompile Include="src\Script_Billboard.cpp" />

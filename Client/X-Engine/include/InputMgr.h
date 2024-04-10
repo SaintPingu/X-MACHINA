@@ -67,7 +67,7 @@ public:
 	KeyState GetKeyState(int key) const { return mKeys.at(key); }
 	Vec2 GetMousePos() const			{ return mMousePos; }
 	Vec2 GetMouseDir() const			{ return mMouseDir; }
-	Vec2 GetMouseDelta() const			{ return Vec2(mMousePos.x - mClientCenter.x, mMousePos.y - mClientCenter.y); }
+	Vec2 GetMouseDelta() const			{ return Vec2(mMousePos.x - mClientCenter.x, mClientCenter.y - mMousePos.y); }
 public:
 
 	// 사용할 키들을 설정한다.

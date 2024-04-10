@@ -15,6 +15,7 @@ class ObjectPool;
 class Animator;
 class AnimatorController;
 class Weapon;
+class Script_AimController;
 #pragma endregion
 
 
@@ -147,6 +148,8 @@ private:
 	Transform* mSpineBone{};
 	Transform* mFirePos{};
 
+	sptr<Script_AimController> mAimController{};
+
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
@@ -156,7 +159,7 @@ public:
 	virtual void OnCollisionStay(Object& other) override;
 
 public:
-	void UpdateParams(Dir dir, float v, float h);
+	void UpdateParams(Dir dir, float v, float h, float rotAngle);
 	virtual void ProcessInput() override;
 
 	// direction 방향으로 이동한다.

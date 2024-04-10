@@ -34,6 +34,10 @@ public:
 	virtual void Update() {}
 	virtual void Render();
 
+	void SetPosition(float x, float y, float z);
+	void SetPosition(const Vec2& pos);
+	void SetPosition(const Vec3& pos);
+
 private:
 	void UpdateShaderVars() const;
 };
@@ -77,12 +81,18 @@ private:
 	std::unordered_set<sptr<UI>>	mUIs{};		// all UIs
 	sptr<MyFont>					mFont{};
 
+	float mWidth{};
+	float mHeight{};
+
 private:
 	Canvas() = default;
 	virtual ~Canvas() = default;
 
 public:
 	void SetScore(int score);
+
+	float GetWidth() const { return mWidth; }
+	float GetHeight() const { return mHeight; }
 
 public:
 	void Init();

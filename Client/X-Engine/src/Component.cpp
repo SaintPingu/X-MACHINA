@@ -320,5 +320,6 @@ void Component::FirstUpdate()
 	Awake();
 	OnEnable();
 	Start();
+	Update();
 	UpdateFunc = std::bind(&Component::Update, this);
 }

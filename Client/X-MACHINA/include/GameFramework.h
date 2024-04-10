@@ -14,8 +14,8 @@ class ClientSession;
 // 해상도 ( 화면 크기 )
 typedef struct _tagResolution
 {
-	LONG Width;
-	LONG Height;
+	short Width;
+	short Height;
 
 }RESOLUTION, * PRESOLUTION;
 
@@ -34,9 +34,11 @@ private:
 public:
 	GameFramework();
 	~GameFramework();
+
+	RESOLUTION GetWindowResolution() const { return mResolution; }
+
 public:
 	void KeyInputBroadcast();
-
 
 public:
 	bool Init(HINSTANCE hInstance, short width, short height);

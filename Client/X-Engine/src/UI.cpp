@@ -19,14 +19,8 @@ UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height)
 	Transform(this),
 	mTexture(texture)
 {
-	short windowWidth = dxgi->GetWindowWidth();
-	short windowHeight = dxgi->GetWindowHeight();
-
-	pos.x /= windowWidth;
-	pos.y /= windowHeight;
-
-	mWidth = width / windowWidth;
-	mHeight = height / windowHeight;
+	mWidth = width / canvas->GetWidth();
+	mHeight = height / canvas->GetHeight();
 
 	// 오브젝트 상수 버퍼 사용 플래그는 직접 설정할 수 있다.
 	SetUseObjCB(true);
@@ -35,8 +29,6 @@ UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height)
 
 void UI::UpdateShaderVars() const
 {
-	Transform::UpdateShaderVars();
-
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
 	objectConstants.MatIndex = mTexture->GetSrvIdx();
@@ -55,6 +47,23 @@ void UI::Render()
 	UpdateShaderVars();
 
 	res->Get<ModelObjectMesh>("Rect")->Render();
+}
+
+void UI::SetPosition(float x, float y, float z)
+{
+	x /= canvas->GetWidth();
+	y /= canvas->GetHeight();
+	Transform::SetPosition(x, y, z);
+}
+
+void UI::SetPosition(const Vec2& pos)
+{
+	SetPosition(pos.x, pos.y, 0.f);
+}
+
+void UI::SetPosition(const Vec3& pos)
+{
+	SetPosition(pos.x, pos.y, pos.z);
 }
 
 #pragma endregion
@@ -154,6 +163,9 @@ void Canvas::SetScore(int score)
 
 void Canvas::Init()
 {
+	mWidth = dxgi->GetWindowWidth();
+	mHeight = dxgi->GetWindowHeight();
+
 	BuildUIs();
 }
 

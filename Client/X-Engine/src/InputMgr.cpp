@@ -71,6 +71,22 @@ void InputMgr::Update()
 		*mAwayKeys.top() = KeyState::None;
 		mAwayKeys.pop();
 	}
+
+	// mouse move //
+	if (!imgui->IsFocused() && ::GetFocus()) {
+		POINT ptMouse{};
+		::GetCursorPos(&ptMouse);
+		::ScreenToClient(dxgi->GetHwnd(), &ptMouse);
+
+		mMousePos = Vec2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
+		mMouseDir.x = mMousePos.x - mClientCenter.x;
+		mMouseDir.y = -(mMousePos.y - mClientCenter.y);
+
+		SetCursorCenter();
+	}
+	else {
+		WindowFocusOff();
+	}
 }
 
 
@@ -156,25 +172,6 @@ void InputMgr::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		key = static_cast<int>(VK_RBUTTON);
 		isDown = false;
 		break;
-
-	case WM_MOUSEMOVE:
-	{
-		if (!imgui->IsFocused() && ::GetFocus()) {
-			POINT ptMouse{};
-			::GetCursorPos(&ptMouse);
-			::ScreenToClient(dxgi->GetHwnd(), &ptMouse);
-
-			mMousePos = Vec2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
-			mMouseDir.x = mMousePos.x - mClientCenter.x;
-			mMouseDir.y = -(mMousePos.y - mClientCenter.y);
-
-			SetCursorCenter();
-		}
-		else {
-			WindowFocusOff();
-		}
-	}
-	return;
 
 	default:
 		break;

@@ -3,7 +3,7 @@
 
 #include "Script_Bullet.h"
 #include "Script_GroundObject.h"
-#include "Script_AimUI.h"
+#include "Script_AimController.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -71,7 +71,7 @@ void Script_GroundPlayer::Awake()
 	mObject->AddComponent<Script_GroundObject>();
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
 
-	mObject->AddComponent<Script_AimUI>();
+	mAimController = mObject->AddComponent<Script_AimController>();
 }
 
 void Script_GroundPlayer::Start()
@@ -129,16 +129,26 @@ void Script_GroundPlayer::LateUpdate()
 }
 
 
-void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h)
+void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
 	if (mIsAim) {										// 에임 상태라면, 플레이어의 look방향에 따라 다른 다리(Legs) 애니메이션을 재생한다.
+		float rotAngleAbs = fabs(rotAngle);
 		if (!Math::IsZero(v) || !Math::IsZero(h)) {
 			Vec3 direction = Transform::GetWorldDirection(dir);
 			float angle = Vector3::SignedAngle(mObject->GetLook().xz(), direction.xz(), Vector3::Up);
-			std::cout << (int)angle << std::endl;
 			float angleAbs = fabs(angle);
 			v = (angleAbs > 50.f && angleAbs < 130.f) ? 0 : (angleAbs <= 50.f) ? 1 : -1;
 			h = (angleAbs < 5.f || angleAbs > 175.f) ? 0 : ((angle > 0) ? 1 : -1);
+		}
+		else if (rotAngleAbs > 10.f) {
+			mController->SetValue("Walk", true);
+			h = Math::Sign(rotAngle) > 0 ? 1 : -1;
+			if (rotAngleAbs < 90.f) {
+				h *= rotAngleAbs / 90.f;
+			}
+		}
+		else {
+			mController->SetValue("Walk", false);
 		}
 
 		UpdateParam(v, mParamV);
@@ -147,6 +157,9 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h)
 	else {
 		if (!Math::IsZero(v) || !Math::IsZero(h)) {		// 에임 상태가 아니면 무조건 앞으로 이동한다.
 			mParamV = 1;
+		}
+		else {
+			mController->SetValue("Walk", false);
 		}
 		mParamH = 0;
 	}
@@ -290,19 +303,36 @@ void Script_GroundPlayer::ProcessInput()
 
 	mPrevMovement = crntState | crntMotion;
 
-	if (mController) {
-		UpdateParams(dir, v, h);
-		mController->SetValue("Vertical", mParamV);
-		mController->SetValue("Horizontal", mParamH);
-	}
+	float rotAngle = 0.f;
 
 	Move(dir);
 	if (!mIsAim) {
 		RotateTo(dir);
 	}
+	else {
+		const Vec3 aimDir = mAimController->GetAimDirection();
+		rotAngle = Vector3::SignedAngle(mObject->GetLook().xz(), aimDir, Vector3::Up);
+		const float angleAbs = fabs(rotAngle);
+		if (angleAbs > 0.1f) {
+			const int sign = Math::Sign(rotAngle);
 
-	//Vec2 mouseDelta = input->GetMouseDelta();
-	//mPlayer->Rotate(0.f, mouseDelta.x);
+			float rotationSpeed{};
+			if (angleAbs > 90) {
+				rotationSpeed = mRotationSpeed;
+			}
+			else {
+				rotationSpeed = (angleAbs / 90.f) * mRotationSpeed;
+			}
+
+			mObject->Rotate(0, sign * rotationSpeed * DeltaTime(), 0);
+		}
+	}
+
+	if (mController) {
+		UpdateParams(dir, v, h, rotAngle);
+		mController->SetValue("Vertical", mParamV);
+		mController->SetValue("Horizontal", mParamH);
+	}
 }
 
 

@@ -156,13 +156,13 @@ public:
 	virtual void OnCollisionStay(Object& other) override;
 
 public:
-	void UpdateParams(float v, float h);
+	void UpdateParams(Dir dir, float v, float h);
 	virtual void ProcessInput() override;
 
 	// direction 방향으로 이동한다.
 	virtual void Move(Dir dir);
-	// [rotationDir]방향으로 [angle]만큼 회전한다.
-	virtual void Rotate(DWORD rotationDir, float angle);
+	// [dir]방향을 바라보도록 회전한다.
+	void RotateTo(Dir dir);
 
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;

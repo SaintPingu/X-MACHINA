@@ -96,7 +96,7 @@ void Light::Update()
 	Vec3 lightDir = sunLight.Direction;
 	Vec3 lightPos = mSceneBounds.Center + -2.f * mSceneBounds.Radius * lightDir;
 	Vec3 targetPos = mSceneBounds.Center;
-	Vec3 lightUp = Vec3::Up;
+	Vec3 lightUp = Vector3::Up;
 	Matrix lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
 	sunLight.Position = lightPos;
 	

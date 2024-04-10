@@ -4,12 +4,12 @@
 #include "FrameResource.h"
 
 #pragma region Getter
-Vec4 Transform::GetLocalRotation() const
+Quat Transform::GetLocalRotation() const
 {
 	return Quat::CreateFromRotationMatrix(mLocalTransform);
 }
 
-Vec4 Transform::GetRotation() const
+Quat Transform::GetRotation() const
 {
 	return Quat::CreateFromRotationMatrix(mWorldTransform);
 }
@@ -17,20 +17,36 @@ Vec4 Transform::GetRotation() const
 Vec3 Transform::GetDirection(Dir dir, float distance) const
 {
 	if (dir == Dir::None) {
-		return Vector3::Zero();
+		return Vector3::Zero;
 	}
 
 	Vec3 result{};
 
-	if (dir & Dir::Front)	result += mLook * 1.f;
-	if (dir & Dir::Back)	result += mLook * -1.f;
-	if (dir & Dir::Right)	result += mRight * 1.f;
-	if (dir & Dir::Left)	result += mRight * -1.f;
+	result += static_cast<bool>(dir & Dir::Front) *  mLook;
+	result += static_cast<bool>(dir & Dir::Back)  * -mLook;
+	result += static_cast<bool>(dir & Dir::Right) *  mRight;
+	result += static_cast<bool>(dir & Dir::Left)  * -mRight;
+	result += static_cast<bool>(dir & Dir::Up)    *  mUp;
+	result += static_cast<bool>(dir & Dir::Down)  * -mUp;
 
-	if (dir & Dir::Up)		result += mUp * 1.f;
-	if (dir & Dir::Down)	result += mUp * -1.f;
+	return Vector3::Normalized(result);
+}
 
-	return result;
+Vec3 Transform::GetWorldDirection(Dir dir)
+{
+	if (dir == Dir::None) {
+		return Vector3::Zero;
+	}
+
+	Vec3 result{};
+	result += static_cast<bool>(dir & Dir::Front) * Vector3::Front;
+	result += static_cast<bool>(dir & Dir::Back)  * Vector3::Back;
+	result += static_cast<bool>(dir & Dir::Right) * Vector3::Right;
+	result += static_cast<bool>(dir & Dir::Left)  * Vector3::Left;
+	result += static_cast<bool>(dir & Dir::Up)    * Vector3::Up;
+	result += static_cast<bool>(dir & Dir::Down)  * Vector3::Down;
+
+	return Vector3::Normalized(result);
 }
 
 #pragma endregion
@@ -283,7 +299,7 @@ bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 		dir = -1;
 	}
 	
-	Rotate(Vec3::Up, dir * rotationSpeed);
+	Rotate(Vector3::Up, dir * rotationSpeed);
 	return true;
 }
 

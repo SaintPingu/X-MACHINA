@@ -47,7 +47,7 @@ void Rigidbody::Update()
 
 			// 중력이 활성화된 경우 중력 가속도를 계산해 속도를 재계산한다.
 			if (mUseGravity) {
-				const Vec3 gravityForce = Vec3::Down * normalForce;			// 중력 = 수직항력(-y)
+				const Vec3 gravityForce = Vector3::Down * normalForce;			// 중력 = 수직항력(-y)
 				const Vec3 gravityAcc = gravityForce * mMass;				// 중력 가속도 = 중력 * 질량
 				mVelocity += gravityAcc * DeltaTime();						// 속도 = 속도 + (중력가속도 * DeltaTime)
 			}
@@ -70,7 +70,7 @@ void Rigidbody::OnCollisionStay(Object& other)
 
 void Rigidbody::Stop()
 {
-	SetVelocity(Vector3::Zero());
+	SetVelocity(Vector3::Zero);
 }
 
 void Rigidbody::AddForce(const Vec3& force, ForceMode forceMode)

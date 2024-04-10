@@ -76,7 +76,7 @@ void Script_GroundPlayer::Start()
 	base::Start();
 
 	mPlayerType = PlayerType::Human;
-	mRotationSpeed = 60.f;
+	mRotationSpeed = 360.f;
 
 	SetSpawn(Vec3(100, 0, 100));
 	SetHP(150.f);
@@ -109,7 +109,7 @@ void Script_GroundPlayer::LateUpdate()
 		Vec3 lookTo = target - bonePos;							// direction of the target
 		Vec3 look = mSpineBone->GetUp();						// direction of the bone
 
-		mSpineBone->LookToWorld2(lookTo, look, Vec3::Up);		// rotates bone toward the target
+		mSpineBone->LookToWorld2(lookTo, look, Vector3::Up);		// rotates bone toward the target
 
 		// keep the muzzle facing the target
 		if (mFirePos) {
@@ -118,18 +118,35 @@ void Script_GroundPlayer::LateUpdate()
 			Vec3 dir = (target - mFirePos->GetPosition()).xz();
 
 			constexpr float err = 0.93f;						// rotation error correction value
-			float gunAngle = Vector3::SignedAngle(forward, dir, Vec3::Up) * err;	// angle to target
+			float gunAngle = Vector3::SignedAngle(forward, dir, Vector3::Up) * err;	// angle to target
 
-			mSpineBone->RotateGlobal(Vec3::Up, gunAngle);
+			mSpineBone->RotateGlobal(Vector3::Up, gunAngle);
 		}
 	}
 }
 
 
-void Script_GroundPlayer::UpdateParams(float v, float h)
+void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h)
 {
-	UpdateParam(v, mParamV);
-	UpdateParam(h, mParamH);
+	if (mIsAim) {										// 에임 상태라면, 플레이어의 look방향에 따라 다른 다리(Legs) 애니메이션을 재생한다.
+		if (!Math::IsZero(v) || !Math::IsZero(h)) {
+			Vec3 direction = Transform::GetWorldDirection(dir);
+			float angle = Vector3::SignedAngle(mObject->GetLook().xz(), direction.xz(), Vector3::Up);
+			std::cout << (int)angle << std::endl;
+			float angleAbs = fabs(angle);
+			v = (angleAbs > 50.f && angleAbs < 130.f) ? 0 : (angleAbs <= 50.f) ? 1 : -1;
+			h = (angleAbs < 5.f || angleAbs > 175.f) ? 0 : ((angle > 0) ? 1 : -1);
+		}
+
+		UpdateParam(v, mParamV);
+		UpdateParam(h, mParamH);
+	}
+	else {
+		if (!Math::IsZero(v) || !Math::IsZero(h)) {		// 에임 상태가 아니면 무조건 앞으로 이동한다.
+			mParamV = 1;
+		}
+		mParamH = 0;
+	}
 }
 
 
@@ -137,10 +154,9 @@ void Script_GroundPlayer::ProcessInput()
 {
 	base::ProcessInput();
 
-	float v{}, h{};
-
+	// 키 입력에 따른 방향 설정
 	Dir dir{};
-	Dir rotationDir{};
+	float v{}, h{};
 	if (KEY_PRESSED('W')) { dir |= Dir::Front; v += 1; }
 	if (KEY_PRESSED('S')) { dir |= Dir::Back;  v -= 1; }
 	if (KEY_PRESSED('A')) { dir |= Dir::Left;  h -= 1; }
@@ -272,15 +288,18 @@ void Script_GroundPlayer::ProcessInput()
 	mPrevMovement = crntState | crntMotion;
 
 	if (mController) {
-		UpdateParams(v, h);
+		UpdateParams(dir, v, h);
 		mController->SetValue("Vertical", mParamV);
 		mController->SetValue("Horizontal", mParamH);
 	}
 
 	Move(dir);
+	if (!mIsAim) {
+		RotateTo(dir);
+	}
 
-	Vec2 mouseDelta = input->GetMouseDelta();
-	mPlayer->Rotate(0.f, mouseDelta.x);
+	//Vec2 mouseDelta = input->GetMouseDelta();
+	//mPlayer->Rotate(0.f, mouseDelta.x);
 }
 
 
@@ -291,25 +310,50 @@ void Script_GroundPlayer::Move(Dir dir)
 		return;
 	}
 
-	const Vec3 dirVec = Vector3::Normalized(mObject->GetDirection(dir));
+	const Vec3 dirVec = Transform::GetWorldDirection(dir);
 	mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
 }
 
-void Script_GroundPlayer::Rotate(DWORD rotationDir, float angle)
+void Script_GroundPlayer::RotateTo(Dir dir)
 {
-	angle *= mRotationSpeed;
-	if (rotationDir) {
-		float zRotation = 0.f;
-		if (rotationDir & Dir::Left) {
-			zRotation += angle;
-		}
-		if (rotationDir & Dir::Right) {
-			zRotation -= angle;
-		}
+	if (dir == Dir::None) {
+		return;
+	}
 
-		if (zRotation != 0.f) {
-			mObject->Rotate(0.f, 0.f, zRotation);
+	Vec3 dstDir = Vector3::Front;
+	if (dir & Dir::Left) {
+		if (dir & Dir::Back) {
+			dstDir = Vector3::LB;
 		}
+		else if (dir & Dir::Front) {
+			dstDir = Vector3::LF;
+		}
+		else {
+			dstDir = Vector3::Left;
+		}
+	}
+	else if (dir & Dir::Right) {
+		if (dir & Dir::Back) {
+			dstDir = Vector3::RB;
+		}
+		else if (dir & Dir::Front) {
+			dstDir = Vector3::RF;
+		}
+		else {
+			dstDir = Vector3::Right;
+		}
+	}
+	else if (dir & Dir::Back) {
+		dstDir = Vector3::Back;
+	}
+
+	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dstDir, Vector3::Up);
+
+	if (fabs(angle) < 5.f) {
+		mObject->Rotate(0, angle, 0);
+	}
+	else {
+		mObject->Rotate(0, Math::Sign(angle) * mRotationSpeed * DeltaTime(), 0);
 	}
 }
 

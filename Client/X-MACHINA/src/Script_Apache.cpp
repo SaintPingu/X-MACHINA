@@ -16,10 +16,10 @@ void Script_Apache::Animate()
 {
 	if (mMainRotor) {
 		const float rotorSpeed = 360.f * 7.0f * DeltaTime();
-		mMainRotor->Rotate(Vector3::Up(), rotorSpeed);
+		mMainRotor->Rotate(Vector3::Up, rotorSpeed);
 	}
 	if (mTailRotor) {
 		const float rotorSpeed = 360.f * 8.0f * DeltaTime();
-		mTailRotor->Rotate(Vector3::Up(), rotorSpeed);
+		mTailRotor->Rotate(Vector3::Up, rotorSpeed);
 	}
 }

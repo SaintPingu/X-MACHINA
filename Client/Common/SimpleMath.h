@@ -314,19 +314,6 @@ namespace DirectX
             static void TransformNormal(const Vector3& v, const Matrix& m, Vector3& result) noexcept;
             static Vector3 TransformNormal(const Vector3& v, const Matrix& m) noexcept;
             static void TransformNormal(_In_reads_(count) const Vector3* varray, size_t count, const Matrix& m, _Out_writes_(count) Vector3* resultArray) noexcept;
-
-            // Constants
-            static const Vector3 Zero;
-            static const Vector3 One;
-            static const Vector3 UnitX;
-            static const Vector3 UnitY;
-            static const Vector3 UnitZ;
-            static const Vector3 Up;
-            static const Vector3 Down;
-            static const Vector3 Right;
-            static const Vector3 Left;
-            static const Vector3 Forward;
-            static const Vector3 Backward;
         };
 
         // Binary operators

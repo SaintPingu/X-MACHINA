@@ -12,10 +12,10 @@ private:
 	Matrix mLocalTransform{};	// transform of not affected by a parent (local)
 	Matrix mPrevTransform {};	// transform of previous frame
 
-	Vec3 mPosition = Vector3::Zero();		// local space position
-	Vec3 mRight	   = Vector3::Right();		// right(x) axis in local space
-	Vec3 mUp	   = Vector3::Up();			// up(y)    axis in local space
-	Vec3 mLook	   = Vector3::Forward();	// look(z)  axis in local space
+	Vec3 mPosition = Vector3::Zero;		// local space position
+	Vec3 mRight	   = Vector3::Right;		// right(x) axis in local space
+	Vec3 mUp	   = Vector3::Up;			// up(y)    axis in local space
+	Vec3 mLook	   = Vector3::Front;	// look(z)  axis in local space
 
 	void* mObject{};	// self Object
 
@@ -53,12 +53,14 @@ public:
 	// returns a look(z) axis in world space
 	Vec3 GetLook()  const			{ return Vector3::Normalized(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
 	// returns a quaternion in local space
-	Vec4 GetLocalRotation() const;
+	Quat GetLocalRotation() const;
 	// returns a quaternion in world space
-	Vec4 GetRotation() const;
-	// [dir]에 따른 이 Transform의 diretion을 반환한다.
+	Quat GetRotation() const;
+	// [dir]에 따른 이 Transform의 diretion 단위벡터를 반환한다.
 	// [dir]=Right&Front ==> return mRight + mLook
 	Vec3 GetDirection(Dir dir, float distance = 1.f) const;
+	// [dir]에 따른 월드 공간 diretion 단위벡터를 반환한다.
+	static Vec3 GetWorldDirection(Dir dir);
 
 	/* Transform */
 	const Matrix& GetWorldTransform() const { return mWorldTransform; }
@@ -153,13 +155,13 @@ public:
 	void SetLocalRotation(const Vec4& quaternion);
 
 	// (local) rotates to the [lookTo] direction
-	void LookTo(const Vec3& lookTo, const Vec3& up = Vector3::Up());
+	void LookTo(const Vec3& lookTo, const Vec3& up = Vector3::Up);
 	// (local) rotates the transform so the forward vector points at [lookAt] position
-	void LookAt(const Vec3& lookAt, const Vec3& up = Vector3::Up());
+	void LookAt(const Vec3& lookAt, const Vec3& up = Vector3::Up);
 	// (world) rotates the transform so the forward vector look to the [lookTo] direction
-	void LookToWorld(const Vec3& lookTo, const Vec3& up = Vector3::Up());
+	void LookToWorld(const Vec3& lookTo, const Vec3& up = Vector3::Up);
 	// (world) rotates the transform so the "look" vector look to the [lookTo] direction
-	void LookToWorld2(const Vec3& lookTo, const Vec3& look, const Vec3& up = Vector3::Up());
+	void LookToWorld2(const Vec3& lookTo, const Vec3& look, const Vec3& up = Vector3::Up);
 
 	/* Transform */
 #pragma region Transform

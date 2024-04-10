@@ -27,7 +27,7 @@ void Script_Fragment::Active(const Vec3& pos)
 
 	rigid->Stop();
 	// 위 방향 + 설정된 [mMovingDir] 방향으로 즉시 힘을 가한다.
-	rigid->AddForce(Vector3::Up(), mMovingSpeed, ForceMode::Impulse);
+	rigid->AddForce(Vector3::Up, mMovingSpeed, ForceMode::Impulse);
 	rigid->AddForce(mMovingDir, mMovingSpeed, ForceMode::Impulse);
 
 	mObject->OnEnable();

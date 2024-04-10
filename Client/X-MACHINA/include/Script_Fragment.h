@@ -13,7 +13,7 @@ class Script_Fragment : public Component {
 	COMPONENT(Script_Fragment, Component)
 
 private:
-	Vec3 mRotationAxis{ Vector3::Up() };
+	Vec3 mRotationAxis{ Vector3::Up };
 	Vec3 mMovingDir{};
 	float mMovingSpeed{};
 	float mRotationSpeed{};

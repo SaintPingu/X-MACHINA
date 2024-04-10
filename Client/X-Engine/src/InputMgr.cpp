@@ -49,8 +49,6 @@ void InputMgr::InitFocus()
 {
 	POINT clientCenter = mClientCenter;
 	::ClientToScreen(dxgi->GetHwnd(), &clientCenter);
-	::SetCursorPos(clientCenter.x, clientCenter.y);
-	mouse_event(MOUSEEVENTF_LEFTDOWN, clientCenter.x, clientCenter.y, 0, 0);
 	::ShowCursor(FALSE);
 }
 

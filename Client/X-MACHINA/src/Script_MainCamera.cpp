@@ -20,7 +20,7 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 void Script_MainCamera::Start()
 {
 	mPlayer = engine->GetPlayer();
-	mObject->SetPosition(mPlayer->GetPosition() + Vector3::One());
+	mObject->SetPosition(mPlayer->GetPosition() + Vector3::One);
 	Init();
 }
 

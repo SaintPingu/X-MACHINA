@@ -135,6 +135,30 @@ namespace Math {
 
 #pragma region DirectXMath
 namespace Vector3 {
+
+	static const Vec3 Zero  = { +0.f, +0.f, +0.f };
+	static const Vec3 Up    = { +0.f, +1.f, +0.f };
+	static const Vec3 Down  = { +0.f, -1.f, +0.f };
+	static const Vec3 Right = { +1.f, +0.f, +0.f };
+	static const Vec3 Left  = { -1.f, +0.f, +0.f };
+	static const Vec3 Front	= { +0.f, +0.f, +1.f };
+	static const Vec3 Back  = { +0.f, +0.f, -1.f };
+	static const Vec3 One   = { +1.f, +1.f, +1.f };
+
+	static const Vec3 RF  = { +1.f, +0.f, +1.f };
+	static const Vec3 RB  = { +1.f, +0.f, -1.f };
+	static const Vec3 RUF = { +1.f, +1.f, +1.f };
+	static const Vec3 RUB = { +1.f, +1.f, -1.f };
+	static const Vec3 RDF = { +1.f, -1.f, +1.f };
+	static const Vec3 RDB = { +1.f, -1.f, -1.f };
+
+	static const Vec3 LF  = { -1.f, +0.f, +1.f };
+	static const Vec3 LB  = { -1.f, +0.f, -1.f };
+	static const Vec3 LUF = { -1.f, +1.f, +1.f };
+	static const Vec3 LUB = { -1.f, +1.f, -1.f };
+	static const Vec3 LDF = { -1.f, -1.f, +1.f };
+	static const Vec3 LDB = { -1.f, -1.f, -12.f };
+
 	inline bool IsZero(const Vec3& vector) noexcept
 	{
 		return XMVector3Equal(_VECTOR(vector), XMVectorZero());
@@ -143,7 +167,7 @@ namespace Vector3 {
 	inline Vec3 Normalized(const Vec3& vector) noexcept
 	{
 		if (Vector3::IsZero(vector)) {
-			return Vec3::Zero;
+			return Vector3::Zero;
 		}
 
 		Vec3 result;
@@ -196,100 +220,16 @@ namespace Vector3 {
 		return XMConvertToDegrees(angle * sign);
 	}
 
-	// (0, 0, 0)
-	inline Vec3 Zero()
+	inline int Sign(const Vec3& from, const Vec3& to, const Vec3& axis)
 	{
-		return Vec3(0.f, 0.f, 0.f);
-	}
+		XMVECTOR v1 = XMVector3NormalizeEst(_VECTOR(from));
+		XMVECTOR v2 = XMVector3NormalizeEst(_VECTOR(to));
 
-	// (0, 1, 0)
-	inline Vec3 Up()
-	{
-		return Vec3(0.f, 1.f, 0.f);
-	}
+		XMVECTOR cross = XMVector3Cross(v1, v2);
+		float dot = XMVectorGetX(XMVector3Dot(cross, _VECTOR(axis)));
+		int sign = (dot >= 0.0f) ? 1 : -1;
 
-	// (0, -1, 0)
-	inline Vec3 Down()
-	{
-		return Vec3(0.f, -1.f, 0.f);
-	}
-
-	// (1, 0, 0)
-	inline Vec3 Right()
-	{
-		return Vec3(1.f, 0.f, 0.f);
-	}
-
-	// (-1, 0, 0)
-	inline Vec3 Left()
-	{
-		return Vec3(-1.f, 0.f, 0.f);
-	}
-
-	// (0, 0, 1)
-	inline Vec3 Forward()
-	{
-		return Vec3(0.f, 0.f, 1.f);
-	}
-
-	// (0, 0, -1)
-	inline Vec3 Back()
-	{
-		return Vec3(0.f, 0.f, -1.f);
-	}
-
-	// (1, 1, 1)
-	inline Vec3 One()
-	{
-		return Vec3(1.f, 1.f, 1.f);
-	}
-
-	// (1, 1, 1)
-	inline Vec3 RUF()
-	{
-		return Vec3(1.f, 1.f, 1.f);
-	}
-
-	// (1, 1, -1)
-	inline Vec3 RUB()
-	{
-		return Vec3(1.f, 1.f, -1.f);
-	}
-
-	// (1, -1, 1)
-	inline Vec3 RDF()
-	{
-		return Vec3(1.f, -1.f, 1.f);
-	}
-
-	// (1, -1, -1)
-	inline Vec3 RDB()
-	{
-		return Vec3(1.f, -1.f, -1.f);
-	}
-
-	// (-1, 1, 1)
-	inline Vec3 LUF()
-	{
-		return Vec3(-1.f, 1.f, 1.f);
-	}
-
-	// (-1, 1, -1)
-	inline Vec3 LUB()
-	{
-		return Vec3(-1.f, 1.f, -1.f);
-	}
-
-	// (-1, -1, 1)
-	inline Vec3 LDF()
-	{
-		return Vec3(-1.f, -1.f, 1.f);
-	}
-
-	// (-1, -1, -1)
-	inline Vec3 LDB()
-	{
-		return Vec3(-1.f, -1.f, -1.f);
+		return sign;
 	}
 }
 
@@ -397,22 +337,19 @@ namespace Quaternion {
 		Vec3 result{};
 
 		// Roll (x-axis rotation)
-		float sinr_cosp = +2.0f * (q.w * q.x + q.y * q.z);
-		float cosr_cosp = +1.0f - 2.0f * (q.x * q.x + q.y * q.y);
-		result.x = XMConvertToDegrees(atan2(sinr_cosp, cosr_cosp));
+		float sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+		float cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+		result.x = XMConvertToDegrees(atan2f(sinr_cosp, cosr_cosp));
 
 		// Pitch (y-axis rotation)
-		float sinp = +2.0f * (q.w * q.y - q.z * q.x);
-		if (fabs(sinp) >= 1)
-			result.y = copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
-		else
-			result.y = asin(sinp);
-		result.y = XMConvertToDegrees(result.y);
+		float sinp = sqrtf(1 + 2 * (q.w * q.y - q.z * q.x));
+		float cosp = sqrtf(1 - 2 * (q.w * q.y - q.z * q.x));
+		result.y = XMConvertToDegrees(2 * atan2f(sinp, cosp) - XM_PI / 2);
 
 		// Yaw (z-axis rotation)
-		float siny_cosp = +2.0f * (q.w * q.z + q.x * q.y);
-		float cosy_cosp = +1.0f - 2.0f * (q.y * q.y + q.z * q.z);
-		result.z = XMConvertToDegrees(atan2(siny_cosp, cosy_cosp));
+		float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+		float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+		result.z = XMConvertToDegrees(atan2f(siny_cosp, cosy_cosp));
 
 		return result;
 	}

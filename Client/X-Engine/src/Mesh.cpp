@@ -90,14 +90,14 @@ void ModelObjectMesh::CreateMeshFromOBB(const BoundingOrientedBox& box)
 
 	vertices.resize(mVertexCnt);
 
-	vertices[0] = box.Center + (box.Extents * Vector3::LDB());
-	vertices[1] = box.Center + (box.Extents * Vector3::RDB());
-	vertices[2] = box.Center + (box.Extents * Vector3::LUB());
-	vertices[3] = box.Center + (box.Extents * Vector3::RDB());
-	vertices[4] = box.Center + (box.Extents * Vector3::LDF());
-	vertices[5] = box.Center + (box.Extents * Vector3::RDB());
-	vertices[6] = box.Center + (box.Extents * Vector3::LUF());
-	vertices[7] = box.Center + (box.Extents * Vector3::RUF());
+	vertices[0] = box.Center + (box.Extents * Vector3::LDB);
+	vertices[1] = box.Center + (box.Extents * Vector3::RDB);
+	vertices[2] = box.Center + (box.Extents * Vector3::LUB);
+	vertices[3] = box.Center + (box.Extents * Vector3::RDB);
+	vertices[4] = box.Center + (box.Extents * Vector3::LDF);
+	vertices[5] = box.Center + (box.Extents * Vector3::RDB);
+	vertices[6] = box.Center + (box.Extents * Vector3::LUF);
+	vertices[7] = box.Center + (box.Extents * Vector3::RUF);
 
 	indices.resize(mIndexCnt);
 	indices = {

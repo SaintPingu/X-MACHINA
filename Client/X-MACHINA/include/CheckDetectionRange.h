@@ -7,7 +7,6 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
 class Script_EnemyManager;
 #pragma endregion
 

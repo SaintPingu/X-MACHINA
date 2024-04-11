@@ -12,16 +12,16 @@ class Script_EnemyManager;
 
 
 #pragma region Class
-class CheckAttackRange : public BT::Node {
+class CheckPatrolRange : public BT::Node {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
+	
+	Vec3 mSpawnPos{};
 
 public:
-	CheckAttackRange(Object* object);
-	virtual ~CheckAttackRange() = default;
+	CheckPatrolRange(Object* object);
+	virtual ~CheckPatrolRange() = default;
 
 	virtual BT::NodeState Evaluate() override;
 };
 #pragma endregion
-
-

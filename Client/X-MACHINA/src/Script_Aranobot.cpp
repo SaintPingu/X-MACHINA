@@ -19,7 +19,7 @@ void Script_Aranobot::Awake()
 
 	mEnemyMgr->mRotationSpeed = 270.f;
 	mEnemyMgr->mMoveSpeed = 2.8f;
-	mEnemyMgr->mDetectionRange = 15.f;
+	mEnemyMgr->mDetectionRange = 10.f;
 }
 
 void Script_Aranobot::Update()

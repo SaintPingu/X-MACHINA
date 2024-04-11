@@ -3,10 +3,13 @@
 
 #include "CheckDetectionRange.h"
 #include "CheckAttackRange.h"
+#include "CheckPatrolRange.h"
 #include "TaskPatrol.h"
 #include "TaskMoveToTarget.h"
 #include "TaskAttack.h"
-#include "TaskPathPlanning.h"
+#include "TaskMoveToTargetAStar.h"
+#include "TaskReturnToSpawnAStar.h"
+
 
 BT::Node* Script_MeleeBT::SetupTree()
 {
@@ -17,21 +20,26 @@ BT::Node* Script_MeleeBT::SetupTree()
 	//wayPoints[1] = mObject->GetLocalPosition() + Vec3(5.f, 0.f, -5.f);
 	//wayPoints[2] = mObject->GetLocalPosition() + Vec3(-5.f, 0.f, -5.f);
 	//wayPoints[3] = mObject->GetLocalPosition() + Vec3(-5.f, 0.f, 5.f);
-	//
+	
 	// 행동 트리 설정
 	BT::Node* root = new BT::Selector{ std::vector<BT::Node*>{
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckAttackRange(mObject),
-			new TaskAttack(mObject),
-		}},
+			new TaskAttack(mObject) }},
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckDetectionRange(mObject),
-			new BT::Selector { std::vector<BT::Node*>{
+			new BT::Selector{ std::vector<BT::Node*>{
 				new TaskMoveToTarget(mObject),
-				new TaskPathPlanning(mObject),
+				new TaskMoveToTargetAStar(mObject),
+				}},
 			}},
-		}},
-		new TaskPatrol {mObject, std::move(wayPoints)}
+		new BT::Selector{ std::vector<BT::Node*>{
+			new BT::Sequence{ std::vector<BT::Node*>{
+				new CheckPatrolRange(mObject),
+				new TaskPatrol(mObject, std::move(wayPoints)),
+				}},
+				new TaskReturnToSpawnAStar(mObject)
+			}}
 	}};
 
 	return root;

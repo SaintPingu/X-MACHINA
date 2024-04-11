@@ -20,7 +20,8 @@ public:
 	float mDetectionRange = 10.f;
 	float mAttackRange = 2.f;
 	float mAttackCoolTime = 1.5f;
-	bool  mIsMoveToPath = false;
+
+	std::stack<Vec3> mPath{};
 
 	sptr<AnimatorController>   mController{};
 };

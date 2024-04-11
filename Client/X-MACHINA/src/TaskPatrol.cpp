@@ -22,8 +22,6 @@ BT::NodeState TaskPatrol::Evaluate()
 {
 	Vec3 wayPoint = mWayPoints[mCurrWayPointIdx];
 
-	mEnemyMgr->mIsMoveToPath = false;
-
 	const float kMinDistance = 1.f;
 	const Vec3 toWayPoint = wayPoint - mObject->GetPosition().xz();
 	

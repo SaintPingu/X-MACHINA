@@ -29,21 +29,25 @@ struct PQNode {
 
 
 #pragma region Class
-class TaskPathPlanning : public BT::Node {
-private:
+class TaskPathPlanningAStar : public BT::Node {
+protected:
 	sptr<Script_EnemyManager>	mEnemyMgr;
 
 	std::priority_queue<PQNode, std::vector<PQNode>, std::greater<PQNode>> pq;
-	std::stack<Vec3>		mPath{};
+
+	std::stack<Vec3>*		mPath;
+	Pos						mStart;
+	Pos						mDest;
 
 	static constexpr int	mkWeight = 10;
 	static constexpr int	mkMaxVisited = 2000;
-public:
-	TaskPathPlanning(Object* object);
-	virtual ~TaskPathPlanning() = default;
 
 public:
-	virtual BT::NodeState Evaluate() override;
+	TaskPathPlanningAStar(Object* object);
+	virtual ~TaskPathPlanningAStar() = default;
+
+protected:
 	bool PathPlanningAStar(Pos start, Pos dest);
+	void MoveToPath();
 };
 #pragma endregion

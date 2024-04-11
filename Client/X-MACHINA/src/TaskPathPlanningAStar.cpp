@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TaskPathPlanning.h"
+#include "TaskPathPlanningAStar.h"
 
 #include "Script_EnemyManager.h"
 
@@ -11,46 +11,15 @@
 #include "Grid.h"
 
 
-TaskPathPlanning::TaskPathPlanning(Object* object)
+TaskPathPlanningAStar::TaskPathPlanningAStar(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
+	mPath = &mEnemyMgr->mPath;
 }
 
 
-BT::NodeState TaskPathPlanning::Evaluate()
-{
-	sptr<Object> target = GetData("target");
-
-	// 이전에 경로 이동이 취소 되었다면 모두 비워야함
-	if (!mEnemyMgr->mIsMoveToPath)
-		while (!mPath.empty()) mPath.pop();
-
-	// 이미 찾은 길이 있는 경우 해당 길을 찾아 이동 및 회전
-	if (!mPath.empty()) {
-		Vec3 toFirstPath = (mPath.top() - mObject->GetPosition()).xz();
-		mObject->RotateTargetAxisY(mPath.top(), mEnemyMgr->mRotationSpeed * DeltaTime());
-		mObject->Translate(XMVector3Normalize(toFirstPath), mEnemyMgr->mMoveSpeed * DeltaTime());
-
-		const float kMinDistance = 0.1f;
-		if (toFirstPath.Length() < kMinDistance)
-			mPath.pop();
-
-		return BT::NodeState::Success;
-	}
-	
-	// 시작 지점과 목적지 위치 값을 타일 고유 인덱스로 변환
-	Pos start = scene->GetTileUniqueIndexFromPos(mObject->GetPosition());
-	Pos dest = scene->GetTileUniqueIndexFromPos(target->GetPosition());
-
-	// 경로 계획에 실패했다면 Failure를 호출하여 다음 노드로 넘어감
-	if (PathPlanningAStar(start, dest) == false)
-		return BT::NodeState::Failure;
-
-	return BT::NodeState::Success;
-}
-
-bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
+bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 {
 	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
 	if (scene->GetTileFromUniqueIndex(start) == Tile::Static)
@@ -99,7 +68,7 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 		// 8방향으로 탐색
 		for (int dir = 0; dir < DirCount; ++dir) {
 			Pos nextPos = curNode.Pos + gkFront[dir];
-			
+
 			// 다음 위치의 타일이 일정 범위를 벗어난 경우 continue
 			if (abs(start.X - nextPos.X) > Grid::mTileRows || abs(start.Z - nextPos.Z) > Grid::mTileCols)
 				continue;
@@ -136,14 +105,17 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 	Pos pos = dest;
 	prevDir = { 0, 0 };
 
+	while (!mEnemyMgr->mPath.empty())
+		mEnemyMgr->mPath.pop();
+
 	// 부모 경로를 따라가 스택에 넣어준다. top이 first path이다.
 	while (true) {
 		Pos dir = mParent[pos] - pos;
 
-		if (prevDir != dir)
-			mPath.push(scene->GetTilePosFromUniqueIndex(pos));
-
-		scene->GetOpenList().push_back(mPath.top());
+		if (prevDir != dir) {
+			mPath->push(scene->GetTilePosFromUniqueIndex(pos));
+			scene->GetOpenList().push_back(mPath->top());
+		}
 
 		if (pos == mParent[pos])
 			break;
@@ -152,11 +124,25 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 		prevDir = dir;
 	}
 
-	if (mPath.empty()) {
-		mEnemyMgr->mIsMoveToPath = false;
+
+	if (mPath->empty()) {
 		return false;
 	}
 
-	mEnemyMgr->mIsMoveToPath = true;
 	return true;
+}
+
+void TaskPathPlanningAStar::MoveToPath()
+{
+	// 다음 경로까지의 벡터
+	Vec3 nextPos = (mPath->top() - mObject->GetPosition()).xz();
+
+	// 다음 경로를 향해 이동 및 회전
+	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mRotationSpeed * DeltaTime());
+	mObject->Translate(XMVector3Normalize(nextPos), mEnemyMgr->mMoveSpeed * DeltaTime());
+
+	// 다음 경로에 도착 시 해당 경로 삭제
+	const float kMinDistance = 0.1f;
+	if (nextPos.Length() < kMinDistance)
+		mPath->pop();
 }

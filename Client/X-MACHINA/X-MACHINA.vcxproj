@@ -197,6 +197,7 @@
     <ClInclude Include="..\Common\Singleton.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
     <ClInclude Include="include\CheckDetectionRange.h" />
+    <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
     <ClInclude Include="include\ObjectMgr.h" />
@@ -223,8 +224,10 @@
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\TaskAttack.h" />
     <ClInclude Include="include\TaskMoveToTarget.h" />
-    <ClInclude Include="include\TaskPathPlanning.h" />
+    <ClInclude Include="include\TaskMoveToTargetAStar.h" />
+    <ClInclude Include="include\TaskPathPlanningAStar.h" />
     <ClInclude Include="include\TaskPatrol.h" />
+    <ClInclude Include="include\TaskReturnToSpawnAStar.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
     <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
@@ -241,6 +244,7 @@
     <ClCompile Include="Network\ServerSession.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />
     <ClCompile Include="src\CheckDetectionRange.cpp" />
+    <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
@@ -276,8 +280,10 @@
     </ClCompile>
     <ClCompile Include="src\TaskAttack.cpp" />
     <ClCompile Include="src\TaskMoveToTarget.cpp" />
-    <ClCompile Include="src\TaskPathPlanning.cpp" />
+    <ClCompile Include="src\TaskMoveToTargetAStar.cpp" />
+    <ClCompile Include="src\TaskPathPlanningAStar.cpp" />
     <ClCompile Include="src\TaskPatrol.cpp" />
+    <ClCompile Include="src\TaskReturnToSpawnAStar.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>

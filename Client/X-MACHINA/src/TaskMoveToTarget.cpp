@@ -46,12 +46,13 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 		}
 	}
 
+	// 한 번이라도 장애물 없이 직선 경로라면 길찾기 경로 초기화
+	while (!mEnemyMgr->mPath.empty())
+		mEnemyMgr->mPath.pop();
+
 	// 오브젝트로부터 타겟까지의 벡터
 	const float kMinDistance = 0.1f;
 	
-	// 한 번이라도 해당 노드가 실행됐다면 기존 길찾기 경로를 삭제 하기 위한 플래그
-	mEnemyMgr->mIsMoveToPath = false;
-
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (toTarget.Length() > kMinDistance) {
 		mObject->RotateTargetAxisY(target->GetPosition(), mEnemyMgr->mRotationSpeed * DeltaTime());

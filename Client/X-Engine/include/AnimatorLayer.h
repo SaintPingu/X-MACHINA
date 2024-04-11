@@ -41,6 +41,7 @@ public:
 	void Animate();
 
 	void CheckTransition(const AnimatorController* controller);
+	bool IsEndTransition() const { return mNextStates.empty(); }
 
 	void SyncAnimation(rsptr<const AnimatorMotion> srcState);
 

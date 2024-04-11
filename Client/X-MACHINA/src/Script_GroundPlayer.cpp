@@ -22,6 +22,17 @@
 #include "Component/UI.h"
 
 
+
+const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
+const float Script_GroundPlayer::mkStandWalkSpeed = 2.2f;
+const float Script_GroundPlayer::mkRunSpeed       = 5.f;
+const float Script_GroundPlayer::mkSprintSpeed    = 8.f;
+
+const float Script_GroundPlayer::mkStartRotAngle  = 45.f;
+
+
+
+
 static void BulletInitFunc(rsptr<InstObject> bullet)
 {
 	bullet->SetTag(ObjectTag::Bullet);
@@ -125,6 +136,17 @@ void Script_GroundPlayer::LateUpdate()
 			// second correction (maybe screen coordinate system is a little inaccurate) //
 			angle = GetAngleToAim(aimScreenPos);
 			mSpineBone->RotateGlobal(Vector3::Up, angle);
+			angle = GetAngleToAim(aimScreenPos);
+			mSpineBone->RotateGlobal(Vector3::Up, angle);
+
+			constexpr float rightAngleCorr = 10.f;	// can rotate more by [rightAngleCorr] angle to the right.
+			mSpineDstAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up) - rightAngleCorr;
+			// spine angle is max [mkStartRotAngle] degree from object direction, so can't rotate anymore //
+			if (fabs(mSpineDstAngle) > mkStartRotAngle) {
+				const int sign = Math::Sign(mSpineDstAngle);
+				const float corrAngle = (fabs(mSpineDstAngle) - mkStartRotAngle) * -sign;
+				mSpineBone->RotateGlobal(Vector3::Up, corrAngle);
+			}
 
 			// [DEBUG CODE] show aim UI of muzzle's destination //
 			Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
@@ -139,37 +161,67 @@ void Script_GroundPlayer::LateUpdate()
 void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
 	if (mIsAim) {										// 에임 상태라면, 플레이어의 look방향에 따라 다른 다리(Legs) 애니메이션을 재생한다.
-		float rotAngleAbs = fabs(rotAngle);
+		//constexpr float 
+
+		const float rotAngleAbs = fabs(rotAngle);
+		// 이동 상태 //
 		if (!Math::IsZero(v) || !Math::IsZero(h)) {
-			Vec3 direction = Transform::GetWorldDirection(dir);
-			float angle = Vector3::SignedAngle(mObject->GetLook().xz(), direction.xz(), Vector3::Up);
-			float angleAbs = fabs(angle);
-			v = (angleAbs > 50.f && angleAbs < 130.f) ? 0.f : (angleAbs <= 50.f) ? 1.f : -1.f;
-			h = (angleAbs < 5.f || angleAbs > 175.f) ? 0.f : ((angle > 0) ? 1.f : -1.f);
+			const Vec3 movementDir = Transform::GetWorldDirection(dir);
+
+			const float lookAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vector3::Forward, Vector3::Up);
+			Vec3 rotatedMovementDir = Vector3::Normalized(Vector3::Rotate(movementDir, Vector3::Up, lookAngle));
+
+			// v, h값 재계산, dir의 크기가 항상 정사각형 변까지 닿도록 한다.
+			// BlendTree의 각 점은 정사각형의 변에 위치해 있기 때문이다.
+			// 아래 계산을 하지 않으면 부정확한 v, h값이 구해진다. (조금 부자연스러움)
+			{
+				float dirAngle = Vector3::SignedAngle(Vector3::Forward, rotatedMovementDir, Vector3::Up);
+
+				float newAngle  = std::fmod(dirAngle, 45.f);
+				float newAngle2 = std::fmod(dirAngle, 90.f);
+
+				if (newAngle2 >= 45.f) {
+					newAngle = 45 - newAngle;
+				}
+				float cosTheta = cos(XMConvertToRadians(newAngle));
+				float mag = cosTheta > FLT_EPSILON ? fabs(1.f / cosTheta) : 1.f;
+				rotatedMovementDir *= mag;
+
+				v = rotatedMovementDir.z;
+				h = rotatedMovementDir.x;
+				if (fabs(mParamV) + fabs(mParamH) > 1.f) {
+					v = fabs(v) > 0.45f ? 1 * Math::Sign(v) : 0.f;
+				}
+			}
 		}
+		// 정지 상태에서 회전 //
 		else if (rotAngleAbs > 10.f) {
 			mController->SetValue("Walk", true);
-			h = Math::Sign(rotAngle) > 0 ? 1 : -1;
+
+			// 회전 부호에 따라 h값을 설정한다.
+			h = Math::Sign(rotAngle) > 0 ? -1.f : 1.f;
+			// 90도일 때 h가 최대값 1을 갖고, 90도 미만이면 h를 보간한다.
 			if (rotAngleAbs < 90.f) {
 				h *= rotAngleAbs / 90.f;
 			}
 		}
+		// 정지 상태 //
 		else {
 			mController->SetValue("Walk", false);
 		}
-
-		UpdateParam(v, mParamV);
-		UpdateParam(h, mParamH);
 	}
 	else {
 		if (!Math::IsZero(v) || !Math::IsZero(h)) {		// 에임 상태가 아니면 무조건 앞으로 이동한다.
-			mParamV = 1;
+			v = 1;
 		}
 		else {
-			mController->SetValue("Walk", false);
+			v = 0;
 		}
-		mParamH = 0;
+		h = 0;
 	}
+
+	UpdateParam(v, mParamV);
+	UpdateParam(h, mParamH);
 }
 
 
@@ -180,10 +232,13 @@ void Script_GroundPlayer::ProcessInput()
 	// 키 입력에 따른 방향 설정
 	Dir dir{};
 	float v{}, h{};
-	if (KEY_PRESSED('W')) { dir |= Dir::Front; v += 1; }
-	if (KEY_PRESSED('S')) { dir |= Dir::Back;  v -= 1; }
-	if (KEY_PRESSED('A')) { dir |= Dir::Left;  h -= 1; }
-	if (KEY_PRESSED('D')) { dir |= Dir::Right; h += 1; }
+	if (KEY_PRESSED('W')) { v += 1; }
+	if (KEY_PRESSED('S')) { v -= 1; }
+	if (KEY_PRESSED('A')) { h -= 1; }
+	if (KEY_PRESSED('D')) { h += 1; }
+
+	dir |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
+	dir |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
 
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
 	Movement crntMovement = Movement::None;
@@ -317,23 +372,7 @@ void Script_GroundPlayer::ProcessInput()
 		RotateTo(dir);
 	}
 	else {
-		const Vec2 aimDir = mAimController->GetAimDirection();
-
-		rotAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vec3(aimDir.x, 0.f, aimDir.y), Vector3::Up);
-		const float angleAbs = fabs(rotAngle);
-		if (angleAbs > 10.f) {
-			const int sign = Math::Sign(rotAngle);
-
-			float rotationSpeed{};
-			if (angleAbs > 90) {
-				rotationSpeed = mRotationSpeed;
-			}
-			else {
-				rotationSpeed = (angleAbs / 90.f) * mRotationSpeed;
-			}
-
-			mObject->Rotate(0, sign * rotationSpeed * DeltaTime(), 0);
-		}
+		RotateToAim(dir, rotAngle);
 	}
 
 	if (mController) {
@@ -361,7 +400,7 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 		return;
 	}
 
-	Vec3 dstDir = Vector3::Front;
+	Vec3 dstDir = Vector3::Forward;
 	if (dir & Dir::Left) {
 		if (dir & Dir::Back) {
 			dstDir = Vector3::LB;
@@ -385,13 +424,17 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 		}
 	}
 	else if (dir & Dir::Back) {
-		dstDir = Vector3::Back;
+		dstDir = Vector3::Backward;
 	}
 
 	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dstDir, Vector3::Up);
-
-	if(fabs(angle) > 10.f) {
+	constexpr float smoothAngleBound = 10.f;
+	// smooth rotation if angle over [smoothAngleBound] degree
+	if(fabs(angle) > smoothAngleBound) {
 		mObject->Rotate(0, Math::Sign(angle) * mRotationSpeed * DeltaTime(), 0);
+	}
+	else if(fabs(angle) > FLT_EPSILON) {
+		mObject->Rotate(0, angle, 0);
 	}
 }
 
@@ -428,16 +471,24 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
-		if (mWeapon && mAnimator) {
-			mAnimator->GetController()->SetValue("Aim", true);
+		if (mWeapon && mController) {
+			mController->SetValue("Aim", true);
 			mIsAim = true;
 		}
 
 		break;
 	case WM_RBUTTONUP:
-		if (mWeapon && mAnimator) {
-			mAnimator->GetController()->SetValue("Aim", false);
+		if (mWeapon && mController) {
+			mController->SetValue("Aim", false);
 			mIsAim = false;
+			if (mIsInBodyRotation) {
+				mIsInBodyRotation = false;
+
+				Movement prevMotion = mPrevMovement & 0xF0;
+				if (prevMotion == Movement::None) {
+					mController->SetValue("Walk", false);
+				}
+			}
 		}
 
 		break;
@@ -514,21 +565,24 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
-	constexpr float speed = 4.f;				// 파라미터 전환 속도
-	constexpr float oppositeExtraSpeed = 20.f;	// 반대편 이동 시 추가 이동 전환 속도
+	constexpr float kParamSpeed = 4.f;				// 파라미터 전환 속도
+	constexpr float kOppositeExtraSpeed = 20.f;		// 반대편 이동 시 추가 이동 전환 속도
 
-	int sign = Math::Sign(val);					// sign : 파라미터 이동 방향 = 현재 입력값의 부호
-	if (Math::IsZero(val)) {					//		  입력이 없다면 현재 파라미터의 반대 부호
+	int sign = Math::Sign(val);						// sign : 파라미터 이동 방향 = 현재 입력값의 부호
+	if (Math::IsZero(val)) {						//		  입력이 없다면 현재 파라미터의 반대 부호
 		sign = -Math::Sign(param);
 	}
 	float before = param;
-	param += (speed * sign) * DeltaTime();		// 파라미터값 증감
+	param += (kParamSpeed * sign) * DeltaTime();	// 파라미터값 증감
 
-	if (fabs(param) < 0.01f) {					// 0에 근접하면 0으로 설정
+	if (fabs(param) < 0.01f) {						// 0에 근접하면 0으로 설정
 		param = 0.f;
 	}
 	else if (!Math::IsZero(val) && fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// 반대편 이동 시
-		param += (sign * oppositeExtraSpeed) * DeltaTime();									// 추가 전환 속도 적용
+		param += (sign * kOppositeExtraSpeed) * DeltaTime();								// 추가 전환 속도 적용
+	}
+	else if (!Math::IsZero(val)) {
+		param = std::clamp(param, -fabs(val), fabs(val));
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 사이로 고정
@@ -537,11 +591,69 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 float Script_GroundPlayer::GetAngleToAim(const Vec2& aimScreenPos) const
 {
 	Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
-	Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook()) - muzzleScreenPos);
+	Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook().xz()) - muzzleScreenPos);
 
 	// muzzleScreenLook이 aimScreenPos 지점에 교차해야 한다. 
 	// 총알이 도달해야하는 지점이다.
 	Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
 
-	return -Vector2::SignedAngle(bulletDstScreenPos - muzzleScreenPos, aimScreenPos - muzzleScreenPos);
+	// screen 좌표계 오차 (추정)
+	constexpr float err = 0.8f;
+	return -Vector2::SignedAngle(bulletDstScreenPos - muzzleScreenPos, aimScreenPos - muzzleScreenPos) * err;
+}
+
+void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
+{
+	constexpr float kStopRotAngle  = 10.f;
+	const Vec2 aimDir = mAimController->GetAimDirection();
+
+	bool moving = dir != Dir::None;
+	// spine bone's look vector is aim direction (spine bone gonna look at aim from LateUpdate function)
+	// get an angle if end the aim animation
+	if (!moving && mController->IsEndTransition("Body")) {
+		rotAngle = mSpineDstAngle;
+	}
+	else {
+		rotAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vec3(aimDir.x, 0, aimDir.y), Vector3::Up);
+	}
+
+	const float angleAbs = fabs(rotAngle);
+
+	// look at the aim if moving
+	if (moving) {
+		Rotate(rotAngle);
+	}
+	// rotate body to the aim if spine bone's angle too large
+	else if (mIsInBodyRotation || angleAbs > mkStartRotAngle) {
+		if (angleAbs > mkStartRotAngle) {
+			mIsInBodyRotation = true;
+		}
+		else if (angleAbs < kStopRotAngle) {
+			mIsInBodyRotation = false;
+			rotAngle = 0.f;
+			return;
+		}
+
+		Rotate(rotAngle);
+	}
+	else {
+		rotAngle = 0.f;
+	}
+}
+
+void Script_GroundPlayer::Rotate(float angle) const
+{
+	const int sign = Math::Sign(angle);
+	const float angleAbs = fabs(angle);
+
+	// 90도가 넘으면 최대 속도, 그 이하면 보간
+	float rotationSpeed{};
+	if (angleAbs > 90.f) {
+		rotationSpeed = mRotationSpeed;
+	}
+	else {
+		rotationSpeed = (angleAbs / 90.f) * mRotationSpeed;	// interpolation for smooth rotation
+	}
+
+	mObject->Rotate(0, sign * rotationSpeed * DeltaTime(), 0);
 }

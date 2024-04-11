@@ -15,7 +15,7 @@ private:
 	Vec3 mPosition = Vector3::Zero;		// local space position
 	Vec3 mRight	   = Vector3::Right;		// right(x) axis in local space
 	Vec3 mUp	   = Vector3::Up;			// up(y)    axis in local space
-	Vec3 mLook	   = Vector3::Front;	// look(z)  axis in local space
+	Vec3 mLook	   = Vector3::Forward;	// look(z)  axis in local space
 
 	void* mObject{};	// self Object
 

@@ -39,8 +39,8 @@ Vec3 Transform::GetWorldDirection(Dir dir)
 	}
 
 	Vec3 result{};
-	result += static_cast<bool>(dir & Dir::Front) * Vector3::Front;
-	result += static_cast<bool>(dir & Dir::Back)  * Vector3::Back;
+	result += static_cast<bool>(dir & Dir::Front) * Vector3::Forward;
+	result += static_cast<bool>(dir & Dir::Back)  * Vector3::Backward;
 	result += static_cast<bool>(dir & Dir::Right) * Vector3::Right;
 	result += static_cast<bool>(dir & Dir::Left)  * Vector3::Left;
 	result += static_cast<bool>(dir & Dir::Up)    * Vector3::Up;

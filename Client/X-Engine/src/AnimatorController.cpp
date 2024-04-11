@@ -74,6 +74,11 @@ sptr<AnimatorMotion> AnimatorController::FindMotionByName(const std::string& mot
 	return FindLayerByName(layerName)->FindMotionByName(motionName);
 }
 
+bool AnimatorController::IsEndTransition(const std::string& layerName) const
+{
+	return FindLayerByName(layerName)->IsEndTransition();
+}
+
 void AnimatorController::CheckTransition()
 {
 	for (auto& layer : mLayers) {
@@ -89,7 +94,8 @@ void AnimatorController::InitLayers()
 			layer->SetSyncStateMachine(true);
 		}
 	}
-}	
+	CheckTransition();
+}
 
 void AnimatorController::SetValue(const std::string& paramName, void* value)
 {
@@ -97,7 +103,7 @@ void AnimatorController::SetValue(const std::string& paramName, void* value)
 		return;
 	}
 
-	AnimatorParameter::value val;
+	AnimatorParameter::value val{};
 
 	auto& param = mParameters[paramName];
 	switch (param.type) {

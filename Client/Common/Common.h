@@ -161,29 +161,24 @@ namespace Vector2 {
 
 	inline float SignedAngle(const Vec2& from, const Vec2& to)
 	{
-		return XMConvertToDegrees(atan2(to.y, to.x) - atan2(from.y, from.x));
-		XMVECTOR v1 = XMVector2NormalizeEst(_VECTOR2(from));
-		XMVECTOR v2 = XMVector2NormalizeEst(_VECTOR2(to));
-
-		float angle = XMVectorGetX(XMVector2AngleBetweenNormals(v1, v2));
-		float det = XMVectorGetX(XMVector2Cross(v1, v2));
-		if (det < 0) {
-			angle = -angle;
+		float deg = XMConvertToDegrees(atan2(to.y, to.x) - atan2(from.y, from.x));
+		if (fabs(deg) > 180) {
+			return (fabs(deg) - 360) * Math::Sign(deg);
 		}
 
-		return XMConvertToDegrees(angle);
+		return deg;
 	}
 }
 namespace Vector3 {
 
-	static const Vec3 Zero  = { +0.f, +0.f, +0.f };
-	static const Vec3 Up    = { +0.f, +1.f, +0.f };
-	static const Vec3 Down  = { +0.f, -1.f, +0.f };
-	static const Vec3 Right = { +1.f, +0.f, +0.f };
-	static const Vec3 Left  = { -1.f, +0.f, +0.f };
-	static const Vec3 Front	= { +0.f, +0.f, +1.f };
-	static const Vec3 Back  = { +0.f, +0.f, -1.f };
-	static const Vec3 One   = { +1.f, +1.f, +1.f };
+	static const Vec3 Zero     = { +0.f, +0.f, +0.f };
+	static const Vec3 Up       = { +0.f, +1.f, +0.f };
+	static const Vec3 Down     = { +0.f, -1.f, +0.f };
+	static const Vec3 Right    = { +1.f, +0.f, +0.f };
+	static const Vec3 Left     = { -1.f, +0.f, +0.f };
+	static const Vec3 Forward  = { +0.f, +0.f, +1.f };
+	static const Vec3 Backward = { +0.f, +0.f, -1.f };
+	static const Vec3 One      = { +1.f, +1.f, +1.f };
 
 	static const Vec3 RF  = { +1.f, +0.f, +1.f };
 	static const Vec3 RB  = { +1.f, +0.f, -1.f };
@@ -227,6 +222,15 @@ namespace Vector3 {
 		Vec3 result;
 		XMStoreFloat3(&result, XMVector3Rotate(_VECTOR(v), _VECTOR4(quat)));
 		return result;
+	}
+
+	inline Vec3 Rotate(const Vec3& v, const Vec3& axis, float angle) noexcept
+	{
+		const float rad = XMConvertToRadians(angle);
+		const float cosTheta = cos(rad);
+		const float sinTheta = sin(rad);
+
+		return (v * cosTheta) + (axis.Cross(v) * sinTheta) + (axis * axis.Dot(v)) * (1 - cosTheta);
 	}
 
 	inline Vec3 Resize(const Vec3& vector, float size) noexcept

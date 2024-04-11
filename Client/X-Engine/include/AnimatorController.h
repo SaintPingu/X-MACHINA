@@ -62,6 +62,8 @@ public:
 
 	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName, const std::string& layerName = "Base Layer") const;
 
+	bool IsEndTransition(const std::string& layerName) const;
+
 private:
 	void InitLayers();
 	void CheckTransition();

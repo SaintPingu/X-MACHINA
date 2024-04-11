@@ -30,6 +30,7 @@ public:
 
 public:
 	inline constexpr operator DWORD () const	{ return mValue; }
+	inline constexpr operator DWORD& ()         { return mValue; }
 
 	T& operator=(T rhs)							{ mValue = rhs.mValue;	return static_cast<T>(*this); }
 	T& operator=(DWORD value)					{ mValue = value;		return static_cast<T>(*this); }

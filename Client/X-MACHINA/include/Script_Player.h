@@ -123,12 +123,13 @@ private:
 class Script_GroundPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
 
-
 private:
-	const float mkSitWalkSpeed   = 1.5f;
-	const float mkStandWalkSpeed = 2.2f;
-	const float mkRunSpeed       = 5.f;
-	const float mkSprintSpeed    = 8.f;
+	static const float mkSitWalkSpeed;
+	static const float mkStandWalkSpeed;
+	static const float mkRunSpeed;
+	static const float mkSprintSpeed;
+
+	static const float mkStartRotAngle;
 
 	sptr<ObjectPool> mBulletPool{};
 
@@ -149,6 +150,9 @@ private:
 	Transform* mMuzzle{};
 
 	sptr<Script_AimController> mAimController{};
+
+	bool mIsInBodyRotation{};
+	float mSpineDstAngle{};
 
 public:
 	virtual void Awake() override;
@@ -177,6 +181,10 @@ private:
 	void UpdateParam(float val, float& param);
 
 	float GetAngleToAim(const Vec2& aimScreenPos) const;
+	void RotateToAim(Dir dir, float& rotAngle);
+
+	// angle 만큼 서서히 회전한다.
+	void Rotate(float angle) const;
 };
 
 #pragma endregion

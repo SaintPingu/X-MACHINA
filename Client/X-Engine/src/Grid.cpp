@@ -5,7 +5,6 @@
 #include "Object.h"
 #include "Component/Collider.h"
 
-
 int Grid::mTileRows = 0;
 int Grid::mTileCols = 0;
 
@@ -90,34 +89,54 @@ void Grid::AddObject(GridObject* object)
 		break;
 	default:
 		mStaticObjects.insert(object);
-		AddObjectInTiles(Tile::Static, object);
+		UpdateTiles(Tile::Static, object);
 		break;
 	}
 }
 
-void Grid::AddObjectInTiles(Tile tile, GridObject* object)
+void Grid::UpdateTiles(Tile tile, GridObject* object)
 {
 	// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
 	if (object->GetTag() != ObjectTag::Building)
 		return;
 
-	// 오브젝트의 타일 기준 인덱스 계산
-	Vec3 pos = object->GetPosition().xz();
-	Pos index = scene->GetTileUniqueIndexFromPos(pos);
 
+	// 오브젝트의 타일 기준 인덱스 계산
+	Vec3 pos = object->GetPosition();
+	Pos index = scene->GetTileUniqueIndexFromPos(pos);
 	scene->SetTileFromUniqueIndex(index, tile);
 
+	// 오브젝트의 충돌 박스
 	const auto& collider = object->GetCollider();
 	if (!collider)
 		return;
 
-	const int kRad = static_cast<int>(object->GetCollider()->GetBS().Radius);
+	// BFS를 통해 주변 타일도 업데이트
+	std::queue<Pos> q;
+	std::map<Pos, bool> visited;
+	q.push(index);
 
-	for (int offsetZ = -kRad; offsetZ <= kRad; ++offsetZ) {
-		for (int offsetX = -kRad; offsetX <= kRad; ++offsetX) {
-			const int neighborX = index.X + offsetX;
-			const int neighborZ = index.Z + offsetZ;
-			scene->SetTileFromUniqueIndex(Pos{ neighborZ, neighborX }, tile);
+	// q가 빌 때까지 BFS를 돌며 현재 타일이 오브젝트와 충돌 했다면 해당 타일을 업데이트
+	while (!q.empty()) {
+		Pos curNode = q.front();
+		q.pop();
+
+		if (visited[curNode])
+			continue;
+
+		visited[curNode] = true;
+
+		for (int dir = 0; dir < 8; ++dir) {
+			Pos nextPosT = curNode + gkFront[dir];
+			Vec3 nextPosW = scene->GetTilePosFromUniqueIndex(nextPosT);
+			nextPosW.y = pos.y;
+
+			BoundingBox bb{nextPosW, Vec3{mkTileWidth, mkTileWidth, mkTileHeight} };
+
+			if (collider->Intersects(bb)) {
+				scene->SetTileFromUniqueIndex(nextPosT, tile);
+				q.push(nextPosT);
+			}
 		}
 	}
 }
@@ -139,7 +158,7 @@ void Grid::RemoveObject(GridObject* object)
 		break;
 	default:
 		mStaticObjects.erase(object);
-		AddObjectInTiles(Tile::None, object);
+		UpdateTiles(Tile::None, object);
 		break;
 	}
 }
@@ -156,15 +175,18 @@ void Grid::CheckCollisions()
 
 float Grid::CheckCollisionsRay(const Ray& ray) const
 {
+	float minDist = 999.f;
 	for (const auto& object : mStaticObjects) {
 		if (object->GetTag() != ObjectTag::Building)
 			continue;
 
-		float temp;
-		float dist = Vec3::Distance(ray.Position, object->GetPosition());
-		if (ray.Intersects(object->GetCollider()->GetBS(), temp))
-			return dist;
+		float dist;
+		for (const auto& obb : object->GetCollider()->GetOBBList()) {
+			if (obb->Intersects(ray.Position, ray.Direction, dist)) {
+				minDist = min(minDist, dist);
+			}
+		}
 	}
 
-	return 999.f;
+	return minDist;
 }

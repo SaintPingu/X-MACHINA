@@ -725,6 +725,7 @@ void Scene::Update()
 	UpdateShaderVars();
 
 	PopObjectBuffer();
+
 }
 
 void Scene::CheckCollisions()
@@ -734,9 +735,10 @@ void Scene::CheckCollisions()
 	}
 }
 
-float Scene::CheckCollisionsRay(const Ray& ray) const
+float Scene::CheckCollisionsRay(int gridIndex, const Ray& ray) const
 {
-	return mGrids[GetGridIndexFromPos(ray.Position)].CheckCollisionsRay(ray);
+	// 상하좌우, 대각선 그리드도 체크 필요
+	return mGrids[gridIndex].CheckCollisionsRay(ray);
 }
 
 void Scene::UpdateObjects()

@@ -75,6 +75,17 @@ public:
 
 	bool Intersects(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }
 
+	// 자신이 들고 있는 obb list에 대해 bb의 교차 여부를 반환한다.
+	bool Intersects(const BoundingBox& bb) const { 
+		for (const auto& myOBB : mOBBList) {
+			if (myOBB->Intersects(bb)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	// bs를 각 obb에 대해 교차 여부를 반환한다.
 	static inline bool Intersects(const std::vector<MyBoundingOrientedBox*>& obbList, const BoundingSphere& bs)
 	{

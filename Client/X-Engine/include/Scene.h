@@ -12,6 +12,11 @@
 #pragma endregion
 
 
+#pragma region Using
+using namespace Path;
+#pragma endregion
+
+
 #pragma region ClassForwardDecl
 class Camera;
 class Object;
@@ -200,7 +205,7 @@ private:
 #pragma endregion
 
 public:
-	float CheckCollisionsRay(const Ray& ray) const;
+	float CheckCollisionsRay(int gridIndex, const Ray& ray) const;
 	void ToggleDrawBoundings();
 
 	// update objects' grid indices

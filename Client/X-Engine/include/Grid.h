@@ -5,12 +5,18 @@ class GridObject;
 #pragma endregion
 
 
-#pragma region Class
+#pragma region enum
 enum class Tile: UINT8{
 	None = 0,
 	Static,
 	Dynamic,
 };
+
+
+#pragma region Using
+using namespace Path;
+#pragma endregion
+
 
 class Grid {
 private:
@@ -51,13 +57,15 @@ public:
 	// add [object] to gird
 	void AddObject(GridObject* object);
 
-	void AddObjectInTiles(Tile tile, GridObject* object);
-
 	// remove [object] from gird
 	void RemoveObject(GridObject* object);
+
+	// BFS를 활용하여 타일 업데이트
+	void UpdateTiles(Tile tile, GridObject* object);
 
 	// collision check for objects contained in grid
 	void CheckCollisions();
 	float CheckCollisionsRay(const Ray& ray) const;
+
 };
 #pragma endregion

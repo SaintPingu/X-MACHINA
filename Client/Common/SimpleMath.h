@@ -860,6 +860,7 @@ namespace DirectX
             // Ray operations
             bool Intersects(const BoundingSphere& sphere, _Out_ float& Dist) const noexcept;
             bool Intersects(const BoundingBox& box, _Out_ float& Dist) const noexcept;
+            bool Intersects(const BoundingOrientedBox& box, _Out_ float& Dist) const noexcept;
             bool Intersects(const Vector3& tri0, const Vector3& tri1, const Vector3& tri2, _Out_ float& Dist) const noexcept;
             bool Intersects(const Plane& plane, _Out_ float& Dist) const noexcept;
         };

@@ -8,35 +8,7 @@
 #include "Object.h"
 #include "AnimatorController.h"
 #include "MeshRenderer.h"
-
-
-namespace {
-	enum {
-		DirCount = 8
-	};
-
-	Pos kFront[] = {
-		Pos {+1, +0},
-		Pos {+0, -1},
-		Pos {-1, +0},
-		Pos {+0, +1},
-		Pos {-1, +1},
-		Pos {+1, +1},
-		Pos {+1, -1},
-		Pos {-1, -1},
-	};
-
-	int kCost[] = {
-		10,
-		10,
-		10,
-		10,
-		14,
-		14,
-		14,
-		14,
-	};
-}
+#include "Grid.h"
 
 
 TaskPathPlanning::TaskPathPlanning(Object* object)
@@ -50,21 +22,19 @@ BT::NodeState TaskPathPlanning::Evaluate()
 {
 	sptr<Object> target = GetData("target");
 
-	const float kMinDistance = 0.1f;
-
 	// 이전에 경로 이동이 취소 되었다면 모두 비워야함
 	if (!mEnemyMgr->mIsMoveToPath)
-		mPath.clear();
-
+		while (!mPath.empty()) mPath.pop();
 
 	// 이미 찾은 길이 있는 경우 해당 길을 찾아 이동 및 회전
 	if (!mPath.empty()) {
-		Vec3 toFirstPath = (mPath.back() - mObject->GetPosition()).xz();
-		mObject->RotateTargetAxisY(mPath.back(), mEnemyMgr->mRotationSpeed * DeltaTime());
+		Vec3 toFirstPath = (mPath.top() - mObject->GetPosition()).xz();
+		mObject->RotateTargetAxisY(mPath.top(), mEnemyMgr->mRotationSpeed * DeltaTime());
 		mObject->Translate(XMVector3Normalize(toFirstPath), mEnemyMgr->mMoveSpeed * DeltaTime());
 
+		const float kMinDistance = 0.1f;
 		if (toFirstPath.Length() < kMinDistance)
-			mPath.pop_back();
+			mPath.pop();
 
 		return BT::NodeState::Success;
 	}
@@ -107,9 +77,9 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 		prevDir = curNode.Pos - mParent[curNode.Pos];
 		pq.pop();
 
-		// 경로에 오류가 있을 경우 임계값을 넘기면 리턴
+		// 길찾기 실패 시 점수가 가장 높은 곳을 도착지로 설정
 		if (mVisited.size() > mkMaxVisited) {
-			return false;
+			dest = pq.top().Pos;
 		}
 
 		// 방문하지 않은 노드들만 방문
@@ -128,7 +98,7 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 
 		// 8방향으로 탐색
 		for (int dir = 0; dir < DirCount; ++dir) {
-			Pos nextPos = curNode.Pos + kFront[dir];
+			Pos nextPos = curNode.Pos + gkFront[dir];
 			
 			// 다음 위치의 타일이 일정 범위를 벗어난 경우 continue
 			if (abs(start.X - nextPos.X) > Grid::mTileRows || abs(start.Z - nextPos.Z) > Grid::mTileCols)
@@ -148,7 +118,7 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 
 			// 비용 계산 보통의 1 / 2
 			int addCost{};
-			if (prevDir != kFront[dir])
+			if (prevDir != gkFront[dir])
 				addCost = kCost[0] / 2;
 
 			int g = curNode.G + kCost[dir] + addCost;
@@ -165,14 +135,15 @@ bool TaskPathPlanning::PathPlanningAStar(Pos start, Pos dest)
 
 	Pos pos = dest;
 	prevDir = { 0, 0 };
+
 	// 부모 경로를 따라가 스택에 넣어준다. top이 first path이다.
 	while (true) {
 		Pos dir = mParent[pos] - pos;
 
 		if (prevDir != dir)
-			mPath.push_back(scene->GetTilePosFromUniqueIndex(pos));
+			mPath.push(scene->GetTilePosFromUniqueIndex(pos));
 
-		scene->GetOpenList().push_back(mPath.back());
+		scene->GetOpenList().push_back(mPath.top());
 
 		if (pos == mParent[pos])
 			break;

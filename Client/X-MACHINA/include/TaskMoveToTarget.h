@@ -7,6 +7,7 @@
 
 
 #pragma region ClassForwardDecl
+class GridObject;
 class Script_EnemyManager;
 #pragma endregion
 
@@ -15,6 +16,7 @@ class Script_EnemyManager;
 class TaskMoveToTarget : public BT::Node {
 private:
 	sptr<Script_EnemyManager>	mEnemyMgr;
+	sptr<GridObject>			mGridTarget;
 
 public:
 	TaskMoveToTarget(Object* object);

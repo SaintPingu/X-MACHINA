@@ -80,59 +80,6 @@ struct NavMesh {
 	std::vector<Vec2> Vertices;
 	std::vector<UINT> Indices;
 };
-
-struct Pos
-{
-	bool operator==(Pos& other)
-	{
-		return Z == other.Z && X == other.X;
-	}
-
-	bool operator!=(Pos& other)
-	{
-		return !(*this == other);
-	}
-
-	bool operator<(const Pos& other) const
-	{
-		if (Z != other.Z)
-			return Z < other.Z;
-		return X < other.X;
-	}
-
-	Pos operator+(Pos& other)
-	{
-		Pos ret;
-		ret.Z = Z + other.Z;
-		ret.X = X + other.X;
-		return ret;
-	}
-
-	Pos& operator+=(Pos& other)
-	{
-		Z += other.Z;
-		X += other.X;
-		return *this;
-	}
-
-	Pos operator-(Pos& other)
-	{
-		Pos ret;
-		ret.Z = Z - other.Z;
-		ret.X = X - other.X;
-		return ret;
-	}
-
-	Pos& operator-=(Pos& other)
-	{
-		Z -= other.Z;
-		X -= other.X;
-		return *this;
-	}
-
-	int Z{};
-	int X{};
-};
 #pragma endregion
 
 
@@ -610,9 +557,15 @@ public:
 	void Transform(const Matrix& transform)
 	{
 		const XMMATRIX kMatrix = _MATRIX(transform);
-		const XMVECTOR kRotation = XMQuaternionRotationMatrix(_MATRIX(transform));
 
-		XMStoreFloat4(&Orientation, kRotation);
+		// temp
+		const XMVECTOR kRotation = XMQuaternionRotationMatrix(kMatrix);
+		XMVECTOR s;
+		XMVECTOR r;
+		XMVECTOR t;
+		XMMatrixDecompose(&s, &r, &t, kMatrix);
+		XMStoreFloat4(&Orientation, r);
+
 		XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
 	}
 
@@ -654,4 +607,87 @@ public:
 		return static_cast<const BoundingSphere&>(*this);
 	}
 };
+
+namespace Path {
+	struct Pos
+	{
+		bool operator==(Pos& other)
+		{
+			return Z == other.Z && X == other.X;
+		}
+
+		bool operator!=(Pos& other)
+		{
+			return !(*this == other);
+		}
+
+		bool operator<(const Pos& other) const
+		{
+			if (Z != other.Z)
+				return Z < other.Z;
+			return X < other.X;
+		}
+
+		Pos operator+(Pos& other)
+		{
+			Pos ret;
+			ret.Z = Z + other.Z;
+			ret.X = X + other.X;
+			return ret;
+		}
+
+		Pos& operator+=(Pos& other)
+		{
+			Z += other.Z;
+			X += other.X;
+			return *this;
+		}
+
+		Pos operator-(Pos& other)
+		{
+			Pos ret;
+			ret.Z = Z - other.Z;
+			ret.X = X - other.X;
+			return ret;
+		}
+
+		Pos& operator-=(Pos& other)
+		{
+			Z -= other.Z;
+			X -= other.X;
+			return *this;
+		}
+
+		int Z{};
+		int X{};
+	};
+
+
+	enum {
+		DirCount = 8
+	};
+
+	static Pos gkFront[] = {
+		Pos {+1, +0},
+		Pos {+0, -1},
+		Pos {-1, +0},
+		Pos {+0, +1},
+		Pos {-1, +1},
+		Pos {+1, +1},
+		Pos {+1, -1},
+		Pos {-1, -1},
+	};
+
+
+	static int kCost[] = {
+		10,
+		10,
+		10,
+		10,
+		14,
+		14,
+		14,
+		14,
+	};
+}
 #pragma endregion

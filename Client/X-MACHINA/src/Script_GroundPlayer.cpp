@@ -240,134 +240,12 @@ void Script_GroundPlayer::ProcessInput()
 	dir |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
 	dir |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
 
-	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
-	Movement crntMovement = Movement::None;
-	// Stand / Sit
-	if (KEY_PRESSED('C')) { crntMovement |= Movement::Sit; }
-	else { crntMovement |= Movement::Stand; }
-	// Walk / Run / Sprint
-	if (dir != Dir::None) {
-		if (KEY_PRESSED(VK_SHIFT)) { crntMovement |= Movement::Sprint; }
-		else if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= Movement::Walk; }
-		else { crntMovement |= Movement::Run; }
-	}
-
-	Movement crntState = crntMovement & 0x0F;
-	Movement prevState = mPrevMovement & 0x0F;
-
-	Movement crntMotion = crntMovement & 0xF0;
-	Movement prevMotion = mPrevMovement & 0xF0;
-
-	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
-	if (!(crntState & prevState)) {
-		switch (prevState) {
-		case Movement::None:
-		case Movement::Stand:
-			break;
-		case Movement::Sit:
-			mController->SetValue("Sit", false);
-			break;
-
-		default:
-			assert(0);
-			break;
-		}
-
-		switch (crntState) {
-		case Movement::None:
-		case Movement::Stand:
-			break;
-		case Movement::Sit:
-			mController->SetValue("Sit", true);
-			break;
-
-		default:
-			assert(0);
-			break;
-		}
-	}
-
-	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
-		switch (prevMotion) {
-		case Movement::None:
-			break;
-		case Movement::Walk:
-			mController->SetValue("Walk", false);
-			break;
-		case Movement::Run:
-			mController->SetValue("Run", false);
-			break;
-		case Movement::Sprint:
-			mController->SetValue("Sprint", false);
-			break;
-
-		default:
-			assert(0);
-			break;
-		}
-
-		switch (crntMotion) {
-		case Movement::None:
-			break;
-		case Movement::Walk:
-			mController->SetValue("Walk", true);
-
-			break;
-		case Movement::Run:
-			if (crntState & Movement::Stand) {
-				mController->SetValue("Run", true);
-			}
-			else {
-				mController->SetValue("Walk", true);
-				crntMotion = Movement::Walk;
-			}
-
-			break;
-		case Movement::Sprint:
-			if (crntState & Movement::Stand) {
-				mController->SetValue("Sprint", true);
-			}
-			else {
-				mController->SetValue("Walk", true);
-				crntMotion = Movement::Walk;
-			}
-
-			break;
-		default:
-			assert(0);
-			break;
-		}
-	}
-
-	switch (crntMotion) {
-	case Movement::None:
-		mMovementSpeed = 0.f;
-		break;
-	case Movement::Walk:
-		if (crntState & Movement::Stand) {
-			mMovementSpeed = mkStandWalkSpeed;
-		}
-		else {
-			mMovementSpeed = mkSitWalkSpeed;
-		}
-		break;
-	case Movement::Run:
-		mMovementSpeed = mkRunSpeed;
-		break;
-	case Movement::Sprint:
-		mMovementSpeed = mkSprintSpeed;
-		break;
-
-	default:
-		assert(0);
-		break;
-	}
-
-	mPrevMovement = crntState | crntMotion;
-
-	float rotAngle = 0.f;
+	UpdateMovement(dir);
 
 	Move(dir);
+
+	float rotAngle = 0.f;
+	// rotation //
 	if (!mIsAim) {
 		RotateTo(dir);
 	}
@@ -375,6 +253,7 @@ void Script_GroundPlayer::ProcessInput()
 		RotateToAim(dir, rotAngle);
 	}
 
+	// legs blend tree animation //
 	if (mController) {
 		UpdateParams(dir, v, h, rotAngle);
 		mController->SetValue("Vertical", mParamV);
@@ -471,27 +350,13 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
-		if (mWeapon && mController) {
-			mController->SetValue("Aim", true);
-			mIsAim = true;
-		}
-
+		OnAim();
 		break;
+
 	case WM_RBUTTONUP:
-		if (mWeapon && mController) {
-			mController->SetValue("Aim", false);
-			mIsAim = false;
-			if (mIsInBodyRotation) {
-				mIsInBodyRotation = false;
-
-				Movement prevMotion = mPrevMovement & 0xF0;
-				if (prevMotion == Movement::None) {
-					mController->SetValue("Walk", false);
-				}
-			}
-		}
-
+		OffAim();
 		break;
+
 	default:
 		break;
 	}
@@ -578,15 +443,50 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 	if (fabs(param) < 0.01f) {						// 0에 근접하면 0으로 설정
 		param = 0.f;
 	}
-	else if (!Math::IsZero(val) && fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// 반대편 이동 시
-		param += (sign * kOppositeExtraSpeed) * DeltaTime();								// 추가 전환 속도 적용
-	}
 	else if (!Math::IsZero(val)) {
-		param = std::clamp(param, -fabs(val), fabs(val));
+		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// 반대편 이동 시
+			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// 추가 전환 속도 적용
+		}
+		else {														// 정방향 이동 시
+			param = std::clamp(param, -fabs(val), fabs(val));		// param이 val을 넘지 못하도록 한다.
+		}
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 사이로 고정
 }
+
+
+
+void Script_GroundPlayer::UpdateMovement(Dir dir)
+{
+	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
+	Movement crntMovement = Movement::None;
+	// Stand / Sit
+	if (KEY_PRESSED('C'))						{ crntMovement |= Movement::Sit; }
+	else										{ crntMovement |= Movement::Stand; }
+	// Walk / Run / Sprint
+	if (dir != Dir::None) {
+		if (mIsAim) {
+			crntMovement |= Movement::Walk;
+		}
+		else {
+				 if (KEY_PRESSED(VK_SHIFT))		{ crntMovement |= Movement::Sprint; }
+			else if (KEY_PRESSED(VK_CONTROL))	{ crntMovement |= Movement::Walk; }
+			else								{ crntMovement |= Movement::Run; }
+		}
+	}
+
+	Movement crntState = Movement::GetState(crntMovement);
+	Movement crntMotion = Movement::GetMotion(crntMovement);
+
+	SetState(crntState);
+	SetMotion(crntState, crntMotion);
+
+	mPrevMovement = crntState | crntMotion;
+}
+
+
+
 
 float Script_GroundPlayer::GetAngleToAim(const Vec2& aimScreenPos) const
 {
@@ -643,17 +543,182 @@ void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
 
 void Script_GroundPlayer::Rotate(float angle) const
 {
+	constexpr float kMaxAngle = 90.f;
+
 	const int sign = Math::Sign(angle);
 	const float angleAbs = fabs(angle);
 
 	// 90도가 넘으면 최대 속도, 그 이하면 보간
 	float rotationSpeed{};
-	if (angleAbs > 90.f) {
+	if (angleAbs > kMaxAngle) {
 		rotationSpeed = mRotationSpeed;
 	}
 	else {
-		rotationSpeed = (angleAbs / 90.f) * mRotationSpeed;	// interpolation for smooth rotation
+		rotationSpeed = (angleAbs / kMaxAngle) * mRotationSpeed;	// interpolation for smooth rotation
 	}
 
 	mObject->Rotate(0, sign * rotationSpeed * DeltaTime(), 0);
+}
+
+void Script_GroundPlayer::OnAim()
+{
+	if (!mWeapon || !mController) {
+		return;
+	}
+	mController->SetValue("Aim", true);
+	mIsAim = true;
+}
+
+void Script_GroundPlayer::OffAim()
+{
+	if (!mWeapon || !mController) {
+		return;
+	}
+	mController->SetValue("Aim", false);
+	mIsAim = false;
+
+	// 에임 도중 회전상태였다면 이를 취소한다.
+	if (mIsInBodyRotation) {
+		mIsInBodyRotation = false;
+
+		Movement prevMotion = mPrevMovement & 0xF0;
+		if (prevMotion == Movement::None) {
+			mController->SetValue("Walk", false);
+		}
+	}
+}
+
+void Script_GroundPlayer::SetState(Movement state)
+{
+	Movement prevState = Movement::GetState(mPrevMovement);
+	Movement prevMotion = Movement::GetMotion(mPrevMovement);
+
+	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
+	// 이전 상태를 취소하고 현재 상태로 전환한다.
+	if (!(state & prevState)) {
+		switch (prevState) {
+		case Movement::None:
+		case Movement::Stand:
+			break;
+		case Movement::Sit:
+			mController->SetValue("Sit", false);
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
+
+		switch (state) {
+		case Movement::None:
+			break;
+		case Movement::Stand:
+		{
+			switch (prevMotion) {
+			case Movement::None:
+				break;
+			case Movement::Walk:
+				mMovementSpeed = mkStandWalkSpeed;
+				mController->SetValue("Walk", true);
+				break;
+			case Movement::Run:
+				mMovementSpeed = mkRunSpeed;
+				mController->SetValue("Run", true);
+				break;
+			case Movement::Sprint:
+				mMovementSpeed = mkSprintSpeed;
+				mController->SetValue("Sprint", true);
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+			break;
+		case Movement::Sit:
+			mController->SetValue("Sit", true);
+			mMovementSpeed = mkSitWalkSpeed;
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
+	}
+}
+
+void Script_GroundPlayer::SetMotion(Movement state, Movement& motion)
+{
+	Movement prevMotion = Movement::GetMotion(mPrevMovement);
+
+	// 이전 상태의 모션을 취소하고 현재 상태의 모션으로 전환한다.
+	if (!(motion & prevMotion)) {
+		switch (prevMotion) {
+		case Movement::None:
+			break;
+		case Movement::Walk:
+			mController->SetValue("Walk", false);
+			break;
+		case Movement::Run:
+			mController->SetValue("Run", false);
+			break;
+		case Movement::Sprint:
+			mController->SetValue("Sprint", false);
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
+
+		switch (motion) {
+		case Movement::None:
+			break;
+		case Movement::Walk:
+			break;
+
+		case Movement::Run:
+			if (state & Movement::Sit) {
+				motion = Movement::Walk;
+			}
+
+			break;
+		case Movement::Sprint:
+			if (state & Movement::Sit) {
+				motion = Movement::Walk;
+			}
+
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
+
+	switch (motion) {
+	case Movement::None:
+		mMovementSpeed = 0.f;
+		break;
+	case Movement::Walk:
+		mController->SetValue("Walk", true);
+		if (state & Movement::Stand) {
+			mMovementSpeed = mkStandWalkSpeed;
+		}
+		else {
+			mMovementSpeed = mkSitWalkSpeed;
+		}
+		break;
+	case Movement::Run:
+		mController->SetValue("Run", true);
+		mMovementSpeed = mkRunSpeed;
+		break;
+	case Movement::Sprint:
+		mController->SetValue("Sprint", true);
+		mMovementSpeed = mkSprintSpeed;
+		break;
+
+	default:
+		assert(0);
+		break;
+	}
 }

@@ -37,6 +37,9 @@ class Movement : public DwordOverloader<Movement> {
 	static const DWORD Walk   = 0x10;
 	static const DWORD Run    = 0x20;
 	static const DWORD Sprint = 0x40;
+
+	static Movement GetState(Movement movement)  { return movement & 0x0F; }
+	static Movement GetMotion(Movement movement) { return movement & 0xF0; }
 };
 #pragma endregion
 
@@ -155,6 +158,10 @@ private:
 	float mSpineDstAngle{};
 
 public:
+	Movement GetPrevState() const  { return Movement::GetState(mPrevMovement); }
+	Movement GetPrevMotion() const { return Movement::GetMotion(mPrevMovement); }
+
+public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
@@ -180,11 +187,19 @@ private:
 	void SetWeapon(int weaponIdx);
 	void UpdateParam(float val, float& param);
 
+	void UpdateMovement(Dir dir);
+
 	float GetAngleToAim(const Vec2& aimScreenPos) const;
 	void RotateToAim(Dir dir, float& rotAngle);
 
 	// angle 만큼 서서히 회전한다.
 	void Rotate(float angle) const;
+
+	void OnAim();
+	void OffAim();
+
+	void SetState(Movement state);
+	void SetMotion(Movement state, Movement& motion);
 };
 
 #pragma endregion

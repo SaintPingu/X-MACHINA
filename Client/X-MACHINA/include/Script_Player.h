@@ -158,6 +158,8 @@ public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
+	void StartReload(float reloadTime);
+
 private:
 	void InitWeapons();
 	void SetWeapon(int weaponIdx);

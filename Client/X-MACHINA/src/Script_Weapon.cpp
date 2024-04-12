@@ -2,6 +2,7 @@
 #include "Script_Weapon.h"
 
 #include "Script_Bullet.h"
+#include "Script_Player.h"
 
 #include "Component/Rigidbody.h"
 
@@ -29,6 +30,10 @@ void Script_Weapon::Start()
 
 void Script_Weapon::Update()
 {
+	if (mIsReload && !Reloading()) {
+		return;
+	}
+
 	updateFunc();
 }
 
@@ -52,9 +57,8 @@ void Script_Weapon::Update_SemiAuto()
 {
 	if (CanFire()) {
 		if (mIsShooting && !mIsBeforeShooting) {
-			mCurFireDelay = 0.f;
+			Fire();
 			mIsBeforeShooting = true;
-			FireBullet();
 		}
 	}
 	else {
@@ -66,12 +70,43 @@ void Script_Weapon::Update_Auto()
 {
 	if (CanFire()) {
 		if (mIsShooting) {
-			mCurFireDelay = 0.f;
-			FireBullet();
+			Fire();
 		}
 	}
 	else {
 		mCurFireDelay += DeltaTime();
+	}
+}
+
+void Script_Weapon::Fire()
+{
+	mCurFireDelay = 0.f;
+	FireBullet();
+
+	if (--mCurMag <= 0) {
+		mIsReload = true;
+		StartReload();
+	}
+}
+
+bool Script_Weapon::Reloading()
+{
+	mCurReloadTime += DeltaTime();
+	if (mCurReloadTime >= mMaxReloadTime) {
+		mCurMag = mMaxMag;
+		mCurReloadTime = 0.f;
+		mIsReload = false;
+
+		return true;
+	}
+
+	return false;
+}
+
+void Script_Weapon::StartReload()
+{
+	if (mOwner) {
+		mOwner->StartReload(mMaxReloadTime);
 	}
 }
 #pragma endregion

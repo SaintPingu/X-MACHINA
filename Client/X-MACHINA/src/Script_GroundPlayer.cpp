@@ -340,6 +340,12 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 }
 
 
+void Script_GroundPlayer::StartReload(float reloadTime)
+{
+
+}
+
+
 
 void Script_GroundPlayer::InitWeapons()
 {

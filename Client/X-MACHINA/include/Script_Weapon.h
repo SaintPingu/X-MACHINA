@@ -10,6 +10,7 @@ class Transform;
 class InstObject;
 class GridObject;
 class ObjectPool;
+class Script_GroundPlayer;
 #pragma endregion
 
 
@@ -32,6 +33,8 @@ public:
 
 private:
 	std::function<void()> updateFunc{ std::bind(&Script_Weapon::Update_Auto, this) };
+	bool mIsReload{};
+	Script_GroundPlayer* mOwner{};
 
 protected:
 	Transform* mMuzzle{};		// ÃÑ±¸
@@ -59,6 +62,8 @@ public:
 public:
 	Transform* GetMuzzle() const { return mMuzzle; }
 
+	void SetOwner(Script_GroundPlayer* owner) { mOwner = owner; }
+
 public:
 	void StartFire() { mIsShooting = true; }
 	void StopFire() { mIsShooting = false; mIsBeforeShooting = false; }
@@ -75,9 +80,14 @@ private:
 	void Update_SemiAuto();
 	void Update_Auto();
 
+	void Fire();
+	bool Reloading();
+
 	virtual void CreateBulletPool() abstract;
 	virtual void InitValues() abstract;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
+
+	virtual void StartReload();
 };
 
 

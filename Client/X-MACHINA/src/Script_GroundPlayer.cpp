@@ -6,6 +6,7 @@
 #include "Script_AimController.h"
 #include "Script_Weapon.h"
 #include "Script_Weapon_Pistol.h"
+#include "Script_Weapon_Rifle.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -372,12 +373,17 @@ void Script_GroundPlayer::InitWeapons()
 		// weaponType에 따른 스크립트 설정
 		switch (weaponType) {
 		case WeaponType::HandedGun:
-		case WeaponType::AssaultRifle:
 		case WeaponType::LightingGun:
 		case WeaponType::GatlinGun:
 		case WeaponType::ShotGun:
 		case WeaponType::MissileLauncher:
 			weapon->AddComponent<Script_Weapon_Pistol>();
+			break;
+		case WeaponType::AssaultRifle:
+			weapon->AddComponent<Script_Weapon_Skyline>();
+			break;
+		default:
+			assert(0);
 			break;
 		}
 

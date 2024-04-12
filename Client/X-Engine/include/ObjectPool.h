@@ -53,7 +53,7 @@ public:
 public:
 	// 풀링 객체를 생성 및 초기화한다. 모든 객체들에 대해 [objectInitFunc]을 실행한다.
 	template<typename T, typename = std::enable_if_t<std::is_base_of_v<InstObject, T>>>
-	void CreateObjects(std::function<void(rsptr<InstObject>)> objectInitFunc = nullptr)
+	void CreateObjects(const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr)
 	{
 		int id{};
 		for (auto& object : mObjectPool) {

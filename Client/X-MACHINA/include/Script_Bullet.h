@@ -23,7 +23,7 @@ private:
 
 	float mSpeed{};					// speed of bullet
 	float mDamage{};				// damage of bullet
-	float mMaxLifeTime{ 6.f };		// 총알 수명(발사 후 최대 유지시간)
+	float mMaxLifeTime{ 2.f };		// 총알 수명(발사 후 최대 유지시간)
 	float mCurrLifeTime{};			// 현재 수명
 
 public:

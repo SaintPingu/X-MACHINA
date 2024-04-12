@@ -879,12 +879,12 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 	return instance;
 }
 
-sptr<ObjectPool> Scene::CreateObjectPool(const std::string& modelName, int maxSize, std::function<void(rsptr<InstObject>)> objectInitFunc)
+sptr<ObjectPool> Scene::CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc)
 {
 	return CreateObjectPool(res->Get<MasterModel>(modelName), maxSize, objectInitFunc);
 }
 
-sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int maxSize, std::function<void(rsptr<InstObject>)> objectInitFunc)
+sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc)
 {
 	sptr<ObjectPool> pool = mObjectPools.emplace_back(std::make_shared<ObjectPool>(model, maxSize, sizeof(SB_StandardInst)));
 	pool->CreateObjects<InstObject>(objectInitFunc);

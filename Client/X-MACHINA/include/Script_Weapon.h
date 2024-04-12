@@ -53,6 +53,7 @@ protected:
 
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void Update() override;
 
 public:
@@ -63,7 +64,6 @@ public:
 	void StopFire() { mIsShooting = false; mIsBeforeShooting = false; }
 
 protected:
-	virtual void CreateBulletPool() abstract;
 	virtual void FireBullet() abstract;
 
 	bool CanFire() const { return mCurFireDelay >= mMaxFireDelay; }
@@ -75,6 +75,21 @@ private:
 	void Update_SemiAuto();
 	void Update_Auto();
 
+	virtual void CreateBulletPool() abstract;
 	virtual void InitValues() abstract;
+	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
+};
+
+
+class Script_BulletWeapon abstract : public Script_Weapon {
+	COMPONENT_ABSTRACT(Script_BulletWeapon, Script_Weapon)
+
+protected:
+	virtual void FireBullet() override;
+
+	void InitBullet(rsptr<InstObject> bullet, float damage, float speed) const;
+
+private:
+	virtual void CreateBulletPool() override final;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
 };

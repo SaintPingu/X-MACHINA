@@ -195,8 +195,8 @@ public:
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
 
-	sptr<ObjectPool> CreateObjectPool(const std::string& modelName, int maxSize, std::function<void(rsptr<InstObject>)> objectInitFunc = nullptr);
-	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, std::function<void(rsptr<InstObject>)> objectInitFunc = nullptr);
+	sptr<ObjectPool> CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
+	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
 
 private:
 	// do [processFunc] for activated objects

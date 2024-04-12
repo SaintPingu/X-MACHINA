@@ -1,37 +1,22 @@
 #include "stdafx.h"
 #include "Script_Player.h"
-#include "InputMgr.h"
 
-#include "Timer.h"
+#include "Script_Weapon.h"
 
-#include "Component/Rigidbody.h"
-
-#include "Script_Bullet.h"
-
-
-
-void Script_ShootingPlayer::Update()
-{
-	if (mCrntFireDelay >= mMaxFireDelay) {
-		if (mIsShooting) {
-			mCrntFireDelay = 0.f;
-			FireBullet();
-		}
-	}
-	else {
-		mCrntFireDelay += DeltaTime();
-	}
-}
 
 void Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	if (!mWeaponScript) {
+		return;
+	}
+
 	switch (messageID) {
 	case WM_LBUTTONDOWN:
-		StartFire();
+		mWeaponScript->StartFire();
 		break;
 
 	case WM_LBUTTONUP:
-		StopFire();
+		mWeaponScript->StopFire();
 		break;
 
 	default:

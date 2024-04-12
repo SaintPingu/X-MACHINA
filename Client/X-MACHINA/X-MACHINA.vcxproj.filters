@@ -52,6 +52,9 @@
     <Filter Include="Script\Manager">
       <UniqueIdentifier>{fe5f51ad-398a-47a2-aa2c-865017a90c96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Weapon">
+      <UniqueIdentifier>{b20bf65b-e92a-4c4c-9b3e-a1d70735dffb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -193,6 +196,9 @@
     <ClInclude Include="include\Script_AimController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Weapon_Pistol.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -261,9 +267,6 @@
     <ClCompile Include="src\Script_GroundObject.cpp">
       <Filter>Script\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_Weapon.cpp">
-      <Filter>Script\Object</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_Aranobot.cpp">
       <Filter>Script\Enemy</Filter>
     </ClCompile>
@@ -272,6 +275,12 @@
     </ClCompile>
     <ClCompile Include="src\Script_AimController.cpp">
       <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Weapon.cpp">
+      <Filter>Script\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Weapon_Pistol.cpp">
+      <Filter>Script\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

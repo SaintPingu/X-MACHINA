@@ -11,7 +11,7 @@ class GridObject;
 
 
 #pragma region Class
-class Collider : public Component {
+class Collider abstract : public Component {
 	COMPONENT_ABSTRACT(Collider, Component)
 };
 

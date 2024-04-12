@@ -11,7 +11,7 @@
 
 
 #pragma region Class
-class Script_LiveObject : public Component {
+class Script_LiveObject abstract : public Component {
 	COMPONENT_ABSTRACT(Script_LiveObject, Component)
 
 private:

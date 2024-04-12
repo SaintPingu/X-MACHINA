@@ -5,6 +5,7 @@
 #include "Script_GroundObject.h"
 #include "Script_AimController.h"
 #include "Script_Weapon.h"
+#include "Script_Weapon_Pistol.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -33,55 +34,9 @@ const float Script_GroundPlayer::mkStartRotAngle  = 45.f;
 
 
 
-static void BulletInitFunc(rsptr<InstObject> bullet)
-{
-	bullet->SetTag(ObjectTag::Bullet);
-	bullet->AddComponent<Script_Bullet>();
-	bullet->AddComponent<Rigidbody>();
-}
-
 void Script_GroundPlayer::Awake()
 {
-	const std::unordered_map<WeaponType, std::string> defaultWeapons{
-		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
-		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
-		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
-		{WeaponType::GatlinGun, "SM_SciFiLaserGatlinGun" },
-		{WeaponType::ShotGun, "SM_SciFiShotgun" },
-		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
-	};
-	const std::unordered_map<WeaponType, std::string> defaultTransforms{
-		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
-		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
-		{WeaponType::LightingGun, "RefPosLightningGun_Action" },
-		{WeaponType::GatlinGun, "RefPosLaserGatlinGun_Action" },
-		{WeaponType::ShotGun, "RefPosShotgun_Action" },
-		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
-	};
-
-	// TODO : Weapon (temp)
-	mWeapons.resize(gkWeaponTypeCnt, nullptr);
-	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
-		auto& weapon = mWeapons[i];
-		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = scene->Instantiate(defaultWeapons.at(weaponType), false);
-		if (!weapon) {
-			continue;
-		}
-
-		weapon->AddComponent<Script_Weapon>();
-		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
-		if (!transform) {
-			continue;
-		}
-		transform->SetChild(weapon);
-	}
-
-	// Bullet
-	mBulletPool = scene->CreateObjectPool("bullet", 200, BulletInitFunc);
-	SetFireDelay(0.1f);
-	SetBulletSpeed(30.f);
-	SetBulletDamage(1.f);
+	base::Awake();
 
 	// others
 	mObject->AddComponent<Script_GroundObject>();
@@ -318,19 +273,6 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 }
 
 
-void Script_GroundPlayer::FireBullet()
-{
-	if (!mWeapon) {
-		return;
-	}
-
-	auto& bullet = mBulletPool->Get(true);
-	if (bullet) {
-		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-		bulletScript->Fire(*mMuzzle, GetBulletSpeed(), GetBulletDamage());
-	}
-}
-
 
 void Script_GroundPlayer::OnCollisionStay(Object& other)
 {
@@ -398,6 +340,55 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 
 
 
+void Script_GroundPlayer::InitWeapons()
+{
+	const std::unordered_map<WeaponType, std::string> defaultWeapons{
+		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
+		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
+		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
+		{WeaponType::GatlinGun, "SM_SciFiLaserGatlinGun" },
+		{WeaponType::ShotGun, "SM_SciFiShotgun" },
+		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
+	};
+
+	const std::unordered_map<WeaponType, std::string> defaultTransforms{
+		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
+		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
+		{WeaponType::LightingGun, "RefPosLightningGun_Action" },
+		{WeaponType::GatlinGun, "RefPosLaserGatlinGun_Action" },
+		{WeaponType::ShotGun, "RefPosShotgun_Action" },
+		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+	};
+
+	mWeapons.resize(gkWeaponTypeCnt, nullptr);
+	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
+		auto& weapon = mWeapons[i];
+		WeaponType weaponType = static_cast<WeaponType>(i);
+		weapon = scene->Instantiate(defaultWeapons.at(weaponType), false);
+		if (!weapon) {
+			continue;
+		}
+
+		// weaponType에 따른 스크립트 설정
+		switch (weaponType) {
+		case WeaponType::HandedGun:
+		case WeaponType::AssaultRifle:
+		case WeaponType::LightingGun:
+		case WeaponType::GatlinGun:
+		case WeaponType::ShotGun:
+		case WeaponType::MissileLauncher:
+			weapon->AddComponent<Script_Weapon_Pistol>();
+			break;
+		}
+
+		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
+		if (!transform) {
+			continue;
+		}
+		transform->SetChild(weapon);
+	}
+}
+
 void Script_GroundPlayer::SetWeapon(int weaponIdx)
 {
 	if (weaponIdx == 0) {
@@ -405,6 +396,8 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 		if (mWeapon) {
 			mWeapon->OnDisable();
 			mWeapon = nullptr;
+			mWeaponScript = nullptr;
+			mMuzzle = nullptr;
 		}
 		return;
 	}
@@ -422,7 +415,8 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	if (mWeapon) {
 		mWeapon->OnEnable();
 		mAnimator->GetController()->SetValue("Weapon", weaponIdx);
-		mMuzzle = mWeapon->FindFrame("FirePos");
+		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
+		mMuzzle = mWeaponScript->GetMuzzle();
 	}
 }
 

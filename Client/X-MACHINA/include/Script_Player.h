@@ -8,13 +8,9 @@
 
 #pragma region ClassForwardDecl
 class GameObject;
-class MasterModel;
-class Rigidbody;
-class InstObject;
-class ObjectPool;
 class Animator;
 class AnimatorController;
-class Weapon;
+class Script_Weapon;
 class Script_AimController;
 #pragma endregion
 
@@ -45,7 +41,7 @@ class Movement : public DwordOverloader<Movement> {
 
 
 #pragma region Class
-class Script_Player : public Component {
+class Script_Player abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Player, Component)
 
 protected:
@@ -86,37 +82,22 @@ public:
 
 
 // 총알을 발사할 수 있는 플레이어
-class Script_ShootingPlayer : public Script_Player {
+class Script_ShootingPlayer abstract : public Script_Player {
 	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
 
 protected:
-	sptr<ObjectPool> mBulletPool{};
-
-private:
-	float mBulletDamage{};
-	float mBulletSpeed{};
-	float mMaxFireDelay{};		// 총알 발사 딜레이
-	float mCrntFireDelay{};		// 현재 발사 딜레이
-	bool  mIsShooting{};		// 발사중인가?
+	sptr<GameObject> mWeapon{};
+	sptr<Script_Weapon> mWeaponScript{};
+	std::vector<sptr<GameObject>> mWeapons{};
 
 public:
-	float GetBulletDamage() const { return mBulletDamage; }
-	float GetBulletSpeed()  const { return mBulletSpeed; }
-
-	void SetBulletDamage(float damage) { mBulletDamage = damage; }
-	void SetBulletSpeed(float speed) { mBulletSpeed = speed; }
-	void SetFireDelay(float fDelay) { mMaxFireDelay = fDelay; }
+	virtual void Awake() { base::Awake(); InitWeapons(); }
 
 public:
-	virtual void Update() override;
+	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
-	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
-
-private:
-	void StartFire() { mIsShooting = true; }
-	void StopFire() { mIsShooting = false; }
-
-	virtual void FireBullet() abstract;
+protected:
+	virtual void InitWeapons() abstract;
 };
 
 
@@ -134,8 +115,6 @@ private:
 
 	static const float mkStartRotAngle;
 
-	sptr<ObjectPool> mBulletPool{};
-
 	Movement mPrevMovement{};
 
 	bool mIsAim{};
@@ -147,8 +126,6 @@ private:
 	float mMovementSpeed{};
 	float mRotationSpeed{};
 
-	sptr<GameObject> mWeapon{};
-	std::vector<sptr<GameObject>> mWeapons{};
 	Transform* mSpineBone{};
 	Transform* mMuzzle{};
 
@@ -182,8 +159,7 @@ public:
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 private:
-	virtual void FireBullet() override;
-
+	void InitWeapons();
 	void SetWeapon(int weaponIdx);
 	void UpdateParam(float val, float& param);
 

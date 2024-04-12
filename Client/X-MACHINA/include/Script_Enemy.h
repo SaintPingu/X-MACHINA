@@ -14,7 +14,7 @@ class AnimatorController;
 
 
 #pragma region Class
-class Script_Enemy : public Script_LiveObject {
+class Script_Enemy abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Enemy, Script_LiveObject)
 
 protected:

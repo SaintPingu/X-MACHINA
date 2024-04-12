@@ -61,21 +61,21 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	}
 }
 
-void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed, float damage)
+void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 {
 	mObject->SetPosition(pos);
 
 	const auto& rigid = mObject->GetComponent<Rigidbody>();
 	rigid->Stop();
-	rigid->AddForce(dir, speed, ForceMode::Impulse);
+	rigid->AddForce(dir, mSpeed, ForceMode::Impulse);
 
-	SetDamage(damage);
+	SetDamage(mDamage);
 }
 
-void Script_Bullet::Fire(const Transform& transform, float speed, float damage)
+void Script_Bullet::Fire(const Transform& transform)
 {
 	mObject->SetLocalRotation(transform.GetRotation());
-	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp(), speed, damage);
+	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp());
 }
 
 void Script_Bullet::Explode()

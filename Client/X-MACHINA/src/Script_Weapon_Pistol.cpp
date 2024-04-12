@@ -9,29 +9,17 @@
 #include "Scene.h"
 
 
-static void BulletInitFunc(rsptr<InstObject> bullet)
+void Script_Weapon_Pistol::Awake()
 {
-	bullet->SetTag(ObjectTag::Bullet);
-	bullet->AddComponent<Script_Bullet>();
-	bullet->AddComponent<Rigidbody>();
-}
+	base::Awake();
 
-
-void Script_Weapon_Pistol::Start()
-{
-	// default value //
-	mBulletDamage  = 8.f;
-	mBulletSpeed   = 30.f;
-	mMaxFireDelay  = 0.1f;
-	mMaxReloadTime = 1.7f;
-	mMaxDistance   = 16.f;
-
-	mMaxMag = 15;
+	InitValues();
+	SetFiringMode(FiringMode::SemiAuto);
 }
 
 void Script_Weapon_Pistol::CreateBulletPool()
 {
-	mBulletPool = scene->CreateObjectPool("bullet", 200, BulletInitFunc);
+	mBulletPool = scene->CreateObjectPool("bullet", 200, std::bind(&Script_Weapon_Pistol::BulletInitFunc, this, std::placeholders::_1));
 }
 
 void Script_Weapon_Pistol::FireBullet()
@@ -39,6 +27,25 @@ void Script_Weapon_Pistol::FireBullet()
 	auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
 		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-		bulletScript->Fire(*mMuzzle, mBulletSpeed, mBulletDamage);
+		bulletScript->Fire(*mMuzzle);
 	}
+}
+
+void Script_Weapon_Pistol::InitValues()
+{
+	mMaxFireDelay  = CalcFireDelay(kRPM);
+	mMaxReloadTime = 1.7f;
+	mMaxDistance   = 16.f;
+	mMaxMag        = 15;
+}
+
+void Script_Weapon_Pistol::BulletInitFunc(rsptr<InstObject> bullet) const
+{
+	bullet->SetTag(ObjectTag::Bullet);
+
+	auto& bulletScript = bullet->AddComponent<Script_Bullet>();
+	bulletScript->SetDamage(kBulletDamage);
+	bulletScript->SetSpeed(kBulletSpeed);
+
+	bullet->AddComponent<Rigidbody>();
 }

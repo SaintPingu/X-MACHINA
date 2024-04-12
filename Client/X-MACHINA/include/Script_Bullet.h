@@ -21,6 +21,7 @@ private:
 	GameObject*		mGameObject{};	// self GameObject
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
 
+	float mSpeed{};					// speed of bullet
 	float mDamage{};				// damage of bullet
 	float mMaxLifeTime{ 6.f };		// 총알 수명(발사 후 최대 유지시간)
 	float mCurrLifeTime{};			// 현재 수명
@@ -29,6 +30,7 @@ public:
 	float GetDamage() { return mDamage; }
 
 	void SetDamage(float damage) { mDamage = damage; }
+	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetOwner(const Object* object) { mOwner = object; }
 	void SetLifeTime(float lifeTIme) { mMaxLifeTime = lifeTIme; }
 
@@ -40,8 +42,8 @@ public:
 
 public:
 	// [pos] 위치에 생성하고 [dir, up]에 따라 look 방향을 결정하고, look 방향으로 [speed]의 속도로 이동하도록 한다.
-	void Fire(const Vec3& pos, const Vec3& dir, const Vec3& up, float speed, float damage);
-	void Fire(const Transform& transform, float speed, float damage);
+	void Fire(const Vec3& pos, const Vec3& dir, const Vec3& up);
+	void Fire(const Transform& transform);
 
 	// 총알 객체를 터뜨린다. (폭발 처리)
 	void Explode();

@@ -198,8 +198,8 @@ private:
 	void OnAim();
 	void OffAim();
 
-	void SetState(Movement state);
-	void SetMotion(Movement state, Movement& motion);
+	void SetState(Movement prevState, Movement prevMotion, Movement crntState);
+	void SetMotion(Movement prevState, Movement prevMotion, Movement crntState, Movement& crntMotion);
 };
 
 #pragma endregion

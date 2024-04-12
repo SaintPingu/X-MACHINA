@@ -462,7 +462,7 @@ void Script_GroundPlayer::UpdateMovement(Dir dir)
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
 	Movement crntMovement = Movement::None;
 	// Stand / Sit
-	if (KEY_PRESSED('C'))						{ crntMovement |= Movement::Sit; }
+	if (KEY_PRESSED(VK_CONTROL))				{ crntMovement |= Movement::Sit; }
 	else										{ crntMovement |= Movement::Stand; }
 	// Walk / Run / Sprint
 	if (dir != Dir::None) {
@@ -471,16 +471,19 @@ void Script_GroundPlayer::UpdateMovement(Dir dir)
 		}
 		else {
 				 if (KEY_PRESSED(VK_SHIFT))		{ crntMovement |= Movement::Sprint; }
-			else if (KEY_PRESSED(VK_CONTROL))	{ crntMovement |= Movement::Walk; }
+			else if (KEY_PRESSED('C'))			{ crntMovement |= Movement::Walk; }
 			else								{ crntMovement |= Movement::Run; }
 		}
 	}
 
-	Movement crntState = Movement::GetState(crntMovement);
+	Movement prevState  = Movement::GetState(mPrevMovement);
+	Movement prevMotion = Movement::GetMotion(mPrevMovement);
+
+	Movement crntState  = Movement::GetState(crntMovement);
 	Movement crntMotion = Movement::GetMotion(crntMovement);
 
-	SetState(crntState);
-	SetMotion(crntState, crntMotion);
+	SetState(prevState, prevMotion, crntState);
+	SetMotion(prevState, prevMotion, crntState, crntMotion);
 
 	mPrevMovement = crntState | crntMotion;
 }
@@ -588,14 +591,11 @@ void Script_GroundPlayer::OffAim()
 	}
 }
 
-void Script_GroundPlayer::SetState(Movement state)
+void Script_GroundPlayer::SetState(Movement prevState, Movement prevMotion, Movement crntState)
 {
-	Movement prevState = Movement::GetState(mPrevMovement);
-	Movement prevMotion = Movement::GetMotion(mPrevMovement);
-
 	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
 	// 이전 상태를 취소하고 현재 상태로 전환한다.
-	if (!(state & prevState)) {
+	if (!(crntState & prevState)) {
 		switch (prevState) {
 		case Movement::None:
 		case Movement::Stand:
@@ -609,7 +609,7 @@ void Script_GroundPlayer::SetState(Movement state)
 			break;
 		}
 
-		switch (state) {
+		switch (crntState) {
 		case Movement::None:
 			break;
 		case Movement::Stand:
@@ -647,12 +647,10 @@ void Script_GroundPlayer::SetState(Movement state)
 	}
 }
 
-void Script_GroundPlayer::SetMotion(Movement state, Movement& motion)
+void Script_GroundPlayer::SetMotion(Movement prevState, Movement prevMotion, Movement crntState, Movement& crntMotion)
 {
-	Movement prevMotion = Movement::GetMotion(mPrevMovement);
-
 	// 이전 상태의 모션을 취소하고 현재 상태의 모션으로 전환한다.
-	if (!(motion & prevMotion)) {
+	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
 		switch (prevMotion) {
 		case Movement::None:
 			break;
@@ -671,21 +669,21 @@ void Script_GroundPlayer::SetMotion(Movement state, Movement& motion)
 			break;
 		}
 
-		switch (motion) {
+		switch (crntMotion) {
 		case Movement::None:
 			break;
 		case Movement::Walk:
 			break;
 
 		case Movement::Run:
-			if (state & Movement::Sit) {
-				motion = Movement::Walk;
+			if (crntState & Movement::Sit) {
+				crntMotion = Movement::Walk;
 			}
 
 			break;
 		case Movement::Sprint:
-			if (state & Movement::Sit) {
-				motion = Movement::Walk;
+			if (crntState & Movement::Sit) {
+				crntMotion = Movement::Walk;
 			}
 
 			break;
@@ -695,13 +693,13 @@ void Script_GroundPlayer::SetMotion(Movement state, Movement& motion)
 		}
 	}
 
-	switch (motion) {
+	switch (crntMotion) {
 	case Movement::None:
 		mMovementSpeed = 0.f;
 		break;
 	case Movement::Walk:
 		mController->SetValue("Walk", true);
-		if (state & Movement::Stand) {
+		if (crntState & Movement::Stand) {
 			mMovementSpeed = mkStandWalkSpeed;
 		}
 		else {

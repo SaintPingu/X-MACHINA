@@ -62,6 +62,7 @@ public:
 	float GetMaxLength() const { return mMaxLength; }
 	float GetWeight() const { return mWeight; }
 	bool IsActiveSync() const { return mIsActiveSync; }
+	virtual sptr<const AnimationClip> GetClip() const abstract;
 
 	void ResetLength();
 	void SetLength(float length);
@@ -126,6 +127,7 @@ public:
 
 	virtual Matrix GetSRT(int boneIndex) const override;
 	virtual int GetMaxFrameRate() const override;
+	virtual sptr<const AnimationClip> GetClip() const override;
 
 protected:
 	virtual float GetFrameTime(int frame) override;
@@ -175,6 +177,7 @@ public:
 
 	virtual Matrix GetSRT(int boneIndex) const override;
 	virtual int GetMaxFrameRate() const override;
+	virtual sptr<const AnimationClip> GetClip() const override;
 
 public:
 	virtual void Init(const AnimatorController* controller) override;

@@ -29,6 +29,11 @@ int AnimatorState::GetMaxFrameRate() const
 	return AnimatorTrack::GetClip()->GetMaxFrameRate();
 }
 
+sptr<const AnimationClip> AnimatorState::GetClip() const
+{
+	return AnimatorTrack::GetClip();
+}
+
 float AnimatorState::GetFrameTime(int frame)
 {
 	return GetClip()->GetFrameTime(frame);

@@ -63,6 +63,7 @@ public:
 	virtual WeaponType GetWeaponType() const abstract;
 	Transform* GetMuzzle() const { return mMuzzle; }
 	float GetReloadTime() const { return mMaxReloadTime ; }
+	bool IsReloading() const { return mIsReload; }
 
 	void SetOwner(Script_GroundPlayer* owner) { mOwner = owner; }
 

@@ -88,10 +88,6 @@ bool AnimatorMotion::IsSameStateMachine(rsptr<const AnimatorMotion> other) const
 bool AnimatorMotion::Animate()
 {
 	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
-	if (IsEndAnimation()) {
-		ResetLength();
-		return true;
-	}
 
 	for (auto& [time, callback] : mCallbacks | std::views::reverse) {
 		if (mCrntLength >= time) {
@@ -101,6 +97,11 @@ bool AnimatorMotion::Animate()
 			}
 			break;
 		}
+	}
+
+	if (IsEndAnimation()) {
+		ResetLength();
+		return true;
 	}
 
 	return false;

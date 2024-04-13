@@ -17,6 +17,7 @@
 #include "InputMgr.h"
 #include "Timer.h"
 #include "Animator.h"
+#include "AnimationClip.h"
 #include "AnimatorMotion.h"
 #include "AnimatorController.h"
 
@@ -34,7 +35,10 @@ const float Script_GroundPlayer::mkSprintSpeed = 8.f;
 const float Script_GroundPlayer::mkStartRotAngle = 45.f;
 
 namespace {
+	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
+
 	std::unordered_map<WeaponType, sptr<AnimatorMotion>> kReloadMotions;
+	std::unordered_map<WeaponType, sptr<AnimatorMotion>> kDrawMotions;
 }
 #pragma endregion
 
@@ -85,6 +89,9 @@ void Script_GroundPlayer::LateUpdate()
 
 	// keep the muzzle facing the target //
 	if (mIsAim && mMuzzle) {
+		if (IsInGunChangeMotion()) {
+			return;
+		}
 
 		// angle could be too large if aim is so close
 		constexpr float kAimMinDistance = 300.f;
@@ -125,7 +132,6 @@ void Script_GroundPlayer::LateUpdate()
 void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
 	if (mIsAim) {										// 에임 상태라면, 플레이어의 look방향에 따라 다른 다리(Legs) 애니메이션을 재생한다.
-		//constexpr float 
 
 		const float rotAngleAbs = fabs(rotAngle);
 		// 이동 상태 //
@@ -399,7 +405,28 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::MissileLauncher, "ReloadMissileLauncher" },
 	};
 
-	CallbackType reloadCallback = std::bind(&Script_GroundPlayer::EndReloadMotion, this);
+	const std::unordered_map<WeaponType, std::string> drawMotions{
+		{WeaponType::HandedGun, "Draw2HandedGun" },
+		{WeaponType::AssaultRifle, "DrawAssaultRifle" },
+		{WeaponType::LightingGun, "DrawBeamGun" },
+		{WeaponType::GatlinGun, "DrawGatlinGun" },
+		{WeaponType::ShotGun, "DrawShotgun" },
+		{WeaponType::MissileLauncher, "DrawMissileLauncher" },
+	};
+
+	const std::unordered_map<WeaponType, std::string> putbackMotions{
+		{WeaponType::HandedGun, "PutBack2HandedGun" },
+		{WeaponType::AssaultRifle, "PutBackAssaultRifle" },
+		{WeaponType::LightingGun, "PutBackBeamGun" },
+		{WeaponType::GatlinGun, "PutBackGatlinGun" },
+		{WeaponType::ShotGun, "PutBackShotgun" },
+		{WeaponType::MissileLauncher, "PutBackMissileLauncher" },
+	};
+
+	CallbackType reloadCallback  = std::bind(&Script_GroundPlayer::EndReloadMotion, this);
+	CallbackType drawCallback    = std::bind(&Script_GroundPlayer::DrawWeapon, this);
+	CallbackType drawEndCallback = std::bind(&Script_GroundPlayer::DrawWeaponEnd, this);
+	CallbackType putbackCallback = std::bind(&Script_GroundPlayer::PutbackWeaponEnd, this);
 
 	mWeapons.resize(gkWeaponTypeCnt, nullptr);
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
@@ -438,64 +465,90 @@ void Script_GroundPlayer::InitWeapons()
 		}
 		transform->SetChild(weapon);
 
-		// setting reload callbacks //
-		auto& motion = kReloadMotions[weaponType] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
-		motion->SetSync(false);
-		motion->AddCallback(reloadCallback, motion->GetMaxFrameRate() - 1);
+		// setting callbacks //
+		constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
 
+		auto& realodMotion  = kReloadMotions[weaponType] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
+		auto& drawMotion    = kDrawMotions[weaponType]   = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
+		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
+
+		realodMotion->SetSync(false);
+		drawMotion->SetSync(false);
+		putbackMotion->SetSync(false);
+		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 1);
+		drawMotion->AddCallback(drawCallback, kDrawFrame);
+		drawMotion->AddCallback(drawEndCallback, drawMotion->GetMaxFrameRate() - 1);
+		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
 
 		weapon->Awake();
 	}
 }
 
-void Script_GroundPlayer::SetWeapon(int weaponIdx)
+void Script_GroundPlayer::DrawWeaponStart(int weaponIdx, bool isDrawImmed)
 {
-	if (weaponIdx == 0) {
-		mAnimator->GetController()->SetValue("Weapon", 0);
-		if (mWeapon) {
-			mWeapon->OnDisable();
-			mWeapon = nullptr;
-			mWeaponScript = nullptr;
-			mMuzzle = nullptr;
-		}
-		return;
+	base::DrawWeaponStart(weaponIdx, isDrawImmed);
+
+	mController->SetValue("Weapon", weaponIdx);
+
+	// synchronize animation frame
+	// pistol's animation is different. so can't synchronize with others
+	constexpr int kPistolIndex = 1;
+	if (isDrawImmed && weaponIdx != kPistolIndex && GetCrntWeaponIdx() != kPistolIndex) {
+		mController->SetValue("Draw", true, true);
+		auto& motion = mController->GetCrntMotion("Body");
+		motion->SetLength(motion->GetClip()->GetFrameTime(kDrawFrame));
 	}
-
-	if (mWeapon) {
-		if (mWeapon == mWeapons[weaponIdx - 1]) {
-			return;
-		}
-		else {
-			mWeapon->OnDisable();
-		}
-	}
-
-	mWeapon = mWeapons[weaponIdx - 1];
-	if (mWeapon) {
-		mWeapon->OnEnable();
-		mAnimator->GetController()->SetValue("Weapon", weaponIdx);
-
-		UnEquipWeapon();
-		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
-		EquipWeapon();
-		mMuzzle = mWeaponScript->GetMuzzle();
+	else {
+		mController->SetValue("Draw", true, false);
 	}
 }
 
-void Script_GroundPlayer::UnEquipWeapon()
+void Script_GroundPlayer::DrawWeapon()
 {
-	if (mWeapon) {
-		StopReload();
-	}
-}
-
-void Script_GroundPlayer::EquipWeapon()
-{
+	base::DrawWeapon();
+	
 	auto& motion = kReloadMotions[mWeaponScript->GetWeaponType()];
 	const float reloadTime = mWeaponScript->GetReloadTime();
 	const float motionTime = motion->GetMaxLength();
 	const float realodSpeed = motionTime / reloadTime;
 	motion->ResetOriginSpeed(realodSpeed);
+}
+
+void Script_GroundPlayer::DrawWeaponEnd()
+{
+	base::DrawWeaponEnd();
+
+	if (mIsAim) {
+		mController->SetValue("Draw", false, false);
+		mController->SetValue("Aim", false, true);
+		mController->SetValue("Aim", true);
+	}
+	else {
+		mController->SetValue("Draw", false, true);
+	}
+}
+
+void Script_GroundPlayer::PutbackWeapon()
+{
+	base::PutbackWeapon();
+
+	if (mWeapon) {
+		StopReload();
+		mController->SetValue("PutBack", true);
+	}
+}
+
+void Script_GroundPlayer::PutbackWeaponEnd()
+{
+	mController->SetValue("Weapon", 0);
+
+	base::PutbackWeaponEnd();
+
+	// 다음 무기가 없다면 조준 상태를 종료한다.
+	if (GetNextWeaponIdx() == -1 && mIsAim) {
+		OffAim();
+	}
+	mController->SetValue("PutBack", false);
 }
 
 
@@ -586,7 +639,7 @@ void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
 	bool moving = dir != Dir::None;
 	// spine bone's look vector is aim direction (spine bone gonna look at aim from LateUpdate function)
 	// get an angle if end the aim animation
-	if (!moving && mController->IsEndTransition("Body")) {
+	if (!moving && mController->IsEndTransition("Body") && !IsInGunChangeMotion()) {
 		rotAngle = mSpineDstAngle;
 	}
 	else {
@@ -647,9 +700,6 @@ void Script_GroundPlayer::OnAim()
 
 void Script_GroundPlayer::OffAim()
 {
-	if (!mWeapon || !mController) {
-		return;
-	}
 	mController->SetValue("Aim", false);
 	mIsAim = false;
 

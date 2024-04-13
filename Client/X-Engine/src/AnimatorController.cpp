@@ -74,15 +74,20 @@ sptr<AnimatorMotion> AnimatorController::FindMotionByName(const std::string& mot
 	return FindLayerByName(layerName)->FindMotionByName(motionName);
 }
 
+sptr<AnimatorMotion> AnimatorController::GetCrntMotion(const std::string& layerName) const
+{
+	return FindLayerByName(layerName)->GetCrntMotion();
+}
+
 bool AnimatorController::IsEndTransition(const std::string& layerName) const
 {
 	return FindLayerByName(layerName)->IsEndTransition();
 }
 
-void AnimatorController::CheckTransition()
+void AnimatorController::CheckTransition(bool isChangeImmed) const
 {
 	for (auto& layer : mLayers) {
-		layer->CheckTransition(this);
+		layer->CheckTransition(this, isChangeImmed);
 	}
 }
 
@@ -97,7 +102,7 @@ void AnimatorController::InitLayers()
 	CheckTransition();
 }
 
-void AnimatorController::SetValue(const std::string& paramName, void* value)
+void AnimatorController::SetValue(const std::string& paramName, void* value, bool isChangeImmed)
 {
 	if (!HasParam(paramName)) {
 		return;
@@ -128,7 +133,12 @@ void AnimatorController::SetValue(const std::string& paramName, void* value)
 	}
 
 	param.val = val;
-	mIsCheckTransition = true;
+	if (!isChangeImmed) {
+		mIsCheckTransition = true;
+	}
+	else {
+		CheckTransition(isChangeImmed);
+	}
 }
 
 sptr<AnimatorLayer> AnimatorController::FindLayerByName(const std::string& layerName) const

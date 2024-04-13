@@ -41,12 +41,13 @@ public:
 
 	void Animate();
 
-	void CheckTransition(const AnimatorController* controller);
+	void CheckTransition(const AnimatorController* controller, bool isChangeImmed = false);
 	bool IsEndTransition() const { return mNextStates.empty(); }
 
 	void SyncAnimation(rsptr<const AnimatorMotion> srcState);
 
 	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
+	sptr<AnimatorMotion> GetCrntMotion() const { return mCrntState; }
 
 private:
 	void SyncComplete();

@@ -85,10 +85,17 @@ public:
 class Script_ShootingPlayer abstract : public Script_Player {
 	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
 
+private:
+	int mCrntWeaponIdx{};
+	int mNextWeaponIdx{};
+	bool mIsInDraw{};
+	bool mIsInPutback{};
+
 protected:
 	sptr<GameObject> mWeapon{};
 	sptr<Script_Weapon> mWeaponScript{};
 	std::vector<sptr<GameObject>> mWeapons{};
+	Transform* mMuzzle{};
 
 public:
 	virtual void Start() { InitWeapons(); }
@@ -96,8 +103,23 @@ public:
 public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
+	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
+	bool IsInDraw() const { return mIsInDraw; }
+	bool IsInPutBack() const { return mIsInPutback; }
+
 protected:
+	int GetCrntWeaponIdx() const { return mCrntWeaponIdx; }
+	int GetNextWeaponIdx() const { return mNextWeaponIdx; }
+
 	virtual void InitWeapons() abstract;
+
+	virtual void SetWeapon(int weaponIdx);
+
+	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) abstract;
+	virtual void DrawWeapon() abstract;
+	virtual void DrawWeaponEnd();
+	virtual void PutbackWeapon() abstract;
+	virtual void PutbackWeaponEnd();
 };
 
 
@@ -108,6 +130,7 @@ class Script_GroundPlayer : public Script_ShootingPlayer {
 	COMPONENT(Script_GroundPlayer, Script_ShootingPlayer)
 
 private:
+	// constants //
 	static const float mkSitWalkSpeed;
 	static const float mkStandWalkSpeed;
 	static const float mkRunSpeed;
@@ -115,24 +138,22 @@ private:
 
 	static const float mkStartRotAngle;
 
-	Movement mPrevMovement{};
-
-	bool mIsAim{};
+	// animator //
 	float mParamV{}, mParamH{};
-
 	sptr<Animator> mAnimator{};
 	sptr<AnimatorController> mController{};
 
+	// movement //
+	Movement mPrevMovement{};
 	float mMovementSpeed{};
 	float mRotationSpeed{};
 
-	Transform* mSpineBone{};
-	Transform* mMuzzle{};
-
-	sptr<Script_AimController> mAimController{};
-
+	// aim //
+	bool mIsAim{};
 	bool mIsInBodyRotation{};
 	float mSpineDstAngle{};
+	Transform* mSpineBone{};
+	sptr<Script_AimController> mAimController{};
 
 public:
 	Movement GetPrevState() const  { return Movement::GetState(mPrevMovement); }
@@ -164,9 +185,11 @@ public:
 
 private:
 	void InitWeapons();
-	void SetWeapon(int weaponIdx);
-	void UnEquipWeapon();
-	void EquipWeapon();
+	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
+	virtual void DrawWeapon() override;
+	virtual void DrawWeaponEnd() override;
+	virtual void PutbackWeapon() override;
+	virtual void PutbackWeaponEnd() override;
 	void UpdateParam(float val, float& param);
 
 	void UpdateMovement(Dir dir);

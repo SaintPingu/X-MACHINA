@@ -30,7 +30,7 @@ void Script_Weapon::Start()
 
 void Script_Weapon::Update()
 {
-	if (mIsReload && mIsReload) {
+	if (mOwner->IsInDraw() || mOwner->IsInPutBack() || mIsReload) {
 		return;
 	}
 

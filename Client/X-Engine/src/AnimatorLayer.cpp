@@ -111,11 +111,21 @@ void AnimatorLayer::Animate()
 }
 
 
-void AnimatorLayer::CheckTransition(const AnimatorController* controller)
+void AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
 {
 	const auto& nextState = mRootStateMachine->CheckTransition(controller);
+	if (!nextState) {
+		return;
+	}
+
 	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
 	if (it != mNextStates.end()) {
+		return;
+	}
+
+	if (isChangeImmed) {
+		mNextStates.clear();
+		ChangeState(nextState);
 		return;
 	}
 

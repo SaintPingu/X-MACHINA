@@ -50,10 +50,11 @@ public:
 	float GetParamValue(const std::string& paramName) const { return mParameters.at(paramName).val.f; }
 	const AnimatorParameter* GetParamRef(const std::string& paramName) const { return &mParameters.at(paramName); }
 
+	// isChangeImmed == true : transition animation state without waiting & blending
 	template<class T, typename std::enable_if<	std::is_same<T, bool>::value ||
 												std::is_same<T, int>::value ||
 												std::is_same<T, float>::value>::type* = nullptr>
-	void SetValue(const std::string& paramName, T value) { SetValue(paramName, &value); }
+	void SetValue(const std::string& paramName, T value, bool isChangeImmed = false) { SetValue(paramName, &value, isChangeImmed); }
 
 
 public:
@@ -62,13 +63,14 @@ public:
 	void SyncAnimation() const;
 
 	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName, const std::string& layerName = "Base Layer") const;
+	sptr<AnimatorMotion> GetCrntMotion(const std::string& layerName = "Base Layer") const;
 
 	bool IsEndTransition(const std::string& layerName) const;
 
 private:
 	void InitLayers();
-	void CheckTransition();
+	void CheckTransition(bool isChangeImmed = false) const;
 
-	void SetValue(const std::string& paramName, void* value);
+	void SetValue(const std::string& paramName, void* value, bool isChangeImmed);
 	sptr<AnimatorLayer> FindLayerByName(const std::string& layerName) const;
 };	

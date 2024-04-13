@@ -28,6 +28,8 @@ Matrix ChildMotion::GetSRT(int boneIndex) const
 
 
 
+
+
 BlendTree::BlendTree(const AnimatorMotionInfo& info, std::vector<sptr<ChildMotion>> motions)
 	:
 	AnimatorMotion(AnimatorMotionInfo{ info.Name, motions.front()->GetClip()->mLength, info.Speed, info.StateMachine, info.Transitions }),
@@ -102,7 +104,12 @@ Matrix BlendTree::GetSRT(int boneIndex) const
 
 int BlendTree::GetMaxFrameRate() const
 {
-	return mMotions.front()->GetClip()->GetMaxFrameRate();
+	return GetClip()->GetMaxFrameRate();
+}
+
+sptr<const AnimationClip> BlendTree::GetClip() const
+{
+	return mMotions.front()->GetClip();
 }
 
 void BlendTree::Init(const AnimatorController* controller)
@@ -126,5 +133,5 @@ bool BlendTree::Animate()
 
 float BlendTree::GetFrameTime(int frame)
 {
-	return mMotions.front()->GetClip()->GetFrameTime(frame);
+	return GetClip()->GetFrameTime(frame);
 }

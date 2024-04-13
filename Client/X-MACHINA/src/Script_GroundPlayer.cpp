@@ -255,6 +255,8 @@ void Script_GroundPlayer::Move(Dir dir)
 
 void Script_GroundPlayer::RotateTo(Dir dir)
 {
+	Dir test = Dir::Front;
+	Dir tset2 = test |= Dir::Back;
 	if (dir == Dir::None) {
 		return;
 	}

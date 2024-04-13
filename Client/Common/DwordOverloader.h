@@ -8,7 +8,7 @@ public:													\
 
 
 // usage :
-//	class SampleClass : public DwordOverloader<Dir> {
+//	class SampleClass : public DwordOverloader<SampleClass> {
 //		DWORD_OVERLOADER(SampleClass)
 // 
 //		static const DWORD None   = 0x00;
@@ -40,15 +40,15 @@ public:
 
 	friend DWORD operator|(T lhs, DWORD rhs)	{ return lhs.mValue | rhs; }
 	friend DWORD operator|(T lhs, int rhs)		{ return lhs.mValue | rhs; }
-	void operator|=(DWORD rhs)					{ mValue |= rhs; }
+	DWORD operator|=(DWORD rhs)					{ return mValue |= rhs; }
 
 	friend DWORD operator&(T lhs, DWORD rhs)	{ return lhs.mValue & rhs; }
 	friend DWORD operator&(T lhs, int rhs)		{ return lhs.mValue & rhs; }
-	void operator&=(DWORD rhs)					{ mValue &= rhs; }
+	DWORD operator&=(DWORD rhs)					{ return mValue &= rhs; }
 
 	friend DWORD operator^(T lhs, DWORD rhs)	{ return lhs.mValue ^ rhs; }
 	friend DWORD operator^(T lhs, int rhs)		{ return lhs.mValue ^ rhs; }
-	void operator^=(DWORD rhs)					{ mValue ^= rhs; }
+	DWORD operator^=(DWORD rhs)					{ return mValue ^= rhs; }
 
 	friend DWORD operator~(T obj)				{ return ~obj.mValue; }
 

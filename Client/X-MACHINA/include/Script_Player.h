@@ -98,14 +98,17 @@ protected:
 	Transform* mMuzzle{};
 
 public:
-	virtual void Start() { InitWeapons(); }
+	virtual void Start() { base::Start();  InitWeapons(); }
 
 public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const { return mIsInDraw; }
 	bool IsInPutBack() const { return mIsInPutback; }
+
+	virtual void BulletFired() {}
 
 protected:
 	int GetCrntWeaponIdx() const { return mCrntWeaponIdx; }
@@ -120,6 +123,10 @@ protected:
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;
 	virtual void PutbackWeaponEnd();
+
+	virtual void StartFire();
+	virtual void StopFire();
+	virtual void Reload();
 };
 
 
@@ -155,6 +162,11 @@ private:
 	Transform* mSpineBone{};
 	sptr<Script_AimController> mAimController{};
 
+	// test //
+	int   mRecoilSign{};
+	float mCurRecoil{};
+	float mMaxRecoil{20.f};
+
 public:
 	Movement GetPrevState() const  { return Movement::GetState(mPrevMovement); }
 	Movement GetPrevMotion() const { return Movement::GetMotion(mPrevMovement); }
@@ -183,6 +195,8 @@ public:
 	void StartReload();
 	void EndReload() const;
 
+	virtual void BulletFired() override;
+
 private:
 	void InitWeapons();
 	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
@@ -204,7 +218,7 @@ private:
 	void OffAim();
 
 	// called by itself
-	void Reload();
+	virtual void Reload() override;
 	void StopReload();
 
 	void SetState(Movement prevState, Movement prevMotion, Movement crntState);

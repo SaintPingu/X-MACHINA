@@ -100,6 +100,8 @@ void Script_GroundPlayer::LateUpdate()
 			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
 		}
 
+		
+
 		float angle = GetAngleToAim(aimScreenPos);
 		if (fabs(angle) > 0.1f) {
 			mSpineBone->RotateGlobal(Vector3::Up, angle);
@@ -109,6 +111,14 @@ void Script_GroundPlayer::LateUpdate()
 			mSpineBone->RotateGlobal(Vector3::Up, angle);
 			angle = GetAngleToAim(aimScreenPos);
 			mSpineBone->RotateGlobal(Vector3::Up, angle);
+
+			constexpr float recoverAmount = 70.f;
+			mCurRecoil -= recoverAmount * DeltaTime();
+			if (mCurRecoil <= 0) {
+				mCurRecoil = 0;
+			}
+
+			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
 
 			constexpr float rightAngleCorr = 10.f;	// can rotate more by [rightAngleCorr] angle to the right.
 			mSpineDstAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up) - rightAngleCorr;
@@ -321,6 +331,8 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 
 void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	base::ProcessKeyboardMsg(messageID, wParam, lParam);
+
 	switch (messageID) {
 	case WM_KEYDOWN:
 	{
@@ -336,9 +348,6 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 			SetWeapon(static_cast<int>(wParam - '0'));
 			break;
 
-		case 'R':
-			Reload();
-			break;
 		default:
 			break;
 		}
@@ -374,6 +383,15 @@ void Script_GroundPlayer::EndReload() const
 	}
 }
 
+void Script_GroundPlayer::BulletFired()
+{
+	constexpr float recoilAmount = 5.f;
+	mCurRecoil += recoilAmount;
+	if (fabs(mCurRecoil) >= mMaxRecoil) {
+		mCurRecoil = mMaxRecoil;
+	}
+}
+
 
 
 void Script_GroundPlayer::InitWeapons()
@@ -395,6 +413,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::ShotGun, "RefPosShotgun_Action" },
 		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
 	};
+
 
 	const std::unordered_map<WeaponType, std::string> reloadMotions{
 		{WeaponType::HandedGun, "Reload2HandedGun" },
@@ -421,6 +440,15 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::GatlinGun, "PutBackGatlinGun" },
 		{WeaponType::ShotGun, "PutBackShotgun" },
 		{WeaponType::MissileLauncher, "PutBackMissileLauncher" },
+	};
+
+	const std::unordered_map<WeaponType, std::string> shootMotions{
+		{WeaponType::HandedGun, "ShootPrimary2HandedGun" },
+		{WeaponType::AssaultRifle, "ShootPrimaryAssaultRifle" },
+		{WeaponType::LightingGun, "ShootPrimaryBeamGun" },
+		{WeaponType::GatlinGun, "ShootPrimaryGatlinGun" },
+		{WeaponType::ShotGun, "ShootPrimaryShotgun" },
+		{WeaponType::MissileLauncher, "ShootPrimaryMissileLauncher" },
 	};
 
 	CallbackType reloadCallback  = std::bind(&Script_GroundPlayer::EndReloadMotion, this);
@@ -471,14 +499,20 @@ void Script_GroundPlayer::InitWeapons()
 		auto& realodMotion  = kReloadMotions[weaponType] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
 		auto& drawMotion    = kDrawMotions[weaponType]   = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
 		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
+		auto& shootMotion   = mController->FindMotionByName(shootMotions.at(weaponType), "Body");
 
+		// sync off
 		realodMotion->SetSync(false);
 		drawMotion->SetSync(false);
 		putbackMotion->SetSync(false);
+		shootMotion->SetSync(false);
+
+		// add callbacks
 		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 1);
 		drawMotion->AddCallback(drawCallback, kDrawFrame);
 		drawMotion->AddCallback(drawEndCallback, drawMotion->GetMaxFrameRate() - 1);
 		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
+
 
 		weapon->Awake();
 	}
@@ -521,10 +555,13 @@ void Script_GroundPlayer::DrawWeaponEnd()
 	if (mIsAim) {
 		mController->SetValue("Draw", false, false);
 		mController->SetValue("Aim", false, true);
-		mController->SetValue("Aim", true);
 	}
 	else {
 		mController->SetValue("Draw", false, true);
+	}
+
+	if (KEY_PRESSED(VK_RBUTTON)) {
+		OnAim();
 	}
 }
 
@@ -716,7 +753,8 @@ void Script_GroundPlayer::OffAim()
 
 void Script_GroundPlayer::Reload()
 {
-	mWeaponScript->InitReload();
+	base::Reload();
+
 	StartReload();
 }
 

@@ -37,6 +37,11 @@ void Script_Weapon::Update()
 	updateFunc();
 }
 
+void Script_Weapon::FireBullet()
+{
+	mOwner->BulletFired();
+}
+
 void Script_Weapon::SetFiringMode(FiringMode firingMode)
 {
 	switch (firingMode) {
@@ -131,6 +136,8 @@ void Script_Weapon::Fire()
 #pragma region Script_BulletWeapon
 void Script_BulletWeapon::FireBullet()
 {
+	base::FireBullet();
+
 	auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
 		auto& bulletScript = bullet->GetComponent<Script_Bullet>();

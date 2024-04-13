@@ -14,16 +14,56 @@ void Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARA
 
 	switch (messageID) {
 	case WM_LBUTTONDOWN:
-		mWeaponScript->StartFire();
+		StartFire();
 		break;
 
 	case WM_LBUTTONUP:
-		mWeaponScript->StopFire();
+		StopFire();
+		break;
+
+	case 'R':
+		Reload();
 		break;
 
 	default:
 		break;
 	}
+}
+
+void Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (messageID) {
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case 'R':
+			Reload();
+			break;
+
+		default:
+			break;
+		}
+	}
+	break;
+	default:
+		break;
+	}
+}
+
+void Script_ShootingPlayer::StartFire()
+{
+	mWeaponScript->StartFire();
+}
+
+void Script_ShootingPlayer::StopFire()
+{
+	mWeaponScript->StopFire();
+}
+
+void Script_ShootingPlayer::Reload()
+{
+	mWeaponScript->InitReload();
 }
 
 void Script_ShootingPlayer::SetWeapon(int weaponIdx)
@@ -84,7 +124,7 @@ void Script_ShootingPlayer::PutbackWeapon()
 	mIsInPutback = true;
 
 	if (mWeaponScript) {
-		mWeaponScript->StopFire();
+		StopFire();
 	}
 }
 

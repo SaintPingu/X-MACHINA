@@ -3,6 +3,7 @@
 class AnimatorMotion;
 class AnimatorStateMachine;
 class AnimatorController;
+class AnimatorLayer;
 
 // AnimatorState간 상태 전이 조건
 struct AnimationCondition {
@@ -27,6 +28,7 @@ namespace Animations {
 class AnimatorStateMachine {
 private:
 	std::string mName{};
+	const AnimatorLayer* mLayer{};
 	AnimatorStateMachine* mParent{};
 
 	std::vector<sptr<const AnimatorTransition>> mEntryTransitions{};
@@ -43,11 +45,12 @@ public:
 	std::string GetName() const { return mName; }
 	sptr<AnimatorMotion> GetState(const std::string& name) const;
 	sptr<AnimatorStateMachine> GetStateMachine(const std::string& name) const;
+	const AnimatorLayer* GetLayer() const { return mLayer; }
 
 	void SetParent(AnimatorStateMachine* parent) { mParent = parent; }
 
 public:
-	void Init(const AnimatorController* controller);
+	void Init(const AnimatorController* controller, const AnimatorLayer* layer);
 
 	void AddState(rsptr<AnimatorMotion> state);
 	void AddStateMachine(rsptr<AnimatorStateMachine> stateMachine);

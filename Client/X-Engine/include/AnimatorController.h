@@ -6,6 +6,7 @@
 
 struct AnimationLoadInfo;
 class AnimatorState;
+class AnimatorStateMachine;
 class AnimatorLayer;
 class AnimatorMotion;
 class HumanBone;

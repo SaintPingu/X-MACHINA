@@ -25,12 +25,20 @@
 
 
 
-const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
+#pragma region Variable
+const float Script_GroundPlayer::mkSitWalkSpeed = 1.5f;
 const float Script_GroundPlayer::mkStandWalkSpeed = 2.2f;
-const float Script_GroundPlayer::mkRunSpeed       = 5.f;
-const float Script_GroundPlayer::mkSprintSpeed    = 8.f;
+const float Script_GroundPlayer::mkRunSpeed = 5.f;
+const float Script_GroundPlayer::mkSprintSpeed = 8.f;
 
-const float Script_GroundPlayer::mkStartRotAngle  = 45.f;
+const float Script_GroundPlayer::mkStartRotAngle = 45.f;
+
+namespace {
+	std::unordered_map<WeaponType, sptr<AnimatorMotion>> kReloadMotions;
+}
+#pragma endregion
+
+
 
 
 
@@ -39,9 +47,14 @@ void Script_GroundPlayer::Awake()
 {
 	base::Awake();
 
-	// others
+	// add scripts //
 	mObject->AddComponent<Script_GroundObject>();
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
+
+	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
+	if (mAnimator) {
+		mController = mAnimator->GetController();
+	}
 
 	mAimController = mObject->AddComponent<Script_AimController>();
 }
@@ -55,11 +68,6 @@ void Script_GroundPlayer::Start()
 
 	SetSpawn(Vec3(100, 0, 100));
 	SetHP(150.f);
-
-	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
-	if (mAnimator) {
-		mController = mAnimator->GetController();
-	}
 }
 
 
@@ -185,7 +193,7 @@ void Script_GroundPlayer::ProcessInput()
 {
 	base::ProcessInput();
 
-	// 키 입력에 따른 방향 설정
+	// 키 입력에 따른 방향 설정 //
 	Dir dir{};
 	float v{}, h{};
 	if (KEY_PRESSED('W')) { v += 1; }
@@ -322,6 +330,9 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 			SetWeapon(static_cast<int>(wParam - '0'));
 			break;
 
+		case 'R':
+			Reload();
+			break;
 		default:
 			break;
 		}
@@ -340,9 +351,21 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 }
 
 
-void Script_GroundPlayer::StartReload(float reloadTime)
+void Script_GroundPlayer::StartReload()
 {
+	if (mController) {
+		mController->SetValue("Reload", true);
+	}
+}
 
+void Script_GroundPlayer::EndReload() const
+{
+	if (mController) {
+		mController->SetValue("Reload", false);
+	}
+	if (mWeaponScript) {
+		mWeaponScript->EndReload();
+	}
 }
 
 
@@ -367,8 +390,20 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
 	};
 
+	const std::unordered_map<WeaponType, std::string> reloadMotions{
+		{WeaponType::HandedGun, "Reload2HandedGun" },
+		{WeaponType::AssaultRifle, "ReloadAssaultRifle" },
+		{WeaponType::LightingGun, "ReloadOverheatBeamGun" },
+		{WeaponType::GatlinGun, "ReloadOverheatGatlinGun" },
+		{WeaponType::ShotGun, "ReloadShotgun" },
+		{WeaponType::MissileLauncher, "ReloadMissileLauncher" },
+	};
+
+	CallbackType reloadCallback = std::bind(&Script_GroundPlayer::EndReloadMotion, this);
+
 	mWeapons.resize(gkWeaponTypeCnt, nullptr);
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
+		// weapon 타입에 따른 객체 생성 //
 		auto& weapon = mWeapons[i];
 		WeaponType weaponType = static_cast<WeaponType>(i);
 		weapon = scene->Instantiate(defaultWeapons.at(weaponType), false);
@@ -376,7 +411,7 @@ void Script_GroundPlayer::InitWeapons()
 			continue;
 		}
 
-		// weaponType에 따른 스크립트 설정
+		// weaponType에 따른 스크립트 추가 //
 		switch (weaponType) {
 		case WeaponType::HandedGun:
 		case WeaponType::LightingGun:
@@ -393,11 +428,23 @@ void Script_GroundPlayer::InitWeapons()
 			break;
 		}
 
+		// 스크립트 설정 //
+		weapon->GetComponent<Script_Weapon>()->SetOwner(this);
+
+		// transform 설정 //
 		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
 		if (!transform) {
 			continue;
 		}
 		transform->SetChild(weapon);
+
+		// setting reload callbacks //
+		auto& motion = kReloadMotions[weaponType] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
+		motion->SetSync(false);
+		motion->AddCallback(reloadCallback, motion->GetMaxFrameRate() - 1);
+
+
+		weapon->Awake();
 	}
 }
 
@@ -427,17 +474,35 @@ void Script_GroundPlayer::SetWeapon(int weaponIdx)
 	if (mWeapon) {
 		mWeapon->OnEnable();
 		mAnimator->GetController()->SetValue("Weapon", weaponIdx);
+
+		UnEquipWeapon();
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
+		EquipWeapon();
 		mMuzzle = mWeaponScript->GetMuzzle();
 	}
 }
 
+void Script_GroundPlayer::UnEquipWeapon()
+{
+	if (mWeapon) {
+		StopReload();
+	}
+}
+
+void Script_GroundPlayer::EquipWeapon()
+{
+	auto& motion = kReloadMotions[mWeaponScript->GetWeaponType()];
+	const float reloadTime = mWeaponScript->GetReloadTime();
+	const float motionTime = motion->GetMaxLength();
+	const float realodSpeed = motionTime / reloadTime;
+	motion->ResetOriginSpeed(realodSpeed);
+}
 
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
 	constexpr float kParamSpeed = 4.f;				// 파라미터 전환 속도
-	constexpr float kOppositeExtraSpeed = 20.f;		// 반대편 이동 시 추가 이동 전환 속도
+	constexpr float kOppositeExtraSpeed = 8.f;		// 반대편 이동 시 추가 이동 전환 속도
 
 	int sign = Math::Sign(val);						// sign : 파라미터 이동 방향 = 현재 입력값의 부호
 	if (Math::IsZero(val)) {						//		  입력이 없다면 현재 파라미터의 반대 부호
@@ -446,15 +511,17 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 	float before = param;
 	param += (kParamSpeed * sign) * DeltaTime();	// 파라미터값 증감
 
-	if (fabs(param) < 0.01f) {						// 0에 근접하면 0으로 설정
-		param = 0.f;
-	}
-	else if (!Math::IsZero(val)) {
+	if (!Math::IsZero(val)) {
 		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// 반대편 이동 시
 			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// 추가 전환 속도 적용
 		}
-		else {														// 정방향 이동 시
+		else if(fabs(param) >= fabs(before)) {						// 정방향 이동 시
 			param = std::clamp(param, -fabs(val), fabs(val));		// param이 val을 넘지 못하도록 한다.
+
+			// 증감폭이 낮고 && 0에 가까운 경우 해당 파라미터는 무시한다.
+			if (fabs(fabs(param) - fabs(before)) < 0.001f && fabs(param) < 0.1f) {								// 0에 근접하면 0으로 설정
+				param = 0.f;
+			}
 		}
 	}
 
@@ -597,6 +664,19 @@ void Script_GroundPlayer::OffAim()
 	}
 }
 
+void Script_GroundPlayer::Reload()
+{
+	mWeaponScript->InitReload();
+	StartReload();
+}
+
+void Script_GroundPlayer::StopReload()
+{
+	if (mController) {
+		mController->SetValue("Reload", false);
+	}
+}
+
 void Script_GroundPlayer::SetState(Movement prevState, Movement prevMotion, Movement crntState)
 {
 	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
@@ -725,4 +805,9 @@ void Script_GroundPlayer::SetMotion(Movement prevState, Movement prevMotion, Mov
 		assert(0);
 		break;
 	}
+}
+
+void Script_GroundPlayer::EndReloadMotion() const
+{
+	EndReload();
 }

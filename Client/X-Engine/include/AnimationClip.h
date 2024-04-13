@@ -22,6 +22,7 @@ public:
 	~AnimationClip() = default;
 
 	float GetFrameTime(int frame) const { return mKeyFrameTimes[frame]; }
+	int GetMaxFrameRate() const { return static_cast<int>(mKeyFrameTimes.size()); }
 
 public:
 	Matrix GetSRT(int boneIndex, float position) const;

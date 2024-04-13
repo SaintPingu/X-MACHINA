@@ -15,7 +15,7 @@ class Script_GroundPlayer;
 
 
 enum class WeaponType {
-	HandedGun = 0,
+	HandedGun,
 	AssaultRifle,
 	LightingGun,
 	GatlinGun,
@@ -60,13 +60,18 @@ public:
 	virtual void Update() override;
 
 public:
+	virtual WeaponType GetWeaponType() const abstract;
 	Transform* GetMuzzle() const { return mMuzzle; }
+	float GetReloadTime() const { return mMaxReloadTime ; }
 
 	void SetOwner(Script_GroundPlayer* owner) { mOwner = owner; }
 
 public:
 	void StartFire() { mIsShooting = true; }
 	void StopFire() { mIsShooting = false; mIsBeforeShooting = false; }
+	virtual void InitReload();
+	virtual void EndReload();
+	virtual void StopReload() { InitReload(); }
 
 protected:
 	virtual void FireBullet() abstract;
@@ -76,18 +81,17 @@ protected:
 
 	static float CalcFireDelay(float rpm) {return (1.f / (rpm / 60.f)); }
 
+	virtual void StartReload();
+
 private:
 	void Update_SemiAuto();
 	void Update_Auto();
 
 	void Fire();
-	bool Reloading();
 
 	virtual void CreateBulletPool() abstract;
 	virtual void InitValues() abstract;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
-
-	virtual void StartReload();
 };
 
 

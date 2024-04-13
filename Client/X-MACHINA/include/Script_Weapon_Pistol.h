@@ -14,6 +14,9 @@ private:
 	static constexpr float mkRPM          = 350.f;
 
 public:
+	virtual WeaponType GetWeaponType() const override { return WeaponType::HandedGun; }
+
+public:
 	virtual void Awake() override;
 
 private:

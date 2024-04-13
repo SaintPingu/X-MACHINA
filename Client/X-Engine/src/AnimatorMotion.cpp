@@ -3,12 +3,14 @@
 
 #include "AnimatorStateMachine.h"
 #include "AnimationClip.h"
+#include "AnimatorLayer.h"
+#include "AnimatorController.h"
 #include "Timer.h"
 
 AnimatorMotion::AnimatorMotion(const AnimatorMotionInfo& info)
 	:
 	mName(info.Name),
-	mkOriginSpeed(info.Speed),
+	mOriginSpeed(info.Speed),
 	mCrntSpeed(info.Speed),
 	mCrntLength(0),
 	mMaxLength(info.Length),
@@ -22,7 +24,7 @@ AnimatorMotion::AnimatorMotion(const AnimatorMotionInfo& info)
 AnimatorMotion::AnimatorMotion(const AnimatorMotion& other)
 	:
 	mName(other.mName),
-	mkOriginSpeed(other.mkOriginSpeed),
+	mOriginSpeed(other.mOriginSpeed),
 	mCrntSpeed(other.mCrntSpeed),
 	mCrntLength(other.mCrntLength),
 	mMaxLength(other.mMaxLength),
@@ -66,7 +68,7 @@ void AnimatorMotion::Reset()
 {
 	mCrntLength = 0.f;
 	mWeight     = 1.f;
-	mCrntSpeed  = mkOriginSpeed;
+	mCrntSpeed  = mOriginSpeed;
 	mIsReverse  = 1;
 
 	ResetCallbacks();

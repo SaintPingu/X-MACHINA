@@ -91,7 +91,7 @@ protected:
 	std::vector<sptr<GameObject>> mWeapons{};
 
 public:
-	virtual void Awake() { base::Awake(); InitWeapons(); }
+	virtual void Start() { InitWeapons(); }
 
 public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
@@ -158,11 +158,15 @@ public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
-	void StartReload(float reloadTime);
+	// called by weapon //
+	void StartReload();
+	void EndReload() const;
 
 private:
 	void InitWeapons();
 	void SetWeapon(int weaponIdx);
+	void UnEquipWeapon();
+	void EquipWeapon();
 	void UpdateParam(float val, float& param);
 
 	void UpdateMovement(Dir dir);
@@ -176,8 +180,14 @@ private:
 	void OnAim();
 	void OffAim();
 
+	// called by itself
+	void Reload();
+	void StopReload();
+
 	void SetState(Movement prevState, Movement prevMotion, Movement crntState);
 	void SetMotion(Movement prevState, Movement prevMotion, Movement crntState, Movement& crntMotion);
+
+	void EndReloadMotion() const;
 };
 
 #pragma endregion

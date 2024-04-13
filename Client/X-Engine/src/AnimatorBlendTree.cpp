@@ -100,6 +100,11 @@ Matrix BlendTree::GetSRT(int boneIndex) const
 	return transform;
 }
 
+int BlendTree::GetMaxFrameRate() const
+{
+	return mMotions.front()->GetClip()->GetMaxFrameRate();
+}
+
 void BlendTree::Init(const AnimatorController* controller)
 {
 	x = controller->GetParamRef("Horizontal");

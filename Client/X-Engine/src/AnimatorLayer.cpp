@@ -36,10 +36,10 @@ Matrix AnimatorLayer::GetTransform(int boneIndex, HumanBone boneType) const
 	return transform;
 }
 
-void AnimatorLayer::Init(const AnimatorController* controller)
+void AnimatorLayer::Init(AnimatorController* controller)
 {
 	mController = controller;
-	mRootStateMachine->Init(controller);
+	mRootStateMachine->Init(controller, this);
 	CheckTransition(controller);
 }
 
@@ -172,7 +172,7 @@ void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
 
 void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
 {
-	if (!mNextStates.empty()) {
+	if (!mNextStates.empty() || !mCrntState->IsActiveSync()) {
 		return;
 	}
 

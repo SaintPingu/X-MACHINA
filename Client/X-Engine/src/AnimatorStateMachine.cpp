@@ -93,6 +93,62 @@ std::string AnimatorTransition::CheckTransition(const AnimatorController* contro
 		}
 
 		break;
+		case Hash("Greater"):
+		{
+			switch (param->type) {
+			case AnimatorParameter::Type::Int:
+			{
+				int value = param->val.i;
+				if (value <= static_cast<int>(round(condition.threshold))) {
+					return "";
+				}
+			}
+
+			break;
+			case AnimatorParameter::Type::Float:
+			{
+				float value = param->val.f;
+				if (value <= condition.threshold) {
+					return "";
+				}
+			}
+
+			break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+
+		break;
+		case Hash("Less"):
+		{
+			switch (param->type) {
+			case AnimatorParameter::Type::Int:
+			{
+				int value = param->val.i;
+				if (value >= static_cast<int>(round(condition.threshold))) {
+					return "";
+				}
+			}
+
+			break;
+			case AnimatorParameter::Type::Float:
+			{
+				float value = param->val.f;
+				if (value >= condition.threshold) {
+					return "";
+				}
+			}
+
+			break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+
+		break;
 		default:
 			assert(0);
 			break;
@@ -148,14 +204,15 @@ sptr<AnimatorStateMachine> AnimatorStateMachine::GetStateMachine(const std::stri
 	return nullptr;
 }
 
-void AnimatorStateMachine::Init(const AnimatorController* controller)
+void AnimatorStateMachine::Init(const AnimatorController* controller, const AnimatorLayer* layer)
 {
+	mLayer = layer;
 	for (auto& [name, state] : mStates) {
 		state->Init(controller);
 	}
 
 	for (auto& [name, subState] : mStateMachines) {
-		subState->Init(controller);
+		subState->Init(controller, layer);
 	}
 }
 

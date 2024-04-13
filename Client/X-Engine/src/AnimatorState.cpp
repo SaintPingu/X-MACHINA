@@ -24,6 +24,11 @@ Matrix AnimatorState::GetSRT(int boneIndex) const
 	return AnimatorTrack::GetSRT(boneIndex, GetLength());
 }
 
+int AnimatorState::GetMaxFrameRate() const
+{
+	return AnimatorTrack::GetClip()->GetMaxFrameRate();
+}
+
 float AnimatorState::GetFrameTime(int frame)
 {
 	return GetClip()->GetFrameTime(frame);

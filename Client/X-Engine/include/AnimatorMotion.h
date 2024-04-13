@@ -31,8 +31,8 @@ class AnimatorMotion abstract {
 private:
 
 	static constexpr float mkTransitionSpeed = 4.5f;
-	const float mkOriginSpeed{};
 
+	float   mOriginSpeed{};
 	float 	mCrntSpeed{};
 
 	float 	mCrntLength{};
@@ -40,6 +40,8 @@ private:
 	float 	mWeight{};
 
 	int		mIsReverse = 1;
+
+	bool    mIsActiveSync{ true };
 
 	std::string mName{};
 	const AnimatorStateMachine* mStateMachine{};
@@ -52,16 +54,22 @@ public:
 	AnimatorMotion(const AnimatorMotion& other);
 	virtual ~AnimatorMotion() = default;
 
+	virtual int GetMaxFrameRate() const abstract;
 	virtual Matrix GetSRT(int boneIndex) const abstract;
+
 	std::string GetName() const { return mName; }
 	float GetLength() const { return mCrntLength; }
 	float GetMaxLength() const { return mMaxLength; }
 	float GetWeight() const { return mWeight; }
+	bool IsActiveSync() const { return mIsActiveSync; }
 
 	void ResetLength();
 	void SetLength(float length);
-	void ResetSpeed() { mCrntSpeed = mkOriginSpeed; }
+	void ResetSpeed() { mCrntSpeed = mOriginSpeed; }
 	void SetSpeed(float speed) { mCrntSpeed = speed; }
+	void ResetOriginSpeed(float speed) { mCrntSpeed = speed; mOriginSpeed = speed; }
+
+	void SetSync(bool val) { mIsActiveSync = val; }
 	void SetWeight(float weight) { mWeight = weight; }
 
 	void AddCallback(const std::function<void()>& callback, int frame);
@@ -117,6 +125,7 @@ public:
 	virtual ~AnimatorState() = default;
 
 	virtual Matrix GetSRT(int boneIndex) const override;
+	virtual int GetMaxFrameRate() const override;
 
 protected:
 	virtual float GetFrameTime(int frame) override;
@@ -165,6 +174,7 @@ public:
 	virtual ~BlendTree() = default;
 
 	virtual Matrix GetSRT(int boneIndex) const override;
+	virtual int GetMaxFrameRate() const override;
 
 public:
 	virtual void Init(const AnimatorController* controller) override;

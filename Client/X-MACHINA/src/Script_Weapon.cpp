@@ -30,7 +30,7 @@ void Script_Weapon::Start()
 
 void Script_Weapon::Update()
 {
-	if (mIsReload && !Reloading()) {
+	if (mIsReload && mIsReload) {
 		return;
 	}
 
@@ -50,6 +50,28 @@ void Script_Weapon::SetFiringMode(FiringMode firingMode)
 	default:
 		assert(0);
 		break;
+	}
+}
+
+void Script_Weapon::InitReload()
+{
+	mCurMag = 0;
+	mCurReloadTime = 0.f;
+	mIsReload = true;
+}
+
+void Script_Weapon::EndReload()
+{
+	mCurMag = mMaxMag;
+	mCurReloadTime = 0.f;
+	mIsReload = false;
+}
+
+void Script_Weapon::StartReload()
+{
+	InitReload();
+	if (mOwner) {
+		mOwner->StartReload();
 	}
 }
 
@@ -86,27 +108,6 @@ void Script_Weapon::Fire()
 	if (--mCurMag <= 0) {
 		mIsReload = true;
 		StartReload();
-	}
-}
-
-bool Script_Weapon::Reloading()
-{
-	mCurReloadTime += DeltaTime();
-	if (mCurReloadTime >= mMaxReloadTime) {
-		mCurMag = mMaxMag;
-		mCurReloadTime = 0.f;
-		mIsReload = false;
-
-		return true;
-	}
-
-	return false;
-}
-
-void Script_Weapon::StartReload()
-{
-	if (mOwner) {
-		mOwner->StartReload(mMaxReloadTime);
 	}
 }
 #pragma endregion

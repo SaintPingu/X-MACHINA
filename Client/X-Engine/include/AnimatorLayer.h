@@ -15,7 +15,7 @@ private:
 	std::string mName{};
 	HumanBone mBoneMask{};
 
-	const AnimatorController* mController{};
+	AnimatorController* mController{};
 	sptr<AnimatorStateMachine> mRootStateMachine{};
 
 	sptr<AnimatorMotion>				mCrntState{};
@@ -30,11 +30,12 @@ public:
 	sptr<const AnimatorMotion> GetSyncState() const { return GetLastMotion(); }
 	sptr<AnimatorMotion> GetLastMotion() const		{ return mNextStates.empty() ? mCrntState : mNextStates.back(); }
 	Matrix GetTransform(int boneIndex, HumanBone boneType) const;
+	AnimatorController* GetController() const { return mController; }
 
 	void SetSyncStateMachine(bool val) { mIsSyncSM = val; }
 
 public:
-	void Init(const AnimatorController* controller);
+	void Init(AnimatorController* controller);
 
 	bool CheckBoneMask(HumanBone boneType) { return boneType == HumanBone::None ? true : mBoneMask & boneType; }
 

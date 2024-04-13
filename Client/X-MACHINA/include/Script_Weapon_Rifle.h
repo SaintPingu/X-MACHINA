@@ -21,6 +21,9 @@ public:
 class Script_Weapon_Skyline : public Script_Weapon_Rifle {
 	COMPONENT(Script_Weapon_Skyline, Script_Weapon_Rifle)
 
+public:
+	virtual WeaponType GetWeaponType() const override { return WeaponType::AssaultRifle; }
+
 private:
 	static constexpr float mkBulletDamage = 5.4f;
 	static constexpr float mkRPM          = 850.f;

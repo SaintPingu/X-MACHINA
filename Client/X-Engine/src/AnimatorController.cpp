@@ -127,7 +127,7 @@ void AnimatorController::SetValue(const std::string& paramName, void* value)
 		break;
 	}
 
-	mParameters[paramName].val = val;
+	param.val = val;
 	mIsCheckTransition = true;
 }
 

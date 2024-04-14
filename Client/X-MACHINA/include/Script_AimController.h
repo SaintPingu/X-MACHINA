@@ -23,6 +23,7 @@ private:
 
 public:
 	sptr<UI> mUI2;
+	sptr<UI> mUI3;
 	virtual void Awake() override;
 	virtual void Update() override;
 

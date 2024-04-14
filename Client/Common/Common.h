@@ -161,7 +161,7 @@ namespace Vector2 {
 
 	inline float SignedAngle(const Vec2& from, const Vec2& to)
 	{
-		float deg = XMConvertToDegrees(atan2(to.y, to.x) - atan2(from.y, from.x));
+		float deg = XMConvertToDegrees(atan2(from.y, from.x) - atan2(to.y, to.x));
 		if (fabs(deg) > 180) {
 			return (fabs(deg) - 360) * Math::Sign(deg);
 		}
@@ -238,6 +238,12 @@ namespace Vector3 {
 		Vec3 result;
 		XMStoreFloat3(&result, _VECTOR(Vector3::Normalized(vector)) * size);
 		return result;
+	}
+
+	// y값이 [y]인 ray 위의 점을 반환한다.
+	inline Vec3 RayOnPoint(const Vec3& rayStart, const Vec3& rayDir, float y)
+	{
+		return rayStart + (rayDir * ((y - rayStart.y) / rayDir.y));
 	}
 
 	inline float Angle(const Vec3& from, const Vec3& to)
@@ -374,6 +380,13 @@ namespace Matrix4x4 {
 		Matrix result;
 		XMStoreFloat4x4(&result, XMMatrixSet(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f));
 		return result;
+	}
+
+	inline Matrix Inverse(const Matrix& matrix)
+	{
+		Matrix result;
+		XMStoreFloat4x4(&result, XMMatrixInverse(NULL, _MATRIX(matrix)));
+		return(result);
 	}
 }
 

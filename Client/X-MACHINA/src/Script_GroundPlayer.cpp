@@ -88,7 +88,7 @@ void Script_GroundPlayer::LateUpdate()
 	base::LateUpdate();
 
 	// keep the muzzle facing the target //
-	if (mIsAim && mMuzzle) {
+	if (mIsAim && mMuzzle && !mWeaponScript->IsReloading()) {
 		if (IsInGunChangeMotion()) {
 			return;
 		}
@@ -100,16 +100,14 @@ void Script_GroundPlayer::LateUpdate()
 			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
 		}
 
-		
+		// [DEBUG CODE] show aim UI of muzzle's destination //
+		Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
+		Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook()) - muzzleScreenPos);
+		Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
+		mAimController->mUI3->SetPosition(bulletDstScreenPos);	// origin
 
 		float angle = GetAngleToAim(aimScreenPos);
 		if (fabs(angle) > 0.1f) {
-			mSpineBone->RotateGlobal(Vector3::Up, angle);
-
-			// second correction (maybe screen coordinate system is a little inaccurate) //
-			angle = GetAngleToAim(aimScreenPos);
-			mSpineBone->RotateGlobal(Vector3::Up, angle);
-			angle = GetAngleToAim(aimScreenPos);
 			mSpineBone->RotateGlobal(Vector3::Up, angle);
 
 			constexpr float recoverAmount = 70.f;
@@ -130,10 +128,17 @@ void Script_GroundPlayer::LateUpdate()
 			}
 
 			// [DEBUG CODE] show aim UI of muzzle's destination //
-			Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
-			Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook()) - muzzleScreenPos);
-			Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
-			mAimController->mUI2->SetPosition(bulletDstScreenPos);
+			Vec3 ray = mainCamera->ScreenToWorldRay(aimScreenPos);
+			Vec3 camPos = mainCamera->GetPosition();
+			Vec3 aimWorldPos = Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y);
+
+			Vec3 muzzlePos = mMuzzle->GetPosition();
+			Vec3 muzzleLook = mMuzzle->GetLook();
+			Vec3 offsetPos = mSpineBone->GetPosition();
+			Vec3 offsetToAim = aimWorldPos - offsetPos;
+			float approxLength = (offsetToAim.Length() - (muzzlePos - offsetPos).Length());
+			Vec3 bulletDstScreenPos = muzzlePos + (muzzleLook * approxLength);
+			mAimController->mUI2->SetPosition(mainCamera->WorldToScreenPoint(bulletDstScreenPos));
 		}
 	}
 }
@@ -180,10 +185,6 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 
 			// 회전 부호에 따라 h값을 설정한다.
 			h = Math::Sign(rotAngle) > 0 ? -1.f : 1.f;
-			// 90도일 때 h가 최대값 1을 갖고, 90도 미만이면 h를 보간한다.
-			if (rotAngleAbs < 90.f) {
-				h *= rotAngleAbs / 90.f;
-			}
 		}
 		// 정지 상태 //
 		else {
@@ -255,8 +256,6 @@ void Script_GroundPlayer::Move(Dir dir)
 
 void Script_GroundPlayer::RotateTo(Dir dir)
 {
-	Dir test = Dir::Front;
-	Dir tset2 = test |= Dir::Back;
 	if (dir == Dir::None) {
 		return;
 	}
@@ -658,16 +657,32 @@ void Script_GroundPlayer::UpdateMovement(Dir dir)
 
 float Script_GroundPlayer::GetAngleToAim(const Vec2& aimScreenPos) const
 {
-	Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
-	Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook().xz()) - muzzleScreenPos);
+	// aim에서 발사된 광선에서 총구의 y값과 일치하는 지점을 찾는다.
+	const Vec3 ray = mainCamera->ScreenToWorldRay(aimScreenPos);
+	const Vec3 camPos = mainCamera->GetPosition();
+	const Vec3 aimWorldPos = Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y);
 
-	// muzzleScreenLook이 aimScreenPos 지점에 교차해야 한다. 
-	// 총알이 도달해야하는 지점이다.
-	Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
+	// 회전축
+	const Vec3 offsetPos = mSpineBone->GetPosition();
 
-	// screen 좌표계 오차 (추정)
-	constexpr float err = 0.8f;
-	return -Vector2::SignedAngle(bulletDstScreenPos - muzzleScreenPos, aimScreenPos - muzzleScreenPos) * err;
+	// 총구 위치&방향
+	const Vec3 muzzlePos = mMuzzle->GetPosition();
+	const Vec3 muzzleLook = mMuzzle->GetLook();
+
+	// 회전축에서 조준점으로 향하는 벡터
+	const Vec3 offsetToAim = aimWorldPos - offsetPos;
+
+	// 총구에서 탄착점으로 향하는 벡터의 길이 근사값
+	const float approxLength = (offsetToAim.Length() - (muzzlePos - offsetPos).Length());
+
+	// 탄착점으로 향하는 벡터
+	const Vec3 muzzleToBullet = muzzlePos + (muzzleLook * approxLength);
+
+	// 회전축에서 탄착점으로 향하는 벡터
+	const Vec3 offsetToBullet = muzzleToBullet - offsetPos;
+
+	// (회전축-탄착점) -> (회전축-조준점)으로 향하는 각도
+	return Vector3::SignedAngle(offsetToBullet, offsetToAim, Vector3::Up);
 }
 
 void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)

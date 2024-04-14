@@ -61,6 +61,8 @@ public:
 	bool IsInFrustum(const BoundingSphere& boundingSphere)   { return mFrustumWorld.Intersects(boundingSphere); }
 
 	Vec2 WorldToScreenPoint(const Vec3& pos);
+	Vec3 ScreenToWorldRay(const Vec2& pos);
+
 private:
 	void CalculateFrustumPlanes();
 };

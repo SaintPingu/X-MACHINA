@@ -21,6 +21,7 @@ void Script_Droid::Awake()
 
 void Script_Droid::Update()
 {
+	return;
 	const float kMinDistance = 0.1f;
 
 	float distance = (mObject->GetPosition() - mPlayer->GetPosition()).Length();

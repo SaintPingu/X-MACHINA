@@ -92,6 +92,21 @@ Vec2 Camera::WorldToScreenPoint(const Vec3& pos)
 	return Vec2(result.x, result.y);
 }
 
+Vec3 Camera::ScreenToWorldRay(const Vec2& pos)
+{
+	// 스크린 좌표 -> NDC(Normalized Device Coordinates) -> 클립 좌표로 변환
+	Vec3 pickPos;
+	pickPos.x = (pos.x / mViewport.Width) / mProjTransform._11;
+	pickPos.y = (pos.y / mViewport.Height) / mProjTransform._22;
+	pickPos.z = 1.f;
+
+	// 월드공간으로 변환 후 카메라와의 차이 계산
+	const Matrix inverse = Matrix4x4::Inverse(mViewTransform);
+	const Vec3 world = Vec3::Transform(pickPos, inverse); // front of camera
+
+ 	return Vector3::Normalized(world - mObject->GetPosition());
+}
+
 void Camera::CalculateFrustumPlanes()
 {
 	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));

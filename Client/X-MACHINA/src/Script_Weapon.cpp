@@ -75,6 +75,7 @@ void Script_Weapon::EndReload()
 void Script_Weapon::StartReload()
 {
 	InitReload();
+
 	if (mOwner) {
 		mOwner->StartReload();
 	}

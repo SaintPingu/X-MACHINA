@@ -129,10 +129,14 @@ void Transform::SetUp(const Vec3& up)
 	UpdateLocalTransform();
 }
 
-void Transform::SetChild(rsptr<Transform> child)
+void Transform::SetChild(rsptr<Transform> child, bool isKeepLocalTransform)
 {
 	if (child) {
 		child->mParent = this;
+	}
+	else {
+		mChild = nullptr;
+		return;
 	}
 
 	if (mChild) {
@@ -145,7 +149,7 @@ void Transform::SetChild(rsptr<Transform> child)
 		}
 		else {
 			if (child) {
-				child->mSibling = mChild->mSibling;
+				child->mSibling = nullptr;
 			}
 			mChild->mSibling = child;
 		}
@@ -153,6 +157,46 @@ void Transform::SetChild(rsptr<Transform> child)
 	else {
 		mChild = child;
 	}
+
+	if (!isKeepLocalTransform) {
+		child->SetLocalTransform(child->GetWorldTransform() * Matrix4x4::Inverse(mWorldTransform));
+		child->ComputeWorldTransform();
+	}
+}
+
+sptr<Transform> Transform::DetachParent(bool isKeepLocalTransform)
+{
+	if (!mParent) {
+		return nullptr;
+	}
+	const Matrix& worldTransform = GetWorldTransform();
+	if (mChild) {
+		mChild->mParent = mParent;
+	}
+
+	sptr<Transform> crnt = mParent->mChild;
+	Transform* prev      = crnt.get();
+	if (crnt.get() == this) {		// parent's child is this
+		mParent->SetChild(nullptr);
+	}
+	else {
+		while (crnt.get() != this) {
+			prev = crnt.get();
+			crnt = crnt->mSibling;
+		}
+
+		// crnt == this
+		if (prev != crnt.get()) {
+			prev->mSibling = crnt->mSibling;
+		}
+	}
+
+	mParent = nullptr;
+	if (!isKeepLocalTransform) {
+		SetLocalTransform(worldTransform);
+	}
+	ComputeWorldTransform();
+	return crnt;
 }
 
 void Transform::SetLocalTransform(const Matrix& transform)

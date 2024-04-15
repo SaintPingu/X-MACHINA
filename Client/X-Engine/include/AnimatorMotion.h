@@ -6,13 +6,19 @@ class AnimatorController;
 class AnimationClip;
 class AnimatorStateMachine;
 
+struct AnimatorStateTransition {
+	sptr<const AnimatorTransition> Base{};
+	float ExitTime{};
+	bool InExit{};
+};
+
 struct AnimatorMotionInfo {
 	std::string Name{};
 	float Length{};
 	float Speed{};
 
 	sptr<const AnimatorStateMachine> StateMachine;
-	std::vector<sptr<const AnimatorTransition>> Transitions{};
+	std::vector<sptr<AnimatorStateTransition>> Transitions{};
 };
 
 struct MotionCallback {
@@ -45,15 +51,18 @@ private:
 
 	std::string mName{};
 	const AnimatorStateMachine* mStateMachine{};
-	std::vector<sptr<const AnimatorTransition>> mTransitions{};
+	std::vector<sptr<AnimatorStateTransition>> mTransitions{};
 
 	std::map<float, MotionCallback> mCallbacks;
+	sptr<MotionCallback> mCallbackStop;
+	sptr<MotionCallback> mCallbackChange;
 
 public:
 	AnimatorMotion(const AnimatorMotionInfo& info);
 	AnimatorMotion(const AnimatorMotion& other);
 	virtual ~AnimatorMotion() = default;
 
+	void Init(const AnimatorStateMachine* stateMachine) { mStateMachine = stateMachine; }
 	virtual int GetMaxFrameRate() const abstract;
 	virtual Matrix GetSRT(int boneIndex) const abstract;
 
@@ -73,9 +82,6 @@ public:
 	void SetSync(bool val) { mIsActiveSync = val; }
 	void SetWeight(float weight) { mWeight = weight; }
 
-	void AddCallback(const std::function<void()>& callback, int frame);
-	void DeleteCallback(int frame);
-
 public:
 	virtual void Init(const AnimatorController* controller) {};
 	void Reset();
@@ -90,6 +96,17 @@ public:
 
 	void DecWeight();
 	void IncWeight();
+
+	void AddCallback(const std::function<void()>& callback, int frame);
+	void DelCallback(int frame);
+
+	void AddStopCallback(const std::function<void()>& callback);
+	void DelStopCallback();
+	void AddChangeCallback(const std::function<void()>& callback);
+	void DelChabgeCallback();
+
+	void StopAnimation();
+	void CallbackChange();
 
 protected:
 	virtual float GetFrameTime(int frame) abstract;

@@ -28,7 +28,7 @@ namespace Animations {
 class AnimatorStateMachine {
 private:
 	std::string mName{};
-	const AnimatorLayer* mLayer{};
+	AnimatorLayer* mLayer{};
 	AnimatorStateMachine* mParent{};
 
 	std::vector<sptr<const AnimatorTransition>> mEntryTransitions{};
@@ -48,9 +48,11 @@ public:
 	const AnimatorLayer* GetLayer() const { return mLayer; }
 
 	void SetParent(AnimatorStateMachine* parent) { mParent = parent; }
+	void PushState(rsptr<AnimatorMotion> motion) const;
+	void PushState(const std::string& motionName) const;
 
 public:
-	void Init(const AnimatorController* controller, const AnimatorLayer* layer);
+	void Init(const AnimatorController* controller, AnimatorLayer* layer);
 
 	void AddState(rsptr<AnimatorMotion> state);
 	void AddStateMachine(rsptr<AnimatorStateMachine> stateMachine);

@@ -119,7 +119,7 @@ protected:
 	virtual void SetWeapon(int weaponIdx);
 
 	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) abstract;
-	virtual void DrawWeapon() abstract;
+	virtual void DrawWeapon();
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;
 	virtual void PutbackWeaponEnd();
@@ -158,11 +158,15 @@ private:
 	// aim //
 	bool mIsAim{};
 	bool mIsInBodyRotation{};
+	float mCrntSpineAngle{};
 	float mSpineDstAngle{};
+	float mAimingDeltaTime{};
 	Transform* mSpineBone{};
+	Transform* mMuzzleParent{};
+	Matrix mMuzzleLocalTransform{};
 	sptr<Script_AimController> mAimController{};
 
-	// test //
+	// recoil //
 	int   mRecoilSign{};
 	float mCurRecoil{};
 	float mMaxRecoil{20.f};
@@ -193,17 +197,18 @@ public:
 
 	// called by weapon //
 	void StartReload();
-	void EndReload() const;
+	// called by callback //
+	void EndReload();
 
 	virtual void BulletFired() override;
 
 private:
 	void InitWeapons();
 	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
-	virtual void DrawWeapon() override;
-	virtual void DrawWeaponEnd() override;
+	virtual void DrawWeaponCallback();
+	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
-	virtual void PutbackWeaponEnd() override;
+	virtual void PutbackWeaponEndCallback();
 	void UpdateParam(float val, float& param);
 
 	void UpdateMovement(Dir dir);
@@ -213,6 +218,7 @@ private:
 
 	// angle 만큼 서서히 회전한다.
 	void Rotate(float angle) const;
+	void RotateSpineToAim();
 
 	void OnAim();
 	void OffAim();
@@ -224,7 +230,14 @@ private:
 	void SetState(Movement prevState, Movement prevMotion, Movement crntState);
 	void SetMotion(Movement prevState, Movement prevMotion, Movement crntState, Movement& crntMotion);
 
-	void EndReloadMotion() const;
+	void StopReloadCallback();
+	void ChangeReloadCallback();
+	void EndReloadCallback();
+
+	void ResetAimingTime() { mAimingDeltaTime = 0.f; }
+
+	void DetachMuzzle();
+	void AttachMuzzle();
 };
 
 #pragma endregion

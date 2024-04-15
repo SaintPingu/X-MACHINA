@@ -99,7 +99,7 @@ void AnimatorLayer::Animate()
 
 	std::erase_if(mNextStates, [](const auto& state) {
 		if (state->GetWeight() <= 0.f) {
-			state->Reset();
+			state->StopAnimation();
 			return true;
 		}
 		return false;
@@ -118,41 +118,13 @@ void AnimatorLayer::CheckTransition(const AnimatorController* controller, bool i
 		return;
 	}
 
-	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
-	if (it != mNextStates.end()) {
-		return;
-	}
-
 	if (isChangeImmed) {
 		mNextStates.clear();
 		ChangeState(nextState);
 		return;
 	}
 
-	if (nextState == mCrntState) {
-		if (mNextStates.empty()) {
-			return;
-		}
-		else {
-			mIsReverse = true;
-		}
-	}
-	else if (nextState != nullptr) {
-		nextState->Reset();
-		if (mIsSyncSM) {	// 동일한 StateMachine 내에서는 다음 state가 length를 이어받는다.
-			if (mCrntState->IsSameStateMachine(nextState)) {
-				nextState->SetLength(mCrntState->GetLength());
-			}
-		}
-
-		nextState->SetWeight(0);
-		if (mIsReverse) {
-			mNextStates.insert(mNextStates.begin(), nextState);
-		}
-		else {
-			mNextStates.push_back(nextState);
-		}
-	}
+	PushState(nextState);
 }
 
 void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
@@ -161,6 +133,7 @@ void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
 		return;
 	}
 
+	mCrntState->CallbackChange();
 	mCrntState->Reset();
 	mCrntState = state;
 
@@ -236,3 +209,36 @@ void AnimatorLayer::SyncComplete()
 	mSyncState = nullptr;
 }
 #pragma endregion
+
+void AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
+{
+	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
+	if (it != mNextStates.end()) {
+		return;
+	}
+
+	if (nextState == mCrntState) {
+		if (mNextStates.empty()) {
+			return;
+		}
+		else {
+			mIsReverse = true;
+		}
+	}
+	else if (nextState != nullptr) {
+		nextState->Reset();
+		if (mIsSyncSM) {	// 동일한 StateMachine 내에서는 다음 state가 length를 이어받는다.
+			if (mCrntState->IsSameStateMachine(nextState)) {
+				nextState->SetLength(mCrntState->GetLength());
+			}
+		}
+
+		nextState->SetWeight(0);
+		if (mIsReverse) {
+			mNextStates.insert(mNextStates.begin(), nextState);
+		}
+		else {
+			mNextStates.push_back(nextState);
+		}
+	}
+}

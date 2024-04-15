@@ -22,6 +22,7 @@ public:
 	~AnimationClip() = default;
 
 	float GetFrameTime(int frame) const { return mKeyFrameTimes[frame]; }
+	float GetMaxFrameTime() const { return mKeyFrameTimes.back(); }
 	int GetMaxFrameRate() const { return static_cast<int>(mKeyFrameTimes.size()); }
 
 public:

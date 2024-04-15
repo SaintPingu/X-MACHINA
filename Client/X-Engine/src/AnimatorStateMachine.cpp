@@ -204,7 +204,17 @@ sptr<AnimatorStateMachine> AnimatorStateMachine::GetStateMachine(const std::stri
 	return nullptr;
 }
 
-void AnimatorStateMachine::Init(const AnimatorController* controller, const AnimatorLayer* layer)
+void AnimatorStateMachine::PushState(rsptr<AnimatorMotion> motion) const
+{
+	mLayer->PushState(motion);
+}
+
+void AnimatorStateMachine::PushState(const std::string& motionName) const
+{
+	PushState(mStates.at(motionName));
+}
+
+void AnimatorStateMachine::Init(const AnimatorController* controller, AnimatorLayer* layer)
 {
 	mLayer = layer;
 	for (auto& [name, state] : mStates) {
@@ -219,6 +229,7 @@ void AnimatorStateMachine::Init(const AnimatorController* controller, const Anim
 void AnimatorStateMachine::AddState(rsptr<AnimatorMotion> state)
 {
 	mStates.insert(std::make_pair(state->GetName(), state));
+	state->Init(this);
 }
 
 sptr<AnimatorMotion> AnimatorStateMachine::Entry() const
@@ -244,13 +255,11 @@ sptr<AnimatorMotion> AnimatorStateMachine::CheckTransition(const AnimatorControl
 	for (const auto& transition : mEntryTransitions) {
 		std::string destination = transition->CheckTransition(controller);
 		if (destination != "") {
-			sptr<AnimatorMotion> state = GetState(destination);
-			if (state) {
+			if (sptr<AnimatorMotion> state = GetState(destination)) {
 				return state;
 			}
 
-			sptr<AnimatorStateMachine> subStateMachine = GetStateMachine(destination);
-			if (subStateMachine) {
+			if (sptr<AnimatorStateMachine> subStateMachine = GetStateMachine(destination)) {
 				return subStateMachine->CheckTransition(controller);
 			}
 		}

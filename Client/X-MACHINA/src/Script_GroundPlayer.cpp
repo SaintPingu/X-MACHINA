@@ -32,7 +32,7 @@ const float Script_GroundPlayer::mkStandWalkSpeed = 2.2f;
 const float Script_GroundPlayer::mkRunSpeed = 5.f;
 const float Script_GroundPlayer::mkSprintSpeed = 8.f;
 
-const float Script_GroundPlayer::mkStartRotAngle = 45.f;
+const float Script_GroundPlayer::mkStartRotAngle = 40.f;
 
 namespace {
 	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
@@ -87,60 +87,7 @@ void Script_GroundPlayer::LateUpdate()
 {
 	base::LateUpdate();
 
-	// keep the muzzle facing the target //
-	if (mIsAim && mMuzzle && !mWeaponScript->IsReloading()) {
-		if (IsInGunChangeMotion()) {
-			return;
-		}
-
-		// angle could be too large if aim is so close
-		constexpr float kAimMinDistance = 300.f;
-		Vec2 aimScreenPos = mAimController->GetAimPos();
-		if (aimScreenPos.Length() < kAimMinDistance) {
-			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
-		}
-
-		// [DEBUG CODE] show aim UI of muzzle's destination //
-		Vec2 muzzleScreenPos = mainCamera->WorldToScreenPoint(mMuzzle->GetPosition());
-		Vec2 muzzleScreenLook = Vector2::Normalized(mainCamera->WorldToScreenPoint(mMuzzle->GetPosition() + mMuzzle->GetLook()) - muzzleScreenPos);
-		Vec2 bulletDstScreenPos = muzzleScreenPos + (muzzleScreenLook * (aimScreenPos.Length() - muzzleScreenPos.Length()));
-		mAimController->mUI3->SetPosition(bulletDstScreenPos);	// origin
-
-		float angle = GetAngleToAim(aimScreenPos);
-		if (fabs(angle) > 0.1f) {
-			mSpineBone->RotateGlobal(Vector3::Up, angle);
-
-			constexpr float recoverAmount = 70.f;
-			mCurRecoil -= recoverAmount * DeltaTime();
-			if (mCurRecoil <= 0) {
-				mCurRecoil = 0;
-			}
-
-			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
-
-			constexpr float rightAngleCorr = 10.f;	// can rotate more by [rightAngleCorr] angle to the right.
-			mSpineDstAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up) - rightAngleCorr;
-			// spine angle is max [mkStartRotAngle] degree from object direction, so can't rotate anymore //
-			if (fabs(mSpineDstAngle) > mkStartRotAngle) {
-				const int sign = Math::Sign(mSpineDstAngle);
-				const float corrAngle = (fabs(mSpineDstAngle) - mkStartRotAngle) * -sign;
-				mSpineBone->RotateGlobal(Vector3::Up, corrAngle);
-			}
-
-			// [DEBUG CODE] show aim UI of muzzle's destination //
-			Vec3 ray = mainCamera->ScreenToWorldRay(aimScreenPos);
-			Vec3 camPos = mainCamera->GetPosition();
-			Vec3 aimWorldPos = Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y);
-
-			Vec3 muzzlePos = mMuzzle->GetPosition();
-			Vec3 muzzleLook = mMuzzle->GetLook();
-			Vec3 offsetPos = mSpineBone->GetPosition();
-			Vec3 offsetToAim = aimWorldPos - offsetPos;
-			float approxLength = (offsetToAim.Length() - (muzzlePos - offsetPos).Length());
-			Vec3 bulletDstScreenPos = muzzlePos + (muzzleLook * approxLength);
-			mAimController->mUI2->SetPosition(mainCamera->WorldToScreenPoint(bulletDstScreenPos));
-		}
-	}
+	RotateSpineToAim();
 }
 
 
@@ -184,6 +131,7 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 			mController->SetValue("Walk", true);
 
 			// 회전 부호에 따라 h값을 설정한다.
+			v = Math::Sign(rotAngle) > 0 ? 0.5f : -0.5f;
 			h = Math::Sign(rotAngle) > 0 ? -1.f : 1.f;
 		}
 		// 정지 상태 //
@@ -237,8 +185,8 @@ void Script_GroundPlayer::ProcessInput()
 	// legs blend tree animation //
 	if (mController) {
 		UpdateParams(dir, v, h, rotAngle);
-		mController->SetValue("Vertical", mParamV);
-		mController->SetValue("Horizontal", mParamH);
+		mController->SetValue("Vertical", fabs(mParamV) > 0.1f ? mParamV : 0.f);
+		mController->SetValue("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
 	}
 }
 
@@ -369,18 +317,25 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 
 void Script_GroundPlayer::StartReload()
 {
+	if (!mWeapon) {
+		return;
+	}
+
+	DetachMuzzle();
+
 	if (mController) {
 		mController->SetValue("Reload", true);
 	}
 }
 
-void Script_GroundPlayer::EndReload() const
+void Script_GroundPlayer::EndReload()
 {
+	AttachMuzzle();
+
+	mWeaponScript->EndReload();
+
 	if (mController) {
 		mController->SetValue("Reload", false);
-	}
-	if (mWeaponScript) {
-		mWeaponScript->EndReload();
 	}
 }
 
@@ -452,10 +407,12 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::MissileLauncher, "ShootPrimaryMissileLauncher" },
 	};
 
-	CallbackType reloadCallback  = std::bind(&Script_GroundPlayer::EndReloadMotion, this);
-	CallbackType drawCallback    = std::bind(&Script_GroundPlayer::DrawWeapon, this);
-	CallbackType drawEndCallback = std::bind(&Script_GroundPlayer::DrawWeaponEnd, this);
-	CallbackType putbackCallback = std::bind(&Script_GroundPlayer::PutbackWeaponEnd, this);
+	CallbackType reloadCallback        = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
+	CallbackType reloadStopCallback    = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
+	CallbackType reloadChangeCallback  = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
+	CallbackType drawCallback          = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
+	CallbackType drawEndCallback       = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
+	CallbackType putbackCallback       = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
 	mWeapons.resize(gkWeaponTypeCnt, nullptr);
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
@@ -509,7 +466,9 @@ void Script_GroundPlayer::InitWeapons()
 		shootMotion->SetSync(false);
 
 		// add callbacks
-		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 1);
+		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 3); // for smooth animation, reload complete before [3] frame
+		realodMotion->AddStopCallback(reloadStopCallback);
+		realodMotion->AddChangeCallback(reloadChangeCallback);
 		drawMotion->AddCallback(drawCallback, kDrawFrame);
 		drawMotion->AddCallback(drawEndCallback, drawMotion->GetMaxFrameRate() - 1);
 		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
@@ -536,9 +495,11 @@ void Script_GroundPlayer::DrawWeaponStart(int weaponIdx, bool isDrawImmed)
 	else {
 		mController->SetValue("Draw", true, false);
 	}
+
+	ResetAimingTime();
 }
 
-void Script_GroundPlayer::DrawWeapon()
+void Script_GroundPlayer::DrawWeaponCallback()
 {
 	base::DrawWeapon();
 	
@@ -549,7 +510,7 @@ void Script_GroundPlayer::DrawWeapon()
 	motion->ResetOriginSpeed(realodSpeed);
 }
 
-void Script_GroundPlayer::DrawWeaponEnd()
+void Script_GroundPlayer::DrawWeaponEndCallback()
 {
 	base::DrawWeaponEnd();
 
@@ -571,12 +532,13 @@ void Script_GroundPlayer::PutbackWeapon()
 	base::PutbackWeapon();
 
 	if (mWeapon) {
+		AttachMuzzle();
 		StopReload();
 		mController->SetValue("PutBack", true);
 	}
 }
 
-void Script_GroundPlayer::PutbackWeaponEnd()
+void Script_GroundPlayer::PutbackWeaponEndCallback()
 {
 	mController->SetValue("Weapon", 0);
 
@@ -592,11 +554,14 @@ void Script_GroundPlayer::PutbackWeaponEnd()
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
-	constexpr float kParamSpeed = 4.f;				// 파라미터 전환 속도
+	constexpr float kParamSpeed = 6.f;				// 파라미터 전환 속도
 	constexpr float kOppositeExtraSpeed = 8.f;		// 반대편 이동 시 추가 이동 전환 속도
 
 	int sign = Math::Sign(val);						// sign : 파라미터 이동 방향 = 현재 입력값의 부호
 	if (Math::IsZero(val)) {						//		  입력이 없다면 현재 파라미터의 반대 부호
+		if (Math::IsZero(param)) {
+			return;
+		}
 		sign = -Math::Sign(param);
 	}
 	float before = param;
@@ -660,14 +625,14 @@ float Script_GroundPlayer::GetAngleToAim(const Vec2& aimScreenPos) const
 	// aim에서 발사된 광선에서 총구의 y값과 일치하는 지점을 찾는다.
 	const Vec3 ray = mainCamera->ScreenToWorldRay(aimScreenPos);
 	const Vec3 camPos = mainCamera->GetPosition();
-	const Vec3 aimWorldPos = Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y);
+	const Vec3 aimWorldPos = Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y).xz();
 
 	// 회전축
-	const Vec3 offsetPos = mSpineBone->GetPosition();
+	const Vec3 offsetPos = mSpineBone->GetPosition().xz();
 
 	// 총구 위치&방향
-	const Vec3 muzzlePos = mMuzzle->GetPosition();
-	const Vec3 muzzleLook = mMuzzle->GetLook();
+	const Vec3 muzzlePos = mMuzzle->GetPosition().xz();
+	const Vec3 muzzleLook = mMuzzle->GetLook().xz();
 
 	// 회전축에서 조준점으로 향하는 벡터
 	const Vec3 offsetToAim = aimWorldPos - offsetPos;
@@ -693,31 +658,26 @@ void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
 	bool moving = dir != Dir::None;
 	// spine bone's look vector is aim direction (spine bone gonna look at aim from LateUpdate function)
 	// get an angle if end the aim animation
-	if (!moving && mController->IsEndTransition("Body") && !IsInGunChangeMotion()) {
-		rotAngle = mSpineDstAngle;
+	if (!moving && !IsInGunChangeMotion() && !mWeaponScript->IsReloading()) {
+		rotAngle = mCrntSpineAngle;
 	}
 	else {
 		rotAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vec3(aimDir.x, 0, aimDir.y), Vector3::Up);
 	}
-
-	const float angleAbs = fabs(rotAngle);
 
 	// look at the aim if moving
 	if (moving) {
 		Rotate(rotAngle);
 	}
 	// rotate body to the aim if spine bone's angle too large
-	else if (mIsInBodyRotation || angleAbs > mkStartRotAngle) {
-		if (angleAbs > mkStartRotAngle) {
-			mIsInBodyRotation = true;
-		}
-		else if (angleAbs < kStopRotAngle) {
+	else if (mIsInBodyRotation) {
+		if (fabs(rotAngle) < kStopRotAngle) {
 			mIsInBodyRotation = false;
 			rotAngle = 0.f;
 			return;
 		}
 
-		Rotate(rotAngle);
+		Rotate(mSpineDstAngle);
 	}
 	else {
 		rotAngle = 0.f;
@@ -728,10 +688,10 @@ void Script_GroundPlayer::Rotate(float angle) const
 {
 	constexpr float kMaxAngle = 90.f;
 
-	const int sign = Math::Sign(angle);
+	const int sign       = Math::Sign(angle);
 	const float angleAbs = fabs(angle);
 
-	// 90도가 넘으면 최대 속도, 그 이하면 보간
+	// [kMaxAngle] 각도 이하면 보간
 	float rotationSpeed{};
 	if (angleAbs > kMaxAngle) {
 		rotationSpeed = mRotationSpeed;
@@ -742,6 +702,69 @@ void Script_GroundPlayer::Rotate(float angle) const
 
 	mObject->Rotate(0, sign * rotationSpeed * DeltaTime(), 0);
 }
+
+
+void Script_GroundPlayer::RotateSpineToAim()
+{
+	// keep the muzzle facing the target //
+	constexpr float kAimingSpeed  = 10.f;
+	constexpr float kHoldingSpeed = 5.f;
+
+	if (mIsAim && mMuzzle) {
+		if (IsInGunChangeMotion()) {
+			return;
+		}
+
+		// angle could be too large if aim is so close
+		constexpr float kAimMinDistance = 300.f;
+		Vec2 aimScreenPos = mAimController->GetAimPos();
+		if (aimScreenPos.Length() < kAimMinDistance) {
+			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
+		}
+
+		// smoothly rotate the spin angle through linear interpolation.
+		if (mAimingDeltaTime >= 1.f) {
+			mAimingDeltaTime = 1.f;
+		}
+		else {
+			mAimingDeltaTime += kAimingSpeed * DeltaTime();
+		}
+
+		mCrntSpineAngle = GetAngleToAim(aimScreenPos) * mAimingDeltaTime;
+		if (fabs(mCrntSpineAngle) > 0.1f) {
+			mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle);
+
+			constexpr float recoverAmount = 70.f;
+			mCurRecoil -= recoverAmount * DeltaTime();
+			if (mCurRecoil <= 0) {
+				mCurRecoil = 0;
+			}
+
+			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
+
+			// spine angle is max [mkStartRotAngle] degree from object direction, so can't rotate anymore //
+			constexpr float leftAngleBound = 15.f;	// can rotate more to the left
+			const float correctedSpineAngle = mCrntSpineAngle + leftAngleBound;
+			if (fabs(correctedSpineAngle) > mkStartRotAngle) {
+				const int sign = Math::Sign(mCrntSpineAngle);
+				const float corrAngle = (fabs(correctedSpineAngle) - mkStartRotAngle) * -sign;
+				mSpineDstAngle = correctedSpineAngle;
+				mCrntSpineAngle += corrAngle;
+				mSpineBone->RotateGlobal(Vector3::Up, corrAngle);
+
+				mIsInBodyRotation = true;
+			}
+		}
+	}
+	else if (mAimingDeltaTime > 0) {
+		mAimingDeltaTime -= kHoldingSpeed * DeltaTime();
+		if (mAimingDeltaTime < 0) {
+			mAimingDeltaTime = 0.f;
+		}
+		mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle * mAimingDeltaTime);
+	}
+}
+
 
 void Script_GroundPlayer::OnAim()
 {
@@ -912,7 +935,44 @@ void Script_GroundPlayer::SetMotion(Movement prevState, Movement prevMotion, Mov
 	}
 }
 
-void Script_GroundPlayer::EndReloadMotion() const
+void Script_GroundPlayer::StopReloadCallback()
+{
+	StopReload();
+}
+
+void Script_GroundPlayer::ChangeReloadCallback()
+{
+	const auto& motion = mController->GetCrntMotion("Body");
+	float ratio = motion->GetLength() / motion->GetMaxLength();
+
+	// 리로드 도중 모션 변경 시 80%이상 진행되었다면 장전 완료 처리
+	// 아직 재장전 상태인 경우만 적용
+	if (ratio > 0.8f, mController->GetParamValue<bool>("Reload") == true) {
+		EndReload();
+	}
+}
+
+void Script_GroundPlayer::EndReloadCallback()
 {
 	EndReload();
+}
+
+void Script_GroundPlayer::DetachMuzzle()
+{
+	if (mIsAim && !mMuzzleParent) {
+		mMuzzleParent = mMuzzle->mParent;
+		mMuzzleLocalTransform = mMuzzle->GetLocalTransform();
+		rsptr<Transform> detachedMuzzle = mMuzzle->DetachParent(false);
+		mSpineBone->SetChild(detachedMuzzle, false);
+	}
+}
+
+void Script_GroundPlayer::AttachMuzzle()
+{
+	if (mMuzzleParent) {
+		rsptr<Transform> detachedMuzzle = mMuzzle->DetachParent();
+		mMuzzleParent->SetChild(detachedMuzzle);
+		mMuzzleParent = nullptr;
+		mMuzzle->SetLocalTransform(mMuzzleLocalTransform);
+	}
 }

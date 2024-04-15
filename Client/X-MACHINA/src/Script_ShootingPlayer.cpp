@@ -21,10 +21,6 @@ void Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARA
 		StopFire();
 		break;
 
-	case 'R':
-		Reload();
-		break;
-
 	default:
 		break;
 	}
@@ -38,7 +34,9 @@ void Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LP
 		switch (wParam)
 		{
 		case 'R':
-			Reload();
+			if (!IsInGunChangeMotion()) {
+				Reload();
+			}
 			break;
 
 		default:
@@ -63,7 +61,9 @@ void Script_ShootingPlayer::StopFire()
 
 void Script_ShootingPlayer::Reload()
 {
-	mWeaponScript->InitReload();
+	if (mWeaponScript) {
+		mWeaponScript->InitReload();
+	}
 }
 
 void Script_ShootingPlayer::SetWeapon(int weaponIdx)

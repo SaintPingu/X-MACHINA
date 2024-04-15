@@ -18,9 +18,10 @@ class Script_MainCamera : public Component {
 
 private:
 	sptr<GameObject>	mPlayer{};
-	Vec3				mOffset = Vec3(0.f, 15, -30.f);
+	Vec3				mMainOffset{};
+	Vec3				mExtraOffset{};
 
-	float				mTimeLag{};							// translate 지연시간 (자연스러운 움직임)
+	float				mSpeed{};
 
 public:
 	void SetCameraOffset(const Vec3& offset);
@@ -29,12 +30,8 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 
-public:
-	// 카메라가 지형 밑으로 내려가지 않도록 한다.
-	void UpdateHeight();
-	void Init();
-
 private:
+	void Init();
 	// 플레이어를 바라보도록 한다.
 	void LookPlayer();
 };

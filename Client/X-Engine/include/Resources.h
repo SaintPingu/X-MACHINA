@@ -24,6 +24,7 @@ protected:
 #pragma region C/Dtor
 public:
 	Resource(ResourceType resourceType);
+	Resource(const Resource& other);
 	virtual ~Resource() = default;
 #pragma endregion
 
@@ -34,7 +35,7 @@ public:
 #pragma endregion
 
 #pragma region Setter
-	void SetName(std::string name) { mName = name; }
+	void SetName(const std::string& name) { mName = name; }
 #pragma endregion
 
 protected:

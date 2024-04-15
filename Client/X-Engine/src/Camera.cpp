@@ -24,17 +24,17 @@ void Camera::Awake()
 
 void Camera::UpdateViewMtx()
 {
-	const Vec3 kPos   = mObject->GetPosition();
-	const Vec3 kRight = mObject->GetRight();
-	const Vec3 kUp    = mObject->GetUp();
-	const Vec3 kLook  = mObject->GetLook();
+	const Vec3 pos   = mObject->GetPosition();
+	const Vec3 right = mObject->GetRight();
+	const Vec3 up    = mObject->GetUp();
+	const Vec3 look  = mObject->GetLook();
 
-	mViewTransform._11 = kRight.x; mViewTransform._12 = kUp.x; mViewTransform._13 = kLook.x;
-	mViewTransform._21 = kRight.y; mViewTransform._22 = kUp.y; mViewTransform._23 = kLook.y;
-	mViewTransform._31 = kRight.z; mViewTransform._32 = kUp.z; mViewTransform._33 = kLook.z;
-	mViewTransform._41 = -kPos.Dot(kRight);
-	mViewTransform._42 = -kPos.Dot(kUp);
-	mViewTransform._43 = -kPos.Dot(kLook);
+	mViewTransform._11 = right.x; mViewTransform._12 = up.x; mViewTransform._13 = look.x;
+	mViewTransform._21 = right.y; mViewTransform._22 = up.y; mViewTransform._23 = look.y;
+	mViewTransform._31 = right.z; mViewTransform._32 = up.z; mViewTransform._33 = look.z;
+	mViewTransform._41 = -pos.Dot(right);
+	mViewTransform._42 = -pos.Dot(up);
+	mViewTransform._43 = -pos.Dot(look);
 
 	CalculateFrustumPlanes();
 }

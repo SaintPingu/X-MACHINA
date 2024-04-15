@@ -11,41 +11,29 @@
 
 void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 {
-	mOffset = offset;
-	mainCamera->SetOffset(mOffset);
-	LookPlayer();
+	mMainOffset = offset;
+	mainCamera->SetOffset(mMainOffset);
 }
 
 
 void Script_MainCamera::Start()
 {
 	mPlayer = engine->GetPlayer();
-	mObject->SetPosition(mPlayer->GetPosition() + Vector3::One);
 	Init();
 }
 
 void Script_MainCamera::Update()
 {
-	const Vec3 position = mPlayer->GetPosition() + mOffset;
-	Vec3 dir            = position - mObject->GetPosition();
-
-	const float timeScale = (mTimeLag) ? DeltaTime() * (1.f / mTimeLag) : 1.f;
-	const float length    = dir.Length();
-	dir.Normalize();
-
-	float distance = length * timeScale;
-	if (distance > 0) {
-		mObject->Translate(dir, distance);
-		LookPlayer();
-	}
-
+	mObject->SetPosition(mPlayer->GetPosition() + mMainOffset + mExtraOffset);
 }
 
 void Script_MainCamera::Init()
 {
 	constexpr float maxPlaneDistance = 100.f;
-	mTimeLag = 0.1f;
 	SetCameraOffset(Vec3(0.f, 12.f, -7.f));
+	mObject->SetPosition(mPlayer->GetPosition() + mMainOffset);
+	LookPlayer();
+
 	mainCamera->SetProjMtx(0.01f, maxPlaneDistance, 60.f);
 }
 

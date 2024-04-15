@@ -66,9 +66,6 @@ public:
 	const Matrix& GetWorldTransform() const { return mWorldTransform; }
 	const Matrix& GetLocalTransform() const { return mLocalTransform; }
 
-	/* Others */
-	Transform* GetParent() const			{ return mParent; }
-
 	/* ObjectCB Index */
 	bool GetUseObjCB() const				{ return mUseObjCB; }
 	int GetObjCBIndex(int index = 0) const	{ return mObjCBIndices[index]; }
@@ -109,7 +106,9 @@ public:
 
 	/* Others */
 	// set sibiling if already has a child
-	void SetChild(rsptr<Transform> child);
+	void SetChild(rsptr<Transform> child, bool isKeepLocalTransform = true);
+	// return itself
+	sptr<Transform> DetachParent(bool isKeepLocalTransform = true);
 
 	void SetLocalTransform(const Matrix& transform);
 

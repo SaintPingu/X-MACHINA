@@ -9,8 +9,6 @@
 void Script_AimController::Awake()
 {
 	mUI = canvas->CreateUI("Aim", Vec2(0, 0), 30, 30);
-	mUI2 = canvas->CreateUI("Aim", Vec2(0, 0), 20, 20);
-	mUI3 = canvas->CreateUI("Aim", Vec2(0, 0), 10, 10);
 
 	RESOLUTION resolution = framework->GetWindowResolution();
 	mMaxXPos = resolution.Width - 10.f;

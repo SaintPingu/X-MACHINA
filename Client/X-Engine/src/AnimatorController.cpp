@@ -19,7 +19,7 @@ AnimatorController::AnimatorController(const Animations::ParamMap& parameters, s
 
 AnimatorController::AnimatorController(const AnimatorController& other)
 	:
-	Resource(ResourceType::AnimatorController),
+	Resource(other),
 	mParameters(other.mParameters)
 {
 	// layers 복사 하기
@@ -31,6 +31,11 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 	InitLayers();
 }
 
+void AnimatorController::Start()
+{
+	CheckTransition();
+}
+
 void AnimatorController::Animate()
 {
 	if (mIsCheckTransition) {
@@ -40,6 +45,11 @@ void AnimatorController::Animate()
 
 	for (auto& layer : mLayers) {
 		layer->Animate();
+	}
+
+	if (mIsCheckTransition) {
+		mIsCheckTransition = false;
+		CheckTransition();
 	}
 }
 
@@ -79,6 +89,11 @@ sptr<AnimatorMotion> AnimatorController::GetCrntMotion(const std::string& layerN
 	return FindLayerByName(layerName)->GetCrntMotion();
 }
 
+sptr<AnimatorMotion> AnimatorController::GetLastMotion(const std::string& layerName) const
+{
+	return FindLayerByName(layerName)->GetLastMotion();
+}
+
 bool AnimatorController::IsEndTransition(const std::string& layerName) const
 {
 	return FindLayerByName(layerName)->IsEndTransition();
@@ -99,7 +114,7 @@ void AnimatorController::InitLayers()
 			layer->SetSyncStateMachine(true);
 		}
 	}
-	CheckTransition();
+	CheckTransition(true);
 }
 
 void AnimatorController::SetValue(const std::string& paramName, void* value, bool isChangeImmed)

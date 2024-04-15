@@ -49,6 +49,8 @@ public:
 	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
 	sptr<AnimatorMotion> GetCrntMotion() const { return mCrntState; }
 
+	void PushState(rsptr<AnimatorMotion> nextState);
+
 private:
 	void SyncComplete();
 	void ChangeState(rsptr<AnimatorMotion> state);

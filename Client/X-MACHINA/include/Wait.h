@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 
 #pragma region Include
@@ -12,16 +12,16 @@ class Script_EnemyManager;
 
 
 #pragma region Class
-class CheckAttackRange : public BT::Node {
+class Wait : public BT::Node {
 private:
-	sptr<Script_EnemyManager> mEnemyMgr;
+	float mAccTime{};
+	float mWaitTime{};
 
 public:
-	CheckAttackRange(Object* object);
-	virtual ~CheckAttackRange() = default;
+	Wait(float waitTime) : mWaitTime(waitTime) {}
+	virtual ~Wait() = default;
 
+public:
 	virtual BT::NodeState Evaluate() override;
 };
 #pragma endregion
-
-

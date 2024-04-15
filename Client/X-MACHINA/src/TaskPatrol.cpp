@@ -30,7 +30,6 @@ BT::NodeState TaskPatrol::Evaluate()
 		mObject->Translate(XMVector3Normalize(toWayPoint), mEnemyMgr->mMoveSpeed * DeltaTime());
 	}
 	else {
-		mEnemyMgr->mController->SetValue("Walk", false);
 		mCurrWayPointIdx = (mCurrWayPointIdx + 1) % mWayPoints.size();
 	}
 

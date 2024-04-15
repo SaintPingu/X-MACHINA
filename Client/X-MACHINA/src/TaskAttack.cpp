@@ -22,6 +22,7 @@ BT::NodeState TaskAttack::Evaluate()
 
 	mAttackAccTime += DeltaTime();
 	if (mAttackAccTime >= mEnemyMgr->mAttackCoolTime) {
+
 		mAttackAccTime = 0.f;
 	}
 

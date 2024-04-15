@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TaskReturnToSpawnAStar.h"
+#include "TaskPathPlanningToSpawn.h"
 
 #include "Script_EnemyManager.h"
 
@@ -11,14 +11,14 @@
 #include "Grid.h"
 
 
-TaskReturnToSpawnAStar::TaskReturnToSpawnAStar(Object* object) : TaskPathPlanningAStar(object)
+TaskPathPlanningToSpawn::TaskPathPlanningToSpawn(Object* object) : TaskPathPlanningAStar(object)
 {
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 
 	mSpawnPos = object->GetPosition();
 }
 
-BT::NodeState TaskReturnToSpawnAStar::Evaluate()
+BT::NodeState TaskPathPlanningToSpawn::Evaluate()
 {
 	// 경로가 비었다면 경로 재 탐색
 	if (mEnemyMgr->mPath.empty()) {
@@ -27,11 +27,11 @@ BT::NodeState TaskReturnToSpawnAStar::Evaluate()
 		Pos dest = scene->GetTileUniqueIndexFromPos(mSpawnPos);
 
 		// 경로 계획에 실패했다면 Failure를 호출하여 다음 노드로 넘어감
-		if (base::PathPlanningAStar(start, dest) == false)
-			return BT::NodeState::Failure;
+		if (base::PathPlanningAStar(start, dest)) {
+			mEnemyMgr->mController->SetValue("Return", true);
+			return BT::NodeState::Success;
+		}
 	}
 
-	// 경로로 이동
-	base::MoveToPath();
-	return BT::NodeState::Success;
+	return BT::NodeState::Failure;
 }

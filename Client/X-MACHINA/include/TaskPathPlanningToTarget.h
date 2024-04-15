@@ -18,15 +18,12 @@ class Script_EnemyManager;
 
 
 #pragma region Class
-class TaskReturnToSpawnAStar : public TaskPathPlanningAStar {
+class TaskPathPlanningToTarget : public TaskPathPlanningAStar {
 	using base = TaskPathPlanningAStar;
 
-private:
-	Vec3 mSpawnPos{};
-
 public:
-	TaskReturnToSpawnAStar(Object* object);
-	virtual ~TaskReturnToSpawnAStar() = default;
+	TaskPathPlanningToTarget(Object* object);
+	virtual ~TaskPathPlanningToTarget() = default;
 
 public:
 	virtual BT::NodeState Evaluate() override;

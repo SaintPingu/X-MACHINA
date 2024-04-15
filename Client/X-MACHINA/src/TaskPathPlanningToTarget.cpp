@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TaskMoveToTargetAStar.h"
+#include "TaskPathPlanningToTarget.h"
 
 #include "Script_EnemyManager.h"
 
@@ -11,12 +11,12 @@
 #include "Grid.h"
 
 
-TaskMoveToTargetAStar::TaskMoveToTargetAStar(Object* object) : TaskPathPlanningAStar(object)
+TaskPathPlanningToTarget::TaskPathPlanningToTarget(Object* object) : TaskPathPlanningAStar(object)
 {
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 }
 
-BT::NodeState TaskMoveToTargetAStar::Evaluate()
+BT::NodeState TaskPathPlanningToTarget::Evaluate()
 {
 	sptr<Object> target = GetData("target");
 
@@ -27,11 +27,10 @@ BT::NodeState TaskMoveToTargetAStar::Evaluate()
 		Pos dest = scene->GetTileUniqueIndexFromPos(target->GetPosition());
 
 		// 경로 계획에 실패했다면 Failure를 호출하여 다음 노드로 넘어감
-		if (base::PathPlanningAStar(start, dest) == false)
-			return BT::NodeState::Failure;
+		if (base::PathPlanningAStar(start, dest)) {
+			return BT::NodeState::Success;
+		}
 	}
 
-	// 경로로 이동
-	base::MoveToPath();
-	return BT::NodeState::Success;
+	return BT::NodeState::Failure;
 }

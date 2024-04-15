@@ -131,18 +131,3 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 
 	return true;
 }
-
-void TaskPathPlanningAStar::MoveToPath()
-{
-	// 다음 경로까지의 벡터
-	Vec3 nextPos = (mPath->top() - mObject->GetPosition()).xz();
-
-	// 다음 경로를 향해 이동 및 회전
-	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mRotationSpeed * DeltaTime());
-	mObject->Translate(XMVector3Normalize(nextPos), mEnemyMgr->mMoveSpeed * DeltaTime());
-
-	// 다음 경로에 도착 시 해당 경로 삭제
-	const float kMinDistance = 0.1f;
-	if (nextPos.Length() < kMinDistance)
-		mPath->pop();
-}

@@ -226,16 +226,22 @@
     <ClInclude Include="include\TaskAttack.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\TaskMoveToTargetAStar.h">
+    <ClInclude Include="include\TaskPathPlanningToTarget.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\TaskPathPlanningAStar.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\TaskReturnToSpawnAStar.h">
+    <ClInclude Include="include\CheckPatrolRange.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\CheckPatrolRange.h">
+    <ClInclude Include="include\TaskPathPlanningToSpawn.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TaskMoveToPath.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Wait.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -339,16 +345,22 @@
     <ClCompile Include="src\Script_EnemyManager.cpp">
       <Filter>Script\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="src\TaskMoveToTargetAStar.cpp">
+    <ClCompile Include="src\TaskPathPlanningToTarget.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
     <ClCompile Include="src\TaskPathPlanningAStar.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
-    <ClCompile Include="src\TaskReturnToSpawnAStar.cpp">
+    <ClCompile Include="src\CheckPatrolRange.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
-    <ClCompile Include="src\CheckPatrolRange.cpp">
+    <ClCompile Include="src\TaskPathPlanningToSpawn.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskMoveToPath.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Wait.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
   </ItemGroup>

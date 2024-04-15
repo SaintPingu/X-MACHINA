@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 
 #pragma region Include
@@ -12,16 +12,19 @@ class Script_EnemyManager;
 
 
 #pragma region Class
-class CheckAttackRange : public BT::Node {
+class TaskMoveToPath : public BT::Node {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
 
-public:
-	CheckAttackRange(Object* object);
-	virtual ~CheckAttackRange() = default;
+	float mMoveSpeed{};
+	float mReturnSpeed{};
+	std::stack<Vec3>* mPath;
 
+public:
+	TaskMoveToPath(Object* object);
+	virtual ~TaskMoveToPath() = default;
+
+public:
 	virtual BT::NodeState Evaluate() override;
 };
 #pragma endregion
-
-

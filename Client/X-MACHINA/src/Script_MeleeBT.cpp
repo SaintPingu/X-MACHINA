@@ -7,9 +7,10 @@
 #include "TaskPatrol.h"
 #include "TaskMoveToTarget.h"
 #include "TaskAttack.h"
-#include "TaskMoveToTargetAStar.h"
-#include "TaskReturnToSpawnAStar.h"
-
+#include "TaskPathPlanningToTarget.h"
+#include "TaskPathPlanningToSpawn.h"
+#include "TaskMoveToPath.h"
+#include "Wait.h"
 
 BT::Node* Script_MeleeBT::SetupTree()
 {
@@ -25,20 +26,22 @@ BT::Node* Script_MeleeBT::SetupTree()
 	BT::Node* root = new BT::Selector{ std::vector<BT::Node*>{
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckAttackRange(mObject),
-			new TaskAttack(mObject) }},
+			new TaskAttack(mObject),
+			new Wait(1.f) }},
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckDetectionRange(mObject),
 			new BT::Selector{ std::vector<BT::Node*>{
 				new TaskMoveToTarget(mObject),
-				new TaskMoveToTargetAStar(mObject),
+				new TaskPathPlanningToTarget(mObject),
 				}},
 			}},
+		new TaskMoveToPath(mObject),
 		new BT::Selector{ std::vector<BT::Node*>{
 			new BT::Sequence{ std::vector<BT::Node*>{
 				new CheckPatrolRange(mObject),
 				new TaskPatrol(mObject, std::move(wayPoints)),
 				}},
-				new TaskReturnToSpawnAStar(mObject)
+				new TaskPathPlanningToSpawn(mObject)
 			}}
 	}};
 

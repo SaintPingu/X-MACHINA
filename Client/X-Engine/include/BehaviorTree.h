@@ -6,13 +6,15 @@ namespace BehaviorTree {
 	enum class NodeState {
 		Running = 0,
 		Success,
-		Failure
+		Failure,
+		Wait,
 	};
 
 	class Node {
 	public:
 		Node* mParent{};
 		Node* mRoot{};
+		std::queue<Node*> mWaitQueue{};
 		std::vector<Node*> mChildren{};
 
 	protected:
@@ -20,7 +22,6 @@ namespace BehaviorTree {
 
 	private:
 		std::unordered_map<std::string, sptr<Object>> mDataContext{};
-		
 
 	public:
 		Node() {};

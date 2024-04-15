@@ -48,6 +48,5 @@ public:
 
 protected:
 	bool PathPlanningAStar(Pos start, Pos dest);
-	void MoveToPath();
 };
 #pragma endregion

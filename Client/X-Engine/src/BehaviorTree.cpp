@@ -91,6 +91,13 @@ namespace BehaviorTree {
 	NodeState Sequence::Evaluate()
 	{
 		bool isRunning = false;
+
+		if (!mRoot->mWaitQueue.empty()) {
+			if (mRoot->mWaitQueue.front()->Evaluate() != NodeState::Wait)
+				mRoot->mWaitQueue.pop();
+
+			return NodeState::Success;
+		}
 		
 		for (const auto& child : mChildren) {
 			switch (child->Evaluate())
@@ -102,6 +109,9 @@ namespace BehaviorTree {
 			case NodeState::Running:
 				isRunning = true;
 				continue;
+			case NodeState::Wait:
+				mRoot->mWaitQueue.push(child);
+				return NodeState::Success;
 			default:
 				return NodeState::Success;
 			}
@@ -113,6 +123,13 @@ namespace BehaviorTree {
 
 	NodeState Selector::Evaluate()
 	{
+		if (!mRoot->mWaitQueue.empty()) {
+			if (mRoot->mWaitQueue.front()->Evaluate() != NodeState::Wait)
+				mRoot->mWaitQueue.pop();
+
+			return NodeState::Failure;
+		}
+
 		for (const auto& child : mChildren) {
 			switch (child->Evaluate())
 			{
@@ -122,6 +139,9 @@ namespace BehaviorTree {
 				return NodeState::Success;
 			case NodeState::Running:
 				return NodeState::Running;
+			case NodeState::Wait:
+				mRoot->mWaitQueue.push(child);
+				return NodeState::Success;
 			default:
 				continue;
 			}

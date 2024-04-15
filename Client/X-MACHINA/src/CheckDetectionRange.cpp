@@ -35,6 +35,8 @@ BT::NodeState CheckDetectionRange::Evaluate()
 			return BT::NodeState::Failure;
 
 		mEnemyMgr->mController->SetValue("Walk", true);
+		mEnemyMgr->mController->SetValue("Return", false);
+
 		return BT::NodeState::Success;
 	}
 

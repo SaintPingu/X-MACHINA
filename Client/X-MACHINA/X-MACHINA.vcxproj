@@ -223,11 +223,13 @@
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\TaskAttack.h" />
+    <ClInclude Include="include\TaskMoveToPath.h" />
     <ClInclude Include="include\TaskMoveToTarget.h" />
-    <ClInclude Include="include\TaskMoveToTargetAStar.h" />
+    <ClInclude Include="include\TaskPathPlanningToTarget.h" />
     <ClInclude Include="include\TaskPathPlanningAStar.h" />
     <ClInclude Include="include\TaskPatrol.h" />
-    <ClInclude Include="include\TaskReturnToSpawnAStar.h" />
+    <ClInclude Include="include\TaskPathPlanningToSpawn.h" />
+    <ClInclude Include="include\Wait.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
     <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
@@ -279,11 +281,13 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="src\TaskAttack.cpp" />
+    <ClCompile Include="src\TaskMoveToPath.cpp" />
     <ClCompile Include="src\TaskMoveToTarget.cpp" />
-    <ClCompile Include="src\TaskMoveToTargetAStar.cpp" />
+    <ClCompile Include="src\TaskPathPlanningToTarget.cpp" />
     <ClCompile Include="src\TaskPathPlanningAStar.cpp" />
     <ClCompile Include="src\TaskPatrol.cpp" />
-    <ClCompile Include="src\TaskReturnToSpawnAStar.cpp" />
+    <ClCompile Include="src\TaskPathPlanningToSpawn.cpp" />
+    <ClCompile Include="src\Wait.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>

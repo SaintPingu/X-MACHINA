@@ -765,8 +765,9 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 			if (mCurRecoil <= 0) {
 				mCurRecoil = 0;
 			}
-
-			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
+			else {
+				mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
+			}
 
 			// spine angle is max [mkStartRotAngle] degree from object direction, so can't rotate anymore //
 			constexpr float leftAngleBound = 15.f;	// can rotate more to the left
@@ -970,7 +971,8 @@ void Script_GroundPlayer::ChangeReloadCallback()
 
 	// 리로드 도중 모션 변경 시 80%이상 진행되었다면 장전 완료 처리
 	// 아직 재장전 상태인 경우만 적용
-	if (ratio > 0.8f, mController->GetParamValue<bool>("Reload") == true) {
+	constexpr float kAllowRatio = 0.8f;
+	if (ratio > kAllowRatio, mController->GetParamValue<bool>("Reload") == true) {
 		EndReload();
 	}
 }

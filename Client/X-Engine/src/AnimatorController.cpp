@@ -39,8 +39,7 @@ void AnimatorController::Start()
 void AnimatorController::Animate()
 {
 	if (mIsCheckTransition) {
-		mIsCheckTransition = false;
-		CheckTransition();
+		UpdateTransition();
 	}
 
 	for (auto& layer : mLayers) {
@@ -48,8 +47,7 @@ void AnimatorController::Animate()
 	}
 
 	if (mIsCheckTransition) {
-		mIsCheckTransition = false;
-		CheckTransition();
+		UpdateTransition();
 	}
 }
 
@@ -104,6 +102,12 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 	for (auto& layer : mLayers) {
 		layer->CheckTransition(this, isChangeImmed);
 	}
+}
+
+void AnimatorController::UpdateTransition()
+{
+	CheckTransition();
+	mIsCheckTransition = false;
 }
 
 void AnimatorController::InitLayers()

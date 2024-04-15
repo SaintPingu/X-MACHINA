@@ -6,7 +6,7 @@ class AnimatorController;
 class AnimationClip;
 class AnimatorStateMachine;
 
-struct AnimatorStateTransition {
+struct AnimatorMotionTransition {
 	sptr<const AnimatorTransition> Base{};
 	float ExitTime{};
 	bool InExit{};
@@ -18,7 +18,7 @@ struct AnimatorMotionInfo {
 	float Speed{};
 
 	sptr<const AnimatorStateMachine> StateMachine;
-	std::vector<sptr<AnimatorStateTransition>> Transitions{};
+	std::vector<sptr<AnimatorMotionTransition>> Transitions{};
 };
 
 struct MotionCallback {
@@ -51,7 +51,7 @@ private:
 
 	std::string mName{};
 	const AnimatorStateMachine* mStateMachine{};
-	std::vector<sptr<AnimatorStateTransition>> mTransitions{};
+	std::vector<sptr<AnimatorMotionTransition>> mTransitions{};
 
 	std::map<float, MotionCallback> mCallbacks;
 	sptr<MotionCallback> mCallbackStop;

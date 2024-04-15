@@ -155,7 +155,7 @@ void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
 
 void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
 {
-	if (!mNextStates.empty() || !mCrntState->IsActiveSync()) {
+	if (!mIsSyncSM || !mNextStates.empty() || !mCrntState->IsActiveSync()) {
 		return;
 	}
 

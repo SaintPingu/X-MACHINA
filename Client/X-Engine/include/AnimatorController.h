@@ -70,7 +70,6 @@ public:
 												std::is_same<T, float>::value>::type* = nullptr>
 	void SetValue(const std::string& paramName, T value, bool isChangeImmed = false) { SetValue(paramName, &value, isChangeImmed); }
 
-
 public:
 	void Start();
 	void Animate();
@@ -82,6 +81,7 @@ public:
 	sptr<AnimatorMotion> GetLastMotion(const std::string& layerName = "Base Layer") const;
 
 	bool IsEndTransition(const std::string& layerName) const;
+	void UpdateTransition();
 
 private:
 	void InitLayers();

@@ -531,15 +531,15 @@ namespace {
 			return transitions;
 		}
 
-		std::vector<sptr<AnimatorStateTransition>> LoadStateTransitions(std::ifstream& file)
+		std::vector<sptr<AnimatorMotionTransition>> LoadStateTransitions(std::ifstream& file)
 		{
-			std::vector<sptr<AnimatorStateTransition>> transitions{};
-			
+			std::vector<sptr<AnimatorMotionTransition>> transitions{};
+
 			int transitionSize = FileIO::ReadVal<int>(file);
 			transitions.resize(transitionSize);
 
 			for (int i = 0; i < transitionSize; ++i) {
-				sptr<AnimatorStateTransition> stateTransition = std::make_shared<AnimatorStateTransition>();
+				sptr<AnimatorMotionTransition> stateTransition = std::make_shared<AnimatorMotionTransition>();
 				stateTransition->Base = LoadTransition(file);
 				FileIO::ReadVal(file, stateTransition->ExitTime);
 				

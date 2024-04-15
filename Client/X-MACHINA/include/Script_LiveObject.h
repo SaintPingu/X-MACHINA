@@ -18,12 +18,16 @@ private:
 	float mMaxHP{};
 	float mCrntHP{};
 
+	bool  mIsDead{};
+
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
 
 	void SetMaxHP(float hp) { mMaxHP = hp; }
+	bool GetIsDead() const { return mIsDead; }
+	float GetCrntHp() const { return mCrntHP; }
 
 	virtual void Hit(float damage);
 	virtual void Dead();

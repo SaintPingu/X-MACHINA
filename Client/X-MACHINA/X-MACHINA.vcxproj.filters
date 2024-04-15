@@ -244,6 +244,12 @@
     <ClInclude Include="include\Wait.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\CheckDeath.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TaskGetHit.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -361,6 +367,12 @@
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
     <ClCompile Include="src\Wait.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CheckDeath.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskGetHit.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
   </ItemGroup>

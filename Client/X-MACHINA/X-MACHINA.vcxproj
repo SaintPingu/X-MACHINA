@@ -196,6 +196,7 @@
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
+    <ClInclude Include="include\CheckDeath.h" />
     <ClInclude Include="include\CheckDetectionRange.h" />
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
@@ -223,6 +224,7 @@
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\TaskAttack.h" />
+    <ClInclude Include="include\TaskGetHit.h" />
     <ClInclude Include="include\TaskMoveToPath.h" />
     <ClInclude Include="include\TaskMoveToTarget.h" />
     <ClInclude Include="include\TaskPathPlanningToTarget.h" />
@@ -245,6 +247,7 @@
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\ServerSession.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />
+    <ClCompile Include="src\CheckDeath.cpp" />
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
@@ -281,6 +284,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="src\TaskAttack.cpp" />
+    <ClCompile Include="src\TaskGetHit.cpp" />
     <ClCompile Include="src\TaskMoveToPath.cpp" />
     <ClCompile Include="src\TaskMoveToTarget.cpp" />
     <ClCompile Include="src\TaskPathPlanningToTarget.cpp" />

@@ -7,25 +7,23 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
 class Script_EnemyManager;
+class Script_LiveObject;
 #pragma endregion
 
 
 #pragma region Class
-class TaskPatrol : public BT::Node {
+class CheckDeath : public BT::Node {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
-
-	std::vector<Vec3> mWayPoints{};
-	int mCurrWayPointIdx{};
-	float mPatrolSpeed{};
+	sptr<Script_LiveObject> mLiveObject;
+	float mAccTime{};
 
 public:
-	TaskPatrol(Object* object, std::vector<Vec3>&& wayPoints);
-	virtual ~TaskPatrol() = default;
+	CheckDeath(Object* object);
+	virtual ~CheckDeath() = default;
 
+public:
 	virtual BT::NodeState Evaluate() override;
 };
 #pragma endregion
-

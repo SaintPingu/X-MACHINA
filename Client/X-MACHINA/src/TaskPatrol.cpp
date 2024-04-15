@@ -13,6 +13,7 @@ TaskPatrol::TaskPatrol(Object* object, std::vector<Vec3>&& wayPoints)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
+	mPatrolSpeed = mEnemyMgr->mMoveSpeed * 0.5f;
 
 	mWayPoints = wayPoints;
 }
@@ -27,7 +28,7 @@ BT::NodeState TaskPatrol::Evaluate()
 	
 	if (toWayPoint.Length() > kMinDistance) {
 		mObject->RotateTargetAxisY(wayPoint, mEnemyMgr->mRotationSpeed * DeltaTime());
-		mObject->Translate(XMVector3Normalize(toWayPoint), mEnemyMgr->mMoveSpeed * DeltaTime());
+		mObject->Translate(mObject->GetLook(), mPatrolSpeed * DeltaTime());
 	}
 	else {
 		mCurrWayPointIdx = (mCurrWayPointIdx + 1) % mWayPoints.size();

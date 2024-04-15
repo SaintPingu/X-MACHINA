@@ -21,7 +21,11 @@ BT::NodeState CheckPatrolRange::Evaluate()
 {
 	float dis = Vec3::Distance(mSpawnPos, mObject->GetPosition().xz());
 
-	if (dis < 0.1f) {
+	mEnemyMgr->mController->SetValue("Walk", true);
+	mEnemyMgr->mController->SetValue("Return", true);
+
+	if (dis < 10.f) {
+		mEnemyMgr->mController->SetValue("Return", false);
 		return BT::NodeState::Running;
 	}
 

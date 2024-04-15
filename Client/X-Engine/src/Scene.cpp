@@ -247,15 +247,15 @@ void Scene::BuildNavMesh()
 
 void Scene::BuildTest()
 {
-	mParticles.resize(1);
+	mParticles.resize(0);
 
 #pragma region MagicMissile
-	mParticles[0] = std::make_shared<GameObject>();
-	mParticles[0]->SetPosition(Vec3{ 97.5f, GetTerrainHeight(97.5f, 100.f) + 2.f, 104.f });
-	mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
-	mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
-	mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
-	mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
+	//mParticles[0] = std::make_shared<GameObject>();
+	//mParticles[0]->SetPosition(Vec3{ 97.5f, GetTerrainHeight(97.5f, 100.f) + 2.f, 104.f });
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
 #pragma endregion
 
 //#pragma region ShapeTest
@@ -630,11 +630,11 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 	res->Get<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 
-	// 오픈 리스트를 초록색으로 출력
-	for (auto& path : mOpenList) {
-		path.y = GetTerrainHeight(path.x, path.z);
-		MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
-	}
+	//// 오픈 리스트를 초록색으로 출력
+	//for (auto& path : mOpenList) {
+	//	path.y = GetTerrainHeight(path.x, path.z);
+	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
+	//}
 
 	//// 클로즈드 리스트를 빨간색으로 출력
 	//for (auto& path : mClosedList) {

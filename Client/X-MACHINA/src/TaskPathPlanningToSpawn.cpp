@@ -28,7 +28,6 @@ BT::NodeState TaskPathPlanningToSpawn::Evaluate()
 
 		// 경로 계획에 실패했다면 Failure를 호출하여 다음 노드로 넘어감
 		if (base::PathPlanningAStar(start, dest)) {
-			mEnemyMgr->mController->SetValue("Return", true);
 			return BT::NodeState::Success;
 		}
 	}

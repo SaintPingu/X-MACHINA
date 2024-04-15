@@ -23,12 +23,12 @@ void Script_GameManager::Awake()
 
 	{
 		sptr<GridObject> enemy = scene->Instantiate("Aranobot_Army");
-		enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontLeft");
-		enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontRight");
+		//enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontLeft");
+		//enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontRight");
 		auto& script = enemy->AddComponent<Script_Aranobot>();
 		enemy->AddComponent<Script_MeleeBT>();
 		enemy->SetPosition(100, 0, 105);
-		script->SetMaxHP(20);
+		script->SetMaxHP(1000);
 	}
 }
 

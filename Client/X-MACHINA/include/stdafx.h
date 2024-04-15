@@ -201,3 +201,10 @@ public:
 #define new new
 
 #endif
+
+
+
+// [val]를 [speed] 속도로 최대 1까지 증가시킨다.
+bool IncreaseDelta(float& val, float speed);
+// [val]를 [speed] 속도로 최소 0까지 감소시킨다.
+bool DecreaseDelta(float& val, float speed);

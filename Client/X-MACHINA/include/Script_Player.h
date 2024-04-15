@@ -161,9 +161,8 @@ private:
 	float mCrntSpineAngle{};
 	float mSpineDstAngle{};
 	float mAimingDeltaTime{};
+	float mReloadingDeltaTime{};
 	Transform* mSpineBone{};
-	Transform* mMuzzleParent{};
-	Matrix mMuzzleLocalTransform{};
 	sptr<Script_AimController> mAimController{};
 
 	// recoil //
@@ -213,12 +212,14 @@ private:
 
 	void UpdateMovement(Dir dir);
 
-	float GetAngleToAim(const Vec2& aimScreenPos) const;
+	float GetAngleMuzzleToAim(const Vec3& aimWorldPos) const;
+	float GetAngleSpineToAim(const Vec3& aimWorldPos) const;
+	Vec3 GetAimWorldPos(const Vec2& aimScreenPos) const;
 	void RotateToAim(Dir dir, float& rotAngle);
 
 	// angle 만큼 서서히 회전한다.
 	void Rotate(float angle) const;
-	void RotateSpineToAim();
+	void RotateMuzzleToAim();
 
 	void OnAim();
 	void OffAim();
@@ -235,9 +236,6 @@ private:
 	void EndReloadCallback();
 
 	void ResetAimingTime() { mAimingDeltaTime = 0.f; }
-
-	void DetachMuzzle();
-	void AttachMuzzle();
 };
 
 #pragma endregion

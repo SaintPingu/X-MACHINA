@@ -16,15 +16,24 @@
 
 BT::Node* Script_MeleeBT::SetupTree()
 {
+#pragma region WayPoint
 	// 오브젝트 스폰 위치 중심 (5, 5) 만큼 정찰 위치 설정
 	std::vector<Vec3> wayPoints(3);
-	wayPoints[0] = mObject->GetLocalPosition() + Vec3(0.f, 0.f, 0.f);
-	wayPoints[1] = mObject->GetLocalPosition() + Vec3(5.f, 0.f, 0.f);
-	wayPoints[2] = mObject->GetLocalPosition() + Vec3(5.f, 0.f, 5.f);
-	//wayPoints[2] = mObject->GetLocalPosition() + Vec3(-5.f, 0.f, -5.f);
-	//wayPoints[3] = mObject->GetLocalPosition() + Vec3(-5.f, 0.f, 5.f);
-	
-	// 행동 트리 설정
+	const float waySize = 5.f;
+	wayPoints[0] = mObject->GetLocalPosition();
+	wayPoints[1] = mObject->GetLocalPosition() + Vec3(waySize, 0.f, 0.f);
+	wayPoints[2] = mObject->GetLocalPosition() + Vec3(waySize, 0.f, waySize);
+
+	// 무게 중심 위치 계산
+	const Vec3 baryCenter = std::accumulate(wayPoints.begin(), wayPoints.end(), Vec3{ 0.f, 0.f, 0.f }) / 3.f;
+
+	// 무게 중심으로부터 가장 먼 길이 계산
+	float maxDis{};
+	for (const auto& wayPoint : wayPoints)
+		maxDis = max(maxDis, Vec3::Distance(baryCenter, wayPoint));
+#pragma endregion
+
+#pragma region BehaviorTree
 	BT::Node* root = new BT::Selector{ std::vector<BT::Node*>{
 		new CheckDeath(mObject),
 		new BT::Sequence{ std::vector<BT::Node*>{
@@ -44,12 +53,13 @@ BT::Node* Script_MeleeBT::SetupTree()
 		new TaskMoveToPath(mObject),
 		new BT::Selector{ std::vector<BT::Node*>{
 			new BT::Sequence{ std::vector<BT::Node*>{
-				new CheckPatrolRange(mObject),
+				new CheckPatrolRange(mObject, baryCenter, maxDis),
 				new TaskPatrol(mObject, std::move(wayPoints)),
 				}},
 				new TaskPathPlanningToSpawn(mObject)
 			}}
 	}};
+#pragma endregion
 
 	return root;
 }

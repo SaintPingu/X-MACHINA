@@ -14,12 +14,14 @@ class Script_EnemyManager;
 #pragma region Class
 class CheckPatrolRange : public BT::Node {
 private:
-	sptr<Script_EnemyManager> mEnemyMgr;
+	sptr<Script_EnemyManager> mEnemyMgr{};
 	
 	Vec3 mSpawnPos{};
+	Vec3 mBaryCenter{};
+	float mPatrolRange{};
 
 public:
-	CheckPatrolRange(Object* object);
+	CheckPatrolRange(Object* object, const Vec3& baryCenter, float waySize);
 	virtual ~CheckPatrolRange() = default;
 
 	virtual BT::NodeState Evaluate() override;

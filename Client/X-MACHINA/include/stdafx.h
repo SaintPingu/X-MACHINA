@@ -127,6 +127,7 @@ public:
 #include <functional>
 #include <filesystem>
 #include <type_traits>
+#include <numeric>
 
 /* STL Containers */
 #include <span>

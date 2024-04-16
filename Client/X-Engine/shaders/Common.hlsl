@@ -426,4 +426,18 @@ void RotationAxis(inout float3 right, inout float3 up, inout float3 look, float3
     RotationVector(right, look, up, look, angle.y);
     RotationVector(right, look, up, up, angle.z);
 }
+
+
+float4 Dissolve(float3 color, float dissolve, float t)
+{
+    float m1 = t;
+    float m2 = 0.3f;
+    float max = m1 * (m2 + 1);
+    float min = max - m2;
+
+    float smoothAlpha = smoothstep(min, max, dissolve);
+    float3 smoothColor = (1 - smoothstep(min, max, dissolve)) * color;
+
+    return float4(smoothColor, smoothAlpha);
+}
 #endif

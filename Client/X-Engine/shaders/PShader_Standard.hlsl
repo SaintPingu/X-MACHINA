@@ -9,19 +9,6 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
-float4 Dissolve(float3 color, float dissolve)
-{
-    float m1 = gObjectCB.DeathElapsed;
-    float m2 = 0.3f;
-    float max = m1 * (m2 + 1);
-    float min = max - m2;
-
-    float smoothAlpha = smoothstep(min, max, dissolve);
-    float3 smoothColor = (1 - smoothstep(min, max, dissolve)) * color;
-
-    return float4(smoothColor, smoothAlpha);
-}
-
 float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
 {
     // material info
@@ -115,7 +102,7 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     
     // temp
     float3 dissolveColor = float3(3.f, 1.f, 0.f);
-    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[24].Sample(gsamAnisotropicWrap, pin.UV).x);
+    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[24].Sample(gsamAnisotropicWrap, pin.UV).x, gObjectCB.DeathElapsed);
     
     litColor.a = dissolve.a;
     litColor.rgb += dissolve.rgb;

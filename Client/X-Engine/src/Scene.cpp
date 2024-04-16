@@ -609,8 +609,11 @@ void Scene::RenderGridObjects(bool isShadowed)
 
 void Scene::RenderSkinMeshObjects(bool isShadowed)
 {
-	if (isShadowed)
+	if (isShadowed) {
 		res->Get<Shader>("Shadow_SkinMesh")->Set();
+		for (auto& object : mDissolveObjects)
+			object->Render();
+	}
 	else
 		res->Get<Shader>("SkinMesh")->Set();
 

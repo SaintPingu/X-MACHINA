@@ -216,7 +216,7 @@ void ResourceMgr::LoadShaders()
 		ShaderInfo info = {
 			ShaderType::HDR,
 			RasterizerType::Cull_Back,
-			DepthStencilType::Less,
+			DepthStencilType::Less_No_Write,
 			BlendType::Alpha_Blend,
 		};
 

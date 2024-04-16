@@ -25,9 +25,12 @@ protected:
 	mutable std::vector<int>	mObjCBIndices{};	// 서브 메쉬를 가진 객체는 여러 개의 인덱스들을 가져야 한다.
 
 public:
-	Transform*		mParent{};
-	sptr<Transform> mChild{};
-	sptr<Transform> mSibling{};
+	mutable ObjectConstants		mObjectCB{};
+
+public:
+	Transform*					mParent{};
+	sptr<Transform>				mChild{};
+	sptr<Transform>				mSibling{};
 
 public:
 #pragma region C/Dtor
@@ -189,8 +192,8 @@ public:
 
 	void BeforeUpdateTransform();
 
+	virtual void UpdateShaderVars(const ObjectConstants& objectCB, const int cnt = 0) const;
 	virtual void UpdateShaderVars(const int cnt = 0, const int matIndex = 0) const;
-
 
 	void NormalizeAxis();
 

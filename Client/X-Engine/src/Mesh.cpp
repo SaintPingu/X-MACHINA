@@ -661,10 +661,14 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	UINT vertexLocation{ 0 };
 	const UINT transformCnt = (UINT)mergedTransform.size();
 
+	// 최상위 부모의 mUseObjCB가 true여야 객체 파괴시 오브젝트 인덱스 반환 가능
+	const Transform* root = mergedTransform[0];
+	root->SetUseObjCB(true);
+
+	const float deathElapsed = root->mObjectCB.DeathElapsed;
+
 	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
-		// 최상위 부모의 mUseObjCB가 true여야 객체 파괴시 오브젝트 인덱스 반환 가능
 		const Transform* transform = mergedTransform[transformIndex];
-		transform->SetUseObjCB(true);
 
 		if (!HasMesh(transformIndex)) {
 			continue;
@@ -677,10 +681,17 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 		UINT vertexCnt = modelMeshInfo.VertexCnt;
 		UINT mat{ 0 };
+
+		ObjectConstants objectCB;
+		objectCB.DeathElapsed = deathElapsed;
+
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
+			objectCB.MtxWorld = transform->GetWorldTransform().Transpose();
+			objectCB.MatIndex = modelMeshInfo.Materials[mat]->mMatIndex;
+
 			// 서브 메쉬에 대하여 각각의 머티리얼 인덱스를 오브젝트 상수 버퍼에 설정해야 한다.
 			// 때문에 transform의 데이터를 여러 번 설정하되 머티리얼은 설정하지 않는다. 
-			transform->UpdateShaderVars(mat, modelMeshInfo.Materials[mat]->mMatIndex);
+			transform->UpdateShaderVars(objectCB, mat);
 
 			cmdList->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
 			indexLocation += indexCnt;

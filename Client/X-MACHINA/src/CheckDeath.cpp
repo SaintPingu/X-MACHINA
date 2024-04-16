@@ -21,6 +21,7 @@ BT::NodeState CheckDeath::Evaluate()
 		return BT::NodeState::Failure;
 	
 	mAccTime += DeltaTime();
+	mObject->mObjectCB.DeathElapsed += DeltaTime();
 	mEnemyMgr->mController->SetValue("Death", true);
 
 	if (mAccTime >= 1.f) {

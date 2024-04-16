@@ -432,6 +432,18 @@ void Transform::BeforeUpdateTransform()
 	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 }
 
+void Transform::UpdateShaderVars(const ObjectConstants& objectCB, const int cnt) const
+{
+	// 실제 사용 횟수를 저장한다.
+	if (mObjCBCount <= cnt) {
+		mObjCBCount = cnt + 1;
+	}
+
+	frmResMgr->CopyData(mObjCBIndices[cnt], objectCB);
+
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+}
+
 void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 {
 	// 실제 사용 횟수를 저장한다.
@@ -442,7 +454,7 @@ void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
 	objectConstants.MatIndex = matIndex;
-	
+
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
 
 	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));

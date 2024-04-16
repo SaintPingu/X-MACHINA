@@ -9,28 +9,45 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
+float4 Dissolve(float3 color, float dissolve)
+{
+    float m1 = gObjectCB.DeathElapsed;
+    float m2 = 0.3f;
+    float max = m1 * (m2 + 1);
+    float min = max - m2;
+
+    float smoothAlpha = smoothstep(min, max, dissolve);
+    float3 smoothColor = (1 - smoothstep(min, max, dissolve)) * color;
+
+    return float4(smoothColor, smoothAlpha);
+}
+
 float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
 {
-    MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
-    float4 diffuse       = matInfo.Diffuse;
-    float metallic       = matInfo.Metallic;
-    float roughness      = matInfo.Roughness;
-    int diffuseMapIndex  = matInfo.DiffuseMap0Index;
-    int normalMapIndex   = matInfo.NormalMapIndex;
-    int metallicMapIndex = matInfo.MetallicMapIndex;
-    int emissiveMapIndex = matInfo.EmissiveMapIndex;
+    // material info
+    MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuse        = matInfo.Diffuse;
+    float metallic        = matInfo.Metallic;
+    float roughness       = matInfo.Roughness;
+    float occlusion       = 1.f;
+    int diffuseMapIndex   = matInfo.DiffuseMap0Index;
+    int normalMapIndex    = matInfo.NormalMapIndex;
+    int metallicMapIndex  = matInfo.MetallicMapIndex;
+    int emissiveMapIndex  = matInfo.EmissiveMapIndex;
+    int occlusionMapIndex = matInfo.OcclusionMapIndex;
     
-    // diffuseMap을 사용할 경우 샘플링하여 계산
+    // sampling diffuseMap
     if (diffuseMapIndex != -1)
     {
         diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
     }
-    
+
+    // normalize normal
     pin.NormalW = normalize(pin.NormalW);
-    float4 normalMapSample = (float4)0;
+    float3 bumpedNormalW = pin.NormalW;
     
-    // normal map을 사용할 경우 샘플링하여 월드 공간으로 변환
-    float3 bumpedNormalW = (float4)0;
+    // sampling normalMap, to world space
+    float4 normalMapSample = (float4)0;
     if (normalMapIndex != -1)
     {
         normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
@@ -44,41 +61,64 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
         emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
     
-    // roughness map을 사용할 경우 샘플링하여 roughness 값 계산
+    // sampling metallicMap
+    float4 metallicMapSample = (float4)0;
     if (metallicMapIndex != -1)
     {
-        metallic *= gTextureMaps[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x;
+        metallicMapSample = GammaDecoding(gTextureMaps[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+        metallic = metallicMapSample.r;
+        roughness = 1 - metallicMapSample.a;
     }
     
-    // 해당 픽셀에서 카메라까지의 벡터
-    float3 toCameraW = gPassCB.CameraPos - pin.PosW;
+    if (occlusionMapIndex != -1)
+    {
+        occlusion = GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
+    }
     
-    // 전역 조명의 ambient 값을 계산한다.
-    float4 ambient = gPassCB.GlobalAmbient * diffuse;
+    float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
+    
+    float rimWidth = 0.8f;
+    float gRimLightFactor = 0.1f;
+    float4 gRimLightColor = float4(1.f, 1.f, 1.f, 0.f);
+    float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
+    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gRimLightFactor;
+    
+    float4 emissive = emissiveMapSample + gRimLightColor * rim;
+    float1 ambientAcess = 1.f;
+    
+    float2 uvRect = float2(pin.PosH.x / gPassCB.FrameBufferWidth, pin.PosH.y / gPassCB.FrameBufferHeight);
+    if (gPassCB.FilterOption & Filter_Ssao)
+        ambientAcess = gTextureMaps[gPassCB.RT0S_SsaoIndex].Sample(gsamAnisotropicWrap, uvRect).r * occlusion;
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallic);
     float3 specularAlbedo = lerp(0.03f, diffuse.xyz, metallic);
     Material mat = { diffuseAlbedo, specularAlbedo, metallic, roughness };
     
-    float3 shadowFactor = 1.f;
-    LightColor lightColor = ComputeLighting(mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
+    // 조명 계산
+    float4 shadowPosH = mul(float4(pin.PosW, 1.f), gPassCB.MtxShadow);
+    float shadowFactor = clamp(ComputeShadowFactor(shadowPosH), gPassCB.ShadowIntensity, 1.f);
+    LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
     
-    //// specular reflection
-    //float3 r = reflect(-toCameraW, bumpedNormalW);
-    //float4 reflectionColor = gSkyBoxTexture[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
-    //float3 fresnelFactor = SchlickFresnel(specularAlbedo, bumpedNormalW, r);
-    //float3 reflection = (metallic) * fresnelFactor * reflectionColor.rgb;
+    // specular reflection
+    float3 r = reflect(-toCameraW, bumpedNormalW);
+    float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
+    float3 fresnelFactor = SchlickFresnel(specularAlbedo, bumpedNormalW, r);
+    float3 reflection = (metallic) * fresnelFactor * reflectionColor.rgb;
     
-    //// rim light
-    //float rimWidth = 0.7f;
-    //float gRimLightFactor = 0.f;
-    //float4 gRimLightColor = float4(1.f, 0.6f, 0.f, 0.f);
-    //float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
-    //rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gRimLightFactor;
+    // litColor
+    float4 litDiffuse = GammaEncoding(float4(lightColor.Diffuse, 1.f));
+    float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) + float4(reflection, 1.f);
+    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissive;
     
-    float4 litColor = ambient/* + gRimLightColor * rim + float4(reflection, 0.f)*/ + float4(lightColor.Diffuse, 0.f) + float4(lightColor.Specular, 0.f);
-    litColor.a = diffuse.a;
+    float4 litColor = litAmbient + litDiffuse + litSpecular;
+    
+    // temp
+    float3 dissolveColor = float3(3.f, 1.f, 0.f);
+    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[24].Sample(gsamAnisotropicWrap, pin.UV).x);
+    
+    litColor.a = dissolve.a;
+    litColor.rgb += dissolve.rgb;
     
     return litColor;
 }

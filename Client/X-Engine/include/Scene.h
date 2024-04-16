@@ -59,6 +59,7 @@ private:
 
 	std::set<GridObject*>	mRenderedObjects{};
 	std::set<GridObject*>	mTransparentObjects{};
+	std::set<GridObject*>	mDissolveObjects{};
 	std::set<GridObject*>	mBillboardObjects{};
 	std::set<GridObject*>	mSkinMeshObjects{};
 
@@ -181,6 +182,7 @@ private:
 
 	// render [transparentObjects]
 	void RenderTransparentObjects(const std::set<GridObject*>& transparentObjects);
+	void RenderDissolveObjects();
 	void RenderSkyBox();
 	void RenderParticles();
 

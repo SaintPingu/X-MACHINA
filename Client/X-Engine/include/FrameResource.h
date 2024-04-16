@@ -75,14 +75,6 @@ struct PostPassConstants {
     Vec3    Padding;
 };
 
-struct ObjectConstants {
-    Matrix  MtxWorld{};
-    Matrix  MtxSprite{};
-    int     MatIndex{};
-    int     LightIndex{};
-    Vec2    Padding{};
-};
-
 struct SkinnedConstants {
     Matrix  BoneTransforms[gkSkinBoneSize];
 };

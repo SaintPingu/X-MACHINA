@@ -80,6 +80,15 @@ struct NavMesh {
 	std::vector<Vec2> Vertices;
 	std::vector<UINT> Indices;
 };
+
+struct ObjectConstants {
+	Matrix  MtxWorld{};
+	Matrix  MtxSprite{};
+	int     MatIndex{};
+	int     LightIndex{};
+	int		Padding{};
+	float	DeathElapsed{};
+};
 #pragma endregion
 
 

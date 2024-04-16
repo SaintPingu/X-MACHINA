@@ -256,7 +256,7 @@
       <Filter>PCH</Filter>
     </ClCompile>
     <ClCompile Include="src\BehaviorTree.cpp">
-      <Filter>소스 파일\AI</Filter>
+      <Filter>소스 파일\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -99,7 +99,8 @@ struct ObjectInfo {
     matrix  MtxSprite;
     int     MatIndex;
     int     LightIndex;
-    float2  Padding;
+    int     Padding;
+    float   DeathElapsed;
 };
 
 struct PassInfo {

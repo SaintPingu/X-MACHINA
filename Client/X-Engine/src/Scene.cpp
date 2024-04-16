@@ -143,7 +143,9 @@ void Scene::UpdateMainPassCB()
 	passCB.ShadowIntensity				= 0.0f;
 	passCB.FogColor						= Colors::Gray;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
-	
+
+	int temp = res->Get<Texture>("Dissolve")->GetSrvIdx();
+
 	frmResMgr->CopyData(0, passCB);
 }
 
@@ -499,6 +501,7 @@ void Scene::RenderFinal()
 void Scene::RenderForward()
 {
 	RenderTransparentObjects(mTransparentObjects); 
+	RenderDissolveObjects();
 	RenderSkyBox();
 
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -539,6 +542,14 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 {
 	res->Get<Shader>("Transparent")->Set();
 	for (auto& object : transparentObjects) {
+		object->Render();
+	}
+}
+
+void Scene::RenderDissolveObjects()
+{
+	res->Get<Shader>("Dissolve")->Set();
+	for (auto& object : mDissolveObjects) {
 		object->Render();
 	}
 }
@@ -603,8 +614,16 @@ void Scene::RenderSkinMeshObjects(bool isShadowed)
 	else
 		res->Get<Shader>("SkinMesh")->Set();
 
-	for (auto& object : mSkinMeshObjects) {
-		object->Render();
+	// 죽은 상태라면 DissolveObjects로 이동
+	for (auto it = mSkinMeshObjects.begin(); it != mSkinMeshObjects.end();) {
+		if ((*it)->mObjectCB.DeathElapsed > 0.f) {
+			mDissolveObjects.insert(*it);
+			it = mSkinMeshObjects.erase(it);
+			continue;
+		}
+		else {
+			(*it++)->Render();
+		}
 	}
 }
 

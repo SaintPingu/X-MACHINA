@@ -31,3 +31,9 @@ void Script_LiveObject::Dead()
 {
 	mObject->OnDestroy();
 }
+
+void Script_LiveObject::Resurrect()
+{
+	mCrntHP = mMaxHP;
+	mIsDead = false;
+}

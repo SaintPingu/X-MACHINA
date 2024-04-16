@@ -31,6 +31,7 @@ public:
 
 	virtual void Hit(float damage);
 	virtual void Dead();
+	virtual void Resurrect();
 };
 
 #pragma endregion

@@ -25,7 +25,7 @@ void Script_Player::Awake()
 {
 	base::Awake();
 
-	mCamera = mainCameraObject->GetComponent<Script_MainCamera>();
+	mCamera = mainCameraObject->GetComponent<Script_MainCamera>().get();
 }
 
 void Script_Player::Start()

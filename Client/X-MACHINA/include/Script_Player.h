@@ -9,6 +9,7 @@
 #pragma region ClassForwardDecl
 class GameObject;
 class Animator;
+class AnimatorMotion;
 class AnimatorController;
 class Script_Weapon;
 class Script_AimController;
@@ -46,7 +47,7 @@ class Script_Player abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Player, Component)
 
 protected:
-	sptr<Script_MainCamera> mCamera{};
+	Script_MainCamera* mCamera{};
 
 	PlayerType		mPlayerType{};
 	GameObject*		mPlayer{};		// self GameObject
@@ -153,6 +154,8 @@ private:
 	float mParamV{}, mParamH{};
 	sptr<Animator> mAnimator{};
 	sptr<AnimatorController> mController{};
+
+	std::unordered_map<int, sptr<AnimatorMotion>> mReloadMotions;
 
 	// movement //
 	Movement mPrevMovement{};

@@ -37,9 +37,6 @@ const float Script_GroundPlayer::mkStartRotAngle = 40.f;
 
 namespace {
 	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
-
-	std::unordered_map<WeaponType, sptr<AnimatorMotion>> kReloadMotions;
-	std::unordered_map<WeaponType, sptr<AnimatorMotion>> kDrawMotions;
 }
 #pragma endregion
 
@@ -454,8 +451,8 @@ void Script_GroundPlayer::InitWeapons()
 		// setting callbacks //
 		constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
 
-		auto& realodMotion  = kReloadMotions[weaponType] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
-		auto& drawMotion    = kDrawMotions[weaponType] = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
+		auto& realodMotion  = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
+		auto& drawMotion    = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
 		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
 		auto& shootMotion   = mController->FindMotionByName(shootMotions.at(weaponType), "Body");
 
@@ -503,7 +500,7 @@ void Script_GroundPlayer::DrawWeaponCallback()
 {
 	base::DrawWeapon();
 
-	auto& motion            = kReloadMotions[mWeaponScript->GetWeaponType()];
+	auto& motion            = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
 	const float reloadTime  = mWeaponScript->GetReloadTime();
 	const float motionTime  = motion->GetMaxLength();
 	const float realodSpeed = motionTime / reloadTime;

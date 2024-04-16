@@ -185,8 +185,8 @@ void Script_GroundPlayer::ProcessInput()
 	// legs blend tree animation //
 	if (mController) {
 		UpdateParams(dir, v, h, rotAngle);
-		mController->SetValue("Vertical", fabs(mParamV) > 0.1f ? mParamV : 0.f);
-		mController->SetValue("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
+		mController->SetValueOnly("Vertical", fabs(mParamV) > 0.1f ? mParamV : 0.f);
+		mController->SetValueOnly("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
 	}
 }
 

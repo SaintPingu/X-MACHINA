@@ -121,44 +121,7 @@ void AnimatorController::InitLayers()
 	CheckTransition(true);
 }
 
-void AnimatorController::SetValue(const std::string& paramName, void* value, bool isChangeImmed)
-{
-	if (!HasParam(paramName)) {
-		return;
-	}
 
-	AnimatorParameter::value val{};
-
-	auto& param = mParameters[paramName];
-	switch (param.type) {
-	case AnimatorParameter::Type::Bool:
-		val.b = *(bool*)value;
-		if (param.val.b == val.b) {
-			return;
-		}
-		break;
-	case AnimatorParameter::Type::Int:
-		val.i = *(int*)value;
-		if (param.val.i == val.i) {
-			return;
-		}
-		break;
-	case AnimatorParameter::Type::Float:
-		val.f = *(float*)value;
-		if (Math::IsEqual(param.val.f, val.f)) {
-			return;
-		}
-		break;
-	}
-
-	param.val = val;
-	if (!isChangeImmed) {
-		mIsCheckTransition = true;
-	}
-	else {
-		CheckTransition(isChangeImmed);
-	}
-}
 
 sptr<AnimatorLayer> AnimatorController::FindLayerByName(const std::string& layerName) const
 {

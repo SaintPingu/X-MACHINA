@@ -30,6 +30,10 @@ namespace Animations {
 	using ParamMap = std::unordered_map<std::string, AnimatorParameter>;
 }
 
+
+template <typename T>
+constexpr bool is_valid_param_type = (std::is_same<T, bool>::value || std::is_same<T, int>::value || std::is_same<T, float>::value);
+
 class AnimatorController : public Resource {
 private:
 	bool mIsCheckTransition{};
@@ -49,9 +53,7 @@ public:
 	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
 	const AnimatorParameter* GetParamRef(const std::string& paramName) const { return &mParameters.at(paramName); }
 
-	template<class T, typename std::enable_if<	std::is_same<T, bool>::value ||
-												std::is_same<T, int>::value ||
-												std::is_same<T, float>::value>::type* = nullptr>
+	template<class T, typename std::enable_if<is_valid_param_type<T>>::type* = nullptr>
 	T GetParamValue(const std::string & paramName) const
 	{
 		if (std::is_same<T, bool>::value) {
@@ -64,11 +66,59 @@ public:
 		return mParameters.at(paramName).val.f;
 	}
 
+	template<class T, typename std::enable_if<is_valid_param_type<T>>::type* = nullptr>
+	bool SetValueOnly(const std::string& paramName, T value)
+	{
+		if (!HasParam(paramName)) {
+			return false;
+		}
+
+		AnimatorParameter::value val{};
+
+		auto& param = mParameters[paramName];
+		switch (param.type) {
+		case AnimatorParameter::Type::Bool:
+			val.b = static_cast<bool>(value);
+			if (param.val.b == val.b) {
+				return false;
+			}
+			break;
+		case AnimatorParameter::Type::Int:
+			val.i = static_cast<int>(value);
+			if (param.val.i == val.i) {
+				return false;
+			}
+			break;
+		case AnimatorParameter::Type::Float:
+			val.f = static_cast<float>(value);
+			if (Math::IsEqual(param.val.f, val.f)) {
+				return false;
+			}
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		param.val = val;
+		return true;
+	}
+
 	// isChangeImmed == true : transition animation state without waiting & blending
-	template<class T, typename std::enable_if<	std::is_same<T, bool>::value ||
-												std::is_same<T, int>::value ||
-												std::is_same<T, float>::value>::type* = nullptr>
-	void SetValue(const std::string& paramName, T value, bool isChangeImmed = false) { SetValue(paramName, &value, isChangeImmed); }
+	template<class T, typename std::enable_if<is_valid_param_type<T>>::type* = nullptr>
+	void SetValue(const std::string& paramName, T value, bool isChangeImmed = false)
+	{
+		if (!SetValueOnly(paramName, value)) {
+			return;
+		}
+
+		if (!isChangeImmed) {
+			mIsCheckTransition = true;
+		}
+		else {
+			CheckTransition(isChangeImmed);
+		}
+	}
 
 public:
 	void Start();
@@ -87,6 +137,5 @@ private:
 	void InitLayers();
 	void CheckTransition(bool isChangeImmed = false) const;
 
-	void SetValue(const std::string& paramName, void* value, bool isChangeImmed);
 	sptr<AnimatorLayer> FindLayerByName(const std::string& layerName) const;
 };	

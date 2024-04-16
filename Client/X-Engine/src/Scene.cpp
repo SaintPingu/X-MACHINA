@@ -696,10 +696,10 @@ void Scene::Start()
 
 	/* Enable & Start */
 	mTerrain->OnEnable();
+	mainCameraObject->OnEnable();
 	ProcessAllObjects([](sptr<GameObject> object) {
 		object->OnEnable();
 		});
-	mainCameraObject->OnEnable();
 	mGameManager->OnEnable();
 
 	UpdateGridInfo();

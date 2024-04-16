@@ -18,6 +18,8 @@
 #pragma region Script_Weapon
 void Script_Weapon::Awake()
 {
+	base::Awake();
+
 	mMuzzle = mObject->FindFrame("FirePos");
 	InitValues();
 	CreateBulletPool();
@@ -25,6 +27,8 @@ void Script_Weapon::Awake()
 
 void Script_Weapon::Start()
 {
+	base::Start();
+
 	mCurMag = mMaxMag;
 }
 

@@ -41,6 +41,8 @@ public:
 	Vec3 GetUp() const { return mObject->GetUp(); }
 	const Matrix& GetViewMtx() const { return mViewTransform; }
 	const Matrix& GetProjMtx() const { return mProjTransform; }
+	float GetWidth() const { return mViewport.Width; }
+	float GetHeight() const { return mViewport.Height; }
 
 	void SetOffset(const Vec3& offset) { mOffset = offset; }
 
@@ -62,6 +64,8 @@ public:
 
 	Vec2 WorldToScreenPoint(const Vec3& pos);
 	Vec3 ScreenToWorldRay(const Vec2& pos);
+
+	Vec2 ScreenToNDC(const Vec2& pos);
 
 private:
 	void CalculateFrustumPlanes();

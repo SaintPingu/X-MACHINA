@@ -12,6 +12,7 @@ class Animator;
 class AnimatorController;
 class Script_Weapon;
 class Script_AimController;
+class Script_MainCamera;
 #pragma endregion
 
 
@@ -45,6 +46,8 @@ class Script_Player abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Player, Component)
 
 protected:
+	sptr<Script_MainCamera> mCamera{};
+
 	PlayerType		mPlayerType{};
 	GameObject*		mPlayer{};		// self GameObject
 	Matrix			mSpawnTransform{};	// 리스폰 지점
@@ -61,6 +64,7 @@ public:
 	void SetSpawn(const Vec3& pos);
 
 public:
+	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
 
@@ -236,6 +240,9 @@ private:
 	void EndReloadCallback();
 
 	void ResetAimingTime() { mAimingDeltaTime = 0.f; }
+	void RecoverRecoil();
+
+	void MoveCamera(Dir dir);
 };
 
 #pragma endregion

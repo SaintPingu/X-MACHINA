@@ -7,6 +7,8 @@
 
 void Script_Gunship::Start()
 {
+	base::Start();
+
 	const auto& gameObject = mObject->GetObj<GameObject>();
 	mMainRotor = gameObject->FindFrame("Rotor");
 	mTailRotor = gameObject->FindFrame("Back_Rotor");

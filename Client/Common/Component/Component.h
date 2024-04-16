@@ -83,7 +83,9 @@ protected:
 	Object* mObject{};	// 이 Component를 소유하는 객체
 
 private:
-	bool mIsActive   = true;
+	bool mIsAwake  = false;
+	bool mIsStart  = false;
+	bool mIsActive = true;
 
 	std::function<void()> UpdateFunc{ std::bind(&Component::FirstUpdate, this) };
 
@@ -93,20 +95,28 @@ public:
 
 	bool IsActive() const { return mIsActive; }
 	
-	void SetActive(bool isActive) { mIsActive = isActive; }
+	void SetActive(bool isActive)
+	{
+		if (isActive) {
+			OnEnable();
+		}
+		else {
+			OnDisable();
+		}
+	}
 
 public:
 	// 최초 한 번 호출된다.
-	virtual void Awake() {}
+	virtual void Awake() { mIsAwake = true; }
 
 	// 객체 활성화 시 호출된다.
-	virtual void OnEnable() {}
+	virtual void OnEnable() { mIsActive = true; }
 
 	// 객체 비활성화 시 호출된다.
-	virtual void OnDisable() {}
+	virtual void OnDisable() { mIsActive = false; }
 
 	// Update 호출 전 한 번 호출된다.
-	virtual void Start() {}
+	virtual void Start() { mIsStart = true; }
 
 	// 매 프레임 호출된다. (before aninate)
 	virtual void Update() {}
@@ -161,6 +171,8 @@ public:
 	ObjectLayer GetLayer() const		{ return mLayer; }
 	ObjectType GetType() const			{ return mType; }
 
+	bool IsAwake() const				{ return mIsAwake; }
+	bool IsStart() const				{ return mIsStart; }
 	bool IsActive() const				{ return mIsEnable; }
 #pragma endregion
 

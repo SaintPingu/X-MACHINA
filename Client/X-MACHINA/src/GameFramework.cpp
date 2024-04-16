@@ -168,8 +168,8 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	CreateGameClientWindow();
 
 	// Init //
-	engine->Init(hInstance, mhWnd, width, height);
 	mainCameraObject->AddComponent<Script_MainCamera>();
+	engine->Init(hInstance, mhWnd, width, height);
 	gameManager->AddComponent<Script_GameManager>();
 	objectMgr->InitObjectsScript();
 	InitPlayer();

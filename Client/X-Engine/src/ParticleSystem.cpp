@@ -23,6 +23,8 @@ void ParticleSystem::SetTarget(const std::string& frameName)
 
 void ParticleSystem::Awake()
 {
+	base::Awake();
+
 #pragma region Init_ParticleSystem
 	// 파티클 시스템 인덱스를 얻기 위한 용도
 	frmResMgr->CopyData(mPSIdx, mPSGD);

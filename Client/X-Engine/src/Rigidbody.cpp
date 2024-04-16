@@ -12,7 +12,7 @@ void Rigidbody::SetVelocity(float speed)
 
 void Rigidbody::Start()
 {
-
+	base::Start();
 }
 
 void Rigidbody::Update()

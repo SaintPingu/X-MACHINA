@@ -8,6 +8,8 @@
 
 void Script_AimController::Awake()
 {
+	base::Awake();
+
 	mUI = canvas->CreateUI("Aim", Vec2(0, 0), 30, 30);
 
 	RESOLUTION resolution = framework->GetWindowResolution();

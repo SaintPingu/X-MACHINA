@@ -6,6 +6,8 @@
 
 void Script_Fragment::Awake()
 {
+	base::Awake();
+
 	const auto& rigid = mObject->GetComponent<Rigidbody>();
 	rigid->SetGravity(true);
 	rigid->SetGravityScale(3.f);

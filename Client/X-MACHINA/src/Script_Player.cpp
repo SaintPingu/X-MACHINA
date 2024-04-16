@@ -1,9 +1,13 @@
 #include "stdafx.h"
 #include "Script_Player.h"
 
-#include "Object.h"
+#include "Script_MainCamera.h"
+
+#include "Component/Camera.h"
 #include "Component/Rigidbody.h"
 #include "Component/UI.h"
+
+#include "Object.h"
 
 namespace {
 	BoundingBox border = { Vec3(256, 100, 256), Vec3(240, 1100, 240) };
@@ -17,8 +21,17 @@ void Script_Player::SetSpawn(const Vec3& pos)
 	XMStoreFloat4x4(&mSpawnTransform, _MATRIX(mObject->GetWorldTransform()));
 }
 
+void Script_Player::Awake()
+{
+	base::Awake();
+
+	mCamera = mainCameraObject->GetComponent<Script_MainCamera>();
+}
+
 void Script_Player::Start()
 {
+	base::Start();
+
 	mObject->SetTag(ObjectTag::Player);
 	mPlayer = mObject->GetObj<GameObject>();
 }

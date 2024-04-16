@@ -7,10 +7,13 @@
 
 void Script_LiveObject::Awake()
 {
+	base::Awake();
 }
 
 void Script_LiveObject::Start()
 {
+	base::Start();
+
 	mCrntHP = mMaxHP;
 }
 

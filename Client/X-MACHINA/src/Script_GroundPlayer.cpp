@@ -7,6 +7,7 @@
 #include "Script_Weapon.h"
 #include "Script_Weapon_Pistol.h"
 #include "Script_Weapon_Rifle.h"
+#include "Script_MainCamera.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -79,8 +80,9 @@ void Script_GroundPlayer::Update()
 {
 	base::Update();
 
-	base::ProcessInput();
 	ProcessInput();
+
+	RecoverRecoil();
 }
 
 void Script_GroundPlayer::LateUpdate()
@@ -181,6 +183,8 @@ void Script_GroundPlayer::ProcessInput()
 	else {
 		RotateToAim(dir, rotAngle);
 	}
+
+	MoveCamera(dir);
 
 	// legs blend tree animation //
 	if (mController) {
@@ -760,12 +764,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		if (fabs(mCrntSpineAngle) > 0.1f) {
 			mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle);
 
-			constexpr float recoverAmount = 70.f;
-			mCurRecoil -= recoverAmount * DeltaTime();
-			if (mCurRecoil <= 0) {
-				mCurRecoil = 0;
-			}
-			else {
+			if(mCurRecoil > 0.f) {
 				mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
 			}
 
@@ -980,4 +979,32 @@ void Script_GroundPlayer::ChangeReloadCallback()
 void Script_GroundPlayer::EndReloadCallback()
 {
 	EndReload();
+}
+
+void Script_GroundPlayer::RecoverRecoil()
+{
+	constexpr float recoverAmount = 70.f;
+
+	if (mCurRecoil > 0.f) {
+		mCurRecoil -= recoverAmount * DeltaTime();
+		if (mCurRecoil <= 0.f) {
+			mCurRecoil = 0.f;
+		}
+	}
+}
+
+void Script_GroundPlayer::MoveCamera(Dir dir)
+{
+	if (mIsAim) {
+		const Vec2 mousePos  = mAimController->GetAimPos();
+		const Vec2 ndc       = mainCamera->ScreenToNDC(mousePos);
+		const float offset_t = (std::max)(fabs(ndc.x), fabs(ndc.y));
+
+		mCamera->Move(mousePos, offset_t);
+	}
+	else if(dir != Dir::None) {
+		const Vec3 dirVec = Transform::GetWorldDirection(dir);
+
+		mCamera->Move(Vec2(dirVec.x, dirVec.z), 0.6f, true);
+	}
 }

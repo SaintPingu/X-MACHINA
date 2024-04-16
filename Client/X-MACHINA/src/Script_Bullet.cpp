@@ -12,6 +12,8 @@
 
 void Script_Bullet::Awake()
 {
+	base::Awake();
+
 	mGameObject = mObject->GetObj<GameObject>();
 
 	const auto& rb = mObject->GetComponent<Rigidbody>();

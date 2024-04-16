@@ -19,7 +19,8 @@ class Script_MainCamera : public Component {
 private:
 	sptr<GameObject>	mPlayer{};
 	Vec3				mMainOffset{};
-	Vec3				mExtraOffset{};
+	Vec2				mExtraOffset{};
+	Vec2				mMaxOffset{};
 
 	float				mSpeed{};
 
@@ -27,8 +28,13 @@ public:
 	void SetCameraOffset(const Vec3& offset);
 
 public:
+	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+
+	// [maxOffset_t] : [mMaxOffset]을 얼마나 반영할 것인가 (0~1)
+	// [isAlign]     : 방향이 없는 경우 중앙으로 이동한다.
+	void Move(Vec2 dir, float maxOffset_t = 1.f, bool isAlign = false);
 
 private:
 	void Init();

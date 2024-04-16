@@ -318,9 +318,15 @@ ObjectType GetObjectType(ObjectTag tag)
 
 void Component::FirstUpdate()
 {
-	Awake();
-	OnEnable();
-	Start();
+	if (!mIsAwake) {
+		Awake();
+	}
+	if (!mIsActive) {
+		OnEnable();
+	}
+	if (!mIsStart) {
+		Start();
+	}
 	Update();
 	UpdateFunc = std::bind(&Component::Update, this);
 }

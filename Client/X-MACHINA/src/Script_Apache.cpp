@@ -7,6 +7,8 @@
 
 void Script_Apache::Start()
 {
+	base::Start();
+
 	const auto& gameObject = mObject->GetObj<GameObject>();
 	mMainRotor = gameObject->FindFrame("rotor");
 	mTailRotor = gameObject->FindFrame("tail_rotor");

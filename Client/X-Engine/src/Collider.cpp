@@ -63,6 +63,8 @@ void SphereCollider::Render() const
 #pragma region ObjectCollider
 void ObjectCollider::Awake()
 {
+	base::Awake();
+
 	// SphereCollider를 가져오고, 없으면 ObjectCollider를 제거한다.
 	mSphereCollider = mObject->GetComponent<SphereCollider>();
 	if (!mSphereCollider) {

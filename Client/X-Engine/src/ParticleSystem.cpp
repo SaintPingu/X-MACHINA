@@ -258,7 +258,6 @@ void ParticleRenderer::Init()
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
 {
-	printf("Add : %d\n", particleSystem->GetPSIdx());
 	mParticleSystems.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
 
 	// 파티클 시스템이 삭제 예정 파티클이라면 Deprecations 컨테이너에도 추가

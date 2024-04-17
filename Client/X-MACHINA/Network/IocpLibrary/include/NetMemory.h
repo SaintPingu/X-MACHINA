@@ -5,6 +5,7 @@
 class NetMemoryPool;
 
 #pragma region MEMORY INFO ENUM CLASS
+#undef _STOMP
 enum class MemoryInfo
 {
 	/// BYTE   бщ 0			   бщ 1024			  бщ 2048	    бщ 4096

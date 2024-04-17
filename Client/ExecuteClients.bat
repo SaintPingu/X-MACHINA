@@ -1,0 +1,1 @@
+start /d "C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\x64\Release\X-MACHINA.exe" /b X-MACHINA.exe

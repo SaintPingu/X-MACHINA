@@ -146,6 +146,8 @@ private:
 
 class Object : public Transform {
 private:
+	UINT32      mID;
+
 	std::string	mName{};
 	ObjectTag	mTag{};
 	ObjectLayer mLayer{};
@@ -170,6 +172,7 @@ public:
 	ObjectTag GetTag() const			{ return mTag; }
 	ObjectLayer GetLayer() const		{ return mLayer; }
 	ObjectType GetType() const			{ return mType; }
+	UINT32 GetID() const				{ return mID; }
 
 	bool IsAwake() const				{ return mIsAwake; }
 	bool IsStart() const				{ return mIsStart; }
@@ -180,6 +183,7 @@ public:
 	void SetTag(ObjectTag tag);
 	void SetName(const std::string& name)	{ mName = name; }
 	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
+	void setID(UINT32 sessionID)			{ mID = sessionID; }
 #pragma endregion
 
 

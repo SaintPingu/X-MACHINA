@@ -41,10 +41,12 @@ HWND      GameFramework::mhWnd = nullptr;
 
 GameFramework::GameFramework()
 {
+
 }
 
 GameFramework::~GameFramework()
 {
+	THREAD_MGR->Destroy();
 }
 
 void GameFramework::KeyInputBroadcast()
@@ -52,16 +54,19 @@ void GameFramework::KeyInputBroadcast()
 #ifndef SERVER_COMMUNICATION
 	return;
 #endif
+	Vec2 mouseDelta = input->GetMouseDelta();
 
 	/* 키 입력은 메인쓰레드에서 동작해야한다. */
 	/* TAP */
+	UINT8 MoveKeyState = 0;
 	if (KEY_PRESSED('A')) {
 		std::string Chatting = "LEFT 키를 눌렀습니다.\n";
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::A, KEY_STATE::PRESSED);
-		mClientNetworkService->Broadcast(CPktBuf_Key);
+		MoveKeyState |= static_cast<UINT8>(GameKeyInfo::MoveKey::A);
+		/*auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::A, KEY_STATE::PRESSED);
+		mClientNetworkService->Broadcast(CPktBuf_Key);*/
 
 	}
 	if (KEY_PRESSED('D')) {
@@ -69,8 +74,10 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::D, KEY_STATE::PRESSED);
-		mClientNetworkService->Broadcast(CPktBuf_Key);
+		MoveKeyState |= static_cast<UINT8>(GameKeyInfo::MoveKey::D);
+
+		/*auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::D, KEY_STATE::PRESSED);
+		mClientNetworkService->Broadcast(CPktBuf_Key);*/
 
 
 	}
@@ -79,8 +86,10 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::W, KEY_STATE::PRESSED);
-		mClientNetworkService->Broadcast(CPktBuf_Key);
+		MoveKeyState |= static_cast<UINT8>(GameKeyInfo::MoveKey::W);
+
+		/*auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::W, KEY_STATE::PRESSED);
+		mClientNetworkService->Broadcast(CPktBuf_Key);*/
 
 
 	}
@@ -89,17 +98,31 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::S, KEY_STATE::PRESSED);
-		mClientNetworkService->Broadcast(CPktBuf_Key);
+		MoveKeyState |= static_cast<UINT8>(GameKeyInfo::MoveKey::S);
+
+		/*auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::S, KEY_STATE::PRESSED);
+		mClientNetworkService->Broadcast(CPktBuf_Key);*/
 
 
 	}
+	/* Send Move KEy 'wasd' */
+	std::bitset<8> bits(MoveKeyState); // result 값을 비트로 변환합니다
+	//std::cout << "KeyMove State = Result bits: " << bits << std::endl;
+
+
+	auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::S
+																   , GameKeyInfo::KEY_STATE::PRESSED
+																   , static_cast<GameKeyInfo::MoveKey>(MoveKeyState)
+																   , mouseDelta);
+
+	mClientNetworkService->Broadcast(CPktBuf_Key);
+
 	if (KEY_TAP(VK_SHIFT)) {
 		std::string Chatting = "SHIFT 키를 눌렀습니다.\n";
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::LSHFT, KEY_STATE::TAP);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::LSHFT, GameKeyInfo::KEY_STATE::TAP, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 
@@ -111,7 +134,7 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::LSHFT, KEY_STATE::AWAY);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::LSHFT, GameKeyInfo::KEY_STATE::AWAY, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 	}
@@ -120,7 +143,7 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::LSHFT, KEY_STATE::AWAY);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::LSHFT, GameKeyInfo::KEY_STATE::AWAY, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 
@@ -130,7 +153,7 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::D, KEY_STATE::AWAY);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::D, GameKeyInfo::KEY_STATE::AWAY, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 	}
 	if (KEY_AWAY('W')) {
@@ -138,7 +161,7 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::W, KEY_STATE::AWAY);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::W, GameKeyInfo::KEY_STATE::AWAY, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 	}
 	if (KEY_AWAY('S')) {
@@ -146,7 +169,7 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::S, KEY_STATE::AWAY);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::S, GameKeyInfo::KEY_STATE::AWAY, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 	}
 	if (KEY_AWAY(VK_SHIFT)) {
@@ -154,10 +177,13 @@ void GameFramework::KeyInputBroadcast()
 		auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Chat(Chatting);
 		mClientNetworkService->Broadcast(CPktBuf);
 
-		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY::LSHFT, KEY_STATE::AWAY);
+		auto CPktBuf_Key = PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY::LSHFT, GameKeyInfo::KEY_STATE::AWAY, static_cast<GameKeyInfo::MoveKey>(MoveKeyState), mouseDelta);
 		mClientNetworkService->Broadcast(CPktBuf_Key);
 
 	}
+
+	
+	
 }
 
 bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
@@ -167,7 +193,7 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	mResolution.Width = width;
 	mResolution.Height = height;
 	CreateGameClientWindow();
-	int a = 3;
+
 	// Init //
 	mainCameraObject->AddComponent<Script_MainCamera>();
 	engine->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
@@ -179,11 +205,14 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	// Communication //
 	SocketUtils::Init();
 	ServerFBsPktFactory::Init();
+	/// +--------------------------------------------------------------
+	///					        CLIENT NETWORK
+	/// --------------------------------------------------------------+
 	mClientNetworkService = MakeShared<ClientService>(
-		NetAddress(L"127.0.0.1", 7777),
-		MakeShared<Iocp>(),
-		MakeShared<ServerSession>, // TODO : SessionManager 등
-		1);
+										NetAddress(L"127.0.0.1", 7777),
+										MakeShared<Iocp>(),
+										MakeShared<ServerSession>, // TODO : SessionManager 등
+										1);
 	mClientNetworkService->Start();
 	THREAD_MGR->InitTLS();
 #endif
@@ -235,9 +264,10 @@ int GameFramework::GameLoop()
 
 void GameFramework::Update()
 {
+	timer->Tick(60.f);
+	
 	engine->Update();
-	//timer->Tick(144.f);
-	timer->Tick();
+
 	KeyInputBroadcast(); 
 }
 

@@ -174,6 +174,8 @@ public:
 #include "Log/LogMgr.h"
 
 #include "PacketSession.h"
+#include <concurrent_unordered_map.h>
+#include <concurrent_queue.h>
 
 
 #pragma endregion

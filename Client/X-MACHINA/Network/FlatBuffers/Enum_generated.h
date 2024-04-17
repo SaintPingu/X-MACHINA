@@ -17,19 +17,19 @@ namespace FBProtocol {
 
 enum OBJECTTYPE : int8_t {
   OBJECTTYPE_NONE = 0,
-  OBJECTTYPE_PlayerInfo = 1,
-  OBJECTTYPE_OBJECT = 2,
-  OBJECTTYPE_GAMEOBJECT = 3,
+  OBJECTTYPE_PLAYER = 1,
+  OBJECTTYPE_MONSTER = 2,
+  OBJECTTYPE_STRUCTURE = 3,
   OBJECTTYPE_MIN = OBJECTTYPE_NONE,
-  OBJECTTYPE_MAX = OBJECTTYPE_GAMEOBJECT
+  OBJECTTYPE_MAX = OBJECTTYPE_STRUCTURE
 };
 
 inline const OBJECTTYPE (&EnumValuesOBJECTTYPE())[4] {
   static const OBJECTTYPE values[] = {
     OBJECTTYPE_NONE,
-    OBJECTTYPE_PlayerInfo,
-    OBJECTTYPE_OBJECT,
-    OBJECTTYPE_GAMEOBJECT
+    OBJECTTYPE_PLAYER,
+    OBJECTTYPE_MONSTER,
+    OBJECTTYPE_STRUCTURE
   };
   return values;
 }
@@ -37,16 +37,16 @@ inline const OBJECTTYPE (&EnumValuesOBJECTTYPE())[4] {
 inline const char * const *EnumNamesOBJECTTYPE() {
   static const char * const names[5] = {
     "NONE",
-    "PlayerInfo",
-    "OBJECT",
-    "GAMEOBJECT",
+    "PLAYER",
+    "MONSTER",
+    "STRUCTURE",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameOBJECTTYPE(OBJECTTYPE e) {
-  if (::flatbuffers::IsOutRange(e, OBJECTTYPE_NONE, OBJECTTYPE_GAMEOBJECT)) return "";
+  if (::flatbuffers::IsOutRange(e, OBJECTTYPE_NONE, OBJECTTYPE_STRUCTURE)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesOBJECTTYPE()[index];
 }

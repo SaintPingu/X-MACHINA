@@ -22,8 +22,23 @@ table CPkt_LogIn
 table SPkt_LogIn
 {
 	success: bool;
-	players: [Player];
+	myinfo : Player; // 나의 정보 
+	players: [Player]; // 나를 포함한 Room안의 모든 player 정보 
 }
+
+// +------------------------
+//		  NEW PLAYER 
+// ------------------------+
+table CPkt_NewPlayer
+{
+
+}
+
+table SPkt_NewPlayer
+{
+	newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
+}
+
 
 // +------------------------
 //		  ENTER GAME 
@@ -76,6 +91,9 @@ table CPkt_KeyInput
 {
 	keyinput_state : ubyte; // UINT8
 	keyinput	   : ubyte; // UINT8;
+	keyinput_move  : ubyte; // UINT8
+
+	mouse_delta    : Vector2; // (float, float)
 
 }
 

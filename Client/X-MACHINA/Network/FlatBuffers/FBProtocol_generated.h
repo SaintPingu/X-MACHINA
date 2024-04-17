@@ -25,6 +25,12 @@ struct CPkt_LogInBuilder;
 struct SPkt_LogIn;
 struct SPkt_LogInBuilder;
 
+struct CPkt_NewPlayer;
+struct CPkt_NewPlayerBuilder;
+
+struct SPkt_NewPlayer;
+struct SPkt_NewPlayerBuilder;
+
 struct CPkt_EnterGame;
 struct CPkt_EnterGameBuilder;
 
@@ -82,10 +88,14 @@ struct SPkt_LogIn FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_LogInBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SUCCESS = 4,
-    VT_PLAYERS = 6
+    VT_MYINFO = 6,
+    VT_PLAYERS = 8
   };
   bool success() const {
     return GetField<uint8_t>(VT_SUCCESS, 0) != 0;
+  }
+  const FBProtocol::Player *myinfo() const {
+    return GetPointer<const FBProtocol::Player *>(VT_MYINFO);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>> *players() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>> *>(VT_PLAYERS);
@@ -93,6 +103,8 @@ struct SPkt_LogIn FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
+           VerifyOffset(verifier, VT_MYINFO) &&
+           verifier.VerifyTable(myinfo()) &&
            VerifyOffset(verifier, VT_PLAYERS) &&
            verifier.VerifyVector(players()) &&
            verifier.VerifyVectorOfTables(players()) &&
@@ -106,6 +118,9 @@ struct SPkt_LogInBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_success(bool success) {
     fbb_.AddElement<uint8_t>(SPkt_LogIn::VT_SUCCESS, static_cast<uint8_t>(success), 0);
+  }
+  void add_myinfo(::flatbuffers::Offset<FBProtocol::Player> myinfo) {
+    fbb_.AddOffset(SPkt_LogIn::VT_MYINFO, myinfo);
   }
   void add_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players) {
     fbb_.AddOffset(SPkt_LogIn::VT_PLAYERS, players);
@@ -124,9 +139,11 @@ struct SPkt_LogInBuilder {
 inline ::flatbuffers::Offset<SPkt_LogIn> CreateSPkt_LogIn(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool success = false,
+    ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players = 0) {
   SPkt_LogInBuilder builder_(_fbb);
   builder_.add_players(players);
+  builder_.add_myinfo(myinfo);
   builder_.add_success(success);
   return builder_.Finish();
 }
@@ -134,12 +151,85 @@ inline ::flatbuffers::Offset<SPkt_LogIn> CreateSPkt_LogIn(
 inline ::flatbuffers::Offset<SPkt_LogIn> CreateSPkt_LogInDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool success = false,
+    ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
     const std::vector<::flatbuffers::Offset<FBProtocol::Player>> *players = nullptr) {
   auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<FBProtocol::Player>>(*players) : 0;
   return FBProtocol::CreateSPkt_LogIn(
       _fbb,
       success,
+      myinfo,
       players__);
+}
+
+struct CPkt_NewPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_NewPlayerBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_NewPlayerBuilder {
+  typedef CPkt_NewPlayer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit CPkt_NewPlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_NewPlayer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_NewPlayer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_NewPlayer> CreateCPkt_NewPlayer(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  CPkt_NewPlayerBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+struct SPkt_NewPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_NewPlayerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NEWPLAYER = 4
+  };
+  const FBProtocol::Player *newplayer() const {
+    return GetPointer<const FBProtocol::Player *>(VT_NEWPLAYER);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NEWPLAYER) &&
+           verifier.VerifyTable(newplayer()) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_NewPlayerBuilder {
+  typedef SPkt_NewPlayer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_newplayer(::flatbuffers::Offset<FBProtocol::Player> newplayer) {
+    fbb_.AddOffset(SPkt_NewPlayer::VT_NEWPLAYER, newplayer);
+  }
+  explicit SPkt_NewPlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_NewPlayer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_NewPlayer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_NewPlayer> CreateSPkt_NewPlayer(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<FBProtocol::Player> newplayer = 0) {
+  SPkt_NewPlayerBuilder builder_(_fbb);
+  builder_.add_newplayer(newplayer);
+  return builder_.Finish();
 }
 
 struct CPkt_EnterGame FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -436,7 +526,9 @@ struct CPkt_KeyInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_KeyInputBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_KEYINPUT_STATE = 4,
-    VT_KEYINPUT = 6
+    VT_KEYINPUT = 6,
+    VT_KEYINPUT_MOVE = 8,
+    VT_MOUSE_DELTA = 10
   };
   uint8_t keyinput_state() const {
     return GetField<uint8_t>(VT_KEYINPUT_STATE, 0);
@@ -444,10 +536,19 @@ struct CPkt_KeyInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint8_t keyinput() const {
     return GetField<uint8_t>(VT_KEYINPUT, 0);
   }
+  uint8_t keyinput_move() const {
+    return GetField<uint8_t>(VT_KEYINPUT_MOVE, 0);
+  }
+  const FBProtocol::Vector2 *mouse_delta() const {
+    return GetPointer<const FBProtocol::Vector2 *>(VT_MOUSE_DELTA);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_KEYINPUT_STATE, 1) &&
            VerifyField<uint8_t>(verifier, VT_KEYINPUT, 1) &&
+           VerifyField<uint8_t>(verifier, VT_KEYINPUT_MOVE, 1) &&
+           VerifyOffset(verifier, VT_MOUSE_DELTA) &&
+           verifier.VerifyTable(mouse_delta()) &&
            verifier.EndTable();
   }
 };
@@ -461,6 +562,12 @@ struct CPkt_KeyInputBuilder {
   }
   void add_keyinput(uint8_t keyinput) {
     fbb_.AddElement<uint8_t>(CPkt_KeyInput::VT_KEYINPUT, keyinput, 0);
+  }
+  void add_keyinput_move(uint8_t keyinput_move) {
+    fbb_.AddElement<uint8_t>(CPkt_KeyInput::VT_KEYINPUT_MOVE, keyinput_move, 0);
+  }
+  void add_mouse_delta(::flatbuffers::Offset<FBProtocol::Vector2> mouse_delta) {
+    fbb_.AddOffset(CPkt_KeyInput::VT_MOUSE_DELTA, mouse_delta);
   }
   explicit CPkt_KeyInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -476,8 +583,12 @@ struct CPkt_KeyInputBuilder {
 inline ::flatbuffers::Offset<CPkt_KeyInput> CreateCPkt_KeyInput(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t keyinput_state = 0,
-    uint8_t keyinput = 0) {
+    uint8_t keyinput = 0,
+    uint8_t keyinput_move = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector2> mouse_delta = 0) {
   CPkt_KeyInputBuilder builder_(_fbb);
+  builder_.add_mouse_delta(mouse_delta);
+  builder_.add_keyinput_move(keyinput_move);
   builder_.add_keyinput(keyinput);
   builder_.add_keyinput_state(keyinput_state);
   return builder_.Finish();

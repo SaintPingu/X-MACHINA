@@ -92,11 +92,12 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_LogIn(bool& success)
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_KeyInput(KEY key, KEY_STATE KeyState)
+SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInfo::KEY_STATE KeyState, GameKeyInfo::MoveKey moveKey, Vec2 mouseDelta)
 {
 	flatbuffers::FlatBufferBuilder builder; 
 
-	auto pkt = FBProtocol::CreateCPkt_KeyInput(builder, static_cast<UINT8>(KeyState), static_cast<UINT8>(key));
+	auto fbMouseDelta = FBProtocol::CreateVector2(builder, mouseDelta.x, mouseDelta.y);
+	auto pkt = FBProtocol::CreateCPkt_KeyInput(builder, static_cast<UINT8>(KeyState), static_cast<UINT8>(key), static_cast<UINT8>(moveKey), fbMouseDelta);
 	builder.Finish(pkt);
 
 	const uint8_t* bufferPointer = builder.GetBufferPointer();

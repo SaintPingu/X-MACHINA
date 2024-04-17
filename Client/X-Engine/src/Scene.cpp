@@ -30,7 +30,6 @@
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
 namespace {
@@ -114,34 +113,34 @@ void Scene::UpdateShaderVars()
 void Scene::UpdateMainPassCB()
 {
 	PassConstants passCB;
-	passCB.MtxView						= mainCamera->GetViewMtx().Transpose();
-	passCB.MtxProj						= mainCamera->GetProjMtx().Transpose();
-	passCB.MtxShadow					= mLight->GetShadowMtx().Transpose();
-	passCB.CameraPos					= mainCamera->GetPosition();
-	passCB.CameraRight					= mainCamera->GetRight();
-	passCB.CameraUp						= mainCamera->GetUp();
-	passCB.DeltaTime					= DeltaTime();
-	passCB.TotalTime					= timer->GetTotalTime();
-	passCB.FrameBufferWidth				= dxgi->GetWindowWidth();
-	passCB.FrameBufferHeight			= dxgi->GetWindowHeight();
-	passCB.SkyBoxIndex					= mSkyBox->GetTexture()->GetSrvIdx();
-	passCB.DefaultDsIndex				= res->Get<Texture>("DefaultDepthStencil")->GetSrvIdx();
-	passCB.ShadowDsIndex				= res->Get<Texture>("ShadowDepthStencil")->GetSrvIdx();
-	passCB.RT0G_PositionIndex			= res->Get<Texture>("PositionTarget")->GetSrvIdx();
-	passCB.RT1G_NormalIndex				= res->Get<Texture>("NormalTarget")->GetSrvIdx();
-	passCB.RT2G_DiffuseIndex			= res->Get<Texture>("DiffuseTarget")->GetSrvIdx();
-	passCB.RT3G_EmissiveIndex			= res->Get<Texture>("EmissiveTarget")->GetSrvIdx();
+	passCB.MtxView = mainCamera->GetViewMtx().Transpose();
+	passCB.MtxProj = mainCamera->GetProjMtx().Transpose();
+	passCB.MtxShadow = mLight->GetShadowMtx().Transpose();
+	passCB.CameraPos = mainCamera->GetPosition();
+	passCB.CameraRight = mainCamera->GetRight();
+	passCB.CameraUp = mainCamera->GetUp();
+	passCB.DeltaTime = DeltaTime();
+	passCB.TotalTime = timer->GetTotalTime();
+	passCB.FrameBufferWidth = dxgi->GetWindowWidth();
+	passCB.FrameBufferHeight = dxgi->GetWindowHeight();
+	passCB.SkyBoxIndex = mSkyBox->GetTexture()->GetSrvIdx();
+	passCB.DefaultDsIndex = res->Get<Texture>("DefaultDepthStencil")->GetSrvIdx();
+	passCB.ShadowDsIndex = res->Get<Texture>("ShadowDepthStencil")->GetSrvIdx();
+	passCB.RT0G_PositionIndex = res->Get<Texture>("PositionTarget")->GetSrvIdx();
+	passCB.RT1G_NormalIndex = res->Get<Texture>("NormalTarget")->GetSrvIdx();
+	passCB.RT2G_DiffuseIndex = res->Get<Texture>("DiffuseTarget")->GetSrvIdx();
+	passCB.RT3G_EmissiveIndex = res->Get<Texture>("EmissiveTarget")->GetSrvIdx();
 	passCB.RT4G_MetallicSmoothnessIndex = res->Get<Texture>("MetallicSmoothnessTarget")->GetSrvIdx();
-	passCB.RT5G_OcclusionIndex			= res->Get<Texture>("OcclusionTarget")->GetSrvIdx();
-	passCB.RT0L_DiffuseIndex			= res->Get<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
-	passCB.RT1L_SpecularIndex			= res->Get<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
-	passCB.RT2L_AmbientIndex			= res->Get<Texture>("AmbientTarget")->GetSrvIdx();
-	passCB.RT0S_SsaoIndex				= res->Get<Texture>("SSAOTarget_0")->GetSrvIdx();
-	passCB.LightCount					= mLight->GetLightCount();
-	passCB.GlobalAmbient				= Vec4(0.4f, 0.4f, 0.4f, 1.f);
-	passCB.FilterOption					= dxgi->GetFilterOption();
-	passCB.ShadowIntensity				= 0.0f;
-	passCB.FogColor						= Colors::Gray;
+	passCB.RT5G_OcclusionIndex = res->Get<Texture>("OcclusionTarget")->GetSrvIdx();
+	passCB.RT0L_DiffuseIndex = res->Get<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
+	passCB.RT1L_SpecularIndex = res->Get<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
+	passCB.RT2L_AmbientIndex = res->Get<Texture>("AmbientTarget")->GetSrvIdx();
+	passCB.RT0S_SsaoIndex = res->Get<Texture>("SSAOTarget_0")->GetSrvIdx();
+	passCB.LightCount = mLight->GetLightCount();
+	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
+	passCB.FilterOption = dxgi->GetFilterOption();
+	passCB.ShadowIntensity = 0.0f;
+	passCB.FogColor = Colors::Gray;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
 
 	int temp = res->Get<Texture>("Dissolve")->GetSrvIdx();
@@ -172,7 +171,7 @@ void Scene::UpdateSsaoCB()
 	ssaoCB.MtxInvProj = mainCamera->GetProjMtx().Invert().Transpose();
 	ssaoCB.MtxProjTex = (mtxProj * mtxTex).Transpose();
 	dxgi->GetSsao()->GetOffsetVectors(ssaoCB.OffsetVectors);
-	
+
 	// for Blur 
 	auto blurWeights = Filter::CalcGaussWeights(2.5f);
 	ssaoCB.BlurWeights[0] = Vec4(&blurWeights[0]);
@@ -198,7 +197,7 @@ void Scene::UpdateMaterialBuffer()
 {
 	res->ProcessFunc<MasterModel>(
 		[](sptr<MasterModel> model) {
-			model->GetMesh()->UpdateMaterialBuffer(); 
+			model->GetMesh()->UpdateMaterialBuffer();
 		});
 }
 #pragma endregion
@@ -468,7 +467,7 @@ void Scene::RenderDeferred()
 	RenderInstanceObjects();
 #pragma endregion
 #pragma region ColorInst
-	
+
 #pragma endregion
 #pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects();
@@ -562,7 +561,7 @@ void Scene::RenderGridObjects(bool isShadowed)
 {
 	if (isShadowed)
 		res->Get<Shader>("Shadow_Global")->Set();
-	else 
+	else
 		res->Get<Shader>("Global")->Set();
 
 	for (const auto& grid : mGrids) {
@@ -724,6 +723,9 @@ void Scene::Start()
 
 void Scene::Update()
 {
+	ProcessEvents();
+
+
 	CheckCollisions();
 
 	mGameManager->Update();
@@ -880,7 +882,7 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	// ObjectCollider가 활성화된 경우
 	// 1칸 이내의 "인접 그리드(8개)와 충돌검사"
 	const auto& collider = object->GetCollider();
-	if(collider) {
+	if (collider) {
 		std::unordered_set<int> gridIndices{ gridIndex };
 		const auto& objectBS = collider->GetBS();
 
@@ -962,6 +964,94 @@ sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int max
 
 	return pool;
 }
+
+void Scene::ProcessEvents()
+{
+
+	WRITE_LOCK;// 임시 큐 생성하여 두 큐 내용 교환	
+	//std::cout << "Process Events Start\n";
+
+
+	while (!mEventsProcessQueue.empty()) {
+		sptr<SceneEvent::EventData> EventData = nullptr;
+		//std::cout << "Process Events try_pop start \n";
+
+		mEventsProcessQueue.try_pop(EventData);
+		if (EventData == nullptr) continue;
+		//std::cout << "Process Events try_pop end - ";
+		switch (EventData->type)
+		{
+		case SceneEvent::Enum::AddAnotherPlayer:
+		{
+			//std::cout << "AddAnotherPlayer \n";
+			SceneEvent::AddOtherPlayer* data = reinterpret_cast<SceneEvent::AddOtherPlayer*>(EventData.get());
+			mOtherPlayers[data->player->GetID()] = data->player;
+			AddDynamicObject(data->player);
+			data->player->OnEnable();
+
+			//std::cout << "Process Event : AddAnotherPlayer - " << data->player << std::endl;
+		}
+
+			break;
+		case SceneEvent::Enum::MoveOtherPlayer:
+		{			
+			//std::cout << "MoveOtherPlayer \n";
+
+			SceneEvent::MoveOtherPlayer* data = reinterpret_cast<SceneEvent::MoveOtherPlayer*>(EventData.get());
+			sptr<GridObject> player = mOtherPlayers[data->sessionID];
+			if (player) {
+				player->SetPosition(data->Pos);
+			}
+			else {
+				//std::cout << "Player - " << data->sessionID << " Not Existed\n";
+			}
+		}
+
+			break;
+		case SceneEvent::Enum::RemoveOtherPlayer:
+		{
+			//std::cout << "RemoveOtherPlayer \n";
+
+			SceneEvent::RemoveOtherPlayer* data = reinterpret_cast<SceneEvent::RemoveOtherPlayer*>(EventData.get());
+			mOtherPlayers.unsafe_erase(data->sessionID);
+		}
+
+			break;
+
+		}
+
+	}
+	//std::cout << "Process Events End\n";
+
+
+	//while (!mEventsQueue_AddOtherPlayer.empty()) {
+	//	sptr<GridObject> otherPlayer = nullptr;
+	//	mEventsQueue_AddOtherPlayer.try_pop(otherPlayer);
+	//	if (otherPlayer) {
+	//		std::cout << " *** ADD Dynamic Object *** \n";
+	//		std::cout << otherPlayer->GetID() << "\n";
+	//		std::cout << "****************************\n";
+	//		AddDynamicObject(otherPlayer);
+	//		otherPlayer->OnEnable();
+	//	}
+	//}
+	//while (!mEventsQueue_MoveOtherPlayer.empty()) {
+	//	PlayerUpdateInfo updateinfo{};
+	//	mEventsQueue_MoveOtherPlayer.try_pop(updateinfo);
+	//	if (updateinfo.player) {
+	//		std::cout << updateinfo.player->GetID() << " - PTR : " << updateinfo.player << std::endl;
+	//		std::cout << "[MOVE BY PACKET] - " << updateinfo.player->GetID() << " -> Scene Update : " << updateinfo.NewPos.x << " " << updateinfo.NewPos.y << " " << updateinfo.NewPos.z << "\n";
+	//		updateinfo.player->SetPosition(updateinfo.NewPos);
+	//	}
+	//}
+}
+
+void Scene::AddEvent(sptr<SceneEvent::EventData> data)
+{
+	WRITE_LOCK;
+	mEventsProcessQueue.push(data);
+}
+
 
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {

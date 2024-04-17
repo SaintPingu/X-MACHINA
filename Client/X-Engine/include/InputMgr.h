@@ -10,6 +10,8 @@
 
 
 
+namespace GameKeyInfo
+{
 	enum class KEY_STATE : UINT8
 	{
 		TAP,     // ¸· ´­¸²
@@ -33,6 +35,18 @@
 
 		KEY_END,
 	};
+
+	enum class MoveKey : UINT8 {
+		W = 0b0000'0001,
+		A = 0b0000'0010,
+		S = 0b0000'0100,
+		D = 0b0000'1000,
+
+	};
+
+
+
+}
 
 
 #pragma region EnumClass

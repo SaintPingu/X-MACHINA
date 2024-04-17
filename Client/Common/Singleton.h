@@ -15,7 +15,7 @@ private:
 	};
 
 public:
-	static std::unique_ptr<T, Deleter> const I;
+	static const std::unique_ptr<T, Deleter> I;
 
 protected:
 	Singleton() = default;
@@ -28,4 +28,4 @@ public:
 	Singleton& operator=(Singleton&&)		= delete;
 };
 template<class T>
-inline std::unique_ptr<T, typename Singleton<T>::Deleter> const Singleton<T>::I(new T);
+const std::unique_ptr<T, typename Singleton<T>::Deleter> Singleton<T>::I(new T);

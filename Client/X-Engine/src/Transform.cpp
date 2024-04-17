@@ -497,6 +497,18 @@ void Transform::BeforeUpdateTransform()
 	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 }
 
+void Transform::UpdateShaderVars(const ObjectConstants& objectCB, const int cnt) const
+{
+	// 실제 사용 횟수를 저장한다.
+	if (mObjCBCount <= cnt) {
+		mObjCBCount = cnt + 1;
+	}
+
+	frmResMgr->CopyData(mObjCBIndices[cnt], objectCB);
+
+	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+}
+
 void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 {
 	// 실제 사용 횟수를 저장한다.
@@ -507,7 +519,7 @@ void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
 	objectConstants.MatIndex = matIndex;
-	
+
 	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
 
 	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
@@ -534,14 +546,10 @@ void Transform::MergeTransform(std::vector<const Transform*>& out, const Transfo
 	}
 }
 
-void Transform::UpdateShaderVars(const Matrix& matrix)
-{
-	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
-}
-
-void Transform::UpdateShaderVars(const XMMATRIX& matrix)
+void Transform::UpdateColliderShaderVars(const Matrix& matrix, const Vec4& color)
 {
 	Matrix m;
 	XMStoreFloat4x4(&m, matrix);
-	UpdateShaderVars(m);
+	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
+	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, color, 16);
 }

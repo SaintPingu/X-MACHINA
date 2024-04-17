@@ -21,6 +21,7 @@ void ParticleSystem::SetTarget(const std::string& frameName)
 	}
 }
 
+
 void ParticleSystem::Awake()
 {
 	base::Awake();
@@ -40,6 +41,7 @@ void ParticleSystem::Awake()
 		Play();
 	}
 }
+
 
 void ParticleSystem::Update()
 {
@@ -105,8 +107,8 @@ void ParticleSystem::Update()
 			pr->RemoveParticleSystem(mPSIdx);
 
 			// 객체 소멸 이후 파티클도 소멸해야 하는 경우 최종으로 인덱스 반환
-			if (mIsDeprecated)
-				ReturnIndex();
+			//if (mIsDeprecated)
+			//	ReturnIndex();
 
 			return;
 		}
@@ -152,7 +154,7 @@ void ParticleSystem::OnDestroy()
 		return;
 
 	// 물고 있는 객체가 소멸되더라도 바로 소멸되지 않도록 파티클 렌더러에 소유권 이전
-	Stop();
+	//Stop();
 	mIsDeprecated = true;
 	pr->AddParticleSystem(shared_from_this());
 }
@@ -166,7 +168,13 @@ void ParticleSystem::Play()
 		mPSCD.LoopingElapsed = 0.f;
 		mPSCD.StopElapsed = 0.f;
 		mPSCD.StartElapsed = 0.f;
+
+		mPSGD.TotalTime = 0.f;
+		mPSGD.DeltaTime = 0.f;
+		mPSCD.AccTime += 0.f;
+
 		mPSCD.IsStop = false;
+		mIsDeprecated = false;
 	}
 }
 
@@ -250,6 +258,7 @@ void ParticleRenderer::Init()
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
 {
+	printf("Add : %d\n", particleSystem->GetPSIdx());
 	mParticleSystems.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
 
 	// 파티클 시스템이 삭제 예정 파티클이라면 Deprecations 컨테이너에도 추가

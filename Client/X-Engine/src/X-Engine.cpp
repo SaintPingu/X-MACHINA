@@ -22,6 +22,7 @@ Engine::Engine()
 
 }
 
+
 void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 {
 	input->Init();
@@ -37,9 +38,10 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 	imgui->Init();
 #pragma endregion
 #pragma region Log - 장재문 -
-	LOG_MGR->Init(""); // 이름을 지을 수 있다. 
+	//LOG_MGR->Init(""); // 이름을 지을 수 있다. 
 #pragma endregion
 }
+
 
 void Engine::Release()
 {
@@ -51,7 +53,7 @@ void Engine::Release()
 
 #pragma region Imgui,Log - 장재문 -
 	imgui->Destroy();
-	LOG_MGR->Destroy();
+	//LOG_MGR->Destroy();
 #pragma endregion
 
 	dxgi->Release();
@@ -143,6 +145,7 @@ void Engine::BuildObjects()
 {
 	scene->Start();
 }
+
 
 void Engine::ReleaseObjects()
 {

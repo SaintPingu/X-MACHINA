@@ -140,6 +140,9 @@ void DXGIMgr::Release()
 	::CloseHandle(mFenceEvent);
 	res->Destroy();
 	pr->Destroy();
+	frmResMgr->Destroy();
+	WaitForGpuComplete();
+
 	Destroy();
 }
 

@@ -212,6 +212,23 @@ void ResourceMgr::LoadShaders()
 		shader->Load(info, path);
 		Add<Shader>("Shadow_SkinMesh", shader);
 	}
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::Less_No_Write,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_SkinnedMesh.cso",
+			 "PShader_Standard.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Dissolve", shader);
+	}
 #pragma endregion
 #pragma region Terrain
 	{

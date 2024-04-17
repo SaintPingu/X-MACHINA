@@ -42,7 +42,7 @@ namespace {
 Scene::Scene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
-	mGridhWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
+	mGridWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
 	mLight(std::make_shared<Light>())
 {
 
@@ -52,6 +52,10 @@ void Scene::Release()
 {
 	mainCameraObject->Destroy();
 	canvas->Release();
+
+	ProcessAllObjects([](sptr<GameObject> object) {
+		object->OnDestroy();
+		});
 
 	Destroy();
 }
@@ -79,6 +83,11 @@ std::vector<sptr<GameObject>> Scene::GetAllObjects() const
 	result.insert(result.end(), mDynamicObjects.begin(), mDynamicObjects.end());
 
 	return result;
+}
+
+std::vector<sptr<GameObject>> Scene::GetAllPartilceSystems() const
+{
+	return mParticles;
 }
 
 #pragma endregion
@@ -134,7 +143,9 @@ void Scene::UpdateMainPassCB()
 	passCB.ShadowIntensity				= 0.0f;
 	passCB.FogColor						= Colors::Gray;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
-	
+
+	int temp = res->Get<Texture>("Dissolve")->GetSrvIdx();
+
 	frmResMgr->CopyData(0, passCB);
 }
 
@@ -232,47 +243,26 @@ void Scene::BuildTerrain()
 
 void Scene::BuildTest()
 {
-	mTestCubes.resize(2);
-	mTestCubes[0] = std::make_shared<TestCube>(Vec2(170, 150));
-	mTestCubes[0]->GetMaterial()->SetMatallic(0.f);
-	mTestCubes[0]->GetMaterial()->SetRoughness(0.f);
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Rock_BaseColor"));
-	mTestCubes[0]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Rock_Normal"));
+	mParticles.resize(0);
 
-	mTestCubes[1] = std::make_shared<TestCube>(Vec2(165, 150));
-	mTestCubes[1]->GetMaterial()->SetMatallic(0.f);
-	mTestCubes[1]->GetMaterial()->SetRoughness(0.f);
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("Wall_BaseColor"));
-	mTestCubes[1]->GetMaterial()->SetTexture(TextureMap::NormalMap, res->Get<Texture>("Wall_Normal"));
-
-	//mPlayer = mPlayers.front();
-	//mPlayerScript = mPlayer->GetComponent<Script_GroundPlayer>();
-
-	mParticles.resize(3);
-#pragma region light
-	mParticles[0] = std::make_shared<GameObject>();
-	mParticles[0]->SetPosition(Vec3{ 166.f, 10.5f, 149.f });
-	mParticles[0]->AddComponent<ParticleSystem>()->Load("Light");
-#pragma endregion
-	// HeightMap_1024x1024_R32
 #pragma region MagicMissile
-	mParticles[1] = std::make_shared<GameObject>();
-	mParticles[1]->SetPosition(Vec3{ 167.5f, 11.f, 150.f });
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
-	mParticles[1]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
+	//mParticles[0] = std::make_shared<GameObject>();
+	//mParticles[0]->SetPosition(Vec3{ 97.5f, GetTerrainHeight(97.5f, 100.f) + 2.f, 104.f });
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Out");
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Out");
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Big_MagicMissile_Light");
+	//mParticles[0]->AddComponent<ParticleSystem>()->Load("Small_MagicMissile_Light");
 #pragma endregion
 
-#pragma region ShapeTest
-	mParticles[2] = std::make_shared<GameObject>();
-	mParticles[2]->SetPosition(Vec3{ 173.f, 11.f, 150.f });
-	auto& component = mParticles[2]->AddComponent<ParticleSystem>()->Load("Green");
-	component->GetPSCD().StartLifeTime = 0.3f;
-	component->GetPSCD().Emission.SetBurst(100);
-	component->GetPSCD().Duration = 0.2f;
-	component->GetPSCD().Shape.SetSphere(1.5f, 0.f, 360.f, true);
-#pragma endregion
+//#pragma region ShapeTest
+//	mParticles[1] = std::make_shared<GameObject>();
+//	mParticles[1]->SetPosition(Vec3{ 103.f, GetTerrainHeight(103.f, 100.f) + 2.f, 104.f });
+//	auto& component = mParticles[1]->AddComponent<ParticleSystem>()->Load("Green");
+//	component->GetPSCD().StartLifeTime = 0.3f;
+//	component->GetPSCD().Emission.SetBurst(100);
+//	component->GetPSCD().Duration = 0.2f;
+//	component->GetPSCD().Shape.SetSphere(1.5f, 0.f, 360.f, true);
+//#pragma endregion
 }
 
 void Scene::BuildGrid()
@@ -280,30 +270,30 @@ void Scene::BuildGrid()
 	constexpr float kMaxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	const int adjusted = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridhWidth);
+	const int adjusted = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridWidth);
 	mMapBorder.Extents = Vec3((float)adjusted, mMapBorder.Extents.y, (float)adjusted);
 
 	// set grid start pos
 	mGridStartPoint = mMapBorder.Center.x - mMapBorder.Extents.x / 2;
 
 	// set grid count
-	mGridCols = adjusted / mGridhWidth;
+	mGridCols = adjusted / mGridWidth;
 	const int gridCount = mGridCols * mGridCols;
 	mGrids.resize(gridCount);
 
 	// set grid bounds
-	const float gridExtent = (float)mGridhWidth / 2.0f;
+	const float gridExtent = (float)mGridWidth / 2.0f;
 	for (int y = 0; y < mGridCols; ++y) {
 		for (int x = 0; x < mGridCols; ++x) {
-			float gridX = (mGridhWidth * x) + ((float)mGridhWidth / 2) + mGridStartPoint;
-			float gridZ = (mGridhWidth * y) + ((float)mGridhWidth / 2) + mGridStartPoint;
+			float gridX = (mGridWidth * x) + ((float)mGridWidth / 2) + mGridStartPoint;
+			float gridZ = (mGridWidth * y) + ((float)mGridWidth / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
 			bb.Center = Vec3(gridX, kMaxHeight / 2, gridZ);
 			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
 
 			int index = (y * mGridCols) + x;
-			mGrids[index].Init(index, bb);
+			mGrids[index].Init(index, mGridWidth, bb);
 		}
 	}
 }
@@ -420,6 +410,9 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 	}
 
 	break;
+	case ObjectTag::Building:
+		mStaticObjects.push_back(object);
+		return;
 	default:
 		break;
 	}
@@ -450,7 +443,6 @@ void Scene::RenderShadow()
 
 #pragma region Shadow_Global
 	RenderGridObjects(true);
-	RenderTestCubes(true);
 #pragma endregion
 #pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects(true);
@@ -470,7 +462,6 @@ void Scene::RenderDeferred()
 
 #pragma region Global
 	RenderGridObjects();
-	RenderTestCubes();
 	RenderEnvironments();
 #pragma endregion
 #pragma region ObjectInst
@@ -504,6 +495,7 @@ void Scene::RenderFinal()
 void Scene::RenderForward()
 {
 	RenderTransparentObjects(mTransparentObjects); 
+	RenderDissolveObjects();
 	RenderSkyBox();
 
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -544,6 +536,14 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 {
 	res->Get<Shader>("Transparent")->Set();
 	for (auto& object : transparentObjects) {
+		object->Render();
+	}
+}
+
+void Scene::RenderDissolveObjects()
+{
+	res->Get<Shader>("Dissolve")->Set();
+	for (auto& object : mDissolveObjects) {
 		object->Render();
 	}
 }
@@ -601,22 +601,26 @@ void Scene::RenderGridObjects(bool isShadowed)
 	}
 }
 
-void Scene::RenderTestCubes(bool isShadowed)
-{
-	for (const auto& testCube : mTestCubes) {
-		testCube->Render();
-	}
-}
-
 void Scene::RenderSkinMeshObjects(bool isShadowed)
 {
-	if (isShadowed)
+	if (isShadowed) {
 		res->Get<Shader>("Shadow_SkinMesh")->Set();
+		for (auto& object : mDissolveObjects)
+			object->Render();
+	}
 	else
 		res->Get<Shader>("SkinMesh")->Set();
 
-	for (auto& object : mSkinMeshObjects) {
-		object->Render();
+	// 죽은 상태라면 DissolveObjects로 이동
+	for (auto it = mSkinMeshObjects.begin(); it != mSkinMeshObjects.end();) {
+		if ((*it)->mObjectCB.DeathElapsed > 0.f) {
+			mDissolveObjects.insert(*it);
+			it = mSkinMeshObjects.erase(it);
+			continue;
+		}
+		else {
+			(*it++)->Render();
+		}
 	}
 }
 
@@ -641,6 +645,19 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 
 	res->Get<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
+
+	//// 오픈 리스트를 초록색으로 출력
+	//for (auto& path : mOpenList) {
+	//	path.y = GetTerrainHeight(path.x, path.z);
+	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
+	//}
+
+	//// 클로즈드 리스트를 빨간색으로 출력
+	//for (auto& path : mClosedList) {
+	//	path.y = GetTerrainHeight(path.x, path.z);
+	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
+	//}
+
 	if (!mIsRenderBounds) {
 		return false;
 	}
@@ -668,7 +685,7 @@ void Scene::RenderGridBounds()
 		constexpr float kGirdHeight = 30.f;
 		Vec3 pos = grid.GetBB().Center;
 		pos.y = kGirdHeight;
-		MeshRenderer::RenderPlane(pos, (float)mGridhWidth, (float)mGridhWidth);
+		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
 #endif
 	}
 }
@@ -724,6 +741,7 @@ void Scene::Update()
 	UpdateShaderVars();
 
 	PopObjectBuffer();
+
 }
 
 void Scene::CheckCollisions()
@@ -731,6 +749,12 @@ void Scene::CheckCollisions()
 	for (Grid& grid : mGrids) {
 		grid.CheckCollisions();
 	}
+}
+
+float Scene::CheckCollisionsRay(int gridIndex, const Ray& ray) const
+{
+	// 상하좌우, 대각선 그리드도 체크 필요
+	return mGrids[gridIndex].CheckCollisionsRay(ray);
 }
 
 void Scene::UpdateObjects()
@@ -773,10 +797,57 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
 
-	const int gridX = static_cast<int>(pos.x / mGridhWidth);
-	const int gridZ = static_cast<int>(pos.z / mGridhWidth);
+	const int gridX = static_cast<int>(pos.x / mGridWidth);
+	const int gridZ = static_cast<int>(pos.z / mGridWidth);
 
 	return gridZ * mGridCols + gridX;
+}
+
+Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
+{
+	// 월드 포지션으로부터 타일의 고유 인덱스를 계산
+	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
+	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
+
+	return Pos{ tileGroupIndexZ, tileGroupIndexX };
+}
+
+Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
+{
+	// 타일의 고유 인덱스로부터 월드 포지션을 계산
+	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
+	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
+
+	return Vec3{ posX, 0, posZ };
+}
+
+Tile Scene::GetTileFromPos(const Vec3& pos) const
+{
+	return GetTileFromUniqueIndex(GetTileUniqueIndexFromPos(pos));
+}
+
+Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
+{
+	// 타일의 고유 인덱스로부터 타일의 값을 반환
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
+
+	const int tileX = index.X % Grid::mTileRows;
+	const int tileZ = index.Z % Grid::mTileCols;
+
+	return mGrids[gridZ * mGridCols + gridX].GetTileFromUniqueIndex(Pos{tileZ, tileX});
+}
+
+void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
+{
+	// 타일의 고유 인덱스로부터 타일의 값을 반환
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
+
+	const int tileX = index.X % Grid::mTileRows;
+	const int tileZ = index.Z % Grid::mTileCols;
+
+	mGrids[gridZ * mGridCols + gridX].SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
 }
 
 

@@ -1,10 +1,12 @@
 #include "EnginePch.h"
 #include "Grid.h"
 
+#include "Scene.h"
 #include "Object.h"
 #include "Component/Collider.h"
 
-
+int Grid::mTileRows = 0;
+int Grid::mTileCols = 0;
 
 namespace {
 	// call collision function if collide
@@ -47,10 +49,27 @@ namespace {
 
 
 
-void Grid::Init(int index, const BoundingBox& bb)
+
+
+
+Tile Grid::GetTileFromUniqueIndex(const Pos& tPos) const
+{
+	return mTiles[tPos.Z][tPos.X];
+}
+
+void Grid::SetTileFromUniqueIndex(const Pos& tPos, Tile tile)
+{
+	mTiles[tPos.Z][tPos.X] = tile;
+}
+
+void Grid::Init(int index, int width, const BoundingBox& bb)
 {
 	mIndex = index;
 	mBB    = bb;
+
+	mTileRows = static_cast<int>(width / mkTileHeight);
+	mTileCols = static_cast<int>(width / mkTileWidth);
+	mTiles = std::vector<std::vector<Tile>>(mTileCols, std::vector<Tile>(mTileRows, Tile::None));
 }
 
 void Grid::AddObject(GridObject* object)
@@ -70,7 +89,55 @@ void Grid::AddObject(GridObject* object)
 		break;
 	default:
 		mStaticObjects.insert(object);
+		UpdateTiles(Tile::Static, object);
 		break;
+	}
+}
+
+void Grid::UpdateTiles(Tile tile, GridObject* object)
+{
+	// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
+	if (object->GetTag() != ObjectTag::Building)
+		return;
+
+
+	// 오브젝트의 타일 기준 인덱스 계산
+	Vec3 pos = object->GetPosition();
+	Pos index = scene->GetTileUniqueIndexFromPos(pos);
+	scene->SetTileFromUniqueIndex(index, tile);
+
+	// 오브젝트의 충돌 박스
+	const auto& collider = object->GetCollider();
+	if (!collider)
+		return;
+
+	// BFS를 통해 주변 타일도 업데이트
+	std::queue<Pos> q;
+	std::map<Pos, bool> visited;
+	q.push(index);
+
+	// q가 빌 때까지 BFS를 돌며 현재 타일이 오브젝트와 충돌 했다면 해당 타일을 업데이트
+	while (!q.empty()) {
+		Pos curNode = q.front();
+		q.pop();
+
+		if (visited[curNode])
+			continue;
+
+		visited[curNode] = true;
+
+		for (int dir = 0; dir < 8; ++dir) {
+			Pos nextPosT = curNode + gkFront[dir];
+			Vec3 nextPosW = scene->GetTilePosFromUniqueIndex(nextPosT);
+			nextPosW.y = pos.y;
+
+			BoundingBox bb{nextPosW, Vec3{mkTileWidth, mkTileWidth, mkTileHeight} };
+
+			if (collider->Intersects(bb)) {
+				scene->SetTileFromUniqueIndex(nextPosT, tile);
+				q.push(nextPosT);
+			}
+		}
 	}
 }
 
@@ -91,6 +158,7 @@ void Grid::RemoveObject(GridObject* object)
 		break;
 	default:
 		mStaticObjects.erase(object);
+		UpdateTiles(Tile::None, object);
 		break;
 	}
 }
@@ -103,4 +171,22 @@ void Grid::CheckCollisions()
 			::CheckCollisionObjects(mDynamicObjets, mStaticObjects);	// 동적<->정적 객체간 충돌 검사를 수행한다.
 		}
 	}
+}
+
+float Grid::CheckCollisionsRay(const Ray& ray) const
+{
+	float minDist = 999.f;
+	for (const auto& object : mStaticObjects) {
+		if (object->GetTag() != ObjectTag::Building)
+			continue;
+
+		float dist;
+		for (const auto& obb : object->GetCollider()->GetOBBList()) {
+			if (obb->Intersects(ray.Position, ray.Direction, dist)) {
+				minDist = min(minDist, dist);
+			}
+		}
+	}
+
+	return minDist;
 }

@@ -88,6 +88,9 @@
     <Filter Include="Imgui\ImguiCode">
       <UniqueIdentifier>{6000ed2b-6000-4c87-8344-ee1acb5b9ca7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\AI">
+      <UniqueIdentifier>{626b7a5f-26a0-4806-b035-d4dc4bb4a894}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -251,6 +254,9 @@
     </ClCompile>
     <ClCompile Include="src\EnginePch.cpp">
       <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BehaviorTree.cpp">
+      <Filter>소스 파일\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -436,6 +442,9 @@
     </ClInclude>
     <ClInclude Include="..\Common\DwordOverloader.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BehaviorTree.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

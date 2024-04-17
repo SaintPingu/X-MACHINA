@@ -172,7 +172,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
     // 최대 파티클을 벗어난 경우 리턴
     if (threadID.x >= ps.MaxParticles)
         return;
-    
+
     // 파티클 공유 변수
     gParticleShared[gIndex.Index].AddCount = ps.AddCount;
     GroupMemoryBarrierWithGroupSync();

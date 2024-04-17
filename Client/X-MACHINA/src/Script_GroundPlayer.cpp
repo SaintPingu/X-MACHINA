@@ -254,7 +254,7 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 	switch (other.GetTag())
 	{
 	case ObjectTag::Building:
-		Explode();
+		//Explode();
 		break;
 	default:
 		break;

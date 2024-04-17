@@ -20,7 +20,7 @@ void MeshRenderer::Render(const BoundingBox& box)
 
 	const XMMATRIX matrix = XMMatrixMultiply(scaleMtx, translationMtx);		// (Scale * Translate)
 
-	Transform::UpdateShaderVars(matrix);
+	Transform::UpdateColliderShaderVars(matrix);
 	mBoxMesh->Render();
 }
 
@@ -37,7 +37,7 @@ void MeshRenderer::Render(const BoundingOrientedBox& box)
 	
 	const XMMATRIX matrix = XMMatrixMultiply(XMMatrixMultiply(scaleMtx, rotationMtx), translationMtx);	// (Scale * Rotation) * Translate
 
-	Transform::UpdateShaderVars(matrix);
+	Transform::UpdateColliderShaderVars(matrix);
 	mBoxMesh->Render();
 }
 
@@ -51,7 +51,7 @@ void MeshRenderer::Render(const BoundingSphere& bs)
 
 	const XMMATRIX matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)
 
-	Transform::UpdateShaderVars(matrix);
+	Transform::UpdateColliderShaderVars(matrix);
 	mSphereMesh->Render();
 }
 
@@ -62,18 +62,18 @@ void MeshRenderer::RenderPlane(const Vec3& pos, float width, float length)
 
 	const XMMATRIX matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)
 
-	Transform::UpdateShaderVars(matrix);
+	Transform::UpdateColliderShaderVars(matrix);
 	mPlaneMesh->Render();
 }
 
-void MeshRenderer::RenderBox(const Vec3& pos, const Vec3& size)
+void MeshRenderer::RenderBox(const Vec3& pos, const Vec3& size, const Vec4& color)
 {
 	const XMMATRIX scaleMtx = XMMatrixScaling(size.x, size.y, size.z);
 	const XMMATRIX translationMtx = XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 	const XMMATRIX matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)
 
-	Transform::UpdateShaderVars(matrix);
+	Transform::UpdateColliderShaderVars(matrix, color);
 	mBoxMesh->Render();
 }
 

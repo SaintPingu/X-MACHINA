@@ -92,6 +92,7 @@ public:
 #include <functional>
 #include <filesystem>
 #include <type_traits>
+#include <ranges>
 
 /* STL Containers */
 #include <span>

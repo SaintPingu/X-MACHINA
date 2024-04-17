@@ -6,6 +6,7 @@
 
 #include "ObjectMgr.h"
 #include "InputMgr.h"
+#include "Imgui/ImGuiManager.h"
 
 #include "Scene.h"
 #include "Timer.h"
@@ -166,10 +167,10 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	mResolution.Width = width;
 	mResolution.Height = height;
 	CreateGameClientWindow();
-
+	int a = 3;
 	// Init //
 	mainCameraObject->AddComponent<Script_MainCamera>();
-	engine->Init(hInstance, mhWnd, width, height);
+	engine->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
 	gameManager->AddComponent<Script_GameManager>();
 	objectMgr->InitObjectsScript();
 	InitPlayer();
@@ -235,12 +236,8 @@ int GameFramework::GameLoop()
 void GameFramework::Update()
 {
 	engine->Update();
-	timer->Tick(60.f);
-
-	sptr<GridObject> player = engine->GetPlayer();
-	Vec3 pos = player->GetLocalPosition();
-	//printf("PLAYER POS : %f %f %f\n", pos.x, pos.y, pos.z);
-
+	//timer->Tick(144.f);
+	timer->Tick();
 	KeyInputBroadcast(); 
 }
 
@@ -321,11 +318,12 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_F2:
 			timer->Start();
 			break;
-
 		case VK_F5:
 			scene->ToggleDrawBoundings();
 			break;
-
+		case VK_F6:
+			imgui->ToggleImGui();
+			break;
 		case 192:	// '`'
 			::SetFocus(NULL);
 			break;

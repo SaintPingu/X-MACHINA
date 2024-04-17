@@ -12,6 +12,11 @@
 #pragma endregion
 
 
+#pragma region Using
+using namespace Path;
+#pragma endregion
+
+
 #pragma region ClassForwardDecl
 class Camera;
 class Object;
@@ -55,11 +60,11 @@ private:
 
 	std::set<GridObject*>	mRenderedObjects{};
 	std::set<GridObject*>	mTransparentObjects{};
+	std::set<GridObject*>	mDissolveObjects{};
 	std::set<GridObject*>	mBillboardObjects{};
 	std::set<GridObject*>	mSkinMeshObjects{};
 
 	/* TestCube */
-	std::vector<sptr<TestCube>>		mTestCubes{};
 	std::vector<sptr<GameObject>>	mParticles{};
 
 	/* Map */
@@ -69,11 +74,14 @@ private:
 	/* Grid */
 	std::vector<Grid>	mGrids{};				// all scene grids
 	float				mGridStartPoint{};		// leftmost coord of the entire grid
-	int					mGridhWidth{};			// length of x for one grid
+	int					mGridWidth{};			// length of x for one grid
 	int					mGridCols{};			// number of columns in the grid
 
 	/* Others */
 	bool mIsRenderBounds = false;
+
+	std::vector<Vec3>	mOpenList{};
+	std::vector<Vec3>	mClosedList{};
 
 private:
 #pragma region C/Dtor
@@ -91,6 +99,20 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
+	std::vector<sptr<GameObject>> GetAllPartilceSystems() const;
+
+	int GetGridIndexFromPos(Vec3 pos) const;
+
+	Pos GetTileUniqueIndexFromPos(const Vec3& pos) const;
+	Vec3 GetTilePosFromUniqueIndex(const Pos& index) const;
+
+	Tile GetTileFromUniqueIndex(const Pos& index) const;
+	void SetTileFromUniqueIndex(const Pos& index, Tile tile);
+	Tile GetTileFromPos(const Vec3& index) const;
+
+	std::vector<Vec3>& GetOpenList() { return mOpenList; }
+	std::vector<Vec3>& GetClosedList() { return mClosedList; }
+
 #pragma endregion
 
 #pragma region DirectX
@@ -151,7 +173,6 @@ private:
 	// [transparentObjects] : ≈ı∏Ì ∞¥√º
 	// [billboardObjects]	: ∫Ù∫∏µÂ ∞¥√º (plane)
 	void RenderGridObjects(bool isShadowed = false);
-	void RenderTestCubes(bool isShadowed = false);
 	void RenderSkinMeshObjects(bool isShadowed = false);
 	void RenderEnvironments();
 	void RenderInstanceObjects();
@@ -160,6 +181,7 @@ private:
 
 	// render [transparentObjects]
 	void RenderTransparentObjects(const std::set<GridObject*>& transparentObjects);
+	void RenderDissolveObjects();
 	void RenderSkyBox();
 	void RenderParticles();
 
@@ -184,6 +206,7 @@ private:
 #pragma endregion
 
 public:
+	float CheckCollisionsRay(int gridIndex, const Ray& ray) const;
 	void ToggleDrawBoundings();
 
 	// update objects' grid indices
@@ -207,7 +230,6 @@ private:
 	// move mObjectBuffer's objects to mDynamicObjects
 	void PopObjectBuffer();
 
-	int GetGridIndexFromPos(Vec3 pos) const;
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
 };
 #pragma endregion

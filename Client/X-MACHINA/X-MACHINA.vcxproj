@@ -105,6 +105,8 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,6 +126,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,6 +146,8 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,6 +167,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -189,6 +195,10 @@
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
+    <ClInclude Include="include\CheckAttackRange.h" />
+    <ClInclude Include="include\CheckDeath.h" />
+    <ClInclude Include="include\CheckDetectionRange.h" />
+    <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
     <ClInclude Include="include\ObjectMgr.h" />
@@ -196,16 +206,19 @@
     <ClInclude Include="include\Script_AimController.h" />
     <ClInclude Include="include\Script_Apache.h" />
     <ClInclude Include="include\Script_Aranobot.h" />
+    <ClInclude Include="include\Script_BehaviorTree.h" />
     <ClInclude Include="include\Script_Billboard.h" />
     <ClInclude Include="include\Script_Bullet.h" />
     <ClInclude Include="include\Script_Droid.h" />
     <ClInclude Include="include\Script_Enemy.h" />
+    <ClInclude Include="include\Script_EnemyManager.h" />
     <ClInclude Include="include\Script_ExplosiveObject.h" />
     <ClInclude Include="include\Script_Fragment.h" />
     <ClInclude Include="include\Script_GameManager.h" />
     <ClInclude Include="include\Script_GroundObject.h" />
     <ClInclude Include="include\Script_Gunship.h" />
     <ClInclude Include="include\Script_LiveObject.h" />
+    <ClInclude Include="include\Script_MeleeBT.h" />
     <ClInclude Include="include\Script_Player.h" />
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\Script_Weapon.h" />
@@ -213,6 +226,15 @@
     <ClInclude Include="include\Script_Weapon_Rifle.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\TaskAttack.h" />
+    <ClInclude Include="include\TaskGetHit.h" />
+    <ClInclude Include="include\TaskMoveToPath.h" />
+    <ClInclude Include="include\TaskMoveToTarget.h" />
+    <ClInclude Include="include\TaskPathPlanningToTarget.h" />
+    <ClInclude Include="include\TaskPathPlanningAStar.h" />
+    <ClInclude Include="include\TaskPatrol.h" />
+    <ClInclude Include="include\TaskPathPlanningToSpawn.h" />
+    <ClInclude Include="include\Wait.h" />
     <ClInclude Include="include\X-MACHINA.h" />
     <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
     <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
@@ -227,15 +249,21 @@
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\ServerSession.cpp" />
+    <ClCompile Include="src\CheckAttackRange.cpp" />
+    <ClCompile Include="src\CheckDeath.cpp" />
+    <ClCompile Include="src\CheckDetectionRange.cpp" />
+    <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
     <ClCompile Include="src\Script_Aranobot.cpp" />
+    <ClCompile Include="src\Script_BehaviorTree.cpp" />
     <ClCompile Include="src\Script_Billboard.cpp" />
     <ClCompile Include="src\Script_Bullet.cpp" />
     <ClCompile Include="src\Script_Droid.cpp" />
     <ClCompile Include="src\Script_Enemy.cpp" />
+    <ClCompile Include="src\Script_EnemyManager.cpp" />
     <ClCompile Include="src\Script_ExplosiveObject.cpp" />
     <ClCompile Include="src\Script_Fragment.cpp" />
     <ClCompile Include="src\Script_GameManager.cpp" />
@@ -244,6 +272,7 @@
     <ClCompile Include="src\Script_Gunship.cpp" />
     <ClCompile Include="src\Script_LiveObject.cpp" />
     <ClCompile Include="src\Script_MainCamera.cpp" />
+    <ClCompile Include="src\Script_MeleeBT.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />
@@ -260,6 +289,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\TaskAttack.cpp" />
+    <ClCompile Include="src\TaskGetHit.cpp" />
+    <ClCompile Include="src\TaskMoveToPath.cpp" />
+    <ClCompile Include="src\TaskMoveToTarget.cpp" />
+    <ClCompile Include="src\TaskPathPlanningToTarget.cpp" />
+    <ClCompile Include="src\TaskPathPlanningAStar.cpp" />
+    <ClCompile Include="src\TaskPatrol.cpp" />
+    <ClCompile Include="src\TaskPathPlanningToSpawn.cpp" />
+    <ClCompile Include="src\Wait.cpp" />
     <ClCompile Include="src\X-MACHINA.cpp" />
   </ItemGroup>
   <ItemGroup>

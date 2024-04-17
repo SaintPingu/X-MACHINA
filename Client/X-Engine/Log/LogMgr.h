@@ -59,6 +59,8 @@ private:
 	bool			mIsConsoleLogWrite = true;
 	bool			mIsFileLogWrite = true;
 
+	bool			mIsRead = false;
+
 	std::ofstream	mLogWriteFile;	/// 파일 : 저장경로- LogFile/Year_MonthDay/~~~.log ( txt 파일이다. )
 
 public:

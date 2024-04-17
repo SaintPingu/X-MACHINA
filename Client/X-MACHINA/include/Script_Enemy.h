@@ -9,7 +9,7 @@
 
 #pragma region ClassForwardDecl
 class GridObject;
-class AnimatorController;
+class Script_EnemyManager;
 #pragma endregion
 
 
@@ -18,13 +18,7 @@ class Script_Enemy abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Enemy, Script_LiveObject)
 
 protected:
-	float mRotationSpeed  = 270.f;
-	float mMoveSpeed      = 1.8f;
-	float mDetectionRange = 10.f;
-
-	sptr<AnimatorController>   mController{};
-
-	sptr<GridObject> mPlayer{};
+	sptr<Script_EnemyManager>  mEnemyMgr{};
 
 public:
 	virtual void Awake() override;

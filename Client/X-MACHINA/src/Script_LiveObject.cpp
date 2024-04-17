@@ -2,6 +2,7 @@
 #include "Script_Enemy.h"
 
 #include "Script_LiveObject.h"
+#include "Timer.h"
 
 
 
@@ -25,11 +26,17 @@ void Script_LiveObject::Hit(float damage)
 {
 	mCrntHP -= damage;
 	if (mCrntHP <= 0) {
-		Dead();
+		mIsDead = true;
 	}
 }
 
 void Script_LiveObject::Dead()
 {
 	mObject->OnDestroy();
+}
+
+void Script_LiveObject::Resurrect()
+{
+	mCrntHP = mMaxHP;
+	mIsDead = false;
 }

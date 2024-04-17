@@ -8,6 +8,7 @@
 #include "Scene.h"
 
 #include "Component/Rigidbody.h"
+#include "ParticleSystem.h"
 
 
 void Script_Bullet::Awake()
@@ -15,6 +16,7 @@ void Script_Bullet::Awake()
 	base::Awake();
 
 	mGameObject = mObject->GetObj<GameObject>();
+	mParticleSystem = mGameObject->AddComponent<ParticleSystem>()->Load("Bulletlight2");
 
 	const auto& rb = mObject->GetComponent<Rigidbody>();
 	rb->SetFriction(0.001f);
@@ -54,6 +56,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());
+		mParticleSystem->Play();
 		Explode();
 	}
 

@@ -15,7 +15,7 @@ class Script_EnemyManager : public Component {
 	COMPONENT(Script_EnemyManager, Component)
 
 public:
-	float mRotationSpeed	= 270.f;
+	float mRotationSpeed	= 180.f;
 	float mMoveSpeed		= 1.8f;
 	float mDetectionRange	= 10.f;
 	float mAttackRange		= 2.f;

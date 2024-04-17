@@ -467,7 +467,7 @@ void Script_GroundPlayer::InitWeapons()
 		realodMotion->AddStopCallback(reloadStopCallback);
 		realodMotion->AddChangeCallback(reloadChangeCallback);
 		drawMotion->AddCallback(drawCallback, kDrawFrame);
-		drawMotion->AddCallback(drawEndCallback, drawMotion->GetMaxFrameRate() - 1);
+		drawMotion->AddEndCallback(drawEndCallback);
 		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
 
 

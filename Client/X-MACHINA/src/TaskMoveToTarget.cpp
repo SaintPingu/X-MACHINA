@@ -55,7 +55,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (toTarget.Length() > kMinDistance) {
-		mObject->RotateTargetAxisY(target->GetPosition(), mEnemyMgr->mRotationSpeed * DeltaTime());
+		mObject->RotateTargetAxisY(target->GetPosition(), mEnemyMgr->mRotationSpeed);
 		mObject->Translate(mObject->GetLook(), mEnemyMgr->mMoveSpeed * DeltaTime());
 	}
 

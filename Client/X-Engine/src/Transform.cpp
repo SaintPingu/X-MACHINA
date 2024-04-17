@@ -1,5 +1,8 @@
 #include "EnginePch.h"
+
 #include "Component/Transform.h"
+
+#include "Timer.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 
@@ -337,18 +340,22 @@ void Transform::RotateOffset(const Vec3& axis, float angle, const Vec3& offset)
 
 bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 {
-	float dot = mRight.Dot(target - GetPosition());
+	const float angle = Vector3::SignedAngle(GetLook().xz(), (target - GetPosition()).xz(), Vector3::Up);
 
-	if (fabs(dot) < 0.1f) {
+	constexpr float minAngle = 1.f;
+	if (fabs(angle) < minAngle) {
+		Rotate(Vector3::Up, angle);
 		return false;
 	}
 
-	int dir = 1;
-	if (dot < 0) {
-		dir = -1;
+	const float rotationValue = Math::Sign(angle) * rotationSpeed;
+	float rotationAngle       = rotationValue * DeltaTime();
+
+	if (fabs(rotationAngle) > fabs(angle)) {
+		rotationAngle = angle;
 	}
-	
-	Rotate(Vector3::Up, dir * rotationSpeed);
+
+	Rotate(Vector3::Up, rotationAngle);
 	return true;
 }
 

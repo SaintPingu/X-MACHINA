@@ -2,6 +2,8 @@
 #include "TaskMoveToPath.h"
 
 #include "Script_EnemyManager.h"
+
+#include "AnimatorMotion.h"
 #include "AnimatorController.h"
 #include "Timer.h"
 
@@ -13,6 +15,9 @@ TaskMoveToPath::TaskMoveToPath(Object* object)
 	mMoveSpeed = mEnemyMgr->mMoveSpeed;
 	mReturnSpeed = 1.7f * mMoveSpeed;
 	mPath = &mEnemyMgr->mPath;
+
+	mReturnParam = mEnemyMgr->mController->GetParamRef("Return");
+	mWalkMotion = mEnemyMgr->mController->FindMotionByName("WalkBackwards");
 }
 
 
@@ -27,10 +32,18 @@ BT::NodeState TaskMoveToPath::Evaluate()
 	Vec3 nextPos = (mPath->top() - mObject->GetPosition()).xz();
 
 	// 현재 복귀 상태라면 스피드를 올린다.
-	const float speed = mEnemyMgr->mController->GetParam("Return")->val.b ? mReturnSpeed : mMoveSpeed;
+	float speed{};
+	if (mReturnParam->val.b) {
+		speed = mReturnSpeed;
+		mWalkMotion->SetSpeed(1.7f * 10.f);
+	}
+	else {
+		speed = mMoveSpeed;
+		mWalkMotion->SetSpeed(1.f);
+	}
 
 	// 다음 경로를 향해 이동 및 회전
-	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mRotationSpeed * DeltaTime());
+	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mRotationSpeed);
 	mObject->Translate(XMVector3Normalize(nextPos), speed * DeltaTime());
 
 	// 다음 경로에 도착 시 해당 경로 삭제

@@ -25,25 +25,4 @@ void Script_Aranobot::Awake()
 void Script_Aranobot::Update()
 {
 	base::Update();
-
-	//if (KEY_PRESSED(VK_UP)) {
-	//	mEnemyMgr->mController->SetValue("Walk", true);
-	//}
-	//else {
-	//	mEnemyMgr->mController->SetValue("Walk", false);
-	//}
-
-	//if (KEY_PRESSED(VK_DOWN)) {
-	//	mEnemyMgr->mController->SetValue("Attack", true);
-	//}
-	//else {
-	//	mEnemyMgr->mController->SetValue("Attack", false);
-	//}
-
-	//if (KEY_PRESSED(VK_LEFT)) {
-	//	mEnemyMgr->mController->SetValue("Hit", true);
-	//}
-	//else {
-	//	mEnemyMgr->mController->SetValue("Hit", false);
-	//}
 }

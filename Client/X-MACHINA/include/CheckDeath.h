@@ -25,5 +25,8 @@ public:
 
 public:
 	virtual BT::NodeState Evaluate() override;
+
+private:
+	void DeathCallback();
 };
 #pragma endregion

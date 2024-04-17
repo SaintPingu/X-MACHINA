@@ -23,7 +23,7 @@ public:
 
 	float GetFrameTime(int frame) const { return mKeyFrameTimes[frame]; }
 	float GetMaxFrameTime() const { return mKeyFrameTimes.back(); }
-	int GetMaxFrameRate() const { return static_cast<int>(mKeyFrameTimes.size()); }
+	int GetMaxFrameRate() const { return static_cast<int>(mKeyFrameTimes.size()) - 1; }
 
 public:
 	Matrix GetSRT(int boneIndex, float position) const;

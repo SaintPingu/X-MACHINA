@@ -3,6 +3,8 @@
 
 #include "Script_EnemyManager.h"
 #include "Script_LiveObject.h"
+
+#include "AnimatorMotion.h"
 #include "AnimatorController.h"
 #include "Timer.h"
 
@@ -12,6 +14,8 @@ CheckDeath::CheckDeath(Object* object)
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 	mLiveObject = object->GetComponent<Script_LiveObject>();
+
+	mEnemyMgr->mController->FindMotionByName("Death")->AddEndCallback(std::bind(&CheckDeath::DeathCallback, this));
 }
 
 
@@ -21,10 +25,13 @@ BT::NodeState CheckDeath::Evaluate()
 		return BT::NodeState::Failure;
 	
 	mAccTime += DeltaTime();
-	mObject->mObjectCB.DeathElapsed += DeltaTime();
 	mEnemyMgr->mController->SetValue("Death", true);
 
-	if (mAccTime >= 1.f) {
+	if (mAccTime >= 2.f) {
+		mObject->mObjectCB.DeathElapsed += DeltaTime();
+	}
+
+	if (mAccTime >= 4.f) {
 		// 임시로 다시 태어나도록 설정
 		mEnemyMgr->mController->SetValue("Death", false);
 		mLiveObject->Resurrect();
@@ -36,4 +43,9 @@ BT::NodeState CheckDeath::Evaluate()
 	}
 
 	return BT::NodeState::Success;
+}
+
+void CheckDeath::DeathCallback()
+{
+	mEnemyMgr->mController->GetCrntMotion()->SetSpeed(0.f);
 }

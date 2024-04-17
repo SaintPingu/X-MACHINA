@@ -133,6 +133,16 @@ void AnimatorMotion::DelCallback(int frame)
 	mCallbacks.erase(GetFrameTime(frame));
 }
 
+void AnimatorMotion::AddStartCallback(const std::function<void()>& callback)
+{
+	AddCallback(callback, 0);
+}
+
+void AnimatorMotion::AddEndCallback(const std::function<void()>& callback)
+{
+	AddCallback(callback, GetMaxFrameRate());
+}
+
 void AnimatorMotion::AddStopCallback(const std::function<void()>& callback)
 {
 	mCallbackStop = std::make_shared<MotionCallback>(callback);

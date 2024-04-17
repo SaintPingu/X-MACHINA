@@ -7,7 +7,10 @@
 
 
 #pragma region ClassForwardDecl
+struct AnimatorParameter;
+
 class Script_EnemyManager;
+class AnimatorMotion;
 #pragma endregion
 
 
@@ -19,6 +22,9 @@ private:
 	float mMoveSpeed{};
 	float mReturnSpeed{};
 	std::stack<Vec3>* mPath;
+
+	sptr<AnimatorMotion> mWalkMotion{};
+	const AnimatorParameter* mReturnParam{};
 
 public:
 	TaskMoveToPath(Object* object);

@@ -100,6 +100,8 @@ public:
 	void AddCallback(const std::function<void()>& callback, int frame);
 	void DelCallback(int frame);
 
+	void AddStartCallback(const std::function<void()>& callback);
+	void AddEndCallback(const std::function<void()>& callback);
 	void AddStopCallback(const std::function<void()>& callback);
 	void DelStopCallback();
 	void AddChangeCallback(const std::function<void()>& callback);

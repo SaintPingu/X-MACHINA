@@ -27,7 +27,7 @@ BT::NodeState TaskPatrol::Evaluate()
 	const Vec3 toWayPoint = wayPoint - mObject->GetPosition().xz();
 	
 	if (toWayPoint.Length() > kMinDistance) {
-		mObject->RotateTargetAxisY(wayPoint, mEnemyMgr->mRotationSpeed * DeltaTime());
+		mObject->RotateTargetAxisY(wayPoint, mEnemyMgr->mRotationSpeed);
 		mObject->Translate(mObject->GetLook(), mPatrolSpeed * DeltaTime());
 	}
 	else {

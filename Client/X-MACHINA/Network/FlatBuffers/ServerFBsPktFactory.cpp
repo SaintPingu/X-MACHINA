@@ -63,7 +63,7 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		sptr<SceneEvent::AddOtherPlayer> eventData = std::make_shared<SceneEvent::AddOtherPlayer>();
 		eventData->type = SceneEvent::Enum::AddAnotherPlayer;
 		eventData->player = otherPlayer;
-		scene->AddEvent(eventData);
+		Scene::I->AddEvent(eventData);
 
 
 	}
@@ -102,7 +102,7 @@ bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol:
 	EventData->type                            = SceneEvent::Enum::AddAnotherPlayer;
 	EventData->player                          = otherPlayer;
 
-	scene->AddEvent(EventData);
+	Scene::I->AddEvent(EventData);
 
 	std::cout << "New Session Enter End\n";
 	return true;
@@ -136,7 +136,7 @@ bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol:
 	EventData->sessionID                        = objID;
 	EventData->Pos                              = Pos;
 	//std::cout << "¢º ID : " << objID << " " << " POS - (x: " << Pos.x << ", y: " << Pos.y << ", z: " << Pos.z << ")\n";
-	scene->AddEvent(EventData);
+	Scene::I->AddEvent(EventData);
 
 
 	//std::cout << "--------------------------------------------------------------------\n";

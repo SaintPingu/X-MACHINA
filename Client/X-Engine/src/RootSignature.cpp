@@ -110,7 +110,7 @@ void GraphicsRootSignature::Create()
 	PrintErrorBlob(errBlob);
 
 	// create
-	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
+	DEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
 }
 
 void GraphicsRootSignature::CreateDefaultGraphicsRootSignature()
@@ -278,6 +278,6 @@ void ComputeRootSignature::Create()
 	PrintErrorBlob(errBlob);
 
 	// create
-	device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
+	DEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&mRootSignature));
 }
 #pragma endregion

@@ -38,7 +38,7 @@ void Shader::CreateGraphicsShader(bool isClose)
 	mGraphicsPipelineStateDesc.VS = mVSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mVSBlob->GetBufferPointer()), mVSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
 	mGraphicsPipelineStateDesc.PS = mPSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mPSBlob->GetBufferPointer()), mPSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
 	mGraphicsPipelineStateDesc.GS = mGSBlob ? D3D12_SHADER_BYTECODE{ (BYTE*)(mGSBlob->GetBufferPointer()), mGSBlob->GetBufferSize() } : D3D12_SHADER_BYTECODE{};
-	mGraphicsPipelineStateDesc.pRootSignature			= dxgi->GetGraphicsRootSignature().Get();
+	mGraphicsPipelineStateDesc.pRootSignature			= DXGIMgr::I->GetGraphicsRootSignature().Get();
 	mGraphicsPipelineStateDesc.RasterizerState			= CreateRasterizerState();
 	mGraphicsPipelineStateDesc.BlendState				= CreateBlendState();
 	mGraphicsPipelineStateDesc.DepthStencilState		= CreateDepthStencilState();
@@ -91,7 +91,7 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mPipelineStates.resize(1);
 	}
 
-	HRESULT hResult = device->CreateGraphicsPipelineState(&mGraphicsPipelineStateDesc, IID_PPV_ARGS(&mPipelineStates[0]));
+	HRESULT hResult = DEVICE->CreateGraphicsPipelineState(&mGraphicsPipelineStateDesc, IID_PPV_ARGS(&mPipelineStates[0]));
 	AssertHResult(hResult);
 
 	mIsClosed = false;
@@ -106,10 +106,10 @@ void Shader::CreateComputeShader(bool isClose)
 
 	switch (mInfo.ShaderType) {
 	case ShaderType::Compute:
-		mComputePipelineStateDesc.pRootSignature = dxgi->GetComputeRootSignature().Get();
+		mComputePipelineStateDesc.pRootSignature = DXGIMgr::I->GetComputeRootSignature().Get();
 		break;
 	case ShaderType::Particle:
-		mComputePipelineStateDesc.pRootSignature = dxgi->GetParticleComputeRootSignature().Get();
+		mComputePipelineStateDesc.pRootSignature = DXGIMgr::I->GetParticleComputeRootSignature().Get();
 		break;
 	default:
 		break;
@@ -122,7 +122,7 @@ void Shader::CreateComputeShader(bool isClose)
 		mPipelineStates.resize(1);
 	}
 
-	HRESULT hResult = device->CreateComputePipelineState(&mComputePipelineStateDesc, IID_PPV_ARGS(&mPipelineStates[0]));
+	HRESULT hResult = DEVICE->CreateComputePipelineState(&mComputePipelineStateDesc, IID_PPV_ARGS(&mPipelineStates[0]));
 	AssertHResult(hResult);
 
 	mIsClosed = false;
@@ -135,7 +135,7 @@ void Shader::Set(int pipelineStateIndex)
 {
 	assert(mPipelineStates.size() >= pipelineStateIndex + 1);
 
-	cmdList->SetPipelineState(mPipelineStates[pipelineStateIndex].Get());
+	CMD_LIST->SetPipelineState(mPipelineStates[pipelineStateIndex].Get());
 }
 
 D3D12_INPUT_LAYOUT_DESC Shader::CreateInputLayout()

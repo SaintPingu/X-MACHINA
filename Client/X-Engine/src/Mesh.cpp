@@ -34,14 +34,14 @@ void Mesh::ReleaseUploadBuffers()
 
 void Mesh::Render() const
 {
-	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
+	CMD_LIST->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 
 	if (mIndexBuffer) {
-		cmdList->IASetIndexBuffer(&mIndexBufferView);
-		cmdList->DrawIndexedInstanced(mIndexCnt, 1, 0, 0, 0);
+		CMD_LIST->IASetIndexBuffer(&mIndexBufferView);
+		CMD_LIST->DrawIndexedInstanced(mIndexCnt, 1, 0, 0, 0);
 	}
 	else {
-		cmdList->DrawInstanced(mVertexCnt, 1, mOffset, 0);
+		CMD_LIST->DrawInstanced(mVertexCnt, 1, mOffset, 0);
 	}
 }
 
@@ -51,14 +51,14 @@ void Mesh::RenderInstanced(UINT instanceCnt) const
 		return;
 	}
 
-	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
+	CMD_LIST->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 
 	if (mIndexBuffer) {
-		cmdList->IASetIndexBuffer(&mIndexBufferView);
-		cmdList->DrawIndexedInstanced(mIndexCnt, instanceCnt, 0, 0, 0);
+		CMD_LIST->IASetIndexBuffer(&mIndexBufferView);
+		CMD_LIST->DrawIndexedInstanced(mIndexCnt, instanceCnt, 0, 0, 0);
 	}
 	else {
-		cmdList->DrawInstanced(mVertexCnt, instanceCnt, mOffset, 0);
+		CMD_LIST->DrawInstanced(mVertexCnt, instanceCnt, mOffset, 0);
 	}
 }
 
@@ -588,7 +588,7 @@ void MergedMesh::UpdateMaterialBuffer()
 
 //void UpdateShaderVars(const Matrix& transform)
 //{
-//	scene->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
+//	Scene::I->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
 //}
 
 
@@ -622,8 +622,8 @@ void MergedMesh::RenderSprite(const GameObject* object) const
 	//	return;
 	//}
 
-	//cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
-	//cmdList->IASetIndexBuffer(&mIndexBufferView);
+	//CMD_LIST->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
+	//CMD_LIST->IASetIndexBuffer(&mIndexBufferView);
 
 	//constexpr UINT kTransformIndex{ 0 };
 	//const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[kTransformIndex];
@@ -631,7 +631,7 @@ void MergedMesh::RenderSprite(const GameObject* object) const
 	//object->GetComponent<Script_Sprite>()->UpdateSpriteVariable(modelMeshInfo.Materials.front()->mMatIndex);
 
 	//constexpr UINT kIndexCnt{ 6 };
-	//cmdList->DrawIndexedInstanced(kIndexCnt, 1, 0, 0, 0);
+	//CMD_LIST->DrawIndexedInstanced(kIndexCnt, 1, 0, 0, 0);
 }
 
 // sub meshes는 한 정점 버퍼에 대한 여러개의 indices만을 가진다.
@@ -654,8 +654,8 @@ void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelMe
 
 void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt) const
 {
-	cmdList->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
-	cmdList->IASetIndexBuffer(&mIndexBufferView);
+	CMD_LIST->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
+	CMD_LIST->IASetIndexBuffer(&mIndexBufferView);
 
 	UINT indexLocation{ 0 };
 	UINT vertexLocation{ 0 };
@@ -693,7 +693,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 			// 때문에 transform의 데이터를 여러 번 설정하되 머티리얼은 설정하지 않는다. 
 			transform->UpdateShaderVars(objectCB, mat);
 
-			cmdList->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
+			CMD_LIST->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
 			indexLocation += indexCnt;
 			mat++;
 		}
@@ -1021,10 +1021,10 @@ void SkinMesh::UpdateShaderVariables()
 
 	// TODO : Memory Leak
 	int index = (*mBoneFrames)[0]->GetObjCBIndex();
-	frmResMgr->CopyData(index, skinnedConstatnts);
+	FRAME_RESOURCE_MGR->CopyData(index, skinnedConstatnts);
 	(*mBoneFrames)[0]->SetObjCBIndex(index);
 
-	dxgi->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, frmResMgr->GetSKinMeshCBGpuAddr(index));
+	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, FRAME_RESOURCE_MGR->GetSKinMeshCBGpuAddr(index));
 
 }
 #pragma endregion

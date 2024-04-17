@@ -57,7 +57,7 @@ void Animator::Animate()
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 {
 	if (!animationInfo->AnimatorControllerFile.empty()) {
-		mController = std::make_shared<AnimatorController>(*res->Get<AnimatorController>(animationInfo->AnimatorControllerFile));
+		mController = std::make_shared<AnimatorController>(*RESOURCE<AnimatorController>(animationInfo->AnimatorControllerFile));
 	}
 }
 

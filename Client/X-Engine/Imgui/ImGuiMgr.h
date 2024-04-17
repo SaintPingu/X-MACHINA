@@ -1,8 +1,6 @@
 #pragma once
 #include "Singleton.h"
 
-#define imgui ImGuiManager::Inst()
-
 class GameObject;
 
 class ImGuiFunc {
@@ -74,7 +72,7 @@ public:
 };
 
 
-class ImGuiManager : public Singleton<ImGuiManager>
+class ImGuiMgr : public Singleton<ImGuiMgr>
 {
 	friend Singleton;
 
@@ -89,8 +87,8 @@ private:
 	bool mIsFocused{};
 
 public:
-	ImGuiManager();
-	~ImGuiManager();
+	ImGuiMgr();
+	~ImGuiMgr();
 
 public:
 	void ToggleImGui() { mIsOn = !mIsOn; }

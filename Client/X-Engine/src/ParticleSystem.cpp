@@ -28,12 +28,12 @@ void ParticleSystem::Awake()
 
 #pragma region Init_ParticleSystem
 	// 파티클 시스템 인덱스를 얻기 위한 용도
-	frmResMgr->CopyData(mPSIdx, mPSGD);
+	FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
 #pragma endregion
 
 #pragma region Init_Particles
 	// 파티클 최대 개수만큼 생성
-	mParticles = std::make_unique<UploadBuffer<ParticleData>>(device.Get(), mPSCD.MaxParticles, false);
+	mParticles = std::make_unique<UploadBuffer<ParticleData>>(DEVICE.Get(), mPSCD.MaxParticles, false);
 #pragma endregion
 
 	// 최초 실행되자마자 플레이
@@ -60,7 +60,7 @@ void ParticleSystem::Update()
 	mPSGD.SizeOverLifeTime = mPSCD.SizeOverLifeTime;
 	mPSGD.ColorOverLifeTime = mPSCD.ColorOverLifeTime;
 	mPSGD.Shape = mPSCD.Shape;
-	mPSGD.TextureIndex = res->Get<Texture>(mPSCD.Renderer.TextureName)->GetSrvIdx();
+	mPSGD.TextureIndex = RESOURCE<Texture>(mPSCD.Renderer.TextureName)->GetSrvIdx();
 
 	// 렌더 모드가 Stretched일 경우 StartSize3D를 사용하여 y축의 값만 변경
 	if (mPSCD.Renderer.RenderMode == PSRenderMode::StretchedBillboard) {
@@ -104,7 +104,7 @@ void ParticleSystem::Update()
 		if (mPSCD.StopElapsed >= (!mPSCD.Prewarm ? mPSGD.StartLifeTime.y : 0)) {
 			SetActive(false);
 
-			pr->RemoveParticleSystem(mPSIdx);
+			ParticleRenderer::I->RemoveParticleSystem(mPSIdx);
 
 			// 객체 소멸 이후 파티클도 소멸해야 하는 경우 최종으로 인덱스 반환
 			//if (mIsDeprecated)
@@ -143,7 +143,7 @@ void ParticleSystem::Update()
 	}
 
 	// 메모리 복사
-	frmResMgr->CopyData(mPSIdx, mPSGD);
+	FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
 #pragma endregion
 }
 
@@ -156,7 +156,7 @@ void ParticleSystem::OnDestroy()
 	// 물고 있는 객체가 소멸되더라도 바로 소멸되지 않도록 파티클 렌더러에 소유권 이전
 	//Stop();
 	mIsDeprecated = true;
-	pr->AddParticleSystem(shared_from_this());
+	ParticleRenderer::I->AddParticleSystem(shared_from_this());
 }
 
 void ParticleSystem::Play()
@@ -164,7 +164,7 @@ void ParticleSystem::Play()
 	// 플레이 시 파티클 렌더러에 추가 후 경과 시간 초기화
 	if (mPSCD.IsStop) {
 		SetActive(true);
-		pr->AddParticleSystem(shared_from_this());
+		ParticleRenderer::I->AddParticleSystem(shared_from_this());
 		mPSCD.LoopingElapsed = 0.f;
 		mPSCD.StopElapsed = 0.f;
 		mPSCD.StartElapsed = 0.f;
@@ -194,22 +194,22 @@ void ParticleSystem::PlayToggle()
 
 void ParticleSystem::ComputeParticleSystem() const
 {
-	cmdList->SetComputeRootUnorderedAccessView(dxgi->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticles->Resource()->GetGPUVirtualAddress());
-	cmdList->SetComputeRoot32BitConstants(dxgi->GetParticleComputeRootParamIndex(RootParam::ParticleIndex), 1, &mPSIdx, 0);
+	CMD_LIST->SetComputeRootUnorderedAccessView(DXGIMgr::I->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticles->Resource()->GetGPUVirtualAddress());
+	CMD_LIST->SetComputeRoot32BitConstants(DXGIMgr::I->GetParticleComputeRootParamIndex(RootParam::ParticleIndex), 1, &mPSIdx, 0);
 
-	cmdList->Dispatch(1, 1, 1);
+	CMD_LIST->Dispatch(1, 1, 1);
 }
 
 void ParticleSystem::RenderParticleSystem() const
 {
-	cmdList->SetGraphicsRootShaderResourceView(dxgi->GetGraphicsRootParamIndex(RootParam::Particle), mParticles->Resource()->GetGPUVirtualAddress());
-	res->Get<ModelObjectMesh>("Point")->RenderInstanced(mPSCD.MaxParticles);
+	CMD_LIST->SetGraphicsRootShaderResourceView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Particle), mParticles->Resource()->GetGPUVirtualAddress());
+	RESOURCE<ModelObjectMesh>("Point")->RenderInstanced(mPSCD.MaxParticles);
 }
 
 void ParticleSystem::ReturnIndex()
 {
-	frmResMgr->ReturnIndex(mPSIdx, BufferType::ParticleSystem);
-	frmResMgr->ReturnIndex(mPSIdx, BufferType::ParticleShared);
+	FRAME_RESOURCE_MGR->ReturnIndex(mPSIdx, BufferType::ParticleSystem);
+	FRAME_RESOURCE_MGR->ReturnIndex(mPSIdx, BufferType::ParticleShared);
 }
 
 void ParticleSystem::Save()
@@ -249,11 +249,11 @@ void ParticleRenderer::Init()
 {
 	mParticleSystems.reserve(300);
 	mDeprecations.reserve(300);
-	mComputeShader = res->Get<Shader>("ComputeParticle");
-	mAlphaShader = res->Get<Shader>("GraphicsParticle");
-	mOneToOneShader = res->Get<Shader>("OneToOneBlend_GraphicsParticle");
-	mAlphaStretchedShader = res->Get<Shader>("GraphicsStretchedParticle");
-	mOneToOneStretchedShader = res->Get<Shader>("OneToOneBlend_GraphicsStretchedParticle");
+	mComputeShader = RESOURCE<Shader>("ComputeParticle");
+	mAlphaShader = RESOURCE<Shader>("GraphicsParticle");
+	mOneToOneShader = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
+	mAlphaStretchedShader = RESOURCE<Shader>("GraphicsStretchedParticle");
+	mOneToOneStretchedShader = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
 }
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)

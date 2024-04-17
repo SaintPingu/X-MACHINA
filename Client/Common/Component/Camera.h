@@ -6,8 +6,7 @@
 
 
 #pragma region Define
-#define mainCameraObject MainCameraObject::Inst()
-#define mainCamera mainCameraObject->GetCamera()
+#define MAIN_CAMERA MainCamera::I->GetCamera()
 #pragma endregion
 
 
@@ -97,14 +96,14 @@ public:
 
 
 /* main camera for scene rendering */
-class MainCameraObject : public Singleton<MainCameraObject>, public CameraObject {
+class MainCamera : public Singleton<MainCamera>, public CameraObject {
 	friend Singleton;
 
 	using base = CameraObject;
 
 private:
-	MainCameraObject() = default;
-	virtual ~MainCameraObject() = default;
+	MainCamera() = default;
+	virtual ~MainCamera() = default;
 
 public:
 	virtual void Awake() override;

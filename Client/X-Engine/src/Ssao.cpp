@@ -10,8 +10,8 @@
 Ssao::Ssao(ID3D12GraphicsCommandList* directCmdList)
 {
 	// ssao map의 멀티 렌더 타겟을 가져온다.
-	mSsao0Map = dxgi->GetMRT(GroupType::Ssao)->GetTexture(SsaoMap::Ssao0);
-	mSsao1Map = dxgi->GetMRT(GroupType::Ssao)->GetTexture(SsaoMap::Ssao1);
+	mSsao0Map = DXGIMgr::I->GetMRT(GroupType::Ssao)->GetTexture(SsaoMap::Ssao0);
+	mSsao1Map = DXGIMgr::I->GetMRT(GroupType::Ssao)->GetTexture(SsaoMap::Ssao1);
 
 	// 랜덤 벡터 텍스처와 오프셋 벡터를 생성한다.
 	CreateRandomVectorTexture(directCmdList);
@@ -33,20 +33,20 @@ void Ssao::Execute(int blurCount)
 
 void Ssao::RenderSsaoMap()
 {
-	res->Get<Shader>("Ssao")->Set();
+	RESOURCE<Shader>("Ssao")->Set();
 
 	// ssao 렌더 타겟 0번에 차폐정도를 렌더링한다.
-	dxgi->GetMRT(GroupType::Ssao)->ClearRenderTargetView(0);
-	dxgi->GetMRT(GroupType::Ssao)->OMSetRenderTargets(1, 0);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->ClearRenderTargetView(0);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->OMSetRenderTargets(1, 0);
 
-	res->Get<ModelObjectMesh>("Rect")->Render();
+	RESOURCE<ModelObjectMesh>("Rect")->Render();
 
-	dxgi->GetMRT(GroupType::Ssao)->WaitTargetToResource(0);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->WaitTargetToResource(0);
 }
 
 void Ssao::BlurSsaoMap(int blurCount)
 {
-	res->Get<Shader>("SsaoBlur")->Set();
+	RESOURCE<Shader>("SsaoBlur")->Set();
 
 	// 수평, 수직으로 ssao map을 흐린다.
 	for (int i = 0; i < blurCount; ++i) {
@@ -72,16 +72,16 @@ void Ssao::BlurSsaoMap(bool horzBlur)
 	}
 
 	// 인덱스에 따라서 루트 상수 연결
-	dxgi->SetGraphicsRoot32BitConstants(RootParam::SsaoBlur, inputMapHandleIndex, 0);
-	dxgi->SetGraphicsRoot32BitConstants(RootParam::SsaoBlur, outputMapIndex, 1);
+	DXGIMgr::I->SetGraphicsRoot32BitConstants(RootParam::SsaoBlur, inputMapHandleIndex, 0);
+	DXGIMgr::I->SetGraphicsRoot32BitConstants(RootParam::SsaoBlur, outputMapIndex, 1);
 
 	// blur ssao map
-	dxgi->GetMRT(GroupType::Ssao)->ClearRenderTargetView(outputMapIndex);
-	dxgi->GetMRT(GroupType::Ssao)->OMSetRenderTargets(1, outputMapIndex);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->ClearRenderTargetView(outputMapIndex);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->OMSetRenderTargets(1, outputMapIndex);
 
-	res->Get<ModelObjectMesh>("Rect")->Render();
+	RESOURCE<ModelObjectMesh>("Rect")->Render();
 
-	dxgi->GetMRT(GroupType::Ssao)->WaitTargetToResource(outputMapIndex);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->WaitTargetToResource(outputMapIndex);
 }
 
 void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
@@ -100,7 +100,7 @@ void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
 	texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	device->CreateCommittedResource(
+	DEVICE->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&texDesc,
@@ -111,7 +111,7 @@ void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
 	const UINT num2DSubresources = texDesc.DepthOrArraySize * texDesc.MipLevels;
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(mRandomVecMap.Get(), 0, num2DSubresources);
 
-	device->CreateCommittedResource(
+	DEVICE->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
@@ -140,8 +140,8 @@ void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
 	UpdateSubresources(directCmdList, mRandomVecMap.Get(), mRandomVecMapUploadBuffer.Get(), 0, 0, num2DSubresources, &subResourceData);
 	D3DUtil::ResourceTransition(mRandomVecMap.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 
-	sptr<Texture> mRandomVecTexture = res->CreateTexture("RandomVector", mRandomVecMap);
-	dxgi->CreateShaderResourceView(mRandomVecTexture.get());
+	sptr<Texture> mRandomVecTexture = ResourceMgr::I->CreateTexture("RandomVector", mRandomVecMap);
+	DXGIMgr::I->CreateShaderResourceView(mRandomVecTexture.get());
 }
 
 void Ssao::CreateOffsetVectors()

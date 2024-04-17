@@ -39,7 +39,7 @@ void Material::UpdateShaderVars()
 		}
 	}
 
-	frmResMgr->CopyData(mMatIndex, materialData);
+	FRAME_RESOURCE_MGR->CopyData(mMatIndex, materialData);
 }
 
 void Material::LoadTextureFromFile(TextureMap map, std::ifstream& file)
@@ -51,7 +51,7 @@ void Material::LoadTextureFromFile(TextureMap map, std::ifstream& file)
 		return;
 	}
 
-	mTextures[static_cast<UINT8>(map)] = res->Get<Texture>(textureName);
+	mTextures[static_cast<UINT8>(map)] = RESOURCE<Texture>(textureName);
 }
 #pragma endregion
 

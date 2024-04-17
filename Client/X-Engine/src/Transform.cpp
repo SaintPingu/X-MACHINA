@@ -488,7 +488,7 @@ void Transform::ReturnObjCBIndex()
 	// 실제 사용 횟수만큼만 인덱스를 반환한다.
 	mObjCBIndices.resize(mObjCBCount);
 	for (const int index : mObjCBIndices) {
-		frmResMgr->ReturnIndex(index, BufferType::Object);
+		FRAME_RESOURCE_MGR->ReturnIndex(index, BufferType::Object);
 	}
 
 	if (mSibling) {
@@ -511,9 +511,9 @@ void Transform::UpdateShaderVars(const ObjectConstants& objectCB, const int cnt)
 		mObjCBCount = cnt + 1;
 	}
 
-	frmResMgr->CopyData(mObjCBIndices[cnt], objectCB);
+	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices[cnt], objectCB);
 
-	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
@@ -527,9 +527,9 @@ void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
 	objectConstants.MatIndex = matIndex;
 
-	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
+	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices[cnt], objectConstants);
 
-	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void Transform::NormalizeAxis()
@@ -557,6 +557,6 @@ void Transform::UpdateColliderShaderVars(const Matrix& matrix, const Vec4& color
 {
 	Matrix m;
 	XMStoreFloat4x4(&m, matrix);
-	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
-	dxgi->SetGraphicsRoot32BitConstants(RootParam::Collider, color, 16);
+	DXGIMgr::I->SetGraphicsRoot32BitConstants(RootParam::Collider, XMMatrixTranspose(matrix), 0);
+	DXGIMgr::I->SetGraphicsRoot32BitConstants(RootParam::Collider, color, 16);
 }

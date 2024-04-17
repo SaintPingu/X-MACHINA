@@ -49,14 +49,11 @@ Scene::Scene()
 
 void Scene::Release()
 {
-	mainCameraObject->Destroy();
-	canvas->Release();
+	ReleaseObjects();
 
 	ProcessAllObjects([](sptr<GameObject> object) {
 		object->OnDestroy();
 		});
-
-	Destroy();
 }
 #pragma endregion
 
@@ -113,39 +110,39 @@ void Scene::UpdateShaderVars()
 void Scene::UpdateMainPassCB()
 {
 	PassConstants passCB;
-	passCB.MtxView = mainCamera->GetViewMtx().Transpose();
-	passCB.MtxProj = mainCamera->GetProjMtx().Transpose();
+	passCB.MtxView = MAIN_CAMERA->GetViewMtx().Transpose();
+	passCB.MtxProj = MAIN_CAMERA->GetProjMtx().Transpose();
 	passCB.MtxShadow = mLight->GetShadowMtx().Transpose();
-	passCB.CameraPos = mainCamera->GetPosition();
-	passCB.CameraRight = mainCamera->GetRight();
-	passCB.CameraUp = mainCamera->GetUp();
+	passCB.CameraPos = MAIN_CAMERA->GetPosition();
+	passCB.CameraRight = MAIN_CAMERA->GetRight();
+	passCB.CameraUp = MAIN_CAMERA->GetUp();
 	passCB.DeltaTime = DeltaTime();
-	passCB.TotalTime = timer->GetTotalTime();
-	passCB.FrameBufferWidth = dxgi->GetWindowWidth();
-	passCB.FrameBufferHeight = dxgi->GetWindowHeight();
+	passCB.TotalTime = Timer::I->GetTotalTime();
+	passCB.FrameBufferWidth = DXGIMgr::I->GetWindowWidth();
+	passCB.FrameBufferHeight = DXGIMgr::I->GetWindowHeight();
 	passCB.SkyBoxIndex = mSkyBox->GetTexture()->GetSrvIdx();
-	passCB.DefaultDsIndex = res->Get<Texture>("DefaultDepthStencil")->GetSrvIdx();
-	passCB.ShadowDsIndex = res->Get<Texture>("ShadowDepthStencil")->GetSrvIdx();
-	passCB.RT0G_PositionIndex = res->Get<Texture>("PositionTarget")->GetSrvIdx();
-	passCB.RT1G_NormalIndex = res->Get<Texture>("NormalTarget")->GetSrvIdx();
-	passCB.RT2G_DiffuseIndex = res->Get<Texture>("DiffuseTarget")->GetSrvIdx();
-	passCB.RT3G_EmissiveIndex = res->Get<Texture>("EmissiveTarget")->GetSrvIdx();
-	passCB.RT4G_MetallicSmoothnessIndex = res->Get<Texture>("MetallicSmoothnessTarget")->GetSrvIdx();
-	passCB.RT5G_OcclusionIndex = res->Get<Texture>("OcclusionTarget")->GetSrvIdx();
-	passCB.RT0L_DiffuseIndex = res->Get<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
-	passCB.RT1L_SpecularIndex = res->Get<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
-	passCB.RT2L_AmbientIndex = res->Get<Texture>("AmbientTarget")->GetSrvIdx();
-	passCB.RT0S_SsaoIndex = res->Get<Texture>("SSAOTarget_0")->GetSrvIdx();
+	passCB.DefaultDsIndex = RESOURCE<Texture>("DefaultDepthStencil")->GetSrvIdx();
+	passCB.ShadowDsIndex = RESOURCE<Texture>("ShadowDepthStencil")->GetSrvIdx();
+	passCB.RT0G_PositionIndex = RESOURCE<Texture>("PositionTarget")->GetSrvIdx();
+	passCB.RT1G_NormalIndex = RESOURCE<Texture>("NormalTarget")->GetSrvIdx();
+	passCB.RT2G_DiffuseIndex = RESOURCE<Texture>("DiffuseTarget")->GetSrvIdx();
+	passCB.RT3G_EmissiveIndex = RESOURCE<Texture>("EmissiveTarget")->GetSrvIdx();
+	passCB.RT4G_MetallicSmoothnessIndex = RESOURCE<Texture>("MetallicSmoothnessTarget")->GetSrvIdx();
+	passCB.RT5G_OcclusionIndex = RESOURCE<Texture>("OcclusionTarget")->GetSrvIdx();
+	passCB.RT0L_DiffuseIndex = RESOURCE<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
+	passCB.RT1L_SpecularIndex = RESOURCE<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
+	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
+	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.LightCount = mLight->GetLightCount();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
-	passCB.FilterOption = dxgi->GetFilterOption();
+	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
 	passCB.ShadowIntensity = 0.0f;
 	passCB.FogColor = Colors::Gray;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
 
-	int temp = res->Get<Texture>("Dissolve")->GetSrvIdx();
+	int temp = RESOURCE<Texture>("Dissolve")->GetSrvIdx();
 
-	frmResMgr->CopyData(0, passCB);
+	FRAME_RESOURCE_MGR->CopyData(0, passCB);
 }
 
 void Scene::UpdateShadowPassCB()
@@ -154,23 +151,23 @@ void Scene::UpdateShadowPassCB()
 	passCB.MtxView = mLight->GetLightViewMtx().Transpose();
 	passCB.MtxProj = mLight->GetLightProjMtx().Transpose();
 
-	frmResMgr->CopyData(1, passCB);
+	FRAME_RESOURCE_MGR->CopyData(1, passCB);
 }
 
 void Scene::UpdateSsaoCB()
 {
 	SsaoConstants ssaoCB;
 
-	Matrix mtxProj = mainCamera->GetProjMtx();
+	Matrix mtxProj = MAIN_CAMERA->GetProjMtx();
 	Matrix mtxTex = {
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f };
 
-	ssaoCB.MtxInvProj = mainCamera->GetProjMtx().Invert().Transpose();
+	ssaoCB.MtxInvProj = MAIN_CAMERA->GetProjMtx().Invert().Transpose();
 	ssaoCB.MtxProjTex = (mtxProj * mtxTex).Transpose();
-	dxgi->GetSsao()->GetOffsetVectors(ssaoCB.OffsetVectors);
+	DXGIMgr::I->GetSsao()->GetOffsetVectors(ssaoCB.OffsetVectors);
 
 	// for Blur 
 	auto blurWeights = Filter::CalcGaussWeights(2.5f);
@@ -178,7 +175,7 @@ void Scene::UpdateSsaoCB()
 	ssaoCB.BlurWeights[1] = Vec4(&blurWeights[4]);
 	ssaoCB.BlurWeights[2] = Vec4(&blurWeights[8]);
 
-	auto ssaoTarget = res->Get<Texture>("SSAOTarget_0");
+	auto ssaoTarget = RESOURCE<Texture>("SSAOTarget_0");
 	ssaoCB.InvRenderTargetSize = Vec2{ 1.f / ssaoTarget->GetWidth(), 1.f / ssaoTarget->GetHeight() };
 
 	// coordinates given in view space.
@@ -188,14 +185,14 @@ void Scene::UpdateSsaoCB()
 	ssaoCB.SurfaceEpsilon = 0.05f;
 	ssaoCB.AccessContrast = 12;
 
-	ssaoCB.RandomVectorIndex = res->Get<Texture>("RandomVector")->GetSrvIdx();
+	ssaoCB.RandomVectorIndex = RESOURCE<Texture>("RandomVector")->GetSrvIdx();
 
-	frmResMgr->CopyData(ssaoCB);
+	FRAME_RESOURCE_MGR->CopyData(ssaoCB);
 }
 
 void Scene::UpdateMaterialBuffer()
 {
-	res->ProcessFunc<MasterModel>(
+	ResourceMgr::I->ProcessFunc<MasterModel>(
 		[](sptr<MasterModel> model) {
 			model->GetMesh()->UpdateMaterialBuffer();
 		});
@@ -211,7 +208,7 @@ void Scene::UpdateMaterialBuffer()
 void Scene::BuildObjects()
 {
 	// load canvas (UI)
-	canvas->Init();
+	Canvas::I->Init();
 
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
@@ -352,7 +349,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 
 			std::string meshName{};
 			FileIO::ReadString(file, meshName);
-			model = res->Get<MasterModel>(meshName);
+			model = RESOURCE<MasterModel>(meshName);
 
 			FileIO::ReadString(file, token); //"<Transforms>:"
 			FileIO::ReadVal(file, sameObjectCount);
@@ -436,8 +433,8 @@ namespace {
 void Scene::RenderShadow()
 {
 #pragma region PrepareRender
-	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(1));
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
 
 #pragma region Shadow_Global
@@ -451,12 +448,12 @@ void Scene::RenderShadow()
 void Scene::RenderDeferred()
 {
 #pragma region PrepareRender
-	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::Pass), frmResMgr->GetPassCBGpuAddr(0));
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
 	mRenderedObjects.clear();
 	mSkinMeshObjects.clear();
 	mTransparentObjects.clear();
 	mBillboardObjects.clear();
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
 
 #pragma region Global
@@ -487,8 +484,8 @@ void Scene::RenderLights()
 void Scene::RenderFinal()
 {
 	// 조명에서 출력한 diffuse와 specular를 결합하여 최종 색상을 렌더링한다.
-	res->Get<Shader>("Final")->Set();
-	res->Get<ModelObjectMesh>("Rect")->Render();
+	RESOURCE<Shader>("Final")->Set();
+	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
 
 void Scene::RenderForward()
@@ -497,10 +494,10 @@ void Scene::RenderForward()
 	RenderDissolveObjects();
 	RenderSkyBox();
 
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	RenderParticles();
 
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Scene::RenderPostProcessing(int offScreenIndex)
@@ -508,23 +505,23 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
-	frmResMgr->CopyData(passConstants);
-	cmdList->SetGraphicsRootConstantBufferView(dxgi->GetGraphicsRootParamIndex(RootParam::PostPass), frmResMgr->GetPostPassCBGpuAddr());
+	FRAME_RESOURCE_MGR->CopyData(passConstants);
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::PostPass), FRAME_RESOURCE_MGR->GetPostPassCBGpuAddr());
 
-	res->Get<Shader>("OffScreen")->Set();
-	res->Get<ModelObjectMesh>("Rect")->Render();
+	RESOURCE<Shader>("OffScreen")->Set();
+	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
 
 void Scene::RenderUI()
 {
-	canvas->Render();
+	Canvas::I->Render();
 	RenderBounds(mRenderedObjects);
 }
 
 void Scene::RenderTerrain()
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	res->Get<Shader>("Terrain")->Set();
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	RESOURCE<Shader>("Terrain")->Set();
 
 	if (mTerrain) {
 		mTerrain->Render();
@@ -533,7 +530,7 @@ void Scene::RenderTerrain()
 
 void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObjects)
 {
-	res->Get<Shader>("Transparent")->Set();
+	RESOURCE<Shader>("Transparent")->Set();
 	for (auto& object : transparentObjects) {
 		object->Render();
 	}
@@ -541,7 +538,7 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 
 void Scene::RenderDissolveObjects()
 {
-	res->Get<Shader>("Dissolve")->Set();
+	RESOURCE<Shader>("Dissolve")->Set();
 	for (auto& object : mDissolveObjects) {
 		object->Render();
 	}
@@ -554,15 +551,15 @@ void Scene::RenderSkyBox()
 
 void Scene::RenderParticles()
 {
-	pr->Render();
+	ParticleRenderer::I->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
 {
 	if (isShadowed)
-		res->Get<Shader>("Shadow_Global")->Set();
+		RESOURCE<Shader>("Shadow_Global")->Set();
 	else
-		res->Get<Shader>("Global")->Set();
+		RESOURCE<Shader>("Global")->Set();
 
 	for (const auto& grid : mGrids) {
 		if (grid.Empty()) {
@@ -570,7 +567,7 @@ void Scene::RenderGridObjects(bool isShadowed)
 		}
 
 		// TODO : 현재 인스턴싱 쪽에서 깜빡거리는 버그 발견 
-		if (mainCamera->IsInFrustum(grid.GetBB())) {
+		if (MAIN_CAMERA->IsInFrustum(grid.GetBB())) {
 			auto& objects = grid.GetObjects();
 			mRenderedObjects.insert(objects.begin(), objects.end());
 		}
@@ -603,12 +600,12 @@ void Scene::RenderGridObjects(bool isShadowed)
 void Scene::RenderSkinMeshObjects(bool isShadowed)
 {
 	if (isShadowed) {
-		res->Get<Shader>("Shadow_SkinMesh")->Set();
+		RESOURCE<Shader>("Shadow_SkinMesh")->Set();
 		for (auto& object : mDissolveObjects)
 			object->Render();
 	}
 	else
-		res->Get<Shader>("SkinMesh")->Set();
+		RESOURCE<Shader>("SkinMesh")->Set();
 
 	// 죽은 상태라면 DissolveObjects로 이동
 	for (auto it = mSkinMeshObjects.begin(); it != mSkinMeshObjects.end();) {
@@ -625,7 +622,7 @@ void Scene::RenderSkinMeshObjects(bool isShadowed)
 
 void Scene::RenderInstanceObjects()
 {
-	res->Get<Shader>("ObjectInst")->Set();
+	RESOURCE<Shader>("ObjectInst")->Set();
 	for (auto& buffer : mObjectPools) {
 		buffer->Render();
 	}
@@ -640,9 +637,9 @@ void Scene::RenderEnvironments()
 
 bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	res->Get<Shader>("Wire")->Set();
+	RESOURCE<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 
 	//// 오픈 리스트를 초록색으로 출력
@@ -699,7 +696,7 @@ void Scene::RenderGridBounds()
 void Scene::Start()
 {
 	/* Awake */
-	mainCameraObject->Awake();
+	MainCamera::I->Awake();
 	mTerrain->Awake();
 	ProcessAllObjects([](sptr<GameObject> object) {
 		object->Awake();
@@ -712,7 +709,7 @@ void Scene::Start()
 
 	/* Enable & Start */
 	mTerrain->OnEnable();
-	mainCameraObject->OnEnable();
+	MainCamera::I->OnEnable();
 	ProcessAllObjects([](sptr<GameObject> object) {
 		object->OnEnable();
 		});
@@ -734,11 +731,11 @@ void Scene::Update()
 	for (auto& p : mParticles)
 		p->Update();
 
-	mainCameraObject->Update();
-	mainCamera->UpdateViewMtx();
+	MainCamera::I->Update();
+	MAIN_CAMERA->UpdateViewMtx();
 	mLight->Update();
-	canvas->Update();
-	pr->Update();
+	Canvas::I->Update();
+	ParticleRenderer::I->Update();
 
 	UpdateShaderVars();
 
@@ -936,7 +933,7 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 
 sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 {
-	const auto& model = res->Get<MasterModel>(modelName);
+	const auto& model = RESOURCE<MasterModel>(modelName);
 	if (!model) {
 		return nullptr;
 	}
@@ -954,7 +951,7 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 
 sptr<ObjectPool> Scene::CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc)
 {
-	return CreateObjectPool(res->Get<MasterModel>(modelName), maxSize, objectInitFunc);
+	return CreateObjectPool(RESOURCE<MasterModel>(modelName), maxSize, objectInitFunc);
 }
 
 sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc)

@@ -252,9 +252,6 @@
     <ClCompile Include="src\AnimatorStateMachine.cpp">
       <Filter>소스 파일\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Imgui\ImGuiManager.cpp">
-      <Filter>Imgui</Filter>
-    </ClCompile>
     <ClCompile Include="src\EnginePch.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
@@ -269,6 +266,9 @@
     </ClCompile>
     <ClCompile Include="src\NetworkEvents.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\ImGuiMgr.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -401,9 +401,6 @@
     <ClInclude Include="include\Ssao.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Imgui\ImGuiManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\AnimatorStateMachine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -465,6 +462,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\NetworkEvents.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\ImGuiMgr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

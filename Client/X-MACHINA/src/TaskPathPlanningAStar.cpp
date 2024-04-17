@@ -22,12 +22,12 @@ TaskPathPlanningAStar::TaskPathPlanningAStar(Object* object)
 bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 {
 	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
-	if (scene->GetTileFromUniqueIndex(start) == Tile::Static)
+	if (Scene::I->GetTileFromUniqueIndex(start) == Tile::Static)
 		return false;
 
 	// 값 초기화 
-	scene->GetOpenList().clear();
-	scene->GetClosedList().clear();
+	Scene::I->GetOpenList().clear();
+	Scene::I->GetClosedList().clear();
 	std::map<Pos, Pos>	mParent;
 	std::map<Pos, int>	mDistance;
 	std::map<Pos, bool>	mVisited;
@@ -59,7 +59,7 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 			continue;
 
 		mVisited[curNode.Pos] = true;
-		scene->GetClosedList().push_back(scene->GetTilePosFromUniqueIndex(curNode.Pos));
+		Scene::I->GetClosedList().push_back(Scene::I->GetTilePosFromUniqueIndex(curNode.Pos));
 
 		// 해당 지점이 목적지인 경우 종료
 		if (curNode.Pos == dest)
@@ -74,7 +74,7 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 				continue;
 
 			// 다음 방향 노드의 상태가 static이라면 continue
-			if (scene->GetTileFromUniqueIndex(nextPos) == Tile::Static)
+			if (Scene::I->GetTileFromUniqueIndex(nextPos) == Tile::Static)
 				continue;
 
 			// 이미 방문한 곳이면 continue
@@ -113,8 +113,8 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 		Pos dir = mParent[pos] - pos;
 
 		if (prevDir != dir) {
-			mPath->push(scene->GetTilePosFromUniqueIndex(pos));
-			scene->GetOpenList().push_back(mPath->top());
+			mPath->push(Scene::I->GetTilePosFromUniqueIndex(pos));
+			Scene::I->GetOpenList().push_back(mPath->top());
 		}
 
 		if (pos == mParent[pos])

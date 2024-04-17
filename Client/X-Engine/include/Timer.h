@@ -1,7 +1,5 @@
 #pragma once
 
-#define timer Timer::Inst()
-
 class Timer : public Singleton<Timer> {
 	friend Singleton;
 

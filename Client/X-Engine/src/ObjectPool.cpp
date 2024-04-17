@@ -49,7 +49,7 @@ void ObjectPool::Return(InstObject* object)
 
 void ObjectPool::UpdateShaderVars() const
 {
-	dxgi->SetGraphicsRootShaderResourceView(RootParam::Instancing, mSB_Inst->GetGPUVirtualAddress());
+	DXGIMgr::I->SetGraphicsRootShaderResourceView(RootParam::Instancing, mSB_Inst->GetGPUVirtualAddress());
 }
 
 void ObjectPool::PushRender(const InstObject* object)

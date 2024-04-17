@@ -416,7 +416,7 @@ void Script_GroundPlayer::InitWeapons()
 		// weapon 타입에 따른 객체 생성 //
 		auto& weapon = mWeapons[i];
 		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = scene->Instantiate(defaultWeapons.at(weaponType), false);
+		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), false);
 		if (!weapon) {
 			continue;
 		}
@@ -649,8 +649,8 @@ float Script_GroundPlayer::GetAngleSpineToAim(const Vec3& aimWorldPos) const
 Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
 {
 	// aim에서 발사된 광선에서 총구의 y값과 일치하는 지점을 찾는다.
-	const Vec3 ray = mainCamera->ScreenToWorldRay(aimScreenPos);
-	const Vec3 camPos = mainCamera->GetPosition();
+	const Vec3 ray = MAIN_CAMERA->ScreenToWorldRay(aimScreenPos);
+	const Vec3 camPos = MAIN_CAMERA->GetPosition();
 	return Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y).xz();
 }
 
@@ -994,7 +994,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 {
 	if (mIsAim) {
 		const Vec2 mousePos  = mAimController->GetAimPos();
-		const Vec2 ndc       = mainCamera->ScreenToNDC(mousePos);
+		const Vec2 ndc       = MAIN_CAMERA->ScreenToNDC(mousePos);
 		const float offset_t = (std::max)(fabs(ndc.x), fabs(ndc.y));
 
 		mCamera->Move(mousePos, offset_t);

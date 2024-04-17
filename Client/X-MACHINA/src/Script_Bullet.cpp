@@ -103,7 +103,7 @@ void Script_Bullet::Reset()
 bool Script_Bullet::IntersectTerrain()
 {
 	const Vec3 pos = mObject->GetPosition();
-	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
+	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
 
 	if (pos.y <= terrainHeight) {
 		return true;

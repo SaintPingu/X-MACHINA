@@ -103,8 +103,8 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 
 	// 오브젝트의 타일 기준 인덱스 계산
 	Vec3 pos = object->GetPosition();
-	Pos index = scene->GetTileUniqueIndexFromPos(pos);
-	scene->SetTileFromUniqueIndex(index, tile);
+	Pos index = Scene::I->GetTileUniqueIndexFromPos(pos);
+	Scene::I->SetTileFromUniqueIndex(index, tile);
 
 	// 오브젝트의 충돌 박스
 	const auto& collider = object->GetCollider();
@@ -128,13 +128,13 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 
 		for (int dir = 0; dir < 8; ++dir) {
 			Pos nextPosT = curNode + gkFront[dir];
-			Vec3 nextPosW = scene->GetTilePosFromUniqueIndex(nextPosT);
+			Vec3 nextPosW = Scene::I->GetTilePosFromUniqueIndex(nextPosT);
 			nextPosW.y = pos.y;
 
 			BoundingBox bb{nextPosW, Vec3{mkTileWidth, mkTileWidth, mkTileHeight} };
 
 			if (collider->Intersects(bb)) {
-				scene->SetTileFromUniqueIndex(nextPosT, tile);
+				Scene::I->SetTileFromUniqueIndex(nextPosT, tile);
 				q.push(nextPosT);
 			}
 		}

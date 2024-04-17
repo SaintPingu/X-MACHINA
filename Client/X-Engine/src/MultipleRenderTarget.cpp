@@ -40,13 +40,13 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		heapDesc.NodeMask = 0;
-		device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&mRtvHeap));
+		DEVICE->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&mRtvHeap));
 	}
 
 	// 리소스에 대하여 RTV와 SRV를 생성한다.
 	mRtvHeapBegin = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < mRtCnt; ++i) {
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = { mRtvHeapBegin.ptr + i * dxgi->GetRtvDescriptorIncSize() };
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = { mRtvHeapBegin.ptr + i * DXGIMgr::I->GetRtvDescriptorIncSize() };
 		mRts[i].Target->SetRtvGpuDescriptorHandle(rtvHandle);
 		std::array<float, 4> clearColor{ clearValue.x, clearValue.y, clearValue.z, clearValue.w };
 		mRts[i].ClearColor = clearColor;
@@ -64,15 +64,15 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		case GroupType::GBuffer:	
 		case GroupType::Lighting:
 		case GroupType::Ssao:
-			dxgi->CreateShaderResourceView(mRts[i].Target.get());
+			DXGIMgr::I->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:
-			dxgi->CreateShaderResourceView(mRts[i].Target.get());
-			dxgi->CreateUnorderedAccessView(mRts[i].Target.get());
+			DXGIMgr::I->CreateShaderResourceView(mRts[i].Target.get());
+			DXGIMgr::I->CreateUnorderedAccessView(mRts[i].Target.get());
 			break;
 		}
 
-		device->CreateRenderTargetView(mRts[i].Target->GetResource().Get(), &rtvDesc, mRts[i].Target->GetRtvCpuDescriptorHandle());
+		DEVICE->CreateRenderTargetView(mRts[i].Target->GetResource().Get(), &rtvDesc, mRts[i].Target->GetRtvCpuDescriptorHandle());
 	}
 
 	// 전이 장벽을 설정한다.
@@ -87,18 +87,18 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 
 void MultipleRenderTarget::OMSetRenderTargets()
 {
-	cmdList->RSSetViewports(1, &mViewport);
-	cmdList->RSSetScissorRects(1, &mScissorRect);
+	CMD_LIST->RSSetViewports(1, &mViewport);
+	CMD_LIST->RSSetScissorRects(1, &mScissorRect);
 
-	cmdList->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, (mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
+	CMD_LIST->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, (mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
 }
 
 void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 {
-	cmdList->RSSetViewports(1, &mViewport);
-	cmdList->RSSetScissorRects(1, &mScissorRect);
+	CMD_LIST->RSSetViewports(1, &mViewport);
+	CMD_LIST->RSSetScissorRects(1, &mScissorRect);
 
-	cmdList->OMSetRenderTargets(count, (mRtCnt != 0) ? &mRts[index].Target->GetRtvCpuDescriptorHandle() : nullptr, FALSE, 
+	CMD_LIST->OMSetRenderTargets(count, (mRtCnt != 0) ? &mRts[index].Target->GetRtvCpuDescriptorHandle() : nullptr, FALSE, 
 		(mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
 }
 
@@ -109,12 +109,12 @@ void MultipleRenderTarget::ClearRenderTargetView()
 
 	// 모든 렌더 타겟 텍스처들을 클리어한다.
 	for (UINT i = 0; i < mRtCnt; ++i) {
-		cmdList->ClearRenderTargetView(mRts[i].Target->GetRtvCpuDescriptorHandle(), mRts[i].ClearColor.data(), 0, nullptr);
+		CMD_LIST->ClearRenderTargetView(mRts[i].Target->GetRtvCpuDescriptorHandle(), mRts[i].ClearColor.data(), 0, nullptr);
 	}
 
 	if (mTextureDs) {
 		// 사용할 깊이 버퍼도 클리어한다.
-		cmdList->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+		CMD_LIST->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 	}
 }
 
@@ -123,35 +123,35 @@ void MultipleRenderTarget::ClearRenderTargetView(UINT index)
 	WaitResourceToTarget(index);
 
 	// index 해당 렌더 타겟만 클리어한다.
-	cmdList->ClearRenderTargetView(mRts[index].Target->GetRtvCpuDescriptorHandle(), mRts[index].ClearColor.data(), 0, nullptr);
+	CMD_LIST->ClearRenderTargetView(mRts[index].Target->GetRtvCpuDescriptorHandle(), mRts[index].ClearColor.data(), 0, nullptr);
 
 	if (mTextureDs) {
-		cmdList->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+		CMD_LIST->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 	}
 }
 
 void MultipleRenderTarget::WaitTargetToResource()
 {
 	// 모든 렌더 타겟을 렌더 타겟 상태에서 리소스로 변경한다.
-	cmdList->ResourceBarrier(max(mRtCnt, 1), mTargetToResource.data());
+	CMD_LIST->ResourceBarrier(max(mRtCnt, 1), mTargetToResource.data());
 }
 
 void MultipleRenderTarget::WaitResourceToTarget()
 {
 	// 모든 렌더 타겟을 리소스 상태에서 렌더 타겟 상태로 변경한다.
-	cmdList->ResourceBarrier(max(mRtCnt, 1), mResourceToTarget.data());
+	CMD_LIST->ResourceBarrier(max(mRtCnt, 1), mResourceToTarget.data());
 }
 
 void MultipleRenderTarget::WaitTargetToResource(UINT index)
 {
 	// 하나의 렌더 타겟을 렌더 타겟 상태에서 리소스로 변경한다.
-	cmdList->ResourceBarrier(1, &mTargetToResource[index]);
+	CMD_LIST->ResourceBarrier(1, &mTargetToResource[index]);
 }
 
 void MultipleRenderTarget::WaitResourceToTarget(UINT index)
 {
 	// 하나의 렌더 타겟을 리소스 상태에서 렌더 타겟 상태로 변경한다.
-	cmdList->ResourceBarrier(1, &mResourceToTarget[index]);
+	CMD_LIST->ResourceBarrier(1, &mResourceToTarget[index]);
 }
 
 void MultipleRenderTarget::ReleaseRenderTargets()

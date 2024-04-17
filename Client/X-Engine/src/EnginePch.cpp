@@ -63,7 +63,7 @@ namespace D3DUtil {
 			break;
 		}
 
-		HRESULT hResult = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, resourceInitialStates, nullptr, IID_PPV_ARGS(&buffer));
+		HRESULT hResult = DEVICE->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, resourceInitialStates, nullptr, IID_PPV_ARGS(&buffer));
 		AssertHResult(hResult);
 
 		if (data) {
@@ -71,7 +71,7 @@ namespace D3DUtil {
 			case D3D12_HEAP_TYPE_DEFAULT:
 			{
 				heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-				hResult = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
+				hResult = DEVICE->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
 				AssertHResult(hResult);
 
 				if (uploadBuffer) {
@@ -82,7 +82,7 @@ namespace D3DUtil {
 					::memcpy(bufferDataBegin, data, byteSize);
 					uploadBuffer->Unmap(0, nullptr);
 
-					cmdList->CopyResource(buffer.Get(), uploadBuffer.Get());
+					CMD_LIST->CopyResource(buffer.Get(), uploadBuffer.Get());
 				}
 
 				D3DUtil::ResourceTransition(buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, resourceStates);
@@ -158,7 +158,7 @@ namespace D3DUtil {
 		DDS_ALPHA_MODE ddsAlphaMode = DDS_ALPHA_MODE_UNKNOWN;
 		bool bIsCubeMap{ false };
 
-		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(device.Get(), fileName.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
+		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(DEVICE.Get(), fileName.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
 		AssertHResult(hResult);
 
 		D3D12_HEAP_PROPERTIES heapProperties{};
@@ -184,11 +184,11 @@ namespace D3DUtil {
 		resourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags              = D3D12_RESOURCE_FLAG_NONE;
 
-		hResult = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
+		hResult = DEVICE->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
 		AssertHResult(hResult);
 
 		//리소스 데이터를 Upload Heap에 복사하고 이를 texture 리소스에 복사
-		::UpdateSubresources(cmdList.Get(), texture.Get(), uploadBuffer.Get(), 0, 0, kSubResourceCnt, &subResources[0]);
+		::UpdateSubresources(CMD_LIST.Get(), texture.Get(), uploadBuffer.Get(), 0, 0, kSubResourceCnt, &subResources[0]);
 
 		D3DUtil::ResourceTransition(texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, resourceStates);
 	}
@@ -231,7 +231,7 @@ namespace D3DUtil {
 		textureResourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		textureResourceDesc.Flags              = resourceFlags;
 
-		HRESULT hResult = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureResourceDesc, resourceStates, pOptimizedClearValue, IID_PPV_ARGS(&texture));
+		HRESULT hResult = DEVICE->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureResourceDesc, resourceStates, pOptimizedClearValue, IID_PPV_ARGS(&texture));
 		AssertHResult(hResult);
 
 		return texture;
@@ -246,7 +246,7 @@ namespace D3DUtil {
 		resourceBarrier.Transition.StateBefore = stateBefore;
 		resourceBarrier.Transition.StateAfter  = stateAfter;
 		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		cmdList->ResourceBarrier(1, &resourceBarrier);
+		CMD_LIST->ResourceBarrier(1, &resourceBarrier);
 		return resourceBarrier;
 	}
 

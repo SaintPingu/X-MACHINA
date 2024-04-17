@@ -211,10 +211,10 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
-	mMaterial->SetTexture(TextureMap::DiffuseMap0, res->Get<Texture>("GrassUV01"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap1, res->Get<Texture>("Detail_Texture_6"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap2, res->Get<Texture>("Stone"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap3, res->Get<Texture>("Terrain_splatmap"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("GrassUV01"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("Detail_Texture_6"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Stone"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap3, RESOURCE<Texture>("Terrain_splatmap"));
 }
 
 
@@ -275,7 +275,7 @@ void Terrain::Awake()
 void Terrain::UpdateGrid()
 {
 	for (auto& terrain : mTerrains) {
-		scene->UpdateObjectGrid(terrain.get());
+		Scene::I->UpdateObjectGrid(terrain.get());
 	}
 }
 #pragma endregion

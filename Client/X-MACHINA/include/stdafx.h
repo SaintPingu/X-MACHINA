@@ -67,6 +67,7 @@ public:
 #pragma comment(lib, "dxguid.lib")
 #pragma endregion
 
+
 /// +-----------------------
 ///		   Library 
 /// -----------------------+
@@ -116,11 +117,11 @@ public:
 #include <wrl.h>
 #include <shellapi.h>
 
+
 /* C++ */
 #include <iostream>
 #include <functional>
 #include <cassert>
-#include <memory>
 #include <string>
 #include <fstream>
 #include <random>
@@ -154,6 +155,7 @@ public:
 #include <D3d12SDKLayers.h>
 #include <d3dx12.h>
 #include "SimpleMath.h"
+
 
 /* Custom */
 #include "Common.h"

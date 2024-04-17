@@ -16,7 +16,7 @@
 #include "Component/ParticleSystem.h"
 
 #pragma region Imgui
-#include "../Imgui/ImguiManager.h"
+#include "../Imgui/ImGuiMgr.h"
 #pragma endregion
 
 
@@ -73,35 +73,35 @@ RComPtr<ID3D12RootSignature> DXGIMgr::GetParticleComputeRootSignature() const
 void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 16U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+	CMD_LIST->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, const Vec4& data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 4U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+	CMD_LIST->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, float data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 1U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+	CMD_LIST->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void DXGIMgr::SetGraphicsRoot32BitConstants(RootParam param, int data, UINT offset)
 {
 	constexpr UINT kNum32Bit = 1U;
-	cmdList->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
+	CMD_LIST->SetGraphicsRoot32BitConstants(GetGraphicsRootParamIndex(param), kNum32Bit, &data, offset);
 }
 
 void DXGIMgr::SetGraphicsRootConstantBufferView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
 {
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
+	CMD_LIST->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(param), gpuAddr);
 }
 
 void DXGIMgr::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTUAL_ADDRESS gpuAddr)
 {
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
+	CMD_LIST->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
 }
 
 void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
@@ -121,12 +121,12 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 	CreateFilter();
 	CreateSsao();
 
-	res->LoadResources();
-	pr->Init();
+	ResourceMgr::I->LoadResources();
+	ParticleRenderer::I->Init();
 
 	BuildScene();
 
-	input->UpdateClient();
+	InputMgr::I->UpdateClient();
 }
 
 void DXGIMgr::Release()
@@ -138,12 +138,7 @@ void DXGIMgr::Release()
 	mGraphicsRootSignature = nullptr;
 	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
-	res->Destroy();
-	pr->Destroy();
-	frmResMgr->Destroy();
 	WaitForGpuComplete();
-
-	Destroy();
 }
 
 void DXGIMgr::CreateShaderResourceView(Texture* texture, DXGI_FORMAT srvFormat)
@@ -235,23 +230,23 @@ void DXGIMgr::Render()
 
 	// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
 	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
-	scene->RenderShadow();
+	Scene::I->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
 	// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
 	GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
-	scene->RenderDeferred();
+	Scene::I->RenderDeferred();
 	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
 	// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
 	GetMRT(GroupType::Lighting)->OMSetRenderTargets();
-	scene->RenderLights();
+	Scene::I->RenderLights();
 	GetMRT(GroupType::Lighting)->WaitTargetToResource();
 
 	// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
 	GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
-	scene->RenderFinal();
-	scene->RenderForward();
+	Scene::I->RenderFinal();
+	Scene::I->RenderForward();
 	GetMRT(GroupType::OffScreen)->WaitTargetToResource();
 #pragma endregion
 
@@ -269,9 +264,9 @@ void DXGIMgr::Render()
 		mSsao->Execute(4);
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
-	scene->RenderPostProcessing(offScreenIndex);
-	scene->RenderUI();
-	//imgui->Render();
+	Scene::I->RenderPostProcessing(offScreenIndex);
+	Scene::I->RenderUI();
+	//ImGuiMgr::I->Render();
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 
@@ -295,26 +290,26 @@ void DXGIMgr::MainPassRenderBegin()
 	mDescriptorHeap->Set();
 
 	// 그래픽스 쉐이더 관련 설정
-	cmdList->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
-	cmdList->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Ssao), frmResMgr->GetSSAOCBGpuAddr());
-	cmdList->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), frmResMgr->GetMatBufferGpuAddr());
-	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
-	cmdList->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
+	CMD_LIST->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
+	CMD_LIST->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Ssao), FRAME_RESOURCE_MGR->GetSSAOCBGpuAddr());
+	CMD_LIST->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), FRAME_RESOURCE_MGR->GetMatBufferGpuAddr());
+	CMD_LIST->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
+	CMD_LIST->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
 
 	// 파티클 컴퓨트 쉐이더 관련 설정
-	cmdList->SetComputeRootSignature(GetParticleComputeRootSignature().Get());
-	cmdList->SetComputeRootShaderResourceView(GetParticleComputeRootParamIndex(RootParam::ParticleSystem), frmResMgr->GetParticleSystemGpuAddr());
-	cmdList->SetComputeRootUnorderedAccessView(GetParticleComputeRootParamIndex(RootParam::ParticleShared), frmResMgr->GetParticleSharedGpuAddr());
+	CMD_LIST->SetComputeRootSignature(GetParticleComputeRootSignature().Get());
+	CMD_LIST->SetComputeRootShaderResourceView(GetParticleComputeRootParamIndex(RootParam::ParticleSystem), FRAME_RESOURCE_MGR->GetParticleSystemGpuAddr());
+	CMD_LIST->SetComputeRootUnorderedAccessView(GetParticleComputeRootParamIndex(RootParam::ParticleShared), FRAME_RESOURCE_MGR->GetParticleSharedGpuAddr());
 }
 
 void DXGIMgr::PostPassRenderBegin()
 {
 	// imgui 렌더 준비 및 업데이트
-	//imgui->Render_Prepare();
-	//imgui->Update();
+	//ImGuiMgr::I->Render_Prepare();
+	//ImGuiMgr::I->Update();
 
 	// 포스트 프로세싱 컴퓨트 쉐이더 관련 설정
-	cmdList->SetComputeRootSignature(GetComputeRootSignature().Get());
+	CMD_LIST->SetComputeRootSignature(GetComputeRootSignature().Get());
 }
 
 void DXGIMgr::RenderEnd()
@@ -475,12 +470,12 @@ void DXGIMgr::CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, in
 
 void DXGIMgr::CreateDSV()
 {
-	mDefaultDs = res->CreateTexture("DefaultDepthStencil", mWindow.Width, mWindow.Height,
+	mDefaultDs = ResourceMgr::I->CreateTexture("DefaultDepthStencil", mWindow.Width, mWindow.Height,
 		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	CreateDepthStencilView(mDefaultDs.get());
 	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
-	mShadowDs = res->CreateTexture("ShadowDepthStencil", mWindow.Width * 4, mWindow.Height * 4,
+	mShadowDs = ResourceMgr::I->CreateTexture("ShadowDepthStencil", mWindow.Width * 4, mWindow.Height * 4,
 		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ);
 	CreateDepthStencilView(mShadowDs.get());
 	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
@@ -498,7 +493,7 @@ void DXGIMgr::CreateMRTs()
 			mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
 
 			std::string name = "SwapChainTarget_" + std::to_string(i);
-			rts[i].Target = res->CreateTexture(name, resource);
+			rts[i].Target = ResourceMgr::I->CreateTexture(name, resource);
 		}
 
 		mMRTs[static_cast<UINT8>(GroupType::SwapChain)] = std::make_shared<MultipleRenderTarget>();
@@ -519,22 +514,22 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(GBufferCount);
 
-		rts[0].Target = res->CreateTexture("PositionTarget", mWindow.Width, mWindow.Height,
+		rts[0].Target = ResourceMgr::I->CreateTexture("PositionTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[1].Target = res->CreateTexture("NormalTarget", mWindow.Width, mWindow.Height,
+		rts[1].Target = ResourceMgr::I->CreateTexture("NormalTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[2].Target = res->CreateTexture("DiffuseTarget", mWindow.Width, mWindow.Height,
+		rts[2].Target = ResourceMgr::I->CreateTexture("DiffuseTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[3].Target = res->CreateTexture("EmissiveTarget", mWindow.Width, mWindow.Height,
+		rts[3].Target = ResourceMgr::I->CreateTexture("EmissiveTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[4].Target = res->CreateTexture("MetallicSmoothnessTarget", mWindow.Width, mWindow.Height,
+		rts[4].Target = ResourceMgr::I->CreateTexture("MetallicSmoothnessTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R8G8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[5].Target = res->CreateTexture("OcclusionTarget", mWindow.Width, mWindow.Height,
+		rts[5].Target = ResourceMgr::I->CreateTexture("OcclusionTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::GBuffer)] = std::make_shared<MultipleRenderTarget>();
@@ -546,13 +541,13 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(LightingCount);
 
-		rts[0].Target = res->CreateTexture("DiffuseAlbedoTarget", mWindow.Width, mWindow.Height,
+		rts[0].Target = ResourceMgr::I->CreateTexture("DiffuseAlbedoTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[1].Target = res->CreateTexture("SpecularAlbedoTarget", mWindow.Width, mWindow.Height,
+		rts[1].Target = ResourceMgr::I->CreateTexture("SpecularAlbedoTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
-		rts[2].Target = res->CreateTexture("AmbientTarget", mWindow.Width, mWindow.Height,
+		rts[2].Target = ResourceMgr::I->CreateTexture("AmbientTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::Lighting)] = std::make_shared<MultipleRenderTarget>();
@@ -564,7 +559,7 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(1);
 
-		rts[0].Target = res->CreateTexture("OffScreenTarget", mWindow.Width, mWindow.Height,
+		rts[0].Target = ResourceMgr::I->CreateTexture("OffScreenTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
@@ -576,10 +571,10 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(SsaoCount);
 
-		rts[0].Target = res->CreateTexture("SSAOTarget_0", mWindow.Width, mWindow.Height,
+		rts[0].Target = ResourceMgr::I->CreateTexture("SSAOTarget_0", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{ 1.f });
 
-		rts[1].Target = res->CreateTexture("SSAOTarget_1", mWindow.Width, mWindow.Height,
+		rts[1].Target = ResourceMgr::I->CreateTexture("SSAOTarget_1", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{ 1.f });
 
 		mMRTs[static_cast<UINT8>(GroupType::Ssao)] = std::make_shared<MultipleRenderTarget>();
@@ -636,7 +631,7 @@ void DXGIMgr::ChangeSwapChainState()
 		mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
 
 		std::string name = "SwapChainTarget_" + std::to_string(i);
-		rts[i].Target = res->CreateTexture(name, resource);
+		rts[i].Target = ResourceMgr::I->CreateTexture(name, resource);
 	}
 	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
 
@@ -687,7 +682,7 @@ void DXGIMgr::MoveToNextFrame()
 
 void DXGIMgr::BuildScene()
 {
-	scene->BuildObjects();
+	Scene::I->BuildObjects();
 
 	mCmdList->Close();
 	ID3D12CommandList* cmdsLists[] = { mCmdList.Get() };
@@ -696,5 +691,5 @@ void DXGIMgr::BuildScene()
 	// GPU의 모든 실행이 끝난 후 업로드 버퍼를 해제해야 한다.
 	WaitForGpuComplete();
 
-	scene->ReleaseUploadBuffers();
+	Scene::I->ReleaseUploadBuffers();
 }

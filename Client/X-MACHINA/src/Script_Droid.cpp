@@ -20,7 +20,7 @@ void Script_Droid::Awake()
 	mEnemyMgr->mDetectionRange = 10.f;
 
 	Transform* gunPos = mObject->FindFrame("WeaponAction");
-	mGun = scene->Instantiate("SM_SciFiAssaultPistol");
+	mGun = Scene::I->Instantiate("SM_SciFiAssaultPistol");
 	gunPos->SetChild(mGun);
 }
 

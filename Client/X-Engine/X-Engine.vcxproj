@@ -200,7 +200,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Imgui\ImGuiManager.cpp" />
+    <ClCompile Include="Imgui\ImGuiMgr.cpp" />
     <ClCompile Include="include\NetLock.cpp" />
     <ClCompile Include="include\TLS.cpp" />
     <ClCompile Include="Log\LogMgr.cpp" />
@@ -286,7 +286,7 @@
     <ClInclude Include="Imgui\ImguiCode\imstb_rectpack.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_textedit.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h" />
-    <ClInclude Include="Imgui\ImGuiManager.h" />
+    <ClInclude Include="Imgui\ImGuiMgr.h" />
     <ClInclude Include="include\AnimatorStateMachine.h" />
     <ClInclude Include="include\BehaviorTree.h" />
     <ClInclude Include="include\BlurFilter.h" />

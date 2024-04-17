@@ -6,7 +6,7 @@
 
 #include "ObjectMgr.h"
 #include "InputMgr.h"
-#include "Imgui/ImGuiManager.h"
+#include "Imgui/ImGuiMgr.h"
 
 #include "Scene.h"
 #include "Timer.h"
@@ -22,7 +22,6 @@
 #include "Script_Player.h"
 #include "Script_GameManager.h"
 
-#include "ThreadManager.h"
 #include "Log/LogMgr.h"
 #include "FlatBuffers/ServerFBsPktFactory.h"
 #include "ServerSession.h"
@@ -46,7 +45,6 @@ GameFramework::GameFramework()
 
 GameFramework::~GameFramework()
 {
-	THREAD_MGR->Destroy();
 }
 
 void GameFramework::KeyInputBroadcast()
@@ -54,7 +52,7 @@ void GameFramework::KeyInputBroadcast()
 #ifndef SERVER_COMMUNICATION
 	return;
 #endif
-	Vec2 mouseDelta = input->GetMouseDelta();
+	Vec2 mouseDelta = InputMgr::I->GetMouseDelta();
 
 	/* 키 입력은 메인쓰레드에서 동작해야한다. */
 	/* TAP */
@@ -195,10 +193,10 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	CreateGameClientWindow();
 
 	// Init //
-	mainCameraObject->AddComponent<Script_MainCamera>();
-	engine->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
-	gameManager->AddComponent<Script_GameManager>();
-	objectMgr->InitObjectsScript();
+	MainCamera::I->AddComponent<Script_MainCamera>();
+	Engine::I->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
+	GAME_MGR->AddComponent<Script_GameManager>();
+	ObjectMgr::I->InitObjectsScript();
 	InitPlayer();
 
 #ifdef SERVER_COMMUNICATION
@@ -222,11 +220,7 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 
 void GameFramework::Release()
 {
-	engine->Release();
-	objectMgr->Destroy();
-	THREAD_MGR->Destroy();
-
-	Destroy();
+	Engine::I->Release();
 }
 
 
@@ -252,7 +246,7 @@ int GameFramework::GameLoop()
 		}
 		else
 		{
-			framework->Update();
+			GameFramework::I->Update();
 		}
 	}
 
@@ -264,9 +258,9 @@ int GameFramework::GameLoop()
 
 void GameFramework::Update()
 {
-	timer->Tick(60.f);
+	Timer::I->Tick(60.f);
 	
-	engine->Update();
+	Engine::I->Update();
 
 	KeyInputBroadcast(); 
 }
@@ -275,11 +269,11 @@ void GameFramework::Update()
 void GameFramework::Launch()
 {
 #ifdef SERVER_COMMUNICATION
-	LOG_MGR->SetColor(TextColor::BrightCyan);
-	LOG_MGR->Cout("+--------------------------------------\n");
-	LOG_MGR->Cout("       X-MACHINA CLIENT NETWORK        \n");
-	LOG_MGR->Cout("--------------------------------------+\n");
-	LOG_MGR->SetColor(TextColor::Default);
+	LogMgr::I->SetColor(TextColor::BrightCyan);
+	LogMgr::I->Cout("+--------------------------------------\n");
+	LogMgr::I->Cout("       X-MACHINA CLIENT NETWORK        \n");
+	LogMgr::I->Cout("--------------------------------------+\n");
+	LogMgr::I->SetColor(TextColor::Default);
 
 	/* Server Thread */
 	for (int32 i = 0; i < 2; i++)
@@ -306,7 +300,7 @@ void GameFramework::Launch()
 
 LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (engine->WndProc(hWnd, message, wParam, lParam)) {
+	if (Engine::I->WndProc(hWnd, message, wParam, lParam)) {
 		return 0;
 	}
 
@@ -343,16 +337,16 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 			::PostQuitMessage(0);
 			break;
 		case VK_F1:
-			timer->Stop();
+			Timer::I->Stop();
 			break;
 		case VK_F2:
-			timer->Start();
+			Timer::I->Start();
 			break;
 		case VK_F5:
-			scene->ToggleDrawBoundings();
+			Scene::I->ToggleDrawBoundings();
 			break;
 		case VK_F6:
-			imgui->ToggleImGui();
+			ImGuiMgr::I->ToggleImGui();
 			break;
 		case 192:	// '`'
 			::SetFocus(NULL);
@@ -415,7 +409,7 @@ ATOM GameFramework::CreateGameClientWindow()
 
 LRESULT GameFramework::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (framework->ProcessMessage(hWnd, message, wParam, lParam)) {
+	if (GameFramework::I->ProcessMessage(hWnd, message, wParam, lParam)) {
 		return 0;
 	}
 
@@ -482,7 +476,7 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 void GameFramework::InitPlayer()
 {
-	sptr<GridObject> player = engine->GetPlayer();
+	sptr<GridObject> player = Engine::I->GetPlayer();
 	player->ResetCollider();
 	mPlayerScript = player->AddComponent<Script_GroundPlayer>();
 	player->SetModel("EliteTrooper");

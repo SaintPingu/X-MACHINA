@@ -41,8 +41,8 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	int blurRadius = (int)weights.size() / 2;
 
 	// 블러 반지름과 가중치 값 연결
-	cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
-	cmdList->SetComputeRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1);
+	CMD_LIST->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
+	CMD_LIST->SetComputeRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1);
 
 	D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_GENERIC_READ);
 	D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -51,24 +51,24 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	// 2Pass : read mBlurMap1 and write mBlurMap0 
 	for (int i = 0; i < blurCount; ++i) {
 #pragma region Horizontal Blur Pass
-		res->Get<Shader>("HorzBlur")->Set();
-		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
-		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
+		RESOURCE<Shader>("HorzBlur")->Set();
+		CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
+		CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
 
 		UINT numGroupsX = (UINT)ceilf(mWidth / 256.0f);
-		cmdList->Dispatch(numGroupsX, mHeight, 1);
+		CMD_LIST->Dispatch(numGroupsX, mHeight, 1);
 
 		D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
 #pragma endregion
 
 #pragma region Vertical Blur Pass
-		res->Get<Shader>("VertBlur")->Set();
-		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Read), mOutput->GetGpuDescriptorHandle());
-		cmdList->SetComputeRootDescriptorTable(dxgi->GetComputeRootParamIndex(RootParam::Write), input->GetUavGpuDescriptorHandle());
+		RESOURCE<Shader>("VertBlur")->Set();
+		CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::Read), mOutput->GetGpuDescriptorHandle());
+		CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::Write), input->GetUavGpuDescriptorHandle());
 
 		UINT numGroupsY = (UINT)ceilf(mHeight / 256.0f);
-		cmdList->Dispatch(mWidth, numGroupsY, 1);
+		CMD_LIST->Dispatch(mWidth, numGroupsY, 1);
 
 		D3DUtil::ResourceTransition(input->GetResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
 		D3DUtil::ResourceTransition(mOutput->GetResource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -82,8 +82,8 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 
 void BlurFilter::CreateDescriptors()
 {
-	dxgi->CreateShaderResourceView(mOutput.get());
-	dxgi->CreateUnorderedAccessView(mOutput.get());
+	DXGIMgr::I->CreateShaderResourceView(mOutput.get());
+	DXGIMgr::I->CreateUnorderedAccessView(mOutput.get());
 }
 
 void BlurFilter::CreateResources()

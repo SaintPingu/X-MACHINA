@@ -164,6 +164,6 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 
 void Script_BulletWeapon::CreateBulletPool()
 {
-	mBulletPool = scene->CreateObjectPool("bullet", mMaxMag, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
+	mBulletPool = Scene::I->CreateObjectPool("bullet", mMaxMag, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
 }
 #pragma endregion

@@ -19,8 +19,8 @@ UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height)
 	Transform(this),
 	mTexture(texture)
 {
-	mWidth = width / canvas->GetWidth();
-	mHeight = height / canvas->GetHeight();
+	mWidth = width / Canvas::I->GetWidth();
+	mHeight = height / Canvas::I->GetHeight();
 
 	// 오브젝트 상수 버퍼 사용 플래그는 직접 설정할 수 있다.
 	SetUseObjCB(true);
@@ -33,8 +33,8 @@ void UI::UpdateShaderVars() const
 	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
 	objectConstants.MatIndex = mTexture->GetSrvIdx();
 
-	frmResMgr->CopyData(mObjCBIndices.front(), objectConstants);
-	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices.front()));
+	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), objectConstants);
+	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
 
@@ -46,13 +46,13 @@ void UI::Render()
 
 	UpdateShaderVars();
 
-	res->Get<ModelObjectMesh>("Rect")->Render();
+	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
 
 void UI::SetPosition(float x, float y, float z)
 {
-	x /= canvas->GetWidth();
-	y /= canvas->GetHeight();
+	x /= Canvas::I->GetWidth();
+	y /= Canvas::I->GetHeight();
 	Transform::SetPosition(x, y, z);
 }
 
@@ -75,7 +75,7 @@ void UI::SetPosition(const Vec3& pos)
 #pragma region Font
 MyFont::MyFont(const Vec2& pos, float width, float height)
 	:
-	UI(res->Get<Texture>("Alphabet"), pos, width, height)
+	UI(RESOURCE<Texture>("Alphabet"), pos, width, height)
 {
 }
 
@@ -110,8 +110,8 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 	objectConstants.MtxSprite	= spriteMtx.Transpose();
 	objectConstants.MatIndex	= mTexture->GetSrvIdx(); 
 
-	frmResMgr->CopyData(mObjCBIndices[cnt], objectConstants);
-	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(mObjCBIndices[cnt]));
+	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices[cnt], objectConstants);
+	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices[cnt]));
 }
 
 void MyFont::Render()
@@ -128,7 +128,7 @@ void MyFont::Render()
 		// 렌더링하지 않는다면 굳이 루트 상수를 set할 필요가 없다.
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
-			res->Get<ModelObjectMesh>("Rect")->Render();
+			RESOURCE<ModelObjectMesh>("Rect")->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -137,7 +137,7 @@ void MyFont::Render()
 	for (char ch : mScore) {
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
-			res->Get<ModelObjectMesh>("Rect")->Render();
+			RESOURCE<ModelObjectMesh>("Rect")->Render();
 		}
 
 		fontPos.x += 0.07f;
@@ -163,15 +163,10 @@ void Canvas::SetScore(int score)
 
 void Canvas::Init()
 {
-	mWidth = dxgi->GetWindowWidth();
-	mHeight = dxgi->GetWindowHeight();
+	mWidth = DXGIMgr::I->GetWindowWidth();
+	mHeight = DXGIMgr::I->GetWindowHeight();
 
 	BuildUIs();
-}
-
-void Canvas::Release()
-{
-	Destroy();
 }
 
 void Canvas::BuildUIs()
@@ -190,7 +185,7 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
-	res->Get<Shader>("Canvas")->Set();
+	RESOURCE<Shader>("Canvas")->Set();
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}
@@ -200,7 +195,7 @@ void Canvas::Render() const
 
 sptr<UI> Canvas::CreateUI(const std::string& texture, const Vec2& pos, float width, float height)
 {
-	sptr<UI> ui = std::make_shared<UI>(res->Get<Texture>(texture), pos, width, height);
+	sptr<UI> ui = std::make_shared<UI>(RESOURCE<Texture>(texture), pos, width, height);
 	mUIs.insert(ui);
 	return ui;
 }

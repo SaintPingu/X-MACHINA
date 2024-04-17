@@ -4,7 +4,7 @@
 
 float DeltaTime()
 {
-	return timer->GetTimeElapsed();
+	return Timer::I->GetTimeElapsed();
 }
 
 

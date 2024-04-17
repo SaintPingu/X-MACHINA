@@ -7,12 +7,12 @@
 #include <fstream>
 #include <filesystem>
 
-LogManager::LogManager()
+LogMgr::LogMgr()
 {
 
 }
 
-LogManager::~LogManager()
+LogMgr::~LogMgr()
 {
 	if (mConsoleStream) {
 		FreeConsole();
@@ -24,7 +24,7 @@ LogManager::~LogManager()
 }
 
 
-void LogManager::LogConsole(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
+void LogMgr::LogConsole(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
 {
 	if (mIsConsoleLogWrite == false)
 		return;
@@ -33,7 +33,7 @@ void LogManager::LogConsole(LogLevel level, const char* file, const char* func, 
 	std::string result{};
 	std::string logLv = "[ " + LogLevelString(level) + " ]\t";
 	std::string filepath{ file };
-	std::string filename = LOG_MGR->GetCurFileName(filepath);
+	std::string filename = LogMgr::I->GetCurFileName(filepath);
 
 	// [ 로그타입 ] 파일::함수명(라인) : 내용
 	result = logLv + filename + "::" + func + "(" + std::to_string(line) + ") : " + logstr;
@@ -81,7 +81,7 @@ void LogManager::LogConsole(LogLevel level, const char* file, const char* func, 
 	SetConsoleTextAttribute(mConsoleHandle, (WORD)TextColor::White); // 기본 색상으로 복원
 }
 
-void LogManager::LogFile(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
+void LogMgr::LogFile(LogLevel level, const char* file, const char* func, const int& line, std::string logstr)
 {
 	if (mIsFileLogWrite == false)
 		return;
@@ -91,7 +91,7 @@ void LogManager::LogFile(LogLevel level, const char* file, const char* func, con
 		std::string result{};
 		std::string logLv = "[ " + LogLevelString(level) + " ]\t";
 		std::string filepath{ file };
-		std::string filename = LOG_MGR->GetCurFileName(filepath);
+		std::string filename = LogMgr::I->GetCurFileName(filepath);
 
 
 		// [ 로그타입 ] 파일::함수명(라인) : 내용
@@ -110,7 +110,7 @@ void LogManager::LogFile(LogLevel level, const char* file, const char* func, con
 }
 
 
-bool LogManager::Init(const std::string& name)
+bool LogMgr::Init(const std::string& name)
 {
 	/// +-----------------------------
 	///		   CREATE CONSOLE
@@ -152,44 +152,44 @@ bool LogManager::Init(const std::string& name)
 	return mLogWriteFile.is_open();
 }
 
-void LogManager::On()
+void LogMgr::On()
 {
 	mIsConsoleLogWrite = true;
 	mIsFileLogWrite = true;
 }
 
-void LogManager::Off()
+void LogMgr::Off()
 {
 	mIsConsoleLogWrite = false;
 	mIsFileLogWrite = false;
 
 }
 
-void LogManager::On_ConsoleLog()
+void LogMgr::On_ConsoleLog()
 {
 	mIsConsoleLogWrite = true;
 
 }
 
-void LogManager::Off_ConsoleLog()
+void LogMgr::Off_ConsoleLog()
 {
 	mIsConsoleLogWrite = false;
 
 }
 
-void LogManager::On_FileLog()
+void LogMgr::On_FileLog()
 {
 	mIsFileLogWrite = true;
 
 }
 
-void LogManager::Off_FileLog()
+void LogMgr::Off_FileLog()
 {
 	mIsFileLogWrite = false;
 
 }
 
-std::string LogManager::tmToString(const std::tm& timeStruct, const std::string& format)
+std::string LogMgr::tmToString(const std::tm& timeStruct, const std::string& format)
 {
 	std::stringstream ss;
 	ss << std::put_time(&timeStruct, format.c_str());
@@ -197,7 +197,7 @@ std::string LogManager::tmToString(const std::tm& timeStruct, const std::string&
 }
 
 
-std::string LogManager::LogLevelString(LogLevel level)
+std::string LogMgr::LogLevelString(LogLevel level)
 {
 	switch (level)
 	{
@@ -223,7 +223,7 @@ std::string LogManager::LogLevelString(LogLevel level)
 	return "";
 }
 
-std::string LogManager::GetCurFileName(std::string& src_File)
+std::string LogMgr::GetCurFileName(std::string& src_File)
 {
 	if (src_File.size() == 0) return "";
 
@@ -236,13 +236,13 @@ std::string LogManager::GetCurFileName(std::string& src_File)
 	return name;
 }
 
-std::string LogManager::CharToString(char* c)
+std::string LogMgr::CharToString(char* c)
 {
 	std::string str = c;
 	return str;
 }
 
-std::string LogManager::WstringToString(const WCHAR* wc)
+std::string LogMgr::WstringToString(const WCHAR* wc)
 {
 	std::wstring wstr = wc;
 

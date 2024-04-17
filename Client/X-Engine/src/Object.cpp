@@ -35,7 +35,7 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 
 void GameObject::SetModel(const std::string& modelName)
 {
-	SetModel(res->Get<MasterModel>(modelName));
+	SetModel(RESOURCE<MasterModel>(modelName));
 }
 
 void GameObject::Animate()
@@ -61,7 +61,7 @@ void GameObject::Render()
 void GameObject::AttachToGround()
 {
 	Vec3 pos = GetPosition();
-	const float terrainHeight = scene->GetTerrainHeight(pos.x, pos.z);
+	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
 	pos.y = terrainHeight;
 
 	SetPosition(pos);
@@ -100,7 +100,7 @@ void GridObject::OnDisable()
 {
 	base::OnDisable();
 
-	scene->RemoveObjectFromGrid(this);
+	Scene::I->RemoveObjectFromGrid(this);
 }
 
 void GridObject::RenderBounds()
@@ -112,7 +112,7 @@ void GridObject::RenderBounds()
 
 void GridObject::UpdateGrid()
 {
-	scene->UpdateObjectGrid(this);
+	Scene::I->UpdateObjectGrid(this);
 }
 
 void GridObject::RemoveCollider()
@@ -189,6 +189,6 @@ void InstBulletObject::PushFunc(void* structuredBuffer) const
 
 void InstBulletObject::UpdateGrid()
 {
-	scene->UpdateObjectGrid(this, false);
+	Scene::I->UpdateObjectGrid(this, false);
 }
 #pragma endregion

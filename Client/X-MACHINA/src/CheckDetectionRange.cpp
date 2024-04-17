@@ -14,7 +14,7 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-	mPlayer = engine->GetPlayer();
+	mPlayer = Engine::I->GetPlayer();
 }
 
 
@@ -31,7 +31,7 @@ BT::NodeState CheckDetectionRange::Evaluate()
 	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mDetectionRange) {
 
 		// 타겟이 정적인 위치에 있다면 계속 정찰만 한다.
-		if (scene->GetTileFromPos(target->GetPosition()) == Tile::Static)
+		if (Scene::I->GetTileFromPos(target->GetPosition()) == Tile::Static)
 			return BT::NodeState::Failure;
 
 		mEnemyMgr->mController->SetValue("Walk", true);

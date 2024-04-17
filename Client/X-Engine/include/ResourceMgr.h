@@ -5,7 +5,7 @@
 #pragma endregion
 
 #pragma region Define
-#define res ResourceMgr::Inst()
+#define RESOURCE ResourceMgr::I->Get
 #pragma endregion
 
 #pragma region ClassForwardDecl

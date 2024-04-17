@@ -1,10 +1,8 @@
 #pragma once
 #include <fstream>
 
-#define LOG_MGR LogManager::Inst()
-
-#define CHAR_TO_STRING(c) LOG_MGR->CharToString(c)
-#define WSTR_TO_STRING(str) LOG_MGR->WstringToString(str)
+#define CHAR_TO_STRING(c) LogMgr::I->CharToString(c)
+#define WSTR_TO_STRING(str) LogMgr::I->WstringToString(str)
 
 enum class TextColor {
 	Default = 0x07,    // White
@@ -47,8 +45,8 @@ enum class LogLevel
 	END,
 };
 
-class LogManager : public Singleton<LogManager> {
-	friend Singleton<LogManager>;
+class LogMgr : public Singleton<LogMgr> {
+	friend Singleton<LogMgr>;
 
 
 
@@ -64,8 +62,8 @@ private:
 	std::ofstream	mLogWriteFile;	/// 파일 : 저장경로- LogFile/Year_MonthDay/~~~.log ( txt 파일이다. )
 
 public:
-	LogManager();
-	~LogManager();
+	LogMgr();
+	~LogMgr();
 
 public:
 	template<typename... Args>
@@ -113,7 +111,7 @@ public:
 };
 
 template<typename ...Args>
-inline void LogManager::Cout(Args... args)
+inline void LogMgr::Cout(Args... args)
 {
 	if (mIsConsoleLogWrite == false)
 		return;
@@ -122,7 +120,7 @@ inline void LogManager::Cout(Args... args)
 }
 
 template<typename ...Args>
-inline void LogManager::WCout(Args... args)
+inline void LogMgr::WCout(Args... args)
 {
 	if (mIsConsoleLogWrite == false)
 		return;
@@ -131,7 +129,7 @@ inline void LogManager::WCout(Args... args)
 }
 
 template<typename ...Args>
-inline void LogManager::File(Args ...args)
+inline void LogMgr::File(Args ...args)
 {
 	if (mIsFileLogWrite == false)
 		return;
@@ -141,7 +139,7 @@ inline void LogManager::File(Args ...args)
 }
 
 template<typename T>
-inline void LogManager::SetColor(T color)
+inline void LogMgr::SetColor(T color)
 {
 	SetConsoleTextAttribute(mConsoleHandle, static_cast<WORD>(color));
 }

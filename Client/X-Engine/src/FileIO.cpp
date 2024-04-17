@@ -569,7 +569,7 @@ namespace {
 		{
 			std::string clipFolder = FileIO::ReadString(file);
 			std::string clipName = FileIO::ReadString(file);
-			return res->Get<AnimationClip>(clipFolder + '/' + clipName);
+			return RESOURCE<AnimationClip>(clipFolder + '/' + clipName);
 		}
 
 		sptr<BlendTree> LoadAnimatorBlendTree(std::ifstream& file, AnimatorMotionInfo& motionInfo)
@@ -819,7 +819,7 @@ namespace FileIO {
 
 				sptr<Texture> texture = std::make_shared<Texture>(textureType);
 				texture->LoadTexture(textureName, folder);
-				res->Add<Texture>(textureName, texture);
+				ResourceMgr::I->Add<Texture>(textureName, texture);
 			}
 		}
 	}

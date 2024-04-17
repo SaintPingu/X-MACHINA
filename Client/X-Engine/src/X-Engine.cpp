@@ -11,7 +11,7 @@
 
 #pragma region  - 장재문 -
 #include "../Imgui/ImguiCode/imgui.h"
-#include "../Imgui/ImguiManager.h"
+#include "../Imgui/ImGuiMgr.h"
 #include "../Log/LogMgr.h"
 #pragma endregion
 
@@ -25,62 +25,52 @@ Engine::Engine()
 
 void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 {
-	input->Init();
+	InputMgr::I->Init();
 
 	WindowInfo windowInfo{ hWnd, width, height };
-	dxgi->Init(hInstance, windowInfo);
+	DXGIMgr::I->Init(hInstance, windowInfo);
 
 	mPlayer = std::make_shared<GridObject>();
-	scene->AddDynamicObject(mPlayer);
+	Scene::I->AddDynamicObject(mPlayer);
 	BuildObjects();
 
 #pragma region Imgui - 장재문 - 
-	imgui->Init();
+	ImGuiMgr::I->Init();
 #pragma endregion
 #pragma region Log - 장재문 -
-	//LOG_MGR->Init(""); // 이름을 지을 수 있다. 
+	//LogMgr::I->Init(""); // 이름을 지을 수 있다. 
 #pragma endregion
 }
 
 
 void Engine::Release()
 {
-	ReleaseObjects();
-
-	timer->Destroy();
-	input->Destroy();
-	scene->Release();
-
-#pragma region Imgui,Log - 장재문 -
-	imgui->Destroy();
-	//LOG_MGR->Destroy();
-#pragma endregion
-
-	dxgi->Release();
+	Scene::I->Release();
+	DXGIMgr::I->Release();
 
 	Sleep(100);
-	Destroy();
 }
 
 
 void Engine::Update()
 {
 	// update dxgi
-	dxgi->Update();
+	DXGIMgr::I->Update();
 
 	// update scene
-	scene->Update();
+	Scene::I->Update();
 
 	// update input
-	input->Update();
+	InputMgr::I->Update();
 
 	// rendering
-	dxgi->Render();
+	DXGIMgr::I->Render();
 
+	//Scene::I = nullptr;
 
 	// update title with fps
-	std::wstring title = mTitle + L" | FPS : " + timer->GetFrameRate();
-	::SetWindowText(dxgi->GetHwnd(), title.data());
+	std::wstring title = mTitle + L" | FPS : " + Timer::I->GetFrameRate();
+	::SetWindowText(DXGIMgr::I->GetHwnd(), title.data());
 }
 
 
@@ -109,9 +99,9 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	// 개선 필요
 	// ImGui가 포커싱되어 있다면 마우스 커서를 보이게 한다.
-	if (imgui->IsFocused()) {
+	if (ImGuiMgr::I->IsFocused()) {
 		ShowCursor(TRUE);
-		imgui->FocusOff();	// ImGui의 포커싱을 없앤다.
+		ImGuiMgr::I->FocusOff();	// ImGui의 포커싱을 없앤다.
 		return true;
 	}
 
@@ -135,7 +125,7 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	if (mIsWindowFocused) {
-		input->WndProc(hWnd, msg, wParam, lParam);
+		InputMgr::I->WndProc(hWnd, msg, wParam, lParam);
 	}
 
 	return false;
@@ -143,25 +133,19 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Engine::BuildObjects()
 {
-	scene->Start();
-}
-
-
-void Engine::ReleaseObjects()
-{
-	scene->ReleaseObjects();
+	Scene::I->Start();
 }
 
 void Engine::WindowFocusOn()
 {
-	input->WindowFocusOn();
+	InputMgr::I->WindowFocusOn();
 	while (ShowCursor(FALSE) >= 0);
 	mIsWindowFocused = true;
 }
 
 void Engine::WindowFocusOff()
 {
-	input->WindowFocusOff();
+	InputMgr::I->WindowFocusOff();
 	while (ShowCursor(TRUE) <= 0);
 	mIsWindowFocused = false;
 }

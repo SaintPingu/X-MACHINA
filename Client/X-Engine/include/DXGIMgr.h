@@ -1,10 +1,9 @@
 #pragma once
 
 #pragma region Define
-#define dxgi DXGIMgr::Inst()
-#define device dxgi->GetDevice()
-#define cmdList dxgi->GetCmdList()
-#define frmResMgr dxgi->GetFrameResourceMgr()
+#define DEVICE DXGIMgr::I->GetDevice()
+#define CMD_LIST DXGIMgr::I->GetCmdList()
+#define FRAME_RESOURCE_MGR DXGIMgr::I->GetFrameResourceMgr()
 #pragma endregion
 
 #pragma region ClassForwardDecl
@@ -41,7 +40,7 @@ class FilterOption : public DwordOverloader<FilterOption> {
 #pragma region Class
 // device, swapchain 등 DXGI 전반 및 렌더링을 관리한다.
 class DXGIMgr : public Singleton<DXGIMgr> {
-	friend Singleton<DXGIMgr>;
+	friend Singleton;
 
 private:
 	// window

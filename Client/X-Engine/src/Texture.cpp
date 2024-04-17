@@ -105,7 +105,7 @@ void Texture::LoadTexture(const std::string& name, const std::string& path)
 	wfilePath.assign(filePath.begin(), filePath.end());
 
 	D3DUtil::CreateTextureResourceFromDDSFile(wfilePath, mTextureUploadBuffer, mResource, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	dxgi->CreateShaderResourceView(this);
+	DXGIMgr::I->CreateShaderResourceView(this);
 }
 
 ComPtr<ID3D12Resource> Texture::Create(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)

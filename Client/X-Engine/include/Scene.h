@@ -8,8 +8,7 @@
 
 
 #pragma region Define
-#define scene Scene::Inst()
-#define gameManager scene->GetGameManager()
+#define GAME_MGR Scene::I->GetGameManager()
 #pragma endregion
 
 

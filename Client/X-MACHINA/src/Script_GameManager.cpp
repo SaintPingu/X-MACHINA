@@ -14,7 +14,7 @@
 void Script_GameManager::Awake()
 {
 	//{
-	//	sptr<GridObject> enemy = scene->Instantiate("Droid_OII_DesertCamo");
+	//	sptr<GridObject> enemy = Scene::I->Instantiate("Droid_OII_DesertCamo");
 	//	auto& script = enemy->AddComponent<Script_Droid>();
 	//	enemy->AddComponent<Script_MeleeBT>();
 	//	enemy->SetPosition(105, 0, 103);
@@ -22,7 +22,7 @@ void Script_GameManager::Awake()
 	//}
 
 	{
-		sptr<GridObject> enemy = scene->Instantiate("Aranobot_Army");
+		sptr<GridObject> enemy = Scene::I->Instantiate("Aranobot_Army");
 		//enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontLeft");
 		//enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontRight");
 		auto& script = enemy->AddComponent<Script_Aranobot>();

@@ -4,8 +4,6 @@
 #include "Common.h"
 
 
-#define framework GameFramework::Inst()
-
 class GridObject;
 class Script_Player;
 class Session;

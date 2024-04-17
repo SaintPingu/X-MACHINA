@@ -12,7 +12,7 @@
 void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 {
 	mMainOffset = offset;
-	mainCamera->SetOffset(mMainOffset);
+	MAIN_CAMERA->SetOffset(mMainOffset);
 }
 
 
@@ -21,7 +21,7 @@ void Script_MainCamera::Awake()
 	base::Awake();
 
 	constexpr Vec2 maxOffset = Vec2(3, 3);
-	const Vec2 resolution = Vec2(mainCamera->GetWidth(), mainCamera->GetHeight());
+	const Vec2 resolution = Vec2(MAIN_CAMERA->GetWidth(), MAIN_CAMERA->GetHeight());
 
 	// corr = 0.002 : 1280 * 1080 -> 2.56, 2.16
 	constexpr float corr = 0.002f;
@@ -30,7 +30,7 @@ void Script_MainCamera::Awake()
 	mMaxOffset.x = mMaxOffset.x > maxOffset.x ? maxOffset.x : mMaxOffset.x;
 	mMaxOffset.y = mMaxOffset.y > maxOffset.y ? maxOffset.y : mMaxOffset.y;
 
-	mPlayer = engine->GetPlayer();
+	mPlayer = Engine::I->GetPlayer();
 }
 
 void Script_MainCamera::Start()
@@ -110,13 +110,13 @@ void Script_MainCamera::Init()
 	mObject->SetPosition(mPlayer->GetPosition() + mMainOffset);
 	LookPlayer();
 
-	mainCamera->SetProjMtx(0.01f, maxPlaneDistance, 60.f);
+	MAIN_CAMERA->SetProjMtx(0.01f, maxPlaneDistance, 60.f);
 }
 
 
 void Script_MainCamera::LookPlayer()
 {
 	if (mPlayer) {
-		mainCamera->LookAt(mPlayer->GetPosition(), mPlayer->GetUp());
+		MAIN_CAMERA->LookAt(mPlayer->GetPosition(), mPlayer->GetUp());
 	}
 }

@@ -9,10 +9,6 @@
 #include <boost/serialization/vector.hpp>
 #pragma endregion
 
-#pragma region Define
-#define pr ParticleRenderer::Inst()
-#pragma endregion
-
 
 #pragma region ClassForwardDecl
 class Shader;

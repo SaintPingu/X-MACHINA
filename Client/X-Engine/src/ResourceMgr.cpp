@@ -87,7 +87,7 @@ void ResourceMgr::LoadModels()
 		if (fileName.substr(0, 6) == "sprite") {
 			model->SetSprite();
 		}
-		res->Add(modelName, model);
+		ResourceMgr::I->Add(modelName, model);
 	}
 }
 
@@ -624,7 +624,7 @@ void ResourceMgr::LoadAnimationClips()
 
 			FileIO::RemoveExtension(fileName);
 			const std::string clipName = clipFolderName + '/' + fileName;
-			res->Add<AnimationClip>(clipName, clip);
+			ResourceMgr::I->Add<AnimationClip>(clipName, clip);
 		}
 	}
 }
@@ -634,6 +634,6 @@ void ResourceMgr::LoadAnimatorControllers()
 	const std::string rootFolder = "Import/AnimatorControllers/";
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
-		res->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::AnimationIO::LoadAnimatorController(rootFolder + fileName));
+		ResourceMgr::I->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::AnimationIO::LoadAnimatorController(rootFolder + fileName));
 	}
 }

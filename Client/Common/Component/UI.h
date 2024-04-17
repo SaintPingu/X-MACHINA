@@ -5,11 +5,6 @@
 #pragma endregion
 
 
-#pragma region Define
-#define canvas Canvas::Inst()
-#pragma endregion
-
-
 #pragma region ClassForwardDecl
 class Canvas;
 class Texture;
@@ -96,7 +91,6 @@ public:
 
 public:
 	void Init();
-	void Release();
 	void BuildUIs();
 
 	void Update();

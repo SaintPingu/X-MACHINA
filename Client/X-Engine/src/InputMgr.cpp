@@ -5,7 +5,7 @@
 #include "Timer.h"
 #include "Scene.h"
 
-#include "../Imgui/ImguiManager.h"
+#include "../Imgui/ImGuiMgr.h"
 
 
 InputMgr::InputMgr()
@@ -48,13 +48,13 @@ void InputMgr::Init()
 void InputMgr::InitFocus()
 {
 	POINT clientCenter = mClientCenter;
-	::ClientToScreen(dxgi->GetHwnd(), &clientCenter);
+	::ClientToScreen(DXGIMgr::I->GetHwnd(), &clientCenter);
 	::ShowCursor(FALSE);
 }
 
 void InputMgr::UpdateClient()
 {
-	mClientCenter = { dxgi->GetWindowWidth() / 2, dxgi->GetWindowHeight() / 2 };
+	mClientCenter = { DXGIMgr::I->GetWindowWidth() / 2, DXGIMgr::I->GetWindowHeight() / 2 };
 	mMousePos = Vec2(static_cast<float>(mClientCenter.x), static_cast<float>(mClientCenter.y));
 	InitFocus();
 }
@@ -73,10 +73,10 @@ void InputMgr::Update()
 	}
 
 	// mouse move //
-	if (!imgui->IsFocused() && ::GetFocus()) {
+	if (!ImGuiMgr::I->IsFocused() && ::GetFocus()) {
 		POINT ptMouse{};
 		::GetCursorPos(&ptMouse);
-		::ScreenToClient(dxgi->GetHwnd(), &ptMouse);
+		::ScreenToClient(DXGIMgr::I->GetHwnd(), &ptMouse);
 
 		mMousePos = Vec2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
 		mMouseDir.x = mMousePos.x - mClientCenter.x;
@@ -92,7 +92,7 @@ void InputMgr::Update()
 
 void InputMgr::WindowFocusOn() const
 {
-	if (!imgui->IsFocused()) {
+	if (!ImGuiMgr::I->IsFocused()) {
 		SetCursorCenter();
 	}
 }
@@ -128,7 +128,7 @@ void InputMgr::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void InputMgr::SetCursorCenter() const
 {
 	POINT clientCenter = mClientCenter;
-	::ClientToScreen(dxgi->GetHwnd(), &clientCenter);
+	::ClientToScreen(DXGIMgr::I->GetHwnd(), &clientCenter);
 	::SetCursorPos(clientCenter.x, clientCenter.y);
 }
 

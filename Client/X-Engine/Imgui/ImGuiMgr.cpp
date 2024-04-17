@@ -5,23 +5,23 @@
 #include "ImguiCode/imgui_impl_dx12.h"
 #include "ImguiCode/imgui_internal.h"
 
-#include "ImGuiManager.h"
+#include "ImGuiMgr.h"
 #include "DXGIMgr.h"
 #include "Scene.h"
 #include "Object.h"
 #include "Component/ParticleSystem.h"
 #include <iostream>
 
-ImGuiManager::ImGuiManager()
+ImGuiMgr::ImGuiMgr()
 {
 }
 
-ImGuiManager::~ImGuiManager()
+ImGuiMgr::~ImGuiMgr()
 {
     DestroyImGui();
 }
 
-bool ImGuiManager::Init()
+bool ImGuiMgr::Init()
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -49,18 +49,18 @@ bool ImGuiManager::Init()
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.NumDescriptors = 1;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    if (FAILED(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&mSrvDescHeap))))
+    if (FAILED(DEVICE->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&mSrvDescHeap))))
         assert(nullptr);
 
-    bool bSuccess = ImGui_ImplWin32_Init(dxgi->GetHwnd());
-    bSuccess = ImGui_ImplDX12_Init(device.Get(), 3, DXGI_FORMAT_R8G8B8A8_UNORM
+    bool bSuccess = ImGui_ImplWin32_Init(DXGIMgr::I->GetHwnd());
+    bSuccess = ImGui_ImplDX12_Init(DEVICE.Get(), 3, DXGI_FORMAT_R8G8B8A8_UNORM
         , mSrvDescHeap.Get(), mSrvDescHeap->GetCPUDescriptorHandleForHeapStart()
         , mSrvDescHeap.Get()->GetGPUDescriptorHandleForHeapStart());
 
     return true;
 }
 
-void ImGuiManager::Render_Prepare()
+void ImGuiMgr::Render_Prepare()
 {
     if (!mIsOn)
         return;
@@ -71,7 +71,7 @@ void ImGuiManager::Render_Prepare()
     ImGui::NewFrame();
 }
 
-void ImGuiManager::Update()
+void ImGuiMgr::Update()
 {
     if (!mIsOn)
         return;
@@ -86,16 +86,16 @@ void ImGuiManager::Update()
     ImGui::End();
 }
 
-void ImGuiManager::Render()
+void ImGuiMgr::Render()
 {
     if (!mIsOn)
         return;
 
     // Rendering
-    cmdList->SetDescriptorHeaps(1, mSrvDescHeap.GetAddressOf());
+    CMD_LIST->SetDescriptorHeaps(1, mSrvDescHeap.GetAddressOf());
 
     ImGui::Render();
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmdList.Get());
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), CMD_LIST.Get());
 
     // Update and Render additional Platform Windows
     if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -105,7 +105,7 @@ void ImGuiManager::Render()
     }
 }
 
-void ImGuiManager::DestroyImGui()
+void ImGuiMgr::DestroyImGui()
 {
     // Cleanup
     ImGui_ImplDX12_Shutdown();
@@ -133,7 +133,7 @@ void ImGuiHierachy::Execute(GameObject* selectedObject)
 		mSelectedObject = selectedObject;
 
     size_t entityID = -1;
-    for (const auto& object : scene->GetAllObjects()) {
+    for (const auto& object : Scene::I->GetAllObjects()) {
         DrawNode(object.get(), entityID);
     }
 
@@ -141,7 +141,7 @@ void ImGuiHierachy::Execute(GameObject* selectedObject)
 }
 
 
-void ImGuiManager::FocusOff()
+void ImGuiMgr::FocusOff()
 {
     ImGui::FocusWindow(NULL);
     mIsFocused = false;

@@ -67,7 +67,7 @@ void Script_Sprite::UpdateSpriteVariable(const int matIndex) const
 	//int objCBIdx = mObject->GetObjCBIndex();
 
 	//// 상수 버퍼에 매핑하고 objCBIdx에 사용할 상수 버퍼 인덱스를 저장한다.
-	//frmResMgr->CopyData(objCBIdx, objectConstants);
+	//FRAME_RESOURCE_MGR->CopyData(objCBIdx, objectConstants);
 
 	//// 현재 오브젝트의 상수 버퍼 인덱스가 설정되지 않은 경우에만 새롭게 설정한다.
 	//if (!mObject->GetUseObjCB()) {
@@ -75,5 +75,5 @@ void Script_Sprite::UpdateSpriteVariable(const int matIndex) const
 	//}
 
 	//// 상수 버퍼 뷰 Set
-	//dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(objCBIdx));
+	//DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(objCBIdx));
 }

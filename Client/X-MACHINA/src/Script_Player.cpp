@@ -25,7 +25,7 @@ void Script_Player::Awake()
 {
 	base::Awake();
 
-	mCamera = mainCameraObject->GetComponent<Script_MainCamera>().get();
+	mCamera = MainCamera::I->GetComponent<Script_MainCamera>().get();
 }
 
 void Script_Player::Start()
@@ -76,5 +76,5 @@ void Script_Player::Hit(float damage)
 void Script_Player::AddScore(int score)
 {
 	mScore += score;
-	canvas->SetScore(mScore);
+	Canvas::I->SetScore(mScore);
 }

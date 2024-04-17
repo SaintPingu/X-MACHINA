@@ -1,7 +1,5 @@
 #pragma once
 
-#define objectMgr ObjectMgr::Inst()
-
 class GameObject;
 
 class ObjectMgr : public Singleton<ObjectMgr> {

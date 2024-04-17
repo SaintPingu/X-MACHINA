@@ -10,7 +10,7 @@
 
 void ObjectMgr::InitObjectsScript()
 {
-	mObjects = scene->GetAllObjects();
+	mObjects = Scene::I->GetAllObjects();
 	for (rsptr<GameObject> object : mObjects) {
 		switch (object->GetTag()) {
 		case ObjectTag::ExplosiveBig:

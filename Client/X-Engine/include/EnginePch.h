@@ -191,8 +191,8 @@ enum class CameraMode {
 
 // [ root parameter index alias ]
 // usage:
-// index = scene->GetGraphicsRootParamIndex(RootParam);
-// 32BitConstant => scene->SetGraphicsRoot32BitConstants(RootParam, ...);
+// index = Scene::I->GetGraphicsRootParamIndex(RootParam);
+// 32BitConstant => Scene::I->SetGraphicsRoot32BitConstants(RootParam, ...);
 enum class RootParam {
 	// Graphics RootParam
 	Object = 0,

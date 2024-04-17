@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#define engine Engine::Inst()
-
 class GridObject;
 
 class Engine : public Singleton<Engine> {
@@ -29,7 +27,6 @@ public:
 
 private:
 	void BuildObjects();
-	void ReleaseObjects();
 
 	void WindowFocusOn();
 	void WindowFocusOff();

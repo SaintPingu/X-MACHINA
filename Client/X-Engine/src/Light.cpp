@@ -80,7 +80,7 @@ void Light::BuildLights()
 			volumeMesh->CreateSphereMesh(light.FalloffEnd);
 			break;
 		case LightType::Directional:
-			volumeMesh = res->Get<ModelObjectMesh>("Rect");
+			volumeMesh = RESOURCE<ModelObjectMesh>("Rect");
 			break;
 		}
 	}
@@ -90,7 +90,7 @@ void Light::Update()
 {
 	auto& sunLight = mLights->Lights[gkSunLightIdx];
 
-	mSceneBounds.Center = engine->GetPlayer()->GetPosition();
+	mSceneBounds.Center = Engine::I->GetPlayer()->GetPosition();
 
 	// 태양 조명 뷰 행렬 생성
 	Vec3 lightDir = sunLight.Direction;
@@ -135,13 +135,13 @@ void Light::UpdateShaderVars(int index)
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld = XMMatrixTranslation(light.Position.x, light.Position.y, light.Position.z);
 	objectConstants.LightIndex = index;
-	frmResMgr->CopyData(light.ObjCBIndex, objectConstants);
-	dxgi->SetGraphicsRootConstantBufferView(RootParam::Object, frmResMgr->GetObjCBGpuAddr(light.ObjCBIndex));
+	FRAME_RESOURCE_MGR->CopyData(light.ObjCBIndex, objectConstants);
+	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(light.ObjCBIndex));
 }
 
 void Light::Render()
 {
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	for (int i = 0; i < mLights->Lights.size(); ++i) {
 		auto& light = mLights->Lights[i];
@@ -151,10 +151,10 @@ void Light::Render()
 			{
 			case LightType::Spot:
 			case LightType::Point:
-				res->Get<Shader>("SpotPointLighting")->Set();
+				RESOURCE<Shader>("SpotPointLighting")->Set();
 				break;
 			case LightType::Directional:
-				res->Get<Shader>("DirLighting")->Set();
+				RESOURCE<Shader>("DirLighting")->Set();
 				break;
 			default:
 				break;

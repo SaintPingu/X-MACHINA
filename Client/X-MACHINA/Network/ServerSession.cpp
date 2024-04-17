@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ServerSession.h"
-#include "ThreadManager.h"
 #include "Service.h"
 #include "Session.h"
 #include "PacketSession.h"
@@ -14,9 +13,9 @@ ServerSession::ServerSession()
 
 ServerSession::~ServerSession()
 {
-	LOG_MGR->SetColor(TextColor::BrightRed);
-	LOG_MGR->Cout("~ServerSession\n");
-	LOG_MGR->SetColor(TextColor::Default);
+	LogMgr::I->SetColor(TextColor::BrightRed);
+	LogMgr::I->Cout("~ServerSession\n");
+	LogMgr::I->SetColor(TextColor::Default);
 
 }
 

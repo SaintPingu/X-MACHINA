@@ -20,7 +20,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	sptr<Object> target = GetData("target");
 
 	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
-	if (scene->GetTileFromPos(target->GetPosition()) == Tile::Static)
+	if (Scene::I->GetTileFromPos(target->GetPosition()) == Tile::Static)
 		return BT::NodeState::Failure;
 
 	// 허리 쪽부터 광선을 쏴야 맞는다.
@@ -40,7 +40,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	// 해당 광선에 맞은 다른 Static 오브젝트의 거리가 타겟까지의 거리보다 가까운 경우 벽에 막혀있는 경우이다.
 	if (mGridTarget) {
 		for (const auto& gridIndex : mGridTarget->GetGridIndices()) {
-			if (scene->CheckCollisionsRay(gridIndex, r) < toTarget.Length()) {
+			if (Scene::I->CheckCollisionsRay(gridIndex, r) < toTarget.Length()) {
 				return BT::NodeState::Failure;
 			}
 		}

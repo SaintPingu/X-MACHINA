@@ -15,8 +15,8 @@ void Camera::Awake()
 {
 	base::Awake();
 
-	float width = dxgi->GetWindowWidth();
-	float height = dxgi->GetWindowHeight();
+	float width = DXGIMgr::I->GetWindowWidth();
+	float height = DXGIMgr::I->GetWindowHeight();
 
 	mAspectRatio = width / height;
 
@@ -67,8 +67,8 @@ void Camera::SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom)
 }
 void Camera::SetViewportsAndScissorRects()
 {
-	cmdList->RSSetViewports(1, &mViewport);
-	cmdList->RSSetScissorRects(1, &mScissorRect);
+	CMD_LIST->RSSetViewports(1, &mViewport);
+	CMD_LIST->RSSetScissorRects(1, &mScissorRect);
 }
 
 
@@ -151,8 +151,8 @@ void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 
 
 
-#pragma region MainCameraObject
-void MainCameraObject::Awake()
+#pragma region MainCamera
+void MainCamera::Awake()
 {
 	base::Awake();
 

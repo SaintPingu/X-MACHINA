@@ -255,9 +255,6 @@
     <ClCompile Include="src\EnginePch.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
-    <ClCompile Include="src\BehaviorTree.cpp">
-      <Filter>소스 파일\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="include\NetLock.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -268,7 +265,10 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="Imgui\ImGuiMgr.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BehaviorTree.cpp">
+      <Filter>소스 파일\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -419,24 +419,6 @@
     <ClInclude Include="..\Common\Singleton.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Component\Camera.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Component\Collider.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Component\Component.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Component\ParticleSystem.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Component\Rigidbody.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Component\Transform.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\Component\UI.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
@@ -466,6 +448,24 @@
     </ClInclude>
     <ClInclude Include="Imgui\ImGuiMgr.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Camera.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Collider.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Component.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\ParticleSystem.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Rigidbody.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Component\Transform.h">
+      <Filter>Common\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

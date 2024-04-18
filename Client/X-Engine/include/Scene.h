@@ -57,6 +57,7 @@ private:
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
 	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
+	std::set<size_t>				mDestroyObjects{};
 
 	std::set<sptr<GridObject>>	mDissolveObjects{};
 	std::set<GridObject*>	    mRenderedObjects{};
@@ -250,7 +251,7 @@ private:
 	// do [processFunc] for all objects
 	void ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc);
 
-	bool RemoveDynamicObjectInContainer(sptr<GridObject> &object);
+	void RemoveDesrtoyedObjects();
 
 	// move mObjectBuffer's objects to mDynamicObjects
 	void PopObjectBuffer();

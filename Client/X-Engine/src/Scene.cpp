@@ -966,7 +966,7 @@ void Scene::RemoveDynamicObject(GridObject* target)
 			if (object->IsSkinMesh()) {
 				mDissolveObjects.insert(object);
 			}
-			object = nullptr;
+			mDestroyObjects.insert(i);
 			return;
 		}
 	}
@@ -1083,20 +1083,12 @@ void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFu
 	}
 
 	for (auto& object : mDynamicObjects) {
-		if (RemoveDynamicObjectInContainer(object)) {
-			break;
-		}
-		if (object->IsActive()) {
+		if (object && object->IsActive()) {
 			processFunc(object);
 		}
 	}
 
-	// check destroyed
-	for (auto& object : mDynamicObjects) {
-		if (RemoveDynamicObjectInContainer(object)) {
-			break;
-		}
-	}
+	RemoveDesrtoyedObjects();
 
 	for (auto& object : mObjectPools) {
 		object->DoActiveObjects(processFunc);
@@ -1110,33 +1102,24 @@ void Scene::ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc)
 	}
 
 	for (auto& object : mDynamicObjects) {
-		if (RemoveDynamicObjectInContainer(object)) {
-			break;
+		if (object) {
+			processFunc(object);
 		}
-		processFunc(object);
 	}
 
-	// check destroyed
-	for (auto& object : mDynamicObjects) {
-		if (RemoveDynamicObjectInContainer(object)) {
-			break;
-		}
-	}
+	RemoveDesrtoyedObjects();
 
 	for (auto& object : mObjectPools) {
 		object->DoAllObjects(processFunc);
 	}
 }
 
-bool Scene::RemoveDynamicObjectInContainer(sptr<GridObject>& object)
+void Scene::RemoveDesrtoyedObjects()
 {
-	if (object == nullptr) {
-		object = mDynamicObjects.back();
+	for (auto& index : mDestroyObjects | std::views::reverse) {
+		mDynamicObjects[index] = mDynamicObjects.back();
 		mDynamicObjects.pop_back();
-		if (mDynamicObjects.empty()) {
-			return true;
-		}
 	}
 
-	return false;
+	mDestroyObjects.clear();
 }

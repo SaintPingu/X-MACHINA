@@ -56,7 +56,7 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		sptr<GridObject> otherPlayer = std::make_shared<GridObject>();
 		otherPlayer->SetModel("EliteTrooper");
 		otherPlayer->SetName(name);
-		otherPlayer->setID(sessionID);
+		otherPlayer->SetID(sessionID);
 		otherPlayer->AddComponent<Script_GroundObject>();
 		otherPlayer->SetPosition(101, 12, 101);
 
@@ -94,7 +94,7 @@ bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol:
 	sptr<GridObject> otherPlayer = std::make_shared<GridObject>();
 	otherPlayer->SetModel("EliteTrooper");
 	otherPlayer->SetName(Newname);
-	otherPlayer->setID(NewsessionID);
+	otherPlayer->SetID(NewsessionID);
 	otherPlayer->AddComponent<Script_GroundObject>();
 	otherPlayer->SetPosition(101, 12, 101);
 

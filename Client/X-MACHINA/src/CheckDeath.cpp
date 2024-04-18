@@ -28,9 +28,10 @@ BT::NodeState CheckDeath::Evaluate()
 	mEnemyMgr->mController->SetValue("Death", true);
 
 	if (mAccTime >= 2.f) {
-		mObject->mObjectCB.DeathElapsed += DeltaTime();
+		mObject->OnDestroy();
 	}
 
+	// 실행안됨.
 	if (mAccTime >= 4.f) {
 		// 임시로 다시 태어나도록 설정
 		mEnemyMgr->mController->SetValue("Death", false);
@@ -38,7 +39,6 @@ BT::NodeState CheckDeath::Evaluate()
 		mAccTime = 0.f;
 		mObject->mObjectCB.DeathElapsed = 0.f;
 
-		//mObject->OnDestroy();
 		return BT::NodeState::Success;
 	}
 

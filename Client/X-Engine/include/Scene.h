@@ -58,11 +58,11 @@ private:
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
 	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
 
-	std::set<GridObject*>	mRenderedObjects{};
-	std::set<GridObject*>	mTransparentObjects{};
-	std::set<GridObject*>	mDissolveObjects{};
-	std::set<GridObject*>	mBillboardObjects{};
-	std::set<GridObject*>	mSkinMeshObjects{};
+	std::set<sptr<GridObject>>	mDissolveObjects{};
+	std::set<GridObject*>	    mRenderedObjects{};
+	std::set<GridObject*>	    mTransparentObjects{};
+	std::set<GridObject*>	    mBillboardObjects{};
+	std::set<GridObject*>	    mSkinMeshObjects{};
 
 	/* 장재문 - */
 	USE_LOCK;
@@ -233,6 +233,7 @@ public:
 	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
+	void RemoveDynamicObject(GridObject* object);
 
 	sptr<ObjectPool> CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
 	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
@@ -248,6 +249,8 @@ private:
 	void ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc);
 	// do [processFunc] for all objects
 	void ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc);
+
+	bool RemoveDynamicObjectInContainer(sptr<GridObject> &object);
 
 	// move mObjectBuffer's objects to mDynamicObjects
 	void PopObjectBuffer();

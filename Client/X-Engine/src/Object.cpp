@@ -103,6 +103,13 @@ void GridObject::OnDisable()
 	Scene::I->RemoveObjectFromGrid(this);
 }
 
+void GridObject::OnDestroy()
+{
+	base::OnDestroy();
+	
+	Scene::I->RemoveDynamicObject(this);
+}
+
 void GridObject::RenderBounds()
 {
 	if (mIsDrawBounding && mCollider) {
@@ -141,7 +148,8 @@ InstObject::InstObject(ObjectPool* pool, int id)
 
 void InstObject::OnDestroy()
 {
-	base::OnDestroy();
+	GameObject::OnDestroy();
+
 	mObjectPool->Return(this);
 }
 

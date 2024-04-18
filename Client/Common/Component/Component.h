@@ -183,7 +183,7 @@ public:
 	void SetTag(ObjectTag tag);
 	void SetName(const std::string& name)	{ mName = name; }
 	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
-	void setID(UINT32 sessionID)			{ mID = sessionID; }
+	void SetID(UINT32 sessionID)			{ mID = sessionID; }
 #pragma endregion
 
 

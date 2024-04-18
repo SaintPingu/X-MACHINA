@@ -539,8 +539,22 @@ void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObj
 void Scene::RenderDissolveObjects()
 {
 	RESOURCE<Shader>("Dissolve")->Set();
-	for (auto& object : mDissolveObjects) {
+	// [destroyTime]초 경과 후 객체 제거
+	constexpr float destroyTime = 1.f;
+	std::set<sptr<GridObject>> destroyedObjects{};
+	for (auto& it = mDissolveObjects.begin(); it != mDissolveObjects.end(); ++it) {
+		auto& object = *it;
+
+		object->mObjectCB.DeathElapsed += DeltaTime();
 		object->Render();
+
+		if (object->mObjectCB.DeathElapsed > destroyTime) {
+			destroyedObjects.insert(object);
+		}
+	}
+
+	for (auto& object : destroyedObjects) {
+		mDissolveObjects.erase(object);
 	}
 }
 
@@ -607,16 +621,8 @@ void Scene::RenderSkinMeshObjects(bool isShadowed)
 	else
 		RESOURCE<Shader>("SkinMesh")->Set();
 
-	// 죽은 상태라면 DissolveObjects로 이동
-	for (auto it = mSkinMeshObjects.begin(); it != mSkinMeshObjects.end();) {
-		if ((*it)->mObjectCB.DeathElapsed > 0.f) {
-			mDissolveObjects.insert(*it);
-			it = mSkinMeshObjects.erase(it);
-			continue;
-		}
-		else {
-			(*it++)->Render();
-		}
+	for (auto it = mSkinMeshObjects.begin(); it != mSkinMeshObjects.end(); ++it) {
+		(*it)->Render();
 	}
 }
 
@@ -949,6 +955,22 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 	return instance;
 }
 
+
+void Scene::RemoveDynamicObject(GridObject* target)
+{
+	for (size_t i = 0; i < mDynamicObjects.size();++i) {
+		auto& object = mDynamicObjects[i];
+		if (object.get() == target) {
+			if (object->IsSkinMesh()) {
+				mDissolveObjects.insert(object);
+			}
+			object = nullptr;
+			return;
+		}
+	}
+}
+
+
 sptr<ObjectPool> Scene::CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc)
 {
 	return CreateObjectPool(RESOURCE<MasterModel>(modelName), maxSize, objectInitFunc);
@@ -1059,8 +1081,18 @@ void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFu
 	}
 
 	for (auto& object : mDynamicObjects) {
+		if (RemoveDynamicObjectInContainer(object)) {
+			break;
+		}
 		if (object->IsActive()) {
 			processFunc(object);
+		}
+	}
+
+	// check destroyed
+	for (auto& object : mDynamicObjects) {
+		if (RemoveDynamicObjectInContainer(object)) {
+			break;
 		}
 	}
 
@@ -1076,10 +1108,33 @@ void Scene::ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc)
 	}
 
 	for (auto& object : mDynamicObjects) {
+		if (RemoveDynamicObjectInContainer(object)) {
+			break;
+		}
 		processFunc(object);
+	}
+
+	// check destroyed
+	for (auto& object : mDynamicObjects) {
+		if (RemoveDynamicObjectInContainer(object)) {
+			break;
+		}
 	}
 
 	for (auto& object : mObjectPools) {
 		object->DoAllObjects(processFunc);
 	}
+}
+
+bool Scene::RemoveDynamicObjectInContainer(sptr<GridObject>& object)
+{
+	if (object == nullptr) {
+		object = mDynamicObjects.back();
+		mDynamicObjects.pop_back();
+		if (mDynamicObjects.empty()) {
+			return true;
+		}
+	}
+
+	return false;
 }

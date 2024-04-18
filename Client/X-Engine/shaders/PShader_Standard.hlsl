@@ -59,7 +59,7 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     
     if (occlusionMapIndex != -1)
     {
-        occlusion = GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
+        occlusion = (float)GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
     }
     
     float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);

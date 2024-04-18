@@ -20,7 +20,7 @@ PSOutput_Lighting PSSpotPointLighting(VSOutput_Lighting pin)
     float3 posW = gTextureMaps[gPassCB.RT0G_PositionIndex].Sample(gsamAnisotropicWrap, Uv).xyz;
 
     // 카메라 기준 z값이 뒤에 있다면 그리지 않는다.
-    float3 posV = mul(float4(posW, 1.f), gPassCB.MtxView);
+    float3 posV = (float3)mul(float4(posW, 1.f), gPassCB.MtxView);
     if (posV.z <= 0.f)
         clip(-1);
     

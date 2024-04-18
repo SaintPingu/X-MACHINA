@@ -265,7 +265,7 @@ float4 Fog(float4 color, float3 position)
 
 float4 FogDistance(float4 color, float3 distance)
 {
-    float factor = min(saturate((distance - gPassCB.FogStart) / gPassCB.FogRange), 0.8f);
+    float factor = (float) min(saturate((distance - gPassCB.FogStart) / gPassCB.FogRange), 0.8f);
     return lerp(color, gPassCB.FogColor, factor);
 }
 
@@ -283,33 +283,37 @@ float ComputeShadowFactor(float4 shadowPosH)
     
     // 절두체 범위의 밖에 있다면 계산하지 않고 바로 리턴한다.
     if (IsOutOfRange(shadowPosH.xyz))
+    {
         return 1.f;
-    
-    // z값이 깊이 값이다.
-    float depth = shadowPosH.z;
-    
-    uint width, height, numMips;
-    gTextureMaps[gPassCB.ShadowDsIndex].GetDimensions(0, width, height, numMips);
-    
-    // 텍셀 사이즈
-    float dx = 1.f / (float)width;
-    
-    // 비율 근접 필터링(PCF)
-    float percentLit = 0.f;
-    const float2 offsets[9] =
-    {
-        float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
-        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-        float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
-    };
-    
-    [unroll]
-    for(int i = 0; i < 9; ++i)
-    {
-        percentLit += gTextureMaps[gPassCB.ShadowDsIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
     }
+    else
+    {
+        // z값이 깊이 값이다.
+        float depth = shadowPosH.z;
     
-    return percentLit / 9.f;
+        uint width, height, numMips;
+        gTextureMaps[gPassCB.ShadowDsIndex].GetDimensions(0, width, height, numMips);
+    
+        // 텍셀 사이즈
+        float dx = 1.f / (float) width;
+    
+        // 비율 근접 필터링(PCF)
+        float percentLit = 0.f;
+        const float2 offsets[9] =
+        {
+            float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+        };
+    
+        [unroll]
+        for (int i = 0; i < 9; ++i)
+        {
+            percentLit += gTextureMaps[gPassCB.ShadowDsIndex].SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
+        }
+    
+        return percentLit / 9.f;
+    }
 }
 
 // random generator
@@ -317,6 +321,19 @@ struct NumberGenerator
 {
     int seed; // Used to generate values.
 
+    // Generates the next number in the sequence.
+    void Cycle()
+    {
+        seed ^= RANDOM_MASK;
+        int k = seed / RANDOM_IQ;
+        seed = RANDOM_IA * (seed - k * RANDOM_IQ) - RANDOM_IR * k;
+
+        if (seed < 0) 
+            seed += RANDOM_IM;
+
+        seed ^= RANDOM_MASK;
+    }
+    
     // Returns the current random float.
     float GetCurrentFloat()
     {
@@ -331,19 +348,6 @@ struct NumberGenerator
         return seed;
     }
 
-    // Generates the next number in the sequence.
-    void Cycle()
-    {
-        seed ^= RANDOM_MASK;
-        int k = seed / RANDOM_IQ;
-        seed = RANDOM_IA * (seed - k * RANDOM_IQ) - RANDOM_IR * k;
-
-        if (seed < 0) 
-            seed += RANDOM_IM;
-
-        seed ^= RANDOM_MASK;
-    }
-
     // Cycles the generator based on the input count. Useful for generating a thread unique seed.
     // PERFORMANCE - O(N)
     void Cycle(const uint _count)
@@ -355,11 +359,15 @@ struct NumberGenerator
     // Returns a random float within the input range.
     float GetRandomFloat(const float low, const float high)
     {
-        if (low == high)
+        if (low != high)
+        {
+            float v = GetCurrentFloat();
+            return low * (1.0f - v) + high * v;
+        }
+        else
+        {
             return low;
-        
-        float v = GetCurrentFloat();
-        return low * (1.0f - v) + high * v;
+        }
     }
     
     // Returns a random float within the input range.

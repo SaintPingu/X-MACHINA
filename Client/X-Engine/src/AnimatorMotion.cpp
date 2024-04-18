@@ -82,7 +82,7 @@ bool AnimatorMotion::Animate()
 {
 	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
 
-	for (auto& [time, callback] : mCallbacks | std::views::reverse) {
+	for (auto& [time, callback] : mCallbacks | std::ranges::views::reverse) {
 		if (mCrntLength >= time) {
 			if (!callback.Called) {
 				callback.Callback();

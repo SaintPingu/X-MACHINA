@@ -68,7 +68,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     
     if (occlusionMapIndex != -1)
     {
-        occlusion = GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
+        occlusion = (float)GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
     }
     
     float rimWidth = 0.8f;

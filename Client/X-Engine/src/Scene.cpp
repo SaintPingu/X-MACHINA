@@ -1116,7 +1116,7 @@ void Scene::ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc)
 
 void Scene::RemoveDesrtoyedObjects()
 {
-	for (auto& index : mDestroyObjects | std::views::reverse) {
+	for (auto& index : mDestroyObjects | std::ranges::views::reverse) {
 		mDynamicObjects[index] = mDynamicObjects.back();
 		mDynamicObjects.pop_back();
 	}

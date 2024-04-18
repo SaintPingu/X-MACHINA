@@ -106,7 +106,7 @@ float4 SetStartColor(PSColor color, float t, float r)
 void SetSphereStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 pos, inout float3 dir)
 {
     // 파티클 초기 위치 설정
-    float sphereCenter          = float3(0.f, 0.f, 0.f);
+    float sphereCenter          = 0.f;
     float sphereRadius          = shape.Radius;
     float sphereRadiusThickness = shape.RadiusThickness;
     
@@ -242,7 +242,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         }
         
         // ColorOverLifeTime이 켜져 있다면 시간에 따라 StartColor에서 EndColor로 변화
-        if (ps.ColorOverLifetime.IsOn == true)
+        if (ps.ColorOverLifetime.IsOn != 0) // == true
         {
             gOutputParticles[threadID.x].FinalColor = lerp(gOutputParticles[threadID.x].StartColor * ps.ColorOverLifetime.StartColor, gOutputParticles[threadID.x].StartColor * ps.ColorOverLifetime.EndColor, lifeRatio);
         }

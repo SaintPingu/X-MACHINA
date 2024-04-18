@@ -146,7 +146,7 @@ private:
 
 class Object : public Transform {
 private:
-	UINT32      mID;
+	UINT32      mID{};
 
 	std::string	mName{};
 	ObjectTag	mTag{};
@@ -241,7 +241,7 @@ public:
 	void RemoveComponent()
 	{
 		for (auto it = mComponents.begin(); it != mComponents.end(); ++it) {
-			auto component = *it;
+			auto& component = *it;
 			auto result = std::dynamic_pointer_cast<T>(component);
 			if (result) {
 				mComponents.erase(it);

@@ -91,8 +91,16 @@ void Script_MainCamera::Move(Vec2 dir, float maxOffset_t, bool isAlign)
 	auto moveOffset = [&](float& offset, float maxOffset, float dir, float speed) {
 		const float movement = (dir * speed) * DeltaTime();
 
+		// 최대치보다 작거나 반대방향 이동 시 speed 그대로 적용
 		if (fabs(offset) < maxOffset || Math::Sign(offset) != Math::Sign(dir)) {
 			offset += movement;
+		}
+		// maxOffset을 넘어선 경우 maxOffset까지 도달하게 한다.
+		else {
+			offset -= movement;
+			if (fabs(offset) < maxOffset) {
+				offset = maxOffset * Math::Sign(offset);
+			}
 		}
 		};
 

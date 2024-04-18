@@ -49,6 +49,8 @@ Scene::Scene()
 
 void Scene::Release()
 {
+	FRAME_RESOURCE_MGR->WaitForGpuComplete();
+
 	ReleaseObjects();
 
 	ProcessAllObjects([](sptr<GameObject> object) {

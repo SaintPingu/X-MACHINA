@@ -126,7 +126,7 @@ void FrameResourceMgr::Update()
 	}
 }
 
-void FrameResourceMgr::Destroy()
+void FrameResourceMgr::WaitForGpuComplete()
 {
 	for (int i = 0; i < mFrameResourceCount; ++i) {
 		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);

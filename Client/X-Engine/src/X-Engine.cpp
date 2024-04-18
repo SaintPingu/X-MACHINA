@@ -47,8 +47,6 @@ void Engine::Release()
 {
 	Scene::I->Release();
 	DXGIMgr::I->Release();
-
-	Sleep(100);
 }
 
 

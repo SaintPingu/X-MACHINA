@@ -131,14 +131,12 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 
 void DXGIMgr::Release()
 {
-	WaitForGpuComplete();
-
 	Terminate();
+	FRAME_RESOURCE_MGR->WaitForGpuComplete();
 
 	mGraphicsRootSignature = nullptr;
 	mComputeRootSignature = nullptr;
 	::CloseHandle(mFenceEvent);
-	WaitForGpuComplete();
 }
 
 void DXGIMgr::CreateShaderResourceView(Texture* texture, DXGI_FORMAT srvFormat)

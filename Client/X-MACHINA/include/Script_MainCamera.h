@@ -32,9 +32,10 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 
+	// [weight]      : 각 방향에 얼마나 가중치를 둘 것인가(0~1)
 	// [maxOffset_t] : [mMaxOffset]을 얼마나 반영할 것인가 (0~1)
 	// [isAlign]     : 방향이 없는 경우 중앙으로 이동한다.
-	void Move(Vec2 dir, float maxOffset_t = 1.f, bool isAlign = false);
+	void Move(Vec2 dir, Vec2 weight, float maxOffset_t = 1.f, bool isAlign = false);
 
 private:
 	void Init();

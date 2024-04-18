@@ -46,7 +46,7 @@ void Script_MainCamera::Update()
 	mObject->SetPosition(mPlayer->GetPosition() + offset);
 }
 
-void Script_MainCamera::Move(Vec2 dir, float maxOffset_t, bool isAlign)
+void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAlign)
 {
 	maxOffset_t = std::clamp(maxOffset_t, 0.f, 1.f);
 	const Vec2 maxOffset = mMaxOffset * maxOffset_t;
@@ -83,9 +83,11 @@ void Script_MainCamera::Move(Vec2 dir, float maxOffset_t, bool isAlign)
 	dir.x = calculateDir(dir.x, mExtraOffset.x);
 	dir.y = calculateDir(dir.y, mExtraOffset.y);
 
-	const float speedX = calculateSpeed(dir.x, mExtraOffset.x, maxOffset.x);
-	const float speedY = calculateSpeed(dir.y, mExtraOffset.y, maxOffset.y);
+	weight.x = std::clamp(weight.x, 0.f, 1.f);
+	weight.y = std::clamp(weight.y, 0.f, 1.f);
 
+	const float speedX = calculateSpeed(dir.x, mExtraOffset.x, maxOffset.x) * weight.x;
+	const float speedY = calculateSpeed(dir.y, mExtraOffset.y, maxOffset.y) * weight.y;
 
 
 	auto moveOffset = [&](float& offset, float maxOffset, float dir, float speed) {

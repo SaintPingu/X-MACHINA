@@ -993,15 +993,22 @@ void Script_GroundPlayer::RecoverRecoil()
 void Script_GroundPlayer::MoveCamera(Dir dir)
 {
 	if (mIsAim) {
-		const Vec2 mousePos  = mAimController->GetAimPos();
-		const Vec2 ndc       = MAIN_CAMERA->ScreenToNDC(mousePos);
-		const float offset_t = (std::max)(fabs(ndc.x), fabs(ndc.y));
+		const Vec2 mousePos = mAimController->GetAimPos();
+		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
+		Vec2 ndcAbs         = Vec2(fabs(ndc.x), fabs(ndc.y));
 
-		mCamera->Move(mousePos, offset_t);
+		constexpr float offsetMaxRatio = 0.8f; // 최대 [n]% 까지만 적용 (스크린 끝에서 [n - 100]% 지점까지만 최대 offset 적용)
+		float maxOffset_t = (std::max)(ndcAbs.x, ndcAbs.y);
+		if (maxOffset_t > offsetMaxRatio) {
+			maxOffset_t = offsetMaxRatio;
+		}
+		maxOffset_t /= offsetMaxRatio;
+
+		mCamera->Move(mousePos, ndcAbs, maxOffset_t);
 	}
 	else if(dir != Dir::None) {
 		const Vec3 dirVec = Transform::GetWorldDirection(dir);
 
-		mCamera->Move(Vec2(dirVec.x, dirVec.z), 0.6f, true);
+		mCamera->Move(Vec2(dirVec.x, dirVec.z), Vector2::One, 0.6f, true);
 	}
 }

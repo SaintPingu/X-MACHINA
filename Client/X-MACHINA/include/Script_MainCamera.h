@@ -23,6 +23,7 @@ private:
 	Vec2				mMaxOffset{};
 
 	float				mSpeed{};
+	bool				mIsMoved{};
 
 public:
 	void SetCameraOffset(const Vec3& offset);
@@ -41,5 +42,8 @@ private:
 	void Init();
 	// 플레이어를 바라보도록 한다.
 	void LookPlayer();
+
+	// 천천히 중앙을 바라보도록 한다.
+	void RecoverExtraOffset();
 };
 #pragma endregion

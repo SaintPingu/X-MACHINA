@@ -44,6 +44,8 @@ void Script_MainCamera::Update()
 {
 	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y);
 	mObject->SetPosition(mPlayer->GetPosition() + offset);
+
+	RecoverExtraOffset();
 }
 
 void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAlign)
@@ -53,7 +55,7 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAl
 
 	constexpr float originSpeed = 1.f;
 
-	auto calculateDir = [&](float dir, float extraOffset) -> float {
+	auto CalculateDir = [&](float dir, float extraOffset) -> float {
 		if (Math::IsZero(dir)) {
 			if (isAlign) {
 				return (fabs(extraOffset) < 0.1f) ? 0.f : -Math::Sign(extraOffset);
@@ -67,7 +69,7 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAl
 		}
 		};
 
-	auto calculateSpeed = [&](float dir, float extraOffset, float maxOffset) -> float {
+	auto CalculateSpeed = [&](float dir, float extraOffset, float maxOffset) -> float {
 		// 반대 방향 이동시 기본 속도
 		if (Math::Sign(extraOffset) != Math::Sign(dir)) {
 			return originSpeed;
@@ -80,17 +82,17 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAl
 		}
 		};
 
-	dir.x = calculateDir(dir.x, mExtraOffset.x);
-	dir.y = calculateDir(dir.y, mExtraOffset.y);
+	dir.x = CalculateDir(dir.x, mExtraOffset.x);
+	dir.y = CalculateDir(dir.y, mExtraOffset.y);
 
 	weight.x = std::clamp(weight.x, 0.f, 1.f);
 	weight.y = std::clamp(weight.y, 0.f, 1.f);
 
-	const float speedX = calculateSpeed(dir.x, mExtraOffset.x, maxOffset.x) * weight.x;
-	const float speedY = calculateSpeed(dir.y, mExtraOffset.y, maxOffset.y) * weight.y;
+	const float speedX = CalculateSpeed(dir.x, mExtraOffset.x, maxOffset.x) * weight.x;
+	const float speedY = CalculateSpeed(dir.y, mExtraOffset.y, maxOffset.y) * weight.y;
 
 
-	auto moveOffset = [&](float& offset, float maxOffset, float dir, float speed) {
+	auto MoveOffset = [&](float& offset, float maxOffset, float dir, float speed) {
 		const float movement = (dir * speed) * DeltaTime();
 
 		// 최대치보다 작거나 반대방향 이동 시 speed 그대로 적용
@@ -106,8 +108,8 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAl
 		}
 		};
 
-	moveOffset(mExtraOffset.x, maxOffset.x, dir.x, speedX);
-	moveOffset(mExtraOffset.y, maxOffset.y, dir.y, speedY);
+	MoveOffset(mExtraOffset.x, maxOffset.x, dir.x, speedX);
+	MoveOffset(mExtraOffset.y, maxOffset.y, dir.y, speedY);
 
 	mExtraOffset.x = std::clamp(mExtraOffset.x, -mMaxOffset.x, mMaxOffset.x);
 	mExtraOffset.y = std::clamp(mExtraOffset.y, -mMaxOffset.y, mMaxOffset.y);
@@ -129,4 +131,22 @@ void Script_MainCamera::LookPlayer()
 	if (mPlayer) {
 		MAIN_CAMERA->LookAt(mPlayer->GetPosition(), mPlayer->GetUp());
 	}
+}
+
+void Script_MainCamera::RecoverExtraOffset()
+{
+	auto Recover = [&](float& offset) {
+		constexpr float speedDecDistance = 1.f;
+		float recoverSpeed = 0.3f;
+		// 거리가 [speedDecDistance] 미만일 때, 0에 근접할 수록(offset에 비례) 속도를 감소한다.
+		if (fabs(offset) < speedDecDistance) {
+			recoverSpeed *= fabs(offset) / speedDecDistance;
+		}
+		if (fabs(offset) > 0.1f) {
+			offset -= Math::Sign(offset) * recoverSpeed * DeltaTime();
+		}
+		};
+
+	Recover(mExtraOffset.x);
+	Recover(mExtraOffset.y);
 }

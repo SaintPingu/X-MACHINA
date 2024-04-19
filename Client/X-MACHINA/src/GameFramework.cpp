@@ -20,7 +20,9 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Player.h"
+#include "Script_NetworkObject.h"
 #include "Script_GameManager.h"
+#include "Script_ServerManager.h"
 
 #include "Log/LogMgr.h"
 #include "FlatBuffers/ServerFBsPktFactory.h"
@@ -195,6 +197,7 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	// Init //
 	MainCamera::I->AddComponent<Script_MainCamera>();
 	Engine::I->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
+	SERVER_MGR->AddComponent<Script_ServerManager>();
 	GAME_MGR->AddComponent<Script_GameManager>();
 	ObjectMgr::I->InitObjectsScript();
 	InitPlayer();
@@ -262,7 +265,18 @@ void GameFramework::Update()
 	
 	Engine::I->Update();
 
-	KeyInputBroadcast(); 
+	KeyInputBroadcast();
+
+	static float z = 0;
+	z += DeltaTime();
+	sptr<SceneEvent::Test> EventData = std::make_shared<SceneEvent::Test>();
+	EventData->type = SceneEvent::Enum::Test;
+	EventData->sessionID = 1;
+	EventData->Angle = 15.f;
+	EventData->Pos = Vec3(105, 0, 105 + z);
+	EventData->SpineAngle = -45.f;
+
+	SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 }
 
 
@@ -480,6 +494,17 @@ void GameFramework::InitPlayer()
 	player->ResetCollider();
 	mPlayerScript = player->AddComponent<Script_GroundPlayer>();
 	player->SetModel("EliteTrooper");
+	//auto& networkScript = player->AddComponent<Script_NetworkObject_GroundPlayer>();	// 자기 자신도 네트워크 객체임.
+
+	// [ SERVER TEST ]
+	sptr<GridObject> otherPlayer = Scene::I->Instantiate("EliteTrooper");
+	otherPlayer->SetName("name");
+	otherPlayer->SetID(1);	// sessionID
+
+	sptr<SceneEvent::AddOtherPlayer> EventData = std::make_shared<SceneEvent::AddOtherPlayer>();
+	EventData->type = SceneEvent::Enum::AddAnotherPlayer;
+	EventData->player = otherPlayer;
+	SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
 	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");

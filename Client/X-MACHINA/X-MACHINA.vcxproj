@@ -189,7 +189,6 @@
     <ClInclude Include="..\Common\Component\Component.h" />
     <ClInclude Include="..\Common\Component\ParticleSystem.h" />
     <ClInclude Include="..\Common\Component\Rigidbody.h" />
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
     <ClInclude Include="..\Common\Component\Transform.h" />
     <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\DwordOverloader.h" />
@@ -202,6 +201,7 @@
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
+    <ClInclude Include="include\NetworkEvents.h" />
     <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
@@ -219,8 +219,11 @@
     <ClInclude Include="include\Script_GroundObject.h" />
     <ClInclude Include="include\Script_Gunship.h" />
     <ClInclude Include="include\Script_LiveObject.h" />
+    <ClInclude Include="include\Script_MainCamera.h" />
     <ClInclude Include="include\Script_MeleeBT.h" />
+    <ClInclude Include="include\Script_NetworkObject.h" />
     <ClInclude Include="include\Script_Player.h" />
+    <ClInclude Include="include\Script_ServerManager.h" />
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\Script_Weapon.h" />
     <ClInclude Include="include\Script_Weapon_Pistol.h" />
@@ -255,6 +258,7 @@
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
+    <ClCompile Include="src\NetworkEvents.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
@@ -274,7 +278,9 @@
     <ClCompile Include="src\Script_LiveObject.cpp" />
     <ClCompile Include="src\Script_MainCamera.cpp" />
     <ClCompile Include="src\Script_MeleeBT.cpp" />
+    <ClCompile Include="src\Script_NetworkObject.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />
+    <ClCompile Include="src\Script_ServerManager.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />
     <ClCompile Include="src\Script_Weapon.cpp" />

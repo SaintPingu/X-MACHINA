@@ -67,6 +67,9 @@
     <Filter Include="Script\Enemy\Object">
       <UniqueIdentifier>{c005f32c-5d45-47ec-ada1-ce1293b5c26b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Network">
+      <UniqueIdentifier>{e93c97fb-3ca4-4a22-ab1f-bc18295e3a4d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -153,9 +156,6 @@
     </ClInclude>
     <ClInclude Include="include\GameFramework.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h">
-      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Network\FlatBuffers\Player_generated.h">
       <Filter>Network\FlatBuffers</Filter>
@@ -264,6 +264,18 @@
     </ClInclude>
     <ClInclude Include="..\Common\DwordOverloader.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_ServerManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\NetworkEvents.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_NetworkObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_MainCamera.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -401,6 +413,15 @@
     </ClCompile>
     <ClCompile Include="src\Script_Weapon_Rifle.cpp">
       <Filter>Script\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NetworkEvents.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_ServerManager.cpp">
+      <Filter>Script\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_NetworkObject.cpp">
+      <Filter>Script\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

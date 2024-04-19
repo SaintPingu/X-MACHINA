@@ -585,27 +585,27 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 void Script_GroundPlayer::UpdateMovement(Dir dir)
 {
 	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
-	Movement crntMovement = Movement::None;
+	PlayerMotion crntMovement = PlayerMotion::None;
 	// Stand / Sit
-	if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= Movement::Sit; }
-	else { crntMovement |= Movement::Stand; }
+	if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= PlayerMotion::Sit; }
+	else { crntMovement |= PlayerMotion::Stand; }
 	// Walk / Run / Sprint
 	if (dir != Dir::None) {
 		if (mIsAim) {
-			crntMovement |= Movement::Walk;
+			crntMovement |= PlayerMotion::Walk;
 		}
 		else {
-			if (KEY_PRESSED(VK_SHIFT)) { crntMovement |= Movement::Sprint; }
-			else if (KEY_PRESSED('C')) { crntMovement |= Movement::Walk; }
-			else { crntMovement |= Movement::Run; }
+			if (KEY_PRESSED(VK_SHIFT)) { crntMovement |= PlayerMotion::Sprint; }
+			else if (KEY_PRESSED('C')) { crntMovement |= PlayerMotion::Walk; }
+			else { crntMovement |= PlayerMotion::Run; }
 		}
 	}
 
-	Movement prevState = Movement::GetState(mPrevMovement);
-	Movement prevMotion = Movement::GetMotion(mPrevMovement);
+	PlayerMotion prevState = PlayerMotion::GetState(mPrevMovement);
+	PlayerMotion prevMotion = PlayerMotion::GetMotion(mPrevMovement);
 
-	Movement crntState = Movement::GetState(crntMovement);
-	Movement crntMotion = Movement::GetMotion(crntMovement);
+	PlayerMotion crntState = PlayerMotion::GetState(crntMovement);
+	PlayerMotion crntMotion = PlayerMotion::GetMotion(crntMovement);
 
 	SetState(prevState, prevMotion, crntState);
 	SetMotion(prevState, prevMotion, crntState, crntMotion);
@@ -804,8 +804,8 @@ void Script_GroundPlayer::OffAim()
 	if (mIsInBodyRotation) {
 		mIsInBodyRotation = false;
 
-		Movement prevMotion = mPrevMovement & 0xF0;
-		if (prevMotion == Movement::None) {
+		PlayerMotion prevMotion = mPrevMovement & 0xF0;
+		if (prevMotion == PlayerMotion::None) {
 			mController->SetValue("Walk", false);
 		}
 	}
@@ -825,16 +825,16 @@ void Script_GroundPlayer::StopReload()
 	}
 }
 
-void Script_GroundPlayer::SetState(Movement prevState, Movement prevMotion, Movement crntState)
+void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState)
 {
 	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
 	// 이전 상태를 취소하고 현재 상태로 전환한다.
 	if (!(crntState & prevState)) {
 		switch (prevState) {
-		case Movement::None:
-		case Movement::Stand:
+		case PlayerMotion::None:
+		case PlayerMotion::Stand:
 			break;
-		case Movement::Sit:
+		case PlayerMotion::Sit:
 			mController->SetValue("Sit", false);
 			break;
 
@@ -844,22 +844,22 @@ void Script_GroundPlayer::SetState(Movement prevState, Movement prevMotion, Move
 		}
 
 		switch (crntState) {
-		case Movement::None:
+		case PlayerMotion::None:
 			break;
-		case Movement::Stand:
+		case PlayerMotion::Stand:
 		{
 			switch (prevMotion) {
-			case Movement::None:
+			case PlayerMotion::None:
 				break;
-			case Movement::Walk:
+			case PlayerMotion::Walk:
 				mMovementSpeed = mkStandWalkSpeed;
 				mController->SetValue("Walk", true);
 				break;
-			case Movement::Run:
+			case PlayerMotion::Run:
 				mMovementSpeed = mkRunSpeed;
 				mController->SetValue("Run", true);
 				break;
-			case Movement::Sprint:
+			case PlayerMotion::Sprint:
 				mMovementSpeed = mkSprintSpeed;
 				mController->SetValue("Sprint", true);
 				break;
@@ -869,7 +869,7 @@ void Script_GroundPlayer::SetState(Movement prevState, Movement prevMotion, Move
 			}
 		}
 			break;
-		case Movement::Sit:
+		case PlayerMotion::Sit:
 			mController->SetValue("Sit", true);
 			mMovementSpeed = mkSitWalkSpeed;
 			break;
@@ -881,20 +881,20 @@ void Script_GroundPlayer::SetState(Movement prevState, Movement prevMotion, Move
 	}
 }
 
-void Script_GroundPlayer::SetMotion(Movement prevState, Movement prevMotion, Movement crntState, Movement& crntMotion)
+void Script_GroundPlayer::SetMotion(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState, PlayerMotion& crntMotion)
 {
 	// 이전 상태의 모션을 취소하고 현재 상태의 모션으로 전환한다.
 	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
 		switch (prevMotion) {
-		case Movement::None:
+		case PlayerMotion::None:
 			break;
-		case Movement::Walk:
+		case PlayerMotion::Walk:
 			mController->SetValue("Walk", false);
 			break;
-		case Movement::Run:
+		case PlayerMotion::Run:
 			mController->SetValue("Run", false);
 			break;
-		case Movement::Sprint:
+		case PlayerMotion::Sprint:
 			mController->SetValue("Sprint", false);
 			break;
 
@@ -904,20 +904,20 @@ void Script_GroundPlayer::SetMotion(Movement prevState, Movement prevMotion, Mov
 		}
 
 		switch (crntMotion) {
-		case Movement::None:
+		case PlayerMotion::None:
 			break;
-		case Movement::Walk:
+		case PlayerMotion::Walk:
 			break;
 
-		case Movement::Run:
-			if (crntState & Movement::Sit) {
-				crntMotion = Movement::Walk;
+		case PlayerMotion::Run:
+			if (crntState & PlayerMotion::Sit) {
+				crntMotion = PlayerMotion::Walk;
 			}
 
 			break;
-		case Movement::Sprint:
-			if (crntState & Movement::Sit) {
-				crntMotion = Movement::Walk;
+		case PlayerMotion::Sprint:
+			if (crntState & PlayerMotion::Sit) {
+				crntMotion = PlayerMotion::Walk;
 			}
 
 			break;
@@ -928,23 +928,23 @@ void Script_GroundPlayer::SetMotion(Movement prevState, Movement prevMotion, Mov
 	}
 
 	switch (crntMotion) {
-	case Movement::None:
+	case PlayerMotion::None:
 		mMovementSpeed = 0.f;
 		break;
-	case Movement::Walk:
+	case PlayerMotion::Walk:
 		mController->SetValue("Walk", true);
-		if (crntState & Movement::Stand) {
+		if (crntState & PlayerMotion::Stand) {
 			mMovementSpeed = mkStandWalkSpeed;
 		}
 		else {
 			mMovementSpeed = mkSitWalkSpeed;
 		}
 		break;
-	case Movement::Run:
+	case PlayerMotion::Run:
 		mController->SetValue("Run", true);
 		mMovementSpeed = mkRunSpeed;
 		break;
-	case Movement::Sprint:
+	case PlayerMotion::Sprint:
 		mController->SetValue("Sprint", true);
 		mMovementSpeed = mkSprintSpeed;
 		break;

@@ -3,12 +3,12 @@
 
 #pragma region Include
 #include "Grid.h"
-#include "NetworkEvents.h"
 #pragma endregion
 
 
 #pragma region Define
 #define GAME_MGR Scene::I->GetGameManager()
+#define SERVER_MGR Scene::I->GetServerManager()
 #pragma endregion
 
 
@@ -52,6 +52,7 @@ private:
 
 	/* Object */
 	sptr<Object>					mGameManager{};
+	sptr<Object>					mServerManager{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
@@ -64,22 +65,6 @@ private:
 	std::set<GridObject*>	    mTransparentObjects{};
 	std::set<GridObject*>	    mBillboardObjects{};
 	std::set<GridObject*>	    mSkinMeshObjects{};
-
-	/* ¿Â¿ÁπÆ - */
-	USE_LOCK;
-	struct PlayerUpdateInfo {
-		sptr<GridObject> player;
-		Vec3			 NewPos;
-	};
-
-
-	Concurrency::concurrent_unordered_map<UINT32, sptr<GridObject>> mOtherPlayers{}; /* sessionID, otherPlayer */
-	Concurrency::concurrent_queue<sptr<SceneEvent::EventData>> mEventsProcessQueue{};
-
-
-	//Concurrency::concurrent_queue<sptr<GridObject>> mEventsQueue_AddOtherPlayer;
-	//Concurrency::concurrent_queue<PlayerUpdateInfo> mEventsQueue_MoveOtherPlayer;
-
 
 	/* TestCube */
 	std::vector<sptr<GameObject>>	mParticles{};
@@ -116,6 +101,7 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
+	rsptr<Object> GetServerManager() const { return mServerManager; }
 	std::vector<sptr<GameObject>> GetAllPartilceSystems() const;
 
 	int GetGridIndexFromPos(Vec3 pos) const;
@@ -238,12 +224,6 @@ public:
 
 	sptr<ObjectPool> CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
 	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
-
-#pragma region Network
-	void ProcessEvents();
-
-	void AddEvent(sptr<SceneEvent::EventData> data);
-#pragma endregion
 
 private:
 	// do [processFunc] for activated objects

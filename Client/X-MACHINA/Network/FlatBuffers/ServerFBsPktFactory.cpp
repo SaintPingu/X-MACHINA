@@ -1,5 +1,11 @@
 #include "stdafx.h"
 #include "ServerFBsPktFactory.h"
+
+#include "Script_GameManager.h"
+#include "Script_Player.h"
+#include "Script_ServerManager.h"
+
+
 #include "Enum_generated.h"
 #include "FBProtocol_generated.h"
 #include "Struct_generated.h"
@@ -9,9 +15,7 @@
 #include "framework.h"
 #include "Object.h"
 #include "Scene.h"
-#include "Script_GameManager.h"
-#include "Script_Player.h"
-#include "Script_GroundObject.h"
+
 
 
 FlatPacketHandlerFunc GFlatPacketHandler[UINT16_MAX]{};
@@ -53,17 +57,14 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		
 		/* GameScene 에 다른 Player 정보들을 만든다.  */
 		/* Create Other Player & Add To Game Scene */
-		sptr<GridObject> otherPlayer = std::make_shared<GridObject>();
-		otherPlayer->SetModel("EliteTrooper");
+		sptr<GridObject> otherPlayer = Scene::I->Instantiate("EliteTrooper");
 		otherPlayer->SetName(name);
 		otherPlayer->SetID(sessionID);
-		otherPlayer->AddComponent<Script_GroundObject>();
-		otherPlayer->SetPosition(101, 12, 101);
 
-		sptr<SceneEvent::AddOtherPlayer> eventData = std::make_shared<SceneEvent::AddOtherPlayer>();
-		eventData->type = SceneEvent::Enum::AddAnotherPlayer;
-		eventData->player = otherPlayer;
-		Scene::I->AddEvent(eventData);
+		sptr<SceneEvent::AddOtherPlayer> EventData = std::make_shared<SceneEvent::AddOtherPlayer>();
+		EventData->type = SceneEvent::Enum::AddAnotherPlayer;
+		EventData->player = otherPlayer;
+		SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 
 
 	}
@@ -91,18 +92,15 @@ bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol:
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
 
 	/* Create Other Player & Add To Game Scene */
-	sptr<GridObject> otherPlayer = std::make_shared<GridObject>();
-	otherPlayer->SetModel("EliteTrooper");
+	sptr<GridObject> otherPlayer = Scene::I->Instantiate("EliteTrooper");
 	otherPlayer->SetName(Newname);
 	otherPlayer->SetID(NewsessionID);
-	otherPlayer->AddComponent<Script_GroundObject>();
-	otherPlayer->SetPosition(101, 12, 101);
 
 	sptr<SceneEvent::AddOtherPlayer> EventData = std::make_shared<SceneEvent::AddOtherPlayer>();
 	EventData->type                            = SceneEvent::Enum::AddAnotherPlayer;
 	EventData->player                          = otherPlayer;
 
-	Scene::I->AddEvent(EventData);
+	SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 
 	std::cout << "New Session Enter End\n";
 	return true;
@@ -136,7 +134,7 @@ bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol:
 	EventData->sessionID                        = objID;
 	EventData->Pos                              = Pos;
 	//std::cout << "▶ ID : " << objID << " " << " POS - (x: " << Pos.x << ", y: " << Pos.y << ", z: " << Pos.z << ")\n";
-	Scene::I->AddEvent(EventData);
+	SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 
 
 	//std::cout << "--------------------------------------------------------------------\n";

@@ -25,20 +25,6 @@ enum class PlayerType {
 	Airplane,
 	Human
 };
-
-class Movement : public DwordOverloader<Movement> {
-	DWORD_OVERLOADER(Movement)
-
-	static const DWORD None   = 0x00;
-	static const DWORD Stand  = 0x01;
-	static const DWORD Sit    = 0x02;
-	static const DWORD Walk   = 0x10;
-	static const DWORD Run    = 0x20;
-	static const DWORD Sprint = 0x40;
-
-	static Movement GetState(Movement movement)  { return movement & 0x0F; }
-	static Movement GetMotion(Movement movement) { return movement & 0xF0; }
-};
 #pragma endregion
 
 
@@ -158,7 +144,7 @@ private:
 	std::unordered_map<int, sptr<AnimatorMotion>> mReloadMotions;
 
 	// movement //
-	Movement mPrevMovement{};
+	PlayerMotion mPrevMovement{};
 	float mMovementSpeed{};
 	float mRotationSpeed{};
 
@@ -178,8 +164,8 @@ private:
 	float mMaxRecoil{20.f};
 
 public:
-	Movement GetPrevState() const  { return Movement::GetState(mPrevMovement); }
-	Movement GetPrevMotion() const { return Movement::GetMotion(mPrevMovement); }
+	PlayerMotion GetPrevState() const  { return PlayerMotion::GetState(mPrevMovement); }
+	PlayerMotion GetPrevMotion() const { return PlayerMotion::GetMotion(mPrevMovement); }
 
 public:
 	virtual void Awake() override;
@@ -235,8 +221,8 @@ private:
 	virtual void Reload() override;
 	void StopReload();
 
-	void SetState(Movement prevState, Movement prevMotion, Movement crntState);
-	void SetMotion(Movement prevState, Movement prevMotion, Movement crntState, Movement& crntMotion);
+	void SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState);
+	void SetMotion(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState, PlayerMotion& crntMotion);
 
 	void StopReloadCallback();
 	void ChangeReloadCallback();

@@ -992,6 +992,7 @@ void Script_GroundPlayer::RecoverRecoil()
 
 void Script_GroundPlayer::MoveCamera(Dir dir)
 {
+	// 조준 상태이면, 마우스의 위치가 경계에 가까워질 수록 [offset_t]를 크게 설정한다. (최대 1)
 	if (mIsAim) {
 		const Vec2 mousePos = mAimController->GetAimPos();
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
@@ -1006,9 +1007,11 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 
 		mCamera->Move(mousePos, ndcAbs, maxOffset_t);
 	}
+	// 이동 상태이면, 방향에 따라 offset을 최대 [maxOffset_t]&만 적용한다
 	else if(dir != Dir::None) {
+		constexpr float maxOffset_t = 0.6f;
 		const Vec3 dirVec = Transform::GetWorldDirection(dir);
 
-		mCamera->Move(Vec2(dirVec.x, dirVec.z), Vector2::One, 0.6f);
+		mCamera->Move(Vec2(dirVec.x, dirVec.z), Vector2::One, maxOffset_t);
 	}
 }

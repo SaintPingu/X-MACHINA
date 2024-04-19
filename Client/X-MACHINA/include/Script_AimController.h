@@ -13,11 +13,10 @@ class Script_AimController : public Component {
 	COMPONENT(Script_AimController, Component)
 
 private:
-	sptr<UI> mUI;
+	sptr<UI> mUI{};
 	Vec2 mMousePos{};
 
-	float mMaxXPos;
-	float mMaxYPos;
+	Vec2 mMaxPos{};
 
 	float mouseSensitivity{ 2.f };
 

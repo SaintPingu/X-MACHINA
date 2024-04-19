@@ -13,17 +13,19 @@ void Script_AimController::Awake()
 	mUI = Canvas::I->CreateUI("Aim", Vec2(0, 0), 30, 30);
 
 	RESOLUTION resolution = GameFramework::I->GetWindowResolution();
-	mMaxXPos = resolution.Width - 10.f;
-	mMaxYPos = resolution.Height - 30.f;
+	mMaxPos.x = resolution.Width - 10.f;
+	mMaxPos.y = resolution.Height - 30.f;
 }
 
 void Script_AimController::Update()
 {
-	Vec2 mouseDelta = InputMgr::I->GetMouseDelta() * mouseSensitivity;
+	base::Update();
+
+	const Vec2 mouseDelta = InputMgr::I->GetMouseDelta() * mouseSensitivity;
 
 	mMousePos += mouseDelta;
-	mMousePos.x = std::clamp(mMousePos.x, -mMaxXPos, mMaxXPos);
-	mMousePos.y = std::clamp(mMousePos.y, -mMaxYPos, mMaxYPos);
+	mMousePos.x = std::clamp(mMousePos.x, -mMaxPos.x, mMaxPos.x);
+	mMousePos.y = std::clamp(mMousePos.y, -mMaxPos.y, mMaxPos.y);
 
 	mUI->SetPosition(mMousePos);
 }

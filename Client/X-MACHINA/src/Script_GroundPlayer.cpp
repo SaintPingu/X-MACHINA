@@ -1009,6 +1009,6 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 	else if(dir != Dir::None) {
 		const Vec3 dirVec = Transform::GetWorldDirection(dir);
 
-		mCamera->Move(Vec2(dirVec.x, dirVec.z), Vector2::One, 0.6f, true);
+		mCamera->Move(Vec2(dirVec.x, dirVec.z), Vector2::One, 0.6f);
 	}
 }

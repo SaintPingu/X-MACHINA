@@ -48,7 +48,7 @@ void Script_MainCamera::Update()
 	RecoverExtraOffset();
 }
 
-void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAlign)
+void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
 {
 	maxOffset_t = std::clamp(maxOffset_t, 0.f, 1.f);
 	const Vec2 maxOffset = mMaxOffset * maxOffset_t;
@@ -57,12 +57,7 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t, bool isAl
 
 	auto CalculateDir = [&](float dir, float extraOffset) -> float {
 		if (Math::IsZero(dir)) {
-			if (isAlign) {
-				return (fabs(extraOffset) < 0.1f) ? 0.f : -Math::Sign(extraOffset);
-			}
-			else {
-				return 0.f;
-			}
+			return 0.f;
 		}
 		else {
 			return static_cast<float>(Math::Sign(dir));
@@ -135,7 +130,7 @@ void Script_MainCamera::LookPlayer()
 
 void Script_MainCamera::RecoverExtraOffset()
 {
-	auto Recover = [&](float& offset) {
+	auto Recover = [](float& offset) {
 		constexpr float speedDecDistance = 1.f;
 		float recoverSpeed = 0.3f;
 		// 거리가 [speedDecDistance] 미만일 때, 0에 근접할 수록(offset에 비례) 속도를 감소한다.

@@ -179,154 +179,154 @@ void ImGuiHierachy::DrawNode(GameObject* node, size_t& entityID)
 void ImGuiParticleSystem::Execute(GameObject* selectedObject)
 {
 	base::Execute(selectedObject);
-
-	if (!mSelectedObject)
-		return;
-
-	if (auto& ps = mSelectedObject->GetComponent<ParticleSystem>()) {
-		if (ImGui::CollapsingHeader(mLabel.c_str())) {
-			auto& pscd = ps->GetPSCD();
-
-			ImGui::SetNextItemWidth(220);
-			ImGui::InputFloat("Duration", &pscd.Duration);
-			ImGui::Checkbox("Looping", &pscd.Looping);
-			ImGui::Checkbox("Prewarm", &pscd.Prewarm);
-			ImGui::SetNextItemWidth(220);
-			ImGui::InputFloat("Start Delay", &pscd.StartDelay);
-
-			const char* options[] = { "Constant", "Random Between Two Constants" };
-
-#pragma region StartLifetime
-			{
-				static int currentItem = 0;
-				if (ImGui::BeginCombo("##HiddenCombo", options[currentItem], ImGuiComboFlags_NoPreview)) {
-					for (int i = 0; i < IM_ARRAYSIZE(options); i++) {
-						const bool isSelected = (currentItem == i);
-						if (ImGui::Selectable(options[i], isSelected))
-							currentItem = i;
-
-						if (isSelected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-				}
-
-				ImGui::SameLine();
-				ImGui::SetNextItemWidth(200);
-
-				static float x = pscd.StartLifeTime.x;
-				static float vec2f[2] = { pscd.StartLifeTime.x, pscd.StartLifeTime.y };
-				switch (currentItem)
-				{
-				case 0:
-					ImGui::InputFloat("Start Lifetime", &x);
-					pscd.StartLifeTime = x;
-					break;
-				case 1:
-					ImGui::InputFloat2("Start Lifetime", vec2f);
-					pscd.StartLifeTime = Vec2{ vec2f[0], vec2f[1] };
-					break;
-				default:
-					break;
-				}
-			}
-#pragma endregion
-
-#pragma region StartSpeed
-			{
-				static int currentItem2 = 0;
-				if (ImGui::BeginCombo("##HiddenCombo2", options[currentItem2], ImGuiComboFlags_NoPreview)) {
-					for (int i = 0; i < IM_ARRAYSIZE(options); i++) {
-						const bool isSelected = (currentItem2 == i);
-						if (ImGui::Selectable(options[i], isSelected))
-							currentItem2 = i;
-
-						if (isSelected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-				}
-
-				ImGui::SameLine();
-				ImGui::SetNextItemWidth(200);
-
-				static float x = pscd.StartSpeed.x;
-				static float vec2f[2] = { pscd.StartSpeed.x, pscd.StartSpeed.y };
-				switch (currentItem2)
-				{
-				case 0:
-					ImGui::InputFloat("Start Speed", &x);
-					pscd.StartSpeed = x;
-					break;
-				case 1:
-					ImGui::InputFloat2("Start Speed", vec2f);
-					pscd.StartSpeed = Vec2{ vec2f[0], vec2f[1] };
-					break;
-				default:
-					break;
-				}
-			}
-
-            static bool isStartSize3D = false;
-            ImGui::Checkbox("3D Start Size", &isStartSize3D);
-
-            if (isStartSize3D) {
-                pscd.StartSize3D.w = 1.f;
-                static float vec3f[3] = { pscd.StartSize.x, pscd.StartSize.y, pscd.StartSize.y };
-                ImGui::InputFloat3("Start Size", vec3f);
-                pscd.StartSize3D = Vec4{ vec3f[0], vec3f[1], vec3f[2], 1.f };
-            }
-            else {
-                pscd.StartSize3D.w = 0.f;
-                static int currentItem3 = 0;
-                if (ImGui::BeginCombo("##HiddenCombo3", options[currentItem3], ImGuiComboFlags_NoPreview)) {
-                    for (int i = 0; i < IM_ARRAYSIZE(options); i++) {
-                        const bool isSelected = (currentItem3 == i);
-                        if (ImGui::Selectable(options[i], isSelected))
-                            currentItem3 = i;
-
-                        if (isSelected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-                    ImGui::EndCombo();
-                }
-
-                ImGui::SameLine();
-                ImGui::SetNextItemWidth(200);
-
-                static float x = pscd.StartSize.x;
-                static float vecs2f[2] = { pscd.StartSize.x, pscd.StartSize.y };
-                switch (currentItem3)
-                {
-                case 0:
-                    ImGui::InputFloat("Start Size", &x);
-                    pscd.StartSize = x;
-                    break;
-                case 1:
-                    ImGui::InputFloat2("Start Size", vecs2f);
-                    pscd.StartSize = Vec2{ vecs2f[0], vecs2f[1] };
-                    break;
-                default:
-                    break;
-                }
-            }
-
-#pragma endregion
-
-			ImVec2 windowSize = ImGui::GetContentRegionAvail();
-			ImVec2 buttonSize(50, 25);
-			ImVec2 buttonPos(windowSize.x * 0.5f - buttonSize.x * 1.5f, windowSize.y + 120.f);
-			ImGui::SetCursorPos(buttonPos);
-
-			const char* playButtonText = pscd.IsStop ? "Play" : "Pause";
-			if (ImGui::Button(playButtonText, buttonSize)) ps->Play();
-			ImGui::SameLine();
-			if (ImGui::Button("Restart", buttonSize)) int a = 3/* ps->Restart()*/;
-			ImGui::SameLine();
-			if (ImGui::Button("Stop", buttonSize)) ps->Stop();
-
-		}
-	}
+//
+//	if (!mSelectedObject)
+//		return;
+//
+//	if (auto& ps = mSelectedObject->GetComponent<ParticleSystem>()) {
+//		if (ImGui::CollapsingHeader(mLabel.c_str())) {
+//			auto& pscd = ps->GetPSCD();
+//
+//			ImGui::SetNextItemWidth(220);
+//			ImGui::InputFloat("Duration", &pscd.Duration);
+//			ImGui::Checkbox("Looping", &pscd.Looping);
+//			ImGui::Checkbox("Prewarm", &pscd.Prewarm);
+//			ImGui::SetNextItemWidth(220);
+//			ImGui::InputFloat("Start Delay", &pscd.StartDelay);
+//
+//			const char* options[] = { "Constant", "Random Between Two Constants" };
+//
+//#pragma region StartLifetime
+//			{
+//				static int currentItem = 0;
+//				if (ImGui::BeginCombo("##HiddenCombo", options[currentItem], ImGuiComboFlags_NoPreview)) {
+//					for (int i = 0; i < IM_ARRAYSIZE(options); i++) {
+//						const bool isSelected = (currentItem == i);
+//						if (ImGui::Selectable(options[i], isSelected))
+//							currentItem = i;
+//
+//						if (isSelected)
+//							ImGui::SetItemDefaultFocus();
+//					}
+//					ImGui::EndCombo();
+//				}
+//
+//				ImGui::SameLine();
+//				ImGui::SetNextItemWidth(200);
+//
+//				static float x = pscd.StartLifeTime.x;
+//				static float vec2f[2] = { pscd.StartLifeTime.x, pscd.StartLifeTime.y };
+//				switch (currentItem)
+//				{
+//				case 0:
+//					ImGui::InputFloat("Start Lifetime", &x);
+//					pscd.StartLifeTime = x;
+//					break;
+//				case 1:
+//					ImGui::InputFloat2("Start Lifetime", vec2f);
+//					pscd.StartLifeTime = Vec2{ vec2f[0], vec2f[1] };
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//#pragma endregion
+//
+//#pragma region StartSpeed
+//			{
+//				static int currentItem2 = 0;
+//				if (ImGui::BeginCombo("##HiddenCombo2", options[currentItem2], ImGuiComboFlags_NoPreview)) {
+//					for (int i = 0; i < IM_ARRAYSIZE(options); i++) {
+//						const bool isSelected = (currentItem2 == i);
+//						if (ImGui::Selectable(options[i], isSelected))
+//							currentItem2 = i;
+//
+//						if (isSelected)
+//							ImGui::SetItemDefaultFocus();
+//					}
+//					ImGui::EndCombo();
+//				}
+//
+//				ImGui::SameLine();
+//				ImGui::SetNextItemWidth(200);
+//
+//				static float x = pscd.StartSpeed.x;
+//				static float vec2f[2] = { pscd.StartSpeed.x, pscd.StartSpeed.y };
+//				switch (currentItem2)
+//				{
+//				case 0:
+//					ImGui::InputFloat("Start Speed", &x);
+//					pscd.StartSpeed = x;
+//					break;
+//				case 1:
+//					ImGui::InputFloat2("Start Speed", vec2f);
+//					pscd.StartSpeed = Vec2{ vec2f[0], vec2f[1] };
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//
+//            static bool isStartSize3D = false;
+//            ImGui::Checkbox("3D Start Size", &isStartSize3D);
+//
+//            if (isStartSize3D) {
+//                pscd.StartSize3D.w = 1.f;
+//                static float vec3f[3] = { pscd.StartSize.x, pscd.StartSize.y, pscd.StartSize.y };
+//                ImGui::InputFloat3("Start Size", vec3f);
+//                pscd.StartSize3D = Vec4{ vec3f[0], vec3f[1], vec3f[2], 1.f };
+//            }
+//            else {
+//                pscd.StartSize3D.w = 0.f;
+//                static int currentItem3 = 0;
+//                if (ImGui::BeginCombo("##HiddenCombo3", options[currentItem3], ImGuiComboFlags_NoPreview)) {
+//                    for (int i = 0; i < IM_ARRAYSIZE(options); i++) {
+//                        const bool isSelected = (currentItem3 == i);
+//                        if (ImGui::Selectable(options[i], isSelected))
+//                            currentItem3 = i;
+//
+//                        if (isSelected)
+//                            ImGui::SetItemDefaultFocus();
+//                    }
+//                    ImGui::EndCombo();
+//                }
+//
+//                ImGui::SameLine();
+//                ImGui::SetNextItemWidth(200);
+//
+//                static float x = pscd.StartSize.x;
+//                static float vecs2f[2] = { pscd.StartSize.x, pscd.StartSize.y };
+//                switch (currentItem3)
+//                {
+//                case 0:
+//                    ImGui::InputFloat("Start Size", &x);
+//                    pscd.StartSize = x;
+//                    break;
+//                case 1:
+//                    ImGui::InputFloat2("Start Size", vecs2f);
+//                    pscd.StartSize = Vec2{ vecs2f[0], vecs2f[1] };
+//                    break;
+//                default:
+//                    break;
+//                }
+//            }
+//
+//#pragma endregion
+//
+//			ImVec2 windowSize = ImGui::GetContentRegionAvail();
+//			ImVec2 buttonSize(50, 25);
+//			ImVec2 buttonPos(windowSize.x * 0.5f - buttonSize.x * 1.5f, windowSize.y + 120.f);
+//			ImGui::SetCursorPos(buttonPos);
+//
+//			const char* playButtonText = pscd.IsStop ? "Play" : "Pause";
+//			if (ImGui::Button(playButtonText, buttonSize)) ps->Play();
+//			ImGui::SameLine();
+//			if (ImGui::Button("Restart", buttonSize)) int a = 3/* ps->Restart()*/;
+//			ImGui::SameLine();
+//			if (ImGui::Button("Stop", buttonSize)) ps->Stop();
+//
+//		}
+//	}
 }
 
 void ImGuiInspector::Execute(GameObject* selectedObject)

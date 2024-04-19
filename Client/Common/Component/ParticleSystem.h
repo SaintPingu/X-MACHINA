@@ -53,7 +53,7 @@ struct PSColor {
 	Vec4 FirstGradient = Vec4{ 1.f };
 	Vec4 SecondGradient = Vec4{ 1.f };
 	PSColorOption ColorOption = PSColorOption::Color;
-	Vec3 Padding;
+	Vec3  Padding;
 
 public:
 	void SetColor(PSColorOption colorOption, Vec4 value1, Vec4 value2 = Vec4{ 1.f }, Vec4 value3 = Vec4{ 1.f }, Vec4 value4 = Vec4{ 1.f }) {
@@ -93,13 +93,22 @@ public:
 };
 
 struct Emission {
+	Emission() {
+		IsOn = true;
+		RateOverTime = 200;
+		Bursts.resize(1);
+	}
+
 	struct Burst {
 		int		Count = 10;
+		float	Time = 0.f;
 		float	BurstElapsed = 0.f;
+		int		IsRunning = false;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version) {
 			ar& BOOST_SERIALIZATION_NVP(Count);
+			ar& BOOST_SERIALIZATION_NVP(Time);
 			ar& BOOST_SERIALIZATION_NVP(BurstElapsed);
 		}
 	};
@@ -118,8 +127,8 @@ public:
 		}
 	}
 
-	void SetBurst(int count) {
-		Bursts.emplace_back(count, 0.f);
+	void SetBurst(int count, float time = 0.f) {
+		Bursts.emplace_back(count, time);
 	}
 
 	template<class Archive>
@@ -178,29 +187,29 @@ public:
 };
 
 struct PSRenderer {
+	std::string		TextureName{};
 	PSRenderMode	RenderMode = PSRenderMode::Billboard;
 	BlendType		BlendType = BlendType::Alpha_Blend;
-	float			SpeedScale = 0.f;
 	float			LengthScale = 1.f;
-	std::string		TextureName{};
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(TextureName);
 		ar& BOOST_SERIALIZATION_NVP(RenderMode);
 		ar& BOOST_SERIALIZATION_NVP(BlendType);
-		ar& BOOST_SERIALIZATION_NVP(SpeedScale);
 		ar& BOOST_SERIALIZATION_NVP(LengthScale);
-		ar& BOOST_SERIALIZATION_NVP(TextureName);
 	}
 };
 
 struct ParticleSystemCPUData {
 public:
 	/* my value */
-	std::string			mName;
+	std::string			mName{};
+	bool				IsRunning = true;
 	bool				IsStop = true;
 	int					MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
 	float				AccTime = 0.f;
+	float				PlayMaxTime = 5.f;
 
 	/* elapsed time */
 	float				StopElapsed = 0.f;
@@ -227,14 +236,15 @@ public:
 
 	/* unity particle system module */
 	Emission			Emission{};
-	PSShape 			Shape;
-	int					SizeOverLifeTime = false;
+	PSShape 			Shape{};
+	int					SizeOverLifeTime = 0;
 	ColorOverLifetime	ColorOverLifeTime{};
 	PSRenderer			Renderer{};
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
 		ar& BOOST_SERIALIZATION_NVP(MaxAddCount);
+		ar& BOOST_SERIALIZATION_NVP(PlayMaxTime);
 		ar& BOOST_SERIALIZATION_NVP(Duration);
 		ar& BOOST_SERIALIZATION_NVP(Looping);
 		ar& BOOST_SERIALIZATION_NVP(Prewarm);
@@ -306,12 +316,6 @@ struct ParticleSharedData {
 	int		AddCount{};
 	Vec3	Padding{};
 };
-
-struct aaa {
-	int a;
-	float b;
-};
-
 #pragma endregion
 
 
@@ -334,15 +338,15 @@ private:
 public:
 #pragma region Getter
 	ParticleSystemCPUData& GetPSCD() { return mPSCD; }
-	Emission& GetEmission() { return mPSCD.Emission; }
-	ColorOverLifetime& GetColorOverLifeTime() { return mPSCD.ColorOverLifeTime; }
 	PSRenderer& GetRenderer() { return mPSCD.Renderer; }
 	int GetPSIdx() const { return mPSIdx; }
 	bool IsDeprecated() const { return mIsDeprecated; }
 #pragma endregion
 
 #pragma region Setter
+	void SetPSCD(ParticleSystemCPUData&& pscd) { mPSCD = pscd; }
 	void SetTarget(const std::string& frameName);
+	void SetSizeByRenderMode(PSRenderMode renderMode);
 #pragma endregion
 
 public:

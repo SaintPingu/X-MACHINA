@@ -4,7 +4,7 @@
 #include "Script_Droid.h"
 #include "Script_Aranobot.h"
 #include "Script_MeleeBT.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -28,7 +28,7 @@ void Script_GameManager::Awake()
 		auto& script = enemy->AddComponent<Script_Aranobot>();
 		enemy->AddComponent<Script_MeleeBT>();
 		enemy->SetPosition(100, 0, 105);
-		script->SetMaxHP(10);
+		script->SetMaxHP(2000);
 	}
 }
 

@@ -8,7 +8,7 @@
 #include "Scene.h"
 
 #include "Component/Rigidbody.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 
 
 void Script_Bullet::Awake()
@@ -16,7 +16,14 @@ void Script_Bullet::Awake()
 	base::Awake();
 
 	mGameObject = mObject->GetObj<GameObject>();
-	mParticleSystem = mGameObject->AddComponent<ParticleSystem>()->Load("Bulletlight2");
+	mParticleSystems.reserve(1);
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Small"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_BigQuick"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Grow"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Small"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Big"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Mult"));
 
 	const auto& rb = mObject->GetComponent<Rigidbody>();
 	rb->SetFriction(0.001f);
@@ -56,7 +63,10 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());
-		mParticleSystem->Play();
+		
+		for (const auto& ps : mParticleSystems)
+			ps->Play();
+
 		Explode();
 	}
 

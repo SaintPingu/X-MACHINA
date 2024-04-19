@@ -3,17 +3,18 @@
 <boost_serialization signature="serialization::archive" version="20">
 <mPSCD class_id="0" tracking_level="0" version="0">
 	<MaxAddCount>1</MaxAddCount>
-	<Duration>1.000000015e-01</Duration>
-	<Looping>1</Looping>
+	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
+	<Duration>5.000000000e+00</Duration>
+	<Looping>0</Looping>
 	<Prewarm>0</Prewarm>
 	<StartDelay>0.000000000e+00</StartDelay>
 	<StartLifeTime class_id="1" tracking_level="0" version="0">
-		<s.x>1.000000015e-01</s.x>
-		<s.y>1.500000060e-01</s.y>
+		<s.x>1.299999952e-01</s.x>
+		<s.y>1.299999952e-01</s.y>
 	</StartLifeTime>
 	<StartSpeed>
-		<s.x>0.000000000e+00</s.x>
-		<s.y>0.000000000e+00</s.y>
+		<s.x>1.000000000e+00</s.x>
+		<s.y>1.000000000e+00</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="2" tracking_level="0" version="0">
 		<s.x>1.000000000e+00</s.x>
@@ -22,8 +23,8 @@
 		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
-		<s.x>3.000000000e+00</s.x>
-		<s.y>4.000000000e+00</s.y>
+		<s.x>1.799999952e+00</s.x>
+		<s.y>1.799999952e+00</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -33,13 +34,13 @@
 	</StartRotation3D>
 	<StartRotation>
 		<s.x>0.000000000e+00</s.x>
-		<s.y>3.600000000e+02</s.y>
+		<s.y>0.000000000e+00</s.y>
 	</StartRotation>
 	<StartColor class_id="3" tracking_level="0" version="0">
 		<FirstColor>
-			<s.x>3.000000119e-01</s.x>
-			<s.y>6.000000238e-01</s.y>
-			<s.z>1.000000000e+00</s.z>
+			<s.x>3.000000000e+00</s.x>
+			<s.y>2.799999952e+00</s.y>
+			<s.z>2.000000000e+00</s.z>
 			<s.w>1.000000000e+00</s.w>
 		</FirstColor>
 		<SecondColor>
@@ -63,18 +64,24 @@
 		<ColorOption>0</ColorOption>
 	</StartColor>
 	<GravityModifier>0.000000000e+00</GravityModifier>
-	<SimulationSpace>1</SimulationSpace>
+	<SimulationSpace>0</SimulationSpace>
 	<SimulationSpeed>1.000000000e+00</SimulationSpeed>
-	<PlayOnAwake>1</PlayOnAwake>
-	<MaxParticles>1000</MaxParticles>
+	<PlayOnAwake>0</PlayOnAwake>
+	<MaxParticles>11</MaxParticles>
 	<Emission class_id="4" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
-		<RateOverTime>3</RateOverTime>
+		<RateOverTime>0</RateOverTime>
 		<Bursts class_id="5" tracking_level="0" version="0">
-			<count>1</count>
+			<count>2</count>
 			<item_version>0</item_version>
 			<item class_id="6" tracking_level="0" version="0">
+				<Count>10</Count>
+				<Time>0.000000000e+00</Time>
+				<BurstElapsed>0.000000000e+00</BurstElapsed>
+			</item>
+			<item>
 				<Count>1</Count>
+				<Time>0.000000000e+00</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 		</Bursts>
@@ -89,18 +96,17 @@
 			<s.w>1.000000000e+00</s.w>
 		</StartColor>
 		<EndColor>
-			<s.x>0.000000000e+00</s.x>
-			<s.y>0.000000000e+00</s.y>
-			<s.z>0.000000000e+00</s.z>
-			<s.w>0.000000000e+00</s.w>
+			<s.x>2.000000030e-01</s.x>
+			<s.y>5.000000075e-02</s.y>
+			<s.z>5.000000075e-02</s.z>
+			<s.w>1.000000000e+00</s.w>
 		</EndColor>
 	</ColorOverLifeTime>
 	<Renderer class_id="8" tracking_level="0" version="0">
+		<TextureName>Explosion_DoubleFlame</TextureName>
 		<RenderMode>1</RenderMode>
 		<BlendType>2</BlendType>
-		<SpeedScale>0.000000000e+00</SpeedScale>
 		<LengthScale>1.000000000e+00</LengthScale>
-		<TextureName>MagicMissile_Out</TextureName>
 	</Renderer>
 </mPSCD>
 </boost_serialization>

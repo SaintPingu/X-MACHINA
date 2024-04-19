@@ -9,5 +9,7 @@ struct GSOutput_Particle
 
 float4 PSParticle(GSOutput_Particle pin) : SV_TARGET
 {
-    return gTextureMaps[gInputPraticles[pin.ID].TextureIndex].Sample(gsamLinearWrap, pin.UV) * gInputPraticles[pin.ID].FinalColor;
+    float4 color = gTextureMaps[gInputPraticles[pin.ID].TextureIndex].Sample(gsamLinearWrap, pin.UV) * gInputPraticles[pin.ID].FinalColor;
+
+    return color;
 }

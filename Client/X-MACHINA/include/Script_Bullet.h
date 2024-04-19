@@ -21,7 +21,7 @@ class Script_Bullet : public Component {
 private:
 	GameObject*		mGameObject{};	// self GameObject
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
-	sptr<ParticleSystem> mParticleSystem{};
+	std::vector<sptr<ParticleSystem>> mParticleSystems{};
 
 	float mSpeed{};					// speed of bullet
 	float mDamage{};				// damage of bullet

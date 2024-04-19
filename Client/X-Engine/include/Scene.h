@@ -148,6 +148,7 @@ private:
 public:
 	void BuildObjects();
 	void ReleaseObjects();
+	void TestParticlePlay();
 
 private:
 	/* Object */

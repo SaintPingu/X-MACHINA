@@ -33,7 +33,7 @@ struct PSColor
 	float4  FirstGradient;
 	float4  SecondGradient;
 	uint    ColorOption;
-	float3  Padding;
+    float3  Padding;
 };
 
 struct PSShape
@@ -176,7 +176,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
     // 파티클 공유 변수
     gParticleShared[gIndex.Index].AddCount = ps.AddCount;
     GroupMemoryBarrierWithGroupSync();
-	
+    
     // 파티클이 삭제된 경우에만 생성
     if (gOutputParticles[threadID.x].Alive == 0)
     {

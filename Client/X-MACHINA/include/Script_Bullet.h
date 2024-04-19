@@ -45,7 +45,8 @@ public:
 public:
 	// [pos] 위치에 생성하고 [dir, up]에 따라 look 방향을 결정하고, look 방향으로 [speed]의 속도로 이동하도록 한다.
 	void Fire(const Vec3& pos, const Vec3& dir, const Vec3& up);
-	void Fire(const Transform& transform);
+	// [err] 만큼 각도로 탄이 퍼진다.
+	void Fire(const Transform& transform, const Vec2& err = Vector2::Zero);
 
 	// 총알 객체를 터뜨린다. (폭발 처리)
 	void Explode();

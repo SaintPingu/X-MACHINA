@@ -71,6 +71,8 @@ public:
 
 	// 객체를 할당받는다. (enbale==true시 OnEnable()을 호출한다)
 	sptr<InstObject> Get(bool enable = true) const;
+	std::vector<sptr<InstObject>> GetMulti(size_t cnt, bool enable = true) const;
+
 	// object 객체를 풀에 반환한다.
 	void Return(InstObject* object);
 

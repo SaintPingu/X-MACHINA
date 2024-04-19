@@ -9,10 +9,22 @@ class Script_Weapon_Rifle abstract : public Script_BulletWeapon {
 	COMPONENT_ABSTRACT(Script_Weapon_Rifle, Script_BulletWeapon)
 
 protected:
-	static constexpr float mkBulletSpeed = 40.f;
+	Vec2 mCurErr{};
+	float mMaxErrX{};
+	float mMaxErrY{};
+
+	float mErrRecoverSpeed = 5.f;
+	float mErrIncAmount    = 0.5f;
 
 public:
 	virtual void Awake() override;
+	virtual void Update() override;
+
+protected:
+	virtual void FireBullet() override;
+
+public:
+	virtual WeaponType GetWeaponType() const override { return WeaponType::AssaultRifle; }
 };
 
 
@@ -21,12 +33,13 @@ public:
 class Script_Weapon_Skyline : public Script_Weapon_Rifle {
 	COMPONENT(Script_Weapon_Skyline, Script_Weapon_Rifle)
 
-public:
-	virtual WeaponType GetWeaponType() const override { return WeaponType::AssaultRifle; }
-
 private:
+	static constexpr float mkBulletSpeed = 50.f;
 	static constexpr float mkBulletDamage = 5.4f;
 	static constexpr float mkRPM          = 850.f;
+
+protected:
+	virtual float GetBulletSpeed() override { return mkBulletSpeed; }
 
 private:
 	virtual void InitValues() override;

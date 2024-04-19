@@ -10,7 +10,7 @@ class Script_Weapon_Pistol : public Script_BulletWeapon {
 
 private:
 	static constexpr float mkBulletDamage = 8.f;
-	static constexpr float mkBulletSpeed  = 30.f;
+	static constexpr float mkBulletSpeed  = 40.f;
 	static constexpr float mkRPM          = 350.f;
 
 public:
@@ -18,6 +18,9 @@ public:
 
 public:
 	virtual void Awake() override;
+
+protected:
+	virtual float GetBulletSpeed() override { return mkBulletSpeed; }
 
 private:
 	virtual void InitValues() override;

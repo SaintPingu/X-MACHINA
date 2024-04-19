@@ -50,6 +50,9 @@ protected:
 
 	int mMaxMag{};				// 최대 장탄 수
 	int mCurMag{};				// 현재 장탄 수
+	int mBulletCntPerMag{};		// 탄창 단 총알 수
+	int mCurBulletCnt{};		// 현재 발수 수
+	int mBulletCntPerShot{ 1 };	// 발사 당 총알 수
 
 	bool  mIsShooting{};		// 발사 버튼을 누르고 있는가?
 	bool  mIsBeforeShooting{};	// 이전에 총알이 발사되었는가?
@@ -71,7 +74,7 @@ public:
 public:
 	void StartFire() { mIsShooting = true; }
 	void StopFire() { mIsShooting = false; mIsBeforeShooting = false; }
-	virtual void InitReload();
+	bool CheckReload();
 	virtual void EndReload();
 	virtual void StopReload() { InitReload(); }
 
@@ -83,9 +86,13 @@ protected:
 
 	static float CalcFireDelay(float rpm) {return (1.f / (rpm / 60.f)); }
 
+	virtual bool InitReload();
 	virtual void StartReload();
 
+	virtual float GetBulletSpeed() abstract;
+
 private:
+
 	void Update_SemiAuto();
 	void Update_Auto();
 
@@ -99,6 +106,11 @@ private:
 
 class Script_BulletWeapon abstract : public Script_Weapon {
 	COMPONENT_ABSTRACT(Script_BulletWeapon, Script_Weapon)
+
+protected:
+	Vec2 mErrX{};	// 좌우 오차
+	Vec2 mErrY{};	// 상하 오차
+	float mSpeerErr{};	// 속도 오차
 
 protected:
 	virtual void FireBullet() override;

@@ -77,10 +77,13 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 	SetDamage(mDamage);
 }
 
-void Script_Bullet::Fire(const Transform& transform)
+void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 {
 	mObject->SetLocalRotation(transform.GetRotation());
-	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp());
+	Vec3 dir = transform.GetLook();
+	dir = Vector3::Rotate(dir, err.y, err.x, 0.f);
+	mObject->Rotate(err.y, err.x, 0.f);
+	Fire(transform.GetPosition(), dir, transform.GetUp());
 }
 
 void Script_Bullet::Explode()

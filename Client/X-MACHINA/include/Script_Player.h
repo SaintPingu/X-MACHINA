@@ -131,7 +131,7 @@ protected:
 
 	virtual void StartFire();
 	virtual void StopFire();
-	virtual void Reload();
+	virtual bool Reload();
 };
 
 
@@ -232,7 +232,7 @@ private:
 	void OffAim();
 
 	// called by itself
-	virtual void Reload() override;
+	virtual bool Reload() override;
 	void StopReload();
 
 	void SetState(Movement prevState, Movement prevMotion, Movement crntState);

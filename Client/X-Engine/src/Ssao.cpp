@@ -125,7 +125,7 @@ void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
 		for (int j = 0; j < 256; ++j)
 		{
 			// Random vector in [0,1].  We will decompress in shader to [-1,1].
-			Vec3 v(Math::RandF(), Math::RandF(), Math::RandF());
+			Vec3 v(Math::RandFloat(), Math::RandFloat(), Math::RandFloat());
 
 			initData[i * 256 + j] = XMCOLOR(v.x, v.y, v.z, 0.0f);
 		}
@@ -167,7 +167,7 @@ void Ssao::CreateOffsetVectors()
 	for (int i = 0; i < 14; ++i)
 	{
 		// Create random lengths in [0.25, 1.0].
-		float s = Math::RandF(0.25f, 1.f);
+		float s = Math::RandFloat(0.25f, 1.f);
 		
 		Vec4 v = s * XMVector4Normalize(mOffsets[i]);
 

@@ -4,10 +4,11 @@
 #include "Script_Bullet.h"
 #include "Script_GroundObject.h"
 #include "Script_AimController.h"
+#include "Script_MainCamera.h"
 #include "Script_Weapon.h"
 #include "Script_Weapon_Pistol.h"
 #include "Script_Weapon_Rifle.h"
-#include "Script_MainCamera.h"
+#include "Script_Weapon_Shotgun.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -426,12 +427,14 @@ void Script_GroundPlayer::InitWeapons()
 		case WeaponType::HandedGun:
 		case WeaponType::LightingGun:
 		case WeaponType::GatlinGun:
-		case WeaponType::ShotGun:
 		case WeaponType::MissileLauncher:
 			weapon->AddComponent<Script_Weapon_Pistol>();
 			break;
 		case WeaponType::AssaultRifle:
 			weapon->AddComponent<Script_Weapon_Skyline>();
+			break;
+		case WeaponType::ShotGun:
+			weapon->AddComponent<Script_Weapon_DBMS>();
 			break;
 		default:
 			assert(0);
@@ -731,7 +734,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 
 		const Vec3 aimWorldPos = GetAimWorldPos(aimScreenPos);
 		// 재장전 중이라면, 총구가 아닌 척추의 방향에 따라 회전각을 구한다.
-		if (mWeaponScript->IsReloading()) {
+		if (mWeaponScript->IsReloading() && mController->GetParamValue<bool>("Reload") == true) {
 			// 현재 각도를 유지하며 [mReloadingDeltaTime]이 1이 될 때 까지 서서히 회전한다.
 			if (::IncreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
 
@@ -811,11 +814,15 @@ void Script_GroundPlayer::OffAim()
 	}
 }
 
-void Script_GroundPlayer::Reload()
+bool Script_GroundPlayer::Reload()
 {
-	base::Reload();
+	if (!base::Reload()) {
+		return false;
+	}
 
 	StartReload();
+
+	return true;
 }
 
 void Script_GroundPlayer::StopReload()

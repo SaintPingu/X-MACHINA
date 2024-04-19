@@ -128,9 +128,10 @@ namespace Math {
 	inline bool IsEqual(float a, float b) { return Math::IsZero(a - b); }
 	inline float InverseSqrt(float f) { return 1.f / sqrtf(f); }
 
-	inline float RandF(float min = 0.f, float max = 1.f)
+	inline float RandFloat(float min = 0.f, float max = 1.f)
 	{
-		return min + ((float)rand() / (float)RAND_MAX) * (max - min);
+		std::uniform_real_distribution<float> distribution(min, max);
+		return distribution(dre);
 	}
 
 	constexpr float uint16ToFloat(std::uint16_t value)
@@ -249,6 +250,16 @@ namespace Vector3 {
 		const float sinTheta = sin(rad);
 
 		return (v * cosTheta) + (axis.Cross(v) * sinTheta) + (axis * axis.Dot(v)) * (1 - cosTheta);
+	}
+
+	inline Vec3 Rotate(const Vec3& v, float yaw = 0.f, float pitch = 0.f, float roll = 0.f) noexcept
+	{
+		XMMATRIX rotationMtx = XMMatrixRotationRollPitchYaw(XMConvertToRadians(yaw), XMConvertToRadians(pitch), XMConvertToRadians(roll));
+		XMVECTOR rotatedVector = XMVector3TransformCoord(_VECTOR(v), rotationMtx);
+
+		Vec3 result;
+		XMStoreFloat3(&result, rotatedVector);
+		return result;
 	}
 
 	inline Vec3 Resize(const Vec3& vector, float size) noexcept

@@ -37,6 +37,34 @@ sptr<InstObject> ObjectPool::Get(bool enable) const
 	return nullptr;
 }
 
+std::vector<sptr<InstObject>> ObjectPool::GetMulti(size_t cnt, bool enable) const
+{
+	std::vector<sptr<InstObject>> result(cnt);
+
+	// [mAvailableObjects]에서 사용 가능한 id를 얻어 객체를 반환한다.
+	size_t i = 0;
+	for (; i < cnt; ++i) {
+		if (mAvailableObjects.empty()) {
+			break;
+		}
+
+		const int id = *mAvailableObjects.begin();
+
+		mAvailableObjects.erase(id);
+		mActiveObjects.insert(id);		// 활성화된 객체 집합에 id를 추가한다.
+		if (enable) {
+			mObjectPool[id]->OnEnable();
+		}
+
+		result[i] = mObjectPool[id];
+	}
+
+	result.resize(i);
+
+	return result;
+
+}
+
 void ObjectPool::Return(InstObject* object)
 {
 	// [object]의 id를 받아 [mAvailableObjects]에 추가하고 OnDisable()을 호출한다.

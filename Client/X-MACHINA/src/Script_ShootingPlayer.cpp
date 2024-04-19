@@ -59,11 +59,13 @@ void Script_ShootingPlayer::StopFire()
 	mWeaponScript->StopFire();
 }
 
-void Script_ShootingPlayer::Reload()
+bool Script_ShootingPlayer::Reload()
 {
 	if (mWeaponScript) {
-		mWeaponScript->InitReload();
+		return mWeaponScript->CheckReload();
 	}
+
+	return false;
 }
 
 void Script_ShootingPlayer::SetWeapon(int weaponIdx)

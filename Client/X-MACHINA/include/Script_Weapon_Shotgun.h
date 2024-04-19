@@ -1,0 +1,41 @@
+#pragma once
+
+#pragma region Include
+#include "Script_Weapon.h"
+#pragma endregion
+
+// base rifle class
+class Script_Weapon_Shotgun abstract : public Script_BulletWeapon {
+	COMPONENT_ABSTRACT(Script_Weapon_Shotgun, Script_BulletWeapon)
+
+protected:
+	static constexpr float mkBulletSpeed = 40.f;
+
+public:
+	virtual void Awake() override;
+
+public:
+	virtual WeaponType GetWeaponType() const override { return WeaponType::ShotGun; }
+
+protected:
+	virtual void FireBullet() override;
+};
+
+
+
+
+class Script_Weapon_DBMS : public Script_Weapon_Shotgun {
+	COMPONENT(Script_Weapon_DBMS, Script_Weapon_Shotgun)
+
+private:
+	static constexpr int mkBulletCntPerShot  = 30;
+	static constexpr float mkBulletDamage    = 62.6f / mkBulletCntPerShot;
+	static constexpr float mkRPM             = 200.f;
+
+protected:
+	virtual float GetBulletSpeed() override { return mkBulletSpeed; }
+
+private:
+	virtual void InitValues() override;
+	virtual void BulletInitFunc(rsptr<InstObject> bullet) const override;
+};

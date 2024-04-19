@@ -30,6 +30,7 @@ void Script_Weapon::Start()
 	base::Start();
 
 	mCurMag = mMaxMag;
+	mCurBulletCnt = mBulletCntPerMag;
 }
 
 void Script_Weapon::Update()
@@ -62,18 +63,32 @@ void Script_Weapon::SetFiringMode(FiringMode firingMode)
 	}
 }
 
-void Script_Weapon::InitReload()
+bool Script_Weapon::CheckReload()
 {
-	mCurMag = 0;
-	mCurReloadTime = 0.f;
-	mIsReload = true;
+	if (mCurMag <= 0) {	// 모든 탄창 소진
+		return false;
+	}
+
+	StartReload();
+
+	return true;
 }
 
 void Script_Weapon::EndReload()
 {
-	mCurMag = mMaxMag;
+	--mCurMag;
+	mCurBulletCnt += mBulletCntPerMag;
 	mCurReloadTime = 0.f;
 	mIsReload = false;
+}
+
+bool Script_Weapon::InitReload()
+{
+	mCurBulletCnt = mCurBulletCnt > 0 ? 1 : 0;  // 약실 -> 1발 장전 상태
+	mCurReloadTime = 0.f;
+	mIsReload = true;
+
+	return true;
 }
 
 void Script_Weapon::StartReload()
@@ -112,12 +127,15 @@ void Script_Weapon::Update_Auto()
 
 void Script_Weapon::Fire()
 {
+	if (mCurBulletCnt <= 0) {
+		return;
+	}
+
 	mCurFireDelay = 0.f;
 	FireBullet();
 
-	if (--mCurMag <= 0) {
-		mIsReload = true;
-		StartReload();
+	if (--mCurBulletCnt <= 0) {
+		CheckReload();
 	}
 }
 #pragma endregion
@@ -146,7 +164,12 @@ void Script_BulletWeapon::FireBullet()
 	auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
 		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
-		bulletScript->Fire(*mMuzzle);
+
+		Vec2 err = Vec2(Math::RandFloat(mErrX.x, mErrX.y), Math::RandFloat(mErrY.x, mErrY.y));
+		const float bulletSpeedErr = Math::RandFloat(0, mSpeerErr);
+
+		bulletScript->SetSpeed(GetBulletSpeed() - bulletSpeedErr);
+		bulletScript->Fire(*mMuzzle, err);
 	}
 }
 
@@ -164,6 +187,6 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 
 void Script_BulletWeapon::CreateBulletPool()
 {
-	mBulletPool = Scene::I->CreateObjectPool("bullet", mMaxMag, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
+	mBulletPool = Scene::I->CreateObjectPool("bullet", mBulletCntPerMag * mBulletCntPerShot, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
 }
 #pragma endregion

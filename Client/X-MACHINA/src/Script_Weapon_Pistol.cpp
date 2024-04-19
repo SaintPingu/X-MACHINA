@@ -12,10 +12,11 @@ void Script_Weapon_Pistol::Awake()
 
 void Script_Weapon_Pistol::InitValues()
 {
-	mMaxFireDelay  = CalcFireDelay(mkRPM);
-	mMaxReloadTime = 1.7f;
-	mMaxDistance   = 16.f;
-	mMaxMag        = 15;
+	mMaxFireDelay     = CalcFireDelay(mkRPM);
+	mMaxReloadTime    = 1.7f;
+	mMaxDistance      = 16.f;
+	mBulletCntPerMag  = 15;
+	mMaxMag           = 8;
 }
 
 void Script_Weapon_Pistol::BulletInitFunc(rsptr<InstObject> bullet) const

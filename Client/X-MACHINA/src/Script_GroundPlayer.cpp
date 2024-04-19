@@ -296,6 +296,7 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		case '4':
 		case '5':
 		case '6':
+		case '7':
 			SetWeapon(static_cast<int>(wParam - '0'));
 			break;
 
@@ -357,6 +358,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::GatlinGun, "SM_SciFiLaserGatlinGun" },
 		{WeaponType::ShotGun, "SM_SciFiShotgun" },
 		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
+		{WeaponType::Sniper, "Sniper" },
 	};
 
 	const std::unordered_map<WeaponType, std::string> defaultTransforms{
@@ -366,6 +368,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::GatlinGun, "RefPosLaserGatlinGun_Action" },
 		{WeaponType::ShotGun, "RefPosShotgun_Action" },
 		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+		{WeaponType::Sniper, "RefPosSniper_Action" },
 	};
 
 
@@ -376,6 +379,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::GatlinGun, "ReloadOverheatGatlinGun" },
 		{WeaponType::ShotGun, "ReloadShotgun" },
 		{WeaponType::MissileLauncher, "ReloadMissileLauncher" },
+		{WeaponType::Sniper, "ReloadAssaultRifle" },
 	};
 
 	const std::unordered_map<WeaponType, std::string> drawMotions{
@@ -385,6 +389,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::GatlinGun, "DrawGatlinGun" },
 		{WeaponType::ShotGun, "DrawShotgun" },
 		{WeaponType::MissileLauncher, "DrawMissileLauncher" },
+		{WeaponType::Sniper, "DrawAssaultRifle" },
 	};
 
 	const std::unordered_map<WeaponType, std::string> putbackMotions{
@@ -394,15 +399,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::GatlinGun, "PutBackGatlinGun" },
 		{WeaponType::ShotGun, "PutBackShotgun" },
 		{WeaponType::MissileLauncher, "PutBackMissileLauncher" },
-	};
-
-	const std::unordered_map<WeaponType, std::string> shootMotions{
-		{WeaponType::HandedGun, "ShootPrimary2HandedGun" },
-		{WeaponType::AssaultRifle, "ShootPrimaryAssaultRifle" },
-		{WeaponType::LightingGun, "ShootPrimaryBeamGun" },
-		{WeaponType::GatlinGun, "ShootPrimaryGatlinGun" },
-		{WeaponType::ShotGun, "ShootPrimaryShotgun" },
-		{WeaponType::MissileLauncher, "ShootPrimaryMissileLauncher" },
+		{WeaponType::Sniper, "PutBackAssaultRifle" },
 	};
 
 	CallbackType reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
@@ -427,6 +424,7 @@ void Script_GroundPlayer::InitWeapons()
 		case WeaponType::HandedGun:
 		case WeaponType::LightingGun:
 		case WeaponType::GatlinGun:
+		case WeaponType::Sniper:
 		case WeaponType::MissileLauncher:
 			weapon->AddComponent<Script_Weapon_Pistol>();
 			break;
@@ -457,13 +455,11 @@ void Script_GroundPlayer::InitWeapons()
 		auto& realodMotion  = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
 		auto& drawMotion    = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
 		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
-		auto& shootMotion   = mController->FindMotionByName(shootMotions.at(weaponType), "Body");
 
 		// sync off
 		realodMotion->SetSync(false);
 		drawMotion->SetSync(false);
 		putbackMotion->SetSync(false);
-		shootMotion->SetSync(false);
 
 		// add callbacks
 		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
@@ -764,10 +760,6 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		if (fabs(mCrntSpineAngle) > 0.1f) {
 			mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle);
 
-			if(mCurRecoil > 0.f) {
-				mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
-			}
-
 			// spine angle is max [mkStartRotAngle] degree from object direction, so can't rotate anymore //
 			constexpr float leftAngleBound = 15.f;	// can rotate more to the left
 			const float correctedSpineAngle = mCrntSpineAngle + leftAngleBound;
@@ -781,10 +773,34 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 				mIsInBodyRotation = true;
 			}
 		}
+
+		// 상하를 회전하여 총구의 yaw 회전을 제거한다.
+		if (!mWeaponScript->IsReloading() && mController->IsEndTransition("Body")) {
+			mSpineBone->Rotate(Vector3::Forward, mCrntYawAngle);
+			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
+			if (fabs(yawAngle) > 0.1f) {
+				// [maxAngle]도 이상일 때 최대 속도
+				constexpr float alignSpeed = 100.f;
+				constexpr float maxAngle   = 3.f;
+				const float ratio          = std::clamp(fabs(yawAngle) / maxAngle, 0.f, 1.f);
+				const float speed          = alignSpeed * ratio;
+
+				mCrntYawAngle += Math::Sign(yawAngle) * speed * DeltaTime();
+			}
+		}
+		else {
+			mCrntYawAngle = 0.f;
+		}
+
+		// 반동 적용
+		if (mCurRecoil > 0.f) {
+			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
+		}
 	}
 	else if (::DecreaseDelta(mAimingDeltaTime, kHoldingSpeed)) {
 		mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle * mAimingDeltaTime);
 		mCrntSpineAngle *= mAimingDeltaTime;
+		mCrntYawAngle = 0;
 	}
 }
 

@@ -169,6 +169,7 @@ private:
 	float mSpineDstAngle{};
 	float mAimingDeltaTime{};
 	float mReloadingDeltaTime{};
+	float mCrntYawAngle{};
 	Transform* mSpineBone{};
 	sptr<Script_AimController> mAimController{};
 

@@ -21,6 +21,7 @@ enum class WeaponType {
 	GatlinGun,
 	ShotGun,
 	MissileLauncher,
+	Sniper,
 	_count
 };
 constexpr size_t gkWeaponTypeCnt = static_cast<size_t>(WeaponType::_count);

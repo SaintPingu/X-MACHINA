@@ -15,6 +15,7 @@ class ModelObjectMesh;
 class MasterModel;
 class AnimationClip;
 class AnimatorController;
+class ParticleSystemCPUData;
 #pragma endregion
 
 #pragma region Class
@@ -34,7 +35,7 @@ public:
 #pragma region Template
 public:
 	template<typename T>
-	sptr<T> Load(const std::string& key, const std::string& path);
+	sptr<T> LoadPSCD(const std::string& key, const std::string& path);
 
 	template<typename T>
 	bool Add(const std::string& key, sptr<T> resource);
@@ -63,11 +64,12 @@ private:
 	void LoadShaders();
 	void LoadAnimationClips();
 	void LoadAnimatorControllers();
+	void LoadParticleSystemCPUData();
 };
 #pragma endregion
 
 template<typename T>
-inline sptr<T> ResourceMgr::Load(const std::string& key, const std::string& path)
+inline sptr<T> ResourceMgr::LoadPSCD(const std::string& key, const std::string& path)
 {
 	ResourceType resourceType = GetResourceType<T>();
 	KeyResMap& keyResMap = mResources[static_cast<UINT8>(resourceType)];
@@ -78,7 +80,7 @@ inline sptr<T> ResourceMgr::Load(const std::string& key, const std::string& path
 	}
 
 	sptr<T> resource = std::make_shared<T>();
-	resource->Load(key, path);
+	resource->LoadPSCD(key, path);
 	keyResMap[key] = resource;
 	keyResMap[key]->SetName(key);
 
@@ -141,4 +143,6 @@ inline ResourceType ResourceMgr::GetResourceType()
 		return ResourceType::AnimationClip;
 	if (std::is_same_v<T, AnimatorController>)
 		return ResourceType::AnimatorController;
+	if (std::is_same_v<T, ParticleSystemCPUData>)
+		return ResourceType::ParticleSystemCPUData;
 }

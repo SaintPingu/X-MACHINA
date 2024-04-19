@@ -6,7 +6,10 @@
 
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+
+#include "Resources.h"
 #pragma endregion
 
 
@@ -201,20 +204,13 @@ struct PSRenderer {
 	}
 };
 
-struct ParticleSystemCPUData {
+// 같은 파티클 시스템에 공통으로 사용되는 CPU 데이터
+class ParticleSystemCPUData : public Resource {
 public:
 	/* my value */
 	std::string			mName{};
-	bool				IsRunning = true;
-	bool				IsStop = true;
 	int					MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
-	float				AccTime = 0.f;
 	float				PlayMaxTime = 5.f;
-
-	/* elapsed time */
-	float				StopElapsed = 0.f;
-	float				StartElapsed = 0.f;
-	float				LoopingElapsed = 0.f;
 
 	/* unity particle system */
 	float				Duration = 1.f;
@@ -241,6 +237,7 @@ public:
 	ColorOverLifetime	ColorOverLifeTime{};
 	PSRenderer			Renderer{};
 
+public:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
 		ar& BOOST_SERIALIZATION_NVP(MaxAddCount);
@@ -266,6 +263,10 @@ public:
 		ar& BOOST_SERIALIZATION_NVP(ColorOverLifeTime);
 		ar& BOOST_SERIALIZATION_NVP(Renderer);
 	}
+
+public:
+	ParticleSystemCPUData() : Resource(ResourceType::ParticleSystemCPUData) { }
+	virtual ~ParticleSystemCPUData() = default;
 };
 
 struct ParticleSystemGPUData {
@@ -325,26 +326,35 @@ class ParticleSystem : public Component, public std::enable_shared_from_this<Par
 	COMPONENT(ParticleSystem, Component)
 
 private:
-	Transform*				mTarget = mObject;		// 파티클을 부착시킬 타겟
-	bool					mIsDeprecated = false;	// 파티클 시스템 삭제 예정 플래그
-	int						mPSIdx = -1;			// 파티클 시스템 구조적 버퍼 인덱스
+	Transform*			mTarget = mObject;			// 파티클을 부착시킬 타겟
+	int					mPSIdx = -1;				// 파티클 시스템 구조적 버퍼 인덱스
 
-	ParticleSystemCPUData	mPSCD{};				// 모든 파티클에 공통적으로 적용되는 CPU 데이터
-	ParticleSystemGPUData	mPSGD{};				// 모든 파티클에 공통적으로 적용되는 GPU 데이터
+	bool				mIsRunning = true;			// 파티클 시스템 동작 플래그
+	bool				mIsStopCreation = true;		// 파티클 생성 중지 플래그
+	bool				mIsDeprecated = false;		// 파티클 시스템 삭제 예정 플래그
 
+	float				mAccElapsed = 0.f;
+	float				mStopElapsed = 0.f;
+	float				mStartElapsed = 0.f;
+	float				mLoopingElapsed = 0.f;
+	std::vector<float>	mBurstElapseds;
+	std::vector<bool>	mBurstRunnings;
+
+	sptr<ParticleSystemCPUData>	mPSCD;				// 모든 파티클에 공통적으로 적용되는 CPU 데이터
+	ParticleSystemGPUData		mPSGD;				// 모든 파티클에 개별적으로 적용되는 GPU 데이터
 
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
 
 public:
 #pragma region Getter
-	ParticleSystemCPUData& GetPSCD() { return mPSCD; }
-	PSRenderer& GetRenderer() { return mPSCD.Renderer; }
-	int GetPSIdx() const { return mPSIdx; }
+	sptr<ParticleSystemCPUData> GetPSCD() { return mPSCD; }
+	int	GetPSIdx() const { return mPSIdx; }
+	bool IsRunning() const { return mIsRunning; }
 	bool IsDeprecated() const { return mIsDeprecated; }
 #pragma endregion
 
 #pragma region Setter
-	void SetPSCD(ParticleSystemCPUData&& pscd) { mPSCD = pscd; }
+	void SetPSCD(sptr<ParticleSystemCPUData> pscd) { mPSCD = pscd; }
 	void SetTarget(const std::string& frameName);
 	void SetSizeByRenderMode(PSRenderMode renderMode);
 #pragma endregion
@@ -357,7 +367,6 @@ public:
 public:
 	void Play();
 	void Stop();
-	void PlayToggle();
 
 	void ComputeParticleSystem() const;
 	void RenderParticleSystem() const;
@@ -367,6 +376,7 @@ public:
 public:
 	void Save();
 	sptr<ParticleSystem> Load(const std::string& fileName);
+	static sptr<ParticleSystemCPUData> LoadPSCD(const std::string& filePath);
 };
 
 

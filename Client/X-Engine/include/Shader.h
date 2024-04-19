@@ -85,7 +85,7 @@ public:
 	static D3D12_PRIMITIVE_TOPOLOGY_TYPE GetTopologyType(D3D_PRIMITIVE_TOPOLOGY topology);
 
 public:
-	void Load(ShaderInfo info = ShaderInfo{}, ShaderPath path = ShaderPath{}, bool isClose = true);
+	void LoadPSCD(ShaderInfo info = ShaderInfo{}, ShaderPath path = ShaderPath{}, bool isClose = true);
 
 	void CreateGraphicsShader(bool isClose = true);
 	void CreateComputeShader(bool isClose = true);

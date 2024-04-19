@@ -11,7 +11,7 @@ Shader::~Shader()
 	assert(mIsClosed);
 }
 
-void Shader::Load(ShaderInfo info, ShaderPath path, bool isClose)
+void Shader::LoadPSCD(ShaderInfo info, ShaderPath path, bool isClose)
 {
 	mInfo = info;
 

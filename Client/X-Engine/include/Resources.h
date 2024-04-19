@@ -8,6 +8,7 @@ enum class ResourceType : UINT8 {
 	Shader,
 	AnimationClip,
 	AnimatorController,
+	ParticleSystemCPUData,
 
 	_count
 };

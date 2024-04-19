@@ -16,8 +16,8 @@ void Script_Bullet::Awake()
 	base::Awake();
 
 	mGameObject = mObject->GetObj<GameObject>();
-	mParticleSystems.reserve(1);
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Small"));
+	mParticleSystems.reserve(7);
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_BigQuick"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Grow"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Small"));
@@ -63,7 +63,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());
-		
+
 		for (const auto& ps : mParticleSystems)
 			ps->Play();
 

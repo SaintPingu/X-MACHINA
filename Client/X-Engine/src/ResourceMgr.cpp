@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "AnimationClip.h"
 #include "AnimatorController.h"
+#include "Component/ParticleSystem.h"
 
 void ResourceMgr::LoadResources()
 {
@@ -18,6 +19,7 @@ void ResourceMgr::LoadResources()
 	LoadShaders();
 	LoadAnimationClips();
 	LoadAnimatorControllers();
+	LoadParticleSystemCPUData();
 }
 
 void ResourceMgr::Clear()
@@ -108,7 +110,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Shadow", shader);
 	}
 #pragma endregion
@@ -127,7 +129,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Global", shader);
 	}
 	{
@@ -142,7 +144,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Shadow_Global", shader);
 	}
 #pragma endregion
@@ -158,7 +160,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("ObjectInst", shader);
 	}
 #pragma endregion
@@ -178,7 +180,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("ColorInst", shader);
 	}
 #pragma endregion
@@ -194,7 +196,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("SkinMesh", shader);
 	}
 	{
@@ -209,7 +211,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Shadow_SkinMesh", shader);
 	}
 	{
@@ -226,7 +228,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Dissolve", shader);
 	}
 #pragma endregion
@@ -242,7 +244,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Terrain", shader);
 	}
 #pragma endregion
@@ -264,7 +266,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Water", shader);
 	}
 #pragma endregion
@@ -283,7 +285,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Billboard", shader);
 	}
 #pragma endregion
@@ -302,7 +304,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Sprite", shader);
 	}
 #pragma endregion
@@ -320,7 +322,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Final", shader);
 	}
 #pragma endregion
@@ -339,7 +341,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Canvas", shader);
 	}
 #pragma endregion
@@ -360,7 +362,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Wire", shader);
 	}
 #pragma endregion
@@ -378,7 +380,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("OffScreen", shader);
 	}
 #pragma endregion
@@ -396,7 +398,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("DirLighting", shader);
 	}
 
@@ -413,7 +415,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("SpotPointLighting", shader);
 	}
 #pragma endregion
@@ -432,7 +434,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Transparent", shader);
 	}
 #pragma endregion
@@ -450,7 +452,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("SkyBox", shader);
 	}
 #pragma endregion
@@ -468,7 +470,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("Ssao", shader);
 	}
 #pragma endregion
@@ -486,7 +488,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("SsaoBlur", shader);
 	}
 #pragma endregion
@@ -510,28 +512,28 @@ void ResourceMgr::LoadShaders()
 			path.GS = "GShader_Particle.cso";
 			info.BlendType = BlendType::Alpha_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->Load(info, path);
+			shader->LoadPSCD(info, path);
 			Add<Shader>("GraphicsParticle", shader);
 		}
 		{
 			path.GS = "GShader_StretchedParticle.cso";
 			info.BlendType = BlendType::Alpha_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->Load(info, path);
+			shader->LoadPSCD(info, path);
 			Add<Shader>("GraphicsStretchedParticle", shader);
 		}
 		{
 			path.GS = "GShader_Particle.cso";
 			info.BlendType = BlendType::One_To_One_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->Load(info, path);
+			shader->LoadPSCD(info, path);
 			Add<Shader>("OneToOneBlend_GraphicsParticle", shader);
 		}
 		{
 			path.GS = "GShader_StretchedParticle.cso";
 			info.BlendType = BlendType::One_To_One_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->Load(info, path);
+			shader->LoadPSCD(info, path);
 			Add<Shader>("OneToOneBlend_GraphicsStretchedParticle", shader);
 		}
 	}
@@ -552,7 +554,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("HorzBlur", shader);
 	}
 #pragma endregion
@@ -570,7 +572,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("VertBlur", shader);
 	}
 #pragma endregion
@@ -588,7 +590,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("LUT", shader);
 	}
 #pragma endregion
@@ -606,7 +608,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
+		shader->LoadPSCD(info, path);
 		Add<Shader>("ComputeParticle", shader);
 	}
 #pragma endregion
@@ -635,5 +637,15 @@ void ResourceMgr::LoadAnimatorControllers()
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
 		ResourceMgr::I->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::AnimationIO::LoadAnimatorController(rootFolder + fileName));
+	}
+}
+
+void ResourceMgr::LoadParticleSystemCPUData()
+{
+	const std::string rootFolder = "Import/ParticleSystems/";
+
+	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = file.path().filename().string();
+		ResourceMgr::I->Add<ParticleSystemCPUData>(FileIO::RemoveExtension(fileName), ParticleSystem::LoadPSCD(rootFolder + fileName));
 	}
 }

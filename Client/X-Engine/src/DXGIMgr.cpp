@@ -122,7 +122,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 	CreateSsao();
 
 	ResourceMgr::I->LoadResources();
-	CreateParticleRenderer();
+	ParticleRenderer::I->Init();
 
 	BuildScene();
 
@@ -655,12 +655,6 @@ void DXGIMgr::CreateFilter()
 void DXGIMgr::CreateSsao()
 {
 	mSsao = std::make_unique<Ssao>(mCmdList.Get());
-}
-
-void DXGIMgr::CreateParticleRenderer()
-{
-	mParticleRenderer = std::make_unique<ParticleRenderer>();
-	mParticleRenderer->Init();
 }
 
 void DXGIMgr::WaitForGpuComplete()

@@ -331,17 +331,16 @@ private:
 
 	bool				mIsRunning = true;			// 파티클 시스템 동작 플래그
 	bool				mIsStopCreation = true;		// 파티클 생성 중지 플래그
-	bool				mIsDeprecated = false;		// 파티클 시스템 삭제 예정 플래그
 
 	float				mAccElapsed = 0.f;
 	float				mStopElapsed = 0.f;
 	float				mStartElapsed = 0.f;
 	float				mLoopingElapsed = 0.f;
-	std::vector<float>	mBurstElapseds;
-	std::vector<bool>	mBurstRunnings;
+	std::vector<float>	mBurstElapseds{};
+	std::vector<bool>	mBurstRunnings{};
 
-	sptr<ParticleSystemCPUData>	mPSCD;				// 모든 파티클에 공통적으로 적용되는 CPU 데이터
-	ParticleSystemGPUData		mPSGD;				// 모든 파티클에 개별적으로 적용되는 GPU 데이터
+	sptr<ParticleSystemCPUData>	mPSCD{};			// 모든 파티클에 공통적으로 적용되는 CPU 데이터
+	ParticleSystemGPUData		mPSGD{};			// 모든 파티클에 개별적으로 적용되는 GPU 데이터
 
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
 
@@ -350,7 +349,6 @@ public:
 	sptr<ParticleSystemCPUData> GetPSCD() { return mPSCD; }
 	int	GetPSIdx() const { return mPSIdx; }
 	bool IsRunning() const { return mIsRunning; }
-	bool IsDeprecated() const { return mIsDeprecated; }
 #pragma endregion
 
 #pragma region Setter
@@ -383,7 +381,8 @@ public:
 
 
 
-class ParticleRenderer{
+class ParticleRenderer : public Singleton<ParticleRenderer> {
+	friend Singleton;
 
 private:
 	std::unordered_map<int, sptr<ParticleSystem>> mParticleSystems;

@@ -4,7 +4,6 @@
 #define DEVICE DXGIMgr::I->GetDevice()
 #define CMD_LIST DXGIMgr::I->GetCmdList()
 #define FRAME_RESOURCE_MGR DXGIMgr::I->GetFrameResourceMgr()
-#define PARTICLE_RENDERER DXGIMgr::I->GetParticleRenderer()
 #pragma endregion
 
 #pragma region ClassForwardDecl
@@ -106,9 +105,6 @@ private:
 	// MRT
 	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount> mMRTs{};
 
-	// particle renderer
-	uptr<ParticleRenderer>				mParticleRenderer;
-
 protected:
 #pragma region C/Dtor
 	DXGIMgr();
@@ -130,7 +126,6 @@ public:
 	const DWORD GetFilterOption() const						{ return mFilterOption; }
 	rsptr<DescriptorHeap> GetDescHeap() const				{ return mDescriptorHeap; }
 	Ssao* GetSsao() const									{ return mSsao.get(); }
-	ParticleRenderer* GetParticleRenderer() const			{ return mParticleRenderer.get(); }
 
 	// [param]에 해당하는 root parameter index를 반환한다.
 	UINT GetGraphicsRootParamIndex(RootParam param) const;
@@ -214,7 +209,6 @@ private:
 	void ChangeSwapChainState();
 	void CreateFilter();
 	void CreateSsao();
-	void CreateParticleRenderer();
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();

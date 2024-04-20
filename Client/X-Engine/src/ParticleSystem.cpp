@@ -127,7 +127,7 @@ void ParticleSystem::UpdateParticleSystem()
 			}
 
 			mIsRunning = false;
-			PARTICLE_RENDERER->RemoveParticleSystem(mPSIdx);
+			ParticleRenderer::I->RemoveParticleSystem(mPSIdx);
 			return;
 		}
 	}
@@ -168,7 +168,7 @@ void ParticleSystem::UpdateParticleSystem()
 void ParticleSystem::Play()
 {
 	// 플레이 시 파티클 렌더러에 추가 후 경과 시간 초기화
-	PARTICLE_RENDERER->AddParticleSystem(shared_from_this());
+	ParticleRenderer::I->AddParticleSystem(shared_from_this());
 	mIsStopCreation		= false;
 	mLoopingElapsed		= 0.f;
 	mStopElapsed		= 0.f;

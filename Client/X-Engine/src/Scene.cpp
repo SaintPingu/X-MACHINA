@@ -551,7 +551,7 @@ void Scene::RenderSkyBox()
 
 void Scene::RenderParticles()
 {
-	PARTICLE_RENDERER->Render();
+	ParticleRenderer::I->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -722,12 +722,12 @@ void Scene::Update()
 	mGameManager->LateUpdate();
 	for (auto& p : mParticles)
 		p->Update();
+	ParticleRenderer::I->Update();
 
 	MainCamera::I->Update();
 	MAIN_CAMERA->UpdateViewMtx();
 	mLight->Update();
 	Canvas::I->Update();
-	PARTICLE_RENDERER->Update();
 
 	UpdateShaderVars();
 

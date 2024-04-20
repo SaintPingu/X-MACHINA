@@ -30,7 +30,7 @@ void Script_NetworkObject_GroundPlayer::UpdateData(const void* data)
 	case 0:
 	{
 		//const Data_Move_GroundPlayer* moveData = (const Data_Move_GroundPlayer*)data;
-		const SceneEvent::Test* moveData = (const SceneEvent::Test*)data;
+		const NetworkEvent::Scene::Test* moveData = (const NetworkEvent::Scene::Test*)data;
 		mObject->SetPosition(moveData->Pos);
 		Vec4 rotation = Quaternion::ToQuaternion(Vec3(0, moveData->Angle, 0));
 		mObject->SetLocalRotation(rotation);

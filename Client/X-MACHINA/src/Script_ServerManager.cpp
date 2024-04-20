@@ -31,7 +31,7 @@ void Script_ServerManager::ProcessEvents()
 
 
 	while (!mEventsProcessQueue.empty()) {
-		sptr<SceneEvent::EventData> EventData = nullptr;
+		sptr<NetworkEvent::Scene::EventData> EventData = nullptr;
 		//std::cout << "Process Events try_pop start \n";
 
 		mEventsProcessQueue.try_pop(EventData);
@@ -39,11 +39,11 @@ void Script_ServerManager::ProcessEvents()
 		//std::cout << "Process Events try_pop end - ";
 		switch (EventData->type)
 		{
-		case SceneEvent::Enum::AddAnotherPlayer:
+		case NetworkEvent::Scene::Enum::AddAnotherPlayer:
 		{
 			//std::cout << "AddAnotherPlayer \n";
 
-			SceneEvent::AddOtherPlayer* data = reinterpret_cast<SceneEvent::AddOtherPlayer*>(EventData.get());
+			NetworkEvent::Scene::AddOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::AddOtherPlayer*>(EventData.get());
 			mPlayers[data->player->GetID()] = data->player;
 			data->player->AddComponent<Script_NetworkObject_GroundPlayer>();
 			data->player->AddComponent<Script_GroundObject>();
@@ -53,11 +53,11 @@ void Script_ServerManager::ProcessEvents()
 		}
 
 		break;
-		case SceneEvent::Enum::MoveOtherPlayer:
+		case NetworkEvent::Scene::Enum::MoveOtherPlayer:
 		{
 			//std::cout << "MoveOtherPlayer \n";
 
-			SceneEvent::MoveOtherPlayer* data = reinterpret_cast<SceneEvent::MoveOtherPlayer*>(EventData.get());
+			NetworkEvent::Scene::MoveOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::MoveOtherPlayer*>(EventData.get());
 			rsptr<GridObject> player = mPlayers[data->sessionID];
 			if (player) {
 				// player->GetComponent<Script_NetworkObject>()->UpdateData(data);	// TODO : real data here
@@ -68,18 +68,18 @@ void Script_ServerManager::ProcessEvents()
 		}
 
 		break;
-		case SceneEvent::Enum::RemoveOtherPlayer:
+		case NetworkEvent::Scene::Enum::RemoveOtherPlayer:
 		{
 			//std::cout << "RemoveOtherPlayer \n";
 
-			SceneEvent::RemoveOtherPlayer* data = reinterpret_cast<SceneEvent::RemoveOtherPlayer*>(EventData.get());
+			NetworkEvent::Scene::RemoveOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::RemoveOtherPlayer*>(EventData.get());
 			mPlayers.unsafe_erase(data->sessionID);
 		}
 		break;
 
-		case SceneEvent::Enum::Test:
+		case NetworkEvent::Scene::Enum::Test:
 		{
-			SceneEvent::Test* data = reinterpret_cast<SceneEvent::Test*>(EventData.get());
+			NetworkEvent::Scene::Test* data = reinterpret_cast<NetworkEvent::Scene::Test*>(EventData.get());
 			rsptr<GridObject> player = mPlayers[data->sessionID];
 			player->GetComponent<Script_NetworkObject>()->UpdateData((void*)data);
 		}
@@ -114,7 +114,7 @@ void Script_ServerManager::ProcessEvents()
 }
 
 
-void Script_ServerManager::AddEvent(rsptr<SceneEvent::EventData> data)
+void Script_ServerManager::AddEvent(rsptr<NetworkEvent::Scene::EventData> data)
 {
 	WRITE_LOCK;
 	mEventsProcessQueue.push(data);

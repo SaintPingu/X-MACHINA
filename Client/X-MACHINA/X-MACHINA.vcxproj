@@ -240,6 +240,7 @@
     <ClInclude Include="include\TaskPathPlanningToSpawn.h" />
     <ClInclude Include="include\Wait.h" />
     <ClInclude Include="include\X-MACHINA.h" />
+    <ClInclude Include="Network\ClientNetworkManager.h" />
     <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
     <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
     <ClInclude Include="Network\FlatBuffers\Player_generated.h" />
@@ -250,6 +251,7 @@
     <ClInclude Include="Network\ServerSession.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Network\ClientNetworkManager.cpp" />
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\ServerSession.cpp" />

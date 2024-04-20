@@ -201,9 +201,14 @@ public:
 #endif           
 
 #endif
+         
 
 #endif
-
+#ifdef UNICODE                                                                                      
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
+#else                                                                                                    
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")   
+#endif  
 #pragma region Function
 // [val]를 [speed] 속도로 최대 1까지 증가시킨다.
 bool IncreaseDelta(float& val, float speed);

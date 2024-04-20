@@ -734,7 +734,7 @@ void Scene::Start()
 
 void Scene::Update()
 {
-	mServerManager->Update();
+	//mServerManager->Update();
 
 	CheckCollisions();
 

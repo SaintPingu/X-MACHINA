@@ -30,10 +30,13 @@
 #include "IocpLibrary/include/Service.h"
 #include "IocpLibrary/include/Session.h"
 #include "IocpLibrary/include/SocketUtils.h"
+#include "IocpLibrary/include/ThreadManager.h"
+
 #include "InputMgr.h"
 #include "PacketFactory.h"
+#include "ClientNetworkManager.h"
 
-//#define SERVER_COMMUNICATION
+#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -262,21 +265,23 @@ int GameFramework::GameLoop()
 void GameFramework::Update()
 {
 	Timer::I->Tick(60.f);
+
+	NETWORK_MGR->ProcessEvents();
 	
 	Engine::I->Update();
 
 	KeyInputBroadcast();
 
-	static float z = 0;
-	z += DeltaTime();
-	sptr<SceneEvent::Test> EventData = std::make_shared<SceneEvent::Test>();
-	EventData->type = SceneEvent::Enum::Test;
-	EventData->sessionID = 1;
-	EventData->Angle = 15.f;
-	EventData->Pos = Vec3(105, 0, 105 + z);
-	EventData->SpineAngle = -45.f;
+	//static float z = 0;
+	//z += DeltaTime();
+	//sptr<SceneEvent::Test> EventData = std::make_shared<SceneEvent::Test>();
+	//EventData->type = SceneEvent::Enum::Test;
+	//EventData->sessionID = 1;
+	//EventData->Angle = 15.f;
+	//EventData->Pos = Vec3(105, 0, 105 + z);
+	//EventData->SpineAngle = -45.f;
 
-	SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
+	//SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 }
 
 
@@ -501,8 +506,8 @@ void GameFramework::InitPlayer()
 	otherPlayer->SetName("name");
 	otherPlayer->SetID(1);	// sessionID
 
-	sptr<SceneEvent::AddOtherPlayer> EventData = std::make_shared<SceneEvent::AddOtherPlayer>();
-	EventData->type = SceneEvent::Enum::AddAnotherPlayer;
+	sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
+	EventData->type = NetworkEvent::Scene::Enum::AddAnotherPlayer;
 	EventData->player = otherPlayer;
 	SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 

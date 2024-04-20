@@ -18,7 +18,7 @@ private:
 
 
 	Concurrency::concurrent_unordered_map<UINT32, sptr<GridObject>> mPlayers{}; /* sessionID, otherPlayer */
-	Concurrency::concurrent_queue<sptr<SceneEvent::EventData>> mEventsProcessQueue{};
+	Concurrency::concurrent_queue<sptr<NetworkEvent::Scene::EventData>> mEventsProcessQueue{};
 
 	//Concurrency::concurrent_queue<sptr<GridObject>> mEventsQueue_AddOtherPlayer;
 	//Concurrency::concurrent_queue<PlayerUpdateInfo> mEventsQueue_MoveOtherPlayer;
@@ -29,5 +29,5 @@ public:
 
 public:
 	void ProcessEvents();
-	void AddEvent(rsptr<SceneEvent::EventData> data);
+	void AddEvent(rsptr<NetworkEvent::Scene::EventData> data);
 };

@@ -2,8 +2,8 @@
 ///	  Memory Leack Checker
 /// Must be describe first (LIFO)
 /// -----------------------+
-#include <memory>
 #if defined(_DEBUG)
+#include <memory>
 static void CheckMemoryLeak()
 {
 	_CrtDumpMemoryLeaks();

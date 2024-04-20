@@ -8,6 +8,7 @@
 
 #pragma region ClassForwardDecl
 class GameObject;
+class Rigidbody;
 class ParticleSystem;
 #pragma endregion
 
@@ -22,6 +23,7 @@ private:
 	GameObject*		mGameObject{};	// self GameObject
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
 	sptr<ParticleSystem> mParticleSystem{};
+	sptr<Rigidbody> mRigid{};
 
 	float mSpeed{};					// speed of bullet
 	float mDamage{};				// damage of bullet

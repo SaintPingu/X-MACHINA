@@ -33,8 +33,8 @@ private:
 	std::vector<const Transform*> mMergedTransform{};	// 렌더링 모델의 transform 구조 (caching)
 
 	std::vector<sptr<InstObject>>	mObjectPool{};			// all objects
-	mutable std::unordered_set<int>	mAvailableObjects{};	// 사용(Get) 가능한 객체 집합
-	mutable std::unordered_set<int>	mActiveObjects{};		// 활성화(Get)된    객체 집합
+	std::unordered_set<int>			mAvailableObjects{};	// 사용(Get) 가능한 객체 집합
+	std::unordered_set<int>			mActiveObjects{};		// 활성화(Get)된    객체 집합
 
 	ComPtr<ID3D12Resource>	mSB_Inst{};		// StructuredBuffer for instance
 	void*					mSBMap_Inst{};	// mapped StructuredBuffer
@@ -70,8 +70,8 @@ public:
 	}
 
 	// 객체를 할당받는다. (enbale==true시 OnEnable()을 호출한다)
-	sptr<InstObject> Get(bool enable = true) const;
-	std::vector<sptr<InstObject>> GetMulti(size_t cnt, bool enable = true) const;
+	sptr<InstObject> Get(bool enable = true);
+	std::vector<sptr<InstObject>> GetMulti(size_t cnt, bool enable = true);
 
 	// object 객체를 풀에 반환한다.
 	void Return(InstObject* object);

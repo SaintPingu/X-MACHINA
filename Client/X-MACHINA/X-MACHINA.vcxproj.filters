@@ -271,6 +271,9 @@
     <ClInclude Include="include\Script_Weapon_Shotgun.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Weapon_MissileLauncher.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -412,6 +415,9 @@
       <Filter>Script\Weapon</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Weapon_Sniper.cpp">
+      <Filter>Script\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Weapon_MissileLauncher.cpp">
       <Filter>Script\Weapon</Filter>
     </ClCompile>
   </ItemGroup>

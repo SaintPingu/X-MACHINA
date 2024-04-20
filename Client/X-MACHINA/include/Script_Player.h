@@ -181,6 +181,7 @@ private:
 public:
 	Movement GetPrevState() const  { return Movement::GetState(mPrevMovement); }
 	Movement GetPrevMotion() const { return Movement::GetMotion(mPrevMovement); }
+	bool IsReloading() const;
 
 public:
 	virtual void Awake() override;

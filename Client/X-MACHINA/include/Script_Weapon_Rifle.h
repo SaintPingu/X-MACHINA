@@ -17,14 +17,14 @@ protected:
 	float mErrIncAmount    = 0.5f;
 
 public:
+	virtual WeaponType GetWeaponType() const override { return WeaponType::AssaultRifle; }
+
+public:
 	virtual void Awake() override;
 	virtual void Update() override;
 
 protected:
 	virtual void FireBullet() override;
-
-public:
-	virtual WeaponType GetWeaponType() const override { return WeaponType::AssaultRifle; }
 };
 
 

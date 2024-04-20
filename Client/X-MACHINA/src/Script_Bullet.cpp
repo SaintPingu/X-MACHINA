@@ -8,7 +8,7 @@
 #include "Scene.h"
 
 #include "Component/Rigidbody.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 
 
 void Script_Bullet::Awake()
@@ -18,9 +18,9 @@ void Script_Bullet::Awake()
 	mGameObject = mObject->GetObj<GameObject>();
 	mParticleSystem = mGameObject->AddComponent<ParticleSystem>()->Load("Bulletlight2");
 
-	const auto& rb = mObject->GetComponent<Rigidbody>();
-	rb->SetFriction(0.001f);
-	rb->SetDrag(0.001f);
+	mRigid = mObject->GetComponent<Rigidbody>();
+	mRigid->SetFriction(0.001f);
+	mRigid->SetDrag(0.001f);
 
 	Reset();
 }
@@ -70,9 +70,8 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 {
 	mObject->SetPosition(pos);
 
-	const auto& rigid = mObject->GetComponent<Rigidbody>();
-	rigid->Stop();
-	rigid->AddForce(dir, mSpeed, ForceMode::Impulse);
+	mRigid->Stop();
+	mRigid->AddForce(dir, mSpeed, ForceMode::Impulse);
 
 	SetDamage(mDamage);
 }
@@ -94,6 +93,7 @@ void Script_Bullet::Explode()
 
 	Reset();
 
+	mRigid->Stop();
 	mGameObject->OnDestroy();
 }
 

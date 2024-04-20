@@ -967,6 +967,7 @@ void Scene::RemoveDynamicObject(GridObject* target)
 				mDissolveObjects.insert(object);
 			}
 			mDestroyObjects.insert(i);
+			object = nullptr;
 			return;
 		}
 	}

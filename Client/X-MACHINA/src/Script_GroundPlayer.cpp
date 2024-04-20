@@ -10,6 +10,7 @@
 #include "Script_Weapon_Rifle.h"
 #include "Script_Weapon_Shotgun.h"
 #include "Script_Weapon_Sniper.h"
+#include "Script_Weapon_MissileLauncher.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -46,6 +47,11 @@ namespace {
 
 
 
+
+bool Script_GroundPlayer::IsReloading() const
+{
+	return mController->GetParamValue<bool>("Reload");
+}
 
 void Script_GroundPlayer::Awake()
 {
@@ -338,7 +344,6 @@ void Script_GroundPlayer::BoltAction()
 
 	if (mController) {
 		mController->SetValue("BoltAction", true);
-		mController->UpdateTransition();
 
 		mWeapon->DetachParent(false);
 		Transform* leftHand = mObject->FindFrame("Humanoid_ L Hand");
@@ -425,7 +430,6 @@ void Script_GroundPlayer::InitWeapons()
 	CallbackType drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
 	CallbackType drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
 	CallbackType putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
-	CallbackType boltActionCallback   = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
 
 	mWeapons.resize(gkWeaponTypeCnt, nullptr);
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
@@ -442,7 +446,6 @@ void Script_GroundPlayer::InitWeapons()
 		case WeaponType::HandedGun:
 		case WeaponType::LightingGun:
 		case WeaponType::GatlinGun:
-		case WeaponType::MissileLauncher:
 			weapon->AddComponent<Script_Weapon_Pistol>();
 			break;
 		case WeaponType::AssaultRifle:
@@ -453,6 +456,9 @@ void Script_GroundPlayer::InitWeapons()
 			break;
 		case WeaponType::Sniper:
 			weapon->AddComponent<Script_Weapon_PipeLine>();
+			break;
+		case WeaponType::MissileLauncher:
+			weapon->AddComponent<Script_Weapon_Burnout>();
 			break;
 		default:
 			assert(0);
@@ -490,7 +496,9 @@ void Script_GroundPlayer::InitWeapons()
 
 	// bolt action sniper 초기화
 	{
+		CallbackType boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
 		auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+
 		// callback
 		boltActionMotion->AddEndCallback(boltActionCallback);
 		boltActionMotion->AddChangeCallback(boltActionCallback);
@@ -757,7 +765,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 
 		const Vec3 aimWorldPos = GetAimWorldPos(aimScreenPos);
 		// 재장전 중이라면, 총구가 아닌 척추의 방향에 따라 회전각을 구한다.
-		if (mWeaponScript->IsReloading() && mController->GetParamValue<bool>("Reload") == true) {
+		if (IsReloading()) {
 			// 현재 각도를 유지하며 [mReloadingDeltaTime]이 1이 될 때 까지 서서히 회전한다.
 			if (::IncreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
 
@@ -800,9 +808,9 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 				mIsInBodyRotation = true;
 			}
 		}
-
+			
 		// 상하를 회전하여 총구의 yaw 회전을 제거한다.
-		if (!mWeaponScript->IsReloading() && mController->IsEndTransition("Body")) {
+		if (!IsReloading() && mController->IsEndTransition("Body")) {
 			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
 			if (fabs(yawAngle) > 0.1f) {
 				// [maxAngle]도 이상일 때 최대 속도
@@ -1013,7 +1021,7 @@ void Script_GroundPlayer::ChangeReloadCallback()
 	// 리로드 도중 모션 변경 시 80%이상 진행되었다면 장전 완료 처리
 	// 아직 재장전 상태인 경우만 적용
 	constexpr float kAllowRatio = 0.8f;
-	if (ratio > kAllowRatio, mController->GetParamValue<bool>("Reload") == true) {
+	if (ratio > kAllowRatio && IsReloading()) {
 		EndReload();
 	}
 }
@@ -1026,12 +1034,12 @@ void Script_GroundPlayer::EndReloadCallback()
 void Script_GroundPlayer::BoltActionCallback()
 {
 	if (mController) {
+		mController->SetValue("BoltAction", false);
+
 		mWeapon->DetachParent();
 		Transform* rightHand = mObject->FindFrame("RefPosSniper_Action");
 		rightHand->SetChild(mWeapon);
 		mWeapon->SetLocalTransform(Matrix::Identity);
-
-		mController->SetValue("BoltAction", false);
 	}
 }
 
@@ -1053,7 +1061,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 	if (mIsAim) {
 		const Vec2 mousePos = mAimController->GetAimPos();
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
-		Vec2 ndcAbs         = Vec2(fabs(ndc.x), fabs(ndc.y));
+		const Vec2 ndcAbs   = Vec2(fabs(ndc.x), fabs(ndc.y));
 
 		constexpr float offsetMaxRatio = 0.8f; // 최대 [n]% 까지만 적용 (스크린 끝에서 [n - 100]% 지점까지만 최대 offset 적용)
 		float maxOffset_t = (std::max)(ndcAbs.x, ndcAbs.y);
@@ -1064,7 +1072,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 
 		mCamera->Move(mousePos, ndcAbs, maxOffset_t);
 	}
-	// 이동 상태이면, 방향에 따라 offset을 최대 [maxOffset_t]&만 적용한다
+	// 이동 상태이면, 방향에 따라 offset을 최대 [maxOffset_t]%만 적용한다
 	else if(dir != Dir::None) {
 		constexpr float maxOffset_t = 0.6f;
 		const Vec3 dirVec = Transform::GetWorldDirection(dir);

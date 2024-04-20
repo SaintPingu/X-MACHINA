@@ -4,7 +4,7 @@
 #include "Script_Droid.h"
 #include "Script_Aranobot.h"
 #include "Script_MeleeBT.h"
-#include "ParticleSystem.h"
+#include "Component/ParticleSystem.h"
 
 #include "Scene.h"
 #include "Object.h"

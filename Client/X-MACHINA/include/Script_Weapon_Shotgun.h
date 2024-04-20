@@ -12,10 +12,10 @@ protected:
 	static constexpr float mkBulletSpeed = 40.f;
 
 public:
-	virtual void Awake() override;
+	virtual WeaponType GetWeaponType() const override { return WeaponType::ShotGun; }
 
 public:
-	virtual WeaponType GetWeaponType() const override { return WeaponType::ShotGun; }
+	virtual void Awake() override;
 
 protected:
 	virtual void FireBullet() override;

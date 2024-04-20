@@ -50,6 +50,7 @@ void Script_Weapon::Update()
 
 void Script_Weapon::FireBullet()
 {
+	--mCurBulletCnt;
 	mOwner->BulletFired();
 }
 
@@ -85,7 +86,7 @@ bool Script_Weapon::CheckReload()
 void Script_Weapon::EndReload()
 {
 	--mCurMag;
-	mCurBulletCnt += mBulletCntPerMag;
+	mCurBulletCnt = mBulletCntPerMag;
 	mCurReloadTime = 0.f;
 	mCurFireDelay = mMaxFireDelay;
 	mIsReload = false;
@@ -150,7 +151,7 @@ void Script_Weapon::Fire()
 	mCurFireDelay = 0.f;
 	FireBullet();
 
-	if (--mCurBulletCnt <= 0) {
+	if (mCurBulletCnt <= 0) {
 		CheckReload();
 	}
 }

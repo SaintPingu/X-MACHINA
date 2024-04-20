@@ -38,12 +38,15 @@ void Script_Weapon_Rifle::FireBullet()
 {
 	base::FireBullet();
 
+	// 현재 탄퍼짐 증가
 	mCurErr.x += mErrIncAmount;
 	mCurErr.y += mErrIncAmount;
 
+	// 최댓값 제한
 	mCurErr.x = std::clamp(mCurErr.x, -mMaxErrX, mMaxErrX);
 	mCurErr.y = std::clamp(mCurErr.y, -mMaxErrY, mMaxErrY);
-
+	
+	// 값 적용
 	mErrX = Vec2(-mCurErr.x, mCurErr.x);
 	mErrY = Vec2(-mCurErr.y, mCurErr.y);
 }

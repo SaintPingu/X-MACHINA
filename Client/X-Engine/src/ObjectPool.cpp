@@ -18,7 +18,7 @@ ObjectPool::ObjectPool(rsptr<const MasterModel> model, int maxSize, size_t struc
 	CreateShaderVars();
 }
 
-sptr<InstObject> ObjectPool::Get(bool enable) const
+sptr<InstObject> ObjectPool::Get(bool enable)
 {
 	// [mAvailableObjects]에서 사용 가능한 id를 얻어 객체를 반환한다.
 	if (!mAvailableObjects.empty()) {
@@ -37,11 +37,11 @@ sptr<InstObject> ObjectPool::Get(bool enable) const
 	return nullptr;
 }
 
-std::vector<sptr<InstObject>> ObjectPool::GetMulti(size_t cnt, bool enable) const
+std::vector<sptr<InstObject>> ObjectPool::GetMulti(size_t cnt, bool enable)
 {
 	std::vector<sptr<InstObject>> result(cnt);
 
-	// [mAvailableObjects]에서 사용 가능한 id를 얻어 객체를 반환한다.
+	// [mAvailableObjects]에서 사용 가능한 id들을 얻어 객체들을 반환한다.
 	size_t i = 0;
 	for (; i < cnt; ++i) {
 		if (mAvailableObjects.empty()) {

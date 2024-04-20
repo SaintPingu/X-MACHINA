@@ -77,12 +77,11 @@ void ParticleSystem::Awake()
 #pragma endregion
 
 	// 최초 실행되자마자 플레이
-	if (mPSCD->PlayOnAwake) {
+	if (mPSCD->PlayOnAwake)
 		Play();
-	}
 }
 
-void ParticleSystem::Update()
+void ParticleSystem::UpdateParticleSystem()
 {
 #pragma region Update_Elapsed
 	// 시뮬레이션 속도를 위해 델타 타임에 시뮬레이션 속도 적용
@@ -116,12 +115,11 @@ void ParticleSystem::Update()
 		return;
 	}
 
-	mPSGD.AddCount = 0;
-
 	// 정지 경과 시간이 최소 생명 주기를 지났다면 파티클 생성 정지
 	if (!mPSCD->Looping && (mPSGD.TotalTime - mPSCD->StartDelay) >= mPSGD.StartLifeTime.x) {
 		Stop();
-		if (mPSGD.TotalTime >= mPSCD->PlayMaxTime) {
+		// 정지 경과 시간이 최대 생명 주기를 지났다면 파티클 삭제
+		if (mStopElapsed >= mPSGD.StartLifeTime.y) {
 			// 모든 파티클 초기화
 			for (int i = 0; i < mPSCD->MaxParticles; ++i) {
 				FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
@@ -129,13 +127,13 @@ void ParticleSystem::Update()
 			}
 
 			mIsRunning = false;
-			SetActive(false);
-			ParticleRenderer::I->RemoveParticleSystem(mPSIdx);
+			PARTICLE_RENDERER->RemoveParticleSystem(mPSIdx);
 			return;
 		}
 	}
 
 	// 이미션이 켜 있는 경우에만 파티클을 추가한다.
+	mPSGD.AddCount = 0;
 	const float createInterval = 1.f / mPSCD->Emission.RateOverTime;
 	if (mPSCD->Emission.IsOn) {
 		if (createInterval < mAccElapsed) {
@@ -167,34 +165,17 @@ void ParticleSystem::Update()
 	FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
 }
 
-void ParticleSystem::OnDestroy()
-{
-	// 파티클 시스템을 물고 있는 객체 소멸 시 호출
-	if (mIsDeprecated)
-		return;
-
-	// 물고 있는 객체가 소멸되더라도 바로 소멸되지 않도록 파티클 렌더러에 소유권 이전
-	Stop();
-	mIsDeprecated = true;
-	ParticleRenderer::I->AddParticleSystem(shared_from_this());
-}
-
 void ParticleSystem::Play()
 {
-	printf("%f, %f\n", mTarget->GetPosition().z, mTarget->GetPosition().x);
 	// 플레이 시 파티클 렌더러에 추가 후 경과 시간 초기화
-	SetActive(true);
-	ParticleRenderer::I->AddParticleSystem(shared_from_this());
-	mLoopingElapsed = 0.f;
-	mStopElapsed = 0.f;
-	mStartElapsed = 0.f;
-	mAccElapsed = 0.f;
-
-	mPSGD.TotalTime = 0.f;
-	mPSGD.DeltaTime = 0.f;
-
-	mIsStopCreation = false;
-	mIsDeprecated = false;
+	PARTICLE_RENDERER->AddParticleSystem(shared_from_this());
+	mIsStopCreation		= false;
+	mLoopingElapsed		= 0.f;
+	mStopElapsed		= 0.f;
+	mStartElapsed		= 0.f;
+	mAccElapsed			= 0.f;
+	mPSGD.TotalTime		= 0.f;
+	mPSGD.DeltaTime		= 0.f;
 
 	// 처음 시작하자마자 파티클을 생성하기 위함
 	for (int i = 0; i < mPSCD->Emission.Bursts.size(); ++i) {
@@ -206,9 +187,7 @@ void ParticleSystem::Play()
 void ParticleSystem::Stop()
 {
 	// Stop 플래그 설정, 정지 플래그라기 보다는 정지 알림 플래그
-	if (!mIsStopCreation) {
-		mIsStopCreation = true;
-	}
+	mIsStopCreation = true;
 }
 
 void ParticleSystem::ComputeParticleSystem() const
@@ -272,10 +251,9 @@ sptr<ParticleSystemCPUData> ParticleSystem::LoadPSCD(const std::string& filePath
 #pragma region ParticleRenderer
 void ParticleRenderer::Init()
 {
-	mParticleSystems.reserve(300);
-	mDeprecations.reserve(300);
-	mComputeShader = RESOURCE<Shader>("ComputeParticle");
+	mParticleSystems.reserve(1000);
 	mAlphaShader = RESOURCE<Shader>("GraphicsParticle");
+	mComputeShader = RESOURCE<Shader>("ComputeParticle");
 	mOneToOneShader = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
 	mAlphaStretchedShader = RESOURCE<Shader>("GraphicsStretchedParticle");
 	mOneToOneStretchedShader = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
@@ -284,11 +262,6 @@ void ParticleRenderer::Init()
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
 {
 	mParticleSystems.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
-
-	// 파티클 시스템이 삭제 예정 파티클이라면 Deprecations 컨테이너에도 추가
-	if (particleSystem->IsDeprecated()) {
-		mDeprecations.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
-	}
 }
 
 void ParticleRenderer::RemoveParticleSystem(int particleSystemIdx)
@@ -300,14 +273,13 @@ void ParticleRenderer::RemoveParticleSystem(int particleSystemIdx)
 void ParticleRenderer::Update()
 {
 	// 파티클 시스템을 물고 있는 객체가 삭제 되더라도 바로 소멸되지 않도록 업데이트
-	for (const auto& ps : mDeprecations) {
-		ps.second->Update();
+	for (const auto& ps : mParticleSystems) {
+		ps.second->UpdateParticleSystem();
 	}
 
 	// 파티클 삭제
 	while (!mRemoval.empty()) {
 		int deprecated = mRemoval.front();
-		mDeprecations.erase(deprecated);
 		mParticleSystems.erase(deprecated);
 		mRemoval.pop();
 	}

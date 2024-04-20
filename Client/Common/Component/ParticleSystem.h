@@ -361,10 +361,10 @@ public:
 
 public:
 	virtual void Awake() override;
-	virtual void Update() override;
-	virtual void OnDestroy() override;
 
 public:
+	void UpdateParticleSystem();
+
 	void Play();
 	void Stop();
 
@@ -380,19 +380,20 @@ public:
 };
 
 
-class ParticleRenderer : public Singleton<ParticleRenderer> {
-	friend Singleton;
+
+
+
+class ParticleRenderer{
 
 private:
 	std::unordered_map<int, sptr<ParticleSystem>> mParticleSystems;
-	std::unordered_map<int, sptr<ParticleSystem>> mDeprecations;
 	std::queue<int> mRemoval;
 
-	sptr<Shader> mComputeShader;
-	sptr<Shader> mAlphaShader;
-	sptr<Shader> mAlphaStretchedShader;
-	sptr<Shader> mOneToOneShader;
-	sptr<Shader> mOneToOneStretchedShader;
+	sptr<Shader> mComputeShader{};
+	sptr<Shader> mAlphaShader{};
+	sptr<Shader> mAlphaStretchedShader{};
+	sptr<Shader> mOneToOneShader{};
+	sptr<Shader> mOneToOneStretchedShader{};
 
 public:
 #pragma region C/Dtor

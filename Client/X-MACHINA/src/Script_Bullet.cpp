@@ -25,6 +25,10 @@ void Script_Bullet::Awake()
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Big"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Mult"));
 
+	for (auto& ps : mParticleSystems) {
+		ps->Awake();
+	}
+
 	const auto& rb = mObject->GetComponent<Rigidbody>();
 	rb->SetFriction(0.001f);
 	rb->SetDrag(0.001f);

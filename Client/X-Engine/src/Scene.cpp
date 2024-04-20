@@ -247,15 +247,6 @@ void Scene::BuildTest()
 	//mParticles[0]->SetPosition(Vec3{ 103.f, GetTerrainHeight(103.f, 105.f) + 2.f, 105.f });
 }
 
-
-void Scene::TestParticlePlay()
-{
-	for (const auto& ps : mParticles[0]->GetComponents<ParticleSystem>()) {
-		ps->Play();
-	}
-}
-
-
 void Scene::BuildGrid()
 {
 	constexpr float kMaxHeight = 300.f;	// for 3D grid
@@ -560,7 +551,7 @@ void Scene::RenderSkyBox()
 
 void Scene::RenderParticles()
 {
-	ParticleRenderer::I->Render();
+	PARTICLE_RENDERER->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -736,7 +727,7 @@ void Scene::Update()
 	MAIN_CAMERA->UpdateViewMtx();
 	mLight->Update();
 	Canvas::I->Update();
-	ParticleRenderer::I->Update();
+	PARTICLE_RENDERER->Update();
 
 	UpdateShaderVars();
 

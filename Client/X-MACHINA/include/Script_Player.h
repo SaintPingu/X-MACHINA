@@ -204,6 +204,7 @@ public:
 
 	// called by weapon //
 	void StartReload();
+	void BoltAction();
 	// called by callback //
 	void EndReload();
 
@@ -242,11 +243,15 @@ private:
 	void StopReloadCallback();
 	void ChangeReloadCallback();
 	void EndReloadCallback();
+	void BoltActionCallback();
 
 	void ResetAimingTime() { mAimingDeltaTime = 0.f; }
 	void RecoverRecoil();
 
 	void MoveCamera(Dir dir);
+
+	// [time] 내에 [motion]이 끝나도록 [motion]의 속도를 변경한다.
+	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
 };
 
 #pragma endregion

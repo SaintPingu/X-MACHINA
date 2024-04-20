@@ -9,6 +9,7 @@
 #include "Script_Weapon_Pistol.h"
 #include "Script_Weapon_Rifle.h"
 #include "Script_Weapon_Shotgun.h"
+#include "Script_Weapon_Sniper.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -329,6 +330,22 @@ void Script_GroundPlayer::StartReload()
 	}
 }
 
+void Script_GroundPlayer::BoltAction()
+{
+	if (!mWeapon) {
+		return;
+	}
+
+	if (mController) {
+		mController->SetValue("BoltAction", true);
+		mController->UpdateTransition();
+
+		mWeapon->DetachParent(false);
+		Transform* leftHand = mObject->FindFrame("Humanoid_ L Hand");
+		leftHand->SetChild(mWeapon, false);
+	}
+}
+
 void Script_GroundPlayer::EndReload()
 {
 	mWeaponScript->EndReload();
@@ -408,6 +425,7 @@ void Script_GroundPlayer::InitWeapons()
 	CallbackType drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
 	CallbackType drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
 	CallbackType putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
+	CallbackType boltActionCallback   = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
 
 	mWeapons.resize(gkWeaponTypeCnt, nullptr);
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
@@ -424,7 +442,6 @@ void Script_GroundPlayer::InitWeapons()
 		case WeaponType::HandedGun:
 		case WeaponType::LightingGun:
 		case WeaponType::GatlinGun:
-		case WeaponType::Sniper:
 		case WeaponType::MissileLauncher:
 			weapon->AddComponent<Script_Weapon_Pistol>();
 			break;
@@ -433,6 +450,9 @@ void Script_GroundPlayer::InitWeapons()
 			break;
 		case WeaponType::ShotGun:
 			weapon->AddComponent<Script_Weapon_DBMS>();
+			break;
+		case WeaponType::Sniper:
+			weapon->AddComponent<Script_Weapon_PipeLine>();
 			break;
 		default:
 			assert(0);
@@ -456,11 +476,6 @@ void Script_GroundPlayer::InitWeapons()
 		auto& drawMotion    = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
 		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
 
-		// sync off
-		realodMotion->SetSync(false);
-		drawMotion->SetSync(false);
-		putbackMotion->SetSync(false);
-
 		// add callbacks
 		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
 		realodMotion->AddStopCallback(reloadStopCallback);
@@ -471,6 +486,19 @@ void Script_GroundPlayer::InitWeapons()
 
 
 		weapon->Awake();
+	}
+
+	// bolt action sniper 초기화
+	{
+		auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+		// callback
+		boltActionMotion->AddEndCallback(boltActionCallback);
+		boltActionMotion->AddChangeCallback(boltActionCallback);
+
+		// motion speed
+		constexpr float decTime = 0.1f; // [decTime]초 만큼 애니메이션을 더 빨리 재생한다.
+		const float fireDelay = mWeapons[static_cast<int>(WeaponType::Sniper)]->GetComponent<Script_Weapon>()->GetFireDelay();
+		SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 	}
 }
 
@@ -500,10 +528,7 @@ void Script_GroundPlayer::DrawWeaponCallback()
 	base::DrawWeapon();
 
 	auto& motion            = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
-	const float reloadTime  = mWeaponScript->GetReloadTime();
-	const float motionTime  = motion->GetMaxLength();
-	const float realodSpeed = motionTime / reloadTime;
-	motion->ResetOriginSpeed(realodSpeed);
+	SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
 }
 
 void Script_GroundPlayer::DrawWeaponEndCallback()
@@ -526,6 +551,7 @@ void Script_GroundPlayer::DrawWeaponEndCallback()
 void Script_GroundPlayer::PutbackWeapon()
 {
 	base::PutbackWeapon();
+	mCrntYawAngle = 0;
 
 	if (mWeapon) {
 		StopReload();
@@ -712,6 +738,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 	// keep the muzzle facing the target //
 	constexpr float kAimingSpeed  = 10.f;
 	constexpr float kHoldingSpeed = 5.f;
+	mSpineBone->Rotate(Vector3::Forward, mCrntYawAngle);
 
 	if (mIsAim && mMuzzle) {
 		if (IsInGunChangeMotion()) {
@@ -776,7 +803,6 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 
 		// 상하를 회전하여 총구의 yaw 회전을 제거한다.
 		if (!mWeaponScript->IsReloading() && mController->IsEndTransition("Body")) {
-			mSpineBone->Rotate(Vector3::Forward, mCrntYawAngle);
 			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
 			if (fabs(yawAngle) > 0.1f) {
 				// [maxAngle]도 이상일 때 최대 속도
@@ -788,9 +814,6 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 				mCrntYawAngle += Math::Sign(yawAngle) * speed * DeltaTime();
 			}
 		}
-		else {
-			mCrntYawAngle = 0.f;
-		}
 
 		// 반동 적용
 		if (mCurRecoil > 0.f) {
@@ -800,7 +823,6 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 	else if (::DecreaseDelta(mAimingDeltaTime, kHoldingSpeed)) {
 		mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle * mAimingDeltaTime);
 		mCrntSpineAngle *= mAimingDeltaTime;
-		mCrntYawAngle = 0;
 	}
 }
 
@@ -1001,6 +1023,18 @@ void Script_GroundPlayer::EndReloadCallback()
 	EndReload();
 }
 
+void Script_GroundPlayer::BoltActionCallback()
+{
+	if (mController) {
+		mWeapon->DetachParent();
+		Transform* rightHand = mObject->FindFrame("RefPosSniper_Action");
+		rightHand->SetChild(mWeapon);
+		mWeapon->SetLocalTransform(Matrix::Identity);
+
+		mController->SetValue("BoltAction", false);
+	}
+}
+
 void Script_GroundPlayer::RecoverRecoil()
 {
 	constexpr float recoverAmount = 70.f;
@@ -1037,4 +1071,14 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 
 		mCamera->Move(Vec2(dirVec.x, dirVec.z), Vector2::One, maxOffset_t);
 	}
+}
+
+void Script_GroundPlayer::SetMotionSpeed(rsptr<AnimatorMotion> motion, float time)
+{
+	if (time <= 0.f) {
+		return;
+	}
+
+	const float motionSpeed = motion->GetMaxLength() / time;
+	motion->ResetOriginSpeed(motionSpeed);
 }

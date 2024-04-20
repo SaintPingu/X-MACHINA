@@ -55,6 +55,7 @@ protected:
 	int mCurBulletCnt{};		// 현재 발수 수
 	int mBulletCntPerShot{ 1 };	// 발사 당 총알 수
 
+	bool  mIsBoltAction{};		// 볼트액션 중인가?
 	bool  mIsShooting{};		// 발사 버튼을 누르고 있는가?
 	bool  mIsBeforeShooting{};	// 이전에 총알이 발사되었는가?
 
@@ -66,8 +67,9 @@ public:
 public:
 	virtual WeaponType GetWeaponType() const abstract;
 	Transform* GetMuzzle() const { return mMuzzle; }
-	float GetReloadTime() const { return mMaxReloadTime ; }
-	bool IsReloading() const { return mIsReload; }
+	float GetReloadTime() const { return mMaxReloadTime; }
+	float GetFireDelay() const { return mMaxFireDelay; }
+	bool IsReloading() const { return mIsReload || mIsBoltAction; }
 	bool IsShooting() const { return mIsShooting; }
 
 	void SetOwner(Script_GroundPlayer* owner) { mOwner = owner; }
@@ -94,8 +96,9 @@ protected:
 
 private:
 
-	void Update_SemiAuto();
 	void Update_Auto();
+	void Update_SemiAuto();
+	void Update_BoltAction();
 
 	void Fire();
 

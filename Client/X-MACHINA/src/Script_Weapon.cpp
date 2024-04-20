@@ -31,15 +31,21 @@ void Script_Weapon::Start()
 
 	mCurMag = mMaxMag;
 	mCurBulletCnt = mBulletCntPerMag;
+	mCurFireDelay = mMaxFireDelay;
 }
 
 void Script_Weapon::Update()
 {
-	if (mOwner->IsInDraw() || mOwner->IsInPutBack() || mIsReload) {
+	if (mOwner->IsInDraw() || mOwner->IsInPutBack() || mIsReload || mCurBulletCnt <= 0) {
 		return;
 	}
 
-	updateFunc();
+	if (CanFire()) {
+		updateFunc();
+	}
+	else {
+		mCurFireDelay += DeltaTime();
+	}
 }
 
 void Script_Weapon::FireBullet()
@@ -50,12 +56,14 @@ void Script_Weapon::FireBullet()
 void Script_Weapon::SetFiringMode(FiringMode firingMode)
 {
 	switch (firingMode) {
-	case FiringMode::SemiAuto:
-	case FiringMode::BoltAction:
-		updateFunc = std::bind(&Script_Weapon::Update_SemiAuto, this);
-		break;
 	case FiringMode::Auto:
 		updateFunc = std::bind(&Script_Weapon::Update_Auto, this);
+		break;
+	case FiringMode::SemiAuto:
+		updateFunc = std::bind(&Script_Weapon::Update_SemiAuto, this);
+		break;
+	case FiringMode::BoltAction:
+		updateFunc = std::bind(&Script_Weapon::Update_BoltAction, this);
 		break;
 	default:
 		assert(0);
@@ -79,6 +87,7 @@ void Script_Weapon::EndReload()
 	--mCurMag;
 	mCurBulletCnt += mBulletCntPerMag;
 	mCurReloadTime = 0.f;
+	mCurFireDelay = mMaxFireDelay;
 	mIsReload = false;
 }
 
@@ -100,30 +109,37 @@ void Script_Weapon::StartReload()
 	}
 }
 
-void Script_Weapon::Update_SemiAuto()
+void Script_Weapon::Update_Auto()
 {
-	if (CanFire()) {
-		if (mIsShooting && !mIsBeforeShooting) {
-			Fire();
-			mIsBeforeShooting = true;
-		}
-	}
-	else {
-		mCurFireDelay += DeltaTime();
+	if (mIsShooting) {
+		Fire();
 	}
 }
 
-void Script_Weapon::Update_Auto()
+void Script_Weapon::Update_SemiAuto()
 {
-	if (CanFire()) {
-		if (mIsShooting) {
-			Fire();
+	if (mIsShooting && !mIsBeforeShooting) {
+		Fire();
+		mIsBeforeShooting = true;
+	}
+}
+
+void Script_Weapon::Update_BoltAction()
+{
+	if (mIsShooting && !mIsBeforeShooting) {
+		Fire();
+		mIsBeforeShooting = true;
+
+		if (mCurBulletCnt > 0 && mOwner) {
+			mIsBoltAction = true;
+			mOwner->BoltAction();
 		}
 	}
 	else {
-		mCurFireDelay += DeltaTime();
+		mIsBoltAction = false;
 	}
 }
+
 
 void Script_Weapon::Fire()
 {

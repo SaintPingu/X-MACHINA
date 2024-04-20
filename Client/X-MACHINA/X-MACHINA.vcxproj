@@ -226,6 +226,7 @@
     <ClInclude Include="include\Script_Weapon_Pistol.h" />
     <ClInclude Include="include\Script_Weapon_Rifle.h" />
     <ClInclude Include="include\Script_Weapon_Shotgun.h" />
+    <ClInclude Include="include\Script_Weapon_Sniper.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\TaskAttack.h" />
@@ -282,6 +283,7 @@
     <ClCompile Include="src\Script_Weapon_Pistol.cpp" />
     <ClCompile Include="src\Script_Weapon_Rifle.cpp" />
     <ClCompile Include="src\Script_Weapon_Shotgun.cpp" />
+    <ClCompile Include="src\Script_Weapon_Sniper.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>

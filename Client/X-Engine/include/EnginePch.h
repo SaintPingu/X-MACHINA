@@ -289,8 +289,6 @@ constexpr int gkDescHeapDsvCount = 8;
 
 constexpr int gkMaxSceneLight = 32;	// 씬에 존재할 수 있는 조명의 최대 개수. Light.hlsl과 동일해야 한다.
 constexpr int gkSkinBoneSize = 128;
-
-constexpr int gkMaxParticleCount = 1000;
 #pragma endregion
 
 

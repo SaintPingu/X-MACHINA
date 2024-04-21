@@ -32,6 +32,7 @@ enum {
 struct PassConstants {
     Matrix  MtxView{};
     Matrix  MtxProj{};
+    Matrix  MtxInvProj{};
     Matrix  MtxShadow{};
     Vec3    CameraPos{};
     UINT    LightCount{};

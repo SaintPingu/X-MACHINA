@@ -72,14 +72,9 @@
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>
 		<Bursts class_id="5" tracking_level="0" version="0">
-			<count>3</count>
+			<count>2</count>
 			<item_version>0</item_version>
 			<item class_id="6" tracking_level="0" version="0">
-				<Count>10</Count>
-				<Time>0.000000000e+00</Time>
-				<BurstElapsed>0.000000000e+00</BurstElapsed>
-			</item>
-			<item>
 				<Count>5</Count>
 				<Time>0.000000000e+00</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>

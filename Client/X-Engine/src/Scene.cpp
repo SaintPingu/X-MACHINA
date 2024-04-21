@@ -111,9 +111,11 @@ void Scene::UpdateShaderVars()
 
 void Scene::UpdateMainPassCB()
 {
+	Matrix proj = MAIN_CAMERA->GetProjMtx();
 	PassConstants passCB;
 	passCB.MtxView = MAIN_CAMERA->GetViewMtx().Transpose();
 	passCB.MtxProj = MAIN_CAMERA->GetProjMtx().Transpose();
+	passCB.MtxInvProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
 	passCB.MtxShadow = mLight->GetShadowMtx().Transpose();
 	passCB.CameraPos = MAIN_CAMERA->GetPosition();
 	passCB.CameraRight = MAIN_CAMERA->GetRight();

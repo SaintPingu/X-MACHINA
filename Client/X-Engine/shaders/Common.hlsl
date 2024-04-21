@@ -107,6 +107,7 @@ struct ObjectInfo {
 struct PassInfo {
     matrix      MtxView;
     matrix      MtxProj;
+    matrix      MtxInvProj;
     matrix      MtxShadow;
     float3      CameraPos;
     uint        LightCount;
@@ -440,5 +441,12 @@ float4 Dissolve(float3 color, float dissolve, float t)
     float3 smoothColor = (1 - smoothstep(min, max, dissolve)) * color;
 
     return float4(smoothColor, smoothAlpha);
+}
+
+
+float NdcDepthToViewDepth(float zNdc)
+{
+    float viewZ = gPassCB.MtxProj[3][2] / (zNdc - gPassCB.MtxProj[2][2]);
+    return viewZ;
 }
 #endif

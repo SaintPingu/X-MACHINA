@@ -24,6 +24,7 @@ void Script_Bullet::Awake()
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Big"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Mult"));
+	mSmokeParticleIdx = 1;
 
 	for (auto& ps : mParticleSystems) {
 		ps->Awake();
@@ -60,6 +61,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Building:
+		mParticleSystems[mSmokeParticleIdx]->Play();
 		Explode();
 		break;
 

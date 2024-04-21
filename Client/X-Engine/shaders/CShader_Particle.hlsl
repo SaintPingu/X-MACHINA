@@ -1,7 +1,5 @@
 #include "Common.hlsl"
 
-#define gkMaxParticleCount 1000
-
 #define gkSimulationSpace_Local 0
 #define gkSimulationSpace_World 1
 

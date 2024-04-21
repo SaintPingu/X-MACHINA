@@ -23,12 +23,6 @@ float OcclusionFunction(float distZ)
 	return occlusion;	
 }
 
-float NdcDepthToViewDepth(float zNdc)
-{
-    float viewZ = gPassCB.MtxProj[3][2] / (zNdc - gPassCB.MtxProj[2][2]);
-    return viewZ;
-}
-
 float4 PSSsao(VSOutput_SSAO pin) : SV_TARGET0
 {
     // 뷰 공간에서의 노말 값과 깊이 값

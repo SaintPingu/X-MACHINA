@@ -11,6 +11,7 @@
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
+#include "Component/Collider.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -200,7 +201,13 @@ void Script_GroundPlayer::Move(Dir dir)
 	}
 
 	const Vec3 dirVec = Transform::GetWorldDirection(dir);
-	mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
+
+	if (mSlideVec != Vector3::Zero)
+		mObject->Translate(mSlideVec * mMovementSpeed * DeltaTime());
+	else 
+		mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
+
+	mDirVec = dirVec;
 }
 
 void Script_GroundPlayer::RotateTo(Dir dir)
@@ -248,13 +255,15 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 }
 
 
-
 void Script_GroundPlayer::OnCollisionStay(Object& other)
 {
+	mSlideVec = Vector3::Zero;
 	switch (other.GetTag())
 	{
 	case ObjectTag::Building:
-		//Explode();
+	{
+		mSlideVec = ComputeSlideVector(other);
+	}
 		break;
 	default:
 		break;
@@ -1004,4 +1013,41 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 
 		mCamera->Move(Vec2(dirVec.x, dirVec.z), 0.6f, true);
 	}
+}
+
+Vec3 Script_GroundPlayer::ComputeSlideVector(const Object& other)
+{
+	Ray r{ mObject->GetPosition(), XMVector3Normalize(mDirVec) };
+
+	for (const auto& obb : other.GetComponent<ObjectCollider>()->GetOBBList()) {
+		float dist;
+		if (obb->Intersects(r.Position, r.Direction, dist)) {
+			auto obbTemp = obb;
+
+			Matrix worldToOBB = XMMatrixRotationQuaternion(XMLoadFloat4(&obbTemp->Orientation));
+			r.Position -= obbTemp->Center;
+			r.Position = Vec3::Transform(r.Position, XMMatrixInverse(nullptr, worldToOBB));
+			r.Direction = Vec3::Transform(r.Direction, XMMatrixInverse(nullptr, worldToOBB));
+
+			float halfExtentX = obbTemp->Extents.x;
+			float halfExtentZ = obbTemp->Extents.z;
+
+			Vec3 collisionNormal;
+			if (r.Position.x >= halfExtentX - 0.2f)
+				collisionNormal = Vector3::Right;
+			else if (r.Position.x <= -halfExtentX + 0.2f)
+				collisionNormal = Vector3::Left;
+			else if (r.Position.z >= 0.f)
+				collisionNormal = Vector3::Forward;
+			else if (r.Position.z <= 0.f)
+				collisionNormal = Vector3::Backward;
+
+			Vec3 S = r.Direction - collisionNormal * (collisionNormal.Dot(r.Direction));
+			S.Normalize();
+			S = Vec3::Transform(S, (nullptr, worldToOBB));
+			return S;
+		}
+	}
+
+	return Vec3{};
 }

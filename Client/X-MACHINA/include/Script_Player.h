@@ -250,8 +250,7 @@ private:
 
 	void MoveCamera(Dir dir);
 
-	Vec3 ComputeCollisionNormal();
-	Vec3 ComputeSlideVector(const Object& other);
+	void ComputeSlideVector(Object& other);
 };
 
 #pragma endregion

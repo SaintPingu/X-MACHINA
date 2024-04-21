@@ -4,7 +4,10 @@
 
 
 
+UINT32 Object::sID = 0;
+
 namespace {
+
 	constexpr DWORD gkDynamicObjects {
 		ObjectTag::Player			|
 		ObjectTag::Tank				|

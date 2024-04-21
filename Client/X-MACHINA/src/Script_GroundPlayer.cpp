@@ -201,13 +201,15 @@ void Script_GroundPlayer::Move(Dir dir)
 	}
 
 	const Vec3 dirVec = Transform::GetWorldDirection(dir);
-
-	if (mSlideVec != Vector3::Zero)
-		mObject->Translate(mSlideVec * mMovementSpeed * DeltaTime());
-	else 
-		mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
-
 	mDirVec = dirVec;
+
+	if (mSlideVec != Vector3::Zero) {
+		mObject->Translate(mSlideVec * mMovementSpeed * DeltaTime());
+		mSlideVec = Vector3::Zero;
+	}
+	else {
+		mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
+	}
 }
 
 void Script_GroundPlayer::RotateTo(Dir dir)
@@ -257,13 +259,10 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 
 void Script_GroundPlayer::OnCollisionStay(Object& other)
 {
-	mSlideVec = Vector3::Zero;
 	switch (other.GetTag())
 	{
 	case ObjectTag::Building:
-	{
-		mSlideVec = ComputeSlideVector(other);
-	}
+		ComputeSlideVector(other);
 		break;
 	default:
 		break;
@@ -1015,39 +1014,67 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 	}
 }
 
-Vec3 Script_GroundPlayer::ComputeSlideVector(const Object& other)
+void Script_GroundPlayer::ComputeSlideVector(Object& other)
 {
-	Ray r{ mObject->GetPosition(), XMVector3Normalize(mDirVec) };
+	// 이전 충돌체와 이전 슬라이딩 벡터를 저장
+	static Object* prevOther = nullptr;
+	static Vec3 prevSlideVec{};
 
-	for (const auto& obb : other.GetComponent<ObjectCollider>()->GetOBBList()) {
-		float dist;
-		if (obb->Intersects(r.Position, r.Direction, dist)) {
-			auto obbTemp = obb;
+	// 허리 쪽부터 이동 방향을 향하는 광선
+	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, XMVector3Normalize(mDirVec) };
 
-			Matrix worldToOBB = XMMatrixRotationQuaternion(XMLoadFloat4(&obbTemp->Orientation));
-			r.Position -= obbTemp->Center;
-			r.Position = Vec3::Transform(r.Position, XMMatrixInverse(nullptr, worldToOBB));
-			r.Direction = Vec3::Transform(r.Direction, XMMatrixInverse(nullptr, worldToOBB));
+	// 이전 충돌체가 현재 충돌체와 다른 경우
+	if (prevOther != nullptr) {
+		if (prevOther->GetID() != other.GetID()) {
+			// 광선으로부터 두 충돌체의 거리를 계산
+			float crntDist = Vec3::Distance(ray.Position, other.GetPosition());
+			float prevDist = Vec3::Distance(ray.Position, prevOther->GetPosition());
 
-			float halfExtentX = obbTemp->Extents.x;
-			float halfExtentZ = obbTemp->Extents.z;
-
-			Vec3 collisionNormal;
-			if (r.Position.x >= halfExtentX - 0.2f)
-				collisionNormal = Vector3::Right;
-			else if (r.Position.x <= -halfExtentX + 0.2f)
-				collisionNormal = Vector3::Left;
-			else if (r.Position.z >= 0.f)
-				collisionNormal = Vector3::Forward;
-			else if (r.Position.z <= 0.f)
-				collisionNormal = Vector3::Backward;
-
-			Vec3 S = r.Direction - collisionNormal * (collisionNormal.Dot(r.Direction));
-			S.Normalize();
-			S = Vec3::Transform(S, (nullptr, worldToOBB));
-			return S;
+			// 현재 충돌체까지의 거리가 더 길 경우 이전 슬라이딩 벡터를 사용
+			if (crntDist > prevDist) {
+				mSlideVec = prevSlideVec;
+				return;
+			}
 		}
 	}
 
-	return Vec3{};
+	float dist;
+	float minDist{ 999.f };
+
+	// ray에 충돌한 최소 거리 obb만 슬라이딩 벡터 충돌체로 선정
+	for (const auto& obb : other.GetComponent<ObjectCollider>()->GetOBBList()) {
+		if (obb->Intersects(ray.Position, ray.Direction, dist)) {
+			// 최소 거리가 작을 경우에만 실행
+			if (dist > minDist)
+				continue;
+
+			minDist = dist;
+
+			// OBB의 월드 변환 행렬
+			Matrix worldToOBB = Matrix::CreateFromQuaternion(obb->Orientation);
+
+			// 광선을 OBB의 로컬 좌표계로 변환
+			ray.Position -= obb->Center;
+			ray.Position = Vec3::Transform(ray.Position, worldToOBB.Invert());
+			ray.Direction = Vec3::Transform(ray.Direction, worldToOBB.Invert());
+
+			// 광선의 현재 위치에 따라 OBB의 노말 벡터 저장
+			Vec3 collisionNormal;
+			if (ray.Position.x >= obb->Extents.x)
+				collisionNormal = Vector3::Right;
+			else if (ray.Position.x <= -obb->Extents.x)
+				collisionNormal = Vector3::Left;
+			else if (ray.Position.z >= 0.f)
+				collisionNormal = Vector3::Forward;
+			else if (ray.Position.z <= 0.f)
+				collisionNormal = Vector3::Backward;
+
+			// 슬라이딩 벡터를 구하여 다시 월드 좌표계로 변환
+			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * (ray.Direction.Dot(collisionNormal)));
+			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
+
+			prevOther = &other;
+			prevSlideVec = mSlideVec;
+		}
+	}
 }

@@ -146,7 +146,8 @@ private:
 
 class Object : public Transform {
 private:
-	UINT32      mID;
+	UINT32			mID;
+	static UINT32	sID;
 
 	std::string	mName{};
 	ObjectTag	mTag{};
@@ -163,7 +164,7 @@ private:
 
 public:
 #pragma region C/Dtor
-	Object() : Transform(this) { }
+	Object() : Transform(this) { mID = sID++; }
 	virtual ~Object() { Release(); }
 #pragma endregion
 

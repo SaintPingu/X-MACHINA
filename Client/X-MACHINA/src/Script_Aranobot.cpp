@@ -26,3 +26,8 @@ void Script_Aranobot::Update()
 {
 	base::Update();
 }
+
+void Script_Aranobot::Attack()
+{
+	printf("ATTACKING!\n");
+}

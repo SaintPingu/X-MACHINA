@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Script_MeleeBT.h"
 
+#include "Script_Enemy.h"
+
 #include "CheckDetectionRange.h"
 #include "CheckAttackRange.h"
 #include "CheckPatrolRange.h"
@@ -33,16 +35,18 @@ BT::Node* Script_MeleeBT::SetupTree()
 		maxDis = max(maxDis, Vec3::Distance(baryCenter, wayPoint));
 #pragma endregion
 
+	auto& enemy = mObject->GetComponent<Script_Enemy>();
+
 #pragma region BehaviorTree
 	BT::Node* root = new BT::Selector{ std::vector<BT::Node*>{
 		new CheckDeath(mObject),
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new TaskGetHit(mObject),
-			new Wait(0.3f) }},
+			new Wait(0.3f)}},
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckAttackRange(mObject),
 			new TaskAttack(mObject),
-			new Wait(1.f) }},
+			new Wait(1.f, std::bind(&Script_Enemy::Attack, enemy)) }},
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckDetectionRange(mObject),
 			new BT::Selector{ std::vector<BT::Node*>{

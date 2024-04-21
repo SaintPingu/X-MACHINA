@@ -16,9 +16,10 @@ class Wait : public BT::Node {
 private:
 	float mAccTime{};
 	float mWaitTime{};
+	std::function<void()> mWaitingCallback;
 
 public:
-	Wait(float waitTime) : mWaitTime(waitTime) {}
+	Wait(float waitTime, std::function<void()> callback = nullptr);
 	virtual ~Wait() = default;
 
 public:

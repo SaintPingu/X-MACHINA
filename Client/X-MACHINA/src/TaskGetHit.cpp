@@ -17,9 +17,7 @@ TaskGetHit::TaskGetHit(Object* object)
 
 BT::NodeState TaskGetHit::Evaluate()
 {
-	sptr<Object> target = GetData("target");
-
-	if (!target) {
+	if (!mEnemyMgr->mTarget) {
 		return BT::NodeState::Failure;
 	}
 
@@ -32,7 +30,7 @@ BT::NodeState TaskGetHit::Evaluate()
 
 		mPrevHp = crntHp;
 
-		mObject->Translate(target->GetLook(), mKnockBack);
+		mObject->Translate(mEnemyMgr->mTarget->GetLook(), mKnockBack);
 
 		return BT::NodeState::Success;
 	}

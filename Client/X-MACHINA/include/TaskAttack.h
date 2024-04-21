@@ -3,6 +3,7 @@
 
 #pragma region Include
 #include "Script_BehaviorTree.h"
+#include "Wait.h"
 #pragma endregion
 
 
@@ -13,15 +14,12 @@ class Script_EnemyManager;
 
 
 #pragma region Class
-class TaskAttack : public BT::Node {
+class TaskAttack : public Wait {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
-	float mAttackAccTime = 0.f;
 
 public:
-	TaskAttack(Object* object);
+	TaskAttack(Object* object, float wait = 0.f, std::function<void()> callback = nullptr);
 	virtual ~TaskAttack() = default;
-
-	virtual BT::NodeState Evaluate() override;
 };
 #pragma endregion

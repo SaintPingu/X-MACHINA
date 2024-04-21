@@ -20,9 +20,6 @@ namespace BehaviorTree {
 	protected:
 		Object* mObject{};
 
-	private:
-		std::unordered_map<std::string, sptr<Object>> mDataContext{};
-
 	public:
 		Node() {};
 		Node(std::vector<Node*>& children);
@@ -32,9 +29,6 @@ namespace BehaviorTree {
 		virtual NodeState Evaluate() { return NodeState::Failure; };
 
 		void SetRoot();
-		void SetData(const std::string& key, sptr<Object> object);
-		sptr<Object> GetData(const std::string& key);
-		bool ClearData(std::string key);
 
 	private:
 		void Attach(Node* node);

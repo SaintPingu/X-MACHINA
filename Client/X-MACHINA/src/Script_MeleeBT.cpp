@@ -45,8 +45,8 @@ BT::Node* Script_MeleeBT::SetupTree()
 			new Wait(0.3f)}},
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckAttackRange(mObject),
-			new TaskAttack(mObject),
-			new Wait(1.f, std::bind(&Script_Enemy::Attack, enemy)) }},
+			new TaskAttack(mObject, 1.f, std::bind(&Script_Enemy::Attack, enemy)),
+			}},
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckDetectionRange(mObject),
 			new BT::Selector{ std::vector<BT::Node*>{

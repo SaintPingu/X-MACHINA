@@ -9,22 +9,10 @@
 #include "AnimatorController.h"
 
 
-TaskAttack::TaskAttack(Object* object)
+TaskAttack::TaskAttack(Object* object, float wait, std::function<void()> callback)
+	:
+	Wait(wait, callback)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-}
-
-
-BT::NodeState TaskAttack::Evaluate()
-{
-	sptr<Object> target = GetData("target");
-
-	mAttackAccTime += DeltaTime();
-	if (mAttackAccTime >= mEnemyMgr->mAttackCoolTime) {
-
-		mAttackAccTime = 0.f;
-	}
-
-	return BT::NodeState::Running;
 }

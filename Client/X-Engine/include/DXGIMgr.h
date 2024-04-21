@@ -32,9 +32,10 @@ class FilterOption : public DwordOverloader<FilterOption> {
 
 	static const DWORD None = 0x001;
 	static const DWORD Blur = 0x002;
-	static const DWORD Tone = 0x004;
-	static const DWORD LUT = 0x008;
+	static const DWORD LUT	= 0x004;
+	static const DWORD Tone = 0x008;
 	static const DWORD Ssao = 0x010;
+	static const DWORD Shadow = 0x020;
 };
 #pragma endregion
 
@@ -124,6 +125,7 @@ public:
 	FrameResourceMgr* GetFrameResourceMgr() const			{ return mFrameResourceMgr.get(); }
 	const auto& GetMRT(GroupType groupType) const			{ return mMRTs[static_cast<UINT8>(groupType)]; }
 	const DWORD GetFilterOption() const						{ return mFilterOption; }
+	bool GetFilterOption(FilterOption op) const				{ return (mFilterOption & op) != false; }
 	rsptr<DescriptorHeap> GetDescHeap() const				{ return mDescriptorHeap; }
 	Ssao* GetSsao() const									{ return mSsao.get(); }
 
@@ -138,7 +140,7 @@ public:
 #pragma endregion
 
 #pragma region Setter
-	void SetFilterOption(DWORD option)		{ mFilterOption = option; }
+	void SetFilterOption(DWORD option)		{ mFilterOption ^= option; }
 	void SetDrawOption(DrawOption option)	{ mDrawOption = option; }
 
 	// [data]를 32BitConstants에 Set한다.

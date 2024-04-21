@@ -45,7 +45,7 @@ void LUTCS(int3 dispatchThreadID : SV_DispatchThreadID)
 {
     float4 color = gInput[float2(dispatchThreadID.x, dispatchThreadID.y)];
  
-    // 톤매핑
+    // 톤매핑 적용
     if (gFilterOption & Filter_Tone)
     {
         color = GammaDecoding(color);
@@ -58,7 +58,8 @@ void LUTCS(int3 dispatchThreadID : SV_DispatchThreadID)
         color = GammaEncoding(float4(aces_fitted(color.rgb), color.a));
     }
     
-    if (gFilterOption & Filter_LUT)
+    // LUT는 톤매핑 후에만 적용
+    if (gFilterOption & Filter_Tone && gFilterOption & Filter_LUT)
     {
         float u = floor(color.b * 15.f) / 15.f * 240.f;
         u = (floor(color.r * 15.f) / 15.f * 15.f) + u;

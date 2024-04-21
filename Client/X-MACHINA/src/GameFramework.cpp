@@ -349,6 +349,9 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_F6:
 			ImGuiMgr::I->ToggleImGui();
 			break;
+		case VK_F8:
+			Scene::I->ToggleFilterOptions();
+			break;
 		case 192:	// '`'
 			::SetFocus(NULL);
 			break;

@@ -423,6 +423,9 @@ void Scene::RenderShadow()
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
 
+	if (!DXGIMgr::I->GetFilterOption(FilterOption::Shadow))
+		return;
+
 #pragma region Shadow_Global
 	RenderGridObjects(true);
 #pragma endregion
@@ -849,6 +852,17 @@ void Scene::ToggleDrawBoundings()
 	ProcessAllObjects([](sptr<GridObject> object) {
 		object->ToggleDrawBoundings();
 		});
+}
+
+void Scene::ToggleFilterOptions()
+{
+	static UINT8 filterIdx = 0;
+	static std::array<DWORD, 5> values = { 0x004, 0x008, 0x010, 0x020, 0x002 };
+	DXGIMgr::I->SetFilterOption(values[filterIdx++]);
+	filterIdx %= values.size();
+
+	if (filterIdx == 0)
+		std::reverse(values.begin(), values.end());
 }
 
 void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)

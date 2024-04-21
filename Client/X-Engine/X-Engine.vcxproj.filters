@@ -377,9 +377,6 @@
     <ClInclude Include="include\LUTFilter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\AnimationClip.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Animator.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -466,6 +463,9 @@
     </ClInclude>
     <ClInclude Include="..\Common\Component\Transform.h">
       <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AnimationClip.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

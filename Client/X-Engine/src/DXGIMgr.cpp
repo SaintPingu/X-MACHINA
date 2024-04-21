@@ -24,14 +24,15 @@ DXGIMgr::DXGIMgr()
 	:
 	mDescriptorHeap(std::make_shared<DescriptorHeap>())
 {
-	DWORD filterOptione = 0;
-	filterOptione |= FilterOption::None;
-	filterOptione |= FilterOption::LUT;
-	filterOptione |= FilterOption::Tone;
-	filterOptione |= FilterOption::Ssao;
-	//filterOptione |= FilterOption::Blur;
+	DWORD filterOption = 0;
+	filterOption |= FilterOption::None;
+	//filterOption |= FilterOption::Blur;
+	filterOption |= FilterOption::LUT;
+	filterOption |= FilterOption::Tone;
+	filterOption |= FilterOption::Ssao;
+	filterOption |= FilterOption::Shadow;
 
-	mFilterOption = filterOptione;
+	mFilterOption = filterOption;
 }
 
 UINT DXGIMgr::GetGraphicsRootParamIndex(RootParam param) const

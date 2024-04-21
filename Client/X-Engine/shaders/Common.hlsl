@@ -18,9 +18,10 @@
                                  
 #define Filter_None              0x001
 #define Filter_Blur              0x002
-#define Filter_Tone              0x004
-#define Filter_LUT               0x008
+#define Filter_LUT               0x004
+#define Filter_Tone              0x008
 #define Filter_Ssao              0x010
+#define Filter_Shadow            0x020
 
 #define RANDOM_IA 16807
 #define RANDOM_IM 2147483647

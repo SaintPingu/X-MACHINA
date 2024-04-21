@@ -42,8 +42,8 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mBufferCounts[static_cast<int>(BufferType::SkinMesh)]		= 100;
 	mBufferCounts[static_cast<int>(BufferType::Ssao)]			= 1;
 	mBufferCounts[static_cast<int>(BufferType::Material)]		= 500;
-	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 500;
-	mBufferCounts[static_cast<int>(BufferType::ParticleShared)]	= 500;
+	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 10000;
+	mBufferCounts[static_cast<int>(BufferType::ParticleShared)]	= 10000;
 
 	for (int bufferType = 0; bufferType < BufferTypeCount; ++bufferType) {
 		for (int index = 0; index < mBufferCounts[bufferType]; ++index) {

@@ -11,6 +11,7 @@ class InstObject;
 class GridObject;
 class ObjectPool;
 class Script_GroundPlayer;
+class ParticleSystem;
 #pragma endregion
 
 
@@ -35,6 +36,7 @@ private:
 	std::function<void()> updateFunc{ std::bind(&Script_Weapon::Update_Auto, this) };
 	bool mIsReload{};
 	Script_GroundPlayer* mOwner{};
+	std::vector<sptr<ParticleSystem>> mMuzzlePSs{};
 
 protected:
 	Transform* mMuzzle{};		// ÃÑ±¸

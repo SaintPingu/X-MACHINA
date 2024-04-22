@@ -18,7 +18,7 @@ float4 PSParticle(GSOutput_Particle pin) : SV_TARGET
     if (depthDiff < 0)
         discard;
     
-    float depthFade = saturate(pow(depthDiff, 1.2f));
+    float depthFade = saturate(pow(depthDiff, 2.f));
     
     float4 color = gTextureMaps[gInputPraticles[pin.ID].TextureIndex].Sample(gsamLinearWrap, pin.UV) * gInputPraticles[pin.ID].FinalColor;
     color.a *= depthFade;

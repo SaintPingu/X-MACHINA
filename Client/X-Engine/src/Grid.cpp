@@ -182,7 +182,7 @@ float Grid::CheckCollisionsRay(const Ray& ray) const
 
 		float dist;
 		for (const auto& obb : object->GetCollider()->GetOBBList()) {
-			if (obb->Intersects(ray.Position, ray.Direction, dist)) {
+			if (obb->Intersects(ray.Position, XMVector3Normalize(ray.Direction), dist)) {
 				minDist = min(minDist, dist);
 			}
 		}

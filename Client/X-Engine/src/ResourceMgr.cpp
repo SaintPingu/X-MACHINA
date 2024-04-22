@@ -224,6 +224,71 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		ParticleSystem::SavePSCD(pscd);
 	}
 
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Bullet";
+		pscd.Duration = 2.f;
+		pscd.StartDelay = 0.f;
+		pscd.MaxAddCount = 1;
+		pscd.StartLifeTime = Vec2{ 0.3f };
+		pscd.StartSpeed = Vec2{ 0.2f, 0.4f };
+		pscd.StartSize = Vec2{ 1.f, 1.5f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 0.5f, 0.5f, 0.5f, 0.5f });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.f;
+		pscd.Looping = true;
+		pscd.MaxParticles = 100;
+		pscd.Emission.RateOverTime = 1;
+		pscd.SizeOverLifeTime = 1;
+		pscd.Shape.SetSphere(0.3f, 1.f, 360.f, false);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.0f, 0.0f, 0.0f, 0.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Muzzle_Smoke";
+		pscd.StartDelay = 0.f;
+		pscd.MaxAddCount = 1;
+		pscd.StartLifeTime = Vec2{ 2.f };
+		pscd.StartSpeed = Vec2{ 0.1f };
+		pscd.StartSize = Vec2{ 0.8f, 1.5f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 0.8f, 0.8f, 0.8f, 0.8f });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.2f;
+		pscd.Looping = true;
+		pscd.MaxParticles = 100;
+		pscd.Emission.RateOverTime = 1;
+		pscd.SizeOverLifeTime = 1;
+		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, false);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.1f, 0.1f, 0.1f, 0.f });
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Muzzle_Flash";
+		pscd.Looping = true;
+		pscd.MaxAddCount = 1;
+		pscd.StartLifeTime = Vec2{ 0.13f };
+		pscd.StartSize = Vec2{ 1.f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 2.f, 1.f, 0.5f, 1.f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.f;
+		pscd.MaxParticles = 10;
+		pscd.Emission.RateOverTime = 1;
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 0.4f }, Vec4{ 0.2f, 0.05f, 0.05f, 0.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_DoubleFlame";
+		pscd.SizeOverLifeTime = 1;
+		ParticleSystem::SavePSCD(pscd);
+	}
 }
 
 sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()

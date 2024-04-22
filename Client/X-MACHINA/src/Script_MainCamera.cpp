@@ -107,6 +107,7 @@ void Script_MainCamera::Init()
 {
 	constexpr float maxPlaneDistance = 100.f;
 	SetCameraOffset(Vec3(0.f, 12.f, -7.f));
+	//SetCameraOffset(Vec3(0.f, 4.f, -7.f));
 	mObject->SetPosition(mPlayer->GetPosition() + mMainOffset);
 	LookPlayer();
 

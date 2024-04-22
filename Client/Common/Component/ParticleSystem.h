@@ -357,7 +357,7 @@ public:
 
 #pragma region Setter
 	void SetPSCD(sptr<ParticleSystemCPUData> pscd) { mPSCD = pscd; }
-	void SetTarget(const std::string& frameName);
+	sptr<ParticleSystem> SetTarget(const std::string& frameName);
 	void SetSizeByRenderMode(PSRenderMode renderMode);
 #pragma endregion
 

@@ -11,13 +11,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region ParticleSystem
-void ParticleSystem::SetTarget(const std::string& frameName)
+sptr<ParticleSystem> ParticleSystem::SetTarget(const std::string& frameName)
 {
 	// 파티클 시스템을 부착시킬 타겟을 설정
 	Transform* findFrame = mObject->FindFrame(frameName);
 	if (findFrame) {
 		mTarget = findFrame;
 	}
+
+	return shared_from_this();
 }
 
 void ParticleSystem::SetSizeByRenderMode(PSRenderMode renderMode)
@@ -116,10 +118,11 @@ void ParticleSystem::UpdateParticleSystem()
 	}
 
 	// 정지 경과 시간이 최소 생명 주기를 지났다면 파티클 생성 정지
-	if (!mPSCD->Looping && (mPSGD.TotalTime - mPSCD->StartDelay) >= mPSGD.StartLifeTime.x) {
+	if (!mPSCD->Looping && (mPSGD.TotalTime - mPSCD->StartDelay) >= mPSGD.StartLifeTime.x || mIsStopCreation) {
 		Stop();
 		// 정지 경과 시간이 최대 생명 주기를 지났다면 파티클 삭제
 		if (mStopElapsed >= mPSGD.StartLifeTime.y) {
+			Reset();
 			mIsRunning = false;
 			ParticleRenderer::I->RemoveParticleSystem(mPSIdx);
 			return;
@@ -127,7 +130,7 @@ void ParticleSystem::UpdateParticleSystem()
 	}
 
 	// 이미션이 켜 있는 경우에만 파티클을 추가한다.
-	mPSGD.AddCount = 0;
+	mPSGD.AddCount = mIsStopCreation ? 0 : mPSCD->MaxAddCount;
 	const float createInterval = 1.f / mPSCD->Emission.RateOverTime;
 	if (mPSCD->Emission.IsOn) {
 		if (createInterval < mAccElapsed) {
@@ -190,6 +193,7 @@ void ParticleSystem::Reset()
 	// 현재 총알이 발사될때마다 초기화를 해서 오브젝트 풀이 한 번 돌고
 	// 다시 호출되면 파티클이 실행중에 바로 사라진다.
 	// 따라서 이후에 오브젝트 풀링을 통해 파티클 시스템을 실행해야 한다.
+
 	for (int i = 0; i < mPSCD->MaxParticles; ++i) {
 		FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
 		mParticles->CopyData(i, ParticleData{});

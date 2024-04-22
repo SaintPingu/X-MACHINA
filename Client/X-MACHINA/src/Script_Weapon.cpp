@@ -5,6 +5,7 @@
 #include "Script_Player.h"
 
 #include "Component/Rigidbody.h"
+#include "Component/ParticleSystem.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -21,6 +22,13 @@ void Script_Weapon::Awake()
 	base::Awake();
 
 	mMuzzle = mObject->FindFrame("FirePos");
+
+	mMuzzlePSs.resize(2);
+	mMuzzlePSs[0] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Flash")->SetTarget("FirePos");
+	mMuzzlePSs[1] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Smoke")->SetTarget("FirePos");
+	for (auto& ps : mMuzzlePSs)
+		ps->Awake();
+
 	InitValues();
 	CreateBulletPool();
 }
@@ -43,6 +51,9 @@ void Script_Weapon::Update()
 
 void Script_Weapon::FireBullet()
 {
+	for (auto& ps : mMuzzlePSs)
+		ps->Play();
+
 	mOwner->BulletFired();
 }
 
@@ -67,6 +78,9 @@ void Script_Weapon::InitReload()
 	mCurMag = 0;
 	mCurReloadTime = 0.f;
 	mIsReload = true;
+
+	for (auto& ps : mMuzzlePSs)
+		ps->Stop();
 }
 
 void Script_Weapon::EndReload()
@@ -95,6 +109,9 @@ void Script_Weapon::Update_SemiAuto()
 	}
 	else {
 		mCurFireDelay += DeltaTime();
+
+		for (auto& ps : mMuzzlePSs)
+			ps->Stop();
 	}
 }
 
@@ -107,6 +124,9 @@ void Script_Weapon::Update_Auto()
 	}
 	else {
 		mCurFireDelay += DeltaTime();
+
+		for (auto& ps : mMuzzlePSs)
+			ps->Stop();
 	}
 }
 

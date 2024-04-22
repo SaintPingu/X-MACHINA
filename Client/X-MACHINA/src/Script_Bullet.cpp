@@ -10,26 +10,25 @@
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
 
-
 void Script_Bullet::Awake()
 {
 	base::Awake();
 
 	mGameObject = mObject->GetObj<GameObject>();
-	mParticleSystems.reserve(7);
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke_BigQuick"));
+	mParticleSystems.reserve(10);
+	mParticleSystems.emplace_back(mCollisionSmokePS = mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke_BigQuick"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Glow"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion_Small"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles_Big"));
 	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles_Mult"));
-	mSmokeParticleIdx = 1;
-
-	for (auto& ps : mParticleSystems) {
+	for (auto& ps : mParticleSystems)
 		ps->Awake();
-	}
+
+	mBulletSmokePS = mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Bullet");
+	mBulletSmokePS->Awake();
 
 	const auto& rb = mObject->GetComponent<Rigidbody>();
 	rb->SetFriction(0.001f);
@@ -44,6 +43,7 @@ void Script_Bullet::Update()
 
 	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
+		mBulletSmokePS->Stop();
 		mGameObject->OnDestroy();
 	}
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
@@ -62,7 +62,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Building:
-		mParticleSystems[mSmokeParticleIdx]->Play();
+		mCollisionSmokePS->Play();
 		Explode();
 		break;
 
@@ -99,6 +99,8 @@ void Script_Bullet::Fire(const Transform& transform)
 	for (auto& ps : mParticleSystems)
 		ps->Reset();
 
+	mBulletSmokePS->Play();
+
 	mObject->SetLocalRotation(transform.GetRotation());
 	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp());
 }
@@ -110,6 +112,7 @@ void Script_Bullet::Explode()
 	}
 
 	Reset();
+	mBulletSmokePS->Stop();
 
 	mGameObject->OnDestroy();
 }

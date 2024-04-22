@@ -165,7 +165,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
     
     // 랜덤 시드 설정
     NumberGenerator rand;
-    rand.SetSeed(threadID.x);
+    rand.SetSeed(threadID.x * (gIndex.Index + 1));
     
     // 최대 파티클을 벗어난 경우 리턴
     if (threadID.x >= ps.MaxParticles)
@@ -247,7 +247,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         
         // 속도와 중력 계산
         float speed = gOutputParticles[threadID.x].StartSpeed * ps.DeltaTime;
-        float3 gravity = float3(0.f, -9.81f * 0.01f * ps.GravityModifier, 0.f) * pow(lifeRatio, 2) * ps.SimulationSpeed;
+        float3 gravity = float3(0.f, -9.81f * ps.GravityModifier, 0.f) * pow(lifeRatio, 2) * ps.SimulationSpeed * ps.DeltaTime;
         
         // 속도와 중력을 파티클 로컬 포지션에 적용
         gOutputParticles[threadID.x].LocalPos += normalize(gOutputParticles[threadID.x].WorldDir) * speed + gravity;

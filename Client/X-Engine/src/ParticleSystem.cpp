@@ -120,12 +120,6 @@ void ParticleSystem::UpdateParticleSystem()
 		Stop();
 		// 정지 경과 시간이 최대 생명 주기를 지났다면 파티클 삭제
 		if (mStopElapsed >= mPSGD.StartLifeTime.y) {
-			// 모든 파티클 초기화
-			for (int i = 0; i < mPSCD->MaxParticles; ++i) {
-				FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
-				mParticles->CopyData(i, ParticleData{});
-			}
-
 			mIsRunning = false;
 			ParticleRenderer::I->RemoveParticleSystem(mPSIdx);
 			return;
@@ -159,14 +153,15 @@ void ParticleSystem::UpdateParticleSystem()
 		}
 	}
 
-	mIsRunning = true;
-
 	// 메모리 복사
 	FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
+
+	mIsRunning = true;
 }
 
 void ParticleSystem::Play()
 {
+
 	// 플레이 시 파티클 렌더러에 추가 후 경과 시간 초기화
 	ParticleRenderer::I->AddParticleSystem(shared_from_this());
 	mIsStopCreation		= false;
@@ -190,6 +185,17 @@ void ParticleSystem::Stop()
 	mIsStopCreation = true;
 }
 
+void ParticleSystem::Reset()
+{
+	// 현재 총알이 발사될때마다 초기화를 해서 오브젝트 풀이 한 번 돌고
+	// 다시 호출되면 파티클이 실행중에 바로 사라진다.
+	// 따라서 이후에 오브젝트 풀링을 통해 파티클 시스템을 실행해야 한다.
+	for (int i = 0; i < mPSCD->MaxParticles; ++i) {
+		FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
+		mParticles->CopyData(i, ParticleData{});
+	}
+}
+
 void ParticleSystem::ComputeParticleSystem() const
 {
 	CMD_LIST->SetComputeRootUnorderedAccessView(DXGIMgr::I->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticles->Resource()->GetGPUVirtualAddress());
@@ -210,15 +216,15 @@ void ParticleSystem::ReturnIndex()
 	FRAME_RESOURCE_MGR->ReturnIndex(mPSIdx, BufferType::ParticleShared);
 }
 
-void ParticleSystem::Save()
+void ParticleSystem::SavePSCD(ParticleSystemCPUData& pscd)
 {
-	std::string filePath = "Import/ParticleSystem/" + mPSCD->mName + ".xml";
+	std::string filePath = "Import/ParticleSystems/" + pscd.mName + ".xml";
 
 	std::ofstream out(filePath);
 
 	if (out) {
 		boost::archive::xml_oarchive oa(out);
-		oa << BOOST_SERIALIZATION_NVP(mPSCD);
+		oa << BOOST_SERIALIZATION_NVP(pscd);
 	}
 }
 
@@ -252,11 +258,15 @@ sptr<ParticleSystemCPUData> ParticleSystem::LoadPSCD(const std::string& filePath
 void ParticleRenderer::Init()
 {
 	mParticleSystems.reserve(1000);
-	mAlphaShader = RESOURCE<Shader>("GraphicsParticle");
-	mComputeShader = RESOURCE<Shader>("ComputeParticle");
-	mOneToOneShader = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
-	mAlphaStretchedShader = RESOURCE<Shader>("GraphicsStretchedParticle");
-	mOneToOneStretchedShader = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
+	mAlpha = RESOURCE<Shader>("GraphicsParticle");
+	mCompute = RESOURCE<Shader>("ComputeParticle");
+	mOneToOne = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
+	mAlphaStretched = RESOURCE<Shader>("GraphicsStretchedParticle");
+	mOneToOneStretched = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
+	mAdditiveSoft = RESOURCE<Shader>("AdditiveSoft_GraphicsParticle");
+	mAdditiveSoftStretched = RESOURCE<Shader>("AdditiveSoft_GraphicsStretchedParticle");
+	mMinimum = RESOURCE<Shader>("MinimumBlend_GraphicsParticle");
+	mMinimumStretched = RESOURCE<Shader>("MinimumBlend_GraphicsStretchedParticle");
 }
 
 void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
@@ -272,23 +282,23 @@ void ParticleRenderer::RemoveParticleSystem(int particleSystemIdx)
 
 void ParticleRenderer::Update()
 {
-	// 파티클 시스템을 물고 있는 객체가 삭제 되더라도 바로 소멸되지 않도록 업데이트
-	for (const auto& ps : mParticleSystems) {
-		ps.second->UpdateParticleSystem();
-	}
-
 	// 파티클 삭제
 	while (!mRemoval.empty()) {
 		int deprecated = mRemoval.front();
 		mParticleSystems.erase(deprecated);
 		mRemoval.pop();
 	}
+
+	// 파티클 시스템을 물고 있는 객체가 삭제 되더라도 바로 소멸되지 않도록 업데이트
+	for (const auto& ps : mParticleSystems) {
+		ps.second->UpdateParticleSystem();
+	}
 }
 
 void ParticleRenderer::Render() const
 {
 	// 컴퓨트 쉐이더 실행
-	mComputeShader->Set();
+	mCompute->Set();
 	for (const auto& ps : mParticleSystems) {
 		if (!ps.second->IsRunning())
 			continue;
@@ -311,15 +321,23 @@ void ParticleRenderer::Render() const
 			{
 			case PSRenderMode::Billboard:
 				if (currBlendType == BlendType::Alpha_Blend)
-					mAlphaShader->Set();
+					mAlpha->Set();
 				else if (currBlendType == BlendType::One_To_One_Blend)
-					mOneToOneShader->Set();
+					mOneToOne->Set();
+				else if (currBlendType == BlendType::Additive_Soft_Blend)
+					mAdditiveSoft->Set();
+				else if (currBlendType == BlendType::Multiply_Blend)
+					mMinimum->Set();
 				break;
 			case PSRenderMode::StretchedBillboard:
 				if (currBlendType == BlendType::Alpha_Blend)
-					mAlphaStretchedShader->Set();
+					mAlphaStretched->Set();
 				else if (currBlendType == BlendType::One_To_One_Blend)
-					mOneToOneStretchedShader->Set();
+					mOneToOneStretched->Set();
+				else if (currBlendType == BlendType::Additive_Soft_Blend)
+					mAdditiveSoftStretched->Set();
+				else if (currBlendType == BlendType::Multiply_Blend)
+					mMinimumStretched->Set();
 				break;
 			}
 			prevMode = currMode;

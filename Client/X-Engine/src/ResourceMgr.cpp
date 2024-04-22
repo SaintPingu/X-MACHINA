@@ -12,6 +12,8 @@
 
 void ResourceMgr::LoadResources()
 {
+	CreateParticleSystemCPUData();
+
 	LoadTextures();
 	LoadRectangleMesh();
 	LoadPointMesh();
@@ -43,6 +45,185 @@ sptr<Texture> ResourceMgr::CreateTexture(const std::string& name, ComPtr<ID3D12R
 	texture->Create(resource);
 	Add<Texture>(name, texture);
 	return texture;
+}
+
+void ResourceMgr::CreateParticleSystemCPUData()
+{
+#pragma region MagicMissile
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Explosion_Small";
+		pscd.Duration = 4.f;
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.3f, 0.4f };
+		pscd.StartSpeed = 6.f;
+		pscd.StartSize = 0.05f;
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 2.f, 2.f, 2.f, 1.f });
+		pscd.GravityModifier = 1.2f;
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 22;
+		pscd.Emission.SetBurst(12);
+		pscd.Emission.IsOn = true;
+		pscd.Shape.SetSphere(0.01f, 1.f, 360.f, false);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.7f, 0.2f, 0.f, 1.0f });
+		pscd.Renderer.TextureName = "Explosion";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.LengthScale = 5.f;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Glow";
+		pscd.Duration = 5.f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.1f };
+		pscd.StartSpeed = 0.f;
+		pscd.StartSize = 2.f;
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 2.f, 1.f, 0.6f, 1.f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 11;
+		pscd.Emission.SetBurst(1);
+		pscd.SizeOverLifeTime = 1;
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.2f, 0.05f, 0.05f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Grow";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Smoke_BigQuick";
+		pscd.Duration = 0.5f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.3f };
+		pscd.StartSpeed = 0.4f;
+		pscd.StartSize = Vec2{ 3.2f, 4.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 1.f, 1.f, 1.f, 1.f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 13;
+		pscd.Emission.SetBurst(1, 0.025f);
+		pscd.Emission.SetBurst(1, 0.1f);
+		pscd.Emission.SetBurst(1, 0.2f);
+		pscd.SizeOverLifeTime = 1;
+		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, false);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 1.f, 1.f, 1.f, 0.f });
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Dot_Sparkles_Mult";
+		pscd.Duration = 5.f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.25f, 0.5f };
+		pscd.StartSpeed = Vec2{ 1.f, 2.f };
+		pscd.StartSize = Vec2{ 0.6f, 0.8f };
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 22;
+		pscd.Emission.SetBurst(12);
+		pscd.Shape.SetSphere(0.2f, 0.f, 360.f, false);
+		pscd.Renderer.BlendType = BlendType::Multiply_Blend;
+		pscd.Renderer.TextureName = "Explosion_SmallDot";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Dot_Sparkles_Big";
+		pscd.Duration = 5.f;
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.2f, 0.35f };
+		pscd.StartSpeed = Vec2{ 6.f, 8.f };
+		pscd.StartSize = Vec2{ 0.16f, 0.24f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 3.f, 3.f, 3.f, 1.f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.GravityModifier = 4.f;
+		pscd.MaxParticles = 21;
+		pscd.Emission.SetBurst(8);
+		pscd.Emission.SetBurst(3, 0.1f);
+		pscd.Shape.SetSphere(0.3f, 0.f, 360.f, false);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 1.f, 0.9f, 0.47f, 0.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Grow";
+		pscd.SizeOverLifeTime = 1;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Dot_Sparkles";
+		pscd.Duration = 5.f;
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.25f, 0.5f };
+		pscd.StartSpeed = Vec2{ 1.f, 3.f };
+		pscd.StartSize = Vec2{ 0.7f, 0.9f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 1.f, 1.f, 1.f, 1.f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 40;
+		pscd.Emission.SetBurst(24);
+		pscd.Emission.SetBurst(6, 0.1f);
+		pscd.Shape.SetSphere(0.4f, 1.f, 360.f, false);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.7f, 0.1f, 0.f, 1.f });
+		pscd.SizeOverLifeTime = 1;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Dot";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Explosion";
+		pscd.Duration = 5.f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.13f };
+		pscd.StartSize = Vec2{ 1.8f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 2.f, 1.4f, 1.f, 1.f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 11;
+		pscd.Emission.SetBurst(1);
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.2f, 0.05f, 0.05f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_DoubleFlame";
+		pscd.SizeOverLifeTime = 1;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Smoke";
+		pscd.Duration = 2.f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 2.f, 3.f };
+		pscd.StartSpeed = Vec2{ 0.2f, 0.4f };
+		pscd.StartSize = Vec2{ 1.6f, 2.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.SetColor(PSColorOption::Color, Vec4{ 0.5f, 0.5f, 0.5f, 0.5f });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 20;
+		pscd.Emission.SetBurst(5);
+		pscd.Emission.SetBurst(5, 0.2f);
+		pscd.Shape.SetSphere(0.3f, 1.f, 360.f, false);
+		pscd.SizeOverLifeTime = 1;
+		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.0f, 0.0f, 0.0f, 0.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
 }
 
 sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()
@@ -110,7 +291,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Shadow", shader);
 	}
 #pragma endregion
@@ -129,7 +310,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Global", shader);
 	}
 	{
@@ -144,7 +325,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Shadow_Global", shader);
 	}
 #pragma endregion
@@ -160,7 +341,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("ObjectInst", shader);
 	}
 #pragma endregion
@@ -180,7 +361,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("ColorInst", shader);
 	}
 #pragma endregion
@@ -196,7 +377,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("SkinMesh", shader);
 	}
 	{
@@ -211,7 +392,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Shadow_SkinMesh", shader);
 	}
 	{
@@ -228,7 +409,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Dissolve", shader);
 	}
 #pragma endregion
@@ -244,7 +425,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Terrain", shader);
 	}
 #pragma endregion
@@ -266,7 +447,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Water", shader);
 	}
 #pragma endregion
@@ -285,7 +466,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Billboard", shader);
 	}
 #pragma endregion
@@ -304,7 +485,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Sprite", shader);
 	}
 #pragma endregion
@@ -322,7 +503,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Final", shader);
 	}
 #pragma endregion
@@ -341,7 +522,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Canvas", shader);
 	}
 #pragma endregion
@@ -362,7 +543,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Wire", shader);
 	}
 #pragma endregion
@@ -380,7 +561,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("OffScreen", shader);
 	}
 #pragma endregion
@@ -398,7 +579,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("DirLighting", shader);
 	}
 
@@ -415,7 +596,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("SpotPointLighting", shader);
 	}
 #pragma endregion
@@ -434,7 +615,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Transparent", shader);
 	}
 #pragma endregion
@@ -452,7 +633,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("SkyBox", shader);
 	}
 #pragma endregion
@@ -470,7 +651,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("Ssao", shader);
 	}
 #pragma endregion
@@ -488,7 +669,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("SsaoBlur", shader);
 	}
 #pragma endregion
@@ -512,29 +693,57 @@ void ResourceMgr::LoadShaders()
 			path.GS = "GShader_Particle.cso";
 			info.BlendType = BlendType::Alpha_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->LoadPSCD(info, path);
+			shader->Load(info, path);
 			Add<Shader>("GraphicsParticle", shader);
 		}
 		{
 			path.GS = "GShader_StretchedParticle.cso";
 			info.BlendType = BlendType::Alpha_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->LoadPSCD(info, path);
+			shader->Load(info, path);
 			Add<Shader>("GraphicsStretchedParticle", shader);
 		}
 		{
 			path.GS = "GShader_Particle.cso";
 			info.BlendType = BlendType::One_To_One_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->LoadPSCD(info, path);
+			shader->Load(info, path);
 			Add<Shader>("OneToOneBlend_GraphicsParticle", shader);
 		}
 		{
 			path.GS = "GShader_StretchedParticle.cso";
 			info.BlendType = BlendType::One_To_One_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
-			shader->LoadPSCD(info, path);
+			shader->Load(info, path);
 			Add<Shader>("OneToOneBlend_GraphicsStretchedParticle", shader);
+		}
+		{
+			path.GS = "GShader_Particle.cso";
+			info.BlendType = BlendType::Additive_Soft_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("AdditiveSoft_GraphicsParticle", shader);
+		}
+		{
+			path.GS = "GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::Additive_Soft_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("AdditiveSoft_GraphicsStretchedParticle", shader);
+		}
+		{
+			path.GS = "GShader_Particle.cso";
+			info.BlendType = BlendType::Multiply_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("MinimumBlend_GraphicsParticle", shader);
+		}
+		{
+			path.GS = "GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::Multiply_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("MinimumBlend_GraphicsStretchedParticle", shader);
 		}
 	}
 #pragma endregion
@@ -554,7 +763,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("HorzBlur", shader);
 	}
 #pragma endregion
@@ -572,7 +781,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("VertBlur", shader);
 	}
 #pragma endregion
@@ -590,7 +799,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("LUT", shader);
 	}
 #pragma endregion
@@ -608,7 +817,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->LoadPSCD(info, path);
+		shader->Load(info, path);
 		Add<Shader>("ComputeParticle", shader);
 	}
 #pragma endregion

@@ -41,6 +41,8 @@ enum class BlendType : UINT8 {
 	Default,
 	Alpha_Blend,
 	One_To_One_Blend,
+	Multiply_Blend,
+	Additive_Soft_Blend,
 };
 #pragma endregion
 

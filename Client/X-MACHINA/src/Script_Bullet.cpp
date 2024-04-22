@@ -17,13 +17,14 @@ void Script_Bullet::Awake()
 
 	mGameObject = mObject->GetObj<GameObject>();
 	mParticleSystems.reserve(7);
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_BigQuick"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Grow"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Small"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Big"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("Explosion_Sparkles_Mult"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke_BigQuick"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Glow"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion_Small"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles_Big"));
+	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles_Mult"));
 	mSmokeParticleIdx = 1;
 
 	for (auto& ps : mParticleSystems) {
@@ -95,6 +96,9 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 
 void Script_Bullet::Fire(const Transform& transform)
 {
+	for (auto& ps : mParticleSystems)
+		ps->Reset();
+
 	mObject->SetLocalRotation(transform.GetRotation());
 	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp());
 }

@@ -96,12 +96,6 @@ public:
 };
 
 struct Emission {
-	Emission() {
-		IsOn = true;
-		RateOverTime = 200;
-		Bursts.resize(1);
-	}
-
 	struct Burst {
 		int		Count = 10;
 		float	Time = 0.f;
@@ -117,7 +111,7 @@ struct Emission {
 	};
 
 	bool				IsOn = true;
-	int					RateOverTime = 200;
+	int					RateOverTime = 0;
 	std::vector<Burst>	Bursts;
 
 public:
@@ -166,6 +160,15 @@ struct PSShape {
 	void SetBox() {
 		ShapeType = PSShapeType::Box;
 	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(ShapeType);
+		ar& BOOST_SERIALIZATION_NVP(Angle);
+		ar& BOOST_SERIALIZATION_NVP(Radius);
+		ar& BOOST_SERIALIZATION_NVP(RadiusThickness);
+		ar& BOOST_SERIALIZATION_NVP(Arc);
+	}
 };
 
 struct ColorOverLifetime {
@@ -209,12 +212,12 @@ class ParticleSystemCPUData : public Resource {
 public:
 	/* my value */
 	std::string			mName{};
-	int					MaxAddCount = 1;		// 한번에 생성되는 파티클 개수
+	int					MaxAddCount = 0;		// 한번에 생성되는 파티클 개수
 	float				PlayMaxTime = 5.f;
 
 	/* unity particle system */
 	float				Duration = 1.f;
-	bool				Looping = true;
+	bool				Looping = false;
 	bool				Prewarm = false;
 	float				StartDelay = 0.f;
 	Vec2				StartLifeTime = Vec2{ 1.f };
@@ -227,7 +230,7 @@ public:
 	float				GravityModifier = 0.f;
 	PSSimulationSpace	SimulationSpace = PSSimulationSpace::World;
 	float				SimulationSpeed = 1.f;
-	bool				PlayOnAwake = true;
+	bool				PlayOnAwake = false;
 	int					MaxParticles = 1000;
 
 	/* unity particle system module */
@@ -259,6 +262,7 @@ public:
 		ar& BOOST_SERIALIZATION_NVP(PlayOnAwake);
 		ar& BOOST_SERIALIZATION_NVP(MaxParticles);
 		ar& BOOST_SERIALIZATION_NVP(Emission);
+		ar& BOOST_SERIALIZATION_NVP(Shape);
 		ar& BOOST_SERIALIZATION_NVP(SizeOverLifeTime);
 		ar& BOOST_SERIALIZATION_NVP(ColorOverLifeTime);
 		ar& BOOST_SERIALIZATION_NVP(Renderer);
@@ -329,7 +333,7 @@ private:
 	Transform*			mTarget = mObject;			// 파티클을 부착시킬 타겟
 	int					mPSIdx = -1;				// 파티클 시스템 구조적 버퍼 인덱스
 
-	bool				mIsRunning = true;			// 파티클 시스템 동작 플래그
+	bool				mIsRunning = false;			// 파티클 시스템 동작 플래그
 	bool				mIsStopCreation = true;		// 파티클 생성 중지 플래그
 
 	float				mAccElapsed = 0.f;
@@ -365,6 +369,7 @@ public:
 
 	void Play();
 	void Stop();
+	void Reset();
 
 	void ComputeParticleSystem() const;
 	void RenderParticleSystem() const;
@@ -372,8 +377,9 @@ public:
 	void ReturnIndex();
 
 public:
-	void Save();
 	sptr<ParticleSystem> Load(const std::string& fileName);
+
+	static void SavePSCD(ParticleSystemCPUData& pscd);
 	static sptr<ParticleSystemCPUData> LoadPSCD(const std::string& filePath);
 };
 
@@ -388,11 +394,15 @@ private:
 	std::unordered_map<int, sptr<ParticleSystem>> mParticleSystems;
 	std::queue<int> mRemoval;
 
-	sptr<Shader> mComputeShader{};
-	sptr<Shader> mAlphaShader{};
-	sptr<Shader> mAlphaStretchedShader{};
-	sptr<Shader> mOneToOneShader{};
-	sptr<Shader> mOneToOneStretchedShader{};
+	sptr<Shader> mCompute{};
+	sptr<Shader> mAlpha{};
+	sptr<Shader> mAlphaStretched{};
+	sptr<Shader> mOneToOne{};
+	sptr<Shader> mOneToOneStretched{};
+	sptr<Shader> mAdditiveSoft{};
+	sptr<Shader> mAdditiveSoftStretched{};
+	sptr<Shader> mMinimum{};
+	sptr<Shader> mMinimumStretched{};
 
 public:
 #pragma region C/Dtor

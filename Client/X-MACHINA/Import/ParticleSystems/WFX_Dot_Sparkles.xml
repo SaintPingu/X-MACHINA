@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="20">
-<mPSCD class_id="0" tracking_level="0" version="0">
+<pscd class_id="0" tracking_level="0" version="0">
 	<MaxAddCount>0</MaxAddCount>
 	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
-	<Duration>4.000000000e+00</Duration>
+	<Duration>5.000000000e+00</Duration>
 	<Looping>0</Looping>
 	<Prewarm>0</Prewarm>
 	<StartDelay>5.000000075e-02</StartDelay>
 	<StartLifeTime class_id="1" tracking_level="0" version="0">
-		<s.x>3.000000119e-01</s.x>
-		<s.y>4.000000060e-01</s.y>
+		<s.x>2.500000000e-01</s.x>
+		<s.y>5.000000000e-01</s.y>
 	</StartLifeTime>
 	<StartSpeed>
-		<s.x>4.000000000e+00</s.x>
-		<s.y>4.000000000e+00</s.y>
+		<s.x>1.000000000e+00</s.x>
+		<s.y>3.000000000e+00</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="2" tracking_level="0" version="0">
 		<s.x>1.000000000e+00</s.x>
@@ -23,8 +23,8 @@
 		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
-		<s.x>5.000000075e-02</s.x>
-		<s.y>5.000000075e-02</s.y>
+		<s.x>6.999999881e-01</s.x>
+		<s.y>8.999999762e-01</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -41,7 +41,7 @@
 			<s.x>1.000000000e+00</s.x>
 			<s.y>1.000000000e+00</s.y>
 			<s.z>1.000000000e+00</s.z>
-			<s.w>5.000000000e-01</s.w>
+			<s.w>1.000000000e+00</s.w>
 		</FirstColor>
 		<SecondColor>
 			<s.x>1.000000000e+00</s.x>
@@ -63,11 +63,11 @@
 		</SecondGradient>
 		<ColorOption>0</ColorOption>
 	</StartColor>
-	<GravityModifier>5.000000075e-02</GravityModifier>
+	<GravityModifier>0.000000000e+00</GravityModifier>
 	<SimulationSpace>0</SimulationSpace>
-	<SimulationSpeed>1.000000000e+00</SimulationSpeed>
+	<SimulationSpeed>8.000000119e-01</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>22</MaxParticles>
+	<MaxParticles>40</MaxParticles>
 	<Emission class_id="4" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>
@@ -75,19 +75,26 @@
 			<count>2</count>
 			<item_version>0</item_version>
 			<item class_id="6" tracking_level="0" version="0">
-				<Count>10</Count>
+				<Count>24</Count>
 				<Time>0.000000000e+00</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 			<item>
-				<Count>12</Count>
-				<Time>0.000000000e+00</Time>
+				<Count>6</Count>
+				<Time>1.000000015e-01</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 		</Bursts>
 	</Emission>
-	<SizeOverLifeTime>0</SizeOverLifeTime>
-	<ColorOverLifeTime class_id="7" tracking_level="0" version="0">
+	<Shape class_id="7" tracking_level="0" version="0">
+		<ShapeType>1</ShapeType>
+		<Angle>2.500000000e+01</Angle>
+		<Radius>4.000000060e-01</Radius>
+		<RadiusThickness>1.000000000e+00</RadiusThickness>
+		<Arc>3.600000000e+02</Arc>
+	</Shape>
+	<SizeOverLifeTime>1</SizeOverLifeTime>
+	<ColorOverLifeTime class_id="8" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<StartColor>
 			<s.x>1.000000000e+00</s.x>
@@ -97,17 +104,17 @@
 		</StartColor>
 		<EndColor>
 			<s.x>6.999999881e-01</s.x>
-			<s.y>2.000000030e-01</s.y>
+			<s.y>1.000000015e-01</s.y>
 			<s.z>0.000000000e+00</s.z>
-			<s.w>0.000000000e+00</s.w>
+			<s.w>1.000000000e+00</s.w>
 		</EndColor>
 	</ColorOverLifeTime>
-	<Renderer class_id="8" tracking_level="0" version="0">
-		<TextureName>Explosion</TextureName>
+	<Renderer class_id="9" tracking_level="0" version="0">
+		<TextureName>Explosion_Dot</TextureName>
 		<RenderMode>2</RenderMode>
-		<BlendType>2</BlendType>
-		<LengthScale>5.000000000e+00</LengthScale>
+		<BlendType>4</BlendType>
+		<LengthScale>1.000000000e+00</LengthScale>
 	</Renderer>
-</mPSCD>
+</pscd>
 </boost_serialization>
 

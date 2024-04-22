@@ -35,7 +35,7 @@ public:
 #pragma region Template
 public:
 	template<typename T>
-	sptr<T> LoadPSCD(const std::string& key, const std::string& path);
+	sptr<T> Load(const std::string& key, const std::string& path);
 
 	template<typename T>
 	bool Add(const std::string& key, sptr<T> resource);
@@ -55,6 +55,8 @@ public:
 	void Clear();
 	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4());
 	sptr<Texture> CreateTexture(const std::string& name, ComPtr<ID3D12Resource> resource);
+	void CreateParticleSystemCPUData();
+
 	sptr<ModelObjectMesh> LoadRectangleMesh();
 	sptr<ModelObjectMesh> LoadPointMesh();
 
@@ -69,7 +71,7 @@ private:
 #pragma endregion
 
 template<typename T>
-inline sptr<T> ResourceMgr::LoadPSCD(const std::string& key, const std::string& path)
+inline sptr<T> ResourceMgr::Load(const std::string& key, const std::string& path)
 {
 	ResourceType resourceType = GetResourceType<T>();
 	KeyResMap& keyResMap = mResources[static_cast<UINT8>(resourceType)];
@@ -80,7 +82,7 @@ inline sptr<T> ResourceMgr::LoadPSCD(const std::string& key, const std::string& 
 	}
 
 	sptr<T> resource = std::make_shared<T>();
-	resource->LoadPSCD(key, path);
+	resource->Load(key, path);
 	keyResMap[key] = resource;
 	keyResMap[key]->SetName(key);
 

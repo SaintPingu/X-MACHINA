@@ -192,6 +192,24 @@ public:
 	}
 };
 
+struct RotationOverLifetime {
+	UINT IsOn = false;
+	float AngularVelocity = 0.f;
+	Vec2 Padding;
+
+public:
+	void SetAngularVelocity(float angularVelocity) {
+		IsOn = true;
+		AngularVelocity = angularVelocity;
+	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(AngularVelocity);
+	}
+};
+
 struct PSRenderer {
 	std::string		TextureName{};
 	PSRenderMode	RenderMode = PSRenderMode::Billboard;
@@ -234,11 +252,12 @@ public:
 	int					MaxParticles = 1000;
 
 	/* unity particle system module */
-	Emission			Emission{};
-	PSShape 			Shape{};
-	int					SizeOverLifeTime = 0;
-	ColorOverLifetime	ColorOverLifeTime{};
-	PSRenderer			Renderer{};
+	Emission				Emission{};
+	PSShape 				Shape{};
+	int						SizeOverLifeTime{};
+	ColorOverLifetime		ColorOverLifeTime{};
+	RotationOverLifetime	RotationOverLifeTime{};
+	PSRenderer				Renderer{};
 
 public:
 	template<class Archive>
@@ -265,6 +284,7 @@ public:
 		ar& BOOST_SERIALIZATION_NVP(Shape);
 		ar& BOOST_SERIALIZATION_NVP(SizeOverLifeTime);
 		ar& BOOST_SERIALIZATION_NVP(ColorOverLifeTime);
+		ar& BOOST_SERIALIZATION_NVP(RotationOverLifeTime);
 		ar& BOOST_SERIALIZATION_NVP(Renderer);
 	}
 
@@ -290,12 +310,15 @@ struct ParticleSystemGPUData {
 	Vec2				StartSize{};
 	Vec2				StartRotation{};
 	PSColor				StartColor{};
+
 	float				GravityModifier{};
 	PSSimulationSpace   SimulationSpace{};
 	float				SimulationSpeed{};
 	int					SizeOverLifeTime{};
-	ColorOverLifetime	ColorOverLifeTime{};
-	PSShape 			Shape;
+
+	ColorOverLifetime		ColorOverLifeTime{};
+	RotationOverLifetime	RotationOverLifeTime{};
+	PSShape 				Shape;
 };
 
 struct ParticleData {
@@ -311,6 +334,8 @@ struct ParticleData {
 	float	StartSpeed{};
 	Vec3	StartRotation{};
 	float	Padding1{};
+	Vec3	FinalRotation{};
+	float	Padding2{};
 	Vec2	StartSize{};
 	Vec2	FinalSize{};
 	Vec4	StartColor{};

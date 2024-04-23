@@ -70,6 +70,7 @@ void ParticleSystem::Awake()
 	mPSGD.SimulationSpeed		= mPSCD->SimulationSpeed;
 	mPSGD.SizeOverLifeTime		= mPSCD->SizeOverLifeTime;
 	mPSGD.ColorOverLifeTime		= mPSCD->ColorOverLifeTime;
+	mPSGD.RotationOverLifeTime	= mPSCD->RotationOverLifeTime;
 	mPSGD.Shape					= mPSCD->Shape;
 	mPSGD.TextureIndex			= RESOURCE<Texture>(mPSCD->Renderer.TextureName)->GetSrvIdx();
 
@@ -183,16 +184,11 @@ void ParticleSystem::Play()
 
 void ParticleSystem::Stop()
 {
-	// Stop 플래그 설정, 정지 플래그라기 보다는 정지 알림 플래그
 	mIsStopCreation = true;
 }
 
 void ParticleSystem::Reset()
 {
-	// 현재 총알이 발사될때마다 초기화를 해서 오브젝트 풀이 한 번 돌고
-	// 다시 호출되면 파티클이 실행중에 바로 사라진다.
-	// 따라서 이후에 오브젝트 풀링을 통해 파티클 시스템을 실행해야 한다.
-
 	for (int i = 0; i < mPSCD->MaxParticles; ++i) {
 		FRAME_RESOURCE_MGR->CopyData(mPSIdx, mPSGD);
 		mParticles->CopyData(i, ParticleData{});
@@ -325,8 +321,13 @@ void ParticleRenderer::Render() const
 
 		shader->Set();
 
-		for (const auto& ps : pss)
+		for (const auto& ps : pss) {
+			if (!ps.second->IsRunning())
+				continue;
+
 			ps.second->RenderParticleSystem();
+		}
+
 	}
 }
 #pragma endregion

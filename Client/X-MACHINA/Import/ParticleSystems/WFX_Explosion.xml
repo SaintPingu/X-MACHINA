@@ -104,7 +104,11 @@
 			<s.w>1.000000000e+00</s.w>
 		</EndColor>
 	</ColorOverLifeTime>
-	<Renderer class_id="9" tracking_level="0" version="0">
+	<RotationOverLifeTime class_id="9" tracking_level="0" version="0">
+		<IsOn>0</IsOn>
+		<AngularVelocity>0.000000000e+00</AngularVelocity>
+	</RotationOverLifeTime>
+	<Renderer class_id="10" tracking_level="0" version="0">
 		<TextureName>Explosion_DoubleFlame</TextureName>
 		<RenderMode>1</RenderMode>
 		<BlendType>7</BlendType>

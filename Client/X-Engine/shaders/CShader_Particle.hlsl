@@ -52,6 +52,13 @@ struct ColorOverLifetime
     float4  EndColor;
 };
 
+struct RotationOverLifetime 
+{
+	uint    IsOn;
+	float   AngularVelocity;
+	float2  Padding;
+};
+
 struct ParticleSystemInfo
 {
     float3  WorldPos;
@@ -70,11 +77,14 @@ struct ParticleSystemInfo
 	float2	StartSize;
 	float2	StartRotation;
     PSColor StartColor;
+    
 	float	GravityModifier;
     uint    SimulationSpace;
     float   SimulationSpeed;
     int     SizeOverLifeTime;
-    ColorOverLifetime ColorOverLifetime;
+    
+    ColorOverLifetime       ColorOverLifetime;
+    RotationOverLifetime    RotationOverLifetime;
     PSShape Shape;
 };
 
@@ -158,7 +168,7 @@ RWStructuredBuffer<ParticleSharedInfo> gParticleShared : register(u0, space1);
 RWStructuredBuffer<ParticleInfo> gOutputParticles : register(u0, space2);
 ConstantBuffer<ParticleSystemIndexInfo> gIndex : register(b0);
 
-[numthreads(1024, 1, 1)]
+[numthreads(512, 1, 1)]
 void CSParticle(int3 threadID : SV_DispatchThreadID)
 {
     ParticleSystemInfo ps = gParticleSystem[gIndex.Index];
@@ -216,6 +226,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
             // Final 초기화
             gOutputParticles[threadID.x].FinalSize = gOutputParticles[threadID.x].StartSize;
             gOutputParticles[threadID.x].FinalColor = gOutputParticles[threadID.x].StartColor;
+            gOutputParticles[threadID.x].FinalRotation = gOutputParticles[threadID.x].StartRotation;
         }
     }
     if (gOutputParticles[threadID.x].Alive == 1)
@@ -243,6 +254,11 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         if (ps.ColorOverLifetime.IsOn == true)
         {
             gOutputParticles[threadID.x].FinalColor = lerp(gOutputParticles[threadID.x].StartColor * ps.ColorOverLifetime.StartColor, gOutputParticles[threadID.x].StartColor * ps.ColorOverLifetime.EndColor, lifeRatio);
+        }
+        
+        if (ps.RotationOverLifetime.IsOn == true)
+        {
+            gOutputParticles[threadID.x].FinalRotation.y += ps.RotationOverLifetime.AngularVelocity * ps.DeltaTime;
         }
         
         // 속도와 중력 계산

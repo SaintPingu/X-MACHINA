@@ -391,18 +391,14 @@ class ParticleRenderer : public Singleton<ParticleRenderer> {
 	friend Singleton;
 
 private:
-	std::unordered_map<int, sptr<ParticleSystem>> mParticleSystems;
-	std::queue<int> mRemoval;
+	using KeyPSMap = std::unordered_map<int, sptr<ParticleSystem>>;
+
+	std::array<KeyPSMap, BlendTypeCount> mPSs;
 
 	sptr<Shader> mCompute{};
-	sptr<Shader> mAlpha{};
-	sptr<Shader> mAlphaStretched{};
-	sptr<Shader> mOneToOne{};
-	sptr<Shader> mOneToOneStretched{};
-	sptr<Shader> mAdditiveSoft{};
-	sptr<Shader> mAdditiveSoftStretched{};
-	sptr<Shader> mMinimum{};
-	sptr<Shader> mMinimumStretched{};
+	std::array<sptr<Shader>, BlendTypeCount> mShaders;
+
+	std::array<std::queue<int>, BlendTypeCount> mRemovals;
 
 public:
 #pragma region C/Dtor
@@ -412,8 +408,8 @@ public:
 
 public:
 	void Init();
-	void AddParticleSystem(sptr<ParticleSystem> particleSystem);
-	void RemoveParticleSystem(int particleSystemIdx);
+	void AddParticleSystem(BlendType type, sptr<ParticleSystem> particleSystem);
+	void RemoveParticleSystem(BlendType type, int particleSystemIdx);
 
 	void Update();
 	void Render() const;

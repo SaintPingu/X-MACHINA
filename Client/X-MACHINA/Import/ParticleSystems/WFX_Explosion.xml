@@ -107,7 +107,7 @@
 	<Renderer class_id="9" tracking_level="0" version="0">
 		<TextureName>Explosion_DoubleFlame</TextureName>
 		<RenderMode>1</RenderMode>
-		<BlendType>4</BlendType>
+		<BlendType>7</BlendType>
 		<LengthScale>1.000000000e+00</LengthScale>
 	</Renderer>
 </pscd>

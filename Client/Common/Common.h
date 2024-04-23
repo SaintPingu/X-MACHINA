@@ -40,10 +40,17 @@ class Dir : public DwordOverloader<Dir> {
 enum class BlendType : UINT8 {
 	Default,
 	Alpha_Blend,
+	Alpha_Stretched_Blend,
 	One_To_One_Blend,
+	One_To_One_Stretched_Blend,
 	Multiply_Blend,
+	Multiply_Stretched_Blend,
 	Additive_Soft_Blend,
+	Additive_Soft_Stretched_Blend,
+
+	_count
 };
+enum { BlendTypeCount = static_cast<UINT8>(BlendType::_count) };
 #pragma endregion
 
 
@@ -613,7 +620,7 @@ namespace Path {
 	};
 
 
-	static int kCost[] = {
+	static int gkCost[] = {
 		10,
 		10,
 		10,

@@ -124,7 +124,7 @@ void ParticleSystem::UpdateParticleSystem()
 		if (mStopElapsed >= mPSGD.StartLifeTime.y) {
 			Reset();
 			mIsRunning = false;
-			ParticleRenderer::I->RemoveParticleSystem(mPSIdx);
+			ParticleRenderer::I->RemoveParticleSystem(mPSCD->Renderer.BlendType, mPSIdx);
 			return;
 		}
 	}
@@ -164,9 +164,8 @@ void ParticleSystem::UpdateParticleSystem()
 
 void ParticleSystem::Play()
 {
-
 	// 플레이 시 파티클 렌더러에 추가 후 경과 시간 초기화
-	ParticleRenderer::I->AddParticleSystem(shared_from_this());
+	ParticleRenderer::I->AddParticleSystem(mPSCD->Renderer.BlendType, shared_from_this());
 	mIsStopCreation		= false;
 	mLoopingElapsed		= 0.f;
 	mStopElapsed		= 0.f;
@@ -261,41 +260,45 @@ sptr<ParticleSystemCPUData> ParticleSystem::LoadPSCD(const std::string& filePath
 #pragma region ParticleRenderer
 void ParticleRenderer::Init()
 {
-	mParticleSystems.reserve(1000);
-	mAlpha = RESOURCE<Shader>("GraphicsParticle");
+	for (auto& ps : mPSs) {
+		ps.reserve(10000);
+	}
+
 	mCompute = RESOURCE<Shader>("ComputeParticle");
-	mOneToOne = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
-	mAlphaStretched = RESOURCE<Shader>("GraphicsStretchedParticle");
-	mOneToOneStretched = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
-	mAdditiveSoft = RESOURCE<Shader>("AdditiveSoft_GraphicsParticle");
-	mAdditiveSoftStretched = RESOURCE<Shader>("AdditiveSoft_GraphicsStretchedParticle");
-	mMinimum = RESOURCE<Shader>("MinimumBlend_GraphicsParticle");
-	mMinimumStretched = RESOURCE<Shader>("MinimumBlend_GraphicsStretchedParticle");
+	mShaders[static_cast<UINT8>(BlendType::Alpha_Blend)] = RESOURCE<Shader>("GraphicsParticle");
+	mShaders[static_cast<UINT8>(BlendType::Alpha_Stretched_Blend)] = RESOURCE<Shader>("GraphicGraphicsStretchedParticlesParticle");
+	mShaders[static_cast<UINT8>(BlendType::One_To_One_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
+	mShaders[static_cast<UINT8>(BlendType::One_To_One_Stretched_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
+	mShaders[static_cast<UINT8>(BlendType::Additive_Soft_Blend)] = RESOURCE<Shader>("AdditiveSoft_GraphicsParticle");
+	mShaders[static_cast<UINT8>(BlendType::Additive_Soft_Stretched_Blend)] = RESOURCE<Shader>("AdditiveSoft_GraphicsStretchedParticle");
+	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsParticle");
+	mShaders[static_cast<UINT8>(BlendType::Multiply_Stretched_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsStretchedParticle");
 }
 
-void ParticleRenderer::AddParticleSystem(sptr<ParticleSystem> particleSystem)
+void ParticleRenderer::AddParticleSystem(BlendType type, sptr<ParticleSystem> particleSystem)
 {
-	mParticleSystems.insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
+	mPSs[static_cast<UINT8>(type)].insert(std::make_pair(particleSystem->GetPSIdx(), particleSystem));
 }
 
-void ParticleRenderer::RemoveParticleSystem(int particleSystemIdx)
+void ParticleRenderer::RemoveParticleSystem(BlendType type, int particleSystemIdx)
 {
 	// 최종 삭제 파티클 시스템 인덱스
-	mRemoval.push(particleSystemIdx);
+	mRemovals[static_cast<UINT8>(type)].push(particleSystemIdx);
 }
 
 void ParticleRenderer::Update()
 {
-	// 파티클 삭제
-	while (!mRemoval.empty()) {
-		int deprecated = mRemoval.front();
-		mParticleSystems.erase(deprecated);
-		mRemoval.pop();
-	}
+	for (int type = 0; type < BlendTypeCount; ++type) {
+		// 파티클 삭제
+		while (!mRemovals[type].empty()) {
+			mPSs[type].erase(mRemovals[type].front());
+			mRemovals[type].pop();
+		}
 
-	// 파티클 시스템을 물고 있는 객체가 삭제 되더라도 바로 소멸되지 않도록 업데이트
-	for (const auto& ps : mParticleSystems) {
-		ps.second->UpdateParticleSystem();
+		// 파티클 시스템 업데이트
+		for (const auto& ps : mPSs[type]) {
+			ps.second->UpdateParticleSystem();
+		}
 	}
 }
 
@@ -303,52 +306,27 @@ void ParticleRenderer::Render() const
 {
 	// 컴퓨트 쉐이더 실행
 	mCompute->Set();
-	for (const auto& ps : mParticleSystems) {
-		if (!ps.second->IsRunning())
-			continue;
+	for (const auto& pss : mPSs) {
+		for (const auto& ps : pss) {
+			if (!ps.second->IsRunning())
+				continue;
 
-		ps.second->ComputeParticleSystem();
+			ps.second->ComputeParticleSystem();
+		}
 	}
 
-	// 쉐이더가 같은 경우 쉐이더를 set 하지 않는다.
-	PSRenderMode prevMode = PSRenderMode::None;
-	BlendType prevBlendType = BlendType::Alpha_Blend;
-	for (const auto& ps : mParticleSystems) {
-		if (!ps.second->IsRunning())
+	// 그래픽스 쉐이더 실행
+	for (int type = 0; type < BlendTypeCount; ++type) {
+		const auto& pss = mPSs[type];
+		const auto& shader = mShaders[type];
+
+		if (pss.empty())
 			continue;
 
-		const PSRenderMode currMode = ps.second->GetPSCD()->Renderer.RenderMode;
-		const BlendType currBlendType = ps.second->GetPSCD()->Renderer.BlendType;
+		shader->Set();
 
-		if (prevMode != currMode || prevBlendType != currBlendType) {
-			switch (currMode)
-			{
-			case PSRenderMode::Billboard:
-				if (currBlendType == BlendType::Alpha_Blend)
-					mAlpha->Set();
-				else if (currBlendType == BlendType::One_To_One_Blend)
-					mOneToOne->Set();
-				else if (currBlendType == BlendType::Additive_Soft_Blend)
-					mAdditiveSoft->Set();
-				else if (currBlendType == BlendType::Multiply_Blend)
-					mMinimum->Set();
-				break;
-			case PSRenderMode::StretchedBillboard:
-				if (currBlendType == BlendType::Alpha_Blend)
-					mAlphaStretched->Set();
-				else if (currBlendType == BlendType::One_To_One_Blend)
-					mOneToOneStretched->Set();
-				else if (currBlendType == BlendType::Additive_Soft_Blend)
-					mAdditiveSoftStretched->Set();
-				else if (currBlendType == BlendType::Multiply_Blend)
-					mMinimumStretched->Set();
-				break;
-			}
-			prevMode = currMode;
-			prevBlendType = currBlendType;
-		}
-
-		ps.second->RenderParticleSystem();
+		for (const auto& ps : pss)
+			ps.second->RenderParticleSystem();
 	}
 }
 #pragma endregion

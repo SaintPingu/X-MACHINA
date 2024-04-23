@@ -69,7 +69,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.7f, 0.2f, 0.f, 1.0f });
 		pscd.Renderer.TextureName = "Explosion";
 		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
-		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
 		pscd.Renderer.LengthScale = 5.f;
 		ParticleSystem::SavePSCD(pscd);
 	}
@@ -176,9 +176,9 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.Shape.SetSphere(0.4f, 1.f, 360.f, false);
 		pscd.ColorOverLifeTime.SetColor(Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.7f, 0.1f, 0.f, 1.f });
 		pscd.SizeOverLifeTime = 1;
-		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
 		pscd.Renderer.TextureName = "Explosion_Dot";
 		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
 		ParticleSystem::SavePSCD(pscd);
 	}
 
@@ -801,14 +801,14 @@ void ResourceMgr::LoadShaders()
 			info.BlendType = BlendType::Multiply_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
 			shader->Load(info, path);
-			Add<Shader>("MinimumBlend_GraphicsParticle", shader);
+			Add<Shader>("MultiplyBlend_GraphicsParticle", shader);
 		}
 		{
 			path.GS = "GShader_StretchedParticle.cso";
 			info.BlendType = BlendType::Multiply_Blend;
 			sptr<Shader> shader = std::make_shared<Shader>();
 			shader->Load(info, path);
-			Add<Shader>("MinimumBlend_GraphicsStretchedParticle", shader);
+			Add<Shader>("MultiplyBlend_GraphicsStretchedParticle", shader);
 		}
 	}
 #pragma endregion

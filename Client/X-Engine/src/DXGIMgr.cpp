@@ -253,14 +253,15 @@ void DXGIMgr::Render()
 	PostPassRenderBegin();
 
 	UINT offScreenIndex{};
+	if (mFilterOption & FilterOption::Ssao)
+		mSsao->Execute(4);
 	if (mFilterOption & FilterOption::None)
 		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetSrvIdx();
 	if (mFilterOption & FilterOption::Blur)
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0), 4);
 	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0));
-	if (mFilterOption & FilterOption::Ssao)
-		mSsao->Execute(4);
+
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	Scene::I->RenderPostProcessing(offScreenIndex);
@@ -283,6 +284,8 @@ void DXGIMgr::ToggleFullScreen()
 
 void DXGIMgr::MainPassRenderBegin()
 {
+	Scene::I->ClearRenderedObjects();
+
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
 

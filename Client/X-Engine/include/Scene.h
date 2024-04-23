@@ -64,6 +64,7 @@ private:
 	std::set<GridObject*>	    mTransparentObjects{};
 	std::set<GridObject*>	    mBillboardObjects{};
 	std::set<GridObject*>	    mSkinMeshObjects{};
+	std::set<GridObject*>	    mGridObjects{};
 
 	/* ¿Â¿ÁπÆ - */
 	USE_LOCK;
@@ -175,6 +176,7 @@ private:
 #pragma region Render
 public:
 	// render scene
+	void ClearRenderedObjects();
 	void RenderShadow();
 	void RenderDeferred();
 	void RenderLights();

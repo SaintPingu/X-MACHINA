@@ -418,15 +418,24 @@ namespace {
 	}
 }
 
+void Scene::ClearRenderedObjects()
+{
+	mRenderedObjects.clear();
+	mSkinMeshObjects.clear();
+	mTransparentObjects.clear();
+	mBillboardObjects.clear();
+	mGridObjects.clear();
+}
+
 void Scene::RenderShadow()
 {
+	if (!DXGIMgr::I->GetFilterOption(FilterOption::Shadow))
+		return;
+
 #pragma region PrepareRender
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
-
-	if (!DXGIMgr::I->GetFilterOption(FilterOption::Shadow))
-		return;
 
 #pragma region Shadow_Global
 	RenderGridObjects(true);
@@ -440,10 +449,6 @@ void Scene::RenderDeferred()
 {
 #pragma region PrepareRender
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
-	mRenderedObjects.clear();
-	mSkinMeshObjects.clear();
-	mTransparentObjects.clear();
-	mBillboardObjects.clear();
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
 
@@ -454,10 +459,7 @@ void Scene::RenderDeferred()
 #pragma region ObjectInst
 	RenderInstanceObjects();
 #pragma endregion
-#pragma region ColorInst
-
-#pragma endregion
-#pragma region Shadow_SkinMesh
+#pragma region SkinMesh
 	RenderSkinMeshObjects();
 #pragma endregion
 #pragma region Terrain
@@ -566,40 +568,44 @@ void Scene::RenderGridObjects(bool isShadowed)
 	else
 		RESOURCE<Shader>("Global")->Set();
 
-	for (const auto& grid : mGrids) {
-		if (grid.Empty()) {
-			continue;
+	if (mRenderedObjects.empty()) {
+		for (const auto& grid : mGrids) {
+			if (grid.Empty()) {
+				continue;
+			}
+
+			if (MAIN_CAMERA->IsInFrustum(grid.GetBB())) {
+				auto& objects = grid.GetObjects();
+				mRenderedObjects.insert(objects.begin(), objects.end());
+			}
 		}
 
-		// TODO : 현재 인스턴싱 쪽에서 깜빡거리는 버그 발견 
-		if (MAIN_CAMERA->IsInFrustum(grid.GetBB())) {
-			auto& objects = grid.GetObjects();
-			mRenderedObjects.insert(objects.begin(), objects.end());
-		}
-	}
+		for (auto& object : mRenderedObjects) {
+			if (object->IsTransparent()) {
+				mTransparentObjects.insert(object);
+				continue;
+			}
 
-	for (auto& object : mRenderedObjects) {
-		if (object->IsTransparent()) {
-			mTransparentObjects.insert(object);
-			continue;
-		}
-
-		switch (object->GetTag())
-		{
-		case ObjectTag::Billboard:
-		case ObjectTag::Sprite:
-			mBillboardObjects.insert(object);
-			break;
-		default:
-			if (object->IsSkinMesh()) {
-				mSkinMeshObjects.insert(object);
+			switch (object->GetTag())
+			{
+			case ObjectTag::Billboard:
+			case ObjectTag::Sprite:
+				mBillboardObjects.insert(object);
+				break;
+			default:
+				if (object->IsSkinMesh()) {
+					mSkinMeshObjects.insert(object);
+					break;
+				}
+				object->ComputeWorldTransform();
+				mGridObjects.insert(object);
 				break;
 			}
-			object->ComputeWorldTransform();
-			object->Render();
-			break;
 		}
 	}
+
+	for (auto& object : mGridObjects)
+		object->Render();
 }
 
 void Scene::RenderSkinMeshObjects(bool isShadowed)
@@ -612,9 +618,8 @@ void Scene::RenderSkinMeshObjects(bool isShadowed)
 	else
 		RESOURCE<Shader>("SkinMesh")->Set();
 
-	for (auto it = mSkinMeshObjects.begin(); it != mSkinMeshObjects.end(); ++it) {
-		(*it)->Render();
-	}
+	for (auto& object : mSkinMeshObjects)
+		object->Render();
 }
 
 void Scene::RenderInstanceObjects()

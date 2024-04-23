@@ -181,7 +181,7 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 
 	// 메쉬 Bounding Sphere 반지름 = 대각선 길이 * n(보정값)
 	MyBoundingSphere bs;
-	bs.Radius = std::sqrtf((float)(blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f;
+	bs.Radius = std::sqrtf((float)(blockWidth * blockWidth) + (blockLength * blockLength)) * 1.1f / 2.f;
 
 	// 격자마다 메쉬를 생성해 TerrainBlock에 저장
 	for (int z = 0, zStart = 0; z < zBlocks; z++)

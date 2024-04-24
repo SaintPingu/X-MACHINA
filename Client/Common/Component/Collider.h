@@ -13,6 +13,17 @@ class GridObject;
 #pragma region Class
 class Collider abstract : public Component {
 	COMPONENT_ABSTRACT(Collider, Component)
+
+public:
+	virtual void Render() const {};
+
+	virtual bool Intersects(rsptr<Collider> other) abstract;
+	virtual bool Intersects(const BoundingBox& bb) abstract;
+	virtual bool Intersects(const BoundingSphere& bs) abstract;
+	virtual bool Intersects(const Ray& ray, float& dist) abstract;
+
+	enum class Type { None, Box, Sphere };
+	virtual Type GetType() const abstract;
 };
 
 
@@ -29,8 +40,15 @@ public:
 	BoxCollider& operator=(const BoxCollider& other);
 
 public:
-	virtual void Update();
-	virtual void Render() const;
+	virtual void Update() override;
+	virtual void Render() const override;
+
+	virtual bool Intersects(rsptr<Collider> other) override;
+	virtual bool Intersects(const BoundingBox& bb) override;
+	virtual bool Intersects(const BoundingSphere& bs) override;
+	virtual bool Intersects(const Ray& ray, float& dist) override;
+
+	virtual Type GetType() const { return Type::Box; }
 };
 
 
@@ -48,7 +66,14 @@ public:
 
 public:
 	virtual void Update();
-	virtual void Render() const;
+	virtual void Render() const override;
+
+	virtual bool Intersects(rsptr<Collider> other) override;
+	virtual bool Intersects(const BoundingBox& bb) override;
+	virtual bool Intersects(const BoundingSphere& bs) override;
+	virtual bool Intersects(const Ray& ray, float& dist) override;
+
+	virtual Type GetType() const { return Type::Sphere; }
 };
 
 
@@ -58,13 +83,12 @@ class ObjectCollider : public Component {
 	COMPONENT(ObjectCollider, Component)
 
 private:
-	sptr<SphereCollider>				mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
-	std::vector<MyBoundingOrientedBox*> mOBBList{};			// 전체 bounding box
-	std::vector<sptr<BoxCollider>>		mBoxColliders{};	// 전체 box collider
+	sptr<SphereCollider>		mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
+	std::vector<sptr<Collider>>	mColliders{};		// 전체 collider
 
 public:
-	const MyBoundingSphere& GetBS() const	{ return mSphereCollider->mBS; }
-	const auto& GetOBBList() const			{ return mOBBList; }
+	const MyBoundingSphere& GetBS() const { return mSphereCollider->mBS; }
+	const std::vector<sptr<Collider>>& GetColliders() const { return mColliders; }
 
 public:
 	virtual void Awake() override;
@@ -73,44 +97,10 @@ public:
 public:
 	void Render() const;
 
+	bool Intersects(const ObjectCollider* other) const;
 	bool Intersects(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }
-
-	// 자신이 들고 있는 obb list에 대해 bb의 교차 여부를 반환한다.
-	bool Intersects(const BoundingBox& bb) const { 
-		for (const auto& myOBB : mOBBList) {
-			if (myOBB->Intersects(bb)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	// bs를 각 obb에 대해 교차 여부를 반환한다.
-	static inline bool Intersects(const std::vector<MyBoundingOrientedBox*>& obbList, const BoundingSphere& bs)
-	{
-		for (const auto& boxA : obbList) {
-			if (boxA->Intersects(bs)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	// 두 obb list에 대해 각 요소의 교차 여부를 반환한다.
-	static inline bool Intersects(const std::vector<MyBoundingOrientedBox*>& obbListA, const std::vector<MyBoundingOrientedBox*>& obbListB)
-	{
-		for (const auto& obbA : obbListA) {
-			for (const auto& obbB : obbListB) {
-				if (obbA->Intersects(*obbB)) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
+	bool Intersects(const BoundingBox& bb) const;
+	bool Intersects(const BoundingSphere& bs) const;
 
 	// 두 객체의 충돌 여부를 반환한다.
 	static bool Intersects(const GridObject& a, const GridObject& b);

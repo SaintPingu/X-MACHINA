@@ -810,7 +810,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		}
 			
 		// 상하를 회전하여 총구의 yaw 회전을 제거한다.
-		if (!IsReloading() && mController->IsEndTransition("Body")) {
+		if (!mWeaponScript->IsReloading() && mController->IsEndTransition("Body")) {
 			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
 			if (fabs(yawAngle) > 0.1f) {
 				// [maxAngle]도 이상일 때 최대 속도

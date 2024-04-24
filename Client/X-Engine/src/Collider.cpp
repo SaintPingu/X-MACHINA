@@ -26,6 +26,32 @@ void BoxCollider::Render() const
 {
 	MeshRenderer::Render(mBox);
 }
+bool BoxCollider::Intersects(rsptr<Collider> other)
+{
+	switch (other->GetType()) {
+	case Type::Box:
+		return mBox.Intersects(reinterpret_cast<BoxCollider*>(other.get())->mBox);
+	case Type::Sphere:
+		return mBox.Intersects(reinterpret_cast<SphereCollider*>(other.get())->mBS);
+	default:
+		assert(0);
+		break;
+	}
+
+	return false;
+}
+bool BoxCollider::Intersects(const BoundingBox& bb)
+{
+	return mBox.Intersects(bb);
+}
+bool BoxCollider::Intersects(const BoundingSphere& bs)
+{
+	return mBox.Intersects(bs);
+}
+bool BoxCollider::Intersects(const Ray& ray, float& dist)
+{
+	return mBox.Intersects(_VECTOR(ray.Position), _VECTOR(ray.Direction), dist);
+}
 #pragma endregion
 
 
@@ -54,6 +80,32 @@ void SphereCollider::Render() const
 {
 	MeshRenderer::Render(mBS);
 }
+bool SphereCollider::Intersects(rsptr<Collider> other)
+{
+	switch (other->GetType()) {
+	case Type::Box:
+		return mBS.Intersects(reinterpret_cast<BoxCollider*>(other.get())->mBox);
+	case Type::Sphere:
+		return mBS.Intersects(reinterpret_cast<SphereCollider*>(other.get())->mBS);
+	default:
+		assert(0);
+		break;
+	}
+
+	return false;
+}
+bool SphereCollider::Intersects(const BoundingBox& bb)
+{
+	return mBS.Intersects(bb);
+}
+bool SphereCollider::Intersects(const BoundingSphere& bs)
+{
+	return mBS.Intersects(bs);
+}
+bool SphereCollider::Intersects(const Ray& ray, float& dist)
+{
+	return mBS.Intersects(_VECTOR(ray.Position), _VECTOR(ray.Direction), dist);
+}
 #pragma endregion
 
 
@@ -77,11 +129,12 @@ void ObjectCollider::Awake()
 
 	for (auto transform : mergedTransform) {
 		const Object* object = transform->GetObj<Object>();
-		const auto& components = object->GetComponents<BoxCollider>();
+		const auto& colliders = object->GetComponents<Collider>();
 
-		for (auto& boxCollider : components) {
-			mOBBList.emplace_back(&boxCollider->mBox);
-			mBoxColliders.emplace_back(boxCollider);
+		for (auto& collider : colliders) {
+			if (collider != mSphereCollider) {
+				mColliders.push_back(collider);
+			}
 		}
 	}
 
@@ -91,8 +144,8 @@ void ObjectCollider::Awake()
 // 모든 Collider의 transform 정보를 update한다.
 void ObjectCollider::Update()
 {
-	for (auto& boxCollider : mBoxColliders) {
-		boxCollider->Update();
+	for (auto& collider : mColliders) {
+		collider->Update();
 	}
 
 	mSphereCollider->Update();
@@ -105,8 +158,8 @@ void ObjectCollider::Render() const
 		return;
 	}
 
-	for (auto& boxCollider : mBoxColliders) {
-		boxCollider->Render();
+	for (auto& collider : mColliders) {
+		collider->Render();
 	}
 
 	#define RENDER_BOUNDING_SPHERE
@@ -117,13 +170,78 @@ void ObjectCollider::Render() const
 #endif
 }
 
+bool ObjectCollider::Intersects(const ObjectCollider* other) const
+{
+	const auto& aBS = GetBS();
+	const auto& bBS = other->GetBS();
+
+	// 두 객체간 Bounding Sphere 우선 검사
+	if (!aBS.Intersects(bBS)) {
+		return false;
+	}
+
+	const auto& aColliders = mColliders;
+	const auto& bColliders = other->GetColliders();
+
+	bool aHasCollider = !aColliders.empty();
+	bool bHasCollider = !bColliders.empty();
+	if (!aHasCollider && !bHasCollider) {
+		return true;
+	}
+
+	if (aHasCollider) {
+		for (const auto& a : aColliders) {
+			if (a->Intersects(bBS)) {
+				return true;
+			}
+		}
+	}
+	else if (bHasCollider) {
+		for (const auto& b : bColliders) {
+			if (b->Intersects(aBS)) {
+				return true;
+			}
+		}
+	}
+	else {
+		for (const auto& a : aColliders) {
+			for (const auto& b : bColliders) {
+				if (a->Intersects(b)) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool ObjectCollider::Intersects(const BoundingBox& bb) const
+{
+	for (auto& collider : mColliders) {
+		if (collider->Intersects(bb)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ObjectCollider::Intersects(const BoundingSphere& bs) const
+{
+	for (auto& collider : mColliders) {
+		if (collider->Intersects(bs)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // 두 ObjectCollider 충돌처리 알고리즘
-//       [A] <-> [B]
-// 1.    BS  <-> BS
-// 2-1.  OBB <-> OBB : 둘 다 OBB가 있다면
-// 2-2.  OBB <-> BS  : A만 있다면
-// 2-3.  BS  <-> OBB : B만 있다면
-// 3.       true     : 둘 다 없다면
+//         [A]   <->    [B]
+// 1.      BS    <->    BS
+// 2.   Collider <-> Collider
 bool ObjectCollider::Intersects(const GridObject& a, const GridObject& b)
 {
 	const auto& colliderA = a.GetCollider();
@@ -134,35 +252,6 @@ bool ObjectCollider::Intersects(const GridObject& a, const GridObject& b)
 		return false;
 	}
 
-	const auto& bsA = colliderA->GetBS();
-	const auto& bsB = colliderB->GetBS();
-
-	// 두 객체간 Bounding Sphere 우선 검사
-	if (!bsA.Intersects(bsB)) {
-		return false;
-	}
-
-	const auto& obbListA = colliderA->GetOBBList();
-	const auto& obbListB = colliderB->GetOBBList();
-
-	const bool aHasOBB = !obbListA.empty();
-	const bool bHasOBB = !obbListB.empty();
-
-	// 한 객체라도 OBB를 가지고 있다면
-	if (aHasOBB || bHasOBB) {
-		if (aHasOBB && bHasOBB) {	 // 두 객체 모두 OBB를 가지고 있다면 OBB<->OBB 간 충돌검사
-			return ObjectCollider::Intersects(obbListA, obbListB);
-		}
-		// 하나의 객체만 OBB를 가지고 있다면 OBB<->BS 충돌검사
-		else if (aHasOBB) {
-			return ObjectCollider::Intersects(obbListA, bsB);
-		}
-		else {
-			return ObjectCollider::Intersects(obbListB, bsA);
-		}
-	}
-
-	// 두 객체 모두 OBB가 없다면 충돌(true)
-	return true;
+	return colliderA->Intersects(colliderB);
 }
 #pragma endregion

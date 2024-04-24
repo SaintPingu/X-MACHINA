@@ -180,9 +180,9 @@ float Grid::CheckCollisionsRay(const Ray& ray) const
 		if (object->GetTag() != ObjectTag::Building)
 			continue;
 
-		float dist;
-		for (const auto& obb : object->GetCollider()->GetOBBList()) {
-			if (obb->Intersects(ray.Position, ray.Direction, dist)) {
+		float dist = 100;
+		for (const auto& collider : object->GetCollider()->GetColliders()) {
+			if (collider->Intersects(ray, dist)) {
 				minDist = min(minDist, dist);
 			}
 		}

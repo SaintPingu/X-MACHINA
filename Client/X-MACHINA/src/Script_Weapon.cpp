@@ -29,6 +29,8 @@ void Script_Weapon::Awake()
 	for (auto& ps : mMuzzlePSs)
 		ps->Awake();
 
+	SetParticleSystemNames();
+
 	InitValues();
 	CreateBulletPool();
 }
@@ -166,6 +168,11 @@ void Script_BulletWeapon::FireBullet()
 	auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
 		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
+
+		if (!bulletScript->IsSetPSs())
+			for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
+				bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
+
 		bulletScript->Fire(*mMuzzle);
 	}
 }
@@ -186,4 +193,5 @@ void Script_BulletWeapon::CreateBulletPool()
 {
 	mBulletPool = Scene::I->CreateObjectPool("bullet", mMaxMag, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
 }
+
 #pragma endregion

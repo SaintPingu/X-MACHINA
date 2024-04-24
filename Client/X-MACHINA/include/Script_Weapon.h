@@ -36,11 +36,16 @@ private:
 	std::function<void()> updateFunc{ std::bind(&Script_Weapon::Update_Auto, this) };
 	bool mIsReload{};
 	Script_GroundPlayer* mOwner{};
-	std::vector<sptr<ParticleSystem>> mMuzzlePSs{};
 
 protected:
 	Transform* mMuzzle{};		// ÃÑ±¸
 	sptr<ObjectPool> mBulletPool{};
+
+protected:
+	std::vector<sptr<ParticleSystem>> mMuzzlePSs{};
+	std::vector<sptr<ParticleSystem>> mBulletPSs{};
+	std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames{};
+
 
 	float mMaxFireDelay{};		// ÃÑ¾Ë ¹ß»ç µô·¹ÀÌ
 	float mCurFireDelay{};		// ÇöÀç ¹ß»ç µô·¹ÀÌ
@@ -65,6 +70,7 @@ public:
 	virtual WeaponType GetWeaponType() const abstract;
 	Transform* GetMuzzle() const { return mMuzzle; }
 	float GetReloadTime() const { return mMaxReloadTime ; }
+	const auto& GetPSNames() const { return mPSNames; }
 	bool IsReloading() const { return mIsReload; }
 	bool IsShooting() const { return mIsShooting; }
 
@@ -96,6 +102,7 @@ private:
 	virtual void CreateBulletPool() abstract;
 	virtual void InitValues() abstract;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
+	virtual void SetParticleSystemNames() abstract;
 };
 
 

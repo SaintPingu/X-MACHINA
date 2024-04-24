@@ -2,6 +2,7 @@
 #include "Script_Bullet.h"
 
 #include "Script_Enemy.h"
+#include "Script_Weapon.h"
 
 #include "Object.h"
 #include "Timer.h"
@@ -15,20 +16,6 @@ void Script_Bullet::Awake()
 	base::Awake();
 
 	mGameObject = mObject->GetObj<GameObject>();
-	mParticleSystems.reserve(10);
-	mParticleSystems.emplace_back(mCollisionSmokePS = mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke_BigQuick"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Smoke"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Glow"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Explosion_Small"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles_Big"));
-	mParticleSystems.emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Dot_Sparkles_Mult"));
-	for (auto& ps : mParticleSystems)
-		ps->Awake();
-
-	mBulletSmokePS = mGameObject->AddComponent<ParticleSystem>()->Load("WFX_Bullet");
-	mBulletSmokePS->Awake();
 
 	const auto& rb = mObject->GetComponent<Rigidbody>();
 	rb->SetFriction(0.001f);
@@ -37,13 +24,22 @@ void Script_Bullet::Awake()
 	Reset();
 }
 
+void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames)
+{
+	for (auto& name : psNames) {
+		mPSs[static_cast<UINT8>(type)].emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load(name))->Awake();
+	}
+
+	mIsSetPSs = true;
+}
+
 void Script_Bullet::Update()
 {
 	mCurrLifeTime += DeltaTime();
 
 	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
-		mBulletSmokePS->Stop();
+		StopPSs(BulletPSType::Contrail);
 		mGameObject->OnDestroy();
 	}
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
@@ -62,7 +58,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Building:
-		mCollisionSmokePS->Play();
+		PlayPSs(BulletPSType::Building);
 		Explode();
 		break;
 
@@ -70,10 +66,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());
-
-		for (const auto& ps : mParticleSystems)
-			ps->Play();
-
+		PlayPSs(BulletPSType::Explosion);
 		Explode();
 	}
 
@@ -96,10 +89,8 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 
 void Script_Bullet::Fire(const Transform& transform)
 {
-	for (auto& ps : mParticleSystems)
-		ps->Reset();
-
-	mBulletSmokePS->Play();
+	ResetPSs(BulletPSType::Explosion);
+	PlayPSs(BulletPSType::Contrail);
 
 	mObject->SetLocalRotation(transform.GetRotation());
 	Fire(transform.GetPosition(), transform.GetLook(), transform.GetUp());
@@ -112,11 +103,28 @@ void Script_Bullet::Explode()
 	}
 
 	Reset();
-	mBulletSmokePS->Stop();
+	StopPSs(BulletPSType::Contrail);
 
 	mGameObject->OnDestroy();
 }
 
+void Script_Bullet::PlayPSs(BulletPSType type)
+{
+	for (const auto& ps : mPSs[static_cast<UINT8>(type)]) 
+		ps->Play();
+}
+
+void Script_Bullet::StopPSs(BulletPSType type)
+{
+	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
+		ps->Stop();
+}
+
+void Script_Bullet::ResetPSs(BulletPSType type)
+{
+	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
+		ps->Reset();
+}
 
 void Script_Bullet::Reset()
 {

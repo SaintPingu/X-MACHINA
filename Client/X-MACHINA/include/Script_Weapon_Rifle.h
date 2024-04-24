@@ -31,4 +31,5 @@ private:
 private:
 	virtual void InitValues() override;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const override;
+	virtual void SetParticleSystemNames() override;
 };

@@ -21,22 +21,24 @@ class Script_Bullet : public Component {
 private:
 	GameObject*		mGameObject{};	// self GameObject
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
-	sptr<ParticleSystem> mCollisionSmokePS{};
-	sptr<ParticleSystem> mBulletSmokePS{};
-	std::vector<sptr<ParticleSystem>> mParticleSystems{};
+
+	std::array<std::vector<sptr<ParticleSystem>>, BulletPSTypeCount> mPSs;
 
 	float mSpeed{};					// speed of bullet
 	float mDamage{};				// damage of bullet
 	float mMaxLifeTime{ 2.f };		// 총알 수명(발사 후 최대 유지시간)
 	float mCurrLifeTime{};			// 현재 수명
+	bool  mIsSetPSs{};
 
 public:
 	float GetDamage() { return mDamage; }
+	float IsSetPSs() { return mIsSetPSs; }
 
 	void SetDamage(float damage) { mDamage = damage; }
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetOwner(const Object* object) { mOwner = object; }
 	void SetLifeTime(float lifeTIme) { mMaxLifeTime = lifeTIme; }
+	void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
 
 public:
 	virtual void Awake() override;
@@ -51,6 +53,9 @@ public:
 
 	// 총알 객체를 터뜨린다. (폭발 처리)
 	void Explode();
+	void PlayPSs(BulletPSType type); 
+	void StopPSs(BulletPSType type); 
+	void ResetPSs(BulletPSType type); 
 
 private:
 	bool IsOwner(const Object* object) { return mOwner == object; }

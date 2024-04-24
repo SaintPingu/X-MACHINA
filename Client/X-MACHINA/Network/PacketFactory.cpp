@@ -65,7 +65,7 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Transform(Vec3 Pos, Vec3 Ro
 	auto transform = FBProtocol::CreateTransform(builder, position, rotation, scale);
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, transform);
-	builder.Finish(transform);
+	builder.Finish(ServerPacket);
 
 	/* Create SendBuffer */
 	const uint8_t* bufferPointer      = builder.GetBufferPointer();

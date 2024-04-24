@@ -15,7 +15,8 @@
 #include "framework.h"
 #include "Object.h"
 #include "Scene.h"
-
+#include "../include/GameFramework.h"
+#include "X-Engine.h"
 
 
 FlatPacketHandlerFunc GFlatPacketHandler[UINT16_MAX]{};
@@ -36,8 +37,10 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	/* My Client Info ( in server ) */
 	const FBProtocol::Player* MySessionInfo = pkt.myinfo();
 	std::string				  Myname        = MySessionInfo->name()->c_str();
-	uint64_t					  MysessionID   = MySessionInfo->id();
+	uint64_t				  MysessionID   = MySessionInfo->id();
 	FBProtocol::OBJECTTYPE	  MyobjType     = MySessionInfo->player_type();
+	
+	GameFramework::I->InitPlayer(MysessionID);
 
 	std::cout << "♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n";
 	std::cout << Myname << " - " << MysessionID << " \n";
@@ -75,6 +78,7 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	session->Send(CPktBuf);
 	std::cout << "LogIn End\n";
 
+
 	return true;
 }
 
@@ -82,10 +86,12 @@ bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol:
 {
 	/* 새로 들어온 player 의 정보를 받는다. */
 		/* New Client Info ( in server ) */
-	const FBProtocol::Player* NewSessionInfo = pkt.newplayer();
-	std::string				  Newname        = NewSessionInfo->name()->c_str();
-	uint64_t					  NewsessionID   = NewSessionInfo->id();
-	FBProtocol::OBJECTTYPE	  NewobjType     = NewSessionInfo->player_type();
+	const FBProtocol::Player* NewSessionInfo    = pkt.newplayer();
+	std::string				  Newname           = NewSessionInfo->name()->c_str();
+	uint64_t				  NewsessionID      = NewSessionInfo->id();
+	FBProtocol::OBJECTTYPE	  NewobjType        = NewSessionInfo->player_type();
+	
+
 
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
 	std::cout << "New Session Enter : " << Newname << " - " << NewsessionID << "\n";

@@ -45,11 +45,11 @@ enum class LogLevel
 	END,
 };
 
+#define LOG_MGR LogMgr::I
 class LogMgr : public Singleton<LogMgr> {
 	friend Singleton<LogMgr>;
 
-
-
+	
 private:
 	HANDLE			mConsoleHandle{};
 	FILE*			mConsoleStream{};	/// Console 

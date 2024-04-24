@@ -8,7 +8,6 @@
 
 #pragma region Define
 #define GAME_MGR Scene::I->GetGameManager()
-#define SERVER_MGR Scene::I->GetServerManager()
 #pragma endregion
 
 

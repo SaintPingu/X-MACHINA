@@ -213,3 +213,15 @@ public:
 bool IncreaseDelta(float& val, float speed);
 // [val]를 [speed] 속도로 최소 0까지 감소시킨다.
 bool DecreaseDelta(float& val, float speed);
+
+
+#pragma region EnumClass
+enum class BulletPSType : UINT8 {
+	Explosion = 0,
+	Contrail,
+	Building,
+
+	_count
+};
+enum { BulletPSTypeCount = static_cast<UINT8>(BulletPSType::_count) };
+#pragma endregion

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #pragma region Include
 #include "Component/Component.h"
@@ -8,6 +8,7 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/array.hpp>
 
 #include "Resources.h"
 #pragma endregion
@@ -22,6 +23,11 @@ class Shader;
 enum class PSSimulationSpace : UINT32 {
 	Local = 0,
 	World,
+};
+
+enum class PSValueOption : UINT32 {
+	Constant = 0,
+	RandomBetweenTwoConstants,
 };
 
 enum class PSColorOption : UINT32 {
@@ -172,41 +178,82 @@ struct PSShape {
 };
 
 struct ColorOverLifetime {
+	enum { GradientCount = 4 };
 	UINT IsOn = false;
-	Vec3 Padding;
-	Vec4 StartColor{};
-	Vec4 EndColor{};
+	UINT Count = 0;
+	Vec2 Padding;
+	std::array<float, GradientCount> Times;
+	std::array<Vec4, GradientCount> Colors;
 
 public:
-	void SetColor(Vec4 startColor, Vec4 endColor) {
+	void SetColor(std::initializer_list<float> times, std::initializer_list<Vec4> colors) {
 		IsOn = true;
-		StartColor = startColor;
-		EndColor = endColor;
+		Count = static_cast<int>(colors.size());
+		std::memcpy(Times.data(), times.begin(), times.size() * sizeof(float));
+		std::memcpy(Colors.data(), colors.begin(), colors.size() * sizeof(Vec4));
 	}
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
 		ar& BOOST_SERIALIZATION_NVP(IsOn);
-		ar& BOOST_SERIALIZATION_NVP(StartColor);
-		ar& BOOST_SERIALIZATION_NVP(EndColor);
+		ar& BOOST_SERIALIZATION_NVP(Count);
+		ar& BOOST_SERIALIZATION_NVP(Times);
+		ar& BOOST_SERIALIZATION_NVP(Colors);
 	}
 };
 
 struct RotationOverLifetime {
 	UINT IsOn = false;
-	float AngularVelocity = 0.f;
-	Vec2 Padding;
+	float FirstAngularVelocity = 0.f;
+	float SecondAngularVelocity = 0.f;
+	PSValueOption ValueOption = PSValueOption::Constant;
 
 public:
-	void SetAngularVelocity(float angularVelocity) {
+	void SetAngularVelocity(PSValueOption valueOption, float fAngularVelocity, float sAngularVelocity = 0.f) {
 		IsOn = true;
-		AngularVelocity = angularVelocity;
+		ValueOption = valueOption;
+
+		switch (valueOption)
+		{
+		case PSValueOption::Constant:
+			FirstAngularVelocity = fAngularVelocity;
+			break;
+		case PSValueOption::RandomBetweenTwoConstants:
+			FirstAngularVelocity = fAngularVelocity;
+			SecondAngularVelocity = sAngularVelocity;
+			break;
+		default:
+			break;
+		}
 	}
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
 		ar& BOOST_SERIALIZATION_NVP(IsOn);
-		ar& BOOST_SERIALIZATION_NVP(AngularVelocity);
+		ar& BOOST_SERIALIZATION_NVP(FirstAngularVelocity);
+		ar& BOOST_SERIALIZATION_NVP(SecondAngularVelocity);
+		ar& BOOST_SERIALIZATION_NVP(ValueOption);
+	}
+};
+
+struct VelocityOverLifetime {
+	UINT	IsOn = false;
+	Vec3	Linear{};
+	float	SpeedModifier{};
+	Vec3	Padding;
+
+public:
+	void SetLinear(const Vec3 linear, float speedModifier = 1.f) {
+		IsOn = true;
+		Linear = linear;
+		SpeedModifier = speedModifier;
+	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(Linear);
+		ar& BOOST_SERIALIZATION_NVP(SpeedModifier);
 	}
 };
 
@@ -225,24 +272,24 @@ struct PSRenderer {
 	}
 };
 
-// °°Àº ÆÄÆ¼Å¬ ½Ã½ºÅÛ¿¡ °øÅëÀ¸·Î »ç¿ëµÇ´Â CPU µ¥ÀÌÅÍ
+// ê°™ì€ íŒŒí‹°í´ ì‹œìŠ¤í…œì— ê³µí†µìœ¼ë¡œ ì‚¬ìš©ë˜ëŠ” CPU ë°ì´í„°
 class ParticleSystemCPUData : public Resource {
 public:
 	/* my value */
 	std::string			mName{};
-	int					MaxAddCount = 0;		// ÇÑ¹ø¿¡ »ı¼ºµÇ´Â ÆÄÆ¼Å¬ °³¼ö
+	int					MaxAddCount = 0;		// í•œë²ˆì— ìƒì„±ë˜ëŠ” íŒŒí‹°í´ ê°œìˆ˜
 	float				PlayMaxTime = 5.f;
 
 	/* unity particle system */
-	float				Duration = 1.f;
+	float				Duration = 0.05f;
 	bool				Looping = false;
 	bool				Prewarm = false;
 	float				StartDelay = 0.f;
 	Vec2				StartLifeTime = Vec2{ 1.f };
 	Vec2				StartSpeed = Vec2{ 1.f };
-	Vec4				StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// w°ªÀÌ 0ÀÌ¸é StartSize3D¸¦ »ç¿ëÇÏÁö ¾ÊÀ½
+	Vec4				StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// wê°’ì´ 0ì´ë©´ StartSize3Dë¥¼ ì‚¬ìš©í•˜ì§€ ì•ŠìŒ
 	Vec2				StartSize = Vec2{ 0.1f };
-	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w°ªÀÌ 0ÀÌ¸é StartRotation3D¸¦ »ç¿ëÇÏÁö ¾ÊÀ½
+	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// wê°’ì´ 0ì´ë©´ StartRotation3Dë¥¼ ì‚¬ìš©í•˜ì§€ ì•ŠìŒ
 	Vec2				StartRotation = Vec2{ 0.f };
 	PSColor				StartColor{};
 	float				GravityModifier = 0.f;
@@ -254,14 +301,16 @@ public:
 	/* unity particle system module */
 	Emission				Emission{};
 	PSShape 				Shape{};
-	int						SizeOverLifeTime{};
-	ColorOverLifetime		ColorOverLifeTime{};
-	RotationOverLifetime	RotationOverLifeTime{};
+	VelocityOverLifetime	VelocityOverLifetime{};
+	ColorOverLifetime		ColorOverLifetime{};
+	int						SizeOverLifetime{};
+	RotationOverLifetime	RotationOverLifetime{};
 	PSRenderer				Renderer{};
 
 public:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(mName);
 		ar& BOOST_SERIALIZATION_NVP(MaxAddCount);
 		ar& BOOST_SERIALIZATION_NVP(PlayMaxTime);
 		ar& BOOST_SERIALIZATION_NVP(Duration);
@@ -282,9 +331,10 @@ public:
 		ar& BOOST_SERIALIZATION_NVP(MaxParticles);
 		ar& BOOST_SERIALIZATION_NVP(Emission);
 		ar& BOOST_SERIALIZATION_NVP(Shape);
-		ar& BOOST_SERIALIZATION_NVP(SizeOverLifeTime);
-		ar& BOOST_SERIALIZATION_NVP(ColorOverLifeTime);
-		ar& BOOST_SERIALIZATION_NVP(RotationOverLifeTime);
+		ar& BOOST_SERIALIZATION_NVP(VelocityOverLifetime);
+		ar& BOOST_SERIALIZATION_NVP(ColorOverLifetime);
+		ar& BOOST_SERIALIZATION_NVP(SizeOverLifetime);
+		ar& BOOST_SERIALIZATION_NVP(RotationOverLifetime);
 		ar& BOOST_SERIALIZATION_NVP(Renderer);
 	}
 
@@ -314,10 +364,11 @@ struct ParticleSystemGPUData {
 	float				GravityModifier{};
 	PSSimulationSpace   SimulationSpace{};
 	float				SimulationSpeed{};
-	int					SizeOverLifeTime{};
+	int					SizeOverLifetime{};
 
-	ColorOverLifetime		ColorOverLifeTime{};
-	RotationOverLifetime	RotationOverLifeTime{};
+	VelocityOverLifetime	VelocityOverLifetime{};
+	ColorOverLifetime		ColorOverLifetime{};
+	RotationOverLifetime	RotationOverLifetime{};
 	PSShape 				Shape;
 };
 
@@ -355,11 +406,11 @@ class ParticleSystem : public Component, public std::enable_shared_from_this<Par
 	COMPONENT(ParticleSystem, Component)
 
 private:
-	Transform*			mTarget = mObject;			// ÆÄÆ¼Å¬À» ºÎÂø½ÃÅ³ Å¸°Ù
-	int					mPSIdx = -1;				// ÆÄÆ¼Å¬ ½Ã½ºÅÛ ±¸Á¶Àû ¹öÆÛ ÀÎµ¦½º
+	Transform*			mTarget = mObject;			// íŒŒí‹°í´ì„ ë¶€ì°©ì‹œí‚¬ íƒ€ê²Ÿ
+	int					mPSIdx = -1;				// íŒŒí‹°í´ ì‹œìŠ¤í…œ êµ¬ì¡°ì  ë²„í¼ ì¸ë±ìŠ¤
 
-	bool				mIsRunning = false;			// ÆÄÆ¼Å¬ ½Ã½ºÅÛ µ¿ÀÛ ÇÃ·¡±×
-	bool				mIsStopCreation = true;		// ÆÄÆ¼Å¬ »ı¼º ÁßÁö ÇÃ·¡±×
+	bool				mIsRunning = false;			// íŒŒí‹°í´ ì‹œìŠ¤í…œ ë™ì‘ í”Œë˜ê·¸
+	bool				mIsStopCreation = true;		// íŒŒí‹°í´ ìƒì„± ì¤‘ì§€ í”Œë˜ê·¸
 
 	float				mAccElapsed = 0.f;
 	float				mStopElapsed = 0.f;
@@ -368,10 +419,10 @@ private:
 	std::vector<float>	mBurstElapseds{};
 	std::vector<bool>	mBurstRunnings{};
 
-	sptr<ParticleSystemCPUData>	mPSCD{};			// ¸ğµç ÆÄÆ¼Å¬¿¡ °øÅëÀûÀ¸·Î Àû¿ëµÇ´Â CPU µ¥ÀÌÅÍ
-	ParticleSystemGPUData		mPSGD{};			// ¸ğµç ÆÄÆ¼Å¬¿¡ °³º°ÀûÀ¸·Î Àû¿ëµÇ´Â GPU µ¥ÀÌÅÍ
+	sptr<ParticleSystemCPUData>	mPSCD{};			// ëª¨ë“  íŒŒí‹°í´ì— ê³µí†µì ìœ¼ë¡œ ì ìš©ë˜ëŠ” CPU ë°ì´í„°
+	ParticleSystemGPUData		mPSGD{};			// ëª¨ë“  íŒŒí‹°í´ì— ê°œë³„ì ìœ¼ë¡œ ì ìš©ë˜ëŠ” GPU ë°ì´í„°
 
-	uptr<UploadBuffer<ParticleData>> mParticles;	// °³º° ÆÄÆ¼Å¬¿¡ Æ¯¼öÀûÀ¸·Î Àû¿ëµÇ´Â GPU µ¥ÀÌÅÍ
+	uptr<UploadBuffer<ParticleData>> mParticles;	// ê°œë³„ íŒŒí‹°í´ì— íŠ¹ìˆ˜ì ìœ¼ë¡œ ì ìš©ë˜ëŠ” GPU ë°ì´í„°
 
 public:
 #pragma region Getter
@@ -384,6 +435,7 @@ public:
 	void SetPSCD(sptr<ParticleSystemCPUData> pscd) { mPSCD = pscd; }
 	sptr<ParticleSystem> SetTarget(const std::string& frameName);
 	void SetSizeByRenderMode(PSRenderMode renderMode);
+	void SetColorByBlendType(BlendType blendType);
 #pragma endregion
 
 public:

@@ -41,6 +41,16 @@ void ParticleSystem::SetSizeByRenderMode(PSRenderMode renderMode)
 	}
 }
 
+void ParticleSystem::SetColorByBlendType(BlendType blendType)
+{
+	if (blendType == BlendType::One_To_One_Blend || blendType == BlendType::One_To_One_Stretched_Blend) {
+		mPSGD.StartColor.FirstColor *= mPSGD.StartColor.FirstColor.w;
+		mPSGD.StartColor.FirstGradient *= mPSGD.StartColor.FirstGradient.w;
+		mPSGD.StartColor.SecondColor *= mPSGD.StartColor.SecondColor.w;
+		mPSGD.StartColor.SecondGradient *= mPSGD.StartColor.SecondGradient.w;
+	}
+}
+
 void ParticleSystem::Awake()
 {
 	base::Awake();
@@ -68,13 +78,16 @@ void ParticleSystem::Awake()
 	mPSGD.GravityModifier		= mPSCD->GravityModifier;
 	mPSGD.SimulationSpace		= mPSCD->SimulationSpace;
 	mPSGD.SimulationSpeed		= mPSCD->SimulationSpeed;
-	mPSGD.SizeOverLifeTime		= mPSCD->SizeOverLifeTime;
-	mPSGD.ColorOverLifeTime		= mPSCD->ColorOverLifeTime;
-	mPSGD.RotationOverLifeTime	= mPSCD->RotationOverLifeTime;
+	mPSGD.VelocityOverLifetime	= mPSCD->VelocityOverLifetime;
+	mPSGD.ColorOverLifetime		= mPSCD->ColorOverLifetime;
+	mPSGD.SizeOverLifetime		= mPSCD->SizeOverLifetime;
+	mPSGD.RotationOverLifetime	= mPSCD->RotationOverLifetime;
 	mPSGD.Shape					= mPSCD->Shape;
 	mPSGD.TextureIndex			= RESOURCE<Texture>(mPSCD->Renderer.TextureName)->GetSrvIdx();
 
 	SetSizeByRenderMode(mPSCD->Renderer.RenderMode);
+	SetColorByBlendType(mPSCD->Renderer.BlendType);
+
 	mBurstElapseds.resize(mPSCD->Emission.Bursts.size());
 	mBurstRunnings.resize(mPSCD->Emission.Bursts.size());
 #pragma endregion
@@ -119,10 +132,10 @@ void ParticleSystem::UpdateParticleSystem()
 	}
 
 	// 정지 경과 시간이 최소 생명 주기를 지났다면 파티클 생성 정지
-	if (!mPSCD->Looping && (mPSGD.TotalTime - mPSCD->StartDelay) >= mPSGD.StartLifeTime.x || mIsStopCreation) {
+	if (!mPSCD->Looping && (mPSGD.TotalTime - mPSCD->StartDelay) >= mPSCD->Duration || mIsStopCreation) {
 		Stop();
 		// 정지 경과 시간이 최대 생명 주기를 지났다면 파티클 삭제
-		if (mStopElapsed >= mPSGD.StartLifeTime.y) {
+		if (mStopElapsed >= max(mPSGD.StartLifeTime.x, mPSGD.StartLifeTime.y)) {
 			Reset();
 			mIsRunning = false;
 			ParticleRenderer::I->RemoveParticleSystem(mPSCD->Renderer.BlendType, mPSIdx);
@@ -131,18 +144,18 @@ void ParticleSystem::UpdateParticleSystem()
 	}
 
 	// 이미션이 켜 있는 경우에만 파티클을 추가한다.
-	mPSGD.AddCount = mIsStopCreation ? 0 : mPSCD->MaxAddCount;
+	mPSGD.AddCount = 0;
 	const float createInterval = 1.f / mPSCD->Emission.RateOverTime;
 	if (mPSCD->Emission.IsOn) {
 		if (createInterval < mAccElapsed) {
 			mAccElapsed -= createInterval;
-			mPSGD.AddCount = mPSCD->MaxAddCount;
+			mPSGD.AddCount = mIsStopCreation ? 0 : mPSCD->MaxAddCount;
 		}
 	}
 
 	// 모든 버스트에 대하여 경과 시간이 지나면 count만큼 추가
 	for (int i = 0; i < mPSCD->Emission.Bursts.size(); ++i) {
-		if (mBurstElapseds[i] - mPSCD->Emission.Bursts[i].Time >= (mPSCD->Duration * mPSCD->SimulationSpeed)) {
+		if (mBurstElapseds[i] >= mPSCD->Emission.Bursts[i].Time) {
 			if (mBurstRunnings[i])
 				continue;
 
@@ -262,13 +275,15 @@ void ParticleRenderer::Init()
 
 	mCompute = RESOURCE<Shader>("ComputeParticle");
 	mShaders[static_cast<UINT8>(BlendType::Alpha_Blend)] = RESOURCE<Shader>("GraphicsParticle");
-	mShaders[static_cast<UINT8>(BlendType::Alpha_Stretched_Blend)] = RESOURCE<Shader>("GraphicGraphicsStretchedParticlesParticle");
+	mShaders[static_cast<UINT8>(BlendType::Alpha_Stretched_Blend)] = RESOURCE<Shader>("GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::One_To_One_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
+	mShaders[static_cast<UINT8>(BlendType::One_To_One_Blend_ScrollAlphaMask)] = RESOURCE<Shader>("OneToOneBlend_GraphicsScrollAlphaMaskParticle");
 	mShaders[static_cast<UINT8>(BlendType::One_To_One_Stretched_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::Additive_Soft_Blend)] = RESOURCE<Shader>("AdditiveSoft_GraphicsParticle");
 	mShaders[static_cast<UINT8>(BlendType::Additive_Soft_Stretched_Blend)] = RESOURCE<Shader>("AdditiveSoft_GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsParticle");
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Stretched_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsStretchedParticle");
+	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend_ScrollAlphaMask)] = RESOURCE<Shader>("MultiplyBlend_GraphicsScrollAlphaMaskParticle");
 }
 
 void ParticleRenderer::AddParticleSystem(BlendType type, sptr<ParticleSystem> particleSystem)
@@ -302,7 +317,11 @@ void ParticleRenderer::Render() const
 {
 	// 컴퓨트 쉐이더 실행
 	mCompute->Set();
+
 	for (const auto& pss : mPSs) {
+		if (pss.empty())
+			continue;
+
 		for (const auto& ps : pss) {
 			if (!ps.second->IsRunning())
 				continue;
@@ -327,7 +346,6 @@ void ParticleRenderer::Render() const
 
 			ps.second->RenderParticleSystem();
 		}
-
 	}
 }
 #pragma endregion

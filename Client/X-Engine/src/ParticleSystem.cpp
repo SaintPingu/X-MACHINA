@@ -44,10 +44,10 @@ void ParticleSystem::SetSizeByRenderMode(PSRenderMode renderMode)
 void ParticleSystem::SetColorByBlendType(BlendType blendType)
 {
 	if (blendType == BlendType::One_To_One_Blend || blendType == BlendType::One_To_One_Stretched_Blend) {
-		mPSGD.StartColor.FirstColor *= mPSGD.StartColor.FirstColor.w;
-		mPSGD.StartColor.FirstGradient *= mPSGD.StartColor.FirstGradient.w;
-		mPSGD.StartColor.SecondColor *= mPSGD.StartColor.SecondColor.w;
-		mPSGD.StartColor.SecondGradient *= mPSGD.StartColor.SecondGradient.w;
+		mPSGD.StartColor.Vals[0] *= mPSGD.StartColor.Vals[0].w;
+		mPSGD.StartColor.Vals[1] *= mPSGD.StartColor.Vals[1].w;
+		mPSGD.StartColor.Vals[2] *= mPSGD.StartColor.Vals[2].w;
+		mPSGD.StartColor.Vals[3] *= mPSGD.StartColor.Vals[3].w;
 	}
 }
 
@@ -104,7 +104,7 @@ void ParticleSystem::UpdateParticleSystem()
 	const float kSimulationDeltaTime = DeltaTime() * mPSCD->SimulationSpeed;
 
 	// 타겟 위치 저장 및 시뮬레이션 델타 타임 적용
-	mPSGD.WorldPos = mTarget->GetPosition();
+	mPSGD.WorldPos = mTarget->GetPosition() + mPSCD->Position;
 	mPSGD.DeltaTime = kSimulationDeltaTime;
 	mPSGD.TotalTime += kSimulationDeltaTime;
 	mAccElapsed += kSimulationDeltaTime;

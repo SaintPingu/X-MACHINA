@@ -8,10 +8,10 @@
 #define PSValue_Constant                    0
 #define PSValue_RandomBetweenTwoConstants   1
 
-#define PSColor_Color                       0
-#define PSColor_Gradient                    1
-#define PSColor_RandomBetweenTwoColors      2
-#define PSColor_RandomBetweenTwoGradient    3
+#define PSVal_Constant                       0
+#define PSVal_Curve                          1
+#define PSVal_RandomBetweenTwoConstants      2
+#define PSVal_RandomBetweenTwoCurve          3
 
 #define PSShape_None        0
 #define PSShape_Sphere      1
@@ -20,6 +20,7 @@
 #define PSShape_Box         4
 
 #define gkCOL_GradientCount  4
+#define CruveCount 4
 
 struct ParticleSystemIndexInfo
 {
@@ -31,14 +32,24 @@ struct ParticleSharedInfo
     int AddCount;
 };
 
-struct PSColor
+struct PSfloat4Val
 {
-    float4  FirstColor;
-	float4  SecondColor;
-	float4  FirstGradient;
-	float4  SecondGradient;
-	uint    ColorOption;
-    float3  Padding;
+	uint    Option;
+	uint    IsOn;
+    float2  Padding;
+    
+    float4  Vals[CruveCount];
+	float   Curves[CruveCount];
+};
+
+struct PSfloatVal
+{
+	uint    Option;
+	uint    IsOn;
+    float2  Padding;
+    
+    float   Vals[CruveCount];
+	float   Curves[CruveCount];
 };
 
 struct PSShape
@@ -57,15 +68,6 @@ struct VelocityOverLifetime
     float3  Linear;
     float   SpeedModifier;
     float3  Padding;
-};
-
-struct ColorOverLifetime 
-{
-	uint    IsOn;
-	uint    Count;
-	float2  Padding;
-	float   Times[gkCOL_GradientCount];
-    float4  Colors[gkCOL_GradientCount];
 };
 
 struct RotationOverLifetime 
@@ -93,7 +95,7 @@ struct ParticleSystemInfo
 	float4	StartRotation3D;
 	float2	StartSize;
 	float2	StartRotation;
-    PSColor StartColor;
+    PSfloat4Val StartColor;
     
 	float	GravityModifier;
     uint    SimulationSpace;
@@ -101,28 +103,28 @@ struct ParticleSystemInfo
     int     SizeOverLifetime;
     
 	VelocityOverLifetime	VelocityOverLifetime;
-    ColorOverLifetime       ColorOverLifetime;
+    PSfloat4Val             ColorOverLifetime;
     RotationOverLifetime    RotationOverLifetime;
     PSShape Shape;
 };
 
-float4 SetStartColor(PSColor color, float t, float r)
+float4 SetStartColor(PSfloat4Val color, float t, float r)
 {
     float4 result = float4(1.f, 1.f, 1.f, 1.f);
-    switch (color.ColorOption)
+    switch (color.Option)
     {
-        case PSColor_Color:
-            result = color.FirstColor;
+        case PSVal_Constant:
+            result = color.Vals[0];
             break;
-        case PSColor_Gradient:
-            result = lerp(color.FirstColor, color.FirstGradient, frac(t / 5));
+        case PSVal_Curve:
+            result = lerp(color.Vals[0], color.Vals[2], frac(t / 5));
             break;
-        case PSColor_RandomBetweenTwoColors:
-            result = lerp(color.FirstColor, color.SecondColor, r);
+        case PSVal_RandomBetweenTwoConstants:
+            result = lerp(color.Vals[0], color.Vals[1], r);
             break;
-        case PSColor_RandomBetweenTwoGradient:
-            float4 firstColor = lerp(color.FirstColor, color.FirstGradient, frac(t / 2));
-            float4 secondColor = lerp(color.SecondColor, color.SecondGradient, frac(t / 2));
+        case PSVal_RandomBetweenTwoCurve:
+            float4 firstColor = lerp(color.Vals[0], color.Vals[2], frac(t / 2));
+            float4 secondColor = lerp(color.Vals[1], color.Vals[3], frac(t / 2));
             result = lerp(firstColor, secondColor, r);
             break;
     }
@@ -181,18 +183,18 @@ void SetStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 pos,
     }
 }
 
-float4 LerpColorOverLifetime(float t, ColorOverLifetime col)
+float4 LerpColorOverLifetime(float t, PSfloat4Val col)
 {
-    if (t <= col.Times[1] && col.Times[1] >= EPSILON)
-        return lerp(col.Colors[0], col.Colors[1], t / col.Times[1]);
+    if (t <= col.Curves[1] && col.Curves[1] >= EPSILON)
+        return lerp(col.Vals[0], col.Vals[1], t / col.Curves[1]);
     
-    else if (t <= col.Times[2] && col.Times[2] >= EPSILON)
-        return lerp(col.Colors[1], col.Colors[2], (t - col.Times[1]) / (col.Times[2] - col.Times[1]));
+    else if (t <= col.Curves[2] && col.Curves[2] >= EPSILON)
+        return lerp(col.Vals[1], col.Vals[2], (t - col.Curves[1]) / (col.Curves[2] - col.Curves[1]));
     
-    else if (t <= col.Times[3] && col.Times[3] >= EPSILON)
-        return lerp(col.Colors[2], col.Colors[3], (t - col.Times[2]) / (col.Times[3] - col.Times[2]));
+    else if (t <= col.Curves[3] && col.Curves[3] >= EPSILON)
+        return lerp(col.Vals[2], col.Vals[3], (t - col.Curves[2]) / (col.Curves[3] - col.Curves[2]));
     
-    return lerp(col.Colors[3], float4(0.f, 0.f, 0.f, 1.f), (t - col.Times[3]) / (1.f - col.Times[3]));
+    return lerp(col.Vals[3], float4(0.f, 0.f, 0.f, 1.f), (t - col.Curves[3]) / (1.f - col.Curves[3]));
 }
 
 StructuredBuffer<ParticleSystemInfo> gParticleSystem : register(t0, space0);

@@ -25,16 +25,11 @@ enum class PSSimulationSpace : UINT32 {
 	World,
 };
 
-enum class PSValueOption : UINT32 {
+enum class PSValOp : UINT32 {
 	Constant = 0,
+	Curve,
 	RandomBetweenTwoConstants,
-};
-
-enum class PSColorOption : UINT32 {
-	Color = 0,
-	Gradient,
-	RandomBetweenTwoColors,
-	RandomBetweenTwoGradient,
+	RandomBetweenTwoCurve,
 };
 
 enum class PSRenderMode : UINT32 {
@@ -56,54 +51,43 @@ enum class PSShapeType : UINT32 {
 
 
 #pragma region Struct
-struct PSColor {
-	Vec4 FirstColor = Vec4{ 1.f };
-	Vec4 SecondColor = Vec4{ 1.f };
-	Vec4 FirstGradient = Vec4{ 1.f };
-	Vec4 SecondGradient = Vec4{ 1.f };
-	PSColorOption ColorOption = PSColorOption::Color;
-	Vec3  Padding;
+template <typename T, UINT8 N>
+struct PSVal {
+	static_assert(std::is_same<T, Vec4>::value || std::is_same<T, float>::value || N % 4 == 0);
 
-public:
-	void SetColor(PSColorOption colorOption, Vec4 value1, Vec4 value2 = Vec4{ 1.f }, Vec4 value3 = Vec4{ 1.f }, Vec4 value4 = Vec4{ 1.f }) {
-		ColorOption = colorOption;
-		switch (colorOption)
-		{
-		case PSColorOption::Color:
-			FirstColor = value1;
-			break;
-		case PSColorOption::Gradient:
-			FirstColor = value1;
-			FirstGradient = value2;
-			break;
-		case PSColorOption::RandomBetweenTwoColors:
-			FirstColor = value1;
-			SecondColor = value2;
-			break;
-		case PSColorOption::RandomBetweenTwoGradient:
-			FirstColor = value1;
-			SecondColor = value2;
-			FirstGradient = value3;
-			SecondGradient = value4;
-			break;
-		default:
-			break;
+	PSValOp					Option = PSValOp::Constant;
+	UINT					IsOn = 0;
+	Vec2					Paddding;
+
+	std::array<T, N>		Vals;
+	std::array<float, N>	Curves;	
+
+	PSVal(T val = T{}) { Vals.fill(val), Curves.fill(0.f); }
+
+	void Set(PSValOp option, std::initializer_list<T> vals, std::initializer_list<float> curves = { 1.f }) {
+		assert(vals.size() <= N);
+		IsOn = true;
+		Option = option;
+		std::memcpy(Vals.data(), vals.begin(), vals.size() * sizeof(T));
+
+		if (curves.size() > 1) {
+			std::memcpy(Curves.data(), curves.begin(), curves.size() * sizeof(float));
 		}
 	}
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
-		ar& BOOST_SERIALIZATION_NVP(FirstColor);
-		ar& BOOST_SERIALIZATION_NVP(SecondColor);
-		ar& BOOST_SERIALIZATION_NVP(FirstGradient);
-		ar& BOOST_SERIALIZATION_NVP(SecondGradient);
-		ar& BOOST_SERIALIZATION_NVP(ColorOption);
+		ar& BOOST_SERIALIZATION_NVP(Option);
+		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(Vals);
+		ar& BOOST_SERIALIZATION_NVP(Curves);
 	}
 };
 
+
 struct Emission {
 	struct Burst {
-		int		Count = 10;
+		int		Count = 0;
 		float	Time = 0.f;
 		float	BurstElapsed = 0.f;
 		int		IsRunning = false;
@@ -177,48 +161,24 @@ struct PSShape {
 	}
 };
 
-struct ColorOverLifetime {
-	enum { GradientCount = 4 };
-	UINT IsOn = false;
-	UINT Count = 0;
-	Vec2 Padding;
-	std::array<float, GradientCount> Times;
-	std::array<Vec4, GradientCount> Colors;
-
-public:
-	void SetColor(std::initializer_list<float> times, std::initializer_list<Vec4> colors) {
-		IsOn = true;
-		Count = static_cast<int>(colors.size());
-		std::memcpy(Times.data(), times.begin(), times.size() * sizeof(float));
-		std::memcpy(Colors.data(), colors.begin(), colors.size() * sizeof(Vec4));
-	}
-
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version) {
-		ar& BOOST_SERIALIZATION_NVP(IsOn);
-		ar& BOOST_SERIALIZATION_NVP(Count);
-		ar& BOOST_SERIALIZATION_NVP(Times);
-		ar& BOOST_SERIALIZATION_NVP(Colors);
-	}
-};
 
 struct RotationOverLifetime {
 	UINT IsOn = false;
 	float FirstAngularVelocity = 0.f;
 	float SecondAngularVelocity = 0.f;
-	PSValueOption ValueOption = PSValueOption::Constant;
+	PSValOp ValueOption = PSValOp::Constant;
 
 public:
-	void SetAngularVelocity(PSValueOption valueOption, float fAngularVelocity, float sAngularVelocity = 0.f) {
+	void SetAngularVelocity(PSValOp valueOption, float fAngularVelocity, float sAngularVelocity = 0.f) {
 		IsOn = true;
 		ValueOption = valueOption;
 
 		switch (valueOption)
 		{
-		case PSValueOption::Constant:
+		case PSValOp::Constant:
 			FirstAngularVelocity = fAngularVelocity;
 			break;
-		case PSValueOption::RandomBetweenTwoConstants:
+		case PSValOp::RandomBetweenTwoConstants:
 			FirstAngularVelocity = fAngularVelocity;
 			SecondAngularVelocity = sAngularVelocity;
 			break;
@@ -280,6 +240,10 @@ public:
 	int					MaxAddCount = 0;		// 한번에 생성되는 파티클 개수
 	float				PlayMaxTime = 5.f;
 
+	/* Transform */		
+	Vec3				Position{};
+	int					Padding;
+
 	/* unity particle system */
 	float				Duration = 0.05f;
 	bool				Looping = false;
@@ -291,7 +255,7 @@ public:
 	Vec2				StartSize = Vec2{ 0.1f };
 	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w값이 0이면 StartRotation3D를 사용하지 않음
 	Vec2				StartRotation = Vec2{ 0.f };
-	PSColor				StartColor{};
+	PSVal<Vec4, 4>		StartColor = Vec4{ 1.f };
 	float				GravityModifier = 0.f;
 	PSSimulationSpace	SimulationSpace = PSSimulationSpace::World;
 	float				SimulationSpeed = 1.f;
@@ -302,7 +266,7 @@ public:
 	Emission				Emission{};
 	PSShape 				Shape{};
 	VelocityOverLifetime	VelocityOverLifetime{};
-	ColorOverLifetime		ColorOverLifetime{};
+	PSVal<Vec4, 4>			ColorOverLifetime = Vec4{ 1.f };
 	int						SizeOverLifetime{};
 	RotationOverLifetime	RotationOverLifetime{};
 	PSRenderer				Renderer{};
@@ -312,6 +276,7 @@ public:
 	void serialize(Archive& ar, const unsigned int version) {
 		ar& BOOST_SERIALIZATION_NVP(mName);
 		ar& BOOST_SERIALIZATION_NVP(MaxAddCount);
+		ar& BOOST_SERIALIZATION_NVP(Position);
 		ar& BOOST_SERIALIZATION_NVP(PlayMaxTime);
 		ar& BOOST_SERIALIZATION_NVP(Duration);
 		ar& BOOST_SERIALIZATION_NVP(Looping);
@@ -359,7 +324,8 @@ struct ParticleSystemGPUData {
 	Vec4				StartRotation3D{};
 	Vec2				StartSize{};
 	Vec2				StartRotation{};
-	PSColor				StartColor{};
+	PSVal<Vec4, 4>		StartColor{};
+
 
 	float				GravityModifier{};
 	PSSimulationSpace   SimulationSpace{};
@@ -367,7 +333,7 @@ struct ParticleSystemGPUData {
 	int					SizeOverLifetime{};
 
 	VelocityOverLifetime	VelocityOverLifetime{};
-	ColorOverLifetime		ColorOverLifetime{};
+	PSVal<Vec4, 4>			ColorOverLifetime{};
 	RotationOverLifetime	RotationOverLifetime{};
 	PSShape 				Shape;
 };

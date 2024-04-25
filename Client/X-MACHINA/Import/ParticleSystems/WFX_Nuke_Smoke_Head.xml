@@ -2,25 +2,25 @@
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="20">
 <pscd class_id="0" tracking_level="0" version="0">
-	<mName>WFX_Dot_Sparkles_Mult</mName>
-	<MaxAddCount>0</MaxAddCount>
+	<mName>WFX_Nuke_Smoke_Head</mName>
+	<MaxAddCount>1</MaxAddCount>
 	<Position class_id="1" tracking_level="0" version="0">
 		<s.x>0.000000000e+00</s.x>
 		<s.y>0.000000000e+00</s.y>
 		<s.z>0.000000000e+00</s.z>
 	</Position>
 	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
-	<Duration>5.000000075e-02</Duration>
+	<Duration>2.000000000e+00</Duration>
 	<Looping>0</Looping>
 	<Prewarm>0</Prewarm>
-	<StartDelay>0.000000000e+00</StartDelay>
+	<StartDelay>4.000000000e+00</StartDelay>
 	<StartLifeTime class_id="2" tracking_level="0" version="0">
-		<s.x>2.500000000e-01</s.x>
-		<s.y>5.000000000e-01</s.y>
+		<s.x>2.000000000e+00</s.x>
+		<s.y>2.000000000e+00</s.y>
 	</StartLifeTime>
 	<StartSpeed>
-		<s.x>1.000000000e+00</s.x>
-		<s.y>2.000000000e+00</s.y>
+		<s.x>-1.000000015e-01</s.x>
+		<s.y>-1.000000015e-01</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="3" tracking_level="0" version="0">
 		<s.x>1.000000000e+00</s.x>
@@ -29,8 +29,8 @@
 		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
-		<s.x>6.000000238e-01</s.x>
-		<s.y>8.000000119e-01</s.y>
+		<s.x>1.000000000e+00</s.x>
+		<s.y>2.000000000e+00</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -40,24 +40,24 @@
 	</StartRotation3D>
 	<StartRotation>
 		<s.x>0.000000000e+00</s.x>
-		<s.y>0.000000000e+00</s.y>
+		<s.y>3.600000000e+02</s.y>
 	</StartRotation>
 	<StartColor class_id="4" tracking_level="0" version="0">
 		<Option>0</Option>
-		<IsOn>0</IsOn>
+		<IsOn>1</IsOn>
 		<Vals class_id="5" tracking_level="0" version="0">
 			<elems>
 				<count>4</count>
 				<item>
-					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.x>1.149999976e+00</s.x>
+					<s.y>1.149999976e+00</s.y>
+					<s.z>1.149999976e+00</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
-					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
@@ -86,48 +86,43 @@
 	</StartColor>
 	<GravityModifier>0.000000000e+00</GravityModifier>
 	<SimulationSpace>0</SimulationSpace>
-	<SimulationSpeed>8.000000119e-01</SimulationSpeed>
+	<SimulationSpeed>1.666000009e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>22</MaxParticles>
+	<MaxParticles>50</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
-		<RateOverTime>0</RateOverTime>
+		<RateOverTime>20</RateOverTime>
 		<Bursts class_id="8" tracking_level="0" version="0">
-			<count>1</count>
+			<count>0</count>
 			<item_version>0</item_version>
-			<item class_id="9" tracking_level="0" version="0">
-				<Count>12</Count>
-				<Time>0.000000000e+00</Time>
-				<BurstElapsed>0.000000000e+00</BurstElapsed>
-			</item>
 		</Bursts>
 	</Emission>
-	<Shape class_id="10" tracking_level="0" version="0">
+	<Shape class_id="9" tracking_level="0" version="0">
 		<ShapeType>1</ShapeType>
 		<Angle>2.500000000e+01</Angle>
-		<Radius>2.000000030e-01</Radius>
-		<RadiusThickness>0.000000000e+00</RadiusThickness>
+		<Radius>8.000000119e-01</Radius>
+		<RadiusThickness>1.000000000e+00</RadiusThickness>
 		<Arc>3.600000000e+02</Arc>
 	</Shape>
-	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
-		<IsOn>0</IsOn>
+	<VelocityOverLifetime class_id="10" tracking_level="0" version="0">
+		<IsOn>1</IsOn>
 		<Linear>
 			<s.x>0.000000000e+00</s.x>
-			<s.y>0.000000000e+00</s.y>
+			<s.y>1.000000000e+00</s.y>
 			<s.z>0.000000000e+00</s.z>
 		</Linear>
-		<SpeedModifier>0.000000000e+00</SpeedModifier>
+		<SpeedModifier>1.000000000e+00</SpeedModifier>
 	</VelocityOverLifetime>
 	<ColorOverLifetime>
-		<Option>0</Option>
-		<IsOn>0</IsOn>
+		<Option>1</Option>
+		<IsOn>1</IsOn>
 		<Vals>
 			<elems>
 				<count>4</count>
 				<item>
-					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
@@ -143,9 +138,9 @@
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
-					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 			</elems>
@@ -154,23 +149,23 @@
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
+				<item>3.000000119e-01</item>
+				<item>6.000000238e-01</item>
+				<item>1.000000000e+00</item>
 			</elems>
 		</Curves>
 	</ColorOverLifetime>
 	<SizeOverLifetime>0</SizeOverLifetime>
-	<RotationOverLifetime class_id="12" tracking_level="0" version="0">
-		<IsOn>0</IsOn>
-		<FirstAngularVelocity>0.000000000e+00</FirstAngularVelocity>
-		<SecondAngularVelocity>0.000000000e+00</SecondAngularVelocity>
-		<ValueOption>0</ValueOption>
+	<RotationOverLifetime class_id="11" tracking_level="0" version="0">
+		<IsOn>1</IsOn>
+		<FirstAngularVelocity>3.000000000e+01</FirstAngularVelocity>
+		<SecondAngularVelocity>6.000000000e+01</SecondAngularVelocity>
+		<ValueOption>2</ValueOption>
 	</RotationOverLifetime>
-	<Renderer class_id="13" tracking_level="0" version="0">
-		<TextureName>Explosion_SmallDot</TextureName>
+	<Renderer class_id="12" tracking_level="0" version="0">
+		<TextureName>WFX_SmokeLoopAlpha</TextureName>
 		<RenderMode>1</RenderMode>
-		<BlendType>3</BlendType>
+		<BlendType>6</BlendType>
 		<LengthScale>1.000000000e+00</LengthScale>
 	</Renderer>
 </pscd>

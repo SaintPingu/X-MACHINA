@@ -598,6 +598,9 @@
     <FxCompile Include="shaders\PShader_ScrollAlphaMask_Particle.hlsl">
       <Filter>소스 파일\Shader\Particle</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\PShader_Scroll_Smoke.hlsl">
+      <Filter>소스 파일\Shader\Particle</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

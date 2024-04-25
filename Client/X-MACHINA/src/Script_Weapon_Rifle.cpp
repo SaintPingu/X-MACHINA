@@ -32,7 +32,7 @@ void Script_Weapon_Skyline::BulletInitFunc(rsptr<InstObject> bullet) const
 
 void Script_Weapon_Skyline::SetParticleSystemNames()
 {
-	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Smoke_BigQuick");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Smoke_Building");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Smoke_BigQuick");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Smoke");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Glow");

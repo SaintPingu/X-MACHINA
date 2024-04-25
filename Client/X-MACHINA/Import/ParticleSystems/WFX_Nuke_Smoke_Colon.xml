@@ -43,15 +43,17 @@
 		<s.y>3.600000000e+02</s.y>
 	</StartRotation>
 	<StartColor class_id="4" tracking_level="0" version="0">
-		<Option>0</Option>
+		<Option>1</Option>
 		<IsOn>1</IsOn>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
 		<Vals class_id="5" tracking_level="0" version="0">
 			<elems>
 				<count>4</count>
 				<item>
-					<s.x>1.500000060e-01</s.x>
-					<s.y>1.500000060e-01</s.y>
-					<s.z>1.500000060e-01</s.z>
+					<s.x>3.300000131e-01</s.x>
+					<s.y>3.300000131e-01</s.y>
+					<s.z>3.300000131e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
@@ -88,7 +90,7 @@
 	<SimulationSpace>0</SimulationSpace>
 	<SimulationSpeed>1.666000009e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>90</MaxParticles>
+	<MaxParticles>70</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>20</RateOverTime>
@@ -104,18 +106,55 @@
 		<RadiusThickness>1.000000000e+00</RadiusThickness>
 		<Arc>3.600000000e+02</Arc>
 	</Shape>
-	<VelocityOverLifetime class_id="10" tracking_level="0" version="0">
+	<VelocityOverLifetime>
+		<Option>0</Option>
 		<IsOn>1</IsOn>
-		<Linear>
-			<s.x>0.000000000e+00</s.x>
-			<s.y>1.000000000e+00</s.y>
-			<s.z>0.000000000e+00</s.z>
-		</Linear>
-		<SpeedModifier>1.000000000e+00</SpeedModifier>
+		<Param1>1.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
+		<Vals>
+			<elems>
+				<count>4</count>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>1.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+			</elems>
+		</Vals>
+		<Curves>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Curves>
 	</VelocityOverLifetime>
 	<ColorOverLifetime>
 		<Option>1</Option>
 		<IsOn>1</IsOn>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
 		<Vals>
 			<elems>
 				<count>4</count>
@@ -126,15 +165,15 @@
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
-					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.x>5.000000000e-01</s.x>
+					<s.y>5.000000000e-01</s.y>
+					<s.z>5.000000000e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
-					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.x>5.000000000e-01</s.x>
+					<s.y>5.000000000e-01</s.y>
+					<s.z>5.000000000e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
@@ -149,23 +188,41 @@
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
-				<item>3.000000119e-01</item>
-				<item>6.000000238e-01</item>
+				<item>3.300000131e-01</item>
+				<item>6.600000262e-01</item>
 				<item>1.000000000e+00</item>
 			</elems>
 		</Curves>
 	</ColorOverLifetime>
 	<SizeOverLifetime>0</SizeOverLifetime>
-	<RotationOverLifetime class_id="11" tracking_level="0" version="0">
+	<RotationOverLifetime class_id="10" tracking_level="0" version="0">
+		<Option>2</Option>
 		<IsOn>1</IsOn>
-		<FirstAngularVelocity>4.000000000e+01</FirstAngularVelocity>
-		<SecondAngularVelocity>7.000000000e+01</SecondAngularVelocity>
-		<ValueOption>2</ValueOption>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
+		<Vals>
+			<elems>
+				<count>4</count>
+				<item>4.000000000e+01</item>
+				<item>7.000000000e+01</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Vals>
+		<Curves>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Curves>
 	</RotationOverLifetime>
-	<Renderer class_id="12" tracking_level="0" version="0">
+	<Renderer class_id="11" tracking_level="0" version="0">
 		<TextureName>WFX_SmokeLoopAlpha</TextureName>
 		<RenderMode>1</RenderMode>
-		<BlendType>6</BlendType>
+		<BlendType>7</BlendType>
 		<LengthScale>1.000000000e+00</LengthScale>
 	</Renderer>
 </pscd>

@@ -45,6 +45,8 @@
 	<StartColor class_id="4" tracking_level="0" version="0">
 		<Option>0</Option>
 		<IsOn>1</IsOn>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
 		<Vals class_id="5" tracking_level="0" version="0">
 			<elems>
 				<count>4</count>
@@ -114,18 +116,55 @@
 		<RadiusThickness>0.000000000e+00</RadiusThickness>
 		<Arc>3.600000000e+02</Arc>
 	</Shape>
-	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
+	<VelocityOverLifetime>
+		<Option>0</Option>
 		<IsOn>0</IsOn>
-		<Linear>
-			<s.x>0.000000000e+00</s.x>
-			<s.y>0.000000000e+00</s.y>
-			<s.z>0.000000000e+00</s.z>
-		</Linear>
-		<SpeedModifier>0.000000000e+00</SpeedModifier>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
+		<Vals>
+			<elems>
+				<count>4</count>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>0.000000000e+00</s.x>
+					<s.y>0.000000000e+00</s.y>
+					<s.z>0.000000000e+00</s.z>
+					<s.w>0.000000000e+00</s.w>
+				</item>
+			</elems>
+		</Vals>
+		<Curves>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Curves>
 	</VelocityOverLifetime>
 	<ColorOverLifetime>
 		<Option>1</Option>
 		<IsOn>1</IsOn>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
 		<Vals>
 			<elems>
 				<count>4</count>
@@ -166,13 +205,31 @@
 		</Curves>
 	</ColorOverLifetime>
 	<SizeOverLifetime>1</SizeOverLifetime>
-	<RotationOverLifetime class_id="12" tracking_level="0" version="0">
+	<RotationOverLifetime class_id="11" tracking_level="0" version="0">
+		<Option>0</Option>
 		<IsOn>0</IsOn>
-		<FirstAngularVelocity>0.000000000e+00</FirstAngularVelocity>
-		<SecondAngularVelocity>0.000000000e+00</SecondAngularVelocity>
-		<ValueOption>0</ValueOption>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
+		<Vals>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Vals>
+		<Curves>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Curves>
 	</RotationOverLifetime>
-	<Renderer class_id="13" tracking_level="0" version="0">
+	<Renderer class_id="12" tracking_level="0" version="0">
 		<TextureName>Explosion_Grow</TextureName>
 		<RenderMode>1</RenderMode>
 		<BlendType>10</BlendType>

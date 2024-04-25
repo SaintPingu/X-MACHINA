@@ -5,9 +5,6 @@
 #define gkSimulationSpace_Local 0
 #define gkSimulationSpace_World 1
 
-#define PSValue_Constant                    0
-#define PSValue_RandomBetweenTwoConstants   1
-
 #define PSVal_Constant                       0
 #define PSVal_Curve                          1
 #define PSVal_RandomBetweenTwoConstants      2
@@ -36,18 +33,18 @@ struct PSfloat4Val
 {
 	uint    Option;
 	uint    IsOn;
-    float2  Padding;
-    
+    float   Param1;
+    float   Param2;
     float4  Vals[CruveCount];
 	float   Curves[CruveCount];
 };
 
-struct PSfloatVal
+struct PSfloat1Val
 {
 	uint    Option;
 	uint    IsOn;
-    float2  Padding;
-    
+    float   Param1;
+    float   Param2;
     float   Vals[CruveCount];
 	float   Curves[CruveCount];
 };
@@ -62,53 +59,40 @@ struct PSShape
     float   Arc;
 };
 
-struct VelocityOverLifetime 
-{
-	uint    IsOn;
-    float3  Linear;
-    float   SpeedModifier;
-    float3  Padding;
-};
-
-struct RotationOverLifetime 
-{
-	uint    IsOn;
-	float   FirstAngularVelocity;
-	float   SecondAngularVelocity;
-    uint    ValueOption;
-};
-
 struct ParticleSystemInfo
 {
-    float3  WorldPos;
-    int	    TextureIndex;
-	float4  Color;
+    float3          WorldPos;
+    int	            TextureIndex;
+	float4          Color;
     
-	int		AddCount;
-	int		MaxParticles;
-	float	DeltaTime;
-	float	TotalTime;
+	int		        AddCount;
+	int		        MaxParticles;
+	float	        DeltaTime;
+	float	        TotalTime;
     
-	float2	StartLifeTime;
-	float2	StartSpeed;
-	float4	StartSize3D;
-	float4	StartRotation3D;
-	float2	StartSize;
-	float2	StartRotation;
-    PSfloat4Val StartColor;
+	float2	        StartLifeTime;
+	float2	        StartSpeed;
+	float4	        StartSize3D;
+	float4	        StartRotation3D;
+	float2	        StartSize;
+	float2	        StartRotation;
+    PSfloat4Val     StartColor;
     
-	float	GravityModifier;
-    uint    SimulationSpace;
-    float   SimulationSpeed;
-    int     SizeOverLifetime;
+	float	        GravityModifier;
+    uint            SimulationSpace;
+    float           SimulationSpeed;
+    int             SizeOverLifetime;
     
-	VelocityOverLifetime	VelocityOverLifetime;
-    PSfloat4Val             ColorOverLifetime;
-    RotationOverLifetime    RotationOverLifetime;
-    PSShape Shape;
+	PSfloat4Val	    VelocityOverLifetime;
+    PSfloat4Val     ColorOverLifetime;
+    PSfloat1Val     RotationOverLifetime;
+    PSShape         Shape;
+    
+    float           Duration;
+    float3          Padding;
 };
 
-float4 SetStartColor(PSfloat4Val color, float t, float r)
+float4 SetStartColor(PSfloat4Val color, float t, float maxT, float r)
 {
     float4 result = float4(1.f, 1.f, 1.f, 1.f);
     switch (color.Option)
@@ -117,7 +101,7 @@ float4 SetStartColor(PSfloat4Val color, float t, float r)
             result = color.Vals[0];
             break;
         case PSVal_Curve:
-            result = lerp(color.Vals[0], color.Vals[2], frac(t / 5));
+            result = lerp(color.Vals[0], color.Vals[1], frac(t / maxT));
             break;
         case PSVal_RandomBetweenTwoConstants:
             result = lerp(color.Vals[0], color.Vals[1], r);
@@ -254,13 +238,22 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
             gOutputParticles[threadID.x].StartSpeed = rand.GetRandomFloat(ps.StartSpeed.x, ps.StartSpeed.y);
             gOutputParticles[threadID.x].StartSize = (ps.StartSize3D.w == 0.f) ? rand.GetRandomFloat(ps.StartSize.x, ps.StartSize.y) : float2(ps.StartSize3D.x, ps.StartSize3D.y);
             gOutputParticles[threadID.x].StartRotation = (ps.StartRotation3D.w == 0.f) ? float3(0.f, rand.GetRandomFloat(ps.StartRotation.x, ps.StartRotation.y), 0.f) : ps.StartRotation3D.xyz;
-            gOutputParticles[threadID.x].StartColor = SetStartColor(ps.StartColor, ps.TotalTime, rand.GetCurrentFloat());
+            gOutputParticles[threadID.x].StartColor = SetStartColor(ps.StartColor, ps.TotalTime, ps.Duration, rand.GetCurrentFloat());
             SetStartPosDir(ps.Shape, rand, gOutputParticles[threadID.x].LocalPos, gOutputParticles[threadID.x].WorldDir);
             
-            if (ps.RotationOverLifetime.ValueOption == PSValue_Constant)
-                gOutputParticles[threadID.x].AngularVelocity = ps.RotationOverLifetime.FirstAngularVelocity;
-            else if (ps.RotationOverLifetime.ValueOption == PSValue_RandomBetweenTwoConstants)
-                gOutputParticles[threadID.x].AngularVelocity = rand.GetRandomFloat(ps.RotationOverLifetime.FirstAngularVelocity, ps.RotationOverLifetime.SecondAngularVelocity);
+            if (ps.VelocityOverLifetime.Option == PSVal_Constant)
+                gOutputParticles[threadID.x].VelocityOverLifetime.xyz = ps.VelocityOverLifetime.Vals[0].xyz;
+            else if (ps.VelocityOverLifetime.Option == PSVal_RandomBetweenTwoConstants)
+            {
+                gOutputParticles[threadID.x].VelocityOverLifetime.x = rand.GetRandomFloat(ps.VelocityOverLifetime.Vals[0].x, ps.VelocityOverLifetime.Vals[1].x);
+                gOutputParticles[threadID.x].VelocityOverLifetime.y = rand.GetRandomFloat(ps.VelocityOverLifetime.Vals[0].y, ps.VelocityOverLifetime.Vals[1].y);
+                gOutputParticles[threadID.x].VelocityOverLifetime.z = rand.GetRandomFloat(ps.VelocityOverLifetime.Vals[0].z, ps.VelocityOverLifetime.Vals[1].z);
+            }
+
+            if (ps.RotationOverLifetime.Option == PSVal_Constant)
+                gOutputParticles[threadID.x].AngularVelocity = ps.RotationOverLifetime.Vals[0];
+            else if (ps.RotationOverLifetime.Option == PSVal_RandomBetweenTwoConstants)
+                gOutputParticles[threadID.x].AngularVelocity = rand.GetRandomFloat(ps.RotationOverLifetime.Vals[0], ps.RotationOverLifetime.Vals[1]);
 
             // Final √ ±‚»≠
             gOutputParticles[threadID.x].FinalSize = gOutputParticles[threadID.x].StartSize;
@@ -286,7 +279,7 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         float3 velocityOverLifetime = float3(0.f, 0.f, 0.f);
         if (ps.VelocityOverLifetime.IsOn == true)
         {
-            velocityOverLifetime = ps.VelocityOverLifetime.Linear * ps.VelocityOverLifetime.SpeedModifier * lifeRatio * ps.DeltaTime;
+            velocityOverLifetime = gOutputParticles[threadID.x].VelocityOverLifetime.xyz * ps.VelocityOverLifetime.Param1 * lifeRatio * ps.DeltaTime;
         }
         
         if (ps.ColorOverLifetime.IsOn == true)

@@ -303,6 +303,13 @@ D3D12_BLEND_DESC Shader::CreateBlendState()
 		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
 		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		break;
+	case BlendType::Scroll_Smoke:
+		blendDesc.RenderTarget[0].BlendEnable = TRUE;
+		blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_DEST_COLOR;
+		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		break;
 	}
 
 	return blendDesc;

@@ -84,6 +84,7 @@ void ParticleSystem::Awake()
 	mPSGD.RotationOverLifetime	= mPSCD->RotationOverLifetime;
 	mPSGD.Shape					= mPSCD->Shape;
 	mPSGD.TextureIndex			= RESOURCE<Texture>(mPSCD->Renderer.TextureName)->GetSrvIdx();
+	mPSGD.Duration				= mPSCD->Duration;
 
 	SetSizeByRenderMode(mPSCD->Renderer.RenderMode);
 	SetColorByBlendType(mPSCD->Renderer.BlendType);
@@ -126,13 +127,13 @@ void ParticleSystem::UpdateParticleSystem()
 #pragma endregion
 
 	// StartDelay에 따라 업데이트
-	if (mPSGD.TotalTime < mPSCD->StartDelay) {
+	if (mPSGD.TotalTime < 0) {
 		mIsRunning = false;
 		return;
 	}
 
 	// 정지 경과 시간이 최소 생명 주기를 지났다면 파티클 생성 정지
-	if (!mPSCD->Looping && (mPSGD.TotalTime - mPSCD->StartDelay) >= mPSCD->Duration || mIsStopCreation) {
+	if (!mPSCD->Looping && (mPSGD.TotalTime >= mPSCD->Duration) || mIsStopCreation) {
 		Stop();
 		// 정지 경과 시간이 최대 생명 주기를 지났다면 파티클 삭제
 		if (mStopElapsed >= max(mPSGD.StartLifeTime.x, mPSGD.StartLifeTime.y)) {
@@ -185,8 +186,8 @@ void ParticleSystem::Play()
 	mStopElapsed		= 0.f;
 	mStartElapsed		= 0.f;
 	mAccElapsed			= 0.f;
-	mPSGD.TotalTime		= 0.f;
 	mPSGD.DeltaTime		= 0.f;
+	mPSGD.TotalTime		-= mPSCD->StartDelay;
 
 	// 처음 시작하자마자 파티클을 생성하기 위함
 	for (int i = 0; i < mPSCD->Emission.Bursts.size(); ++i) {
@@ -284,6 +285,7 @@ void ParticleRenderer::Init()
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsParticle");
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Stretched_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend_ScrollAlphaMask)] = RESOURCE<Shader>("MultiplyBlend_GraphicsScrollAlphaMaskParticle");
+	mShaders[static_cast<UINT8>(BlendType::Scroll_Smoke)] = RESOURCE<Shader>("Scroll_Smoke");
 }
 
 void ParticleRenderer::AddParticleSystem(BlendType type, sptr<ParticleSystem> particleSystem)

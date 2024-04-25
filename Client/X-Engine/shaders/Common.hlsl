@@ -95,6 +95,7 @@ struct ParticleInfo
 	float2	FinalSize;
     float4  StartColor;
     float4  FinalColor;
+    float4  VelocityOverLifetime;
 };
 
 struct ObjectInfo {
@@ -228,10 +229,20 @@ float4 GammaEncoding(float4 color)
     return float4(pow(color.rgb, 1 / 2.2f), color.a);
 }
 
+float4 GammaEncodingAlpha(float4 color)
+{
+    return float4(pow(color, 1 / 2.2f));
+}
+
 // 감마 보정을 해제하는 함수
 float4 GammaDecoding(float4 color)
 {
     return float4(pow(color.rgb, 2.2f), color.a);
+}
+
+float4 GammaDecodingAlpha(float4 color)
+{
+    return float4(pow(color, 2.2f));
 }
 
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)

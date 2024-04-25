@@ -57,14 +57,15 @@ struct PSVal {
 
 	PSValOp					Option = PSValOp::Constant;
 	UINT					IsOn = 0;
-	Vec2					Paddding;
+	float					Param1 = 0.f;
+	float					Param2 = 0.f;
 
 	std::array<T, N>		Vals;
 	std::array<float, N>	Curves;	
 
-	PSVal(T val = T{}) { Vals.fill(val), Curves.fill(0.f); }
+	PSVal(T val = {}) { Vals.fill(val), Curves.fill(0.f); }
 
-	void Set(PSValOp option, std::initializer_list<T> vals, std::initializer_list<float> curves = { 1.f }) {
+	PSVal& Set(PSValOp option, std::initializer_list<T> vals, std::initializer_list<float> curves = { 1.f }) {
 		assert(vals.size() <= N);
 		IsOn = true;
 		Option = option;
@@ -73,12 +74,18 @@ struct PSVal {
 		if (curves.size() > 1) {
 			std::memcpy(Curves.data(), curves.begin(), curves.size() * sizeof(float));
 		}
+
+		return *this;
 	}
+
+	void SetParam(float param1 = 0.f, float param2 = 0.f) { Param1 = param1, Param2 = param2; }
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
 		ar& BOOST_SERIALIZATION_NVP(Option);
 		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(Param1);
+		ar& BOOST_SERIALIZATION_NVP(Param2);
 		ar& BOOST_SERIALIZATION_NVP(Vals);
 		ar& BOOST_SERIALIZATION_NVP(Curves);
 	}
@@ -162,60 +169,26 @@ struct PSShape {
 };
 
 
-struct RotationOverLifetime {
-	UINT IsOn = false;
-	float FirstAngularVelocity = 0.f;
-	float SecondAngularVelocity = 0.f;
-	PSValOp ValueOption = PSValOp::Constant;
-
-public:
-	void SetAngularVelocity(PSValOp valueOption, float fAngularVelocity, float sAngularVelocity = 0.f) {
-		IsOn = true;
-		ValueOption = valueOption;
-
-		switch (valueOption)
-		{
-		case PSValOp::Constant:
-			FirstAngularVelocity = fAngularVelocity;
-			break;
-		case PSValOp::RandomBetweenTwoConstants:
-			FirstAngularVelocity = fAngularVelocity;
-			SecondAngularVelocity = sAngularVelocity;
-			break;
-		default:
-			break;
-		}
-	}
-
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version) {
-		ar& BOOST_SERIALIZATION_NVP(IsOn);
-		ar& BOOST_SERIALIZATION_NVP(FirstAngularVelocity);
-		ar& BOOST_SERIALIZATION_NVP(SecondAngularVelocity);
-		ar& BOOST_SERIALIZATION_NVP(ValueOption);
-	}
-};
-
-struct VelocityOverLifetime {
-	UINT	IsOn = false;
-	Vec3	Linear{};
-	float	SpeedModifier{};
-	Vec3	Padding;
-
-public:
-	void SetLinear(const Vec3 linear, float speedModifier = 1.f) {
-		IsOn = true;
-		Linear = linear;
-		SpeedModifier = speedModifier;
-	}
-
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version) {
-		ar& BOOST_SERIALIZATION_NVP(IsOn);
-		ar& BOOST_SERIALIZATION_NVP(Linear);
-		ar& BOOST_SERIALIZATION_NVP(SpeedModifier);
-	}
-};
+//struct VelocityOverLifetime {
+//	UINT	IsOn = false;
+//	Vec3	Linear{};
+//	float	SpeedModifier{};
+//	Vec3	Padding;
+//
+//public:
+//	void SetLinear(const Vec3 linear, float speedModifier = 1.f) {
+//		IsOn = true;
+//		Linear = linear;
+//		SpeedModifier = speedModifier;
+//	}
+//
+//	template<class Archive>
+//	void serialize(Archive& ar, const unsigned int version) {
+//		ar& BOOST_SERIALIZATION_NVP(IsOn);
+//		ar& BOOST_SERIALIZATION_NVP(Linear);
+//		ar& BOOST_SERIALIZATION_NVP(SpeedModifier);
+//	}
+//};
 
 struct PSRenderer {
 	std::string		TextureName{};
@@ -265,10 +238,10 @@ public:
 	/* unity particle system module */
 	Emission				Emission{};
 	PSShape 				Shape{};
-	VelocityOverLifetime	VelocityOverLifetime{};
-	PSVal<Vec4, 4>			ColorOverLifetime = Vec4{ 1.f };
 	int						SizeOverLifetime{};
-	RotationOverLifetime	RotationOverLifetime{};
+	PSVal<Vec4, 4>			VelocityOverLifetime = Vec4{ 0.f };
+	PSVal<Vec4, 4>			ColorOverLifetime = Vec4{ 1.f };
+	PSVal<float, 4>			RotationOverLifetime{};
 	PSRenderer				Renderer{};
 
 public:
@@ -332,10 +305,12 @@ struct ParticleSystemGPUData {
 	float				SimulationSpeed{};
 	int					SizeOverLifetime{};
 
-	VelocityOverLifetime	VelocityOverLifetime{};
-	PSVal<Vec4, 4>			ColorOverLifetime{};
-	RotationOverLifetime	RotationOverLifetime{};
-	PSShape 				Shape;
+	PSVal<Vec4, 4>		VelocityOverLifetime{};
+	PSVal<Vec4, 4>		ColorOverLifetime{};
+	PSVal<float, 4>		RotationOverLifetime{};
+	PSShape 			Shape{};
+	float				Duration{};
+	Vec3				Padding{};
 };
 
 struct ParticleData {
@@ -352,11 +327,12 @@ struct ParticleData {
 	Vec3	StartRotation{};
 	float	Padding1{};
 	Vec3	FinalRotation{};
-	float	Padding2{};
+	float   AngularVelocity{};
 	Vec2	StartSize{};
 	Vec2	FinalSize{};
 	Vec4	StartColor{};
 	Vec4	FinalColor{};
+	Vec4	VelocityOverLifetime{};
 };
 
 struct ParticleSharedData {

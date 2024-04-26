@@ -127,6 +127,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,6 +169,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -189,7 +191,6 @@
     <ClInclude Include="..\Common\Component\Component.h" />
     <ClInclude Include="..\Common\Component\ParticleSystem.h" />
     <ClInclude Include="..\Common\Component\Rigidbody.h" />
-    <ClInclude Include="..\Common\Component\Script_MainCamera.h" />
     <ClInclude Include="..\Common\Component\Transform.h" />
     <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\DwordOverloader.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
+    <ClInclude Include="include\NetworkEvents.h" />
     <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
@@ -219,7 +221,9 @@
     <ClInclude Include="include\Script_GroundObject.h" />
     <ClInclude Include="include\Script_Gunship.h" />
     <ClInclude Include="include\Script_LiveObject.h" />
+    <ClInclude Include="include\Script_MainCamera.h" />
     <ClInclude Include="include\Script_MeleeBT.h" />
+    <ClInclude Include="include\Script_NetworkObject.h" />
     <ClInclude Include="include\Script_Player.h" />
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\Script_Weapon.h" />
@@ -240,6 +244,7 @@
     <ClInclude Include="include\TaskPathPlanningToSpawn.h" />
     <ClInclude Include="include\Wait.h" />
     <ClInclude Include="include\X-MACHINA.h" />
+    <ClInclude Include="Network\ClientNetworkManager.h" />
     <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
     <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
     <ClInclude Include="Network\FlatBuffers\Player_generated.h" />
@@ -250,6 +255,7 @@
     <ClInclude Include="Network\ServerSession.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Network\ClientNetworkManager.cpp" />
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\ServerSession.cpp" />
@@ -258,6 +264,7 @@
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
+    <ClCompile Include="src\NetworkEvents.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
@@ -277,6 +284,7 @@
     <ClCompile Include="src\Script_LiveObject.cpp" />
     <ClCompile Include="src\Script_MainCamera.cpp" />
     <ClCompile Include="src\Script_MeleeBT.cpp" />
+    <ClCompile Include="src\Script_NetworkObject.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />

@@ -30,8 +30,6 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
 	WindowInfo windowInfo{ hWnd, width, height };
 	DXGIMgr::I->Init(hInstance, windowInfo);
 
-	mPlayer = std::make_shared<GridObject>();
-	Scene::I->AddDynamicObject(mPlayer);
 	BuildObjects();
 
 #pragma region Imgui - 장재문 - 

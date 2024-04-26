@@ -160,7 +160,7 @@ public:
 /* Custom */
 #include "Common.h"
 
-
+/* IOCP Library */
 #include "Types.h"
 #include "ServerMacro.h"
 #include "ThreadLocalStorage.h"
@@ -174,8 +174,8 @@ public:
 #include "Session.h"
 #include "JobQueue.h"
 #include "Log/LogMgr.h"
-
 #include "PacketSession.h"
+
 #include <concurrent_unordered_map.h>
 #include <concurrent_queue.h>
 
@@ -193,22 +193,23 @@ public:
 #define _CRTDBG_MAP_ALLOC
 
 #ifdef _DEBUG
+
 #ifdef UNICODE                                                                                      
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
 #else                                                                                                    
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")   
-#endif                                                                                                   
-#endif
-
-
-#else
-
-#define new new
+#endif           
 
 #endif
+         
 
-
-
+#endif
+#ifdef UNICODE                                                                                      
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
+#else                                                                                                    
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")   
+#endif  
+#pragma region Function
 // [val]를 [speed] 속도로 최대 1까지 증가시킨다.
 bool IncreaseDelta(float& val, float speed);
 // [val]를 [speed] 속도로 최소 0까지 감소시킨다.
@@ -224,4 +225,23 @@ enum class BulletPSType : UINT8 {
 	_count
 };
 enum { BulletPSTypeCount = static_cast<UINT8>(BulletPSType::_count) };
+#pragma endregion
+#pragma endregion
+
+
+
+#pragma region Class
+class PlayerMotion : public DwordOverloader<PlayerMotion> {
+	DWORD_OVERLOADER(PlayerMotion)
+
+	static const DWORD None = 0x00;
+	static const DWORD Stand = 0x01;
+	static const DWORD Sit = 0x02;
+	static const DWORD Walk = 0x10;
+	static const DWORD Run = 0x20;
+	static const DWORD Sprint = 0x40;
+
+	static PlayerMotion GetState(PlayerMotion movement) { return movement & 0x0F; }
+	static PlayerMotion GetMotion(PlayerMotion movement) { return movement & 0xF0; }
+};
 #pragma endregion

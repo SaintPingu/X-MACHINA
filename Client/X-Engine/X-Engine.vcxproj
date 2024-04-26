@@ -203,7 +203,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Imgui\ImGuiMgr.cpp" />
-    <ClCompile Include="include\NetLock.cpp" />
     <ClCompile Include="include\TLS.cpp" />
     <ClCompile Include="Log\LogMgr.cpp" />
     <ClCompile Include="src\AnimatorBlendTree.cpp" />
@@ -241,7 +240,6 @@
     <ClCompile Include="src\MeshRenderer.cpp" />
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\MultipleRenderTarget.cpp" />
-    <ClCompile Include="src\NetworkEvents.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\ObjectPool.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />
@@ -314,8 +312,6 @@
     <ClInclude Include="include\MeshRenderer.h" />
     <ClInclude Include="include\Model.h" />
     <ClInclude Include="include\MultipleRenderTarget.h" />
-    <ClInclude Include="include\NetLock.h" />
-    <ClInclude Include="include\NetworkEvents.h" />
     <ClInclude Include="include\ObjectPool.h" />
     <ClInclude Include="include\ResourceMgr.h" />
     <ClInclude Include="include\Resources.h" />

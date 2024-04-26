@@ -1,5 +1,11 @@
 #include "stdafx.h"
 #include "ServerFBsPktFactory.h"
+
+#include "Script_GameManager.h"
+#include "Script_Player.h"
+
+#include "ClientNetworkManager.h"
+
 #include "Enum_generated.h"
 #include "FBProtocol_generated.h"
 #include "Struct_generated.h"
@@ -9,9 +15,8 @@
 #include "framework.h"
 #include "Object.h"
 #include "Scene.h"
-#include "Script_GameManager.h"
-#include "Script_Player.h"
-#include "Script_GroundObject.h"
+#include "../include/GameFramework.h"
+#include "X-Engine.h"
 
 
 FlatPacketHandlerFunc GFlatPacketHandler[UINT16_MAX]{};
@@ -32,8 +37,10 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	/* My Client Info ( in server ) */
 	const FBProtocol::Player* MySessionInfo = pkt.myinfo();
 	std::string				  Myname        = MySessionInfo->name()->c_str();
-	UINT32					  MysessionID   = MySessionInfo->id();
+	uint64_t				  MysessionID   = MySessionInfo->id();
 	FBProtocol::OBJECTTYPE	  MyobjType     = MySessionInfo->player_type();
+	
+	GameFramework::I->InitPlayer(MysessionID);
 
 	std::cout << "♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n";
 	std::cout << Myname << " - " << MysessionID << " \n";
@@ -41,10 +48,10 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 
 	/* 현재 자신이 접속한 서버의 Room 에서의 속한 모든 클라이언트 정보를 받는다. (다른 세션의 아이디 정보 )*/
 	int PlayersCnt = pkt.players()->size();
-	for (UINT32 i = 0; i < PlayersCnt; ++i) {
+	for (UINT16 i = 0; i < PlayersCnt; ++i) {
 
 		const FBProtocol::Player* otherPlayerInfo = pkt.players()->Get(i);
-		UINT32					  sessionID   = otherPlayerInfo->id();
+		uint64_t					  sessionID   = otherPlayerInfo->id();
 		if (sessionID == MysessionID) continue;
 		std::string				  name        = otherPlayerInfo->name()->c_str();
 		FBProtocol::OBJECTTYPE	  objType     = otherPlayerInfo->player_type();
@@ -53,17 +60,12 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		
 		/* GameScene 에 다른 Player 정보들을 만든다.  */
 		/* Create Other Player & Add To Game Scene */
-		sptr<GridObject> otherPlayer = std::make_shared<GridObject>();
-		otherPlayer->SetModel("EliteTrooper");
-		otherPlayer->SetName(name);
-		otherPlayer->SetID(sessionID);
-		otherPlayer->AddComponent<Script_GroundObject>();
-		otherPlayer->SetPosition(101, 12, 101);
 
-		sptr<SceneEvent::AddOtherPlayer> eventData = std::make_shared<SceneEvent::AddOtherPlayer>();
-		eventData->type = SceneEvent::Enum::AddAnotherPlayer;
-		eventData->player = otherPlayer;
-		Scene::I->AddEvent(eventData);
+		sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
+		EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
+		EventData->name                                     = name;
+		EventData->sessionID                                = sessionID;
+		NETWORK_MGR->RegisterEvent(EventData);
 
 
 	}
@@ -74,6 +76,7 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	session->Send(CPktBuf);
 	std::cout << "LogIn End\n";
 
+
 	return true;
 }
 
@@ -81,28 +84,23 @@ bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol:
 {
 	/* 새로 들어온 player 의 정보를 받는다. */
 		/* New Client Info ( in server ) */
-	const FBProtocol::Player* NewSessionInfo = pkt.newplayer();
-	std::string				  Newname        = NewSessionInfo->name()->c_str();
-	UINT32					  NewsessionID   = NewSessionInfo->id();
-	FBProtocol::OBJECTTYPE	  NewobjType     = NewSessionInfo->player_type();
+	const FBProtocol::Player* NewSessionInfo    = pkt.newplayer();
+	std::string				  Newname           = NewSessionInfo->name()->c_str();
+	uint64_t				  NewsessionID      = NewSessionInfo->id();
+	FBProtocol::OBJECTTYPE	  NewobjType        = NewSessionInfo->player_type();
+	
+
 
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
 	std::cout << "New Session Enter : " << Newname << " - " << NewsessionID << "\n";
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
 
 	/* Create Other Player & Add To Game Scene */
-	sptr<GridObject> otherPlayer = std::make_shared<GridObject>();
-	otherPlayer->SetModel("EliteTrooper");
-	otherPlayer->SetName(Newname);
-	otherPlayer->SetID(NewsessionID);
-	otherPlayer->AddComponent<Script_GroundObject>();
-	otherPlayer->SetPosition(101, 12, 101);
-
-	sptr<SceneEvent::AddOtherPlayer> EventData = std::make_shared<SceneEvent::AddOtherPlayer>();
-	EventData->type                            = SceneEvent::Enum::AddAnotherPlayer;
-	EventData->player                          = otherPlayer;
-
-	Scene::I->AddEvent(EventData);
+	sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
+	EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
+	EventData->name                                     = Newname;
+	EventData->sessionID                                = NewsessionID;
+	NETWORK_MGR->RegisterEvent(EventData);
 
 	std::cout << "New Session Enter End\n";
 	return true;
@@ -124,20 +122,19 @@ bool ProcessFBsPkt_SPkt_Chat(SPtr_PacketSession& session, const FBProtocol::SPkt
 bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol::SPkt_Transform& pkt)
 {
 	// 패킷에서 객체 ID와 위치 정보 가져오기
-	int objID = pkt.object_id();
+	uint64_t objID = pkt.object_id();
 
 	// 패킷에서 위치 정보가 있는지 확인하고 가져옴
 
 	Vec3 Pos = { pkt.trans()->position()->x() ,pkt.trans()->position()->y() ,pkt.trans()->position()->z() };
 	Vec3 Rot = { pkt.trans()->rotation()->x() ,pkt.trans()->rotation()->y() ,pkt.trans()->rotation()->z() };
 
-	sptr<SceneEvent::MoveOtherPlayer> EventData = std::make_shared<SceneEvent::MoveOtherPlayer>();
-	EventData->type                             = SceneEvent::Enum::MoveOtherPlayer;
+	sptr<NetworkEvent::Scene::MoveOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::MoveOtherPlayer>();
+	EventData->type                             = NetworkEvent::Scene::Enum::MoveOtherPlayer;
 	EventData->sessionID                        = objID;
 	EventData->Pos                              = Pos;
 	//std::cout << "▶ ID : " << objID << " " << " POS - (x: " << Pos.x << ", y: " << Pos.y << ", z: " << Pos.z << ")\n";
-	Scene::I->AddEvent(EventData);
-
+	NETWORK_MGR->RegisterEvent(EventData);
 
 	//std::cout << "--------------------------------------------------------------------\n";
 	//std::cout << "▶ Server Packet ( SPkt_TRansform ) \n";

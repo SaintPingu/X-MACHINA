@@ -91,9 +91,6 @@
     <Filter Include="소스 파일\AI">
       <UniqueIdentifier>{626b7a5f-26a0-4806-b035-d4dc4bb4a894}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{cdf79153-daf5-4dc3-bb8f-c672cfa654d0}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -255,14 +252,8 @@
     <ClCompile Include="src\EnginePch.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
-    <ClCompile Include="include\NetLock.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="include\TLS.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="src\NetworkEvents.cpp">
-      <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="Imgui\ImGuiMgr.cpp">
       <Filter>Imgui</Filter>
@@ -434,13 +425,7 @@
     <ClInclude Include="include\BehaviorTree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\NetLock.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\TLS.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\NetworkEvents.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Imgui\ImGuiMgr.h">

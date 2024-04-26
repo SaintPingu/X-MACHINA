@@ -6,7 +6,7 @@
 #include "Component/Camera.h"
 #include "Scene.h"
 
-#include "X-Engine.h"
+#include "GameFramework.h"
 
 
 void Script_MainCamera::SetCameraOffset(const Vec3& offset)
@@ -30,7 +30,7 @@ void Script_MainCamera::Awake()
 	mMaxOffset.x = mMaxOffset.x > maxOffset.x ? maxOffset.x : mMaxOffset.x;
 	mMaxOffset.y = mMaxOffset.y > maxOffset.y ? maxOffset.y : mMaxOffset.y;
 
-	mPlayer = Engine::I->GetPlayer();
+	mPlayer = GameFramework::I->GetPlayer();
 }
 
 void Script_MainCamera::Start()

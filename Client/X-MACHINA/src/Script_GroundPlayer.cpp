@@ -1105,7 +1105,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	static Vec3 prevSlideVec{};
 
 	// 허리 쪽부터 이동 방향을 향하는 광선
-	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, XMVector3Normalize(mDirVec) };
+	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, Vector3::Normalized(mDirVec) };
 
 	// 이전 충돌체가 현재 충돌체와 다른 경우
 	if (prevOther != nullptr) {
@@ -1122,31 +1122,37 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 		}
 	}
 
-	float dist;
+	float dist{};
 	float minDist{ 999.f };
 
 	// ray에 충돌한 최소 거리 obb만 슬라이딩 벡터 충돌체로 선정
-	for (const auto& obb : other.GetComponent<ObjectCollider>()->GetOBBList()) {
-		if (obb->Intersects(ray.Position, ray.Direction, dist)) {
+	for (const auto& collider : other.GetComponent<ObjectCollider>()->GetColliders()) {
+		if (collider->GetType() != Collider::Type::Box) {
+			continue;
+		}
+
+		if (collider->Intersects(ray, dist)) {
 			// 최소 거리가 작을 경우에만 실행
 			if (dist > minDist)
 				continue;
 
 			minDist = dist;
+			
+			const auto& obb = reinterpret_cast<BoxCollider*>(collider.get())->mBox;
 
 			// OBB의 월드 변환 행렬
-			Matrix worldToOBB = Matrix::CreateFromQuaternion(obb->Orientation);
+			Matrix worldToOBB = Matrix::CreateFromQuaternion(obb.Orientation);
 
 			// 광선을 OBB의 로컬 좌표계로 변환
-			ray.Position -= obb->Center;
+			ray.Position -= obb.Center;
 			ray.Position = Vec3::Transform(ray.Position, worldToOBB.Invert());
 			ray.Direction = Vec3::Transform(ray.Direction, worldToOBB.Invert());
 
 			// 광선의 현재 위치에 따라 OBB의 노말 벡터 저장
 			Vec3 collisionNormal;
-			if (ray.Position.x >= obb->Extents.x)
+			if (ray.Position.x >= obb.Extents.x)
 				collisionNormal = Vector3::Right;
-			else if (ray.Position.x <= -obb->Extents.x)
+			else if (ray.Position.x <= -obb.Extents.x)
 				collisionNormal = Vector3::Left;
 			else if (ray.Position.z >= 0.f)
 				collisionNormal = Vector3::Forward;

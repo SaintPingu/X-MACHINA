@@ -50,7 +50,10 @@ bool BoxCollider::Intersects(const BoundingSphere& bs)
 }
 bool BoxCollider::Intersects(const Ray& ray, float& dist)
 {
-	return mBox.Intersects(_VECTOR(ray.Position), _VECTOR(ray.Direction), dist);
+	if(Vector3::IsZero(ray.Direction)) {
+		return false;
+	}
+	return mBox.Intersects(_VECTOR(ray.Position), XMVector3Normalize(_VECTOR(ray.Direction)), dist);
 }
 #pragma endregion
 
@@ -189,24 +192,26 @@ bool ObjectCollider::Intersects(const ObjectCollider* other) const
 		return true;
 	}
 
-	if (aHasCollider) {
+	if (aHasCollider && bHasCollider) {
 		for (const auto& a : aColliders) {
-			if (a->Intersects(bBS)) {
-				return true;
-			}
-		}
-	}
-	else if (bHasCollider) {
-		for (const auto& b : bColliders) {
-			if (b->Intersects(aBS)) {
-				return true;
+			for (const auto& b : bColliders) {
+				if (a->Intersects(b)) {
+					return true;
+				}
 			}
 		}
 	}
 	else {
-		for (const auto& a : aColliders) {
+		if (aHasCollider) {
+			for (const auto& a : aColliders) {
+				if (a->Intersects(bBS)) {
+					return true;
+				}
+			}
+		}
+		else {
 			for (const auto& b : bColliders) {
-				if (a->Intersects(b)) {
+				if (b->Intersects(aBS)) {
 					return true;
 				}
 			}

@@ -205,10 +205,6 @@ void Script_BulletWeapon::FireBullet()
 		const float bulletSpeedErr = Math::RandFloat(0, mSpeerErr);
 
 		bulletScript->SetSpeed(GetBulletSpeed() - bulletSpeedErr);
-		
-		if (!bulletScript->IsSetPSs())
-			for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
-				bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
 
 		bulletScript->Fire(*mMuzzle, err);
 	}
@@ -216,13 +212,19 @@ void Script_BulletWeapon::FireBullet()
 
 void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, float speed) const
 {
-	bullet->SetTag(ObjectTag::Bullet);
-
+	bullet->AddComponent<Rigidbody>();
 	auto& bulletScript = bullet->AddComponent<Script_Bullet>();
 	bulletScript->SetDamage(damage);
 	bulletScript->SetSpeed(speed);
 
-	bullet->AddComponent<Rigidbody>();
+	bullet->SetTag(ObjectTag::Bullet);
+
+
+	bullet->Awake();
+
+	if (!bulletScript->IsSetPSs())
+		for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
+			bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
 }
 
 

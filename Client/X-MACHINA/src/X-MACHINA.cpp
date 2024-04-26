@@ -22,10 +22,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	if (GameFramework::I->Init(hInstance, 1280, 960)) {
-		GameFramework::I->Launch();
-		GameFramework::I->Release();
-	}
+	GameFramework::I->Init(hInstance, 1280, 960);
+	GameFramework::I->Launch();
+	GameFramework::I->Release();
 
 	return 0;
 }

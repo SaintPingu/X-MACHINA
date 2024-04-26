@@ -19,7 +19,9 @@ namespace NetworkEvent
 			UINT16 type = {};
 		};
 		struct AddOtherPlayer : public EventData {
-			sptr<GridObject>	player = {};
+			//sptr<GridObject>	player = {};
+			std::string name{};
+			UINT32 sessionID{};
 		};
 		struct MoveOtherPlayer : public EventData {
 			UINT16				sessionID = {};

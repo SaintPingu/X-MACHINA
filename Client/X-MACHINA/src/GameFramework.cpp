@@ -22,7 +22,6 @@
 #include "Script_Player.h"
 #include "Script_NetworkObject.h"
 #include "Script_GameManager.h"
-#include "Script_ServerManager.h"
 
 #include "Log/LogMgr.h"
 
@@ -31,7 +30,8 @@
 #include "ClientNetworkManager.h"
 #include "ThreadManager.h"
 #include "X-Engine.h"
-#define SERVER_COMMUNICATION
+
+//#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -47,7 +47,7 @@ GameFramework::~GameFramework()
 {
 }
 
-bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
+void GameFramework::Init(HINSTANCE hInstance, short width, short height)
 {
 	/* mhWnd 초기화 */
 	mhInst = hInstance;
@@ -56,22 +56,7 @@ bool GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	CreateGameClientWindow();
 
 	// Init //
-	MainCamera::I->AddComponent<Script_MainCamera>();
 	Engine::I->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
-	GAME_MGR->AddComponent<Script_GameManager>();
-	ObjectMgr::I->InitObjectsScript();
-	//InitPlayer();
-
-#ifdef SERVER_COMMUNICATION
-	// Communication //
-	std::cout << "IP : ";
-	std::wstring ip;
-	std::wcin >> ip;
-	NETWORK_MGR->Init(ip, 7777);
-
-#endif
-
-	return true;
 }
 
 void GameFramework::Release()
@@ -112,6 +97,7 @@ int GameFramework::GameLoop()
 	return (int)msg.wParam;
 }
 
+
 void GameFramework::Update()
 {
 	Timer::I->Tick(60.f);
@@ -122,8 +108,8 @@ void GameFramework::Update()
 	/* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
 	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
 	{
-		Vec3 Pos = Engine::I->GetPlayer()->GetPosition();
-		Vec3 Rot = Engine::I->GetPlayer()->GetRotation();
+		Vec3 Pos = GameFramework::I->GetPlayer()->GetPosition();
+		Vec3 Rot = GameFramework::I->GetPlayer()->GetRotation();
 		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot);
 
 	}
@@ -137,15 +123,15 @@ void GameFramework::Update()
 		// 마지막으로 패킷을 보낸 후로 kSendInterval 이상 시간이 지났는지 확인
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastSentTime).count() >= kSendInterval * 1000)
 		{
-			Vec3 Pos = Engine::I->GetPlayer()->GetPosition();
-			Vec3 Rot = Engine::I->GetPlayer()->GetRotation();
+			Vec3 Pos = GameFramework::I->GetPlayer()->GetPosition();
+			Vec3 Rot = GameFramework::I->GetPlayer()->GetRotation();
 			NETWORK_MGR->Send_CPkt_Transform(Pos, Rot);
 		}
 	}
 	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
 	{
-		Vec3 Pos = Engine::I->GetPlayer()->GetPosition();
-		Vec3 Rot = Engine::I->GetPlayer()->GetRotation();
+		Vec3 Pos = GameFramework::I->GetPlayer()->GetPosition();
+		Vec3 Rot = GameFramework::I->GetPlayer()->GetRotation();
 		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot);
 
 	}
@@ -167,14 +153,11 @@ void GameFramework::Update()
 }
 
 
+
 void GameFramework::Launch()
 {
+	ConnectToServer();
 
-#ifdef SERVER_COMMUNICATION
-	/* Network Thread */
-	NETWORK_MGR->Launch(2);
-
-#endif
 	/* main Thread */
 	GameLoop();
 
@@ -361,22 +344,41 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 	return (INT_PTR)FALSE;
 }
 
+
+void GameFramework::ConnectToServer()
+{
+#ifdef SERVER_COMMUNICATION
+	// Communication //
+	std::cout << "IP : ";
+	std::wstring ip;
+	std::wcin >> ip;
+	NETWORK_MGR->Init(ip, 7777);
+
+	/* Network Thread */
+	NETWORK_MGR->Launch(2);
+
+	while (!mIsLogin) {
+		NETWORK_MGR->ProcessEvents();
+	}
+#else
+	InitPlayer(0);
+
+#endif
+
+	MainCamera::I->AddComponent<Script_MainCamera>();
+	GAME_MGR->AddComponent<Script_GameManager>();
+	ObjectMgr::I->InitObjectsScript();
+
+}
+
+
+
 void GameFramework::InitPlayer(int sessionID)
 {
-	sptr<GridObject> player = Engine::I->GetPlayer();
-	player->ResetCollider();
-	mPlayerScript = player->AddComponent<Script_GroundPlayer>();
-	player->SetModel("EliteTrooper");
-	//auto& networkScript = player->AddComponent<Script_NetworkObject_GroundPlayer>();	// 자기 자신도 네트워크 객체임.
-
-	// [ SERVER TEST ]
-	sptr<GridObject> otherPlayer = Scene::I->Instantiate("EliteTrooper");
-	otherPlayer->SetName("name");
-	otherPlayer->SetID(sessionID);	// sessionID
-
-	sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
-	EventData->type = NetworkEvent::Scene::Enum::AddAnotherPlayer;
-	EventData->player = otherPlayer;
+	mPlayer = Scene::I->Instantiate("EliteTrooper");
+	mPlayer->ResetCollider();
+	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
+	mIsLogin = true;
 
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
 	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");

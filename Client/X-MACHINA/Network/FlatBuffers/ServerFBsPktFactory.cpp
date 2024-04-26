@@ -60,13 +60,11 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		
 		/* GameScene 에 다른 Player 정보들을 만든다.  */
 		/* Create Other Player & Add To Game Scene */
-		sptr<GridObject> otherPlayer = Scene::I->Instantiate("EliteTrooper");
-		otherPlayer->SetName(name);
-		otherPlayer->SetID(sessionID);
 
 		sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
 		EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
-		EventData->player                                   = otherPlayer;
+		EventData->name                                     = name;
+		EventData->sessionID                                = sessionID;
 		NETWORK_MGR->RegisterEvent(EventData);
 
 
@@ -98,13 +96,10 @@ bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol:
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
 
 	/* Create Other Player & Add To Game Scene */
-	sptr<GridObject> otherPlayer = Scene::I->Instantiate("EliteTrooper");
-	otherPlayer->SetName(Newname);
-	otherPlayer->SetID(NewsessionID);
-
 	sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
-	EventData->type                            = NetworkEvent::Scene::Enum::AddAnotherPlayer;
-	EventData->player                          = otherPlayer;
+	EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
+	EventData->name                                     = Newname;
+	EventData->sessionID                                = NewsessionID;
 	NETWORK_MGR->RegisterEvent(EventData);
 
 	std::cout << "New Session Enter End\n";

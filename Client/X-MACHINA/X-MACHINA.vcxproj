@@ -127,6 +127,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,6 +169,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -223,7 +225,6 @@
     <ClInclude Include="include\Script_MeleeBT.h" />
     <ClInclude Include="include\Script_NetworkObject.h" />
     <ClInclude Include="include\Script_Player.h" />
-    <ClInclude Include="include\Script_ServerManager.h" />
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\Script_Weapon.h" />
     <ClInclude Include="include\Script_Weapon_Pistol.h" />
@@ -282,7 +283,6 @@
     <ClCompile Include="src\Script_MeleeBT.cpp" />
     <ClCompile Include="src\Script_NetworkObject.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />
-    <ClCompile Include="src\Script_ServerManager.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />
     <ClCompile Include="src\Script_Weapon.cpp" />

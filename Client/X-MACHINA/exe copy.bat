@@ -1,0 +1,1 @@
+copy .\build\Debug\X-MACHINA.exe .

@@ -22,6 +22,8 @@ class GameFramework : public Singleton<GameFramework> {
 
 private:
 	wptr<Script_Player> mPlayerScript{};
+	sptr<GridObject> mPlayer{};
+	volatile bool mIsLogin{};
 
 private:
 	RESOLUTION			mResolution{};				// ÇØ»óµµ	
@@ -33,9 +35,10 @@ public:
 	~GameFramework();
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
+	rsptr<GridObject> GetPlayer() const { return mPlayer; }
 
 public:
-	bool Init(HINSTANCE hInstance, short width, short height);
+	void Init(HINSTANCE hInstance, short width, short height);
 	LRESULT ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -54,5 +57,7 @@ public:
 
 //private:
 public:
+	void ConnectToServer();
+
 	void InitPlayer(int sessionID);
 };

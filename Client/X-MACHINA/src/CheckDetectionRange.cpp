@@ -3,7 +3,7 @@
 
 #include "Script_EnemyManager.h"
 
-#include "X-Engine.h"
+#include "GameFramework.h"
 #include "Timer.h"
 #include "Scene.h"
 #include "Object.h"
@@ -14,7 +14,7 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-	mPlayer = Engine::I->GetPlayer();
+	mPlayer = GameFramework::I->GetPlayer();
 }
 
 

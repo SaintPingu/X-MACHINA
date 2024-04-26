@@ -66,7 +66,6 @@ void ClientNetworkManager::Launch(int ThreadNum)
 	/* Join¿∫ GameFrameworkø°º≠ ... */
 }
 
-
 void ClientNetworkManager::ProcessEvents()
 {
 	SwapEventsQueue();
@@ -85,12 +84,17 @@ void ClientNetworkManager::ProcessEvents()
 		{
 
 			NetworkEvent::Scene::AddOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::AddOtherPlayer*>(EventData.get());
-			mRemotePlayers[data->player->GetID()] = data->player;
-			data->player->AddComponent<Script_NetworkObject_GroundPlayer>();
-			data->player->AddComponent<Script_GroundObject>();
-			data->player->SetPosition(105, 0, 105);
 
-			std::cout << "Process Event : AddAnotherPlayer - " << data->player << std::endl;
+			sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
+			remotePlayer->SetName(data->name);
+			remotePlayer->SetID(data->sessionID);
+
+			mRemotePlayers[data->sessionID] = remotePlayer;
+			remotePlayer->AddComponent<Script_NetworkObject_GroundPlayer>();
+			remotePlayer->AddComponent<Script_GroundObject>();
+			remotePlayer->SetPosition(105, 0, 105);
+
+			std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
 		}
 
 		break;

@@ -265,9 +265,6 @@
     <ClInclude Include="..\Common\DwordOverloader.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_ServerManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\NetworkEvents.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -419,9 +416,6 @@
     </ClCompile>
     <ClCompile Include="src\NetworkEvents.cpp">
       <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_ServerManager.cpp">
-      <Filter>Script\Manager</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_NetworkObject.cpp">
       <Filter>Script\Network</Filter>

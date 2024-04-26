@@ -18,9 +18,10 @@
                                  
 #define Filter_None              0x001
 #define Filter_Blur              0x002
-#define Filter_Tone              0x004
-#define Filter_LUT               0x008
+#define Filter_LUT               0x004
+#define Filter_Tone              0x008
 #define Filter_Ssao              0x010
+#define Filter_Shadow            0x020
 
 #define RANDOM_IA 16807
 #define RANDOM_IM 2147483647
@@ -88,10 +89,13 @@ struct ParticleInfo
     float	StartSpeed;
 	float3	StartRotation;
 	float	Padding1;
+    float3  FinalRotation;
+    float   AngularVelocity;
 	float2	StartSize;
 	float2	FinalSize;
     float4  StartColor;
     float4  FinalColor;
+    float4  VelocityOverLifetime;
 };
 
 struct ObjectInfo {
@@ -106,6 +110,7 @@ struct ObjectInfo {
 struct PassInfo {
     matrix      MtxView;
     matrix      MtxProj;
+    matrix      MtxInvProj;
     matrix      MtxShadow;
     float3      CameraPos;
     uint        LightCount;
@@ -224,10 +229,20 @@ float4 GammaEncoding(float4 color)
     return float4(pow(color.rgb, 1 / 2.2f), color.a);
 }
 
+float4 GammaEncodingAlpha(float4 color)
+{
+    return float4(pow(color, 1 / 2.2f));
+}
+
 // 감마 보정을 해제하는 함수
 float4 GammaDecoding(float4 color)
 {
     return float4(pow(color.rgb, 2.2f), color.a);
+}
+
+float4 GammaDecodingAlpha(float4 color)
+{
+    return float4(pow(color, 2.2f));
 }
 
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
@@ -447,5 +462,12 @@ float4 Dissolve(float3 color, float dissolve, float t)
     float3 smoothColor = (1 - smoothstep(min, max, dissolve)) * color;
 
     return float4(smoothColor, smoothAlpha);
+}
+
+
+float NdcDepthToViewDepth(float zNdc)
+{
+    float viewZ = gPassCB.MtxProj[3][2] / (zNdc - gPassCB.MtxProj[2][2]);
+    return viewZ;
 }
 #endif

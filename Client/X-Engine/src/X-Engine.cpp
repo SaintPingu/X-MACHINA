@@ -116,7 +116,6 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (!mIsWindowFocused) {
 			::SetFocus(hWnd);
 		}
-
 	break;
 	default:
 		break;

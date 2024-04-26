@@ -178,6 +178,9 @@ private:
 	float mCurRecoil{};
 	float mMaxRecoil{20.f};
 
+	Vec3 mDirVec{};
+	Vec3 mSlideVec{};
+
 public:
 	Movement GetPrevState() const  { return Movement::GetState(mPrevMovement); }
 	Movement GetPrevMotion() const { return Movement::GetMotion(mPrevMovement); }
@@ -253,6 +256,7 @@ private:
 
 	// [time] 내에 [motion]이 끝나도록 [motion]의 속도를 변경한다.
 	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
+	void ComputeSlideVector(Object& other);
 };
 
 #pragma endregion

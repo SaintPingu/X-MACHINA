@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #pragma region Include
 #include "Component/Component.h"
@@ -6,7 +6,11 @@
 
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/array.hpp>
+
+#include "Resources.h"
 #pragma endregion
 
 
@@ -21,11 +25,11 @@ enum class PSSimulationSpace : UINT32 {
 	World,
 };
 
-enum class PSColorOption : UINT32 {
-	Color = 0,
-	Gradient,
-	RandomBetweenTwoColors,
-	RandomBetweenTwoGradient,
+enum class PSValOp : UINT32 {
+	Constant = 0,
+	Curve,
+	RandomBetweenTwoConstants,
+	RandomBetweenTwoCurve,
 };
 
 enum class PSRenderMode : UINT32 {
@@ -47,65 +51,116 @@ enum class PSShapeType : UINT32 {
 
 
 #pragma region Struct
-struct PSColor {
-	Vec4 FirstColor = Vec4{ 1.f };
-	Vec4 SecondColor = Vec4{ 1.f };
-	Vec4 FirstGradient = Vec4{ 1.f };
-	Vec4 SecondGradient = Vec4{ 1.f };
-	PSColorOption ColorOption = PSColorOption::Color;
-	Vec3 Padding;
+template <typename T, UINT8 N>
+struct PSVal {
+	static_assert(std::is_same<T, Vec4>::value || std::is_same<T, float>::value || N % 4 == 0);
 
-public:
-	void SetColor(PSColorOption colorOption, Vec4 value1, Vec4 value2 = Vec4{ 1.f }, Vec4 value3 = Vec4{ 1.f }, Vec4 value4 = Vec4{ 1.f }) {
-		ColorOption = colorOption;
-		switch (colorOption)
-		{
-		case PSColorOption::Color:
-			FirstColor = value1;
-			break;
-		case PSColorOption::Gradient:
-			FirstColor = value1;
-			FirstGradient = value2;
-			break;
-		case PSColorOption::RandomBetweenTwoColors:
-			FirstColor = value1;
-			SecondColor = value2;
-			break;
-		case PSColorOption::RandomBetweenTwoGradient:
-			FirstColor = value1;
-			SecondColor = value2;
-			FirstGradient = value3;
-			SecondGradient = value4;
-			break;
-		default:
-			break;
-		}
+	PSValOp					Option = PSValOp::Constant;
+	UINT					IsOn = 0;
+	float					Param1 = 0.f;
+	float					Param2 = 0.f;
+
+	std::array<T, N>		Vals{};
+	std::array<float, N>	ValKeys{};
+
+	PSVal(T val = {}) { Vals.fill(val), ValKeys.fill(0.f); }
+
+	PSVal& Set(PSValOp option, std::initializer_list<T> vals, std::initializer_list<float> keys = { 1.f }) {
+		assert(vals.size() <= N);
+		IsOn = true;
+		Option = option;
+		std::memcpy(Vals.data(), vals.begin(), vals.size() * sizeof(T));
+
+		if (keys.size() > 1)
+			std::memcpy(ValKeys.data(), keys.begin(), keys.size() * sizeof(float));
+
+		return *this;
 	}
+
+	void SetParam(float param1 = 0.f, float param2 = 0.f) { Param1 = param1, Param2 = param2; }
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
-		ar& BOOST_SERIALIZATION_NVP(FirstColor);
-		ar& BOOST_SERIALIZATION_NVP(SecondColor);
-		ar& BOOST_SERIALIZATION_NVP(FirstGradient);
-		ar& BOOST_SERIALIZATION_NVP(SecondGradient);
-		ar& BOOST_SERIALIZATION_NVP(ColorOption);
+		ar& BOOST_SERIALIZATION_NVP(Option);
+		ar& BOOST_SERIALIZATION_NVP(IsOn);
+		ar& BOOST_SERIALIZATION_NVP(Param1);
+		ar& BOOST_SERIALIZATION_NVP(Param2);
+		ar& BOOST_SERIALIZATION_NVP(Vals);
+		ar& BOOST_SERIALIZATION_NVP(ValKeys);
 	}
 };
 
+
+#pragma region Derived_PSVal
+struct PSFloat : public PSVal<float, 4> {
+	PSFloat() {}
+	PSFloat(float val) : PSVal(val) {}
+};
+
+struct PSVec4 : public PSVal<Vec4, 4> {
+	PSVec4() {}
+	PSVec4(Vec4 val) : PSVal(val) {}
+};
+
+struct PSColor : public PSVec4 {
+	std::array<float, 4> Alphas{};
+	std::array<float, 4> AlphaKeys{};
+
+	PSColor() : PSVec4(Vec4{ 1.f }) {}
+
+public:
+	PSVal& SetColors(PSValOp option, std::initializer_list<Vec3> vals, std::initializer_list<float> keys = { 1.f }) {
+		assert(vals.size() <= 4);
+		IsOn = true;
+		Option = option;
+
+		int cnt{};
+		for (const auto& val : vals)
+			Vals[cnt++] = { val.x, val.y, val.z, 1.f };
+
+		if (keys.size() > 1)
+			std::memcpy(ValKeys.data(), keys.begin(), keys.size() * sizeof(float));
+
+		return *this;
+	}
+
+	PSVal& SetAlphas(std::initializer_list<float> vals, std::initializer_list<float> keys = { 1.f }) {
+		std::memcpy(Alphas.data(), vals.begin(), vals.size() * sizeof(float));
+
+		if (keys.size() > 1)
+			std::memcpy(AlphaKeys.data(), keys.begin(), keys.size() * sizeof(float));
+
+		return *this;
+	}
+
+public:
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		PSVal<Vec4, 4>::serialize(ar, version);
+		ar& BOOST_SERIALIZATION_NVP(Alphas);
+		ar& BOOST_SERIALIZATION_NVP(AlphaKeys);
+	}
+};
+
+#pragma endregion
+
 struct Emission {
 	struct Burst {
-		int		Count = 10;
+		int		Count = 0;
+		float	Time = 0.f;
 		float	BurstElapsed = 0.f;
+		int		IsRunning = false;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version) {
 			ar& BOOST_SERIALIZATION_NVP(Count);
+			ar& BOOST_SERIALIZATION_NVP(Time);
 			ar& BOOST_SERIALIZATION_NVP(BurstElapsed);
 		}
 	};
 
 	bool				IsOn = true;
-	int					RateOverTime = 200;
+	int					RateOverTime = 0;
 	std::vector<Burst>	Bursts;
 
 public:
@@ -118,8 +173,8 @@ public:
 		}
 	}
 
-	void SetBurst(int count) {
-		Bursts.emplace_back(count, 0.f);
+	void SetBurst(int count, float time = 0.f) {
+		Bursts.emplace_back(count, time);
 	}
 
 	template<class Archive>
@@ -154,87 +209,78 @@ struct PSShape {
 	void SetBox() {
 		ShapeType = PSShapeType::Box;
 	}
-};
-
-struct ColorOverLifetime {
-	UINT IsOn = false;
-	Vec3 Padding;
-	Vec4 StartColor{};
-	Vec4 EndColor{};
-
-public:
-	void SetColor(Vec4 startColor, Vec4 endColor) {
-		IsOn = true;
-		StartColor = startColor;
-		EndColor = endColor;
-	}
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
-		ar& BOOST_SERIALIZATION_NVP(IsOn);
-		ar& BOOST_SERIALIZATION_NVP(StartColor);
-		ar& BOOST_SERIALIZATION_NVP(EndColor);
+		ar& BOOST_SERIALIZATION_NVP(ShapeType);
+		ar& BOOST_SERIALIZATION_NVP(Angle);
+		ar& BOOST_SERIALIZATION_NVP(Radius);
+		ar& BOOST_SERIALIZATION_NVP(RadiusThickness);
+		ar& BOOST_SERIALIZATION_NVP(Arc);
 	}
 };
 
 struct PSRenderer {
+	std::string		TextureName{};
 	PSRenderMode	RenderMode = PSRenderMode::Billboard;
 	BlendType		BlendType = BlendType::Alpha_Blend;
-	float			SpeedScale = 0.f;
 	float			LengthScale = 1.f;
-	std::string		TextureName{};
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(TextureName);
 		ar& BOOST_SERIALIZATION_NVP(RenderMode);
 		ar& BOOST_SERIALIZATION_NVP(BlendType);
-		ar& BOOST_SERIALIZATION_NVP(SpeedScale);
 		ar& BOOST_SERIALIZATION_NVP(LengthScale);
-		ar& BOOST_SERIALIZATION_NVP(TextureName);
 	}
 };
 
-struct ParticleSystemCPUData {
+// Í∞ôÏùÄ ÌååÌã∞ÌÅ¥ ÏãúÏä§ÌÖúÏóê Í≥µÌÜµÏúºÎ°ú ÏÇ¨Ïö©ÎêòÎäî CPU Îç∞Ïù¥ÌÑ∞
+class ParticleSystemCPUData : public Resource {
 public:
 	/* my value */
-	std::string			mName;
-	bool				IsStop = true;
-	int					MaxAddCount = 1;		// «—π¯ø° ª˝º∫µ«¥¬ ∆ƒ∆º≈¨ ∞≥ºˆ
-	float				AccTime = 0.f;
+	std::string			mName{};
+	int					MaxAddCount = 0;		// ÌïúÎ≤àÏóê ÏÉùÏÑ±ÎêòÎäî ÌååÌã∞ÌÅ¥ Í∞úÏàò
+	float				PlayMaxTime = 5.f;
 
-	/* elapsed time */
-	float				StopElapsed = 0.f;
-	float				StartElapsed = 0.f;
-	float				LoopingElapsed = 0.f;
+	/* Transform */		
+	Vec3				Position{};
+	int					Padding;
 
 	/* unity particle system */
-	float				Duration = 1.f;
-	bool				Looping = true;
+	float				Duration = 0.05f;
+	bool				Looping = false;
 	bool				Prewarm = false;
 	float				StartDelay = 0.f;
 	Vec2				StartLifeTime = Vec2{ 1.f };
 	Vec2				StartSpeed = Vec2{ 1.f };
-	Vec4				StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// w∞™¿Ã 0¿Ã∏È StartSize3D∏¶ ªÁøÎ«œ¡ˆ æ ¿Ω
+	Vec4				StartSize3D = Vec4{ 1.f, 1.f, 1.f, 0.f};	// wÍ∞íÏù¥ 0Ïù¥Î©¥ StartSize3DÎ•º ÏÇ¨Ïö©ÌïòÏßÄ ÏïäÏùå
 	Vec2				StartSize = Vec2{ 0.1f };
-	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w∞™¿Ã 0¿Ã∏È StartRotation3D∏¶ ªÁøÎ«œ¡ˆ æ ¿Ω
+	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// wÍ∞íÏù¥ 0Ïù¥Î©¥ StartRotation3DÎ•º ÏÇ¨Ïö©ÌïòÏßÄ ÏïäÏùå
 	Vec2				StartRotation = Vec2{ 0.f };
 	PSColor				StartColor{};
 	float				GravityModifier = 0.f;
 	PSSimulationSpace	SimulationSpace = PSSimulationSpace::World;
 	float				SimulationSpeed = 1.f;
-	bool				PlayOnAwake = true;
+	bool				PlayOnAwake = false;
 	int					MaxParticles = 1000;
 
 	/* unity particle system module */
 	Emission			Emission{};
-	PSShape 			Shape;
-	int					SizeOverLifeTime = false;
-	ColorOverLifetime	ColorOverLifeTime{};
+	PSShape 			Shape{};
+	PSFloat				SizeOverLifetime{};
+	PSVec4				VelocityOverLifetime{};
+	PSColor				ColorOverLifetime{};
+	PSFloat				RotationOverLifetime{};
 	PSRenderer			Renderer{};
 
+public:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version) {
+		ar& BOOST_SERIALIZATION_NVP(mName);
 		ar& BOOST_SERIALIZATION_NVP(MaxAddCount);
+		ar& BOOST_SERIALIZATION_NVP(Position);
+		ar& BOOST_SERIALIZATION_NVP(PlayMaxTime);
 		ar& BOOST_SERIALIZATION_NVP(Duration);
 		ar& BOOST_SERIALIZATION_NVP(Looping);
 		ar& BOOST_SERIALIZATION_NVP(Prewarm);
@@ -252,10 +298,17 @@ public:
 		ar& BOOST_SERIALIZATION_NVP(PlayOnAwake);
 		ar& BOOST_SERIALIZATION_NVP(MaxParticles);
 		ar& BOOST_SERIALIZATION_NVP(Emission);
-		ar& BOOST_SERIALIZATION_NVP(SizeOverLifeTime);
-		ar& BOOST_SERIALIZATION_NVP(ColorOverLifeTime);
+		ar& BOOST_SERIALIZATION_NVP(Shape);
+		ar& BOOST_SERIALIZATION_NVP(VelocityOverLifetime);
+		ar& BOOST_SERIALIZATION_NVP(ColorOverLifetime);
+		ar& BOOST_SERIALIZATION_NVP(SizeOverLifetime);
+		ar& BOOST_SERIALIZATION_NVP(RotationOverLifetime);
 		ar& BOOST_SERIALIZATION_NVP(Renderer);
 	}
+
+public:
+	ParticleSystemCPUData() : Resource(ResourceType::ParticleSystemCPUData) { }
+	virtual ~ParticleSystemCPUData() = default;
 };
 
 struct ParticleSystemGPUData {
@@ -275,12 +328,18 @@ struct ParticleSystemGPUData {
 	Vec2				StartSize{};
 	Vec2				StartRotation{};
 	PSColor				StartColor{};
+
+
 	float				GravityModifier{};
 	PSSimulationSpace   SimulationSpace{};
 	float				SimulationSpeed{};
-	int					SizeOverLifeTime{};
-	ColorOverLifetime	ColorOverLifeTime{};
-	PSShape 			Shape;
+	float				Duration{};
+
+	PSVec4				VelocityOverLifetime{};
+	PSColor				ColorOverLifetime{};
+	PSFloat				SizeOverLifetime{};
+	PSFloat				RotationOverLifetime{};
+	PSShape 			Shape{};
 };
 
 struct ParticleData {
@@ -296,22 +355,19 @@ struct ParticleData {
 	float	StartSpeed{};
 	Vec3	StartRotation{};
 	float	Padding1{};
+	Vec3	FinalRotation{};
+	float   AngularVelocity{};
 	Vec2	StartSize{};
 	Vec2	FinalSize{};
 	Vec4	StartColor{};
 	Vec4	FinalColor{};
+	Vec4	VelocityOverLifetime{};
 };
 
 struct ParticleSharedData {
 	int		AddCount{};
 	Vec3	Padding{};
 };
-
-struct aaa {
-	int a;
-	float b;
-};
-
 #pragma endregion
 
 
@@ -321,39 +377,47 @@ class ParticleSystem : public Component, public std::enable_shared_from_this<Par
 	COMPONENT(ParticleSystem, Component)
 
 private:
-	Transform*				mTarget = mObject;		// ∆ƒ∆º≈¨¿ª ∫Œ¬¯Ω√≈≥ ≈∏∞Ÿ
-	bool					mIsDeprecated = false;	// ∆ƒ∆º≈¨ Ω√Ω∫≈€ ªË¡¶ øπ¡§ «√∑°±◊
-	int						mPSIdx = -1;			// ∆ƒ∆º≈¨ Ω√Ω∫≈€ ±∏¡∂¿˚ πˆ∆€ ¿Œµ¶Ω∫
+	Transform*			mTarget = mObject;			// ÌååÌã∞ÌÅ¥ÏùÑ Î∂ÄÏ∞©ÏãúÌÇ¨ ÌÉÄÍ≤ü
+	int					mPSIdx = -1;				// ÌååÌã∞ÌÅ¥ ÏãúÏä§ÌÖú Íµ¨Ï°∞Ï†Å Î≤ÑÌçº Ïù∏Îç±Ïä§
 
-	ParticleSystemCPUData	mPSCD{};				// ∏µÁ ∆ƒ∆º≈¨ø° ∞¯≈Î¿˚¿∏∑Œ ¿˚øÎµ«¥¬ CPU µ•¿Ã≈Õ
-	ParticleSystemGPUData	mPSGD{};				// ∏µÁ ∆ƒ∆º≈¨ø° ∞¯≈Î¿˚¿∏∑Œ ¿˚øÎµ«¥¬ GPU µ•¿Ã≈Õ
+	bool				mIsRunning = false;			// ÌååÌã∞ÌÅ¥ ÏãúÏä§ÌÖú ÎèôÏûë ÌîåÎûòÍ∑∏
+	bool				mIsStopCreation = true;		// ÌååÌã∞ÌÅ¥ ÏÉùÏÑ± Ï§ëÏßÄ ÌîåÎûòÍ∑∏
 
+	float				mAccElapsed = 0.f;
+	float				mStopElapsed = 0.f;
+	float				mStartElapsed = 0.f;
+	float				mLoopingElapsed = 0.f;
+	std::vector<float>	mBurstElapseds{};
+	std::vector<bool>	mBurstRunnings{};
 
-	uptr<UploadBuffer<ParticleData>> mParticles;	// ∞≥∫∞ ∆ƒ∆º≈¨ø° ∆Øºˆ¿˚¿∏∑Œ ¿˚øÎµ«¥¬ GPU µ•¿Ã≈Õ
+	sptr<ParticleSystemCPUData>	mPSCD{};			// Î™®Îì† ÌååÌã∞ÌÅ¥Ïóê Í≥µÌÜµÏ†ÅÏúºÎ°ú Ï†ÅÏö©ÎêòÎäî CPU Îç∞Ïù¥ÌÑ∞
+	ParticleSystemGPUData		mPSGD{};			// Î™®Îì† ÌååÌã∞ÌÅ¥Ïóê Í∞úÎ≥ÑÏ†ÅÏúºÎ°ú Ï†ÅÏö©ÎêòÎäî GPU Îç∞Ïù¥ÌÑ∞
+
+	uptr<UploadBuffer<ParticleData>> mParticles;	// Í∞úÎ≥Ñ ÌååÌã∞ÌÅ¥Ïóê ÌäπÏàòÏ†ÅÏúºÎ°ú Ï†ÅÏö©ÎêòÎäî GPU Îç∞Ïù¥ÌÑ∞
 
 public:
 #pragma region Getter
-	ParticleSystemCPUData& GetPSCD() { return mPSCD; }
-	Emission& GetEmission() { return mPSCD.Emission; }
-	ColorOverLifetime& GetColorOverLifeTime() { return mPSCD.ColorOverLifeTime; }
-	PSRenderer& GetRenderer() { return mPSCD.Renderer; }
-	int GetPSIdx() const { return mPSIdx; }
-	bool IsDeprecated() const { return mIsDeprecated; }
+	sptr<ParticleSystemCPUData> GetPSCD() { return mPSCD; }
+	int	GetPSIdx() const { return mPSIdx; }
+	bool IsRunning() const { return mIsRunning; }
 #pragma endregion
 
 #pragma region Setter
-	void SetTarget(const std::string& frameName);
+	void SetPSCD(sptr<ParticleSystemCPUData> pscd) { mPSCD = pscd; }
+	sptr<ParticleSystem> SetTarget(const std::string& frameName);
+	void SetSizeByRenderMode(PSRenderMode renderMode);
+	void SetColorByBlendType(BlendType blendType);
 #pragma endregion
 
 public:
 	virtual void Awake() override;
-	virtual void Update() override;
-	virtual void OnDestroy() override;
 
 public:
+	void UpdateParticleSystem();
+
 	void Play();
 	void Stop();
-	void PlayToggle();
+	void Reset();
 
 	void ComputeParticleSystem() const;
 	void RenderParticleSystem() const;
@@ -361,24 +425,28 @@ public:
 	void ReturnIndex();
 
 public:
-	void Save();
 	sptr<ParticleSystem> Load(const std::string& fileName);
+
+	static void SavePSCD(ParticleSystemCPUData& pscd);
+	static sptr<ParticleSystemCPUData> LoadPSCD(const std::string& filePath);
 };
+
+
+
 
 
 class ParticleRenderer : public Singleton<ParticleRenderer> {
 	friend Singleton;
 
 private:
-	std::unordered_map<int, sptr<ParticleSystem>> mParticleSystems;
-	std::unordered_map<int, sptr<ParticleSystem>> mDeprecations;
-	std::queue<int> mRemoval;
+	using KeyPSMap = std::unordered_map<int, sptr<ParticleSystem>>;
 
-	sptr<Shader> mComputeShader;
-	sptr<Shader> mAlphaShader;
-	sptr<Shader> mAlphaStretchedShader;
-	sptr<Shader> mOneToOneShader;
-	sptr<Shader> mOneToOneStretchedShader;
+	std::array<KeyPSMap, BlendTypeCount> mPSs;
+
+	sptr<Shader> mCompute{};
+	std::array<sptr<Shader>, BlendTypeCount> mShaders;
+
+	std::array<std::queue<int>, BlendTypeCount> mRemovals;
 
 public:
 #pragma region C/Dtor
@@ -388,8 +456,8 @@ public:
 
 public:
 	void Init();
-	void AddParticleSystem(sptr<ParticleSystem> particleSystem);
-	void RemoveParticleSystem(int particleSystemIdx);
+	void AddParticleSystem(BlendType type, sptr<ParticleSystem> particleSystem);
+	void RemoveParticleSystem(BlendType type, int particleSystemIdx);
 
 	void Update();
 	void Render() const;

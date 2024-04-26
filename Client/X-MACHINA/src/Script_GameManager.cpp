@@ -28,7 +28,7 @@ void Script_GameManager::Awake()
 		auto& script = enemy->AddComponent<Script_Aranobot>();
 		enemy->AddComponent<Script_MeleeBT>();
 		enemy->SetPosition(100, 0, 105);
-		script->SetMaxHP(1000);
+		script->SetMaxHP(2000);
 	}
 }
 

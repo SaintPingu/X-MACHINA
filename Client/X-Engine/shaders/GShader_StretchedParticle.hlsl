@@ -38,10 +38,10 @@ void GSStretchedParticle(point VSOutput_Particle gin[1], inout TriangleStream<GS
     float halfHeight = gInputPraticles[id].StartSize.y / 2.f;
     
     float4 posW[4];
-    posW[0] = float4(gin[0].PosW - halfWidth * right, 1.f);
-    posW[1] = float4(gin[0].PosW + halfWidth * right, 1.f);
-    posW[2] = float4(gin[0].PosW - halfWidth * right - halfHeight * 2 * up, 1.f);
-    posW[3] = float4(gin[0].PosW + halfWidth * right - halfHeight * 2 * up, 1.f);
+    posW[0] = float4(gin[0].PosW + halfHeight * up - halfWidth * right + halfHeight * up, 1.f);
+    posW[1] = float4(gin[0].PosW + halfHeight * up + halfWidth * right + halfHeight * up, 1.f);
+    posW[2] = float4(gin[0].PosW + halfHeight * up - halfWidth * right - halfHeight * up, 1.f);
+    posW[3] = float4(gin[0].PosW + halfHeight * up + halfWidth * right - halfHeight * up, 1.f);
     
     gout[0].PosH = mul(mul(posW[0], gPassCB.MtxView), gPassCB.MtxProj);
     gout[1].PosH = mul(mul(posW[1], gPassCB.MtxView), gPassCB.MtxProj);

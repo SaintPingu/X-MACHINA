@@ -8,12 +8,6 @@ struct VSOutput_SSAO {
     float2 UV   : UV;
 };
 
-float NdcDepthToViewDepth(float zNdc)
-{
-    float viewZ = gPassCB.MtxProj[3][2] / (zNdc - gPassCB.MtxProj[2][2]);
-    return viewZ;
-}
-
 float4 PSSsaoBlur(VSOutput_SSAO pin) : SV_TARGET
 {
     float blurWeights[12] =

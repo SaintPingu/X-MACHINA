@@ -5,6 +5,7 @@
 #include "Script_Player.h"
 
 #include "Component/Rigidbody.h"
+#include "Component/ParticleSystem.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -21,6 +22,15 @@ void Script_Weapon::Awake()
 	base::Awake();
 
 	mMuzzle = mObject->FindFrame("FirePos");
+
+	mMuzzlePSs.resize(2);
+	mMuzzlePSs[0] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Flash")->SetTarget("FirePos");
+	mMuzzlePSs[1] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Smoke")->SetTarget("FirePos");
+	for (auto& ps : mMuzzlePSs)
+		ps->Awake();
+
+	SetParticleSystemNames();
+
 	InitValues();
 	CreateBulletPool();
 }
@@ -45,12 +55,18 @@ void Script_Weapon::Update()
 	}
 	else {
 		mCurFireDelay += DeltaTime();
+
+		for (auto& ps : mMuzzlePSs)
+			ps->Stop();
 	}
 }
 
 void Script_Weapon::FireBullet()
 {
 	--mCurBulletCnt;
+	for (auto& ps : mMuzzlePSs)
+		ps->Play();
+
 	mOwner->BulletFired();
 }
 
@@ -78,8 +94,11 @@ bool Script_Weapon::CheckReload()
 		return false;
 	}
 
-	StartReload();
+	for (auto& ps : mMuzzlePSs)
+		ps->Stop();
 
+	StartReload();
+	
 	return true;
 }
 
@@ -186,6 +205,11 @@ void Script_BulletWeapon::FireBullet()
 		const float bulletSpeedErr = Math::RandFloat(0, mSpeerErr);
 
 		bulletScript->SetSpeed(GetBulletSpeed() - bulletSpeedErr);
+		
+		if (!bulletScript->IsSetPSs())
+			for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
+				bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
+
 		bulletScript->Fire(*mMuzzle, err);
 	}
 }
@@ -206,4 +230,5 @@ void Script_BulletWeapon::CreateBulletPool()
 {
 	mBulletPool = Scene::I->CreateObjectPool("bullet", mBulletCntPerMag * mBulletCntPerShot, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
 }
+
 #pragma endregion

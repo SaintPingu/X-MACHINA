@@ -88,9 +88,9 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 			// 비용 계산 보통의 1 / 2
 			int addCost{};
 			if (prevDir != gkFront[dir])
-				addCost = kCost[0] / 2;
+				addCost = gkCost[0] / 2;
 
-			int g = curNode.G + kCost[dir] + addCost;
+			int g = curNode.G + gkCost[dir] + addCost;
 			int h = (abs(dest.Z - nextPos.Z) + abs(dest.X - nextPos.X)) * mkWeight;
 
 			if (mDistance[nextPos] <= g + h)

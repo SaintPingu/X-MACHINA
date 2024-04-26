@@ -17,14 +17,12 @@ CheckAttackRange::CheckAttackRange(Object* object)
 
 BT::NodeState CheckAttackRange::Evaluate()
 {
-	sptr<Object> target = GetData("target");
-
-	if (!target) {
+	if (!mEnemyMgr->mTarget) {
 		return BT::NodeState::Failure;
 	}
 
 	// TODO : 공격 범위에 들어온 이후 공격 애니메이션 계속 진행(공격 애니메이션의 속도와 쿨타임을 맞출 것)
-	if ((mObject->GetPosition() - target->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
+	if ((mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
 
 		mEnemyMgr->mController->SetValue("Attack", true);
 		mEnemyMgr->mController->SetValue("Walk", false);

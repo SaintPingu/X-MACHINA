@@ -17,15 +17,13 @@ TaskMoveToTarget::TaskMoveToTarget(Object* object)
 
 BT::NodeState TaskMoveToTarget::Evaluate()
 {
-	sptr<Object> target = GetData("target");
-
 	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
-	if (Scene::I->GetTileFromPos(target->GetPosition()) == Tile::Static)
+	if (Scene::I->GetTileFromPos(mEnemyMgr->mTarget->GetPosition()) == Tile::Static)
 		return BT::NodeState::Failure;
 
 	// 허리 쪽부터 광선을 쏴야 맞는다.
 	Vec3 objectAdjPos = mObject->GetPosition() + mObject->GetUp() * 0.5f;
-	Vec3 targetAdjPos = target->GetPosition() + target->GetUp() * 0.5f;
+	Vec3 targetAdjPos = mEnemyMgr->mTarget->GetPosition() + mEnemyMgr->mTarget->GetUp() * 0.5f;
 
 	// 오브젝트로부터 타겟까지의 벡터
 	Vec3 toTarget = targetAdjPos - objectAdjPos;
@@ -35,7 +33,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 
 	// 타겟이 속한 모든 그리드를 검사해야 한다.
 	if (!mGridTarget)
-		mGridTarget = std::dynamic_pointer_cast<GridObject>(target);
+		mGridTarget = std::dynamic_pointer_cast<GridObject>(mEnemyMgr->mTarget);
 
 	// 해당 광선에 맞은 다른 Static 오브젝트의 거리가 타겟까지의 거리보다 가까운 경우 벽에 막혀있는 경우이다.
 	if (mGridTarget) {
@@ -55,7 +53,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (toTarget.Length() > kMinDistance) {
-		mObject->RotateTargetAxisY(target->GetPosition(), mEnemyMgr->mRotationSpeed);
+		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mRotationSpeed);
 		mObject->Translate(mObject->GetLook(), mEnemyMgr->mMoveSpeed * DeltaTime());
 	}
 

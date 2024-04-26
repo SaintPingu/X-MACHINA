@@ -8,9 +8,12 @@
 #include "Shader.h"
 #include "AnimationClip.h"
 #include "AnimatorController.h"
+#include "Component/ParticleSystem.h"
 
 void ResourceMgr::LoadResources()
 {
+	CreateParticleSystemCPUData();
+
 	LoadTextures();
 	LoadRectangleMesh();
 	LoadPointMesh();
@@ -18,6 +21,7 @@ void ResourceMgr::LoadResources()
 	LoadShaders();
 	LoadAnimationClips();
 	LoadAnimatorControllers();
+	LoadParticleSystemCPUData();
 }
 
 void ResourceMgr::Clear()
@@ -41,6 +45,427 @@ sptr<Texture> ResourceMgr::CreateTexture(const std::string& name, ComPtr<ID3D12R
 	texture->Create(resource);
 	Add<Texture>(name, texture);
 	return texture;
+}
+
+void ResourceMgr::CreateParticleSystemCPUData()
+{
+#pragma region MagicMissile
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Explosion_Small";
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.3f, 0.4f };
+		pscd.StartSpeed = 6.f;
+		pscd.StartSize = 0.05f;
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 2.f, 2.f, 1.f } });
+		pscd.GravityModifier = 1.2f;
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 22;
+		pscd.Emission.SetBurst(12);
+		pscd.Emission.IsOn = true;
+		pscd.Shape.SetSphere(0.01f, 1.f, 360.f, false);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{0.7f, 0.2f, 0.f, 1.0f } }, { 0.f, 1.f });
+		pscd.Renderer.TextureName = "Explosion";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
+		pscd.Renderer.LengthScale = 5.f;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Glow";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.1f };
+		pscd.StartSpeed = 0.f;
+		pscd.StartSize = 2.f;
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 1.f, 0.6f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 11;
+		pscd.Emission.SetBurst(1);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{0.2f, 0.05f, 0.05f, 1.f } }, { 0.f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Grow";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Smoke_BigQuick";
+		pscd.Duration = 0.5f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.3f };
+		pscd.StartSpeed = 0.4f;
+		pscd.StartSize = Vec2{ 3.2f, 4.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 13;
+		pscd.Emission.SetBurst(1, 0.025f);
+		pscd.Emission.SetBurst(1, 0.1f);
+		pscd.Emission.SetBurst(1, 0.2f);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, false);
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 1.f, 1.f, 1.f }, Vec3{1.f, 1.f, 1.f } }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({0.f, 0.3f, 0.f}, {0.f, 0.5f, 1.f});
+		pscd.RotationOverLifetime.Set(PSValOp::Constant, { 25.f });
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Smoke_Building";
+		pscd.Duration = 0.5f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 1.3f };
+		pscd.StartSpeed = 0.3f;
+		pscd.StartSize = Vec2{ 2.2f, 3.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 0.3f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 10;
+		pscd.Emission.SetBurst(1);
+		pscd.Emission.SetBurst(1, 0.1f);
+		pscd.Emission.SetBurst(1, 0.2f);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, false);
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 1.f, 1.f, 1.f }, Vec3{1.f, 1.f, 1.f } }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.f, 1.f, 0.f }, { 0.f, 0.5f, 1.f });
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, -1.f, 0.f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::Constant, { 50.f });
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Dot_Sparkles_Mult";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.25f, 0.5f };
+		pscd.StartSpeed = Vec2{ 1.f, 2.f };
+		pscd.StartSize = Vec2{ 0.6f, 0.8f };
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 22;
+		pscd.Emission.SetBurst(12);
+		pscd.Shape.SetSphere(0.2f, 0.f, 360.f, false);
+		pscd.Renderer.BlendType = BlendType::Multiply_Blend;
+		pscd.Renderer.TextureName = "Explosion_SmallDot";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Dot_Sparkles_Big";
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.2f, 0.35f };
+		pscd.StartSpeed = Vec2{ 6.f, 8.f };
+		pscd.StartSize = Vec2{ 0.16f, 0.24f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 3.f, 3.f, 3.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.GravityModifier = 4.f;
+		pscd.MaxParticles = 21;
+		pscd.Emission.SetBurst(8);
+		pscd.Emission.SetBurst(3, 0.1f);
+		pscd.Shape.SetSphere(0.3f, 0.f, 360.f, false);
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 1.f, 1.f, 1.f }, Vec3{ 1.f, 0.98f, 0.84f }, Vec3{1.f, 0.9f, 0.47f} }, { 0.f, 0.2f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({1.f, 1.f, 0.f}, {0.f, 0.4f, 1.f});
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.2f, 0.8f }, { 0.f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Grow";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Dot_Sparkles";
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.25f, 0.5f };
+		pscd.StartSpeed = Vec2{ 1.f, 3.f };
+		pscd.StartSize = Vec2{ 0.7f, 0.9f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 40;
+		pscd.Emission.SetBurst(24);
+		pscd.Emission.SetBurst(6, 0.1f);
+		pscd.Shape.SetSphere(0.4f, 1.f, 360.f, false);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.7f, 0.1f, 0.f, 1.f } }, { 0.f, 1.f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Renderer.TextureName = "Explosion_Dot";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Explosion";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.13f };
+		pscd.StartSize = Vec2{ 1.8f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 1.4f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 11;
+		pscd.Emission.SetBurst(1);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.2f, 0.05f, 0.05f, 1.f } }, { 0.f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_DoubleFlame";
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Smoke";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 2.f, 3.f };
+		pscd.StartSpeed = Vec2{ 0.2f, 0.4f };
+		pscd.StartSize = Vec2{ 1.6f, 2.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.35f, 0.35f, 0.35f, 0.35f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxParticles = 20;
+		pscd.Emission.SetBurst(5);
+		pscd.Emission.SetBurst(5, 0.2f);
+		pscd.Shape.SetSphere(0.3f, 1.f, 360.f, false);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.f, 1.f }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 1.f, 1.f, 1.f }, Vec3{ 1.f, 1.f, 1.f }}, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.f, 1.f, 1.f, 0.f }, {0.f, 0.25f, 0.4f, 1.f});
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 0.2f, 0.f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::Constant, { 100.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Bullet";
+		pscd.Looping = true;
+		pscd.StartDelay = 0.f;
+		pscd.MaxAddCount = 1;
+		pscd.StartLifeTime = Vec2{ 0.3f };
+		pscd.StartSpeed = Vec2{ 0.2f, 0.4f };
+		pscd.StartSize = Vec2{ 1.f, 1.5f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.5f, 0.5f, 0.5f, 0.5f } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.f;
+		pscd.MaxParticles = 100;
+		pscd.Emission.RateOverTime = 100;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.4f, 1.f }, { 0.f, 1.f });
+		pscd.Shape.SetSphere(0.3f, 1.f, 360.f, false);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.5f, 0.5f, 0.5f, 1.f }, Vec4{ 0.0f, 0.0f, 0.0f, 0.f } }, { 0.f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Muzzle_Smoke";
+		pscd.StartLifeTime = Vec2{ 2.f };
+		pscd.StartSpeed = Vec2{ 0.1f };
+		pscd.StartSize = Vec2{ 0.8f, 1.5f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.8f, 0.8f, 0.8f, 0.8f } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.2f;
+		pscd.MaxParticles = 50;
+		pscd.Emission.SetBurst(1);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, false);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.1f, 0.1f, 0.1f, 0.f } }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 1.f, 0.f }, { 0.f, 1.f });
+		pscd.RotationOverLifetime.Set(PSValOp::Constant, { 100.f });
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		pscd.Renderer.TextureName = "Explosion_Smoke";
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Muzzle_Flash";
+		pscd.StartLifeTime = Vec2{ 0.13f };
+		pscd.StartSize = Vec2{ 1.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 1.f, 0.5f, 1.f  } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.f;
+		pscd.MaxParticles = 50;
+		pscd.Emission.SetBurst(1);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.2f, 0.05f, 0.05f, 1.f } }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({0.4f, 0.f}, {0.f, 1.f});
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_DoubleFlame";
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.3f, 1.f }, { 0.f, 1.f });
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Nuke_Dot_Sparkles";
+		pscd.Duration = 0.5f;
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 0.05f, 1.f };
+		pscd.StartSpeed = Vec2{ 2.f, 4.f };
+		pscd.StartSize = Vec2{ 1.f, 0.05f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f  } });
+		pscd.GravityModifier = 0.01f;
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.6f;
+		pscd.MaxAddCount = 1;
+		pscd.MaxParticles = 310;
+		pscd.Emission.RateOverTime = 300;
+		pscd.Shape.SetSphere(0.15f, 1.f, 360.f, true);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 0.9f, 0.47f, 1.f }, Vec4{ 1.f, 0.62f, 0.45f, 1.f }, Vec4{ 1.f, 0.7f, 0.4f, 1.f }, Vec4{ 0.7f, 0.1f, 0.f, 1.f } }, { 0.f, 0.4f, 0.6f, 0.75f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Renderer.TextureName = "Explosion_Dot";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.LengthScale = 2.f;
+		pscd.Renderer.BlendType = BlendType::One_To_One_Stretched_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Nuke_Explosion_Add";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 6.f, 8.f };
+		pscd.StartSpeed = Vec2{ 0.4f };
+		pscd.StartSize = Vec2{ 1.f, 2.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.97f, 0.56f, 0.44f, 1.f  } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.666f;
+		pscd.MaxParticles = 40;
+		pscd.Emission.SetBurst(10, 0.f);
+		pscd.Emission.SetBurst(10, 0.15f);
+		pscd.Emission.SetBurst(5, 0.3f);
+		pscd.Emission.SetBurst(5, 0.45f);
+		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 1.f, 0.f, 0.f } }).SetParam(0.8f);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.f, 0.f, 0.f, 1.f }, Vec4{ 1.f, 0.62f, 0.45f, 1.f }, Vec4{ 0.5f, 0.5f, 0.5f, 1.f }, Vec4{ 0.f, 0.f, 0.f, 1.f } }, { 0.f, 0.2f, 0.5f, 1.f });
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { -60.f, 60.f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.35f, 1.f, 0.f }, { 0.f, 0.2f, 1.f });
+		pscd.Renderer.TextureName = "WFX_NukeFlames";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::One_To_One_Blend_ScrollAlphaMask;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Nuke_Explosion_Smoke";
+		pscd.StartDelay = 2.f;
+		pscd.StartLifeTime = Vec2{ 3.f, 4.f };
+		pscd.StartSpeed = Vec2{ 0.4f };
+		pscd.StartSize = Vec2{ 1.f, 2.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.25f, 0.25f, 0.25f, 1.f  } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.5f;
+		pscd.Emission.SetBurst(200, 0.f);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.f, 2.f }, { 0.f, 1.f });
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ -1.f, 0.f, -1.f, 0.f }, Vec4{ 1.f, 0.f, 1.f, 0.f } }).SetParam(1.f);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.6f, 0.6f, 0.6f, 1.f }, Vec4{ 0.f, 0.f, 0.f, 1.f } }, { 0.f, 1.f });
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { -120.f, 120.f });
+		pscd.Renderer.TextureName = "WFX_NukeFlames";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::One_To_One_Blend_ScrollAlphaMask;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Nuke_Smoke_Colon";
+		pscd.Duration = 4.f;
+		pscd.StartDelay = 1.f;
+		pscd.StartLifeTime = Vec2{ 4.f };
+		pscd.StartSpeed = Vec2{ 0.f };
+		pscd.StartSize = Vec2{ 1.f, 2.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Curve, { Vec4{ 0.33f, 0.33f, 0.33f, 1.f  }, Vec4{ 0.f, 0.f, 0.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.666f;
+		pscd.MaxParticles = 70;
+		pscd.MaxAddCount = 1;
+		pscd.Emission.RateOverTime = 20;
+		pscd.Shape.SetSphere(0.8f, 1.f, 360.f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 1.f, 0.f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 40.f, 70.f });
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.f, 0.f, 0.f, 1.f }, Vec4{ 0.5f, 0.5f, 0.5f, 1.f }, Vec4{ 0.5f, 0.5f, 0.5f, 1.f }, Vec4{ 0.f, 0.f, 0.f, 1.f } }, { 0.f, 0.33f, 0.66f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::Multiply_Blend_ScrollAlphaMask;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Nuke_Smoke_Head";
+		pscd.Duration = 2.f;
+		pscd.StartDelay = 4.f;
+		pscd.Position = Vec3{ 0.f, 1.3f, 0.f };
+		pscd.StartLifeTime = Vec2{ 2.f };
+		pscd.StartSpeed = Vec2{ -0.1f };
+		pscd.StartSize = Vec2{ 1.f, 2.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.55f, 0.55f, 0.55f, 1.f }});
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.666f;
+		pscd.MaxParticles = 50;
+		pscd.MaxAddCount = 1;
+		pscd.Emission.RateOverTime = 20;
+		pscd.Shape.SetSphere(1.3f, 1.f, 360.f, false);
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ -2.f, 0.1f, -2.f, 0.f }, Vec4{ 2.f, 1.f, 2.f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 30.f, 60.f });
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 0.f, 0.f, 0.f }, Vec3{ 0.62f, 0.62f, 0.62f }, Vec3{ 0.62f, 0.62f, 0.62f }, Vec3{ 0.f, 0.f, 0.f }}, { 0.f, 0.25f, 0.8f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::Multiply_Blend_ScrollAlphaMask;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Nuke_Explosion_Mult";
+		pscd.Duration = 1.5f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 6.f, 8.f };
+		pscd.StartSpeed = Vec2{ 0.1f };
+		pscd.StartSize = Vec2{ 2.2f, 3.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 1.666f;
+		pscd.MaxParticles = 60;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Emission.SetBurst(20);
+		pscd.Emission.SetBurst(15, 0.15);
+		pscd.Emission.SetBurst(10, 0.3);
+		pscd.Emission.SetBurst(5, 0.45);
+		pscd.Shape.SetSphere(0.8f, 1.f, 360.f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ -0.2f, 1.f, -0.2f, 0.f }, Vec4{ 0.2f, 1.f, 0.2f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 30.f, 60.f });
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 1.f, 0.85f, 0.61f }, Vec3{ 1.f, 0.6f, 0.4f }, Vec3{ 0.7f, 0.65f, 0.53f }, Vec3{ 0.5f, 0.5f, 0.5f } }, { 0.f, 0.2f, 0.8f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({1.f, 1.f, 1.f, 0.f}, {0.f, 0.5f, 0.8f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::Scroll_Smoke;
+		ParticleSystem::SavePSCD(pscd);
+	}
 }
 
 sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()
@@ -534,6 +959,61 @@ void ResourceMgr::LoadShaders()
 			shader->Load(info, path);
 			Add<Shader>("OneToOneBlend_GraphicsStretchedParticle", shader);
 		}
+		{
+			path.GS = "GShader_Particle.cso";
+			info.BlendType = BlendType::Additive_Soft_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("AdditiveSoft_GraphicsParticle", shader);
+		}
+		{
+			path.GS = "GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::Additive_Soft_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("AdditiveSoft_GraphicsStretchedParticle", shader);
+		}
+		{
+			path.GS = "GShader_Particle.cso";
+			info.BlendType = BlendType::Multiply_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("MultiplyBlend_GraphicsParticle", shader);
+		}
+		{
+			path.GS = "GShader_StretchedParticle.cso";
+			info.BlendType = BlendType::Multiply_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("MultiplyBlend_GraphicsStretchedParticle", shader);
+		}
+
+		{
+			path.GS = "GShader_Particle.cso";
+			path.PS = "PShader_ScrollAlphaMask_Particle.cso";
+			info.BlendType = BlendType::One_To_One_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("OneToOneBlend_GraphicsScrollAlphaMaskParticle", shader);
+		}
+
+		{
+			path.GS = "GShader_Particle.cso";
+			path.PS = "PShader_ScrollAlphaMask_Particle.cso";
+			info.BlendType = BlendType::Multiply_Inv_Blend;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("MultiplyBlend_GraphicsScrollAlphaMaskParticle", shader);
+		}
+
+		{
+			path.GS = "GShader_Particle.cso";
+			path.PS = "PShader_Scroll_Smoke.cso";
+			info.BlendType = BlendType::Scroll_Smoke;
+			sptr<Shader> shader = std::make_shared<Shader>();
+			shader->Load(info, path);
+			Add<Shader>("Scroll_Smoke", shader);
+		}
 	}
 #pragma endregion
 // ComputeShader
@@ -635,5 +1115,15 @@ void ResourceMgr::LoadAnimatorControllers()
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
 		ResourceMgr::I->Add<AnimatorController>(FileIO::RemoveExtension(fileName), FileIO::AnimationIO::LoadAnimatorController(rootFolder + fileName));
+	}
+}
+
+void ResourceMgr::LoadParticleSystemCPUData()
+{
+	const std::string rootFolder = "Import/ParticleSystems/";
+
+	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
+		const std::string fileName = file.path().filename().string();
+		ResourceMgr::I->Add<ParticleSystemCPUData>(FileIO::RemoveExtension(fileName), ParticleSystem::LoadPSCD(rootFolder + fileName));
 	}
 }

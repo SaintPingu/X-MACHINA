@@ -2,6 +2,7 @@
 #include "Script_Bullet.h"
 
 #include "Script_Enemy.h"
+#include "Script_Weapon.h"
 
 #include "Object.h"
 #include "Timer.h"
@@ -16,7 +17,6 @@ void Script_Bullet::Awake()
 	base::Awake();
 
 	mGameObject = mObject->GetObj<GameObject>();
-	mParticleSystem = mGameObject->AddComponent<ParticleSystem>()->Load("Bulletlight2");
 
 	mRigid = mObject->GetComponent<Rigidbody>();
 	mRigid->SetFriction(0.001f);
@@ -25,12 +25,22 @@ void Script_Bullet::Awake()
 	Reset();
 }
 
+void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames)
+{
+	for (auto& name : psNames) {
+		mPSs[static_cast<UINT8>(type)].emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load(name))->Awake();
+	}
+
+	mIsSetPSs = true;
+}
+
 void Script_Bullet::Update()
 {
 	mCurrLifeTime += DeltaTime();
 
 	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
+		StopPSs(BulletPSType::Contrail);
 		mGameObject->OnDestroy();
 	}
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
@@ -49,6 +59,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Building:
+		PlayPSs(BulletPSType::Building);
 		Explode();
 		break;
 
@@ -56,7 +67,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());
-		mParticleSystem->Play();
+		PlayPSs(BulletPSType::Explosion);
 		Explode();
 	}
 
@@ -78,6 +89,9 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 
 void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 {
+	ResetPSs(BulletPSType::Explosion);
+	PlayPSs(BulletPSType::Contrail);
+
 	mObject->SetLocalRotation(transform.GetRotation());
 	Vec3 dir = transform.GetLook();
 	dir = Vector3::Rotate(dir, err.y, err.x, 0.f);
@@ -92,11 +106,29 @@ void Script_Bullet::Explode()
 	}
 
 	Reset();
+	StopPSs(BulletPSType::Contrail);
 
 	mRigid->Stop();
 	mGameObject->OnDestroy();
 }
 
+void Script_Bullet::PlayPSs(BulletPSType type)
+{
+	for (const auto& ps : mPSs[static_cast<UINT8>(type)]) 
+		ps->Play();
+}
+
+void Script_Bullet::StopPSs(BulletPSType type)
+{
+	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
+		ps->Stop();
+}
+
+void Script_Bullet::ResetPSs(BulletPSType type)
+{
+	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
+		ps->Reset();
+}
 
 void Script_Bullet::Reset()
 {

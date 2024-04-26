@@ -22,6 +22,7 @@ protected:
 
 public:
 	virtual void Awake() override;
+	virtual void Attack() abstract;
 };
 
 #pragma endregion

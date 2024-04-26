@@ -31,7 +31,7 @@
 #include "ThreadManager.h"
 #include "X-Engine.h"
 
-//#define SERVER_COMMUNICATION
+#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;

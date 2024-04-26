@@ -90,7 +90,6 @@ void ClientNetworkManager::ProcessEvents()
 			remotePlayer->SetID(data->sessionID);
 
 			mRemotePlayers[data->sessionID] = remotePlayer;
-			remotePlayer->AddComponent<Script_NetworkObject_GroundPlayer>();
 			remotePlayer->AddComponent<Script_GroundObject>();
 			remotePlayer->SetPosition(105, 0, 105);
 

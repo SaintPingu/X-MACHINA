@@ -145,7 +145,7 @@ void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Scene::EventData> da
 
 
 void ClientNetworkManager::Send_CPkt_KeyInput(GameKeyInfo::KEY		 key
-										    , GameKeyInfo::KEY_STATE	 KeyState
+										    , GameKeyInfo::KEY_STATE KeyState
 										    , GameKeyInfo::MoveKey	 moveKey
 										    , Vec2					 mouseDelta)
 {

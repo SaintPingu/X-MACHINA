@@ -118,6 +118,8 @@ void GameFramework::Update()
 
 #ifdef SERVER_COMMUNICATION
 	NETWORK_MGR->ProcessEvents();
+
+	/* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
 	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
 	{
 		Vec3 Pos = Engine::I->GetPlayer()->GetPosition();
@@ -127,9 +129,10 @@ void GameFramework::Update()
 	}
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
 	{
-		static float kSendInterval = 0.5f;
-		static auto lastSentTime = std::chrono::steady_clock::now(); // 마지막으로 패킷을 보낸 시간
-		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
+		/* 1초에 2번 패킷을 보내도록 설정 */
+		static float	kSendInterval         = 0.5f;
+		static auto		lastSentTime          = std::chrono::steady_clock::now(); // 마지막으로 패킷을 보낸 시간
+		auto			currentTime           = std::chrono::steady_clock::now(); // 현재 시간
 
 		// 마지막으로 패킷을 보낸 후로 kSendInterval 이상 시간이 지났는지 확인
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastSentTime).count() >= kSendInterval * 1000)

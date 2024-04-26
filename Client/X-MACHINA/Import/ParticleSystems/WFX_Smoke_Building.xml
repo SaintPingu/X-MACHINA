@@ -54,7 +54,7 @@
 					<s.x>1.000000000e+00</s.x>
 					<s.y>1.000000000e+00</s.y>
 					<s.z>1.000000000e+00</s.z>
-					<s.w>6.000000238e-01</s.w>
+					<s.w>3.000000119e-01</s.w>
 				</item>
 				<item>
 					<s.x>1.000000000e+00</s.x>
@@ -245,8 +245,31 @@
 			</elems>
 		</AlphaKeys>
 	</ColorOverLifetime>
-	<SizeOverLifetime>1</SizeOverLifetime>
-	<RotationOverLifetime class_id="12" tracking_level="0" version="0">
+	<SizeOverLifetime class_id="12" tracking_level="0" version="0">
+		<Option>1</Option>
+		<IsOn>1</IsOn>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
+		<Vals>
+			<elems>
+				<count>4</count>
+				<item>5.000000000e-01</item>
+				<item>1.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Vals>
+		<ValKeys>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>1.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</ValKeys>
+	</SizeOverLifetime>
+	<RotationOverLifetime>
 		<Option>0</Option>
 		<IsOn>1</IsOn>
 		<Param1>0.000000000e+00</Param1>

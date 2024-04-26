@@ -268,7 +268,7 @@ public:
 	/* unity particle system module */
 	Emission			Emission{};
 	PSShape 			Shape{};
-	int					SizeOverLifetime{};
+	PSFloat				SizeOverLifetime{};
 	PSVec4				VelocityOverLifetime{};
 	PSColor				ColorOverLifetime{};
 	PSFloat				RotationOverLifetime{};
@@ -333,14 +333,13 @@ struct ParticleSystemGPUData {
 	float				GravityModifier{};
 	PSSimulationSpace   SimulationSpace{};
 	float				SimulationSpeed{};
-	int					SizeOverLifetime{};
+	float				Duration{};
 
 	PSVec4				VelocityOverLifetime{};
 	PSColor				ColorOverLifetime{};
+	PSFloat				SizeOverLifetime{};
 	PSFloat				RotationOverLifetime{};
 	PSShape 			Shape{};
-	float				Duration{};
-	Vec3				Padding{};
 };
 
 struct ParticleData {

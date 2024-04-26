@@ -108,7 +108,7 @@
 	<SimulationSpace>0</SimulationSpace>
 	<SimulationSpeed>1.666000009e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>50</MaxParticles>
+	<MaxParticles>60</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>
@@ -116,22 +116,22 @@
 			<count>4</count>
 			<item_version>0</item_version>
 			<item class_id="9" tracking_level="0" version="0">
-				<Count>30</Count>
+				<Count>20</Count>
 				<Time>0.000000000e+00</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 			<item>
-				<Count>25</Count>
+				<Count>15</Count>
 				<Time>1.500000060e-01</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 			<item>
-				<Count>15</Count>
+				<Count>10</Count>
 				<Time>3.000000119e-01</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 			<item>
-				<Count>10</Count>
+				<Count>5</Count>
 				<Time>4.499999881e-01</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
@@ -250,8 +250,31 @@
 			</elems>
 		</AlphaKeys>
 	</ColorOverLifetime>
-	<SizeOverLifetime>0</SizeOverLifetime>
-	<RotationOverLifetime class_id="12" tracking_level="0" version="0">
+	<SizeOverLifetime class_id="12" tracking_level="0" version="0">
+		<Option>1</Option>
+		<IsOn>1</IsOn>
+		<Param1>0.000000000e+00</Param1>
+		<Param2>0.000000000e+00</Param2>
+		<Vals>
+			<elems>
+				<count>4</count>
+				<item>5.000000000e-01</item>
+				<item>1.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Vals>
+		<ValKeys>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>1.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</ValKeys>
+	</SizeOverLifetime>
+	<RotationOverLifetime>
 		<Option>2</Option>
 		<IsOn>1</IsOn>
 		<Param1>0.000000000e+00</Param1>

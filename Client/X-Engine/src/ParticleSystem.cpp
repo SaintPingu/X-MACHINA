@@ -275,8 +275,6 @@ void ParticleRenderer::Init()
 	}
 
 	mCompute = RESOURCE<Shader>("ComputeParticle");
-	mShaders[static_cast<UINT8>(BlendType::Alpha_Blend)] = RESOURCE<Shader>("GraphicsParticle");
-	mShaders[static_cast<UINT8>(BlendType::Alpha_Stretched_Blend)] = RESOURCE<Shader>("GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::One_To_One_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
 	mShaders[static_cast<UINT8>(BlendType::One_To_One_Blend_ScrollAlphaMask)] = RESOURCE<Shader>("OneToOneBlend_GraphicsScrollAlphaMaskParticle");
 	mShaders[static_cast<UINT8>(BlendType::One_To_One_Stretched_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsStretchedParticle");
@@ -285,6 +283,8 @@ void ParticleRenderer::Init()
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsParticle");
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Stretched_Blend)] = RESOURCE<Shader>("MultiplyBlend_GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::Multiply_Blend_ScrollAlphaMask)] = RESOURCE<Shader>("MultiplyBlend_GraphicsScrollAlphaMaskParticle");
+	mShaders[static_cast<UINT8>(BlendType::Alpha_Blend)] = RESOURCE<Shader>("GraphicsParticle");
+	mShaders[static_cast<UINT8>(BlendType::Alpha_Stretched_Blend)] = RESOURCE<Shader>("GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::Scroll_Smoke)] = RESOURCE<Shader>("Scroll_Smoke");
 }
 

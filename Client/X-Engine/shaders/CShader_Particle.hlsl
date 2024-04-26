@@ -16,8 +16,10 @@
 #define PSShape_Cone        3
 #define PSShape_Box         4
 
-#define gkCOL_GradientCount  4
 #define CruveCount 4
+
+#define FALSE   0
+#define TRUE    1
 
 struct ParticleSystemIndexInfo
 {
@@ -93,15 +95,13 @@ struct ParticleSystemInfo
 	float	        GravityModifier;
     uint            SimulationSpace;
     float           SimulationSpeed;
-    int             SizeOverLifetime;
+    float           Duration;
     
 	PSVec4	        VelocityOverLifetime;
     PSColor         ColorOverLifetime;
+    PSFloat         SizeOverLifetime;
     PSFloat         RotationOverLifetime;
     PSShape         Shape;
-    
-    float           Duration;
-    float3          Padding;
 };
 
 float4 SetStartColor(PSColor color, float t, float maxT, float r)
@@ -305,23 +305,23 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         float lifeRatio = gOutputParticles[threadID.x].CurTime / gOutputParticles[threadID.x].LifeTime;
 
         float3 velocityOverLifetime = float3(0.f, 0.f, 0.f);
-        if (ps.VelocityOverLifetime.IsOn == true)
+        if (ps.VelocityOverLifetime.IsOn == TRUE)
         {
             velocityOverLifetime = gOutputParticles[threadID.x].VelocityOverLifetime.xyz * ps.VelocityOverLifetime.Param1 * lifeRatio * ps.DeltaTime;
         }
         
-        if (ps.ColorOverLifetime.IsOn == true)
+        if (ps.ColorOverLifetime.IsOn == TRUE)
         {
             gOutputParticles[threadID.x].FinalColor.xyz = gOutputParticles[threadID.x].StartColor.xyz * EvaluateCurveFloat4(lifeRatio, ps.ColorOverLifetime.Vals, ps.ColorOverLifetime.ValKeys).xyz;
             gOutputParticles[threadID.x].FinalColor.a = gOutputParticles[threadID.x].StartColor.a * EvaluateCurveFloat1(lifeRatio, ps.ColorOverLifetime.Alphas, ps.ColorOverLifetime.AlphaKeys);
         }
         
-        if (ps.SizeOverLifetime == true)
+        if (ps.SizeOverLifetime.IsOn == TRUE)
         {
-            gOutputParticles[threadID.x].FinalSize = gOutputParticles[threadID.x].StartSize * lifeRatio;
+            gOutputParticles[threadID.x].FinalSize = gOutputParticles[threadID.x].StartSize * EvaluateCurveFloat1(lifeRatio, ps.SizeOverLifetime.Vals, ps.SizeOverLifetime.ValKeys);
         }
         
-        if (ps.RotationOverLifetime.IsOn == true)
+        if (ps.RotationOverLifetime.IsOn == TRUE)
         {
             gOutputParticles[threadID.x].FinalRotation.y += gOutputParticles[threadID.x].AngularVelocity * ps.DeltaTime;
         }

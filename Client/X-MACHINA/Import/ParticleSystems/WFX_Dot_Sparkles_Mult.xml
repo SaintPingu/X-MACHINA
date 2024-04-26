@@ -76,7 +76,7 @@
 				</item>
 			</elems>
 		</Vals>
-		<Curves class_id="6" tracking_level="0" version="0">
+		<ValKeys class_id="6" tracking_level="0" version="0">
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
@@ -84,7 +84,25 @@
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>
-		</Curves>
+		</ValKeys>
+		<Alphas>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Alphas>
+		<AlphaKeys>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</AlphaKeys>
 	</StartColor>
 	<GravityModifier>0.000000000e+00</GravityModifier>
 	<SimulationSpace>0</SimulationSpace>
@@ -111,7 +129,7 @@
 		<RadiusThickness>0.000000000e+00</RadiusThickness>
 		<Arc>3.600000000e+02</Arc>
 	</Shape>
-	<VelocityOverLifetime>
+	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
 		<Option>0</Option>
 		<IsOn>0</IsOn>
 		<Param1>0.000000000e+00</Param1>
@@ -145,7 +163,7 @@
 				</item>
 			</elems>
 		</Vals>
-		<Curves>
+		<ValKeys>
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
@@ -153,7 +171,7 @@
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>
-		</Curves>
+		</ValKeys>
 	</VelocityOverLifetime>
 	<ColorOverLifetime>
 		<Option>0</Option>
@@ -189,7 +207,7 @@
 				</item>
 			</elems>
 		</Vals>
-		<Curves>
+		<ValKeys>
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
@@ -197,10 +215,28 @@
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>
-		</Curves>
+		</ValKeys>
+		<Alphas>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</Alphas>
+		<AlphaKeys>
+			<elems>
+				<count>4</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</elems>
+		</AlphaKeys>
 	</ColorOverLifetime>
 	<SizeOverLifetime>0</SizeOverLifetime>
-	<RotationOverLifetime class_id="11" tracking_level="0" version="0">
+	<RotationOverLifetime class_id="12" tracking_level="0" version="0">
 		<Option>0</Option>
 		<IsOn>0</IsOn>
 		<Param1>0.000000000e+00</Param1>
@@ -214,7 +250,7 @@
 				<item>0.000000000e+00</item>
 			</elems>
 		</Vals>
-		<Curves>
+		<ValKeys>
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
@@ -222,9 +258,9 @@
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>
-		</Curves>
+		</ValKeys>
 	</RotationOverLifetime>
-	<Renderer class_id="12" tracking_level="0" version="0">
+	<Renderer class_id="13" tracking_level="0" version="0">
 		<TextureName>Explosion_SmallDot</TextureName>
 		<RenderMode>1</RenderMode>
 		<BlendType>4</BlendType>

@@ -29,24 +29,36 @@ struct ParticleSharedInfo
     int AddCount;
 };
 
-struct PSfloat4Val
-{
-	uint    Option;
-	uint    IsOn;
-    float   Param1;
-    float   Param2;
-    float4  Vals[CruveCount];
-	float   Curves[CruveCount];
-};
-
-struct PSfloat1Val
+struct PSFloat
 {
 	uint    Option;
 	uint    IsOn;
     float   Param1;
     float   Param2;
     float   Vals[CruveCount];
-	float   Curves[CruveCount];
+	float   ValKeys[CruveCount];
+};
+
+struct PSVec4
+{
+	uint    Option;
+	uint    IsOn;
+    float   Param1;
+    float   Param2;
+    float4  Vals[CruveCount];
+	float   ValKeys[CruveCount];
+};
+
+struct PSColor
+{
+    uint    Option;
+	uint    IsOn;
+    float   Param1;
+    float   Param2;
+    float4  Vals[CruveCount];
+	float   ValKeys[CruveCount];
+	float   Alphas[CruveCount];
+	float   AlphaKeys[CruveCount];
 };
 
 struct PSShape
@@ -76,23 +88,23 @@ struct ParticleSystemInfo
 	float4	        StartRotation3D;
 	float2	        StartSize;
 	float2	        StartRotation;
-    PSfloat4Val     StartColor;
+    PSColor         StartColor;
     
 	float	        GravityModifier;
     uint            SimulationSpace;
     float           SimulationSpeed;
     int             SizeOverLifetime;
     
-	PSfloat4Val	    VelocityOverLifetime;
-    PSfloat4Val     ColorOverLifetime;
-    PSfloat1Val     RotationOverLifetime;
+	PSVec4	        VelocityOverLifetime;
+    PSColor         ColorOverLifetime;
+    PSFloat         RotationOverLifetime;
     PSShape         Shape;
     
     float           Duration;
     float3          Padding;
 };
 
-float4 SetStartColor(PSfloat4Val color, float t, float maxT, float r)
+float4 SetStartColor(PSColor color, float t, float maxT, float r)
 {
     float4 result = float4(1.f, 1.f, 1.f, 1.f);
     switch (color.Option)
@@ -167,18 +179,34 @@ void SetStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 pos,
     }
 }
 
-float4 LerpColorOverLifetime(float t, PSfloat4Val col)
+float4 EvaluateCurveFloat4(float t, float4 vs[CruveCount], float ks[CruveCount])
 {
-    if (t <= col.Curves[1] && col.Curves[1] >= EPSILON)
-        return lerp(col.Vals[0], col.Vals[1], t / col.Curves[1]);
+    float4 val = float4(1, 1, 1, 1);
     
-    else if (t <= col.Curves[2] && col.Curves[2] >= EPSILON)
-        return lerp(col.Vals[1], col.Vals[2], (t - col.Curves[1]) / (col.Curves[2] - col.Curves[1]));
+    for (int i = 0; i < CruveCount - 1; i++) {
+        if (t < ks[i+1]) {
+            float nT = (t - ks[i]) / (ks[i+1] - ks[i]);
+            val = lerp(vs[i], vs[i+1], nT);
+            break;
+        }
+    }
     
-    else if (t <= col.Curves[3] && col.Curves[3] >= EPSILON)
-        return lerp(col.Vals[2], col.Vals[3], (t - col.Curves[2]) / (col.Curves[3] - col.Curves[2]));
+    return val;
+}
+
+float EvaluateCurveFloat1(float t, float vs[CruveCount], float ks[CruveCount])
+{
+    float val = 1.f;
     
-    return lerp(col.Vals[3], float4(0.f, 0.f, 0.f, 1.f), (t - col.Curves[3]) / (1.f - col.Curves[3]));
+    for (int i = 0; i < CruveCount - 1; i++) {
+        if (t < ks[i+1]) {
+            float nT = (t - ks[i]) / (ks[i+1] - ks[i]);
+            val = lerp(vs[i], vs[i+1], nT);
+            break;
+        }
+    }
+    
+    return val;
 }
 
 StructuredBuffer<ParticleSystemInfo> gParticleSystem : register(t0, space0);
@@ -284,7 +312,8 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
         
         if (ps.ColorOverLifetime.IsOn == true)
         {
-            gOutputParticles[threadID.x].FinalColor = gOutputParticles[threadID.x].StartColor * LerpColorOverLifetime(lifeRatio, ps.ColorOverLifetime);
+            gOutputParticles[threadID.x].FinalColor.xyz = gOutputParticles[threadID.x].StartColor.xyz * EvaluateCurveFloat4(lifeRatio, ps.ColorOverLifetime.Vals, ps.ColorOverLifetime.ValKeys).xyz;
+            gOutputParticles[threadID.x].FinalColor.a = gOutputParticles[threadID.x].StartColor.a * EvaluateCurveFloat1(lifeRatio, ps.ColorOverLifetime.Alphas, ps.ColorOverLifetime.AlphaKeys);
         }
         
         if (ps.SizeOverLifetime == true)

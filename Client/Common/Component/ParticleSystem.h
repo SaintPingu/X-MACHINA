@@ -60,20 +60,19 @@ struct PSVal {
 	float					Param1 = 0.f;
 	float					Param2 = 0.f;
 
-	std::array<T, N>		Vals;
-	std::array<float, N>	Curves;	
+	std::array<T, N>		Vals{};
+	std::array<float, N>	ValKeys{};
 
-	PSVal(T val = {}) { Vals.fill(val), Curves.fill(0.f); }
+	PSVal(T val = {}) { Vals.fill(val), ValKeys.fill(0.f); }
 
-	PSVal& Set(PSValOp option, std::initializer_list<T> vals, std::initializer_list<float> curves = { 1.f }) {
+	PSVal& Set(PSValOp option, std::initializer_list<T> vals, std::initializer_list<float> keys = { 1.f }) {
 		assert(vals.size() <= N);
 		IsOn = true;
 		Option = option;
 		std::memcpy(Vals.data(), vals.begin(), vals.size() * sizeof(T));
 
-		if (curves.size() > 1) {
-			std::memcpy(Curves.data(), curves.begin(), curves.size() * sizeof(float));
-		}
+		if (keys.size() > 1)
+			std::memcpy(ValKeys.data(), keys.begin(), keys.size() * sizeof(float));
 
 		return *this;
 	}
@@ -87,10 +86,63 @@ struct PSVal {
 		ar& BOOST_SERIALIZATION_NVP(Param1);
 		ar& BOOST_SERIALIZATION_NVP(Param2);
 		ar& BOOST_SERIALIZATION_NVP(Vals);
-		ar& BOOST_SERIALIZATION_NVP(Curves);
+		ar& BOOST_SERIALIZATION_NVP(ValKeys);
 	}
 };
 
+
+#pragma region Derived_PSVal
+struct PSFloat : public PSVal<float, 4> {
+	PSFloat() {}
+	PSFloat(float val) : PSVal(val) {}
+};
+
+struct PSVec4 : public PSVal<Vec4, 4> {
+	PSVec4() {}
+	PSVec4(Vec4 val) : PSVal(val) {}
+};
+
+struct PSColor : public PSVec4 {
+	std::array<float, 4> Alphas{};
+	std::array<float, 4> AlphaKeys{};
+
+	PSColor() : PSVec4(Vec4{ 1.f }) {}
+
+public:
+	PSVal& SetColors(PSValOp option, std::initializer_list<Vec3> vals, std::initializer_list<float> keys = { 1.f }) {
+		assert(vals.size() <= 4);
+		IsOn = true;
+		Option = option;
+
+		int cnt{};
+		for (const auto& val : vals)
+			Vals[cnt++] = { val.x, val.y, val.z, 1.f };
+
+		if (keys.size() > 1)
+			std::memcpy(ValKeys.data(), keys.begin(), keys.size() * sizeof(float));
+
+		return *this;
+	}
+
+	PSVal& SetAlphas(std::initializer_list<float> vals, std::initializer_list<float> keys = { 1.f }) {
+		std::memcpy(Alphas.data(), vals.begin(), vals.size() * sizeof(float));
+
+		if (keys.size() > 1)
+			std::memcpy(AlphaKeys.data(), keys.begin(), keys.size() * sizeof(float));
+
+		return *this;
+	}
+
+public:
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version) {
+		PSVal<Vec4, 4>::serialize(ar, version);
+		ar& BOOST_SERIALIZATION_NVP(Alphas);
+		ar& BOOST_SERIALIZATION_NVP(AlphaKeys);
+	}
+};
+
+#pragma endregion
 
 struct Emission {
 	struct Burst {
@@ -168,28 +220,6 @@ struct PSShape {
 	}
 };
 
-
-//struct VelocityOverLifetime {
-//	UINT	IsOn = false;
-//	Vec3	Linear{};
-//	float	SpeedModifier{};
-//	Vec3	Padding;
-//
-//public:
-//	void SetLinear(const Vec3 linear, float speedModifier = 1.f) {
-//		IsOn = true;
-//		Linear = linear;
-//		SpeedModifier = speedModifier;
-//	}
-//
-//	template<class Archive>
-//	void serialize(Archive& ar, const unsigned int version) {
-//		ar& BOOST_SERIALIZATION_NVP(IsOn);
-//		ar& BOOST_SERIALIZATION_NVP(Linear);
-//		ar& BOOST_SERIALIZATION_NVP(SpeedModifier);
-//	}
-//};
-
 struct PSRenderer {
 	std::string		TextureName{};
 	PSRenderMode	RenderMode = PSRenderMode::Billboard;
@@ -228,7 +258,7 @@ public:
 	Vec2				StartSize = Vec2{ 0.1f };
 	Vec4				StartRotation3D = Vec4{ 0.f, 0.f, 0.f, 0.f };	// w값이 0이면 StartRotation3D를 사용하지 않음
 	Vec2				StartRotation = Vec2{ 0.f };
-	PSVal<Vec4, 4>		StartColor = Vec4{ 1.f };
+	PSColor				StartColor{};
 	float				GravityModifier = 0.f;
 	PSSimulationSpace	SimulationSpace = PSSimulationSpace::World;
 	float				SimulationSpeed = 1.f;
@@ -236,13 +266,13 @@ public:
 	int					MaxParticles = 1000;
 
 	/* unity particle system module */
-	Emission				Emission{};
-	PSShape 				Shape{};
-	int						SizeOverLifetime{};
-	PSVal<Vec4, 4>			VelocityOverLifetime = Vec4{ 0.f };
-	PSVal<Vec4, 4>			ColorOverLifetime = Vec4{ 1.f };
-	PSVal<float, 4>			RotationOverLifetime{};
-	PSRenderer				Renderer{};
+	Emission			Emission{};
+	PSShape 			Shape{};
+	int					SizeOverLifetime{};
+	PSVec4				VelocityOverLifetime{};
+	PSColor				ColorOverLifetime{};
+	PSFloat				RotationOverLifetime{};
+	PSRenderer			Renderer{};
 
 public:
 	template<class Archive>
@@ -297,7 +327,7 @@ struct ParticleSystemGPUData {
 	Vec4				StartRotation3D{};
 	Vec2				StartSize{};
 	Vec2				StartRotation{};
-	PSVal<Vec4, 4>		StartColor{};
+	PSColor				StartColor{};
 
 
 	float				GravityModifier{};
@@ -305,9 +335,9 @@ struct ParticleSystemGPUData {
 	float				SimulationSpeed{};
 	int					SizeOverLifetime{};
 
-	PSVal<Vec4, 4>		VelocityOverLifetime{};
-	PSVal<Vec4, 4>		ColorOverLifetime{};
-	PSVal<float, 4>		RotationOverLifetime{};
+	PSVec4				VelocityOverLifetime{};
+	PSColor				ColorOverLifetime{};
+	PSFloat				RotationOverLifetime{};
 	PSShape 			Shape{};
 	float				Duration{};
 	Vec3				Padding{};

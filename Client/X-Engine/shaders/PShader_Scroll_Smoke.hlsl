@@ -21,8 +21,8 @@ float4 PSScrollSmoke(GSOutput_Particle pin) : SV_TARGET
     float depthFade = saturate(pow(depthDiff, 2.f));
     
     float2 scrollUV = float2(pin.UV.x, pin.UV.y - gInputPraticles[pin.ID].CurTime / 2.f);
-    float alphaMask = GammaDecoding(gTextureMaps[gInputPraticles[pin.ID].TextureIndex].SampleLevel(gsamLinearWrap, pin.UV, 0)).a * gInputPraticles[pin.ID].FinalColor.a;
-    float4 color = GammaDecoding(gTextureMaps[gInputPraticles[pin.ID].TextureIndex].SampleLevel(gsamLinearWrap, scrollUV, 0));
+    float alphaMask = gTextureMaps[gInputPraticles[pin.ID].TextureIndex].Sample(gsamLinearWrap, pin.UV).a * gInputPraticles[pin.ID].FinalColor.a;
+    float4 color = gTextureMaps[gInputPraticles[pin.ID].TextureIndex].SampleLevel(gsamLinearWrap, pin.UV, 0);
     
     color.rgb *= gInputPraticles[pin.ID].FinalColor.xyz;
     color.a = alphaMask;

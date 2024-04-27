@@ -400,26 +400,35 @@ namespace {
 				break;
 				case Hash("<BoundingSphere>:"):
 				{
-					MyBoundingSphere bs;
-					FileIO::ReadVal(file, bs.Center);
-					FileIO::ReadVal(file, bs.Radius);
-					bs.SetOrigin(bs.Center);
+					int sphereCnt = FileIO::ReadVal<int>(file);
 
-					model->AddComponent<SphereCollider>()->mBS = bs;
+					std::vector<Vec3> centers;
+					std::vector<float> radiuses;
+					FileIO::ReadRange(file, centers, sphereCnt);
+					FileIO::ReadRange(file, radiuses, sphereCnt);
+
+					MyBoundingSphere bs{};
+					for (int i = 0; i < sphereCnt; ++i) {
+						bs.SetOrigin(centers[i]);
+						bs.Center = centers[i];
+						bs.Radius = radiuses[i];
+
+						model->AddComponent<SphereCollider>()->mBS = bs;
+					}
 				}
 
 				break;
 				case Hash("<BoundingBoxes>:"):
 				{
-					int obbSize = FileIO::ReadVal<int>(file);
+					int boxCnt = FileIO::ReadVal<int>(file);
 
 					std::vector<Vec3> centers;
 					std::vector<Vec3> extents;
-					FileIO::ReadRange(file, centers, obbSize);
-					FileIO::ReadRange(file, extents, obbSize);
+					FileIO::ReadRange(file, centers, boxCnt);
+					FileIO::ReadRange(file, extents, boxCnt);
 
 					MyBoundingOrientedBox box{};
-					for (int i = 0; i < obbSize; ++i) {
+					for (int i = 0; i < boxCnt; ++i) {
 						box.SetOrigin(centers[i]);
 						box.Center = centers[i];
 						box.Extents = extents[i];

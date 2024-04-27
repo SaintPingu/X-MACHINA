@@ -9,14 +9,12 @@
 #define COMPONENT( className, parent )				\
 public:												\
     className(Object* object) : parent(object) { }	\
-	static bool IsAbstract() { return false; }		\
 private:											\
 	using base = parent;
 
 #define COMPONENT_ABSTRACT( className, parent )		\
 public:												\
     className(Object* object) : parent(object) { }	\
-	static bool IsAbstract() { return true; }		\
 private:											\
 	using base = parent;
 
@@ -26,50 +24,8 @@ private:											\
 class Object;
 #pragma endregion
 
-#pragma region EnumClass
-class ObjectTag : public DwordOverloader<ObjectTag> {
-	DWORD_OVERLOADER(ObjectTag)
 
-	static const DWORD Unspecified    = 0x0000;
-	static const DWORD Player         = 0x0001;
-	static const DWORD Building       = 0x0002;
-	static const DWORD ExplosiveSmall = 0x0004;
-	static const DWORD ExplosiveBig   = 0x0008;
-	static const DWORD Tank           = 0x0010;
-	static const DWORD Helicopter     = 0x0020;
-	static const DWORD Environment    = 0x0040;
-	static const DWORD Bullet         = 0x0080;
-	static const DWORD Billboard      = 0x0100;
-	static const DWORD Terrain        = 0x0200;
-	static const DWORD Water          = 0x0400;
-	static const DWORD Sprite         = 0x0800;
-	static const DWORD Enemy          = 0x1000;
-};
-
-// rendering layer
-enum class ObjectLayer {
-	Default = 0,
-	Transparent,	// use transparent shader
-	Water			// use water shader
-};
-
-// update type
-enum class ObjectType {
-	Static = 0,		// do not update, do not grid update.
-	Env,			// also static,   but no collision.
-	Dynamic,		// do update,	  do not grid update.
-	DynamicMove,	// do update,     do     grid update.
-};
-#pragma endregion
-
-
-#pragma region Function
-// 유니티의 tag 문자열을 ObjectTag로 변환한다.
-ObjectTag GetTagByString(const std::string& tag);
-
-// 유니티의 Layer 번호[num]를 ObjectLayer로 변환한다.
-ObjectLayer GetLayerByNum(int num);
-
+#pragma region Functions
 // ObjectTag에 따른 ObjectType을 반환한다.
 ObjectType GetObjectType(ObjectTag tag);
 #pragma endregion
@@ -85,7 +41,7 @@ protected:
 private:
 	bool mIsAwake  = false;
 	bool mIsStart  = false;
-	bool mIsActive = true;
+	bool mIsActive = false;
 
 	std::function<void()> UpdateFunc{ std::bind(&Component::FirstUpdate, this) };
 
@@ -93,30 +49,37 @@ public:
 	Component(Object* object) { mObject = object; }
 	virtual ~Component() = default;
 
+	bool IsAwake() const { return mIsAwake; }
+	bool IsStart() const { return mIsStart; }
 	bool IsActive() const { return mIsActive; }
-	
-	void SetActive(bool isActive)
-	{
-		if (isActive) {
-			OnEnable();
-		}
-		else {
-			OnDisable();
-		}
-	}
 
-public:
+	void SetActive(bool isActive);
+
+protected:
 	// 최초 한 번 호출된다.
 	virtual void Awake() { mIsAwake = true; }
 
 	// 객체 활성화 시 호출된다.
-	virtual void OnEnable() { mIsActive = true; }
+	virtual void OnEnable()
+	{
+		if (!mIsAwake) {
+			Awake();
+		}
+
+		mIsActive = true;
+	}
 
 	// 객체 비활성화 시 호출된다.
-	virtual void OnDisable() { mIsActive = false; }
+	virtual void OnDisable()
+	{
+		mIsActive = false;
+	}
 
 	// Update 호출 전 한 번 호출된다.
-	virtual void Start() { mIsStart = true; }
+	virtual void Start()
+	{
+		mIsStart = true;
+	}
 
 	// 매 프레임 호출된다. (before aninate)
 	virtual void Update() {}
@@ -128,7 +91,10 @@ public:
 	virtual void LateUpdate() {}
 
 	// 객체가 소멸될 시 호출된다.
-	virtual void OnDestroy() {}
+	virtual void OnDestroy()
+	{
+		SetActive(false);
+	}
 
 	// 동적 리소스를 해제한다.
 	virtual void Release() {}
@@ -145,6 +111,9 @@ private:
 
 
 class Object : public Transform {
+	friend class Scene;
+	friend class Grid;
+
 private:
 	UINT32			mID;
 	static UINT32	sID;
@@ -157,6 +126,7 @@ private:
 	bool mIsAwake  = false;			// Awake()가 호출되었는가?
 	bool mIsStart  = false;			// Start()가 호출되었는가?
 	bool mIsEnable = false;			// OnEnable()이 호출되었는가? (활성화 상태인가?)
+	bool mIsDestroyed = false;		// Destroy()가 호출되었는가?
 
 private:
 	std::vector<sptr<Component>> mComponents{};
@@ -227,14 +197,17 @@ public:
 
 	// T component를 추가한다.
 	template<class T>
-	sptr<T> AddComponent()
+	sptr<T> AddComponent(bool enable = true)
 	{
-		if (T::IsAbstract()) {
-			// log here : Cannot add component of this type because it is abstract.
-			return nullptr;
+		static_assert(!std::is_abstract<T>::value, "The component type must not be abstract when added.");
+
+		sptr<T> component = std::make_shared<T>((Object*)this);
+		mComponents.push_back(component);
+		if (enable && IsActive()) {
+			component->OnEnable();
 		}
-		mComponents.emplace_back(std::make_shared<T>((Object*)this));
-		return std::static_pointer_cast<T>(mComponents.back());
+
+		return component;
 	}
 
 	// 최상위 T component를 제거한다.
@@ -245,6 +218,7 @@ public:
 			auto& component = *it;
 			auto result = std::dynamic_pointer_cast<T>(component);
 			if (result) {
+				result->OnDestroy();
 				mComponents.erase(it);
 				return;
 			}
@@ -256,7 +230,12 @@ public:
 	void RemoveAllComponents()
 	{
 		std::erase_if(mComponents, [](const auto& component) {
-			return std::dynamic_pointer_cast<T>(component);
+			const auto& result = std::dynamic_pointer_cast<T>(component)
+			if (result) {
+				result->OnDestroy();
+				return true;
+			}
+			return false;
 			});
 	}
 
@@ -265,6 +244,19 @@ public:
 	void CopyComponents(const Object& src);
 #pragma endregion
 
+	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
+	Transform* FindFrame(const std::string& frameName);
+
+	void SetActive(bool isActive);
+
+	void Destroy()
+	{
+		if (!mIsDestroyed) {
+			OnDestroy();
+		}
+	}
+
+protected:
 	// Awake -> OnEnable -> Start -> Update -> Animate -> LateUpdate
 	virtual void Awake() override;
 	virtual void OnEnable();
@@ -278,9 +270,6 @@ public:
 
 	// 객체(other)와 충돌 시 호출된다.
 	virtual void OnCollisionStay(Object& other);
-
-	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
-	Transform* FindFrame(const std::string& frameName);
 
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.

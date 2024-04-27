@@ -129,7 +129,7 @@ void Camera::CalculateFrustumPlanes()
 #pragma region CameraObject
 CameraObject::CameraObject() : Object()
 {
-	mCamera = AddComponent<Camera>();
+	mCamera = AddComponent<Camera>(false);
 }
 
 

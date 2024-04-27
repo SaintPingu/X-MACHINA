@@ -410,7 +410,7 @@ public:
 #pragma endregion
 
 public:
-	virtual void Awake() override;
+	virtual void Start() override;
 
 public:
 	void UpdateParticleSystem();

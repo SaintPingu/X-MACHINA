@@ -21,7 +21,7 @@ class ObjectCollider;
 class Animator;
 class GameObject : public Object {
 	using base = Object;
-	using Transform::ReturnToPrevTransform;
+	friend class Scene;
 
 private:
 	bool mIsSkinMesh = false;
@@ -44,9 +44,11 @@ public:
 	void SetModel(const std::string& modelName);
 
 public:
+	sptr<Animator> GetAnimator() const { return mAnimator; }
+
+protected:
 	virtual void Animate() override;
 	virtual void Render();
-	sptr<Animator> GetAnimator() const { return mAnimator; }
 
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.
@@ -81,20 +83,11 @@ public:
 	// Grid의 [indices]위치들에 내 객체가 위치한다는 정보를 저장한다.
 	void SetGridIndices(const std::unordered_set<int>& indices) { mGridIndices = indices; }
 
-public:
-	virtual void Update() override;
-	virtual void OnEnable() override;
-	virtual void OnDisable() override;
-	virtual void OnDestroy() override;
-
 	// render collision bounds
 	virtual void RenderBounds();
 
 	// Scene::UpdateObjectGrid(this)
 	virtual void UpdateGrid();
-
-	// Collider가 사용될 수 없다면, 이 함수를 통해 제거하도록 한다.
-	void RemoveCollider();
 
 	// Collider를 다시 추가해 적용한다.
 	void ResetCollider();
@@ -103,6 +96,13 @@ public:
 	void ClearGridIndices() { mGridIndices.clear(); }
 	// collision bounds 렌더링 토글
 	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
+
+protected:
+	virtual void Awake() override;
+	virtual void Update() override;
+	virtual void OnEnable() override;
+	virtual void OnDisable() override;
+	virtual void OnDestroy() override;
 };
 
 
@@ -130,15 +130,17 @@ public:
 	int GetPoolID() { return mPoolID; }
 
 public:
-	// 인스턴싱 객체는 나중에 한 번에 렌더링 하도록 한다.
-	virtual void Render() override { PushRender(); }
-	virtual void Update() override { mUpdateFunc(); }
-	virtual void OnDestroy() override;
-
 	// [mUpdateFunc]를 바인딩한다.
 	virtual void SetUpdateFunc();
 	// 객체가 렌더링 버퍼에 추가될 때, 풀로부터 할당받은 structured buffer에 값을 삽입한다.
 	virtual void PushFunc(void* structuredBuffer) const;
+
+	void Return();
+
+protected:
+	// 인스턴싱 객체는 나중에 한 번에 렌더링 하도록 한다.
+	virtual void Render() override { PushRender(); }
+	virtual void Update() override { mUpdateFunc(); }
 
 private:
 	// 렌더링 버퍼에 이 객체를 추가한다.

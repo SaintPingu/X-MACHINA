@@ -51,9 +51,9 @@ void ParticleSystem::SetColorByBlendType(BlendType blendType)
 	}
 }
 
-void ParticleSystem::Awake()
+void ParticleSystem::Start()
 {
-	base::Awake();
+	base::Start();
 
 #pragma region Init_ParticleSystem
 	// 파티클 시스템 인덱스를 얻기 위한 용도

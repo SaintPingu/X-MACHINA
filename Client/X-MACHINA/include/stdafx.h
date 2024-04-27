@@ -226,7 +226,6 @@ enum class BulletPSType : UINT8 {
 };
 enum { BulletPSTypeCount = static_cast<UINT8>(BulletPSType::_count) };
 #pragma endregion
-#pragma endregion
 
 
 

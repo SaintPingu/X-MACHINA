@@ -12,23 +12,10 @@
 #include "Component/ParticleSystem.h"
 
 
-void Script_Bullet::Awake()
-{
-	base::Awake();
-
-	mGameObject = mObject->GetObj<GameObject>();
-
-	mRigid = mObject->GetComponent<Rigidbody>();
-	mRigid->SetFriction(0.001f);
-	mRigid->SetDrag(0.001f);
-
-	Reset();
-}
-
 void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames)
 {
 	for (auto& name : psNames) {
-		mPSs[static_cast<UINT8>(type)].emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load(name))->Awake();
+		mPSs[static_cast<UINT8>(type)].emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load(name));
 	}
 
 	mIsSetPSs = true;
@@ -41,7 +28,7 @@ void Script_Bullet::Update()
 	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
 		StopPSs(BulletPSType::Contrail);
-		mGameObject->OnDestroy();
+		mGameObject->Return();
 	}
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
 		Explode();
@@ -77,6 +64,18 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	}
 }
 
+
+void Script_Bullet::Init()
+{
+	mGameObject = mObject->GetObj<InstObject>();
+
+	mRigid = mObject->GetComponent<Rigidbody>();
+	mRigid->SetFriction(0.001f);
+	mRigid->SetDrag(0.001f);
+
+	Reset();
+}
+
 void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 {
 	mObject->SetPosition(pos);
@@ -85,6 +84,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 	mRigid->AddForce(dir, mSpeed, ForceMode::Impulse);
 
 	SetDamage(mDamage);
+	StartFire();
 }
 
 void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
@@ -101,15 +101,11 @@ void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 
 void Script_Bullet::Explode()
 {
-	if (!mGameObject->IsActive()) {
-		return;
-	}
-
 	Reset();
 	StopPSs(BulletPSType::Contrail);
 
 	mRigid->Stop();
-	mGameObject->OnDestroy();
+	mGameObject->Return();
 }
 
 void Script_Bullet::PlayPSs(BulletPSType type)
@@ -129,6 +125,7 @@ void Script_Bullet::ResetPSs(BulletPSType type)
 	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
 		ps->Reset();
 }
+
 
 void Script_Bullet::Reset()
 {

@@ -32,5 +32,5 @@ void Script_Fragment::Active(const Vec3& pos)
 	rigid->AddForce(Vector3::Up, mMovingSpeed, ForceMode::Impulse);
 	rigid->AddForce(mMovingDir, mMovingSpeed, ForceMode::Impulse);
 
-	mObject->OnEnable();
+	mObject->SetActive(true);
 }

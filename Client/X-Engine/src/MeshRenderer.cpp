@@ -46,7 +46,7 @@ void MeshRenderer::Render(const BoundingSphere& bs)
 	const Vec3 center  = bs.Center;
 	const float radius = bs.Radius;
 
-	const XMMATRIX scaleMtx       = XMMatrixScaling(radius / 2, radius / 2, radius / 2);
+	const XMMATRIX scaleMtx       = XMMatrixScaling(radius, radius, radius);
 	const XMMATRIX translationMtx = XMMatrixTranslation(center.x, center.y, center.z);
 
 	const XMMATRIX matrix = XMMatrixMultiply(scaleMtx, translationMtx);	// (Scale * Translate)

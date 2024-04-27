@@ -32,7 +32,6 @@ void Script_Player::Start()
 {
 	base::Start();
 
-	mObject->SetTag(ObjectTag::Player);
 	mPlayer = mObject->GetObj<GameObject>();
 }
 
@@ -50,27 +49,14 @@ void Script_Player::Rotate(float pitch, float yaw, float roll)
 	mObject->Rotate(pitch, yaw, roll);
 }
 
-void Script_Player::Respawn()
-{
-	mObject->SetWorldTransform(mSpawnTransform);
-	mObject->Update();
-}
-
-void Script_Player::Explode()
+void Script_Player::Dead()
 {
 	Respawn();
 }
 
-void Script_Player::Hit(float damage)
+void Script_Player::Respawn()
 {
-	if (mHP <= 0) {
-		return;
-	}
-
-	mHP -= damage;
-	if (mHP <= 0) {
-		Explode();
-	}
+	mObject->SetWorldTransform(mSpawnTransform);
 }
 
 void Script_Player::AddScore(int score)

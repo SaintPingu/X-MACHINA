@@ -31,8 +31,9 @@ protected:
 
 private:
 	static constexpr int   mkBulletCntPerMag = 4;
-	static constexpr float mkBulletDamage    = 84.0f / mkBulletCntPerMag;
-	static constexpr float mkRPM             = 0.f;
+	static constexpr float mkExplosionDamage = 84.0f / mkBulletCntPerMag;
+	static constexpr float mkBulletDamage    = 0.f;
+	static constexpr float mkRPM             = 0.1f;
 
 	std::vector<Transform*> mMuzzles{};		// 총구 여러개를 가진다.
 

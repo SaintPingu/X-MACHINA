@@ -46,6 +46,9 @@ public:
 
 // 전체 Terrain 관리
 class Terrain : public Transform {
+	friend class Scene;
+	friend class TerrainBlock;
+
 private:
 	sptr<HeightMapImage> mHeightMapImage{};
 
@@ -72,9 +75,9 @@ public:
 	float GetHeight(float x, float z) const;
 	Vec3 GetNormal(float x, float z) const;
 
-public:
-	void OnEnable();
+protected:
 	void Awake();
+	void SetActive(bool isActive);
 
 	// update all terrain block's grid index
 	void UpdateGrid();
@@ -114,6 +117,8 @@ private:
 // grid로 분할된 각 Terrain의 일부 Block
 // 렌더링 시 Terrain 전체를 렌더링하는 것이 아닌 카메라에 보이는 부분만 렌더링 하기 위함이다.
 class TerrainBlock : public GridObject {
+	friend Terrain;
+
 private:
 	sptr<TerrainGridMesh>	mMesh{};	// Block마다 mesh를 보유한다.
 	Terrain*				mBuffer{};	// Terrain을 버퍼로 한다. Scene의 Grid에 속하며, 카메라에 보이면 Terrain의 버퍼에 추가된다.
@@ -124,7 +129,7 @@ public:
 	TerrainBlock(rsptr<TerrainGridMesh> mesh, Terrain* terrain);
 	virtual ~TerrainBlock() = default;
 
-public:
+protected:
 	virtual void Update() override { Pop(); };
 	virtual void Render() override { Push(); }
 	// render mesh and Pop()

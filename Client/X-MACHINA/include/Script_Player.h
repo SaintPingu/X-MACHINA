@@ -2,6 +2,7 @@
 
 
 #pragma region Include
+#include "Script_LiveObject.h"
 #include "Component/Component.h"
 #pragma endregion
 
@@ -29,8 +30,8 @@ enum class PlayerType {
 
 
 #pragma region Class
-class Script_Player abstract : public Component {
-	COMPONENT_ABSTRACT(Script_Player, Component)
+class Script_Player abstract : public Script_LiveObject {
+	COMPONENT_ABSTRACT(Script_Player, Script_LiveObject)
 
 protected:
 	Script_MainCamera* mCamera{};
@@ -40,13 +41,10 @@ protected:
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
 	int		mScore{};
-	float	mMaxHP{};
-	float	mHP{};
 
 public:
 	PlayerType GetPlayerType() const { return mPlayerType; }
 
-	void SetHP(float hp) { mMaxHP = hp; mHP = hp; }
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -62,9 +60,8 @@ public:
 
 	virtual void Rotate(float pitch, float yaw, float roll);
 
+	virtual void Dead() override;
 	void Respawn();
-	void Explode();
-	void Hit(float damage);
 	void AddScore(int score);
 };
 

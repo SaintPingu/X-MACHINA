@@ -27,7 +27,7 @@ sptr<InstObject> ObjectPool::Get(bool enable)
 		mAvailableObjects.erase(id);
 		mActiveObjects.insert(id);		// 활성화된 객체 집합에 id를 추가한다.
 		if (enable) {
-			mObjectPool[id]->OnEnable();
+			mObjectPool[id]->SetActive(true);
 		}
 
 		return mObjectPool[id];
@@ -53,7 +53,7 @@ std::vector<sptr<InstObject>> ObjectPool::GetMulti(size_t cnt, bool enable)
 		mAvailableObjects.erase(id);
 		mActiveObjects.insert(id);		// 활성화된 객체 집합에 id를 추가한다.
 		if (enable) {
-			mObjectPool[id]->OnEnable();
+			mObjectPool[id]->SetActive(true);
 		}
 
 		result[i] = mObjectPool[id];
@@ -71,7 +71,7 @@ void ObjectPool::Return(InstObject* object)
 	const int id = object->GetPoolID();
 	mAvailableObjects.insert(id);
 	mActiveObjects.erase(id);			// 활성화된 객체 집합에서 id를 제거한다.
-	object->OnDisable();
+	object->SetActive(false);
 }
 
 

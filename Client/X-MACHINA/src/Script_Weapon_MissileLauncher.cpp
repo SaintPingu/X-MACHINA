@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Script_Weapon_MissileLauncher.h"
 
+#include "Script_Missile.h"
+
 #include "Scene.h"
 #include "Object.h"
 #include "ObjectPool.h"
@@ -55,12 +57,19 @@ void Script_Weapon_Burnout::InitValues()
 
 void Script_Weapon_Burnout::BulletInitFunc(rsptr<InstObject> bullet) const
 {
-	base::InitBullet(bullet, mkBulletDamage, mkBulletSpeed);
+	base::InitBullet(bullet, mkBulletDamage, mkBulletSpeed, BulletType::Missile);
+	bullet->GetComponent<Script_Missile>()->SetExplosionDamage(mkExplosionDamage);
 }
 
 void Script_Weapon_Burnout::SetParticleSystemNames()
 {
 	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Smoke_Building");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Nuke_Explosion_Smoke");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Nuke_Explosion_Add");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Nuke_Smoke_Colon");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Nuke_Smoke_Head");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Nuke_Explosion_Mult");
+
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Nuke_Explosion_Smoke");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Nuke_Explosion_Add");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Nuke_Smoke_Colon");

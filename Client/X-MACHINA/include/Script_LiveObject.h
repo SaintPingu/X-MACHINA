@@ -29,7 +29,7 @@ public:
 	bool GetIsDead() const { return mIsDead; }
 	float GetCrntHp() const { return mCrntHP; }
 
-	virtual void Hit(float damage);
+	virtual bool Hit(float damage);
 	virtual void Dead();
 	virtual void Resurrect();
 };

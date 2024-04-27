@@ -28,7 +28,7 @@ BT::NodeState CheckDeath::Evaluate()
 	mEnemyMgr->mController->SetValue("Death", true);
 
 	if (mAccTime >= 2.f) {
-		mObject->OnDestroy();
+		mObject->Destroy();
 	}
 
 	// ½ÇÇà¾ÈµÊ.

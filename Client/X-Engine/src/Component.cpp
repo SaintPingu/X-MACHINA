@@ -9,21 +9,25 @@ UINT32 Object::sID = 0;
 namespace {
 
 	constexpr DWORD gkDynamicObjects {
+		ObjectTag::Unspecified		|
 		ObjectTag::Player			|
 		ObjectTag::Tank				|
 		ObjectTag::Helicopter		|
 		ObjectTag::Bullet			|
 		ObjectTag::ExplosiveBig		|
 		ObjectTag::ExplosiveSmall	|
-		ObjectTag::Enemy
+		ObjectTag::Enemy			|
+		ObjectTag::Dynamic
 	};
 
 	constexpr DWORD gkDynamicMoveObjects {
+		ObjectTag::Unspecified		|
 		ObjectTag::Player			|
 		ObjectTag::Tank				|
 		ObjectTag::Helicopter		|
 		ObjectTag::Bullet			|
-		ObjectTag::Enemy
+		ObjectTag::Enemy			|
+		ObjectTag::Dynamic
 	};
 
 	constexpr DWORD gkEnvObjects {
@@ -49,6 +53,71 @@ namespace {
 	}
 }
 
+#pragma region Functions
+ObjectType GetObjectType(ObjectTag tag)
+{
+	if (::IsDynamicMoveObject(tag)) {
+		return ObjectType::DynamicMove;
+	}
+	else if (::IsDynamicObject(tag)) {
+		return ObjectType::Dynamic;
+	}
+	else if (::IsEnvObject(tag)) {
+		return ObjectType::Env;
+	}
+
+	return ObjectType::Static;
+}
+#pragma endregion
+
+
+
+
+
+
+#pragma region Component
+void Component::SetActive(bool isActive)
+{
+	if (isActive)
+	{
+		if (mIsActive) {
+			return;
+		}
+
+		OnEnable();
+	}
+	else {
+		if (!mIsActive) {
+			return;
+		}
+
+		OnDisable();
+	}
+}
+
+void Component::FirstUpdate()
+{
+	if (!mIsAwake) {
+		Awake();
+	}
+	if (!mIsActive) {
+		return;
+	}
+
+	SetActive(true);
+	if (!mIsStart) {
+		Start();
+	}
+	Update();
+	UpdateFunc = std::bind(&Component::Update, this);
+}
+#pragma endregion
+
+
+
+
+
+
 
 
 #pragma region Object
@@ -66,31 +135,71 @@ void Object::CopyComponents(const Object& src)
 	}
 }
 
+Transform* Object::FindFrame(const std::string& frameName)
+{
+	if (GetName() == frameName) {
+		return this;
+	}
+
+	Transform* transform{};
+	if (mSibling) {
+		if (transform = mSibling->GetObj<Object>()->FindFrame(frameName)) {
+			return transform;
+		}
+	}
+	if (mChild) {
+		if (transform = mChild->GetObj<Object>()->FindFrame(frameName)) {
+			return transform;
+		}
+	}
+
+	return nullptr;
+}
+
+
+void Object::SetActive(bool isActive)
+{
+	if (isActive) {
+		if (IsActive()) {
+			return;
+		}
+
+		OnEnable();
+	}
+	else {
+		if (!IsActive()) {
+			return;
+		}
+
+		OnDisable();
+	}
+}
+
+
 void Object::Awake()
 {
-	if (mIsAwake) {
-		return;
-	}
+	assert(!mIsAwake);
 	mIsAwake = true;
 
 	Transform::Awake();
 	ProcessComponents([](rsptr<Component> component) {
-		component->Awake();
+		if (!component->IsAwake()) {
+			component->Awake();
+		}
 		});
 }
 
 void Object::OnEnable()
 {
-	if (mIsEnable) {
-		return;
-	}
 	if (!mIsAwake) {
 		Awake();
 	}
+
+	assert(!mIsEnable);
 	mIsEnable = true;
 
 	ProcessComponents([](rsptr<Component> component) {
-		component->OnEnable();
+			component->SetActive(true);
 		});
 	Transform::ComputeWorldTransform();
 
@@ -101,25 +210,23 @@ void Object::OnEnable()
 
 void Object::OnDisable()
 {
-	if (!mIsEnable) {
-		return;
-	}
+	assert(mIsEnable);
 	mIsEnable = false;
 
 	ProcessComponents([](rsptr<Component> component) {
-		component->OnDisable();
+		component->SetActive(false);
 		});
 }
 
 void Object::Start()
 {
-	if (mIsStart) {
-		return;
-	}
+	assert(!mIsStart);
 	mIsStart = true;
 
 	ProcessComponents([](rsptr<Component> component) {
-		component->Start();
+		if (component->IsActive() && !component->IsStart()) {
+			component->Start();
+		}
 		});
 	Transform::ComputeWorldTransform();
 }
@@ -158,7 +265,10 @@ void Object::LateUpdate()
 
 void Object::OnDestroy()
 {
-	OnDisable();
+	assert(!mIsDestroyed);
+	mIsDestroyed = true;
+
+	SetActive(false);
 	ProcessComponents([](rsptr<Component> component) {
 		component->OnDestroy();
 		});
@@ -185,27 +295,6 @@ void Object::OnCollisionStay(Object& other)
 		});
 }
 
-
-Transform* Object::FindFrame(const std::string& frameName)
-{
-	if (GetName() == frameName) {
-		return this;
-	}
-
-	Transform* transform{};
-	if (mSibling) {
-		if (transform = mSibling->GetObj<Object>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-	if (mChild) {
-		if (transform = mChild->GetObj<Object>()->FindFrame(frameName)) {
-			return transform;
-		}
-	}
-
-	return nullptr;
-}
 
 void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
 	std::vector<sptr<Component>> components = mComponents;
@@ -245,91 +334,6 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 }
 #pragma endregion
 
-
-#pragma region Functions
-ObjectTag GetTagByString(const std::string& tag)
+void OnEnable()
 {
-	switch (Hash(tag)) {
-	case Hash("Building"):
-		return ObjectTag::Building;
-
-	case Hash("Explosive_small"):
-	case Hash("Explosive_static"):
-		return ObjectTag::ExplosiveSmall;
-
-	case Hash("Explosive_big"):
-		return ObjectTag::ExplosiveBig;
-
-	case Hash("Tank"):
-		return ObjectTag::Tank;
-
-	case Hash("Helicopter"):
-		return ObjectTag::Helicopter;
-
-	case Hash("Background"):
-		return ObjectTag::Environment;
-
-	case Hash("Billboard"):
-		return ObjectTag::Billboard;
-
-	case Hash("Sprite"):
-		return ObjectTag::Sprite;
-
-	default:
-		//assert(0);
-		break;
-	}
-
-	return ObjectTag::Unspecified;
-}
-
-ObjectLayer GetLayerByNum(int num)
-{
-	switch (num) {
-	case 0:
-		return ObjectLayer::Default;
-
-	case 3:
-		return ObjectLayer::Transparent;
-
-	case 4:
-		return ObjectLayer::Water;
-
-	default:
-		assert(0);
-		break;
-	}
-
-	return ObjectLayer::Default;
-}
-
-ObjectType GetObjectType(ObjectTag tag)
-{
-	if (::IsDynamicMoveObject(tag)) {
-		return ObjectType::DynamicMove;
-	}
-	else if (::IsDynamicObject(tag)) {
-		return ObjectType::Dynamic;
-	}
-	else if (::IsEnvObject(tag)) {
-		return ObjectType::Env;
-	}
-
-	return ObjectType::Static;
-}
-#pragma endregion
-
-void Component::FirstUpdate()
-{
-	if (!mIsAwake) {
-		Awake();
-	}
-	if (!mIsActive) {
-		OnEnable();
-	}
-	if (!mIsStart) {
-		Start();
-	}
-	Update();
-	UpdateFunc = std::bind(&Component::Update, this);
 }

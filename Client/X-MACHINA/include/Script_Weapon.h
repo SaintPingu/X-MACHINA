@@ -119,6 +119,9 @@ private:
 class Script_BulletWeapon abstract : public Script_Weapon {
 	COMPONENT_ABSTRACT(Script_BulletWeapon, Script_Weapon)
 
+public:
+	enum class BulletType { Bullet, Missile };
+
 protected:
 	Vec2 mErrX{};	// 좌우 오차
 	Vec2 mErrY{};	// 상하 오차
@@ -127,7 +130,7 @@ protected:
 protected:
 	virtual void FireBullet() override;
 
-	void InitBullet(rsptr<InstObject> bullet, float damage, float speed) const;
+	void InitBullet(rsptr<InstObject> bullet, float damage, float speed, BulletType bulletType = BulletType::Bullet) const;
 
 private:
 	virtual void CreateBulletPool() override;

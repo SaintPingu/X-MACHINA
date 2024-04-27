@@ -31,10 +31,11 @@ namespace Animations {
 }
 
 
-template <typename T>
-constexpr bool is_valid_param_type = (std::is_same<T, bool>::value || std::is_same<T, int>::value || std::is_same<T, float>::value);
 
 class AnimatorController : public Resource {
+	template <typename T>
+	static constexpr bool is_valid_param_type = (std::is_same<T, bool>::value || std::is_same<T, int>::value || std::is_same<T, float>::value);
+
 private:
 	bool mIsCheckTransition{};
 	Animations::ParamMap mParameters{};

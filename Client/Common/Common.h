@@ -37,6 +37,50 @@ class Dir : public DwordOverloader<Dir> {
 	static const DWORD Down  = 0x20;
 };
 
+class CollisionType : public DwordOverloader<CollisionType> {
+	DWORD_OVERLOADER(CollisionType)
+
+	static const DWORD All = 0x11;
+	static const DWORD Dynamic = 0x01;
+	static const DWORD Static = 0x10;
+};
+
+
+class ObjectTag : public DwordOverloader<ObjectTag> {
+	DWORD_OVERLOADER(ObjectTag)
+
+	static const DWORD Unspecified    = 0x0000;
+	static const DWORD Player         = 0x0001;
+	static const DWORD Building       = 0x0002;
+	static const DWORD ExplosiveSmall = 0x0004;
+	static const DWORD ExplosiveBig   = 0x0008;
+	static const DWORD Tank           = 0x0010;
+	static const DWORD Helicopter     = 0x0020;
+	static const DWORD Environment    = 0x0040;
+	static const DWORD Bullet         = 0x0080;
+	static const DWORD Billboard      = 0x0100;
+	static const DWORD Terrain        = 0x0200;
+	static const DWORD Water          = 0x0400;
+	static const DWORD Sprite         = 0x0800;
+	static const DWORD Enemy          = 0x1000;
+	static const DWORD Dynamic        = 0x2000;
+};
+
+// rendering layer
+enum class ObjectLayer {
+	Default = 0,
+	Transparent,	// use transparent shader
+	Water			// use water shader
+};
+
+// update type
+enum class ObjectType {
+	DynamicMove = 0,	// do update,     do     grid update.
+	Dynamic, 			// do update,	  do not grid update.
+	Static, 			// do not update, do not grid update.
+	Env,				// also static,   do not collision.
+};
+
 enum class BlendType : UINT8 {
 	Default,
 
@@ -521,9 +565,9 @@ public:
 
 		// temp
 		const XMVECTOR kRotation = XMQuaternionRotationMatrix(kMatrix);
-		XMVECTOR s;
-		XMVECTOR r;
-		XMVECTOR t;
+		XMVECTOR s{};
+		XMVECTOR r = XMVectorSet(0, 0, 0, 1);
+		XMVECTOR t{};
 		XMMatrixDecompose(&s, &r, &t, kMatrix);
 		XMStoreFloat4(&Orientation, r);
 
@@ -550,7 +594,7 @@ public:
 public:
 	void Transform(const Matrix& transform)
 	{
-		Center = Vec3::Transform(mOriginCenter, transform);
+		XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), _MATRIX(transform)));
 	}
 
 	bool IntersectBoxes(const std::vector<MyBoundingOrientedBox*>& boxes) const

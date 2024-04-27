@@ -74,10 +74,16 @@ void GameObject::AttachToGround()
 
 #pragma region GridObject
 GridObject::GridObject()
-	:
-	mCollider(AddComponent<ObjectCollider>().get())
 {
+}
 
+void GridObject::Awake()
+{
+	AddComponent<ObjectCollider>();
+	const auto& collider = GetComponent<ObjectCollider>();
+	if (collider) {
+		mCollider = collider.get();
+	}	
 }
 
 void GridObject::Update()
@@ -122,11 +128,7 @@ void GridObject::UpdateGrid()
 	Scene::I->UpdateObjectGrid(this);
 }
 
-void GridObject::RemoveCollider()
-{
-	RemoveComponent<ObjectCollider>();
-	mCollider = nullptr;
-}
+
 void GridObject::ResetCollider()
 {
 	mCollider = AddComponent<ObjectCollider>().get();
@@ -146,13 +148,6 @@ InstObject::InstObject(ObjectPool* pool, int id)
 	
 }
 
-void InstObject::OnDestroy()
-{
-	GameObject::OnDestroy();
-
-	mObjectPool->Return(this);
-}
-
 void InstObject::SetUpdateFunc()
 {
 	switch (GetType()) {
@@ -170,6 +165,11 @@ void InstObject::PushFunc(void* structuredBuffer) const
 {
 	SB_StandardInst* buffer = static_cast<SB_StandardInst*>(structuredBuffer);
 	XMStoreFloat4x4(&buffer->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
+}
+
+void InstObject::Return()
+{
+	mObjectPool->Return(this);
 }
 
 void InstObject::PushRender()

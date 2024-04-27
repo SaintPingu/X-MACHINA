@@ -108,7 +108,7 @@ void Script_ShootingPlayer::DrawWeapon()
 	mCrntWeaponIdx = mNextWeaponIdx;
 	mWeapon = mWeapons[mNextWeaponIdx - 1];
 	if (mWeapon) {
-		mWeapon->OnEnable();
+		mWeapon->SetActive(true);
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
 		mMuzzle = mWeaponScript->GetMuzzle();
 	}
@@ -135,7 +135,7 @@ void Script_ShootingPlayer::PutbackWeaponEnd()
 	mIsInPutback = false;
 
 	if (mWeapon) {
-		mWeapon->OnDisable();
+		mWeapon->SetActive(false);
 		mWeapon = nullptr;
 		mWeaponScript = nullptr;
 		mMuzzle = nullptr;

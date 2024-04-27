@@ -2,6 +2,7 @@
 #include "Script_Weapon.h"
 
 #include "Script_Bullet.h"
+#include "Script_Missile.h"
 #include "Script_Player.h"
 
 #include "Component/Rigidbody.h"
@@ -26,8 +27,6 @@ void Script_Weapon::Awake()
 	mMuzzlePSs.resize(2);
 	mMuzzlePSs[0] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Flash")->SetTarget("FirePos");
 	mMuzzlePSs[1] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Smoke")->SetTarget("FirePos");
-	for (auto& ps : mMuzzlePSs)
-		ps->Awake();
 
 	SetParticleSystemNames();
 
@@ -210,17 +209,25 @@ void Script_BulletWeapon::FireBullet()
 	}
 }
 
-void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, float speed) const
+void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, float speed, BulletType bulletType) const
 {
 	bullet->AddComponent<Rigidbody>();
-	auto& bulletScript = bullet->AddComponent<Script_Bullet>();
+
+	sptr<Script_Bullet> bulletScript{};
+	switch (bulletType) {
+	case BulletType::Bullet:
+		bulletScript = bullet->AddComponent<Script_Bullet>();
+		break;
+	case BulletType::Missile:
+		bulletScript = bullet->AddComponent<Script_Missile>();
+		break;
+	default:
+		assert(0);
+		break;
+	}
+	bulletScript->Init();
 	bulletScript->SetDamage(damage);
 	bulletScript->SetSpeed(speed);
-
-	bullet->SetTag(ObjectTag::Bullet);
-
-
-	bullet->Awake();
 
 	if (!bulletScript->IsSetPSs())
 		for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)

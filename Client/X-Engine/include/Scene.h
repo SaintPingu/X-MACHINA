@@ -74,10 +74,10 @@ private:
 	BoundingBox			mMapBorder{};			// max scene range	(grid will be generated within this border)
 
 	/* Grid */
-	std::vector<Grid>	mGrids{};				// all scene grids
-	float				mGridStartPoint{};		// leftmost coord of the entire grid
-	int					mGridWidth{};			// length of x for one grid
-	int					mGridCols{};			// number of columns in the grid
+	std::vector<sptr<Grid>>	mGrids{};				// all scene grids
+	float					mGridStartPoint{};		// leftmost coord of the entire grid
+	int						mGridWidth{};			// length of x for one grid
+	int						mGridCols{};			// number of columns in the grid
 
 	/* Others */
 	bool mIsRenderBounds = false;
@@ -210,6 +210,8 @@ private:
 #pragma endregion
 
 public:
+	// get objects[out] that collide with [collider] (expensive call cost)
+	void CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type = CollisionType::All) const;
 	float CheckCollisionsRay(int gridIndex, const Ray& ray) const;
 	void ToggleDrawBoundings();
 	void ToggleFilterOptions();
@@ -219,13 +221,15 @@ public:
 	void RemoveObjectFromGrid(GridObject* object);
 
 	// create new game object from model
-	sptr<GridObject> Instantiate(const std::string& modelName, bool enable = true);
+	sptr<GridObject> Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
 	void RemoveDynamicObject(GridObject* object);
 
 	sptr<ObjectPool> CreateObjectPool(const std::string& modelName, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
 	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
+
+	std::vector<sptr<Grid>> GetNeighborGrids(int gridIndex, bool includeSelf = false) const;
 
 private:
 	// do [processFunc] for activated objects
@@ -239,5 +243,11 @@ private:
 	void PopObjectBuffer();
 
 	bool IsGridOutOfRange(int index) { return index < 0 || index >= mGrids.size(); }
+
+	// 유니티의 tag 문자열을 ObjectTag로 변환한다.
+	static ObjectTag GetTagByString(const std::string& tag);
+
+	// 유니티의 Layer 번호[num]를 ObjectLayer로 변환한다.
+	static ObjectLayer GetLayerByNum(int num);
 };
 #pragma endregion

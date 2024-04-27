@@ -53,8 +53,8 @@ void Scene::Release()
 
 	ReleaseObjects();
 
-	ProcessAllObjects([](sptr<GameObject> object) {
-		object->OnDestroy();
+	ProcessAllObjects([](sptr<Object> object) {
+		object->Destroy();
 		});
 
 	mGameManager->OnDestroy();
@@ -281,7 +281,7 @@ void Scene::BuildGrid()
 			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
 
 			int index = (y * mGridCols) + x;
-			mGrids[index].Init(index, mGridWidth, bb);
+			mGrids[index] = std::make_shared<Grid>(index, mGridWidth, bb);
 		}
 	}
 }
@@ -378,34 +378,19 @@ void Scene::LoadGameObjects(std::ifstream& file)
 void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 {
 	object->SetTag(tag);
+	ObjectType type = object->GetType();
 
-	switch (tag) {
-	case ObjectTag::Unspecified:
-	case ObjectTag::Tank:
-	case ObjectTag::Helicopter:
-	case ObjectTag::ExplosiveBig:
-	case ObjectTag::ExplosiveSmall:
-	{
+	switch (type) {
+	case ObjectType::Dynamic:
 		mDynamicObjects.push_back(object);
-		return;
-	}
-
-	break;
-	case ObjectTag::Environment:
-	{
+		break;
+	case ObjectType::Env:
 		mEnvironments.push_back(object);
-		return;
-	}
-
-	break;
-	case ObjectTag::Building:
-		mStaticObjects.push_back(object);
-		return;
+		break;
 	default:
+		mStaticObjects.push_back(object);
 		break;
 	}
-
-	mStaticObjects.push_back(object);
 }
 #pragma endregion
 
@@ -573,17 +558,20 @@ void Scene::RenderGridObjects(bool isShadowed)
 
 	if (mRenderedObjects.empty()) {
 		for (const auto& grid : mGrids) {
-			if (grid.Empty()) {
+			if (grid->Empty()) {
 				continue;
 			}
 
-			if (MAIN_CAMERA->IsInFrustum(grid.GetBB())) {
-				auto& objects = grid.GetObjects();
+			if (MAIN_CAMERA->IsInFrustum(grid->GetBB())) {
+				auto& objects = grid->GetObjects();
 				mRenderedObjects.insert(objects.begin(), objects.end());
 			}
 		}
 
 		for (auto& object : mRenderedObjects) {
+			if (!object->IsActive()) {
+				continue;
+			}
 			if (object->IsTransparent()) {
 				mTransparentObjects.insert(object);
 				continue;
@@ -681,10 +669,10 @@ void Scene::RenderGridBounds()
 {
 	for (const auto& grid : mGrids) {
 #ifdef DRAW_SCENE_GRID_3D
-		MeshRenderer::Render(grid.GetBB());
+		MeshRenderer::Render(grid->GetBB());
 #else
 		constexpr float kGirdHeight = 30.f;
-		Vec3 pos = grid.GetBB().Center;
+		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
 #endif
@@ -704,7 +692,7 @@ void Scene::Start()
 	mServerManager->Awake();
 	MainCamera::I->Awake();
 	mTerrain->Awake();
-	ProcessAllObjects([](sptr<GameObject> object) {
+	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});
 
@@ -714,13 +702,13 @@ void Scene::Start()
 	mGameManager->Awake();
 
 	/* Enable & Start */
-	mServerManager->OnEnable();
-	mTerrain->OnEnable();
-	MainCamera::I->OnEnable();
-	ProcessAllObjects([](sptr<GameObject> object) {
-		object->OnEnable();
+	mServerManager->SetActive(true);
+	mTerrain->SetActive(true);
+	MainCamera::I->SetActive(true);
+	ProcessAllObjects([](sptr<Object> object) {
+		object->SetActive(true);
 		});
-	mGameManager->OnEnable();
+	mGameManager->SetActive(true);
 
 	UpdateGridInfo();
 }
@@ -752,32 +740,44 @@ void Scene::Update()
 
 void Scene::CheckCollisions()
 {
-	for (Grid& grid : mGrids) {
-		grid.CheckCollisions();
+	for (const auto& grid : mGrids) {
+		grid->CheckCollisions();
+	}
+}
+
+void Scene::CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type) const
+{
+	int gridIndex = GetGridIndexFromPos(collider->GetCenter());
+	for (const auto& grid : GetNeighborGrids(gridIndex, true)) {
+		if (!collider->Intersects(grid->GetBB())) {
+			continue;
+		}
+
+		grid->CheckCollisions(collider, out, type);
 	}
 }
 
 float Scene::CheckCollisionsRay(int gridIndex, const Ray& ray) const
 {
 	// 상하좌우, 대각선 그리드도 체크 필요
-	return mGrids[gridIndex].CheckCollisionsRay(ray);
+	return mGrids[gridIndex]->CheckCollisionsRay(ray);
 }
 
 void Scene::UpdateObjects()
 {
-	ProcessActiveObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<Object> object) {
 		if (object->IsActive()) {
 			object->Update();
 		}
 		});
 
-	ProcessActiveObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<Object> object) {
 		if (object->IsActive()) {
 			object->Animate();
 		}
 		});
 
-	ProcessActiveObjects([this](sptr<GridObject> object) {
+	ProcessActiveObjects([this](sptr<Object> object) {
 		if (object->IsActive()) {
 			object->LateUpdate();
 		}
@@ -841,7 +841,7 @@ Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 	const int tileX = index.X % Grid::mTileRows;
 	const int tileZ = index.Z % Grid::mTileCols;
 
-	return mGrids[gridZ * mGridCols + gridX].GetTileFromUniqueIndex(Pos{tileZ, tileX});
+	return mGrids[gridZ * mGridCols + gridX]->GetTileFromUniqueIndex(Pos{tileZ, tileX});
 }
 
 void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
@@ -853,7 +853,7 @@ void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 	const int tileX = index.X % Grid::mTileRows;
 	const int tileZ = index.Z % Grid::mTileCols;
 
-	mGrids[gridZ * mGridCols + gridX].SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
+	mGrids[gridZ * mGridCols + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
 }
 
 
@@ -897,36 +897,20 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	// ObjectCollider가 활성화된 경우
 	// 1칸 이내의 "인접 그리드(8개)와 충돌검사"
 	const auto& collider = object->GetCollider();
-	if (collider) {
+	if (collider && collider->IsActive()) {
 		std::unordered_set<int> gridIndices{ gridIndex };
 		const auto& objectBS = collider->GetBS();
 
 		// BoundingSphere가 Grid 내부에 완전히 포함되면 "인접 그리드 충돌검사" X
-		if (isCheckAdj && mGrids[gridIndex].GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
-			const int gridX = gridIndex % mGridCols;
-			const int gridZ = gridIndex / mGridCols;
+		if (isCheckAdj && mGrids[gridIndex]->GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
 
-			for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
-				for (int offsetX = -1; offsetX <= 1; ++offsetX) {
-					const int neighborX = gridX + offsetX;
-					const int neighborZ = gridZ + offsetZ;
-
-					// 인덱스가 전체 그리드 범위 내에 있는지 확인
-					if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
-						const int neighborIndex = neighborZ * mGridCols + neighborX;
-
-						if (neighborIndex == gridIndex) {
-							continue;
-						}
-
-						if (mGrids[neighborIndex].GetBB().Intersects(objectBS)) {
-							mGrids[neighborIndex].AddObject(object);
-							gridIndices.insert(neighborIndex);
-						}
-						else {
-							mGrids[neighborIndex].RemoveObject(object);
-						}
-					}
+			for (const auto& neighborGrid : GetNeighborGrids(gridIndex)) {
+				if (neighborGrid->GetBB().Intersects(objectBS)) {
+					neighborGrid->AddObject(object);
+					gridIndices.insert(neighborGrid->GetIndex());
+				}
+				else {
+					neighborGrid->RemoveObject(object);
 				}
 			}
 
@@ -935,21 +919,21 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	}
 
 	object->SetGridIndex(gridIndex);
-	mGrids[gridIndex].AddObject(object);
+	mGrids[gridIndex]->AddObject(object);
 }
 
 void Scene::RemoveObjectFromGrid(GridObject* object)
 {
 	for (const int gridIndex : object->GetGridIndices()) {
 		if (!IsGridOutOfRange(gridIndex)) {
-			mGrids[gridIndex].RemoveObject(object);
+			mGrids[gridIndex]->RemoveObject(object);
 		}
 	}
 
 	object->ClearGridIndices();
 }
 
-sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
+sptr<GridObject> Scene::Instantiate(const std::string& modelName, ObjectTag tag, bool enable)
 {
 	const auto& model = RESOURCE<MasterModel>(modelName);
 	if (!model) {
@@ -958,9 +942,9 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, bool enable)
 
 	sptr<GridObject> instance = std::make_shared<GridObject>();
 	instance->SetModel(model);
-	instance->SetTag(instance->GetTag());
+	instance->SetTag(tag);
 	if (enable) {
-		instance->OnEnable();
+		instance->SetActive(true);
 	}
 	mDynamicObjectBuffer.push_back(instance);
 
@@ -995,6 +979,35 @@ sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int max
 	pool->CreateObjects<InstObject>(objectInitFunc);
 
 	return pool;
+}
+
+std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf) const
+{
+	std::vector<sptr<Grid>> result;
+	result.reserve(9);
+
+	const int gridX = gridIndex % mGridCols;
+	const int gridZ = gridIndex / mGridCols;
+
+	for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
+		for (int offsetX = -1; offsetX <= 1; ++offsetX) {
+			const int neighborX = gridX + offsetX;
+			const int neighborZ = gridZ + offsetZ;
+
+			// 인덱스가 전체 그리드 범위 내에 있는지 확인
+			if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
+				const int neighborIndex = neighborZ * mGridCols + neighborX;
+
+				if (neighborIndex == gridIndex && !includeSelf) {
+					continue;
+				}
+
+				result.push_back(mGrids[neighborIndex]);
+			}
+		}
+	}
+
+	return result;
 }
 
 
@@ -1046,4 +1059,63 @@ void Scene::RemoveDesrtoyedObjects()
 	}
 
 	mDestroyObjects.clear();
+}
+
+
+
+
+ObjectTag Scene::GetTagByString(const std::string& tag)
+{
+	switch (Hash(tag)) {
+	case Hash("Building"):
+		return ObjectTag::Building;
+
+	case Hash("Explosive_small"):
+	case Hash("Explosive_static"):
+		return ObjectTag::ExplosiveSmall;
+
+	case Hash("Explosive_big"):
+		return ObjectTag::ExplosiveBig;
+
+	case Hash("Tank"):
+		return ObjectTag::Tank;
+
+	case Hash("Helicopter"):
+		return ObjectTag::Helicopter;
+
+	case Hash("Background"):
+		return ObjectTag::Environment;
+
+	case Hash("Billboard"):
+		return ObjectTag::Billboard;
+
+	case Hash("Sprite"):
+		return ObjectTag::Sprite;
+
+	default:
+		//assert(0);
+		break;
+	}
+
+	return ObjectTag::Unspecified;
+}
+
+ObjectLayer Scene::GetLayerByNum(int num)
+{
+	switch (num) {
+	case 0:
+		return ObjectLayer::Default;
+
+	case 3:
+		return ObjectLayer::Transparent;
+
+	case 4:
+		return ObjectLayer::Water;
+
+	default:
+		assert(0);
+		break;
+	}
+
+	return ObjectLayer::Default;
 }

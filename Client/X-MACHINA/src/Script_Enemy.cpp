@@ -17,7 +17,6 @@ void Script_Enemy::Awake()
 	base::Awake();
 
 	mObject->AddComponent<Script_GroundObject>();
-	mObject->SetTag(ObjectTag::Enemy);
 
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
 	mEnemyMgr->mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();

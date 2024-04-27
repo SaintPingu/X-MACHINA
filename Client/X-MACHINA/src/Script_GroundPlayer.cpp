@@ -78,7 +78,7 @@ void Script_GroundPlayer::Start()
 	mRotationSpeed = 360.f;
 
 	SetSpawn(Vec3(100, 0, 100));
-	SetHP(150.f);
+	SetMaxHP(150.f);
 }
 
 
@@ -444,7 +444,7 @@ void Script_GroundPlayer::InitWeapons()
 		// weapon 타입에 따른 객체 생성 //
 		auto& weapon = mWeapons[i];
 		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), false);
+		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), ObjectTag::Dynamic, false);
 		if (!weapon) {
 			continue;
 		}
@@ -497,9 +497,6 @@ void Script_GroundPlayer::InitWeapons()
 		drawMotion->AddCallback(drawCallback, kDrawFrame);
 		drawMotion->AddEndCallback(drawEndCallback);
 		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
-
-
-		weapon->Awake();
 	}
 
 	// bolt action sniper 초기화

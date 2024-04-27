@@ -20,7 +20,7 @@ void Script_Droid::Awake()
 	mEnemyMgr->mDetectionRange = 10.f;
 
 	Transform* gunPos = mObject->FindFrame("WeaponAction");
-	mGun = Scene::I->Instantiate("SM_SciFiAssaultPistol");
+	mGun = Scene::I->Instantiate("SM_SciFiAssaultPistol", ObjectTag::Dynamic);
 	gunPos->SetChild(mGun);
 }
 
@@ -31,5 +31,7 @@ void Script_Droid::Update()
 
 void Script_Droid::OnDestroy()
 {
-	mGun->OnDestroy();
+	base::OnDestroy();
+
+	mGun->Destroy();
 }

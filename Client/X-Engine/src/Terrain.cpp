@@ -238,11 +238,28 @@ int Terrain::GetHeightMapLength() const
 	return mHeightMapImage->GetHeightMapLength();
 }
 
-void Terrain::PushObject(TerrainBlock* block)
-{
-	assert(mCurrBuffIdx < mBuffer.size());
 
-	mBuffer[mCurrBuffIdx++] = block;
+void Terrain::Awake()
+{
+	for (auto& terrain : mTerrains) {
+		terrain->Awake();
+	}
+}
+
+
+void Terrain::SetActive(bool isActive)
+{
+	for (auto& terrain : mTerrains) {
+		terrain->SetActive(true);
+	}
+}
+
+
+void Terrain::UpdateGrid()
+{
+	for (auto& terrain : mTerrains) {
+		Scene::I->UpdateObjectGrid(terrain.get());
+	}
 }
 
 void Terrain::Render()
@@ -257,26 +274,12 @@ void Terrain::Render()
 	ResetBuffer();
 }
 
-void Terrain::OnEnable()
-{
-	for (auto& terrain : mTerrains) {
-		terrain->OnEnable();
-	}
-}
 
-void Terrain::Awake()
+void Terrain::PushObject(TerrainBlock* block)
 {
-	for (auto& terrain : mTerrains) {
-		terrain->Awake();
-	}
-}
+	assert(mCurrBuffIdx < mBuffer.size());
 
-
-void Terrain::UpdateGrid()
-{
-	for (auto& terrain : mTerrains) {
-		Scene::I->UpdateObjectGrid(terrain.get());
-	}
+	mBuffer[mCurrBuffIdx++] = block;
 }
 #pragma endregion
 

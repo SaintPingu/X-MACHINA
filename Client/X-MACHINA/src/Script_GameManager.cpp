@@ -13,30 +13,24 @@
 
 void Script_GameManager::Awake()
 {
-	//{
-	//	sptr<GridObject> enemy = Scene::I->Instantiate("Droid_OII_DesertCamo");
-	//	auto& script = enemy->AddComponent<Script_Droid>();
-	//	enemy->AddComponent<Script_MeleeBT>();
-	//	enemy->SetPosition(105, 0, 103);
-	//	script->SetMaxHP(10);
-	//}
+	base::Awake();
 
+	for (int i = 0; i < 5; ++i)
 	{
-		sptr<GridObject> enemy = Scene::I->Instantiate("Aranobot_Army");
-		//enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontLeft");
-		//enemy->AddComponent<ParticleSystem>()->Load("light")->SetTarget("Aranobot_CalfFrontRight");
+		sptr<GridObject> enemy = Scene::I->Instantiate("Aranobot_Army", ObjectTag::Enemy);
 		auto& script = enemy->AddComponent<Script_Aranobot>();
 		enemy->AddComponent<Script_MeleeBT>();
-		enemy->SetPosition(100, 0, 105);
+		enemy->SetPosition(90 + i * 5, 0, 90 + i * 10);
 		script->SetMaxHP(2000);
 	}
 }
 
 void Script_GameManager::Start()
 {
+	base::Start();
 }
 
 void Script_GameManager::Update()
 {
-
+	base::Update();
 }

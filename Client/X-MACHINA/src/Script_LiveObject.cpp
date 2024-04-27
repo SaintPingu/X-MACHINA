@@ -20,19 +20,28 @@ void Script_LiveObject::Start()
 
 void Script_LiveObject::Update()
 {
+	base::Update();
 }
 
-void Script_LiveObject::Hit(float damage)
+bool Script_LiveObject::Hit(float damage)
 {
+	if (mCrntHP <= 0) {
+		return false;
+	}
+
 	mCrntHP -= damage;
 	if (mCrntHP <= 0) {
-		mIsDead = true;
+		Dead();
+		return true;
 	}
+
+	return false;
 }
 
 void Script_LiveObject::Dead()
 {
-	mObject->OnDestroy();
+	mIsDead = true;
+	mObject->Destroy();
 }
 
 void Script_LiveObject::Resurrect()

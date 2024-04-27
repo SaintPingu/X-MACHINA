@@ -29,8 +29,6 @@ void Script_MainCamera::Awake()
 
 	mMaxOffset.x = mMaxOffset.x > maxOffset.x ? maxOffset.x : mMaxOffset.x;
 	mMaxOffset.y = mMaxOffset.y > maxOffset.y ? maxOffset.y : mMaxOffset.y;
-
-	mPlayer = GameFramework::I->GetPlayer();
 }
 
 void Script_MainCamera::Start()
@@ -112,6 +110,8 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
 
 void Script_MainCamera::Init()
 {
+	mPlayer = GameFramework::I->GetPlayer();
+
 	constexpr float maxPlaneDistance = 100.f;
 	SetCameraOffset(Vec3(0.f, 12.f, -7.f));
 	//SetCameraOffset(Vec3(0.f, 4.f, -7.f));

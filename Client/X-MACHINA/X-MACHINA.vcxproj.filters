@@ -286,6 +286,9 @@
     <ClInclude Include="Network\ClientNetworkManager.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Missile.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -440,6 +443,9 @@
     </ClCompile>
     <ClCompile Include="Network\ClientNetworkManager.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Missile.cpp">
+      <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,42 @@
 #include "MeshRenderer.h"
 #include "Object.h"
 
+
+
+
+
+
+#pragma region Collider
+BoxCollider* Collider::GetBoxCollider()
+{
+	if (GetType() != Type::Box) {
+		return nullptr;
+	}
+
+	return static_cast<BoxCollider*>(this);
+}
+
+SphereCollider* Collider::GetSphereCollider()
+{
+	if (GetType() != Type::Sphere) {
+		return nullptr;
+	}
+
+	return static_cast<SphereCollider*>(this);
+}
+
+void Collider::OnEnable()
+{
+	base::OnEnable();
+
+	UpdateTransform();
+}
+#pragma endregion
+
+
+
+
+
 #pragma region BoxCollider
 BoxCollider& BoxCollider::operator=(const BoxCollider& other)
 {
@@ -18,16 +54,22 @@ BoxCollider& BoxCollider::operator=(const BoxCollider& other)
 
 void BoxCollider::Update()
 {
-	mBox.Transform(mObject->GetWorldTransform());
+	UpdateTransform();
 }
 
 
 void BoxCollider::Render() const
 {
-	MeshRenderer::Render(mBox);
+	if (IsActive()) {
+		MeshRenderer::Render(mBox);
+	}
 }
-bool BoxCollider::Intersects(rsptr<Collider> other)
+bool BoxCollider::Intersects(rsptr<Collider> other) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
 	switch (other->GetType()) {
 	case Type::Box:
 		return mBox.Intersects(reinterpret_cast<BoxCollider*>(other.get())->mBox);
@@ -40,20 +82,44 @@ bool BoxCollider::Intersects(rsptr<Collider> other)
 
 	return false;
 }
-bool BoxCollider::Intersects(const BoundingBox& bb)
+bool BoxCollider::Intersects(const BoundingBox& bb) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
 	return mBox.Intersects(bb);
 }
-bool BoxCollider::Intersects(const BoundingSphere& bs)
+bool BoxCollider::Intersects(const BoundingOrientedBox& obb) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
+	return mBox.Intersects(obb);;
+}
+bool BoxCollider::Intersects(const BoundingSphere& bs) const
+{
+	if (!IsActive()) {
+		return false;
+	}
+
 	return mBox.Intersects(bs);
 }
-bool BoxCollider::Intersects(const Ray& ray, float& dist)
+bool BoxCollider::Intersects(const Ray& ray, float& dist) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
 	if(Vector3::IsZero(ray.Direction)) {
 		return false;
 	}
 	return mBox.Intersects(_VECTOR(ray.Position), XMVector3Normalize(_VECTOR(ray.Direction)), dist);
+}
+void BoxCollider::UpdateTransform()
+{
+	mBox.Transform(mObject->GetWorldTransform());
 }
 #pragma endregion
 
@@ -75,16 +141,22 @@ SphereCollider& SphereCollider::operator=(const SphereCollider& other)
 
 void SphereCollider::Update()
 {
-	mBS.Transform(mObject->GetWorldTransform());
+	UpdateTransform();
 }
 
 
 void SphereCollider::Render() const
 {
-	MeshRenderer::Render(mBS);
+	if (IsActive()) {
+		MeshRenderer::Render(mBS);
+	}
 }
-bool SphereCollider::Intersects(rsptr<Collider> other)
+bool SphereCollider::Intersects(rsptr<Collider> other) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
 	switch (other->GetType()) {
 	case Type::Box:
 		return mBS.Intersects(reinterpret_cast<BoxCollider*>(other.get())->mBox);
@@ -97,17 +169,41 @@ bool SphereCollider::Intersects(rsptr<Collider> other)
 
 	return false;
 }
-bool SphereCollider::Intersects(const BoundingBox& bb)
+bool SphereCollider::Intersects(const BoundingBox& bb) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
 	return mBS.Intersects(bb);
 }
-bool SphereCollider::Intersects(const BoundingSphere& bs)
+bool SphereCollider::Intersects(const BoundingOrientedBox& obb) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
+	return mBS.Intersects(obb);
+}
+bool SphereCollider::Intersects(const BoundingSphere& bs) const
+{
+	if (!IsActive()) {
+		return false;
+	}
+
 	return mBS.Intersects(bs);
 }
-bool SphereCollider::Intersects(const Ray& ray, float& dist)
+bool SphereCollider::Intersects(const Ray& ray, float& dist) const
 {
+	if (!IsActive()) {
+		return false;
+	}
+
 	return mBS.Intersects(_VECTOR(ray.Position), _VECTOR(ray.Direction), dist);
+}
+void SphereCollider::UpdateTransform()
+{
+	mBS.Transform(mObject->GetWorldTransform());
 }
 #pragma endregion
 
@@ -122,13 +218,14 @@ void ObjectCollider::Awake()
 
 	// SphereCollider를 가져오고, 없으면 ObjectCollider를 제거한다.
 	mSphereCollider = mObject->GetComponent<SphereCollider>();
+	const auto& gridObject = mObject->GetObj<GridObject>();
 	if (!mSphereCollider) {
-		static_cast<GridObject*>(mObject)->RemoveCollider();
+		gridObject->RemoveComponent<ObjectCollider>();
 		return;
 	}
 
 	// 객체의 모든 BoxCollider와 bounding box들을 가져온다.
-	const auto& mergedTransform = mObject->GetObj<GameObject>()->GetMergedTransform();
+	const auto& mergedTransform = gridObject->GetMergedTransform();
 
 	for (auto transform : mergedTransform) {
 		const Object* object = transform->GetObj<Object>();
@@ -136,6 +233,7 @@ void ObjectCollider::Awake()
 
 		for (auto& collider : colliders) {
 			if (collider != mSphereCollider) {
+				collider->SetActive(true);
 				mColliders.push_back(collider);
 			}
 		}
@@ -144,16 +242,26 @@ void ObjectCollider::Awake()
 	Update();
 }
 
-// 모든 Collider의 transform 정보를 update한다.
-void ObjectCollider::Update()
+void ObjectCollider::Start()
 {
-	for (auto& collider : mColliders) {
-		collider->Update();
-	}
+	base::Start();
 
-	mSphereCollider->Update();
+	for (auto& collider : mColliders) {
+		collider->Start();
+	}
 }
 
+
+void ObjectCollider::Update()
+{
+	base::Update();
+
+	for (auto& collider : mColliders) {
+		if (collider->IsActive()) {
+			collider->Update();
+		}
+	}
+}
 
 void ObjectCollider::Render() const
 {
@@ -221,25 +329,18 @@ bool ObjectCollider::Intersects(const ObjectCollider* other) const
 	return false;
 }
 
-bool ObjectCollider::Intersects(const BoundingBox& bb) const
+
+bool ObjectCollider::Intersects(rsptr<Collider> collider) const
 {
-	for (auto& collider : mColliders) {
-		if (collider->Intersects(bb)) {
-			return true;
-		}
+	switch (collider->GetType()) {
+	case Collider::Type::Box:
+		return Intersects(collider->GetBoxCollider()->mBox);
+	case Collider::Type::Sphere:
+		return Intersects(collider->GetSphereCollider()->mBS);
+	default:
+		assert(0);
+		break;
 	}
-
-	return false;
-}
-
-bool ObjectCollider::Intersects(const BoundingSphere& bs) const
-{
-	for (auto& collider : mColliders) {
-		if (collider->Intersects(bs)) {
-			return true;
-		}
-	}
-
 	return false;
 }
 
@@ -254,6 +355,11 @@ bool ObjectCollider::Intersects(const GridObject& a, const GridObject& b)
 
 	// 반드시 두 객체 모두 ObjectCollider를 가지고 있어야 한다.
 	if (!colliderA || !colliderB) {
+		return false;
+	}
+
+	// 둘 중 하나라도 비활성 상태라면 검사하지 않는다.
+	if (!colliderA->IsActive() || !colliderB->IsActive()) {
 		return false;
 	}
 

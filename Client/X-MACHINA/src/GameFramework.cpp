@@ -31,7 +31,7 @@
 #include "ThreadManager.h"
 #include "X-Engine.h"
 
-#define SERVER_COMMUNICATION
+//#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -350,6 +350,8 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 void GameFramework::ConnectToServer()
 {
+	MainCamera::I->AddComponent<Script_MainCamera>();
+
 #ifdef SERVER_COMMUNICATION
 	// Communication //
 	std::cout << "IP : ";
@@ -368,7 +370,6 @@ void GameFramework::ConnectToServer()
 
 #endif
 
-	MainCamera::I->AddComponent<Script_MainCamera>();
 	GAME_MGR->AddComponent<Script_GameManager>();
 	ObjectMgr::I->InitObjectsScript();
 
@@ -378,7 +379,7 @@ void GameFramework::ConnectToServer()
 
 void GameFramework::InitPlayer(int sessionID)
 {
-	mPlayer = Scene::I->Instantiate("EliteTrooper");
+	mPlayer = Scene::I->Instantiate("EliteTrooper", ObjectTag::Player);
 	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
 	mIsLogin = true;

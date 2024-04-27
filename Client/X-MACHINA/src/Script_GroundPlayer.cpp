@@ -211,9 +211,9 @@ void Script_GroundPlayer::Move(Dir dir)
 	const Vec3 dirVec = Transform::GetWorldDirection(dir);
 	mDirVec = dirVec;
 
-	if (mSlideVec != Vector3::Zero) {
-		mObject->Translate(mSlideVec * mMovementSpeed * DeltaTime());
-		mSlideVec = Vector3::Zero;
+	if (mSlideVec != Vector3::One) {
+		mObject->Translate(mSlideVec * mMovementSpeed / 1.5f * DeltaTime());
+		mSlideVec = Vector3::One;
 	}
 	else {
 		mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
@@ -269,8 +269,9 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 {
 	switch (other.GetTag())
 	{
-	case ObjectTag::Building:
+	case ObjectTag::Building: {
 		ComputeSlideVector(other);
+	}
 		break;
 	default:
 		break;
@@ -1122,46 +1123,52 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	float dist{};
 	float minDist{ 999.f };
 
-	// ray에 충돌한 최소 거리 obb만 슬라이딩 벡터 충돌체로 선정
+	// 최소 거리가 작을 경우에만 실행
+	sptr<Collider> box{};
 	for (const auto& collider : other.GetComponent<ObjectCollider>()->GetColliders()) {
 		if (collider->GetType() != Collider::Type::Box) {
 			continue;
 		}
 
 		if (collider->Intersects(ray, dist)) {
-			// 최소 거리가 작을 경우에만 실행
-			if (dist > minDist)
-				continue;
-
-			minDist = dist;
-			
-			const auto& obb = reinterpret_cast<BoxCollider*>(collider.get())->mBox;
-
-			// OBB의 월드 변환 행렬
-			Matrix worldToOBB = Matrix::CreateFromQuaternion(obb.Orientation);
-
-			// 광선을 OBB의 로컬 좌표계로 변환
-			ray.Position -= obb.Center;
-			ray.Position = Vec3::Transform(ray.Position, worldToOBB.Invert());
-			ray.Direction = Vec3::Transform(ray.Direction, worldToOBB.Invert());
-
-			// 광선의 현재 위치에 따라 OBB의 노말 벡터 저장
-			Vec3 collisionNormal;
-			if (ray.Position.x >= obb.Extents.x)
-				collisionNormal = Vector3::Right;
-			else if (ray.Position.x <= -obb.Extents.x)
-				collisionNormal = Vector3::Left;
-			else if (ray.Position.z >= 0.f)
-				collisionNormal = Vector3::Forward;
-			else if (ray.Position.z <= 0.f)
-				collisionNormal = Vector3::Backward;
-
-			// 슬라이딩 벡터를 구하여 다시 월드 좌표계로 변환
-			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * (ray.Direction.Dot(collisionNormal)));
-			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
-
-			prevOther = &other;
-			prevSlideVec = mSlideVec;
+			if (dist < minDist) {
+				minDist = dist;
+				box = collider;
+			}
 		}
+	}
+
+	if (box) {
+		const auto& obb = reinterpret_cast<BoxCollider*>(box.get())->mBox;
+
+		// OBB의 월드 변환 행렬
+		Matrix worldToOBB = Matrix::CreateFromQuaternion(obb.Orientation);
+
+		// 광선을 OBB의 로컬 좌표계로 변환
+		ray.Position -= obb.Center;
+		ray.Position = Vec3::Transform(ray.Position, worldToOBB.Invert());
+		ray.Direction = Vec3::Transform(ray.Direction, worldToOBB.Invert());
+
+		// 광선의 현재 위치에 따라 OBB의 노말 벡터 저장
+		Vec3 collisionNormal;
+		if (ray.Position.x >= obb.Extents.x)
+			collisionNormal = Vector3::Right;
+		else if (ray.Position.x <= -obb.Extents.x)
+			collisionNormal = Vector3::Left;
+		else if (ray.Position.z >= 0.f)
+			collisionNormal = Vector3::Forward;
+		else if (ray.Position.z <= 0.f)
+			collisionNormal = Vector3::Backward;
+
+		// 슬라이딩 벡터를 구하여 다시 월드 좌표계로 변환
+		float rdn = ray.Direction.Dot(collisionNormal);
+		if (rdn < 0.f) {
+			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * rdn);
+			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
+			mSlideVecs.push(mSlideVec);
+		}
+
+		prevOther = &other;
+		prevSlideVec = mSlideVec;
 	}
 }

@@ -131,15 +131,15 @@
 	</Shape>
 	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
 		<Option>0</Option>
-		<IsOn>0</IsOn>
-		<Param1>0.000000000e+00</Param1>
+		<IsOn>1</IsOn>
+		<Param1>1.000000000e+00</Param1>
 		<Param2>0.000000000e+00</Param2>
 		<Vals>
 			<elems>
 				<count>4</count>
 				<item>
 					<s.x>0.000000000e+00</s.x>
-					<s.y>0.000000000e+00</s.y>
+					<s.y>1.000000000e+00</s.y>
 					<s.z>0.000000000e+00</s.z>
 					<s.w>0.000000000e+00</s.w>
 				</item>
@@ -243,7 +243,7 @@
 		<Vals>
 			<elems>
 				<count>4</count>
-				<item>5.000000000e-01</item>
+				<item>2.000000030e-01</item>
 				<item>1.000000000e+00</item>
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
@@ -267,7 +267,7 @@
 		<Vals>
 			<elems>
 				<count>4</count>
-				<item>1.000000000e+02</item>
+				<item>7.000000000e+01</item>
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>

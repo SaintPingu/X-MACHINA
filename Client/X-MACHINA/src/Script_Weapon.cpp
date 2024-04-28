@@ -24,11 +24,7 @@ void Script_Weapon::Awake()
 
 	mMuzzle = mObject->FindFrame("FirePos");
 
-	//mMuzzlePSs.resize(2);
-	//mMuzzlePSs[0] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Flash")->SetTarget("FirePos");
-	//mMuzzlePSs[1] = mObject->AddComponent<ParticleSystem>()->Load("WFX_Muzzle_Smoke")->SetTarget("FirePos");
-
-	//SetParticleSystemNames();
+	SetParticleSystemNames();
 
 	InitValues();
 	CreateBulletPool();
@@ -54,17 +50,14 @@ void Script_Weapon::Update()
 	}
 	else {
 		mCurFireDelay += DeltaTime();
-
-		//for (auto& ps : mMuzzlePSs)
-		//	ps->Stop();
 	}
 }
 
 void Script_Weapon::FireBullet()
 {
 	--mCurBulletCnt;
-	//for (auto& ps : mMuzzlePSs)
-	//	ps->Play();
+	ParticleManager::I->Play("WFX_Muzzle_Flash", mMuzzle);
+	ParticleManager::I->Play("WFX_Muzzle_Smoke", mMuzzle);
 
 	mOwner->BulletFired();
 }
@@ -92,9 +85,6 @@ bool Script_Weapon::CheckReload()
 	if (mCurMag <= 0) {	// 모든 탄창 소진
 		return false;
 	}
-
-	//for (auto& ps : mMuzzlePSs)
-	//	ps->Stop();
 
 	StartReload();
 	
@@ -229,8 +219,8 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 	bulletScript->SetDamage(damage);
 	bulletScript->SetSpeed(speed);
 
-	//for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
-	//	bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
+	for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
+		bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
 }
 
 

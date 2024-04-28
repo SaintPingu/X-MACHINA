@@ -11,12 +11,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region ParticleSystem
-void ParticleSystem::SetTarget(Transform* target)
-{
-	// 파티클 시스템을 부착시킬 타겟을 설정
-	mTarget = target;
-}
-
 void ParticleSystem::Init()
 {
 #pragma region Init_ParticleSystem
@@ -26,18 +20,19 @@ void ParticleSystem::Init()
 #pragma endregion
 
 #pragma region Init_Particles
-	// 파티클 최대 개수만큼 생성
+	// 파티클 개수 적당히 크게 잡아놓기
 	mParticles = std::make_unique<UploadBuffer<ParticleData>>(DEVICE.Get(), 500, false);
 #pragma endregion
 }
 
-void ParticleSystem::Play(const std::string& pscdName)
+ParticleSystem* ParticleSystem::Play(rsptr<ParticleSystemCPUData> pscd, Transform* target)
 {
-	mPSCD = RESOURCE<ParticleSystemCPUData>(pscdName);
-	ParticleSystemGPUData* psgd = RESOURCE<ParticleSystemGPULoadData>(pscdName).get();
+	mPSCD = pscd;
+	ParticleSystemGPUData* psgd = RESOURCE<ParticleSystemGPULoadData>(pscd->mName).get();
 	std::memcpy(mPSGD.get(), psgd, sizeof(ParticleSystemGPUData));
 
 	mIsUse = true;
+	mIsRunning = false;
 	mIsStopCreation = false;
 	mLoopingElapsed = 0.f;
 	mStopElapsed = 0.f;
@@ -50,6 +45,16 @@ void ParticleSystem::Play(const std::string& pscdName)
 		mBurstElapseds[i] = mPSCD->Duration * mPSCD->SimulationSpeed;
 		mBurstRunnings[i] = false;
 	}
+
+	// 모든 파티클 초기화
+	for (int i = 0; i < mPSCD->MaxParticles; ++i) {
+		FRAME_RESOURCE_MGR->CopyData(mPSIdx, *mPSGD);
+		mParticles->CopyData(i, ParticleData{});
+	}
+
+	mTarget = target;
+
+	return this;
 }
 
 bool ParticleSystem::Update()
@@ -62,11 +67,12 @@ bool ParticleSystem::Update()
 	// 시뮬레이션 속도를 위해 델타 타임에 시뮬레이션 속도 적용
 	const float kSimulationDeltaTime = DeltaTime() * mPSCD->SimulationSpeed;
 
-	// 타겟 위치 저장 및 시뮬레이션 델타 타임 적용
 	mPSGD->WorldPos = mTarget->GetPosition() + mPSCD->Position;
+
 	mPSGD->DeltaTime = kSimulationDeltaTime;
 	mPSGD->TotalTime += kSimulationDeltaTime;
 	mAccElapsed += kSimulationDeltaTime;
+	mIsRunning = true;
 
 	// 정지 시 업데이트
 	if (mIsStopCreation)
@@ -86,6 +92,7 @@ bool ParticleSystem::Update()
 
 	// StartDelay에 따라 업데이트
 	if (mPSGD->TotalTime < 0) {
+		mIsRunning = false;
 		return false;
 	}
 
@@ -93,8 +100,10 @@ bool ParticleSystem::Update()
 	if (!mPSCD->Looping && (mPSGD->TotalTime >= mPSCD->Duration) || mIsStopCreation) {
 		Stop();
 		// 정지 경과 시간이 최대 생명 주기를 지났다면 파티클 삭제
-		if (mStopElapsed >= max(mPSGD->StartLifeTime.x, mPSGD->StartLifeTime.y)) {
+		if (mStopElapsed >= max(mPSGD->StartLifeTime.x, mPSGD->StartLifeTime.y) || mPSCD->Prewarm) {
 			mIsUse = false;
+			mIsRunning = false;
+
 			return true;
 		}
 	}
@@ -136,7 +145,7 @@ void ParticleSystem::Stop()
 	mIsStopCreation = true;
 }
 
-void ParticleSystem::ComputeParticleSystem() const
+void ParticleSystem::Compute() const
 {
 	CMD_LIST->SetComputeRootUnorderedAccessView(DXGIMgr::I->GetParticleComputeRootParamIndex(RootParam::ComputeParticle), mParticles->Resource()->GetGPUVirtualAddress());
 	CMD_LIST->SetComputeRoot32BitConstants(DXGIMgr::I->GetParticleComputeRootParamIndex(RootParam::ParticleIndex), 1, &mPSIdx, 0);
@@ -144,7 +153,7 @@ void ParticleSystem::ComputeParticleSystem() const
 	CMD_LIST->Dispatch(1, 1, 1);
 }
 
-void ParticleSystem::RenderParticleSystem() const
+void ParticleSystem::Render() const
 {
 	CMD_LIST->SetGraphicsRootShaderResourceView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Particle), mParticles->Resource()->GetGPUVirtualAddress());
 	RESOURCE<ModelObjectMesh>("Point")->RenderInstanced(mPSCD->MaxParticles);
@@ -245,7 +254,7 @@ sptr<ParticleSystemGPULoadData> ParticleSystem::LoadPSGD(const std::string& pscd
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region ParticleSystemPool
-void ParticleSystemPool::Init()
+ParticleSystemPool::ParticleSystemPool()
 {
 	mFirstAvailable = &mPSs[0];
 
@@ -254,18 +263,19 @@ void ParticleSystemPool::Init()
 		mPSs[i].SetNext(&mPSs[i + 1]);
 	}
 
+	mPSs[mkPoolSize - 1].Init();
 	mPSs[mkPoolSize - 1].SetNext(nullptr);
 }
 
-void ParticleSystemPool::Create(const std::string& pscdName, Transform* target)
+ParticleSystem* ParticleSystemPool::Create(rsptr<ParticleSystemCPUData> pscd, Transform* target)
 {
 	assert(mFirstAvailable);
 
 	ParticleSystem* newPS = mFirstAvailable;
-	newPS->SetTarget(target);
 	mFirstAvailable = newPS->GetNext();
+	mUseCount++;
 
-	newPS->Play(pscdName);
+	return newPS->Play(pscd, target);
 }
 
 void ParticleSystemPool::Update()
@@ -274,6 +284,7 @@ void ParticleSystemPool::Update()
 		if (ps.Update()) {
 			ps.SetNext(mFirstAvailable);
 			mFirstAvailable = &ps;
+			mUseCount--;
 		}
 	}
 }
@@ -281,8 +292,8 @@ void ParticleSystemPool::Update()
 void ParticleSystemPool::ComputePSs() const
 {
 	for (auto& ps : mPSs) {
-		if (ps.IsUse()) {
-			ps.ComputeParticleSystem();
+		if (ps.IsUse() && ps.IsRunning()) {
+			ps.Compute();
 		}
 	}
 }
@@ -290,8 +301,8 @@ void ParticleSystemPool::ComputePSs() const
 void ParticleSystemPool::RenderPSs() const
 {
 	for (auto& ps : mPSs) {
-		if (ps.IsUse()) {
-			ps.RenderParticleSystem();
+		if (ps.IsUse() && ps.IsRunning()) {
+			ps.Render();
 		}
 	}
 }
@@ -305,7 +316,9 @@ void ParticleSystemPool::RenderPSs() const
 #pragma region ParticleManager
 void ParticleManager::Init()
 {
-	mPool.Init();
+	for (auto& pool : mPSPools) {
+		pool = std::make_shared<ParticleSystemPool>();
+	}
 
 	mCompute = RESOURCE<Shader>("ComputeParticle");
 	mShaders[static_cast<UINT8>(BlendType::One_To_One_Blend)] = RESOURCE<Shader>("OneToOneBlend_GraphicsParticle");
@@ -321,27 +334,43 @@ void ParticleManager::Init()
 	mShaders[static_cast<UINT8>(BlendType::Scroll_Smoke)] = RESOURCE<Shader>("Scroll_Smoke");
 }
 
-void ParticleManager::Play(const std::string& pscdName, Transform* target)
+ParticleSystem* ParticleManager::Play(const std::string& pscdName, Transform* target)
 {
-	mPool.Create(pscdName, target);
+	const auto& pscd = RESOURCE<ParticleSystemCPUData>(pscdName);
+	return mPSPools[static_cast<UINT8>(pscd->Renderer.BlendType)]->Create(pscd, target);
 }
 
 void ParticleManager::Update()
 {
-	mPool.Update();
+	for (auto& pool : mPSPools) {
+		pool->Update();
+	}
 }
 
 void ParticleManager::Render() const
 {
 	// 컴퓨트 쉐이더 실행
 	mCompute->Set();
+	for (auto& pool : mPSPools) 
+	{
+		if (!pool->IsUse()) {
+			continue;
+		}
 
-	mPool.ComputePSs();
+		pool->ComputePSs();
+	}
 
+	for (int type = 0; type < BlendTypeCount; ++type) {
+		if (!mPSPools[type]->IsUse()) {
+			continue;
+		}
 
-	mShaders[static_cast<UINT8>(BlendType::Alpha_Blend)]->Set();
-	mPool.RenderPSs();
+		if (mShaders[type]) {
+			mShaders[type]->Set();
+		}
 
+		mPSPools[type]->RenderPSs();
+	}
 }
 #pragma endregion
 

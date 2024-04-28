@@ -59,7 +59,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = 0.05f;
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 2.f, 2.f, 1.f } });
 		pscd.GravityModifier = 1.2f;
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 22;
 		pscd.Emission.SetBurst(12);
@@ -81,7 +81,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSpeed = 0.f;
 		pscd.StartSize = 2.f;
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 1.f, 0.6f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 11;
 		pscd.Emission.SetBurst(1);
@@ -102,7 +102,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 3.2f, 4.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 13;
 		pscd.Emission.SetBurst(1, 0.025f);
@@ -128,7 +128,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 2.2f, 3.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 0.3f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 10;
 		pscd.Emission.SetBurst(1);
@@ -152,7 +152,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartLifeTime = Vec2{ 0.25f, 0.5f };
 		pscd.StartSpeed = Vec2{ 1.f, 2.f };
 		pscd.StartSize = Vec2{ 0.6f, 0.8f };
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 22;
 		pscd.Emission.SetBurst(12);
@@ -170,7 +170,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSpeed = Vec2{ 6.f, 8.f };
 		pscd.StartSize = Vec2{ 0.16f, 0.24f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 3.f, 3.f, 3.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.GravityModifier = 4.f;
 		pscd.MaxParticles = 21;
@@ -193,7 +193,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSpeed = Vec2{ 1.f, 3.f };
 		pscd.StartSize = Vec2{ 0.7f, 0.9f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 40;
 		pscd.Emission.SetBurst(24);
@@ -214,7 +214,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartLifeTime = Vec2{ 0.13f };
 		pscd.StartSize = Vec2{ 1.8f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 1.4f, 1.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 11;
 		pscd.Emission.SetBurst(1);
@@ -234,7 +234,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 1.6f, 2.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.35f, 0.35f, 0.35f, 0.35f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
 		pscd.MaxParticles = 20;
 		pscd.Emission.SetBurst(5);
@@ -254,6 +254,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		ParticleSystemCPUData pscd;
 		pscd.mName = "WFX_Bullet";
 		pscd.Looping = true;
+		pscd.Prewarm = false;
 		pscd.StartDelay = 0.f;
 		pscd.MaxAddCount = 1;
 		pscd.StartLifeTime = Vec2{ 0.3f };
@@ -285,11 +286,12 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.SimulationSpeed = 1.2f;
 		pscd.MaxParticles = 50;
 		pscd.Emission.SetBurst(1);
-		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.2f, 1.f }, { 0.f, 1.f });
 		pscd.Shape.SetSphere(0.2f, 1.f, 360.f, false);
 		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 1.f, 1.f, 1.f }, Vec4{ 0.1f, 0.1f, 0.1f, 0.f } }, { 0.f, 1.f });
 		pscd.ColorOverLifetime.SetAlphas({ 1.f, 0.f }, { 0.f, 1.f });
-		pscd.RotationOverLifetime.Set(PSValOp::Constant, { 100.f });
+		pscd.RotationOverLifetime.Set(PSValOp::Constant, { 70.f });
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 1.f, 0.f, 0.f } }).SetParam(1.f);
 		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
 		pscd.Renderer.TextureName = "Explosion_Smoke";
 		ParticleSystem::SavePSCD(pscd);
@@ -301,7 +303,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartLifeTime = Vec2{ 0.13f };
 		pscd.StartSize = Vec2{ 1.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 2.f, 1.f, 0.5f, 1.f  } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.f;
 		pscd.MaxParticles = 50;
 		pscd.Emission.SetBurst(1);
@@ -323,7 +325,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 1.f, 0.05f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f  } });
 		pscd.GravityModifier = 0.01f;
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.6f;
 		pscd.MaxAddCount = 1;
 		pscd.MaxParticles = 310;
@@ -347,7 +349,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 1.f, 2.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.97f, 0.56f, 0.44f, 1.f  } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.666f;
 		pscd.MaxParticles = 40;
 		pscd.Emission.SetBurst(10, 0.f);
@@ -374,8 +376,9 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 1.f, 2.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.25f, 0.25f, 0.25f, 1.f  } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.5f;
+		pscd.MaxParticles = 210;
 		pscd.Emission.SetBurst(200, 0.f);
 		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.f, 2.f }, { 0.f, 1.f });
 		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ -1.f, 0.f, -1.f, 0.f }, Vec4{ 1.f, 0.f, 1.f, 0.f } }).SetParam(1.f);
@@ -397,7 +400,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 1.f, 2.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Curve, { Vec4{ 0.33f, 0.33f, 0.33f, 1.f  }, Vec4{ 0.f, 0.f, 0.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.666f;
 		pscd.MaxParticles = 70;
 		pscd.MaxAddCount = 1;
@@ -423,7 +426,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 1.f, 2.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.55f, 0.55f, 0.55f, 1.f }});
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.666f;
 		pscd.MaxParticles = 50;
 		pscd.MaxAddCount = 1;
@@ -448,7 +451,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSize = Vec2{ 2.2f, 3.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.666f;
 		pscd.MaxParticles = 60;
 		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });

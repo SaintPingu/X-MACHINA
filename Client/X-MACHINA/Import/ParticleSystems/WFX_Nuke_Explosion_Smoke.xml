@@ -105,10 +105,10 @@
 		</AlphaKeys>
 	</StartColor>
 	<GravityModifier>0.000000000e+00</GravityModifier>
-	<SimulationSpace>0</SimulationSpace>
+	<SimulationSpace>1</SimulationSpace>
 	<SimulationSpeed>1.500000000e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>1000</MaxParticles>
+	<MaxParticles>210</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>

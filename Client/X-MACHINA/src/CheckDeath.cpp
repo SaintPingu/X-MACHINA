@@ -14,8 +14,9 @@ CheckDeath::CheckDeath(Object* object)
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 	mLiveObject = object->GetComponent<Script_LiveObject>();
-
 	mEnemyMgr->mController->FindMotionByName("Death")->AddEndCallback(std::bind(&CheckDeath::DeathCallback, this));
+
+	mRemoveTime = 4.f;
 }
 
 
@@ -27,19 +28,8 @@ BT::NodeState CheckDeath::Evaluate()
 	mAccTime += DeltaTime();
 	mEnemyMgr->mController->SetValue("Death", true);
 
-	if (mAccTime >= 2.f) {
+	if (mAccTime >= mRemoveTime) {
 		mObject->Destroy();
-	}
-
-	// 실행안됨.
-	if (mAccTime >= 4.f) {
-		// 임시로 다시 태어나도록 설정
-		mEnemyMgr->mController->SetValue("Death", false);
-		mLiveObject->Resurrect();
-		mAccTime = 0.f;
-		mObject->mObjectCB.DeathElapsed = 0.f;
-
-		return BT::NodeState::Success;
 	}
 
 	return BT::NodeState::Success;

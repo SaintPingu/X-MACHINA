@@ -105,7 +105,7 @@
 		</AlphaKeys>
 	</StartColor>
 	<GravityModifier>9.999999776e-03</GravityModifier>
-	<SimulationSpace>0</SimulationSpace>
+	<SimulationSpace>1</SimulationSpace>
 	<SimulationSpeed>1.600000024e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
 	<MaxParticles>310</MaxParticles>

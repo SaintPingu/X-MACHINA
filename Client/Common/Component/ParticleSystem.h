@@ -378,14 +378,16 @@ struct ParticleSharedData {
 
 #pragma region Class
 class ParticleSystem {
+	friend class ParticleSystemPool;
 
 private:
 	bool				mIsUse = false;
-	Transform*			mTarget{};					// 파티클을 부착시킬 타겟
+	Transform*				mTarget{};					// 파티클을 부착시킬 타겟
 	ParticleSystem*		mNext{};
 
 	int					mPSIdx = -1;				// 파티클 시스템 구조적 버퍼 인덱스
 	bool				mIsStopCreation = true;		// 파티클 생성 중지 플래그
+	bool				mIsRunning = false;
 
 	float				mAccElapsed = 0.f;
 	float				mStopElapsed = 0.f;
@@ -405,23 +407,25 @@ public:
 
 #pragma region Getter
 	bool IsUse() const { return mIsUse; }
+	bool IsRunning() const { return mIsRunning; }
 	ParticleSystem* GetNext() const { return mNext; }
+	rsptr<ParticleSystemCPUData> GetPSCD() const { return mPSCD; }
 #pragma endregion
 
 #pragma region Setter
 	void SetNext(ParticleSystem* next) { mNext = next; }
-	void SetTarget(Transform* target);
+	void SetTarget(Object* target) { mTarget = target; }
 #pragma endregion
 
 public:
 	void Init();
-	void Play(const std::string& pscdName);
+	ParticleSystem* Play(rsptr<ParticleSystemCPUData> pscd, Transform* target);
 	bool Update();
 	void Stop();
 
 public:
-	void ComputeParticleSystem() const;
-	void RenderParticleSystem() const;
+	void Compute() const;
+	void Render() const;
 	void ReturnIndex();
 
 public:
@@ -433,16 +437,23 @@ public:
 
 class ParticleSystemPool {
 private:
-	static constexpr int mkPoolSize{ 500 };
+	static constexpr int mkPoolSize = 500;
+	int mUseCount = 0;
+
 	std::array<ParticleSystem, mkPoolSize> mPSs;
 	ParticleSystem* mFirstAvailable{};
 
 public:
-	void Init();
-	void Create(const std::string& pscdName, Transform* target);
+	ParticleSystemPool();
+	virtual ~ParticleSystemPool() = default;
+
+public:
+	ParticleSystem* Create(rsptr<ParticleSystemCPUData> pscd, Transform* target);
 	void Update();
 	void ComputePSs() const;
 	void RenderPSs() const;
+
+	bool IsUse() const { return mUseCount >= 1; }
 };
 
 
@@ -450,11 +461,9 @@ class ParticleManager : public Singleton<ParticleManager> {
 	friend Singleton;
 
 private:
-	using KeyPSMap = std::unordered_map<int, sptr<ParticleSystem>>;
 	sptr<Shader> mCompute{};
 	std::array<sptr<Shader>, BlendTypeCount> mShaders;
-
-	ParticleSystemPool mPool;
+	std::array<sptr<ParticleSystemPool>, BlendTypeCount> mPSPools;
 
 public:
 #pragma region C/Dtor
@@ -464,7 +473,7 @@ public:
 
 public:
 	void Init();
-	void Play(const std::string& pscdName, Transform* target);
+	ParticleSystem* Play(const std::string& pscdName, Transform* target);
 	void Update();
 	void Render() const;
 };

@@ -11,6 +11,12 @@
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
 
+void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames)
+{
+	for (auto& name : psNames) {
+		mPSNames[static_cast<UINT8>(type)].emplace_back(name);
+	}
+}
 
 void Script_Bullet::Update()
 {
@@ -18,12 +24,13 @@ void Script_Bullet::Update()
 
 	if (mCurrLifeTime >= mMaxLifeTime) {
 		Reset();
-		//StopPSs(BulletPSType::Contrail);
+		StopPSs(BulletPSType::Contrail);
 		mGameObject->Return();
 	}
 	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
 		Explode();
 	}
+
 }
 
 void Script_Bullet::OnCollisionStay(Object& other)
@@ -37,8 +44,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Building:
-		ParticleManager::I->Play("WFX_Smoke_Building", mObject);
-		//PlayPSs(BulletPSType::Building);
+		PlayPSs(BulletPSType::Building);
 		Explode();
 		break;
 
@@ -46,7 +52,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());
-		//PlayPSs(BulletPSType::Explosion);
+		PlayPSs(BulletPSType::Explosion);
 		Explode();
 	}
 
@@ -81,8 +87,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 
 void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 {
-	//ResetPSs(BulletPSType::Explosion);
-	//PlayPSs(BulletPSType::Contrail);
+	PlayPSs(BulletPSType::Contrail);
 
 	mObject->SetLocalRotation(transform.GetRotation());
 	Vec3 dir = transform.GetLook();
@@ -94,30 +99,31 @@ void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 void Script_Bullet::Explode()
 {
 	Reset();
-	//StopPSs(BulletPSType::Contrail);
+	StopPSs(BulletPSType::Contrail);
 
 	mRigid->Stop();
 	mGameObject->Return();
 }
 
-//void Script_Bullet::PlayPSs(BulletPSType type)
-//{
-//	for (const auto& ps : mPSs[static_cast<UINT8>(type)]) 
-//		ps->Play();
-//}
-//
-//void Script_Bullet::StopPSs(BulletPSType type)
-//{
-//	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
-//		ps->Stop();
-//}
-//
-//void Script_Bullet::ResetPSs(BulletPSType type)
-//{
-//	for (const auto& ps : mPSs[static_cast<UINT8>(type)])
-//		ps->Reset();
-//}
+void Script_Bullet::PlayPSs(BulletPSType type)
+{
+	for (const auto& psName : mPSNames[static_cast<UINT8>(type)]) {
+		auto* ps = ParticleManager::I->Play(psName, mObject);
 
+		// 루핑이 설정되어 있다면 직접 해제해야 한다.
+		if (ps->GetPSCD()->Looping) {
+			mPSs[static_cast<UINT8>(type)].push(ps);
+		}
+	}
+}
+
+void Script_Bullet::StopPSs(BulletPSType type)
+{
+	while (!mPSs[static_cast<UINT8>(type)].empty()) {
+		mPSs[static_cast<UINT8>(type)].front()->Stop();
+		mPSs[static_cast<UINT8>(type)].pop();
+	}
+}
 
 void Script_Bullet::Reset()
 {

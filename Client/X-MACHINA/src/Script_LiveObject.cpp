@@ -41,7 +41,6 @@ bool Script_LiveObject::Hit(float damage)
 void Script_LiveObject::Dead()
 {
 	mIsDead = true;
-	mObject->Destroy();
 }
 
 void Script_LiveObject::Resurrect()

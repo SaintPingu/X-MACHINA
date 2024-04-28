@@ -22,8 +22,10 @@ private:
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
 	//sptr<ParticleSystem> mParticleSystem{};
 	sptr<Rigidbody> mRigid{};
+	ParticleSystem* contrail;
 
-	//std::array<std::vector<sptr<ParticleSystem>>, BulletPSTypeCount> mPSs;
+	std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames;
+	std::array<std::queue<ParticleSystem*>, BulletPSTypeCount> mPSs;
 
 	float mSpeed{};					// speed of bullet
 	float mDamage{};				// damage of bullet
@@ -37,7 +39,7 @@ public:
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetOwner(const Object* object) { mOwner = object; }
 	void SetLifeTime(float lifeTIme) { mMaxLifeTime = lifeTIme; }
-	//void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
+	void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
 
 public:
 	virtual void Update() override;
@@ -54,9 +56,8 @@ public:
 
 	// 총알 객체를 터뜨린다. (폭발 처리)
 	virtual void Explode();
-	//void PlayPSs(BulletPSType type); 
-	//void StopPSs(BulletPSType type); 
-	//void ResetPSs(BulletPSType type); 
+	void PlayPSs(BulletPSType type);
+	void StopPSs(BulletPSType type); 
 
 protected:
 	virtual void StartFire() {};

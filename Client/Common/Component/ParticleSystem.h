@@ -245,7 +245,6 @@ public:
 
 	/* Transform */		
 	Vec3				Position{};
-	int					Padding;
 
 	/* unity particle system */
 	float				Duration = 0.05f;
@@ -342,6 +341,12 @@ struct ParticleSystemGPUData {
 	PSShape 			Shape{};
 };
 
+class ParticleSystemGPULoadData : public ParticleSystemGPUData, public Resource {
+public:
+	ParticleSystemGPULoadData() : Resource(ResourceType::ParticleSystemGPUData) { }
+	virtual ~ParticleSystemGPULoadData() = default;
+};
+
 struct ParticleData {
 	Vec3	StartPos{};
 	float	CurTime{};
@@ -372,15 +377,14 @@ struct ParticleSharedData {
 
 
 #pragma region Class
-/* particle system component */
-class ParticleSystem : public Component, public std::enable_shared_from_this<ParticleSystem> {
-	COMPONENT(ParticleSystem, Component)
+class ParticleSystem {
 
 private:
-	Transform*			mTarget = mObject;			// 파티클을 부착시킬 타겟
-	int					mPSIdx = -1;				// 파티클 시스템 구조적 버퍼 인덱스
+	bool				mIsUse = false;
+	Transform*			mTarget{};					// 파티클을 부착시킬 타겟
+	ParticleSystem*		mNext{};
 
-	bool				mIsRunning = false;			// 파티클 시스템 동작 플래그
+	int					mPSIdx = -1;				// 파티클 시스템 구조적 버퍼 인덱스
 	bool				mIsStopCreation = true;		// 파티클 생성 중지 플래그
 
 	float				mAccElapsed = 0.f;
@@ -391,74 +395,76 @@ private:
 	std::vector<bool>	mBurstRunnings{};
 
 	sptr<ParticleSystemCPUData>	mPSCD{};			// 모든 파티클에 공통적으로 적용되는 CPU 데이터
-	ParticleSystemGPUData		mPSGD{};			// 모든 파티클에 개별적으로 적용되는 GPU 데이터
+	uptr<ParticleSystemGPUData>	mPSGD{};			// 모든 파티클에 개별적으로 적용되는 GPU 데이터
 
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
 
 public:
+	ParticleSystem() = default;
+	virtual ~ParticleSystem() = default;
+
 #pragma region Getter
-	sptr<ParticleSystemCPUData> GetPSCD() { return mPSCD; }
-	int	GetPSIdx() const { return mPSIdx; }
-	bool IsRunning() const { return mIsRunning; }
+	bool IsUse() const { return mIsUse; }
+	ParticleSystem* GetNext() const { return mNext; }
 #pragma endregion
 
 #pragma region Setter
-	void SetPSCD(sptr<ParticleSystemCPUData> pscd) { mPSCD = pscd; }
-	sptr<ParticleSystem> SetTarget(const std::string& frameName);
-	void SetSizeByRenderMode(PSRenderMode renderMode);
-	void SetColorByBlendType(BlendType blendType);
-#pragma endregion
-
-public:
-	virtual void Start() override;
-
-public:
-	void UpdateParticleSystem();
-
-	void Play();
-	void Stop();
-	void Reset();
-
-	void ComputeParticleSystem() const;
-	void RenderParticleSystem() const;
-
-	void ReturnIndex();
-
-public:
-	sptr<ParticleSystem> Load(const std::string& fileName);
-
-	static void SavePSCD(ParticleSystemCPUData& pscd);
-	static sptr<ParticleSystemCPUData> LoadPSCD(const std::string& filePath);
-};
-
-
-
-
-
-class ParticleRenderer : public Singleton<ParticleRenderer> {
-	friend Singleton;
-
-private:
-	using KeyPSMap = std::unordered_map<int, sptr<ParticleSystem>>;
-
-	std::array<KeyPSMap, BlendTypeCount> mPSs;
-
-	sptr<Shader> mCompute{};
-	std::array<sptr<Shader>, BlendTypeCount> mShaders;
-
-	std::array<std::queue<int>, BlendTypeCount> mRemovals;
-
-public:
-#pragma region C/Dtor
-	ParticleRenderer() = default;
-	virtual ~ParticleRenderer() = default;
+	void SetNext(ParticleSystem* next) { mNext = next; }
+	void SetTarget(Transform* target);
 #pragma endregion
 
 public:
 	void Init();
-	void AddParticleSystem(BlendType type, sptr<ParticleSystem> particleSystem);
-	void RemoveParticleSystem(BlendType type, int particleSystemIdx);
+	void Play(const std::string& pscdName);
+	bool Update();
+	void Stop();
 
+public:
+	void ComputeParticleSystem() const;
+	void RenderParticleSystem() const;
+	void ReturnIndex();
+
+public:
+	static void SavePSCD(ParticleSystemCPUData& pscd);
+	static sptr<ParticleSystemCPUData> LoadPSCD(const std::string& filePath);
+	static sptr<ParticleSystemGPULoadData> LoadPSGD(const std::string& pscdName);
+};
+
+
+class ParticleSystemPool {
+private:
+	static constexpr int mkPoolSize{ 500 };
+	std::array<ParticleSystem, mkPoolSize> mPSs;
+	ParticleSystem* mFirstAvailable{};
+
+public:
+	void Init();
+	void Create(const std::string& pscdName, Transform* target);
+	void Update();
+	void ComputePSs() const;
+	void RenderPSs() const;
+};
+
+
+class ParticleManager : public Singleton<ParticleManager> {
+	friend Singleton;
+
+private:
+	using KeyPSMap = std::unordered_map<int, sptr<ParticleSystem>>;
+	sptr<Shader> mCompute{};
+	std::array<sptr<Shader>, BlendTypeCount> mShaders;
+
+	ParticleSystemPool mPool;
+
+public:
+#pragma region C/Dtor
+	ParticleManager() = default;
+	virtual ~ParticleManager() = default;
+#pragma endregion
+
+public:
+	void Init();
+	void Play(const std::string& pscdName, Transform* target);
 	void Update();
 	void Render() const;
 };

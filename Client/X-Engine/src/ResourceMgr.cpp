@@ -453,9 +453,9 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.MaxParticles = 60;
 		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
 		pscd.Emission.SetBurst(20);
-		pscd.Emission.SetBurst(15, 0.15);
-		pscd.Emission.SetBurst(10, 0.3);
-		pscd.Emission.SetBurst(5, 0.45);
+		pscd.Emission.SetBurst(15, 0.15f);
+		pscd.Emission.SetBurst(10, 0.3f);
+		pscd.Emission.SetBurst(5, 0.45f);
 		pscd.Shape.SetSphere(0.8f, 1.f, 360.f, true);
 		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ -0.2f, 1.f, -0.2f, 0.f }, Vec4{ 0.2f, 1.f, 0.2f, 0.f } }).SetParam(1.f);
 		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 30.f, 60.f });
@@ -1124,6 +1124,8 @@ void ResourceMgr::LoadParticleSystemCPUData()
 
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
-		ResourceMgr::I->Add<ParticleSystemCPUData>(FileIO::RemoveExtension(fileName), ParticleSystem::LoadPSCD(rootFolder + fileName));
+		const std::string resName = FileIO::RemoveExtension(fileName);
+		ResourceMgr::I->Add<ParticleSystemCPUData>(resName, ParticleSystem::LoadPSCD(rootFolder + fileName));
+		ResourceMgr::I->Add<ParticleSystemGPULoadData>(resName, ParticleSystem::LoadPSGD(resName));
 	}
 }

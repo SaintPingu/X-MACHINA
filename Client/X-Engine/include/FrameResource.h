@@ -124,7 +124,7 @@ public:
 
     uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};       // 머티리얼 버퍼
     uptr<UploadBuffer<ParticleSystemGPUData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
-    uptr<UploadBuffer<ParticleSharedData>>  ParticleSharedBuffer{}; // 파티클 공유 버퍼 
+    uptr<UploadBuffer<ParticleSharedData>>      ParticleSharedBuffer{}; // 파티클 공유 버퍼 
 
 public:
 #pragma region C/Dtor

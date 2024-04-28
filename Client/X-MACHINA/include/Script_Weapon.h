@@ -43,9 +43,9 @@ protected:
 	sptr<ObjectPool> mBulletPool{};
 
 protected:
-	std::vector<sptr<ParticleSystem>> mMuzzlePSs{};
-	std::vector<sptr<ParticleSystem>> mBulletPSs{};
-	std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames{};
+	//std::vector<sptr<ParticleSystem>> mMuzzlePSs{};
+	//std::vector<sptr<ParticleSystem>> mBulletPSs{};
+	//std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames{};
 
 
 	float mMaxFireDelay{};		// ÃÑ¾Ë ¹ß»ç µô·¹ÀÌ
@@ -112,7 +112,7 @@ private:
 	virtual void CreateBulletPool() abstract;
 	virtual void InitValues() abstract;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
-	virtual void SetParticleSystemNames() abstract;
+	//virtual void SetParticleSystemNames() abstract;
 };
 
 

@@ -123,7 +123,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 	CreateSsao();
 
 	ResourceMgr::I->LoadResources();
-	ParticleRenderer::I->Init();
+	ParticleManager::I->Init();
 
 	BuildScene();
 

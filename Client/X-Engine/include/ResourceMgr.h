@@ -16,6 +16,7 @@ class MasterModel;
 class AnimationClip;
 class AnimatorController;
 class ParticleSystemCPUData;
+class ParticleSystemGPULoadData;
 #pragma endregion
 
 #pragma region Class
@@ -147,4 +148,6 @@ inline ResourceType ResourceMgr::GetResourceType()
 		return ResourceType::AnimatorController;
 	if (std::is_same_v<T, ParticleSystemCPUData>)
 		return ResourceType::ParticleSystemCPUData;
+	if (std::is_same_v<T, ParticleSystemGPULoadData>)
+		return ResourceType::ParticleSystemGPUData;
 }

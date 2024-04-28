@@ -15,7 +15,7 @@ void Script_GameManager::Awake()
 {
 	base::Awake();
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		sptr<GridObject> enemy = Scene::I->Instantiate("Aranobot_Army", ObjectTag::Enemy);
 		auto& script = enemy->AddComponent<Script_Aranobot>();

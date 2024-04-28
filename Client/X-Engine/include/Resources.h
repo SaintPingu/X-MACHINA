@@ -9,6 +9,7 @@ enum class ResourceType : UINT8 {
 	AnimationClip,
 	AnimatorController,
 	ParticleSystemCPUData,
+	ParticleSystemGPUData,
 
 	_count
 };

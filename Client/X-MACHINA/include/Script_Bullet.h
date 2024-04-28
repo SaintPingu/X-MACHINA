@@ -29,11 +29,9 @@ private:
 	float mDamage{};				// damage of bullet
 	float mMaxLifeTime{ 2.f };		// 총알 수명(발사 후 최대 유지시간)
 	float mCurrLifeTime{};			// 현재 수명
-	bool  mIsSetPSs{};
 
 public:
 	float GetDamage() const { return mDamage; }
-	float IsSetPSs() const { return mIsSetPSs; }
 
 	void SetDamage(float damage) { mDamage = damage; }
 	void SetSpeed(float speed) { mSpeed = speed; }

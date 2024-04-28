@@ -229,9 +229,8 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 	bulletScript->SetDamage(damage);
 	bulletScript->SetSpeed(speed);
 
-	if (!bulletScript->IsSetPSs())
-		for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
-			bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
+	for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
+		bulletScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);
 }
 
 

@@ -17,8 +17,6 @@ void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std:
 	for (auto& name : psNames) {
 		mPSs[static_cast<UINT8>(type)].emplace_back(mGameObject->AddComponent<ParticleSystem>()->Load(name));
 	}
-
-	mIsSetPSs = true;
 }
 
 void Script_Bullet::Update()

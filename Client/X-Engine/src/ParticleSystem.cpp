@@ -187,7 +187,7 @@ void ParticleSystem::Play()
 	mStartElapsed		= 0.f;
 	mAccElapsed			= 0.f;
 	mPSGD.DeltaTime		= 0.f;
-	mPSGD.TotalTime		-= mPSCD->StartDelay;
+	mPSGD.TotalTime		= -mPSCD->StartDelay;
 
 	// 처음 시작하자마자 파티클을 생성하기 위함
 	for (int i = 0; i < mPSCD->Emission.Bursts.size(); ++i) {

@@ -1165,7 +1165,6 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 		if (rdn < 0.f) {
 			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * rdn);
 			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
-			mSlideVecs.push(mSlideVec);
 		}
 
 		prevOther = &other;

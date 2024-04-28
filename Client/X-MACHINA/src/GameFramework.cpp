@@ -100,7 +100,7 @@ int GameFramework::GameLoop()
 
 void GameFramework::Update()
 {
-	Timer::I->Tick(60.f);
+	Timer::I->Tick(0.f);
 
 #ifdef SERVER_COMMUNICATION
 	NETWORK_MGR->ProcessEvents();

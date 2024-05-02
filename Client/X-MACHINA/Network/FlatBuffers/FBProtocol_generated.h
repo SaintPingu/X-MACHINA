@@ -55,6 +55,18 @@ struct CPkt_KeyInputBuilder;
 struct SPkt_KeyInput;
 struct SPkt_KeyInputBuilder;
 
+struct CPkt_NetworkLatency;
+struct CPkt_NetworkLatencyBuilder;
+
+struct SPkt_NetworkLatency;
+struct SPkt_NetworkLatencyBuilder;
+
+struct CPkt_PlayerState;
+struct CPkt_PlayerStateBuilder;
+
+struct SPkt_PlayerState;
+struct SPkt_PlayerStateBuilder;
+
 struct CPkt_LogIn FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_LogInBuilder Builder;
   bool Verify(::flatbuffers::Verifier &verifier) const {
@@ -431,15 +443,32 @@ inline ::flatbuffers::Offset<SPkt_Chat> CreateSPkt_ChatDirect(
 struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TRANS = 4
+    VT_TIMESTAMP = 4,
+    VT_TRANS = 6,
+    VT_FRONT_DIR = 8,
+    VT_SPINE_LOOK = 10
   };
+  int64_t timestamp() const {
+    return GetField<int64_t>(VT_TIMESTAMP, 0);
+  }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
   }
+  const FBProtocol::Vector3 *front_dir() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_FRONT_DIR);
+  }
+  const FBProtocol::Vector3 *spine_look() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
+           VerifyOffset(verifier, VT_FRONT_DIR) &&
+           verifier.VerifyTable(front_dir()) &&
+           VerifyOffset(verifier, VT_SPINE_LOOK) &&
+           verifier.VerifyTable(spine_look()) &&
            verifier.EndTable();
   }
 };
@@ -448,8 +477,17 @@ struct CPkt_TransformBuilder {
   typedef CPkt_Transform Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_timestamp(int64_t timestamp) {
+    fbb_.AddElement<int64_t>(CPkt_Transform::VT_TIMESTAMP, timestamp, 0);
+  }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(CPkt_Transform::VT_TRANS, trans);
+  }
+  void add_front_dir(::flatbuffers::Offset<FBProtocol::Vector3> front_dir) {
+    fbb_.AddOffset(CPkt_Transform::VT_FRONT_DIR, front_dir);
+  }
+  void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
+    fbb_.AddOffset(CPkt_Transform::VT_SPINE_LOOK, spine_look);
   }
   explicit CPkt_TransformBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -464,8 +502,14 @@ struct CPkt_TransformBuilder {
 
 inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0) {
+    int64_t timestamp = 0,
+    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> front_dir = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   CPkt_TransformBuilder builder_(_fbb);
+  builder_.add_timestamp(timestamp);
+  builder_.add_spine_look(spine_look);
+  builder_.add_front_dir(front_dir);
   builder_.add_trans(trans);
   return builder_.Finish();
 }
@@ -474,19 +518,36 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECT_ID = 4,
-    VT_TRANS = 6
+    VT_TIMESTAMP = 6,
+    VT_TRANS = 8,
+    VT_FRONT_DIR = 10,
+    VT_SPINE_LOOK = 12
   };
   uint64_t object_id() const {
     return GetField<uint64_t>(VT_OBJECT_ID, 0);
   }
+  int64_t timestamp() const {
+    return GetField<int64_t>(VT_TIMESTAMP, 0);
+  }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
+  }
+  const FBProtocol::Vector3 *front_dir() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_FRONT_DIR);
+  }
+  const FBProtocol::Vector3 *spine_look() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
+           VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
+           VerifyOffset(verifier, VT_FRONT_DIR) &&
+           verifier.VerifyTable(front_dir()) &&
+           VerifyOffset(verifier, VT_SPINE_LOOK) &&
+           verifier.VerifyTable(spine_look()) &&
            verifier.EndTable();
   }
 };
@@ -498,8 +559,17 @@ struct SPkt_TransformBuilder {
   void add_object_id(uint64_t object_id) {
     fbb_.AddElement<uint64_t>(SPkt_Transform::VT_OBJECT_ID, object_id, 0);
   }
+  void add_timestamp(int64_t timestamp) {
+    fbb_.AddElement<int64_t>(SPkt_Transform::VT_TIMESTAMP, timestamp, 0);
+  }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(SPkt_Transform::VT_TRANS, trans);
+  }
+  void add_front_dir(::flatbuffers::Offset<FBProtocol::Vector3> front_dir) {
+    fbb_.AddOffset(SPkt_Transform::VT_FRONT_DIR, front_dir);
+  }
+  void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
+    fbb_.AddOffset(SPkt_Transform::VT_SPINE_LOOK, spine_look);
   }
   explicit SPkt_TransformBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -515,9 +585,15 @@ struct SPkt_TransformBuilder {
 inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t object_id = 0,
-    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0) {
+    int64_t timestamp = 0,
+    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> front_dir = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   SPkt_TransformBuilder builder_(_fbb);
+  builder_.add_timestamp(timestamp);
   builder_.add_object_id(object_id);
+  builder_.add_spine_look(spine_look);
+  builder_.add_front_dir(front_dir);
   builder_.add_trans(trans);
   return builder_.Finish();
 }
@@ -596,8 +672,36 @@ inline ::flatbuffers::Offset<CPkt_KeyInput> CreateCPkt_KeyInput(
 
 struct SPkt_KeyInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_KeyInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_OBJECT_ID = 4,
+    VT_KEYINPUT_STATE = 6,
+    VT_KEYINPUT = 8,
+    VT_KEYINPUT_MOVE = 10,
+    VT_MOUSE_DELTA = 12
+  };
+  uint64_t object_id() const {
+    return GetField<uint64_t>(VT_OBJECT_ID, 0);
+  }
+  uint8_t keyinput_state() const {
+    return GetField<uint8_t>(VT_KEYINPUT_STATE, 0);
+  }
+  uint8_t keyinput() const {
+    return GetField<uint8_t>(VT_KEYINPUT, 0);
+  }
+  uint8_t keyinput_move() const {
+    return GetField<uint8_t>(VT_KEYINPUT_MOVE, 0);
+  }
+  const FBProtocol::Vector2 *mouse_delta() const {
+    return GetPointer<const FBProtocol::Vector2 *>(VT_MOUSE_DELTA);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
+           VerifyField<uint8_t>(verifier, VT_KEYINPUT_STATE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_KEYINPUT, 1) &&
+           VerifyField<uint8_t>(verifier, VT_KEYINPUT_MOVE, 1) &&
+           VerifyOffset(verifier, VT_MOUSE_DELTA) &&
+           verifier.VerifyTable(mouse_delta()) &&
            verifier.EndTable();
   }
 };
@@ -606,6 +710,21 @@ struct SPkt_KeyInputBuilder {
   typedef SPkt_KeyInput Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_object_id(uint64_t object_id) {
+    fbb_.AddElement<uint64_t>(SPkt_KeyInput::VT_OBJECT_ID, object_id, 0);
+  }
+  void add_keyinput_state(uint8_t keyinput_state) {
+    fbb_.AddElement<uint8_t>(SPkt_KeyInput::VT_KEYINPUT_STATE, keyinput_state, 0);
+  }
+  void add_keyinput(uint8_t keyinput) {
+    fbb_.AddElement<uint8_t>(SPkt_KeyInput::VT_KEYINPUT, keyinput, 0);
+  }
+  void add_keyinput_move(uint8_t keyinput_move) {
+    fbb_.AddElement<uint8_t>(SPkt_KeyInput::VT_KEYINPUT_MOVE, keyinput_move, 0);
+  }
+  void add_mouse_delta(::flatbuffers::Offset<FBProtocol::Vector2> mouse_delta) {
+    fbb_.AddOffset(SPkt_KeyInput::VT_MOUSE_DELTA, mouse_delta);
+  }
   explicit SPkt_KeyInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -618,8 +737,212 @@ struct SPkt_KeyInputBuilder {
 };
 
 inline ::flatbuffers::Offset<SPkt_KeyInput> CreateSPkt_KeyInput(
-    ::flatbuffers::FlatBufferBuilder &_fbb) {
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t object_id = 0,
+    uint8_t keyinput_state = 0,
+    uint8_t keyinput = 0,
+    uint8_t keyinput_move = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector2> mouse_delta = 0) {
   SPkt_KeyInputBuilder builder_(_fbb);
+  builder_.add_object_id(object_id);
+  builder_.add_mouse_delta(mouse_delta);
+  builder_.add_keyinput_move(keyinput_move);
+  builder_.add_keyinput(keyinput);
+  builder_.add_keyinput_state(keyinput_state);
+  return builder_.Finish();
+}
+
+struct CPkt_NetworkLatency FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_NetworkLatencyBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TIMESTAMP = 4
+  };
+  int64_t timestamp() const {
+    return GetField<int64_t>(VT_TIMESTAMP, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_NetworkLatencyBuilder {
+  typedef CPkt_NetworkLatency Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(int64_t timestamp) {
+    fbb_.AddElement<int64_t>(CPkt_NetworkLatency::VT_TIMESTAMP, timestamp, 0);
+  }
+  explicit CPkt_NetworkLatencyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_NetworkLatency> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_NetworkLatency>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_NetworkLatency> CreateCPkt_NetworkLatency(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int64_t timestamp = 0) {
+  CPkt_NetworkLatencyBuilder builder_(_fbb);
+  builder_.add_timestamp(timestamp);
+  return builder_.Finish();
+}
+
+struct SPkt_NetworkLatency FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_NetworkLatencyBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TIMESTAMP = 4
+  };
+  int64_t timestamp() const {
+    return GetField<int64_t>(VT_TIMESTAMP, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_NetworkLatencyBuilder {
+  typedef SPkt_NetworkLatency Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_timestamp(int64_t timestamp) {
+    fbb_.AddElement<int64_t>(SPkt_NetworkLatency::VT_TIMESTAMP, timestamp, 0);
+  }
+  explicit SPkt_NetworkLatencyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_NetworkLatency> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_NetworkLatency>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_NetworkLatency> CreateSPkt_NetworkLatency(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int64_t timestamp = 0) {
+  SPkt_NetworkLatencyBuilder builder_(_fbb);
+  builder_.add_timestamp(timestamp);
+  return builder_.Finish();
+}
+
+struct CPkt_PlayerState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_PlayerStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_WEAPON_TYPE = 4,
+    VT_PLAYER_MOTION_STATE = 6
+  };
+  uint8_t weapon_type() const {
+    return GetField<uint8_t>(VT_WEAPON_TYPE, 0);
+  }
+  uint32_t player_motion_state() const {
+    return GetField<uint32_t>(VT_PLAYER_MOTION_STATE, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_WEAPON_TYPE, 1) &&
+           VerifyField<uint32_t>(verifier, VT_PLAYER_MOTION_STATE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_PlayerStateBuilder {
+  typedef CPkt_PlayerState Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_weapon_type(uint8_t weapon_type) {
+    fbb_.AddElement<uint8_t>(CPkt_PlayerState::VT_WEAPON_TYPE, weapon_type, 0);
+  }
+  void add_player_motion_state(uint32_t player_motion_state) {
+    fbb_.AddElement<uint32_t>(CPkt_PlayerState::VT_PLAYER_MOTION_STATE, player_motion_state, 0);
+  }
+  explicit CPkt_PlayerStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_PlayerState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_PlayerState>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_PlayerState> CreateCPkt_PlayerState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t weapon_type = 0,
+    uint32_t player_motion_state = 0) {
+  CPkt_PlayerStateBuilder builder_(_fbb);
+  builder_.add_player_motion_state(player_motion_state);
+  builder_.add_weapon_type(weapon_type);
+  return builder_.Finish();
+}
+
+struct SPkt_PlayerState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_PlayerStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_OBJECT_ID = 4,
+    VT_WEAPON_TYPE = 6,
+    VT_PLAYER_MOTION_STATE = 8
+  };
+  uint64_t object_id() const {
+    return GetField<uint64_t>(VT_OBJECT_ID, 0);
+  }
+  uint8_t weapon_type() const {
+    return GetField<uint8_t>(VT_WEAPON_TYPE, 0);
+  }
+  uint32_t player_motion_state() const {
+    return GetField<uint32_t>(VT_PLAYER_MOTION_STATE, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
+           VerifyField<uint8_t>(verifier, VT_WEAPON_TYPE, 1) &&
+           VerifyField<uint32_t>(verifier, VT_PLAYER_MOTION_STATE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_PlayerStateBuilder {
+  typedef SPkt_PlayerState Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_object_id(uint64_t object_id) {
+    fbb_.AddElement<uint64_t>(SPkt_PlayerState::VT_OBJECT_ID, object_id, 0);
+  }
+  void add_weapon_type(uint8_t weapon_type) {
+    fbb_.AddElement<uint8_t>(SPkt_PlayerState::VT_WEAPON_TYPE, weapon_type, 0);
+  }
+  void add_player_motion_state(uint32_t player_motion_state) {
+    fbb_.AddElement<uint32_t>(SPkt_PlayerState::VT_PLAYER_MOTION_STATE, player_motion_state, 0);
+  }
+  explicit SPkt_PlayerStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_PlayerState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_PlayerState>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_PlayerState> CreateSPkt_PlayerState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t object_id = 0,
+    uint8_t weapon_type = 0,
+    uint32_t player_motion_state = 0) {
+  SPkt_PlayerStateBuilder builder_(_fbb);
+  builder_.add_object_id(object_id);
+  builder_.add_player_motion_state(player_motion_state);
+  builder_.add_weapon_type(weapon_type);
   return builder_.Finish();
 }
 

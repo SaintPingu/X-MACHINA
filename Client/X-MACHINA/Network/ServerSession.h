@@ -1,4 +1,5 @@
 #pragma once
+#include "Script_Network.h"
 
 class ServerSession : public PacketSession
 {

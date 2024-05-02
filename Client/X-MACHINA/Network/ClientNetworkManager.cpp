@@ -157,9 +157,9 @@ void ClientNetworkManager::Send_CPkt_KeyInput(GameKeyInfo::KEY		 key
 	mClientNetworkService->Broadcast(CPktBuf);
 }
 
-void ClientNetworkManager::Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale)
+void ClientNetworkManager::Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 FrontDir, Vec3 SpineLookDir, long long timestamp)
 {
-	auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale);
+	auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale, FrontDir, SpineLookDir, timestamp);
 	
 	mClientNetworkService->Broadcast(CPktBuf);
 }

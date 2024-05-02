@@ -166,6 +166,7 @@ private:
 public:
 	PlayerMotion GetPrevState() const  { return PlayerMotion::GetState(mPrevMovement); }
 	PlayerMotion GetPrevMotion() const { return PlayerMotion::GetMotion(mPrevMovement); }
+	Transform* GetSpineBone() { return mSpineBone; }
 
 public:
 	virtual void Awake() override;

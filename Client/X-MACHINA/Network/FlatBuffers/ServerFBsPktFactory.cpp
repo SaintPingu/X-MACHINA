@@ -17,6 +17,7 @@
 #include "Scene.h"
 #include "../include/GameFramework.h"
 #include "X-Engine.h"
+#include "NewtorkTimeManager.h"
 
 
 FlatPacketHandlerFunc GFlatPacketHandler[UINT16_MAX]{};
@@ -55,11 +56,24 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		if (sessionID == MysessionID) continue;
 		std::string				  name        = otherPlayerInfo->name()->c_str();
 		FBProtocol::OBJECTTYPE	  objType     = otherPlayerInfo->player_type();
+		
+		Vec3 Pos = Vec3(otherPlayerInfo->trans()->position()->x(), otherPlayerInfo->trans()->position()->y(), otherPlayerInfo->trans()->position()->z());
+		Vec3 Rot = Vec3(otherPlayerInfo->trans()->rotation()->x(), otherPlayerInfo->trans()->rotation()->y(), otherPlayerInfo->trans()->rotation()->z());
+		Vec3 Sca = Vec3(otherPlayerInfo->trans()->scale()->x(), otherPlayerInfo->trans()->scale()->y(), otherPlayerInfo->trans()->scale()->z());
+
+		Vec3 Fdir = Vec3(otherPlayerInfo->front_dir()->x(), otherPlayerInfo->front_dir()->y(), otherPlayerInfo->front_dir()->z());
+		Vec3 Sdir = Vec3(otherPlayerInfo->spine_look()->x(), otherPlayerInfo->spine_look()->y(), otherPlayerInfo->spine_look()->z());
+	
 		std::cout << " 기존 게임 정보 업데이트 - " << sessionID << "\n";
 		
 		
 		/* GameScene 에 다른 Player 정보들을 만든다.  */
 		/* Create Other Player & Add To Game Scene */
+
+		//otherPlayer->SetPosition(Pos);
+		//otherPlayer->SetLocalRotation(Rot);
+		//otherPlayer->SetScale(Sca);
+
 
 		sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
 		EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
@@ -130,9 +144,9 @@ bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol:
 	Vec3 Rot = { pkt.trans()->rotation()->x() ,pkt.trans()->rotation()->y() ,pkt.trans()->rotation()->z() };
 
 	sptr<NetworkEvent::Scene::MoveOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::MoveOtherPlayer>();
-	EventData->type                             = NetworkEvent::Scene::Enum::MoveOtherPlayer;
-	EventData->sessionID                        = objID;
-	EventData->Pos                              = Pos;
+	EventData->type                                      = NetworkEvent::Scene::Enum::MoveOtherPlayer;
+	EventData->sessionID                                 = objID;
+	EventData->Pos                                       = Pos;
 	//std::cout << "▶ ID : " << objID << " " << " POS - (x: " << Pos.x << ", y: " << Pos.y << ", z: " << Pos.z << ")\n";
 	NETWORK_MGR->RegisterEvent(EventData);
 
@@ -148,6 +162,16 @@ bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol:
 }
 
 bool ProcessFBsPkt_SPkt_KeyInput(SPtr_PacketSession& session, const FBProtocol::SPkt_KeyInput& pkt)
+{
+	return false;
+}
+
+bool ProcessFBsPkt_SPkt_NetworkLatency(SPtr_PacketSession& session, const FBProtocol::SPkt_NetworkLatency& pkt)
+{
+	return false;
+}
+
+bool ProcessFBsPkt_SPkt_PlayerState(SPtr_PacketSession& session, const FBProtocol::SPkt_PlayerState& pkt)
 {
 	return false;
 }

@@ -23,6 +23,10 @@ enum class FBPkt_ProtocolID : uint16 // Server ----> Client
 	SPkt_Transform = 1009,
 	CPkt_KeyInput = 1010,
 	SPkt_KeyInput = 1011,
+	CPkt_NetworkLatency = 1012,
+	SPkt_NetworkLatency = 1013,
+	CPkt_PlayerState = 1014,
+	SPkt_PlayerState = 1015,
 	// ----------+
 };
 
@@ -38,6 +42,8 @@ bool ProcessFBsPkt_SPkt_EnterGame(SPtr_PacketSession& session, const FBProtocol:
 bool ProcessFBsPkt_SPkt_Chat(SPtr_PacketSession& session, const FBProtocol::SPkt_Chat&pkt);
 bool ProcessFBsPkt_SPkt_Transform(SPtr_PacketSession& session, const FBProtocol::SPkt_Transform&pkt);
 bool ProcessFBsPkt_SPkt_KeyInput(SPtr_PacketSession& session, const FBProtocol::SPkt_KeyInput&pkt);
+bool ProcessFBsPkt_SPkt_NetworkLatency(SPtr_PacketSession& session, const FBProtocol::SPkt_NetworkLatency&pkt);
+bool ProcessFBsPkt_SPkt_PlayerState(SPtr_PacketSession& session, const FBProtocol::SPkt_PlayerState&pkt);
 // ---------------------------------+
 
 class ServerFBsPktFactory
@@ -58,6 +64,8 @@ public:
 		GFlatPacketHandler[static_cast<uint16>(FBPkt_ProtocolID::SPkt_Chat)] = [](SPtr_PacketSession& session, BYTE* buffer, int32 len) { return ProcessFBsPkt<FBProtocol::SPkt_Chat>(ProcessFBsPkt_SPkt_Chat, session, buffer, len); };
 		GFlatPacketHandler[static_cast<uint16>(FBPkt_ProtocolID::SPkt_Transform)] = [](SPtr_PacketSession& session, BYTE* buffer, int32 len) { return ProcessFBsPkt<FBProtocol::SPkt_Transform>(ProcessFBsPkt_SPkt_Transform, session, buffer, len); };
 		GFlatPacketHandler[static_cast<uint16>(FBPkt_ProtocolID::SPkt_KeyInput)] = [](SPtr_PacketSession& session, BYTE* buffer, int32 len) { return ProcessFBsPkt<FBProtocol::SPkt_KeyInput>(ProcessFBsPkt_SPkt_KeyInput, session, buffer, len); };
+		GFlatPacketHandler[static_cast<uint16>(FBPkt_ProtocolID::SPkt_NetworkLatency)] = [](SPtr_PacketSession& session, BYTE* buffer, int32 len) { return ProcessFBsPkt<FBProtocol::SPkt_NetworkLatency>(ProcessFBsPkt_SPkt_NetworkLatency, session, buffer, len); };
+		GFlatPacketHandler[static_cast<uint16>(FBPkt_ProtocolID::SPkt_PlayerState)] = [](SPtr_PacketSession& session, BYTE* buffer, int32 len) { return ProcessFBsPkt<FBProtocol::SPkt_PlayerState>(ProcessFBsPkt_SPkt_PlayerState, session, buffer, len); };
 		// ---------------------------------+
 	}
 
@@ -75,6 +83,8 @@ public:
 	static SPtr_SendPktBuf MakeFBsSendPktBuf(const uint8_t* bufferPointer, const uint16 SerializedDataSize, const flatbuffers::Offset<FBProtocol::CPkt_Chat>&pkt) { return MakeFBsSendPktBuf(bufferPointer, SerializedDataSize, pkt, static_cast<uint16>(FBPkt_ProtocolID::CPkt_Chat)); }
 	static SPtr_SendPktBuf MakeFBsSendPktBuf(const uint8_t* bufferPointer, const uint16 SerializedDataSize, const flatbuffers::Offset<FBProtocol::CPkt_Transform>&pkt) { return MakeFBsSendPktBuf(bufferPointer, SerializedDataSize, pkt, static_cast<uint16>(FBPkt_ProtocolID::CPkt_Transform)); }
 	static SPtr_SendPktBuf MakeFBsSendPktBuf(const uint8_t* bufferPointer, const uint16 SerializedDataSize, const flatbuffers::Offset<FBProtocol::CPkt_KeyInput>&pkt) { return MakeFBsSendPktBuf(bufferPointer, SerializedDataSize, pkt, static_cast<uint16>(FBPkt_ProtocolID::CPkt_KeyInput)); }
+	static SPtr_SendPktBuf MakeFBsSendPktBuf(const uint8_t* bufferPointer, const uint16 SerializedDataSize, const flatbuffers::Offset<FBProtocol::CPkt_NetworkLatency>&pkt) { return MakeFBsSendPktBuf(bufferPointer, SerializedDataSize, pkt, static_cast<uint16>(FBPkt_ProtocolID::CPkt_NetworkLatency)); }
+	static SPtr_SendPktBuf MakeFBsSendPktBuf(const uint8_t* bufferPointer, const uint16 SerializedDataSize, const flatbuffers::Offset<FBProtocol::CPkt_PlayerState>&pkt) { return MakeFBsSendPktBuf(bufferPointer, SerializedDataSize, pkt, static_cast<uint16>(FBPkt_ProtocolID::CPkt_PlayerState)); }
 	// ------------------------------+
 
 private:

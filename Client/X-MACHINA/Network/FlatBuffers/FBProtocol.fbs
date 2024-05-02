@@ -43,6 +43,7 @@ table SPkt_NewPlayer
 // +------------------------
 //		  ENTER GAME 
 // ------------------------+
+
 table CPkt_EnterGame
 {
 	player_index: ulong;
@@ -57,6 +58,7 @@ table SPkt_EnterGame
 // +------------------------
 //		     CHAT 
 // ------------------------+
+
 table CPkt_Chat
 {
 	message: string;
@@ -74,15 +76,22 @@ table SPkt_Chat
 // ------------------------+
 table CPkt_Transform
 {
-	trans: Transform;
+	timestamp  : long;
+
+	trans		: Transform;
+	front_dir	: Vector3;
+	spine_look	: Vector3;
 }
 
 table SPkt_Transform
 {
-	object_id: ulong;
-	trans: Transform;
-}
+	object_id	: ulong;
 
+	timestamp   : long;
+	trans		: Transform;
+	front_dir	: Vector3;
+	spine_look	: Vector3;
+}
 
 // +------------------------
 //		    KEY 
@@ -99,5 +108,48 @@ table CPkt_KeyInput
 
 table SPkt_KeyInput
 {
-	
+	object_id		: ulong;
+
+	keyinput_state	: ubyte; // UINT8
+	keyinput		: ubyte; // UINT8;
+	keyinput_move	: ubyte; // UINT8
+
+	mouse_delta		: Vector2; // (float, float)
 }
+
+
+// +--------------------
+// LATENCY CHECK PACKET 
+// --------------------+
+
+table CPkt_NetworkLatency
+{
+	timestamp : long;
+}
+
+table SPkt_NetworkLatency
+{
+	timestamp : long;
+}
+
+
+// +------------------------
+//		 PLAYER STATE  
+// ------------------------+
+
+table CPkt_PlayerState
+{
+	weapon_type				: ubyte; // UINT8
+	player_motion_state		: uint;  // DWORD ( 32bit )
+
+}
+
+table SPkt_PlayerState
+{
+	object_id				: ulong;
+
+	weapon_type				: ubyte; // UINT8
+	player_motion_state		: uint;  // DWORD ( 32bit )
+
+}
+

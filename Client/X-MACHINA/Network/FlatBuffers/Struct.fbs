@@ -4,11 +4,16 @@
 // ---------------+
 
 include "Enum.fbs";
+include "Transform.fbs";
 
 namespace FBProtocol;
 
 table Player {
-  id: ulong;
-  name: string;
-  player_type: OBJECTTYPE;
+  id			: ulong;
+  name			: string;
+  player_type	: OBJECTTYPE;
+
+  trans			: Transform;
+  front_dir		: Vector3;
+  spine_look	: Vector3;
 }

@@ -64,7 +64,7 @@ public:
 				,	GameKeyInfo::MoveKey	 moveKey
 				,	Vec2					 mouseDelta);
 
-	void Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale = Vec3(1.f ,1.f ,1.f));
+	void Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 FrontDir, Vec3 SpineLookDir, long long timestamp);
 
 
 };

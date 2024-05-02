@@ -277,6 +277,15 @@
     <ClInclude Include="Network\ClientNetworkManager.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="Network\Script_PlayerNetwork.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Script_Network.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NewtorkTimeManager.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -421,6 +430,15 @@
       <Filter>Script\Network</Filter>
     </ClCompile>
     <ClCompile Include="Network\ClientNetworkManager.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Script_PlayerNetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Script_Network.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NewtorkTimeManager.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>

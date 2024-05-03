@@ -22,7 +22,6 @@ BT::NodeState CheckPatrolRange::Evaluate()
 {
 	// 복귀 중인 경우 CheckPatrolRange는 Failure가 되어야 한다.
 	mEnemyMgr->mController->SetValue("Walk", true);
-	mEnemyMgr->mController->SetValue("Return", true);
 
 	// 웨이 포인트 무게 중심으로부터 가장 멀리 떨어진 포인트와의 거리가 범위
 	constexpr float adjRange = 0.2f;

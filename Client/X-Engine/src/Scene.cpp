@@ -1013,12 +1013,6 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
-	for (auto& object : mStaticObjects) {
-		if (object->IsActive()) {
-			processFunc(object);
-		}
-	}
-
 	for (auto& object : mDynamicObjects) {
 		if (object && object->IsActive()) {
 			processFunc(object);

@@ -21,9 +21,11 @@ TaskPathPlanningAStar::TaskPathPlanningAStar(Object* object)
 
 bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 {
-	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
+	// 초기 위치 혹은 도착 지점이 Static이라면 bfs를 사용해 주변 None 지점 획득
 	if (Scene::I->GetTileFromUniqueIndex(start) == Tile::Static)
-		return false;
+		start = FindNoneTileFromBfs(start);
+	if (Scene::I->GetTileFromUniqueIndex(dest) == Tile::Static)
+		dest = FindNoneTileFromBfs(dest);
 
 	// 값 초기화 
 	Scene::I->GetOpenList().clear();
@@ -124,10 +126,38 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 		prevDir = dir;
 	}
 
+	// 자연스러운 움직임을 위해 첫 번째 경로는 삭제
+	Scene::I->GetOpenList().push_back(Scene::I->GetTilePosFromUniqueIndex(start));
+	mPath->pop();
 
 	if (mPath->empty()) {
 		return false;
 	}
 
 	return true;
+}
+
+Pos TaskPathPlanningAStar::FindNoneTileFromBfs(const Pos& pos)
+{
+	std::queue<Pos> q;
+	std::map<Pos, bool> visited;
+	q.push(pos);
+
+	while (!q.empty()) {
+		Pos curPos = q.front();
+		q.pop();
+
+		if (Scene::I->GetTileFromUniqueIndex(curPos) == Tile::None)
+			return curPos;
+
+		if (visited[curPos])
+			continue;
+
+		visited[curPos] = true;
+
+		for (int dir = 0; dir < 4; ++dir) {
+			Pos nextPos = curPos + gkFront[dir];
+			q.push(nextPos);
+		}
+	}
 }

@@ -17,10 +17,6 @@ TaskMoveToTarget::TaskMoveToTarget(Object* object)
 
 BT::NodeState TaskMoveToTarget::Evaluate()
 {
-	// 초기 위치가 Static이라면 길찾기를 하지 않는다.
-	if (Scene::I->GetTileFromPos(mEnemyMgr->mTarget->GetPosition()) == Tile::Static)
-		return BT::NodeState::Failure;
-
 	// 허리 쪽부터 광선을 쏴야 맞는다.
 	Vec3 objectAdjPos = mObject->GetPosition() + mObject->GetUp() * 0.5f;
 	Vec3 targetAdjPos = mEnemyMgr->mTarget->GetPosition() + mEnemyMgr->mTarget->GetUp() * 0.5f;
@@ -53,6 +49,8 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	
 	// 타겟에 도착하지 않았을 경우에만 이동
 	if (toTarget.Length() > kMinDistance) {
+		mEnemyMgr->mController->SetValue("Return", false);
+
 		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mRotationSpeed);
 		mObject->Translate(mObject->GetLook(), mEnemyMgr->mMoveSpeed * DeltaTime());
 	}

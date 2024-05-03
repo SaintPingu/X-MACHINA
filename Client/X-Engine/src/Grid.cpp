@@ -83,7 +83,7 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 
 		visited[curNode] = true;
 
-		for (int dir = 0; dir < 8; ++dir) {
+		for (int dir = 0; dir < 4; ++dir) {
 			Pos nextPosT = curNode + gkFront[dir];
 			Vec3 nextPosW = Scene::I->GetTilePosFromUniqueIndex(nextPosT);
 			nextPosW.y = pos.y;

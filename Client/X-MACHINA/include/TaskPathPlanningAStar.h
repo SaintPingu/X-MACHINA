@@ -48,5 +48,6 @@ public:
 
 protected:
 	bool PathPlanningAStar(Pos start, Pos dest);
+	Pos FindNoneTileFromBfs(const Pos& pos);
 };
 #pragma endregion

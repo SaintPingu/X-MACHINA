@@ -28,8 +28,7 @@ struct Player FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_NAME = 6,
     VT_PLAYER_TYPE = 8,
     VT_TRANS = 10,
-    VT_FRONT_DIR = 12,
-    VT_SPINE_LOOK = 14
+    VT_SPINE_LOOK = 12
   };
   uint64_t id() const {
     return GetField<uint64_t>(VT_ID, 0);
@@ -43,9 +42,6 @@ struct Player FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
   }
-  const FBProtocol::Vector3 *front_dir() const {
-    return GetPointer<const FBProtocol::Vector3 *>(VT_FRONT_DIR);
-  }
   const FBProtocol::Vector3 *spine_look() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
   }
@@ -57,8 +53,6 @@ struct Player FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<int8_t>(verifier, VT_PLAYER_TYPE, 1) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
-           VerifyOffset(verifier, VT_FRONT_DIR) &&
-           verifier.VerifyTable(front_dir()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
            verifier.VerifyTable(spine_look()) &&
            verifier.EndTable();
@@ -81,9 +75,6 @@ struct PlayerBuilder {
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(Player::VT_TRANS, trans);
   }
-  void add_front_dir(::flatbuffers::Offset<FBProtocol::Vector3> front_dir) {
-    fbb_.AddOffset(Player::VT_FRONT_DIR, front_dir);
-  }
   void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
     fbb_.AddOffset(Player::VT_SPINE_LOOK, spine_look);
   }
@@ -104,12 +95,10 @@ inline ::flatbuffers::Offset<Player> CreatePlayer(
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     FBProtocol::OBJECTTYPE player_type = FBProtocol::OBJECTTYPE_NONE,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> front_dir = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   PlayerBuilder builder_(_fbb);
   builder_.add_id(id);
   builder_.add_spine_look(spine_look);
-  builder_.add_front_dir(front_dir);
   builder_.add_trans(trans);
   builder_.add_name(name);
   builder_.add_player_type(player_type);
@@ -122,7 +111,6 @@ inline ::flatbuffers::Offset<Player> CreatePlayerDirect(
     const char *name = nullptr,
     FBProtocol::OBJECTTYPE player_type = FBProtocol::OBJECTTYPE_NONE,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> front_dir = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return FBProtocol::CreatePlayer(
@@ -131,7 +119,6 @@ inline ::flatbuffers::Offset<Player> CreatePlayerDirect(
       name__,
       player_type,
       trans,
-      front_dir,
       spine_look);
 }
 

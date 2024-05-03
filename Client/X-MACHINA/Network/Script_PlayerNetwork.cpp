@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Script_PlayerNetwork.h"
 #include "ClientNetworkManager.h"
-#include "NewtorkTimeManager.h"
 #include "GameFramework.h"
 #include "X-Engine.h"
 #include "Object.h"
@@ -29,11 +28,10 @@ void Script_PlayerNetwork::LateUpdate()
 		Vec3 Pos              = GameFramework::I->GetPlayer()->GetPosition();
 		Vec3 Rot              = GameFramework::I->GetPlayer()->GetRotation();
 		Vec3 Sca              = Vec3(1.f, 1.f, 1.f);
-		Vec3 FrontDir         = GameFramework::I->GetPlayer()->GetLook();
 		Vec3 SpineDir         = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 
-		long long timestamp = NETWORK_TIME_MGR->GetTimeStamp();
-		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot, Sca, FrontDir, SpineDir, timestamp);
+		long long timestamp = NETWORK_MGR->GetTimeStamp();
+		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot, Sca, SpineDir, timestamp);
 
 	}
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
@@ -47,11 +45,10 @@ void Script_PlayerNetwork::LateUpdate()
 			Vec3 Pos              = GameFramework::I->GetPlayer()->GetPosition();
 			Vec3 Rot              = GameFramework::I->GetPlayer()->GetRotation();
 			Vec3 Sca              = Vec3(1.f, 1.f, 1.f);
-			Vec3 FrontDir         = GameFramework::I->GetPlayer()->GetLook();
 			Vec3 SpineDir         = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 
-			long long timestamp = NETWORK_TIME_MGR->GetTimeStamp();			
-			NETWORK_MGR->Send_CPkt_Transform(Pos, Rot, Sca, FrontDir, SpineDir, timestamp);
+			long long timestamp = NETWORK_MGR->GetTimeStamp();
+			NETWORK_MGR->Send_CPkt_Transform(Pos, Rot, Sca, SpineDir, timestamp);
 		}
 	}
 	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
@@ -59,11 +56,10 @@ void Script_PlayerNetwork::LateUpdate()
 		Vec3 Pos      = GameFramework::I->GetPlayer()->GetPosition();
 		Vec3 Rot      = GameFramework::I->GetPlayer()->GetRotation();
 		Vec3 Sca      = Vec3(1.f, 1.f, 1.f);
-		Vec3 FrontDir = GameFramework::I->GetPlayer()->GetLook();
 		Vec3 SpineDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 
-		long long timestamp = NETWORK_TIME_MGR->GetTimeStamp();
-		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot, Sca, FrontDir, SpineDir, timestamp);
+		long long timestamp = NETWORK_MGR->GetTimeStamp();
+		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot, Sca, SpineDir, timestamp);
 
 	}
 

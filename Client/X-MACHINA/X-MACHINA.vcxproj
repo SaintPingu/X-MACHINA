@@ -248,7 +248,6 @@
     <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h" />
     <ClInclude Include="Network\FlatBuffers\Struct_generated.h" />
     <ClInclude Include="Network\FlatBuffers\Transform_generated.h" />
-    <ClInclude Include="Network\NewtorkTimeManager.h" />
     <ClInclude Include="Network\PacketFactory.h" />
     <ClInclude Include="Network\Script_Network.h" />
     <ClInclude Include="Network\Script_PlayerNetwork.h" />
@@ -257,7 +256,6 @@
   <ItemGroup>
     <ClCompile Include="Network\ClientNetworkManager.cpp" />
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
-    <ClCompile Include="Network\NewtorkTimeManager.cpp" />
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\Script_Network.cpp" />
     <ClCompile Include="Network\Script_PlayerNetwork.cpp" />

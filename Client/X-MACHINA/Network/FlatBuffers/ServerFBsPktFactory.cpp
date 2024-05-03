@@ -17,7 +17,6 @@
 #include "Scene.h"
 #include "../include/GameFramework.h"
 #include "X-Engine.h"
-#include "NewtorkTimeManager.h"
 
 
 FlatPacketHandlerFunc GFlatPacketHandler[UINT16_MAX]{};
@@ -40,7 +39,12 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	std::string				  Myname        = MySessionInfo->name()->c_str();
 	uint64_t				  MysessionID   = MySessionInfo->id();
 	FBProtocol::OBJECTTYPE	  MyobjType     = MySessionInfo->player_type();
+	Vec3					  MyPos         = Vec3(MySessionInfo->trans()->position()->x(), MySessionInfo->trans()->position()->y(), MySessionInfo->trans()->position()->z());
+	Vec3					  MyRot         = Vec3(MySessionInfo->trans()->rotation()->x(), MySessionInfo->trans()->rotation()->y(), MySessionInfo->trans()->rotation()->z());
+	Vec3					  MySca         = Vec3(MySessionInfo->trans()->scale()->x(), MySessionInfo->trans()->scale()->y(), MySessionInfo->trans()->scale()->z());
 	
+	auto					  Myspine       = MySessionInfo->spine_look(); // 왜 NULL 이야..???
+
 	GameFramework::I->InitPlayer(MysessionID);
 
 	std::cout << "♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n";
@@ -53,7 +57,6 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 
 		const FBProtocol::Player* otherPlayerInfo = pkt.players()->Get(i);
 		uint64_t					  sessionID   = otherPlayerInfo->id();
-		if (sessionID == MysessionID) continue;
 		std::string				  name        = otherPlayerInfo->name()->c_str();
 		FBProtocol::OBJECTTYPE	  objType     = otherPlayerInfo->player_type();
 		
@@ -61,10 +64,10 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		Vec3 Rot = Vec3(otherPlayerInfo->trans()->rotation()->x(), otherPlayerInfo->trans()->rotation()->y(), otherPlayerInfo->trans()->rotation()->z());
 		Vec3 Sca = Vec3(otherPlayerInfo->trans()->scale()->x(), otherPlayerInfo->trans()->scale()->y(), otherPlayerInfo->trans()->scale()->z());
 
-		Vec3 Fdir = Vec3(otherPlayerInfo->front_dir()->x(), otherPlayerInfo->front_dir()->y(), otherPlayerInfo->front_dir()->z());
+		auto spine = otherPlayerInfo->spine_look();
+
 		Vec3 Sdir = Vec3(otherPlayerInfo->spine_look()->x(), otherPlayerInfo->spine_look()->y(), otherPlayerInfo->spine_look()->z());
 	
-		std::cout << " 기존 게임 정보 업데이트 - " << sessionID << "\n";
 		
 		
 		/* GameScene 에 다른 Player 정보들을 만든다.  */
@@ -74,6 +77,8 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 		//otherPlayer->SetLocalRotation(Rot);
 		//otherPlayer->SetScale(Sca);
 
+		if (sessionID == MysessionID) continue;
+		std::cout << " 기존 게임 정보 업데이트 - " << sessionID << "\n";
 
 		sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
 		EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;

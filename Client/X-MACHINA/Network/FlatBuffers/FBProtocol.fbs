@@ -39,11 +39,9 @@ table SPkt_NewPlayer
 	newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
 }
 
-
 // +------------------------
 //		  ENTER GAME 
 // ------------------------+
-
 table CPkt_EnterGame
 {
 	player_index: ulong;
@@ -58,7 +56,6 @@ table SPkt_EnterGame
 // +------------------------
 //		     CHAT 
 // ------------------------+
-
 table CPkt_Chat
 {
 	message: string;
@@ -76,22 +73,21 @@ table SPkt_Chat
 // ------------------------+
 table CPkt_Transform
 {
-	timestamp  : long;
+	timestamp   : long;
 
 	trans		: Transform;
-	front_dir	: Vector3;
 	spine_look	: Vector3;
 }
 
 table SPkt_Transform
 {
 	object_id	: ulong;
-
 	timestamp   : long;
+
 	trans		: Transform;
-	front_dir	: Vector3;
 	spine_look	: Vector3;
 }
+
 
 // +------------------------
 //		    KEY 
@@ -118,10 +114,10 @@ table SPkt_KeyInput
 }
 
 
+
 // +--------------------
 // LATENCY CHECK PACKET 
 // --------------------+
-
 table CPkt_NetworkLatency
 {
 	timestamp : long;
@@ -131,7 +127,6 @@ table SPkt_NetworkLatency
 {
 	timestamp : long;
 }
-
 
 // +------------------------
 //		 PLAYER STATE  
@@ -152,4 +147,3 @@ table SPkt_PlayerState
 	player_motion_state		: uint;  // DWORD ( 32bit )
 
 }
-

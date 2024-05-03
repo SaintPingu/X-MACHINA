@@ -70,6 +70,12 @@
     <Filter Include="Script\Network">
       <UniqueIdentifier>{e93c97fb-3ca4-4a22-ab1f-bc18295e3a4d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network\NetScript">
+      <UniqueIdentifier>{47b80c2b-b036-42e5-8cb1-05724ac68159}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Factory">
+      <UniqueIdentifier>{7b2da9fd-e17d-4cd9-92db-1d3524ae6d66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -172,13 +178,7 @@
     <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h">
       <Filter>Network\FlatBuffers</Filter>
     </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="Network\ServerSession.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\PacketFactory.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="include\stdafx.h">
@@ -277,14 +277,17 @@
     <ClInclude Include="Network\ClientNetworkManager.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\Script_PlayerNetwork.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="Network\Script_Network.h">
-      <Filter>Network</Filter>
+      <Filter>Network\NetScript</Filter>
     </ClInclude>
-    <ClInclude Include="Network\NewtorkTimeManager.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Network\Script_PlayerNetwork.h">
+      <Filter>Network\NetScript</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\PacketFactory.h">
+      <Filter>Network\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h">
+      <Filter>Network\Factory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -330,13 +333,7 @@
     <ClCompile Include="src\GameFramework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="Network\ServerSession.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\PacketFactory.cpp">
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
@@ -432,14 +429,17 @@
     <ClCompile Include="Network\ClientNetworkManager.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\Script_PlayerNetwork.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="Network\Script_Network.cpp">
-      <Filter>Network</Filter>
+      <Filter>Network\NetScript</Filter>
     </ClCompile>
-    <ClCompile Include="Network\NewtorkTimeManager.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Network\Script_PlayerNetwork.cpp">
+      <Filter>Network\NetScript</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\PacketFactory.cpp">
+      <Filter>Network\Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp">
+      <Filter>Network\Factory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

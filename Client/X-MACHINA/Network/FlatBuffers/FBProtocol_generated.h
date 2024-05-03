@@ -445,17 +445,13 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIMESTAMP = 4,
     VT_TRANS = 6,
-    VT_FRONT_DIR = 8,
-    VT_SPINE_LOOK = 10
+    VT_SPINE_LOOK = 8
   };
   int64_t timestamp() const {
     return GetField<int64_t>(VT_TIMESTAMP, 0);
   }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
-  }
-  const FBProtocol::Vector3 *front_dir() const {
-    return GetPointer<const FBProtocol::Vector3 *>(VT_FRONT_DIR);
   }
   const FBProtocol::Vector3 *spine_look() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
@@ -465,8 +461,6 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
-           VerifyOffset(verifier, VT_FRONT_DIR) &&
-           verifier.VerifyTable(front_dir()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
            verifier.VerifyTable(spine_look()) &&
            verifier.EndTable();
@@ -482,9 +476,6 @@ struct CPkt_TransformBuilder {
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(CPkt_Transform::VT_TRANS, trans);
-  }
-  void add_front_dir(::flatbuffers::Offset<FBProtocol::Vector3> front_dir) {
-    fbb_.AddOffset(CPkt_Transform::VT_FRONT_DIR, front_dir);
   }
   void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
     fbb_.AddOffset(CPkt_Transform::VT_SPINE_LOOK, spine_look);
@@ -504,12 +495,10 @@ inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int64_t timestamp = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> front_dir = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   CPkt_TransformBuilder builder_(_fbb);
   builder_.add_timestamp(timestamp);
   builder_.add_spine_look(spine_look);
-  builder_.add_front_dir(front_dir);
   builder_.add_trans(trans);
   return builder_.Finish();
 }
@@ -520,8 +509,7 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_OBJECT_ID = 4,
     VT_TIMESTAMP = 6,
     VT_TRANS = 8,
-    VT_FRONT_DIR = 10,
-    VT_SPINE_LOOK = 12
+    VT_SPINE_LOOK = 10
   };
   uint64_t object_id() const {
     return GetField<uint64_t>(VT_OBJECT_ID, 0);
@@ -532,9 +520,6 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
   }
-  const FBProtocol::Vector3 *front_dir() const {
-    return GetPointer<const FBProtocol::Vector3 *>(VT_FRONT_DIR);
-  }
   const FBProtocol::Vector3 *spine_look() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
   }
@@ -544,8 +529,6 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
-           VerifyOffset(verifier, VT_FRONT_DIR) &&
-           verifier.VerifyTable(front_dir()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
            verifier.VerifyTable(spine_look()) &&
            verifier.EndTable();
@@ -564,9 +547,6 @@ struct SPkt_TransformBuilder {
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(SPkt_Transform::VT_TRANS, trans);
-  }
-  void add_front_dir(::flatbuffers::Offset<FBProtocol::Vector3> front_dir) {
-    fbb_.AddOffset(SPkt_Transform::VT_FRONT_DIR, front_dir);
   }
   void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
     fbb_.AddOffset(SPkt_Transform::VT_SPINE_LOOK, spine_look);
@@ -587,13 +567,11 @@ inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
     uint64_t object_id = 0,
     int64_t timestamp = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> front_dir = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   SPkt_TransformBuilder builder_(_fbb);
   builder_.add_timestamp(timestamp);
   builder_.add_object_id(object_id);
   builder_.add_spine_look(spine_look);
-  builder_.add_front_dir(front_dir);
   builder_.add_trans(trans);
   return builder_.Finish();
 }

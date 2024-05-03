@@ -56,6 +56,8 @@ public:
 	void SwapEventsQueue(); 
 	void RegisterEvent(sptr<NetworkEvent::Scene::EventData> data);
 	
+	long long GetTimeStamp();
+
 public:
 	/* Send Client Packet */
 	void Send_CPkt_KeyInput(
@@ -64,7 +66,7 @@ public:
 				,	GameKeyInfo::MoveKey	 moveKey
 				,	Vec2					 mouseDelta);
 
-	void Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 FrontDir, Vec3 SpineLookDir, long long timestamp);
+	void Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp);
 
 
 };

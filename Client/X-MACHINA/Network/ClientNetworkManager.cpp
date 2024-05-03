@@ -147,6 +147,11 @@ void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Scene::EventData> da
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
 }
 
+long long ClientNetworkManager::GetTimeStamp()
+{
+	return duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
 
 void ClientNetworkManager::Send_CPkt_KeyInput(GameKeyInfo::KEY		 key
 										    , GameKeyInfo::KEY_STATE KeyState
@@ -157,9 +162,9 @@ void ClientNetworkManager::Send_CPkt_KeyInput(GameKeyInfo::KEY		 key
 	mClientNetworkService->Broadcast(CPktBuf);
 }
 
-void ClientNetworkManager::Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 FrontDir, Vec3 SpineLookDir, long long timestamp)
+void ClientNetworkManager::Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp)
 {
-	auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale, FrontDir, SpineLookDir, timestamp);
+	auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale, SpineLookDir, timestamp);
 	
 	mClientNetworkService->Broadcast(CPktBuf);
 }

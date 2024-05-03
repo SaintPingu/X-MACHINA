@@ -54,7 +54,7 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_CEnterGame(uint64_t playerI
 /// +----------------------------
 ///			 CPkt_Trnasform
 /// ----------------------------+
-SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 FrontDir, Vec3 SpineLookDir, long long timestamp)
+SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp)
 {
 	flatbuffers::FlatBufferBuilder builder;
 
@@ -62,12 +62,11 @@ SPtr_SendPktBuf PacketFactory::CreateSendBuffer_CPkt_Transform(Vec3 Pos, Vec3 Ro
 	auto position      = FBProtocol::CreateVector3(builder, Pos.x, Pos.y, Pos.z);
 	auto rotation      = FBProtocol::CreateVector3(builder, Rot.x, Rot.y, Rot.z);
 	auto scale         = FBProtocol::CreateVector3(builder, Scale.x, Scale.y, Scale.z);
-	auto Front_Dir     = FBProtocol::CreateVector3(builder, FrontDir.x, FrontDir.y, FrontDir.z);
 	auto Spine_LookDir = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
 
 	auto transform = FBProtocol::CreateTransform(builder, position, rotation, scale);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, timestamp, transform, Front_Dir, Spine_LookDir);
+	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, timestamp, transform, Spine_LookDir);
 	builder.Finish(ServerPacket);
 
 	/* Create SendBuffer */

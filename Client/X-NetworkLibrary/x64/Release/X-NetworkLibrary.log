@@ -1,0 +1,32 @@
+﻿  pch.cpp
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\PacketHeader.h(64,8): warning C4099: 'PacketHeader': 처음에는 'class'을(를) 사용하여 형식 이름을 표시했는데 이제는 'struct'을(를) 사용하여 표시합니다.
+  (소스 파일 'pch.cpp'을(를) 컴파일하는 중)
+  C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\PacketHeader.h(64,8):
+  'PacketHeader' 선언을 참조하십시오.
+  
+  ClientNetwork.cpp
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(16,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 '/Network/ClientNetwork.cpp'을(를) 컴파일하는 중)
+  
+  Listener.cpp
+  Lock.cpp
+  LogManager.cpp
+  MemoryManager.cpp
+  NetworkInterface.cpp
+  NetworkManager.cpp
+  NetworkObject.cpp
+  OverlappedObject.cpp
+  PacketHeader.cpp
+  PacketRecvBuf.cpp
+  PacketSendBuf.cpp
+  SendBuffersFactory.cpp
+  ServerNetwork.cpp
+  Session.cpp
+  SessionController.cpp
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\SessionController.cpp(33,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 '/Network/SessionController.cpp'을(를) 컴파일하는 중)
+  
+  SListMemoryPool.cpp
+  SocketData.cpp
+  ThreadManager.cpp
+  X-NetworkLibrary.vcxproj -> C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Executable\Release\X-NetworkLibrary.lib

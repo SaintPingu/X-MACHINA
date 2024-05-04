@@ -227,6 +227,7 @@
     <ClInclude Include="include\Script_NetworkObject.h" />
     <ClInclude Include="include\Script_Player.h" />
     <ClInclude Include="include\Script_Sprite.h" />
+    <ClInclude Include="include\Script_Ursacetus.h" />
     <ClInclude Include="include\Script_Weapon.h" />
     <ClInclude Include="include\Script_Weapon_MissileLauncher.h" />
     <ClInclude Include="include\Script_Weapon_Pistol.h" />
@@ -290,6 +291,7 @@
     <ClCompile Include="src\Script_Player.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />
+    <ClCompile Include="src\Script_Ursacetus.cpp" />
     <ClCompile Include="src\Script_Weapon.cpp" />
     <ClCompile Include="src\Script_Weapon_MissileLauncher.cpp" />
     <ClCompile Include="src\Script_Weapon_Pistol.cpp" />

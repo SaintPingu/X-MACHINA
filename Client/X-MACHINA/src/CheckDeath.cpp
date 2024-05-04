@@ -9,33 +9,38 @@
 #include "Timer.h"
 
 
-CheckDeath::CheckDeath(Object* object)
+CheckDeath::CheckDeath(Object* object, std::function<void()> callback)
+	: BT::ActionNode(callback)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 	mLiveObject = object->GetComponent<Script_LiveObject>();
-	mEnemyMgr->mController->FindMotionByName("Death")->AddEndCallback(std::bind(&CheckDeath::DeathCallback, this));
-
+	mEnemyMgr->mController->FindMotionByName("Death")->AddEndCallback(std::bind(&CheckDeath::DeathEndCallback, this));
 	mRemoveTime = 4.f;
 }
 
-
 BT::NodeState CheckDeath::Evaluate()
 {
-	if (!mLiveObject->GetIsDead())
+	if (!mLiveObject->IsDead())
 		return BT::NodeState::Failure;
 	
+	mEnemyMgr->mState = EnemyState::Death;
+
 	mAccTime += DeltaTime();
+
 	mEnemyMgr->mController->SetValue("Death", true);
 
+	ExecuteCallback();
+
 	if (mAccTime >= mRemoveTime) {
+		mObject->mObjectCB.RimFactor = 0.7f;
 		mObject->Destroy();
 	}
 
 	return BT::NodeState::Success;
 }
 
-void CheckDeath::DeathCallback()
+void CheckDeath::DeathEndCallback()
 {
 	mEnemyMgr->mController->GetCrntMotion()->SetSpeed(0.f);
 }

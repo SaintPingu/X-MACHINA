@@ -103,8 +103,8 @@ struct ObjectInfo {
     matrix  MtxSprite;
     int     MatIndex;
     int     LightIndex;
-    int     Padding;
     float   DeathElapsed;
+    float   RimFactor;
 };
 
 struct PassInfo {
@@ -454,7 +454,7 @@ void RotationAxis(inout float3 right, inout float3 up, inout float3 look, float3
 float4 Dissolve(float3 color, float dissolve, float t)
 {
     float m1 = t;
-    float m2 = 0.3f;
+    float m2 = 0.15f;
     float max = m1 * (m2 + 1);
     float min = max - m2;
 

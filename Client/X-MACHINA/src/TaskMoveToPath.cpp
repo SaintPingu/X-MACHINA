@@ -35,11 +35,11 @@ BT::NodeState TaskMoveToPath::Evaluate()
 	float speed{};
 	if (mReturnParam->val.b) {
 		speed = mReturnSpeed;
-		mWalkMotion->SetSpeed(1.7f);
+		//mWalkMotion->SetSpeed(1.7f);
 	}
 	else {
 		speed = mMoveSpeed;
-		mWalkMotion->SetSpeed(1.f);
+		//mWalkMotion->SetSpeed(1.f);
 	}
 
 	// 다음 경로를 향해 이동 및 회전

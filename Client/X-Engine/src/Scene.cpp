@@ -526,7 +526,7 @@ void Scene::RenderDissolveObjects()
 	for (auto& it = mDissolveObjects.begin(); it != mDissolveObjects.end(); ++it) {
 		auto& object = *it;
 
-		object->mObjectCB.DeathElapsed += DeltaTime();
+		object->mObjectCB.DeathElapsed += DeltaTime() / 2.f;
 		object->Render();
 
 		if (object->mObjectCB.DeathElapsed > destroyTime) {

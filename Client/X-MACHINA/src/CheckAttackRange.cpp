@@ -5,6 +5,8 @@
 
 #include "Timer.h"
 #include "Object.h"
+
+#include "AnimatorMotion.h"
 #include "AnimatorController.h"
 
 
@@ -12,8 +14,8 @@ CheckAttackRange::CheckAttackRange(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mAttackName)->AddEndCallback(std::bind(&CheckAttackRange::AttackEndCallback, this));
 }
-
 
 BT::NodeState CheckAttackRange::Evaluate()
 {
@@ -21,15 +23,23 @@ BT::NodeState CheckAttackRange::Evaluate()
 		return BT::NodeState::Failure;
 	}
 
-	// TODO : 공격 범위에 들어온 이후 공격 애니메이션 계속 진행(공격 애니메이션의 속도와 쿨타임을 맞출 것)
-	if ((mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
+	if (mEnemyMgr->mState == EnemyState::Attack) {
+		return BT::NodeState::Success;
+	}
 
-		mEnemyMgr->mController->SetValue("Attack", true);
+	if ((mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
+		mEnemyMgr->mState = EnemyState::Attack;
 		mEnemyMgr->mController->SetValue("Walk", false);
+		mEnemyMgr->mController->SetValue("Attack", true);
 
 		return BT::NodeState::Success;
 	}
 
-
 	return BT::NodeState::Failure;
+}
+
+void CheckAttackRange::AttackEndCallback()
+{
+	mEnemyMgr->mController->SetValue("Attack", false);
+	mEnemyMgr->mState = EnemyState::Idle;
 }

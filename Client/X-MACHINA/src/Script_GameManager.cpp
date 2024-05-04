@@ -3,6 +3,7 @@
 
 #include "Script_Droid.h"
 #include "Script_Aranobot.h"
+#include "Script_Ursacetus.h"
 #include "Script_MeleeBT.h"
 #include "Component/ParticleSystem.h"
 
@@ -17,12 +18,11 @@ void Script_GameManager::Awake()
 
 	for (int i = 0; i < 1; ++i)
 	{
-		sptr<GridObject> enemy = Scene::I->Instantiate("Aranobot_Army", ObjectTag::Enemy);
-		auto& script = enemy->AddComponent<Script_Aranobot>();
+		sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
+		auto& script = enemy->AddComponent<Script_Ursacetus>();
 		enemy->AddComponent<Script_MeleeBT>();
-		//enemy->SetPosition(90 + i * 5, 0, 90 + i * 10);
-		enemy->SetPosition(100, 0, 105);
-		script->SetMaxHP(1000);
+		enemy->SetPosition(70 + i * 3, 0, 270);
+		script->SetMaxHP(200);
 	}
 }
 

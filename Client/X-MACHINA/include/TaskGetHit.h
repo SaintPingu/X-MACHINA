@@ -26,6 +26,9 @@ public:
 
 public:
 	virtual BT::NodeState Evaluate() override;
+
+private:
+	void GetHitEndCallback();
 };
 #pragma endregion
 

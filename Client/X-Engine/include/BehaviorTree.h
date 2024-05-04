@@ -53,6 +53,19 @@ namespace BehaviorTree {
 	public:
 		virtual NodeState Evaluate() override;
 	};
+
+	
+	class ActionNode : public Node {
+	private:
+		std::function<void()> mCallback;
+		
+	public:
+		ActionNode() : Node() {}
+		ActionNode(std::function<void()> callback) : mCallback(callback) {}
+
+	public:
+		void ExecuteCallback() { if (mCallback) mCallback(); }
+	};
 }
 
 namespace BT = BehaviorTree;

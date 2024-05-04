@@ -22,7 +22,10 @@ protected:
 
 public:
 	virtual void Awake() override;
-	virtual void Attack() abstract;
-};
+	virtual void Update() override;
 
+	virtual void Attack();
+	virtual void Death();
+	virtual bool Hit(float damage) override;
+};
 #pragma endregion

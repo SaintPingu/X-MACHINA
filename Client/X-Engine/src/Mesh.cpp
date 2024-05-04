@@ -658,7 +658,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	root->SetUseObjCB(true);
 
 	const float deathElapsed = root->mObjectCB.DeathElapsed;
-
+	const float rimFactor = root->mObjectCB.RimFactor;
 	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
 		const Transform* transform = mergedTransform[transformIndex];
 
@@ -676,6 +676,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 		ObjectConstants objectCB;
 		objectCB.DeathElapsed = deathElapsed;
+		objectCB.RimFactor = rimFactor;
 
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
 			objectCB.MtxWorld = transform->GetWorldTransform().Transpose();

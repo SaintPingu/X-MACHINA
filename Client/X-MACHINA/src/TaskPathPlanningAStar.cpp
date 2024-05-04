@@ -143,8 +143,9 @@ Pos TaskPathPlanningAStar::FindNoneTileFromBfs(const Pos& pos)
 	std::map<Pos, bool> visited;
 	q.push(pos);
 
+	Pos curPos{};
 	while (!q.empty()) {
-		Pos curPos = q.front();
+		curPos = q.front();
 		q.pop();
 
 		if (Scene::I->GetTileFromUniqueIndex(curPos) == Tile::None)
@@ -160,4 +161,6 @@ Pos TaskPathPlanningAStar::FindNoneTileFromBfs(const Pos& pos)
 			q.push(nextPos);
 		}
 	}
+
+	return curPos;
 }

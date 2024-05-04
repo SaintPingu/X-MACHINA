@@ -16,6 +16,7 @@ void Script_LiveObject::Start()
 	base::Start();
 
 	mCrntHP = mMaxHP;
+	mPrevHP = mMaxHP;
 }
 
 void Script_LiveObject::Update()

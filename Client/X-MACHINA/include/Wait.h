@@ -24,5 +24,8 @@ public:
 
 public:
 	virtual BT::NodeState Evaluate() override;
+
+protected:
+	void SetWait(float wait) { mWaitTime = wait; }
 };
 #pragma endregion

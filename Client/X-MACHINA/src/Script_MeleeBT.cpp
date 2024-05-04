@@ -39,14 +39,12 @@ BT::Node* Script_MeleeBT::SetupTree()
 
 #pragma region BehaviorTree
 	BT::Node* root = new BT::Selector{ std::vector<BT::Node*>{
-		new CheckDeath(mObject),
-		new BT::Sequence{ std::vector<BT::Node*>{
-			new TaskGetHit(mObject),
-			new Wait(0.3f)}},
+		new CheckDeath(mObject, std::bind(&Script_Enemy::Death, enemy)),
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckAttackRange(mObject),
-			new TaskAttack(mObject, 1.f, std::bind(&Script_Enemy::Attack, enemy)),
+			new TaskAttack(mObject, std::bind(&Script_Enemy::Attack, enemy)),
 			}},
+		new TaskGetHit(mObject),
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckDetectionRange(mObject),
 			new BT::Selector{ std::vector<BT::Node*>{

@@ -64,11 +64,10 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     
     float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
     
-    float rimWidth = 0.8f;
-    float gRimLightFactor = 0.1f;
-    float4 gRimLightColor = float4(1.f, 1.f, 1.f, 0.f);
+    float rimWidth = 0.6f;
+    float4 gRimLightColor = float4(1.f, 0.f, 0.f, 0.f);
     float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
-    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gRimLightFactor;
+    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gObjectCB.RimFactor;
     
     float4 emissive = emissiveMapSample + gRimLightColor * rim;
     float1 ambientAcess = 1.f;
@@ -102,7 +101,7 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     
     // temp
     float3 dissolveColor = float3(3.f, 1.f, 0.f);
-    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[24].Sample(gsamAnisotropicWrap, pin.UV).x, gObjectCB.DeathElapsed);
+    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[44].Sample(gsamAnisotropicWrap, pin.UV).x, gObjectCB.DeathElapsed);
     
     litColor.a = dissolve.a;
     litColor.rgb += dissolve.rgb;

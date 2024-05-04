@@ -152,8 +152,8 @@ struct ObjectConstants {
 	Matrix  MtxSprite{};
 	int     MatIndex{};
 	int     LightIndex{};
-	int		Padding{};
 	float	DeathElapsed{};
+	float	RimFactor{};
 };
 #pragma endregion
 

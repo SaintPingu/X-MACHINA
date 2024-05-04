@@ -13,7 +13,7 @@ class Script_LiveObject;
 
 
 #pragma region Class
-class CheckDeath : public BT::Node {
+class CheckDeath : public BT::ActionNode {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
 	sptr<Script_LiveObject> mLiveObject;
@@ -21,13 +21,13 @@ private:
 	float mRemoveTime{};
 
 public:
-	CheckDeath(Object* object);
+	CheckDeath(Object* object, std::function<void()> callback = nullptr);
 	virtual ~CheckDeath() = default;
 
 public:
 	virtual BT::NodeState Evaluate() override;
 
 private:
-	void DeathCallback();
+	void DeathEndCallback();
 };
 #pragma endregion

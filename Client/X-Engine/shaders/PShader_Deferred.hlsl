@@ -76,6 +76,27 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
     rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gObjectCB.RimFactor;
     
+    
+    float3 pinPosV = mul(float4(pin.PosW, 1.f), gPassCB.MtxView);
+    float3 camPosV = mul(float4(gPassCB.CameraPos, 1.f), gPassCB.MtxView);
+    
+    float dissolve = gTextureMaps[44].Sample(gsamAnisotropicWrap, pin.UV).x;
+    
+    float sphereMaskRadius = 2.f;
+    float dist = distance(pinPosV.xy, camPosV.xy);
+    float yDist = abs(gPassCB.CameraPos.y - pin.PosW.y);
+    
+    float sphereMask = clamp(dist / sphereMaskRadius, 0.f, 1.f);
+
+    
+    float color1 = 1.f;
+    float color2 = 0.f;
+    float litSphereMask = lerp(color1, color2, sphereMask);
+    
+    if (yDist < 9.f)
+        clip(dissolve + sphereMask - 0.99f);
+    
+    
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(bumpedNormalW, 0.f);

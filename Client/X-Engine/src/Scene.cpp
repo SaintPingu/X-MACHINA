@@ -86,11 +86,6 @@ std::vector<sptr<GameObject>> Scene::GetAllObjects() const
 	return result;
 }
 
-std::vector<sptr<GameObject>> Scene::GetAllPartilceSystems() const
-{
-	return mParticles;
-}
-
 #pragma endregion
 
 
@@ -247,10 +242,8 @@ void Scene::BuildTerrain()
 
 void Scene::BuildTest()
 {
-	mParticles.resize(0);
-
-	//mParticles[0] = std::make_shared<GameObject>();
-	//mParticles[0]->SetPosition(Vec3{ 103.f, GetTerrainHeight(103.f, 105.f) + 2.f, 105.f });
+	mMaskTestObject = Scene::I->Instantiate("GuardHouse_A", ObjectTag::Unspecified);
+	mMaskTestObject->SetPosition(Vec3{ 70, 0, 270 });
 }
 
 void Scene::BuildGrid()
@@ -696,9 +689,6 @@ void Scene::Start()
 		object->Awake();
 		});
 
-	for (auto& p : mParticles)
-		p->Awake();
-
 	mGameManager->Awake();
 
 	/* Enable & Start */
@@ -723,8 +713,6 @@ void Scene::Update()
 	UpdateObjects();
 	mServerManager->LateUpdate();
 	mGameManager->LateUpdate();
-	for (auto& p : mParticles)
-		p->Update();
 	ParticleManager::I->Update();
 
 	MainCamera::I->Update();

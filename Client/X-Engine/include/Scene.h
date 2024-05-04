@@ -67,7 +67,7 @@ private:
 	std::set<GridObject*>	    mGridObjects{};
 
 	/* TestCube */
-	std::vector<sptr<GameObject>>	mParticles{};
+	sptr<GridObject>			mMaskTestObject{};
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};
@@ -102,7 +102,6 @@ public:
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
 	rsptr<Object> GetServerManager() const { return mServerManager; }
-	std::vector<sptr<GameObject>> GetAllPartilceSystems() const;
 
 	int GetGridIndexFromPos(Vec3 pos) const;
 

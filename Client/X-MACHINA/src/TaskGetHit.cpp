@@ -13,7 +13,7 @@ TaskGetHit::TaskGetHit(Object* object)
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 	mLiveObject = object->GetComponent<Script_LiveObject>();
 	mPrevHp = mLiveObject->GetCrntHp();
-	mKnockBack = 50.f;
+	mKnockBack = 0.2f;
 	mEnemyMgr->mController->FindMotionByName("GetHitFront")->AddEndCallback(std::bind(&TaskGetHit::GetHitEndCallback, this));
 }
 
@@ -28,7 +28,7 @@ BT::NodeState TaskGetHit::Evaluate()
 		mEnemyMgr->mState = EnemyState::GetHit;
 		mEnemyMgr->mController->SetValue("GetHit", true);
 
-		mObject->Translate(mEnemyMgr->mTarget->GetLook(), mKnockBack * DeltaTime());
+		mObject->Translate(mEnemyMgr->mTarget->GetLook(), mKnockBack);
 	}
 
 	if (mEnemyMgr->mController->GetParamRef("GetHit")->val.b == false)

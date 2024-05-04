@@ -16,14 +16,14 @@ void Script_GameManager::Awake()
 {
 	base::Awake();
 
-	for (int i = 0; i < 1; ++i)
-	{
-		sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
-		auto& script = enemy->AddComponent<Script_Ursacetus>();
-		enemy->AddComponent<Script_MeleeBT>();
-		enemy->SetPosition(70 + i * 3, 0, 270);
-		script->SetMaxHP(200);
-	}
+	//for (int i = 0; i < 1; ++i)
+	//{
+	//	sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
+	//	auto& script = enemy->AddComponent<Script_Ursacetus>();
+	//	enemy->AddComponent<Script_MeleeBT>();
+	//	enemy->SetPosition(70 + i * 3, 0, 270);
+	//	script->SetMaxHP(200);
+	//}
 }
 
 void Script_GameManager::Start()

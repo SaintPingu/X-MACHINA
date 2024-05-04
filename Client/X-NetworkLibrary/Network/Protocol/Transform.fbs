@@ -1,0 +1,30 @@
+
+// +----------------
+// Transform.fbs
+// ----------------+
+
+namespace FBProtocol;
+
+table Vector2 {
+  x: float;
+  y: float;
+}
+
+table Vector3 {
+  x: float;
+  y: float;
+  z: float;
+}
+
+table Vector4 {
+  x: float;
+  y: float;
+  z: float;
+  w: float;
+}
+
+table Transform {
+  position: Vector3;
+  rotation: Vector3;
+  scale: Vector3;
+}

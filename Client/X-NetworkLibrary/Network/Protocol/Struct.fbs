@@ -1,0 +1,18 @@
+
+// +---------------
+// Struct.fbs
+// ---------------+
+
+include "Enum.fbs";
+include "Transform.fbs";
+
+namespace FBProtocol;
+
+table Player {
+  id			: ulong;
+  name			: string;
+  player_type	: OBJECTTYPE;
+
+  trans			: Transform;
+  spine_look	: Vector3;
+}

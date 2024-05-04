@@ -40,6 +40,21 @@ table SPkt_NewPlayer
 }
 
 // +------------------------
+//		 REMOVE PLAYER 
+// ------------------------+
+table CPkt_RemovePlayer
+{
+	playerid : int; // 삭제할 플레이어의 아이디 
+
+}
+
+table SPkt_RemovePlayer
+{
+	playerid : int; // 삭제할 플레이어의 아이디 
+}
+
+
+// +------------------------
 //		  ENTER GAME 
 // ------------------------+
 table CPkt_EnterGame

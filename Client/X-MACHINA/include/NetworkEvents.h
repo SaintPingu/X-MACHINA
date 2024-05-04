@@ -8,10 +8,10 @@ namespace NetworkEvent
 	{
 		namespace Enum
 		{
-			constexpr UINT16 AddAnotherPlayer = 1;
-			constexpr UINT16 MoveOtherPlayer = 2;
+			constexpr UINT16 AddAnotherPlayer  = 1;
+			constexpr UINT16 MoveOtherPlayer   = 2;
 			constexpr UINT16 RemoveOtherPlayer = 3;
-			constexpr UINT16 Test = 4;
+			constexpr UINT16 Test              = 4;
 		}
 
 
@@ -19,9 +19,15 @@ namespace NetworkEvent
 			UINT16 type = {};
 		};
 		struct AddOtherPlayer : public EventData {
-			//sptr<GridObject>	player = {};
-			std::string name{};
-			UINT32 sessionID{};
+			
+			/* Remote Player Info */
+			uint64_t	RemoteP_ID{};
+			std::string RemoteP_Name{};
+			Vec3		RemoteP_Pos{};
+			Vec3		RemoteP_Rot{};
+			Vec3		RemoteP_Scale{};
+			Vec3		RemoteP_SpineLook{};
+
 		};
 		struct MoveOtherPlayer : public EventData {
 			UINT16				sessionID = {};

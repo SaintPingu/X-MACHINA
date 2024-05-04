@@ -36,14 +36,14 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 
 	/* My Client Info ( in server ) */
 	const FBProtocol::Player* MySessionInfo = pkt.myinfo();
+
 	std::string				  Myname        = MySessionInfo->name()->c_str();
 	uint64_t				  MysessionID   = MySessionInfo->id();
 	FBProtocol::OBJECTTYPE	  MyobjType     = MySessionInfo->player_type();
 	Vec3					  MyPos         = Vec3(MySessionInfo->trans()->position()->x(), MySessionInfo->trans()->position()->y(), MySessionInfo->trans()->position()->z());
 	Vec3					  MyRot         = Vec3(MySessionInfo->trans()->rotation()->x(), MySessionInfo->trans()->rotation()->y(), MySessionInfo->trans()->rotation()->z());
 	Vec3					  MySca         = Vec3(MySessionInfo->trans()->scale()->x(), MySessionInfo->trans()->scale()->y(), MySessionInfo->trans()->scale()->z());
-	
-	auto					  Myspine       = MySessionInfo->spine_look(); // 왜 NULL 이야..???
+	auto					  Myspine       = MySessionInfo->spine_look(); 
 
 	GameFramework::I->InitPlayer(MysessionID);
 
@@ -56,34 +56,26 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 	for (UINT16 i = 0; i < PlayersCnt; ++i) {
 
 		const FBProtocol::Player* otherPlayerInfo = pkt.players()->Get(i);
-		uint64_t					  sessionID   = otherPlayerInfo->id();
-		std::string				  name        = otherPlayerInfo->name()->c_str();
-		FBProtocol::OBJECTTYPE	  objType     = otherPlayerInfo->player_type();
-		
-		Vec3 Pos = Vec3(otherPlayerInfo->trans()->position()->x(), otherPlayerInfo->trans()->position()->y(), otherPlayerInfo->trans()->position()->z());
-		Vec3 Rot = Vec3(otherPlayerInfo->trans()->rotation()->x(), otherPlayerInfo->trans()->rotation()->y(), otherPlayerInfo->trans()->rotation()->z());
-		Vec3 Sca = Vec3(otherPlayerInfo->trans()->scale()->x(), otherPlayerInfo->trans()->scale()->y(), otherPlayerInfo->trans()->scale()->z());
 
-		auto spine = otherPlayerInfo->spine_look();
-
-		Vec3 Sdir = Vec3(otherPlayerInfo->spine_look()->x(), otherPlayerInfo->spine_look()->y(), otherPlayerInfo->spine_look()->z());
+		uint64_t				  sessionID       = otherPlayerInfo->id();
+		std::string				  name            = otherPlayerInfo->name()->c_str();
+		FBProtocol::OBJECTTYPE	  objType         = otherPlayerInfo->player_type();
+		Vec3					  Pos             = Vec3(otherPlayerInfo->trans()->position()->x(), otherPlayerInfo->trans()->position()->y(), otherPlayerInfo->trans()->position()->z());
+		Vec3					  Rot             = Vec3(otherPlayerInfo->trans()->rotation()->x(), otherPlayerInfo->trans()->rotation()->y(), otherPlayerInfo->trans()->rotation()->z());
+		Vec3					  Sca             = Vec3(otherPlayerInfo->trans()->scale()->x(), otherPlayerInfo->trans()->scale()->y(), otherPlayerInfo->trans()->scale()->z());
+		Vec3					  Sdir            = Vec3(otherPlayerInfo->spine_look()->x(), otherPlayerInfo->spine_look()->y(), otherPlayerInfo->spine_look()->z());
 	
-		
-		
-		/* GameScene 에 다른 Player 정보들을 만든다.  */
-		/* Create Other Player & Add To Game Scene */
-
-		//otherPlayer->SetPosition(Pos);
-		//otherPlayer->SetLocalRotation(Rot);
-		//otherPlayer->SetScale(Sca);
-
 		if (sessionID == MysessionID) continue;
 		std::cout << " 기존 게임 정보 업데이트 - " << sessionID << "\n";
 
 		sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
 		EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
-		EventData->name                                     = name;
-		EventData->sessionID                                = sessionID;
+		EventData->RemoteP_Name                             = name;
+		EventData->RemoteP_ID                               = sessionID;
+		EventData->RemoteP_Pos                              = Pos;
+		EventData->RemoteP_Rot                              = Rot;
+		EventData->RemoteP_Scale                            = Sca;
+		EventData->RemoteP_SpineLook                        = Sdir;
 		NETWORK_MGR->RegisterEvent(EventData);
 
 
@@ -101,27 +93,45 @@ bool ProcessFBsPkt_SPkt_LogIn(SPtr_PacketSession& session, const FBProtocol::SPk
 
 bool ProcessFBsPkt_SPkt_NewPlayer(SPtr_PacketSession& session, const FBProtocol::SPkt_NewPlayer& pkt)
 {
+	LOG_MGR->Cout("ProcessFBsPkt_SPkt_NewPlayer\n");
 	/* 새로 들어온 player 의 정보를 받는다. */
 		/* New Client Info ( in server ) */
-	const FBProtocol::Player* NewSessionInfo    = pkt.newplayer();
-	std::string				  Newname           = NewSessionInfo->name()->c_str();
-	uint64_t				  NewsessionID      = NewSessionInfo->id();
-	FBProtocol::OBJECTTYPE	  NewobjType        = NewSessionInfo->player_type();
-	
+	const FBProtocol::Player* NewSessionInfo             = pkt.newplayer();
+	LOG_MGR->Cout(NewSessionInfo, '\n');
 
+	std::string				  NewPlayerName              = NewSessionInfo->name()->c_str();
+	uint64_t				  NewPlayerID                = NewSessionInfo->id();
+	FBProtocol::OBJECTTYPE	  NewPlayerobjType           = NewSessionInfo->player_type();
+	Vec3					  NewPlayerPos               = Vec3(NewSessionInfo->trans()->position()->x(), NewSessionInfo->trans()->position()->y(), NewSessionInfo->trans()->position()->z());
+	Vec3					  NewPlayerRot               = Vec3(NewSessionInfo->trans()->rotation()->x(), NewSessionInfo->trans()->rotation()->y(), NewSessionInfo->trans()->rotation()->z());
+	Vec3					  NewPlayerSca               = Vec3(NewSessionInfo->trans()->scale()->x(), NewSessionInfo->trans()->scale()->y(), NewSessionInfo->trans()->scale()->z());
+	
+	LOG_MGR->Cout(NewSessionInfo->spine_look(), '\n');
+	Vec3					  NewPlayerSdir              = Vec3(NewSessionInfo->spine_look()->x(), NewSessionInfo->spine_look()->y(), NewSessionInfo->spine_look()->z());
 
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
-	std::cout << "New Session Enter : " << Newname << " - " << NewsessionID << "\n";
+	std::cout << "New Session Enter : " << NewPlayerName << " - " << NewPlayerID << "\n";
 	std::cout << "▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣\n";
 
 	/* Create Other Player & Add To Game Scene */
 	sptr<NetworkEvent::Scene::AddOtherPlayer> EventData = std::make_shared<NetworkEvent::Scene::AddOtherPlayer>();
 	EventData->type                                     = NetworkEvent::Scene::Enum::AddAnotherPlayer;
-	EventData->name                                     = Newname;
-	EventData->sessionID                                = NewsessionID;
+	EventData->RemoteP_Name                             = NewPlayerName;
+	EventData->RemoteP_ID                               = NewPlayerID;
+	EventData->RemoteP_Pos                              = NewPlayerPos;
+	EventData->RemoteP_Rot                              = NewPlayerRot;
+	EventData->RemoteP_Scale                            = NewPlayerSca;
+	EventData->RemoteP_SpineLook                        = NewPlayerSdir;
 	NETWORK_MGR->RegisterEvent(EventData);
 
 	std::cout << "New Session Enter End\n";
+	return true;
+}
+
+bool ProcessFBsPkt_SPkt_RemovePlayer(SPtr_PacketSession& session, const FBProtocol::SPkt_RemovePlayer& pkt)
+{
+	
+	LOG_MGR->Cout("REMOVE PKT RECEIVE - ID : ", pkt.playerid(), "\n");
 	return true;
 }
 

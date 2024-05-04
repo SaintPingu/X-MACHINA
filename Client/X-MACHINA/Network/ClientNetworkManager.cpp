@@ -86,14 +86,20 @@ void ClientNetworkManager::ProcessEvents()
 			NetworkEvent::Scene::AddOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::AddOtherPlayer*>(EventData.get());
 
 			sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
-			remotePlayer->SetName(data->name);
-			remotePlayer->SetID(data->sessionID);
+			remotePlayer->SetName(data->RemoteP_Name);
+			remotePlayer->SetID(data->RemoteP_ID);
 
-			mRemotePlayers[data->sessionID] = remotePlayer;
 			remotePlayer->AddComponent<Script_NetworkObject_GroundPlayer>();
 			remotePlayer->AddComponent<Script_GroundObject>();
-			remotePlayer->SetPosition(105, 0, 105);
+			
+			remotePlayer->SetPosition(data->RemoteP_Pos.x, data->RemoteP_Pos.y, data->RemoteP_Pos.z);
+			//Vec4 rot   = remotePlayer->GetRotation();
+			//Vec3 euler = Quaternion::ToEuler(rot);
+			//euler.y    = data->RemoteP_Rot.y;
+			//remotePlayer->SetLocalRotation(Quaternion::ToQuaternion(euler));
 
+
+			mRemotePlayers[data->RemoteP_ID] = remotePlayer;
 			std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
 		}
 

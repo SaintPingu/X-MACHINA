@@ -31,6 +31,12 @@ struct CPkt_NewPlayerBuilder;
 struct SPkt_NewPlayer;
 struct SPkt_NewPlayerBuilder;
 
+struct CPkt_RemovePlayer;
+struct CPkt_RemovePlayerBuilder;
+
+struct SPkt_RemovePlayer;
+struct SPkt_RemovePlayerBuilder;
+
 struct CPkt_EnterGame;
 struct CPkt_EnterGameBuilder;
 
@@ -241,6 +247,88 @@ inline ::flatbuffers::Offset<SPkt_NewPlayer> CreateSPkt_NewPlayer(
     ::flatbuffers::Offset<FBProtocol::Player> newplayer = 0) {
   SPkt_NewPlayerBuilder builder_(_fbb);
   builder_.add_newplayer(newplayer);
+  return builder_.Finish();
+}
+
+struct CPkt_RemovePlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_RemovePlayerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYERID = 4
+  };
+  int32_t playerid() const {
+    return GetField<int32_t>(VT_PLAYERID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_PLAYERID, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_RemovePlayerBuilder {
+  typedef CPkt_RemovePlayer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_playerid(int32_t playerid) {
+    fbb_.AddElement<int32_t>(CPkt_RemovePlayer::VT_PLAYERID, playerid, 0);
+  }
+  explicit CPkt_RemovePlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_RemovePlayer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_RemovePlayer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_RemovePlayer> CreateCPkt_RemovePlayer(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t playerid = 0) {
+  CPkt_RemovePlayerBuilder builder_(_fbb);
+  builder_.add_playerid(playerid);
+  return builder_.Finish();
+}
+
+struct SPkt_RemovePlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_RemovePlayerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYERID = 4
+  };
+  int32_t playerid() const {
+    return GetField<int32_t>(VT_PLAYERID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_PLAYERID, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_RemovePlayerBuilder {
+  typedef SPkt_RemovePlayer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_playerid(int32_t playerid) {
+    fbb_.AddElement<int32_t>(SPkt_RemovePlayer::VT_PLAYERID, playerid, 0);
+  }
+  explicit SPkt_RemovePlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_RemovePlayer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_RemovePlayer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_RemovePlayer> CreateSPkt_RemovePlayer(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t playerid = 0) {
+  SPkt_RemovePlayerBuilder builder_(_fbb);
+  builder_.add_playerid(playerid);
   return builder_.Finish();
 }
 

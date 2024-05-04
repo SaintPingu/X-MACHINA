@@ -163,9 +163,6 @@
     <ClInclude Include="include\GameFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\Player_generated.h">
-      <Filter>Network\FlatBuffers</Filter>
-    </ClInclude>
     <ClInclude Include="Network\FlatBuffers\Struct_generated.h">
       <Filter>Network\FlatBuffers</Filter>
     </ClInclude>
@@ -448,9 +445,6 @@
       <Filter>Common</Filter>
     </None>
     <None Include="Network\FlatBuffers\FBProtocol.fbs">
-      <Filter>Network\FlatBuffers</Filter>
-    </None>
-    <None Include="Network\FlatBuffers\Player.fbs">
       <Filter>Network\FlatBuffers</Filter>
     </None>
     <None Include="Network\FlatBuffers\Struct.fbs">

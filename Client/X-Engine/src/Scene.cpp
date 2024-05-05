@@ -153,6 +153,7 @@ void Scene::UpdateShadowPassCB()
 	PassConstants passCB;
 	passCB.MtxView = mLight->GetLightViewMtx().Transpose();
 	passCB.MtxProj = mLight->GetLightProjMtx().Transpose();
+	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 
 	FRAME_RESOURCE_MGR->CopyData(1, passCB);
 }

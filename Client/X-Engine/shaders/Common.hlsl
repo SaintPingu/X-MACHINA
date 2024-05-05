@@ -62,7 +62,8 @@ struct MaterialInfo {
     float4  Diffuse;
     float   Metallic;
     float   Roughness;
-    float2  Padding;
+    uint    UseSphereMask;
+    uint    Padding;
     
     int DiffuseMap0Index;
     int DiffuseMap1Index;
@@ -469,5 +470,14 @@ float NdcDepthToViewDepth(float zNdc)
 {
     float viewZ = gPassCB.MtxProj[3][2] / (zNdc - gPassCB.MtxProj[2][2]);
     return viewZ;
+}
+
+
+float4 ComputeRimLight(float4 rimLightColor, float rimWidth, float rimFactor, float3 posW, float3 normalW)
+{
+    float rim = 1.0f - max(0, dot(normalW, normalize(gPassCB.CameraPos - posW)));
+    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gObjectCB.RimFactor;
+    
+    return rim * rimLightColor;
 }
 #endif

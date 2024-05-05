@@ -332,6 +332,10 @@ namespace {
 					material->LoadTextureFromFile(TextureMap::OcclusionMap, file);
 					break;
 
+				case Hash("<UseSphereMask>:"):
+					FileIO::ReadVal(file, matInfo->UseSphereMask);
+					break;
+
 				case Hash("</Materials>"):
 				{
 					if (matInfo) {

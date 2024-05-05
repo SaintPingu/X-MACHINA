@@ -269,9 +269,9 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 {
 	switch (other.GetTag())
 	{
-	case ObjectTag::Building: {
+	case ObjectTag::Building:
+	case ObjectTag::DissolveBuilding:
 		ComputeSlideVector(other);
-	}
 		break;
 	default:
 		break;
@@ -1098,27 +1098,27 @@ void Script_GroundPlayer::SetMotionSpeed(rsptr<AnimatorMotion> motion, float tim
 }
 void Script_GroundPlayer::ComputeSlideVector(Object& other)
 {
-	// 이전 충돌체와 이전 슬라이딩 벡터를 저장
-	static Object* prevOther = nullptr;
-	static Vec3 prevSlideVec{};
+	//// 이전 충돌체와 이전 슬라이딩 벡터를 저장
+	//static Object* prevOther = nullptr;
+	//static Vec3 prevSlideVec{};
 
 	// 허리 쪽부터 이동 방향을 향하는 광선
 	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, Vector3::Normalized(mDirVec) };
 
-	// 이전 충돌체가 현재 충돌체와 다른 경우
-	if (prevOther != nullptr) {
-		if (prevOther->GetID() != other.GetID()) {
-			// 광선으로부터 두 충돌체의 거리를 계산
-			float crntDist = Vec3::Distance(ray.Position, other.GetPosition());
-			float prevDist = Vec3::Distance(ray.Position, prevOther->GetPosition());
+	//// 이전 충돌체가 현재 충돌체와 다른 경우
+	//if (prevOther != nullptr) {
+	//	if (prevOther->GetID() != other.GetID()) {
+	//		// 광선으로부터 두 충돌체의 거리를 계산
+	//		float crntDist = Vec3::Distance(ray.Position, other.GetPosition());
+	//		float prevDist = Vec3::Distance(ray.Position, prevOther->GetPosition());
 
-			// 현재 충돌체까지의 거리가 더 길 경우 이전 슬라이딩 벡터를 사용
-			if (crntDist > prevDist) {
-				mSlideVec = prevSlideVec;
-				return;
-			}
-		}
-	}
+	//		// 현재 충돌체까지의 거리가 더 길 경우 이전 슬라이딩 벡터를 사용
+	//		if (crntDist > prevDist) {
+	//			mSlideVec = prevSlideVec;
+	//			return;
+	//		}
+	//	}
+	//}
 
 	float dist{};
 	float minDist{ 999.f };
@@ -1167,7 +1167,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
 		}
 
-		prevOther = &other;
-		prevSlideVec = mSlideVec;
+		//prevOther = &other;
+		//prevSlideVec = mSlideVec;
 	}
 }

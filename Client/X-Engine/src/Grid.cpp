@@ -51,48 +51,54 @@ void Grid::AddObject(GridObject* object)
 	}
 }
 
+inline bool IsNotBuilding(ObjectTag tag)
+{
+	return tag != ObjectTag::Building && tag != ObjectTag::DissolveBuilding;
+}
+
 void Grid::UpdateTiles(Tile tile, GridObject* object)
 {
 	// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
-	if (object->GetTag() != ObjectTag::Building)
-		return;
-
-
-	// 오브젝트의 타일 기준 인덱스 계산
-	Vec3 pos = object->GetPosition();
-	Pos index = Scene::I->GetTileUniqueIndexFromPos(pos);
-	Scene::I->SetTileFromUniqueIndex(index, tile);
-
-	// 오브젝트의 충돌 박스
-	const auto& collider = object->GetCollider();
-	if (!collider)
+	if (IsNotBuilding(object->GetTag()))
 		return;
 
 	// BFS를 통해 주변 타일도 업데이트
 	std::queue<Pos> q;
 	std::map<Pos, bool> visited;
-	q.push(index);
 
-	// q가 빌 때까지 BFS를 돌며 현재 타일이 오브젝트와 충돌 했다면 해당 타일을 업데이트
-	while (!q.empty()) {
-		Pos curNode = q.front();
-		q.pop();
-
-		if (visited[curNode])
+	// 오브젝트의 충돌 박스
+	for (const auto& collider : object->GetComponent<ObjectCollider>()->GetColliders()) {
+		if (collider->GetType() != Collider::Type::Box) {
 			continue;
+		}
 
-		visited[curNode] = true;
+		// 오브젝트의 타일 기준 인덱스 계산
+		Vec3 pos = collider->GetCenter();
+		Pos index = Scene::I->GetTileUniqueIndexFromPos(pos);
+		Scene::I->SetTileFromUniqueIndex(index, tile);
+		q.push(index);
 
-		for (int dir = 0; dir < 4; ++dir) {
-			Pos nextPosT = curNode + gkFront[dir];
-			Vec3 nextPosW = Scene::I->GetTilePosFromUniqueIndex(nextPosT);
-			nextPosW.y = pos.y;
+		// q가 빌 때까지 BFS를 돌며 현재 타일이 오브젝트와 충돌 했다면 해당 타일을 업데이트
+		while (!q.empty()) {
+			Pos curNode = q.front();
+			q.pop();
 
-			BoundingBox bb{nextPosW, Vec3{mkTileWidth, mkTileWidth, mkTileHeight} };
+			if (visited[curNode])
+				continue;
 
-			if (collider->Intersects(bb)) {
-				Scene::I->SetTileFromUniqueIndex(nextPosT, tile);
-				q.push(nextPosT);
+			visited[curNode] = true;
+
+			for (int dir = 0; dir < 4; ++dir) {
+				Pos nextPosT = curNode + gkFront[dir];
+				Vec3 nextPosW = Scene::I->GetTilePosFromUniqueIndex(nextPosT);
+				nextPosW.y = pos.y;
+
+				BoundingBox bb{ nextPosW, Vec3{mkTileWidth, mkTileWidth, mkTileHeight} };
+
+				if (collider->Intersects(bb)) {
+					Scene::I->SetTileFromUniqueIndex(nextPosT, tile);
+					q.push(nextPosT);
+				}
 			}
 		}
 	}
@@ -143,7 +149,8 @@ float Grid::CheckCollisionsRay(const Ray& ray) const
 {
 	float minDist = 999.f;
 	for (const auto& object : mStaticObjects) {
-		if (object->GetTag() != ObjectTag::Building)
+		// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
+		if (IsNotBuilding(object->GetTag()))
 			continue;
 
 		float dist = 100;

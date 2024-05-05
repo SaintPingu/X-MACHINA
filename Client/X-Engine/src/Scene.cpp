@@ -368,6 +368,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 		--sameObjectCount;
 	}
 }
+
 void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 {
 	object->SetTag(tag);
@@ -628,17 +629,17 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 	RESOURCE<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 
-	//// 오픈 리스트를 초록색으로 출력
-	//for (auto& path : mOpenList) {
-	//	path.y = GetTerrainHeight(path.x, path.z);
-	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
-	//}
+	// 오픈 리스트를 초록색으로 출력
+	for (auto& path : mOpenList) {
+		path.y = GetTerrainHeight(path.x, path.z);
+		MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
+	}
 
-	//// 클로즈드 리스트를 빨간색으로 출력
-	//for (auto& path : mClosedList) {
-	//	path.y = GetTerrainHeight(path.x, path.z);
-	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
-	//}
+	// 클로즈드 리스트를 빨간색으로 출력
+	for (auto& path : mClosedList) {
+		path.y = GetTerrainHeight(path.x, path.z);
+		MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
+	}
 
 	if (!mIsRenderBounds) {
 		return false;
@@ -1051,6 +1052,9 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 	switch (Hash(tag)) {
 	case Hash("Building"):
 		return ObjectTag::Building;
+
+	case Hash("Dissolve_Building"):
+		return ObjectTag::DissolveBuilding;
 
 	case Hash("Explosive_small"):
 	case Hash("Explosive_static"):

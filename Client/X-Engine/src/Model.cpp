@@ -17,7 +17,8 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 	:
 	DiffuseAlbedo(materialInfo.DiffuseAlbedo),
 	Metallic(materialInfo.Metallic),
-	Roughness(materialInfo.Roughness)
+	Roughness(materialInfo.Roughness),
+	UseSphereMask(materialInfo.UseSphereMask)
 {
 }
 #pragma endregion
@@ -31,6 +32,7 @@ void Material::UpdateShaderVars()
 		materialData.DiffuseAlbedo = mMaterialColors->DiffuseAlbedo;
 		materialData.Metallic = mMaterialColors->Metallic;
 		materialData.Roughness = mMaterialColors->Roughness;
+		materialData.UseSphereMask = mMaterialColors->UseSphereMask;
 	}
 
 	for (UINT8 i = 0; i < TextureMapCount; ++i) {

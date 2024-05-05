@@ -101,7 +101,8 @@ struct MaterialData {
     Vec4    DiffuseAlbedo{};
     float   Metallic{};
     float   Roughness{};
-    Vec2    Padding{};
+    UINT    UseSphereMask{};
+    UINT    Padding{};
 
     std::array<int, TextureMapCount> MapIndices;
 

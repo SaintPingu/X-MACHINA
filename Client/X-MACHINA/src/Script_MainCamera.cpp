@@ -22,7 +22,6 @@ void Script_MainCamera::Awake()
 
 	constexpr Vec2 maxOffset = Vec2(3, 3);
 	const Vec2 resolution = Vec2(MAIN_CAMERA->GetWidth(), MAIN_CAMERA->GetHeight());
-
 	// corr = 0.002 : 1280 * 1080 -> 2.56, 2.16
 	constexpr float corr = 0.002f;
 	mMaxOffset = Vec2(resolution.x * corr, resolution.y * corr);
@@ -42,6 +41,9 @@ void Script_MainCamera::Update()
 {
 	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y);
 	mObject->SetPosition(mPlayer->GetPosition() + offset);
+
+	Matrix noLagViewMtx = Matrix::CreateLookAt(mPlayer->GetPosition() + offset, mPlayer->GetPosition(), mPlayer->GetUp());
+	MAIN_CAMERA->SetNoLagViewMtx(noLagViewMtx);
 
 	RecoverExtraOffset();
 }

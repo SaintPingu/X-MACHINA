@@ -26,7 +26,7 @@ struct MaterialLoadInfo {
 	Vec4	DiffuseAlbedo = Vec4::One;
 	float	Metallic{};
 	float	Roughness{};
-	bool	UseSphereMask{};
+	bool	OcclusionMask{};
 };
 
 // materialÀÇ »ö»ó
@@ -42,7 +42,7 @@ public:
 	Vec4    DiffuseAlbedo = Vec4::One;
 	float	Metallic{};
 	float	Roughness{};
-	bool	UseSphereMask{};
+	bool	OcclusionMask{};
 };
 #pragma endregion
 

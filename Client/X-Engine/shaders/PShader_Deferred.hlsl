@@ -21,80 +21,54 @@ struct PSOutput_MRT {
 PSOutput_MRT PSDeferred(VSOutput_Standard pin)
 {
     // material info
-    MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];
-    float4 diffuse        = matInfo.Diffuse;
-    float metallic        = matInfo.Metallic;
-    float roughness       = matInfo.Roughness;
-    float occlusion       = 1.f;
-    int diffuseMapIndex   = matInfo.DiffuseMap0Index;
-    int normalMapIndex    = matInfo.NormalMapIndex;
-    int metallicMapIndex  = matInfo.MetallicMapIndex;
-    int emissiveMapIndex  = matInfo.EmissiveMapIndex;
-    int occlusionMapIndex = matInfo.OcclusionMapIndex;
+    MaterialInfo matInfo    = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuse          = matInfo.Diffuse;
+    float metallic          = matInfo.Metallic;
+    float roughness         = matInfo.Roughness;
+    float occlusion         = 1.f;
+    int diffuseMapIndex     = matInfo.DiffuseMap0Index;
+    int normalMapIndex      = matInfo.NormalMapIndex;
+    int metallicMapIndex    = matInfo.MetallicMapIndex;
+    int emissiveMapIndex    = matInfo.EmissiveMapIndex;
+    int occlusionMapIndex   = matInfo.OcclusionMapIndex;
+    int occlusionMask       = matInfo.OcclusionMask;
     
     // sampling diffuseMap
-    if (diffuseMapIndex != -1)
-    {
+    if (diffuseMapIndex != NONE) 
         diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
-    }
 
-    // normalize normal
+    // sampling normalMap
     pin.NormalW = normalize(pin.NormalW);
     float3 bumpedNormalW = pin.NormalW;
-    
-    // sampling normalMap, to world space
-    float4 normalMapSample = (float4)0;
-    if (normalMapIndex != -1)
-    {
-        normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
-        bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
-    }
+    if (normalMapIndex != NONE) 
+        bumpedNormalW = NormalSampleToWorldSpace(gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV).rgb, pin.NormalW, pin.TangentW);
     
     // sampling emissiveMap
     float4 emissiveMapSample = (float4)0;
-    if (metallicMapIndex != -1)
-    {
+    if (emissiveMapIndex != NONE) 
         emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
-    }
-    
+
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;
-    if (metallicMapIndex != -1)
+    if (metallicMapIndex != NONE)
     {
         metallicMapSample = GammaDecoding(gTextureMaps[metallicMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
         metallic = metallicMapSample.r;
         roughness = 1 - metallicMapSample.a;
     }
     
-    if (occlusionMapIndex != -1)
-    {
+    // sampling occlusionMap
+    if (occlusionMapIndex != NONE) 
         occlusion = (float)GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
-    }
     
+    // apply rim light
     float4 rimLight = ComputeRimLight(float4(1.f, 0.f, 0.f, 0.f), 0.6f, gObjectCB.RimFactor, pin.PosW, bumpedNormalW);
-    
-    if (matInfo.UseSphereMask == 1)
-    {
-        float3 pinPosV = mul(float4(pin.PosW, 1.f), gPassCB.MtxView);
-        float3 camPosV = mul(float4(gPassCB.CameraPos, 1.f), gPassCB.MtxView);
-        
-        float dissolve = gTextureMaps[44].Sample(gsamAnisotropicWrap, pin.UV).x;
-        
-        float sphereMaskRadius = 2.f;
-        float dist = distance(pinPosV.xy, camPosV.xy);
-        float yDist = abs(gPassCB.CameraPos.y - pin.PosW.y);
-        
-        float sphereMask = clamp(dist / sphereMaskRadius, 0.f, 1.f);
 
-        
-        float color1 = 1.f;
-        float color2 = 0.f;
-        float litSphereMask = lerp(color1, color2, sphereMask);
-        
-        if (yDist < 9.f)
-            clip(dissolve + sphereMask - 0.99f);
-    }
+    // apply occlusion mask
+    if (occlusionMask == TRUE) 
+        ApplyOcculsionMaskByCamera(pin.PosW, pin.UV);
     
+    // lit color
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(bumpedNormalW, 0.f);

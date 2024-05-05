@@ -18,9 +18,6 @@
 
 #define CruveCount 4
 
-#define FALSE   0
-#define TRUE    1
-
 struct ParticleSystemIndexInfo
 {
 	int Index;

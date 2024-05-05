@@ -24,6 +24,7 @@ private:
 
 	Matrix mViewTransform{};
 	Matrix mProjTransform{};
+	Matrix mNoLagViewTransform{};
 
 	Vec3 mOffset{};
 
@@ -40,6 +41,7 @@ public:
 	Vec3 GetUp() const { return mObject->GetUp(); }
 	const Matrix& GetViewMtx() const { return mViewTransform; }
 	const Matrix& GetProjMtx() const { return mProjTransform; }
+	const Matrix& GetNoLagViewtx() const { return mNoLagViewTransform; }
 	float GetWidth() const { return mViewport.Width; }
 	float GetHeight() const { return mViewport.Height; }
 
@@ -50,6 +52,7 @@ public:
 
 	void UpdateViewMtx();
 	void SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float fovAngle);
+	void SetNoLagViewMtx(const Matrix& mtx) { mNoLagViewTransform = mtx; }
 		 
 	void SetViewport(int xTopLeft, int yTopLeft, int width, int height, float minZ = 0.f, float maxZ = 1.f);
 	void SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom);

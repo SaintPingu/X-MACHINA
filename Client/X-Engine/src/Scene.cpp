@@ -115,6 +115,7 @@ void Scene::UpdateMainPassCB()
 	passCB.MtxProj = MAIN_CAMERA->GetProjMtx().Transpose();
 	passCB.MtxInvProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
 	passCB.MtxShadow = mLight->GetShadowMtx().Transpose();
+	passCB.MtxNoLagView = MAIN_CAMERA->GetNoLagViewtx().Transpose();
 	passCB.CameraPos = MAIN_CAMERA->GetPosition();
 	passCB.CameraRight = MAIN_CAMERA->GetRight();
 	passCB.CameraUp = MAIN_CAMERA->GetUp();
@@ -135,14 +136,14 @@ void Scene::UpdateMainPassCB()
 	passCB.RT1L_SpecularIndex = RESOURCE<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
 	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
+	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
+	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
 	passCB.LightCount = mLight->GetLightCount();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
 	passCB.ShadowIntensity = 0.0f;
 	passCB.FogColor = Colors::Gray;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
-
-	int temp = RESOURCE<Texture>("Dissolve")->GetSrvIdx();
 
 	FRAME_RESOURCE_MGR->CopyData(0, passCB);
 }

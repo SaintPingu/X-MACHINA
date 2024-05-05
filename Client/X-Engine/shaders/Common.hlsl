@@ -30,6 +30,10 @@
 #define RANDOM_IR 2836
 #define RANDOM_MASK 123459876
 
+#define NONE    -1
+#define FALSE   0
+#define TRUE    1
+
 struct LightInfo
 {
     float3  Strength;
@@ -62,7 +66,7 @@ struct MaterialInfo {
     float4  Diffuse;
     float   Metallic;
     float   Roughness;
-    uint    UseSphereMask;
+    uint    OcclusionMask;
     uint    Padding;
     
     int DiffuseMap0Index;
@@ -113,6 +117,7 @@ struct PassInfo {
     matrix      MtxProj;
     matrix      MtxInvProj;
     matrix      MtxShadow;
+    matrix      MtxNoLagView;
     float3      CameraPos;
     uint        LightCount;
     float3      CameraRight;
@@ -148,6 +153,8 @@ struct PassInfo {
     int         RT2L_AmbientIndex;
     
     int         RT0S_SsaoIndex;
+    int         LiveObjectDissolveIndex;
+    int         BuildingDissolveIndex;
 };
 
 struct PostPassInfo {
@@ -480,4 +487,45 @@ float4 ComputeRimLight(float4 rimLightColor, float rimWidth, float rimFactor, fl
     
     return rim * rimLightColor;
 }
+
+float SphereMask(float2 posA, float2 posB, float radius, float hardness = 100.f)
+{
+    float dist = distance(posA, posB);
+    return saturate(dist / radius);
+}
+
+void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
+{
+    float radius = 1.5f;
+    float distance = 20.f;
+    
+    float yDist = abs(gPassCB.CameraPos.y - posW.y);
+        
+    float3 pinPosV = mul(float4(posW, 1.f), gPassCB.MtxNoLagView);
+    float3 camPosV = mul(float4(gPassCB.CameraPos, 1.f), gPassCB.MtxNoLagView);
+        
+    float sphereMask = 1 - SphereMask(pinPosV.xy, camPosV.xy, radius);
+    
+    float3 distToCam = abs(pinPosV - camPosV);
+    float lengthToCam = length(distToCam);
+    
+    float dissolve = gTextureMaps[gPassCB.BuildingDissolveIndex].Sample(gsamAnisotropicWrap, uvW + gPassCB.TotalTime * 0.03f).x;
+    float sphereMask2 = sphereMask + dissolve;
+    
+    float mulMasks = sphereMask * sphereMask2;
+    
+    float lit = 0.f;
+    if (distance >= lengthToCam)
+    {
+        lit = mulMasks;
+    }
+    else if (distance < lengthToCam)
+    {
+        lit = 1.f;
+    }
+
+    if (yDist < 9.f)
+        clip(0.1f - lit);
+}
+
 #endif

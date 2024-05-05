@@ -34,6 +34,7 @@ struct PassConstants {
     Matrix  MtxProj{};
     Matrix  MtxInvProj{};
     Matrix  MtxShadow{};
+    Matrix  MtxNoLagView{};
     Vec3    CameraPos{};
     UINT    LightCount{};
     Vec3    CameraRight{};
@@ -69,6 +70,8 @@ struct PassConstants {
     int     RT2L_AmbientIndex            = -1;
 
     int     RT0S_SsaoIndex               = -1;
+    int     LiveObjectDissolveIndex      = -1;
+    int     BuildingDissolveIndex        = -1;
 };
 
 struct PostPassConstants {
@@ -101,7 +104,7 @@ struct MaterialData {
     Vec4    DiffuseAlbedo{};
     float   Metallic{};
     float   Roughness{};
-    UINT    UseSphereMask{};
+    UINT    OcclusionMask{};
     UINT    Padding{};
 
     std::array<int, TextureMapCount> MapIndices;

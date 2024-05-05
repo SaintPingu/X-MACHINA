@@ -101,7 +101,7 @@ float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
     
     // temp
     float3 dissolveColor = float3(3.f, 1.f, 0.f);
-    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[44].Sample(gsamAnisotropicWrap, pin.UV).x, gObjectCB.DeathElapsed);
+    float4 dissolve = Dissolve(dissolveColor, gTextureMaps[gPassCB.LiveObjectDissolveIndex].Sample(gsamAnisotropicWrap, pin.UV * 2.f).x, gObjectCB.DeathElapsed);
     
     litColor.a = dissolve.a;
     litColor.rgb += dissolve.rgb;

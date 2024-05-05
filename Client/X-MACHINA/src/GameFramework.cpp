@@ -27,14 +27,9 @@
 #include "Log/LogMgr.h"
 
 #include "InputMgr.h"
-#include "PacketFactory.h"
-#include "ClientNetworkManager.h"
-#include "ThreadManager.h"
 #include "X-Engine.h"
 
-#include "Script_PlayerNetwork.h"
-
-#define SERVER_COMMUNICATION
+//#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -106,7 +101,7 @@ void GameFramework::Update()
 	Timer::I->Tick(60.f);
 
 #ifdef SERVER_COMMUNICATION
-	NETWORK_MGR->ProcessEvents();
+	//NETWORK_MGR->ProcessEvents();
 
 #endif
 
@@ -135,7 +130,7 @@ void GameFramework::Launch()
 	GameLoop();
 
 #ifdef SERVER_COMMUNICATION
-	THREAD_MGR->Join();
+	//THREAD_MGR->Join();
 #endif
 }
 
@@ -322,17 +317,17 @@ void GameFramework::ConnectToServer()
 {
 #ifdef SERVER_COMMUNICATION
 	// Communication //
-	std::cout << "IP : ";
-	std::wstring ip;
-	std::wcin >> ip;
-	NETWORK_MGR->Init(ip, 7777);
+	//std::cout << "IP : ";
+	//std::wstring ip;
+	//std::wcin >> ip;
+	//NETWORK_MGR->Init(ip, 7777);
 
-	/* Network Thread */
-	NETWORK_MGR->Launch(2);
+	///* Network Thread */
+	//NETWORK_MGR->Launch(2);
 
-	while (!mIsLogin) {
-		NETWORK_MGR->ProcessEvents();
-	}
+	//while (!mIsLogin) {
+	//	NETWORK_MGR->ProcessEvents();
+	//}
 #else
 	InitPlayer(0);
 
@@ -351,8 +346,9 @@ void GameFramework::InitPlayer(int sessionID)
 	mPlayer = Scene::I->Instantiate("EliteTrooper");
 	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
-	auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
-	networkScript->Awake();
+
+	//auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
+	//networkScript->Awake();
 
 	mIsLogin = true;
 

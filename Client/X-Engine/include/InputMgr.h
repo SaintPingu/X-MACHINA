@@ -66,7 +66,7 @@ private:
 	bool mIsFocused{};
 	std::unordered_map<int, KeyState> mKeys{};
 	std::stack<KeyState*> mTapKeys{};
-	std::stack<KeyState*> mAwayKeys{};
+	std::stack<KeyState*> mAwayKeys{}; 
 
 	POINT mClientCenter{};
 	Vec2 mMousePos{};		// 현재 마우스 위치

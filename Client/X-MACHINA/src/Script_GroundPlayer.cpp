@@ -25,8 +25,6 @@
 
 #include "Component/UI.h"
 
-
-
 #pragma region Variable
 const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
 const float Script_GroundPlayer::mkStandWalkSpeed = 2.2f;
@@ -404,12 +402,12 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::MissileLauncher, "ShootPrimaryMissileLauncher" },
 	};
 
-	CallbackType reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
-	CallbackType reloadStopCallback   = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
-	CallbackType reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
-	CallbackType drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
-	CallbackType drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
-	CallbackType putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
+	std::function<void()> reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
+	std::function<void()> reloadStopCallback   = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
+	std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
+	std::function<void()> drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
+	std::function<void()> drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
+	std::function<void()> putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
 	mWeapons.resize(gkWeaponTypeCnt, nullptr);
 	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {

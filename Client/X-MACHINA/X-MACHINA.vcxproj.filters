@@ -37,15 +37,6 @@
     <Filter Include="Common\Component">
       <UniqueIdentifier>{8a4481ad-56d6-4d33-ab6e-25e2d535a8b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{135fd63a-dea6-463b-84e3-cf6fb4a4f9bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network\FlatBuffers">
-      <UniqueIdentifier>{6e7595cd-582b-44cd-80fd-c681f24858c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network\FlatBuffers\bat">
-      <UniqueIdentifier>{cec0777d-1af8-4e54-a87c-2e0963bbb77d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Script\Enemy">
       <UniqueIdentifier>{7805d217-2134-408e-8e6c-c771ed0e7d61}</UniqueIdentifier>
     </Filter>
@@ -70,11 +61,8 @@
     <Filter Include="Script\Network">
       <UniqueIdentifier>{e93c97fb-3ca4-4a22-ab1f-bc18295e3a4d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network\NetScript">
-      <UniqueIdentifier>{47b80c2b-b036-42e5-8cb1-05724ac68159}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network\Factory">
-      <UniqueIdentifier>{7b2da9fd-e17d-4cd9-92db-1d3524ae6d66}</UniqueIdentifier>
+    <Filter Include="ClientNetwork">
+      <UniqueIdentifier>{a170510f-02b6-4085-b693-108da1ac8b34}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -163,21 +151,6 @@
     <ClInclude Include="include\GameFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\Struct_generated.h">
-      <Filter>Network\FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\Transform_generated.h">
-      <Filter>Network\FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\Enum_generated.h">
-      <Filter>Network\FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h">
-      <Filter>Network\FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\ServerSession.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="include\stdafx.h">
       <Filter>PCH</Filter>
     </ClInclude>
@@ -262,29 +235,14 @@
     <ClInclude Include="..\Common\DwordOverloader.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="include\NetworkEvents.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_NetworkObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_MainCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Network\ClientNetworkManager.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\Script_Network.h">
-      <Filter>Network\NetScript</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\Script_PlayerNetwork.h">
-      <Filter>Network\NetScript</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\PacketFactory.h">
-      <Filter>Network\Factory</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h">
-      <Filter>Network\Factory</Filter>
+    <ClInclude Include="include\NetworkEvents.h">
+      <Filter>ClientNetwork</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -329,9 +287,6 @@
     </ClCompile>
     <ClCompile Include="src\GameFramework.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\ServerSession.cpp">
-      <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <Filter>PCH</Filter>
@@ -417,47 +372,17 @@
     <ClCompile Include="src\Script_Weapon_Rifle.cpp">
       <Filter>Script\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="src\NetworkEvents.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_NetworkObject.cpp">
       <Filter>Script\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\ClientNetworkManager.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\Script_Network.cpp">
-      <Filter>Network\NetScript</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\Script_PlayerNetwork.cpp">
-      <Filter>Network\NetScript</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\PacketFactory.cpp">
-      <Filter>Network\Factory</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp">
-      <Filter>Network\Factory</Filter>
+    <ClCompile Include="src\NetworkEvents.cpp">
+      <Filter>ClientNetwork</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\Common\SimpleMath.inl">
       <Filter>Common</Filter>
-    </None>
-    <None Include="Network\FlatBuffers\FBProtocol.fbs">
-      <Filter>Network\FlatBuffers</Filter>
-    </None>
-    <None Include="Network\FlatBuffers\Struct.fbs">
-      <Filter>Network\FlatBuffers</Filter>
-    </None>
-    <None Include="Network\FlatBuffers\Transform.fbs">
-      <Filter>Network\FlatBuffers</Filter>
-    </None>
-    <None Include="Network\FlatBuffers\Enum.fbs">
-      <Filter>Network\FlatBuffers</Filter>
-    </None>
-    <None Include="Network\FlatBuffers\GenFlatBuffersHeader.bat">
-      <Filter>Network\FlatBuffers\bat</Filter>
     </None>
   </ItemGroup>
 </Project>

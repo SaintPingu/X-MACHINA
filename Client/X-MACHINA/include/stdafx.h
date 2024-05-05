@@ -173,7 +173,7 @@ public:
 /* Custom */
 #include "Common.h"
 
-
+#define _NETWORK_LIB_VERSION_2
 #ifdef _NETWORK_LIB_VERSION_1
 /* IOCP Library */
 //#include "Types.h"
@@ -194,6 +194,16 @@ public:
 #include <concurrent_unordered_map.h>
 #include <concurrent_queue.h>
 #elif defined(_NETWORK_LIB_VERSION_2)
+
+#include <concurrent_unordered_map.h>
+#include <concurrent_queue.h>
+#include <atomic>
+
+#include "ClientNetwork/Include/LogManager.h"
+#include "ClientNetwork/Include/NetworkHeaders.h"
+#include "ClientNetwork/Include/UtilityMacro.h"
+#include "ClientNetwork/Include/Lock.h"
+
 
 #endif
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
+#include "UtilityMacro.h"
 
-#define LOG_MGR LogManager::GetInst()
 
 #define CHAR_TO_STRING(c) LogManager::GetInst()->CharToString(c)
 #define WSTR_TO_STRING(str) LogManager::GetInst()->WstringToString(str)
@@ -47,6 +47,7 @@ enum class LogLevel
 	END,
 };
 
+#define LOG_MGR LogManager::GetInst()
 class LogManager
 {
 	DECLARE_SINGLETON(LogManager);

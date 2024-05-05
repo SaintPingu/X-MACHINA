@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "LogManager.h"
-
 #include <istream>
 #include <ctime>
 #include <iomanip>

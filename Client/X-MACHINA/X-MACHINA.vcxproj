@@ -71,26 +71,26 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
     <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
     <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
     <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
     <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -197,13 +197,17 @@
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
+    <ClInclude Include="ClientNetwork\Contents\ClientNetworkManager.h" />
+    <ClInclude Include="ClientNetwork\Contents\NetworkEvents.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_Network.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h" />
+    <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
     <ClInclude Include="include\CheckDeath.h" />
     <ClInclude Include="include\CheckDetectionRange.h" />
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
-    <ClInclude Include="include\NetworkEvents.h" />
     <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
@@ -243,12 +247,16 @@
     <ClInclude Include="include\X-MACHINA.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\NetworkEvents.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />
     <ClCompile Include="src\CheckDeath.cpp" />
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
-    <ClCompile Include="src\NetworkEvents.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />

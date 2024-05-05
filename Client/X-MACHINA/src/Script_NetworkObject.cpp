@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "Script_NetworkObject.h"
-
 #include "Script_Weapon.h"
 
 #include "Scene.h"
 #include "Object.h"
 
+#include "ClientNetwork/Contents/NetworkEvents.h"
 
 
 void Script_NetworkObject_GroundPlayer::Awake()
@@ -23,7 +23,6 @@ void Script_NetworkObject_GroundPlayer::LateUpdate()
 	mSpineBone->RotateGlobal(Vector3::Up, mSpineAngle);
 }
 
-#include "NetworkEvents.h"
 void Script_NetworkObject_GroundPlayer::UpdateData(const void* data)
 {
 	switch (0) { // data type here

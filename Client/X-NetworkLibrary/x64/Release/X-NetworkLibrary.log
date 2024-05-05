@@ -5,7 +5,7 @@ C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\Pa
   'PacketHeader' 선언을 참조하십시오.
   
   ClientNetwork.cpp
-C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(16,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(18,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 '/Network/ClientNetwork.cpp'을(를) 컴파일하는 중)
   
   Listener.cpp

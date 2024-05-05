@@ -202,7 +202,6 @@
     </ClCompile>
     <ClCompile Include="Imgui\ImGuiMgr.cpp" />
     <ClCompile Include="include\TLS.cpp" />
-    <ClCompile Include="Log\LogMgr.cpp" />
     <ClCompile Include="src\AnimatorBlendTree.cpp" />
     <ClCompile Include="src\AnimatorState.cpp" />
     <ClCompile Include="src\AnimatorStateMachine.cpp" />
@@ -326,7 +325,6 @@
     <ClInclude Include="include\TLS.h" />
     <ClInclude Include="include\UploadBuffer.h" />
     <ClInclude Include="include\X-Engine.h" />
-    <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Common.hlsl">

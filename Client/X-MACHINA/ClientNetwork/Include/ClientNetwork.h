@@ -14,7 +14,7 @@ private:
 	UINT32	mConnectSessionCnt = 1; /* 立加且 技记 荐 */
 
 public:
-	ClientNetwork(std::wstring ip, UINT32 PortNum);
+	ClientNetwork();
 	virtual ~ClientNetwork();
 
 	virtual bool Start(std::wstring ip, UINT16 portNum) override;

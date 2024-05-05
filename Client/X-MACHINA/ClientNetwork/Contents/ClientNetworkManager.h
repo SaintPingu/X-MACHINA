@@ -16,8 +16,7 @@
 /// [ Back  Events Queue ] <------  Register Events ( Worker(Server) Threads)
 /// -------------------------------------------------+
 
-#include "../include/NetworkEvents.h"
-#include "FlatBuffers/ServerFBsPktFactory.h"
+#include "ClientNetwork/Contents/NetworkEvents.h"
 #include "Scene.h"
 #include "InputMgr.h"
 
@@ -34,8 +33,8 @@ class ClientNetworkManager
 	DECLARE_SINGLETON(ClientNetworkManager);
 
 private:
-	USE_LOCK;
-	SPtr_ClientService  mClientNetworkService{};
+	Lock::SRWLockGuard mSRWLock{};
+	SPtr_ClientNetwork  mClientNetwork{};
 
 
 	Concurrency::concurrent_unordered_map<UINT32, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */

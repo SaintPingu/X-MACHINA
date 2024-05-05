@@ -1,15 +1,14 @@
 #pragma once
-#include "Script_Network.h"
+#include "ClientNetwork/Include/Session.h"
 
-class ServerSession : public PacketSession
+class ServerSession : public Session
 {
 public:
 	ServerSession();
 	~ServerSession();
 
-	virtual void OnConnected() override;
-	virtual void OnRecvPacket(BYTE* buffer, int32 len) override;
-	virtual void OnSend(int32 len) override;
-	virtual void OnDisconnected() override;
-
+	virtual void	OnConnected() override;
+	virtual void	OnDisconnected() override;
+	virtual void	OnSend(UINT32 len) override;
+	virtual UINT32	OnRecv(BYTE* buffer, UINT32 len) override;
 };

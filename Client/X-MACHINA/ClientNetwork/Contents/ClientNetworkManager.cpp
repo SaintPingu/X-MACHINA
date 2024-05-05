@@ -7,14 +7,10 @@
 #include "Object.h"
 #include "Scene.h"
 
-#include "IocpLibrary/include/Service.h"
-#include "IocpLibrary/include/Session.h"
-#include "IocpLibrary/include/SocketUtils.h"
-#include "IocpLibrary/include/ThreadManager.h"
-#include "FlatBuffers/ServerFBsPktFactory.h"
-#include "ServerSession.h"
-#include "ThreadManager.h"
-#include "PacketFactory.h"
+#include "ClientNetwork/Include/MemoryManager.h"
+#include "ClientNetwork/Include/ClientNetwork.h"
+#include "ClientNetwork/Contents/ServerSession.h"
+
 #include "X-Engine.h"
 
 DEFINE_SINGLETON(ClientNetworkManager);
@@ -28,40 +24,37 @@ ClientNetworkManager::~ClientNetworkManager()
 
 void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 {
-	SocketUtils::Init();
-	ServerFBsPktFactory::Init();
 	/// +--------------------------------------------------------------
 	///					        CLIENT NETWORK
 	/// --------------------------------------------------------------+
-	mClientNetworkService = MakeShared<ClientService>(
-													NetAddress(ip, port),
-													MakeShared<Iocp>(),
-													MakeShared<ServerSession>, // TODO : SessionManager 등
-													1);
-	mClientNetworkService->Start();
-	THREAD_MGR->InitTLS();
+	mClientNetwork = Memory::Make_Shared<ClientNetwork>();
+	mClientNetwork->SetMaxSessionCnt(1); // 1명 접속  
+	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
+	mClientNetwork->Start(L"127.0.0.1", 7777);
+
 }
 
 void ClientNetworkManager::Launch(int ThreadNum)
 {
+	
 	LOG_MGR->SetColor(TextColor::BrightCyan);
 	LOG_MGR->Cout("+--------------------------------------\n");
 	LOG_MGR->Cout("       X-MACHINA CLIENT NETWORK        \n");
 	LOG_MGR->Cout("--------------------------------------+\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
-	/* Server Thread */
-	for (int32 i = 0; i < ThreadNum; i++)
-	{
-		THREAD_MGR->Launch([=]()
-			{
-				while (true)
-				{
+	/* Network Thread */
+	//for (int i = 0; i < ThreadNum; i++)
+	//{
+	//	THREAD_MGR->Launch([=]()
+	//		{
+	//			while (true)
+	//			{
 
-					mClientNetworkService->GetIocp()->Dispatch();
-				}
-			});
-	}
+	//				mClientNetworkService->GetIocp()->Dispatch();
+	//			}
+	//		});
+	//}
 
 	/* Join은 GameFramework에서 ... */
 }
@@ -99,7 +92,7 @@ void ClientNetworkManager::ProcessEvents()
 			//remotePlayer->SetLocalRotation(Quaternion::ToQuaternion(euler));
 
 
-			mRemotePlayers[data->RemoteP_ID] = remotePlayer;
+			mRemotePlayers[static_cast<UINT32>(data->RemoteP_ID)] = remotePlayer;
 			std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
 		}
 
@@ -164,13 +157,13 @@ void ClientNetworkManager::Send_CPkt_KeyInput(GameKeyInfo::KEY		 key
 										    , GameKeyInfo::MoveKey	 moveKey
 										    , Vec2					 mouseDelta)
 {
-	auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_KeyInput(key, KeyState, moveKey, mouseDelta);
-	mClientNetworkService->Broadcast(CPktBuf);
+	//auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_KeyInput(key, KeyState, moveKey, mouseDelta);
+	//mClientNetworkService->Broadcast(CPktBuf);
 }
 
 void ClientNetworkManager::Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp)
 {
-	auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale, SpineLookDir, timestamp);
+	//auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale, SpineLookDir, timestamp);
 	
-	mClientNetworkService->Broadcast(CPktBuf);
+	//mClientNetworkService->Broadcast(CPktBuf);
 }

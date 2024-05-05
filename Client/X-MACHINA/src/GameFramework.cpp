@@ -23,9 +23,6 @@
 #include "Script_NetworkObject.h"
 #include "Script_GameManager.h"
 
-
-#include "Log/LogMgr.h"
-
 #include "InputMgr.h"
 #include "X-Engine.h"
 

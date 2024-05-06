@@ -44,6 +44,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Building:
+	//case ObjectTag::DissolveBuilding:
 		PlayPSs(BulletPSType::Building);
 		Explode();
 		break;

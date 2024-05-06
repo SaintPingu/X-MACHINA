@@ -53,6 +53,7 @@ ParticleSystem* ParticleSystem::Play(rsptr<ParticleSystemCPUData> pscd, Transfor
 	}
 
 	mTarget = target;
+	mPSGD->WorldPos = target->GetPosition() + mPSCD->Position;
 
 	return this;
 }
@@ -67,7 +68,8 @@ bool ParticleSystem::Update()
 	// 시뮬레이션 속도를 위해 델타 타임에 시뮬레이션 속도 적용
 	const float kSimulationDeltaTime = DeltaTime() * mPSCD->SimulationSpeed;
 
-	mPSGD->WorldPos = mTarget->GetPosition() + mPSCD->Position;
+	if (mPSCD->Looping || mPSCD->SimulationSpace == PSSimulationSpace::Local)
+		mPSGD->WorldPos = mTarget->GetPosition() + mPSCD->Position;
 
 	mPSGD->DeltaTime = kSimulationDeltaTime;
 	mPSGD->TotalTime += kSimulationDeltaTime;

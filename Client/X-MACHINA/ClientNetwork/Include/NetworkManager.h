@@ -33,6 +33,8 @@ public:
 
 public:
 	IN_ADDR	Ip2Address(const WCHAR* ip);
+    void PrintSocketErrorDescription(int errorCode);
+   
 
 };
 

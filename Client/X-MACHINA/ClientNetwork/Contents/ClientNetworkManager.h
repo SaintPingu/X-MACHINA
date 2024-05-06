@@ -21,7 +21,7 @@
 #include "InputMgr.h"
 
 
-#define NETWORK_MGR ClientNetworkManager::GetInst()
+#define CLIENT_NETWORK ClientNetworkManager::GetInst()
 struct NetSceneEventQueue 
 {
 	Concurrency::concurrent_queue<sptr<NetworkEvent::Scene::EventData>> EventsQueue{};
@@ -33,7 +33,7 @@ class ClientNetworkManager
 	DECLARE_SINGLETON(ClientNetworkManager);
 
 private:
-	Lock::SRWLockGuard mSRWLock{};
+	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
 
 

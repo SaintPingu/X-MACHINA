@@ -26,7 +26,10 @@
 #include "InputMgr.h"
 #include "X-Engine.h"
 
-//#define SERVER_COMMUNICATION
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "ClientNetwork/Include/ThreadManager.h"
+
+#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -98,7 +101,7 @@ void GameFramework::Update()
 	Timer::I->Tick(60.f);
 
 #ifdef SERVER_COMMUNICATION
-	//NETWORK_MGR->ProcessEvents();
+	CLIENT_NETWORK->ProcessEvents();
 
 #endif
 
@@ -127,7 +130,7 @@ void GameFramework::Launch()
 	GameLoop();
 
 #ifdef SERVER_COMMUNICATION
-	//THREAD_MGR->Join();
+	THREAD_MGR->JoinAllThreads();
 #endif
 }
 
@@ -315,16 +318,16 @@ void GameFramework::ConnectToServer()
 #ifdef SERVER_COMMUNICATION
 	// Communication //
 	//std::cout << "IP : ";
-	//std::wstring ip;
+	std::wstring ip;
 	//std::wcin >> ip;
-	//NETWORK_MGR->Init(ip, 7777);
+	CLIENT_NETWORK->Init(ip, 7777);
 
-	///* Network Thread */
-	//NETWORK_MGR->Launch(2);
+	/* Network Thread */
+	CLIENT_NETWORK->Launch(2);
 
-	//while (!mIsLogin) {
-	//	NETWORK_MGR->ProcessEvents();
-	//}
+	while (!mIsLogin) {
+		CLIENT_NETWORK->ProcessEvents();
+	}
 #else
 	InitPlayer(0);
 

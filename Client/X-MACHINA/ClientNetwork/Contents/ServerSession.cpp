@@ -57,3 +57,4 @@ UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)
 {
 	return UINT32();
 }
+

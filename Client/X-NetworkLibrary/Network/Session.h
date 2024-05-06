@@ -17,36 +17,36 @@
 
 
 struct OverLapped {
-	Overlapped_Connect			Connect    = {};
+	Overlapped_Connect			Connect = {};
 	Overlapped_DisConnect		Disconnect = {};
-	Overlapped_Recv				Recv       = {};
-	Overlapped_Send				Send       = {};
+	Overlapped_Recv				Recv = {};
+	Overlapped_Send				Send = {};
 };
 
 struct PacketBuffer {
 	/* Send */
 	//concurrency::concurrent_queue<SPtr_SendPktBuf> SendPkt_Queue;
 
-	std::queue<SPtr_SendPktBuf> SendPkt_Queue    = {}; /* Scatter-Gather를 위해서 Queue에 저장 */
+	std::queue<SPtr_SendPktBuf> SendPkt_Queue = {}; /* Scatter-Gather를 위해서 Queue에 저장 */
 	std::atomic<bool>			IsSendRegistered = false;
-	
+
 	/* Recv */
-	PacketRecvBuf*				RecvPkt		 	 = {};
+	PacketRecvBuf* RecvPkt = {};
 };
 
 
 class Session : public NetworkObject
 {
 private:
-	Lock::SRWLockGuard mSRWLock{};
-	//USE_LOCK;
-	//std::mutex sendLock;
-	//class Lock::RWLock					  mRWSendLock;
+	USE_LOCK;
 
-	std::weak_ptr<class NetworkInterface> mOwnerNI	      = {};		/* Server Network or Client Network - Set Owner */
-	std::atomic<bool>					  mIsConnected    = false;	/* Check If Client Connect to Server */
-	OverLapped							  mOverlapped     = {};		/* Overlapped I/O Object */
-	PacketBuffer						  mPacketBuffer   = {};		/* send / recv Packet Buffer */
+	std::atomic_int LockWrite_ThreadID = -1;
+	std::atomic_bool LockWrite_bool = false;
+
+	std::weak_ptr<class NetworkInterface> mOwnerNI = {};		/* Server Network or Client Network - Set Owner */
+	std::atomic<bool>					  mIsConnected = false;	/* Check If Client Connect to Server */
+	OverLapped							  mOverlapped = {};		/* Overlapped I/O Object */
+	PacketBuffer						  mPacketBuffer = {};		/* send / recv Packet Buffer */
 protected:
 	/* Session class을 상속받은 class는 신호를 받는다. */
 	virtual void	OnConnected() {};
@@ -75,10 +75,12 @@ public:
 public:
 	/* Set */
 	void SetOwerNetworkInterface(SPtr_NI networkInterface) { mOwnerNI = networkInterface; }
+	void SetIpPort(std::wstring ip, UINT32 port);
+
 	/* Get */
-	std::shared_ptr<NetworkInterface> GetOwnerNI()	{ return mOwnerNI.lock(); }
-	PacketRecvBuf& GetRecvPktBuf()					{ return *mPacketBuffer.RecvPkt; }
-	bool IsConnected()								{ return mIsConnected.load(); }
+	std::shared_ptr<NetworkInterface> GetOwnerNI() { return mOwnerNI.lock(); }
+	PacketRecvBuf& GetRecvPktBuf() { return *mPacketBuffer.RecvPkt; }
+	bool IsConnected() { return mIsConnected.load(); }
 
 };
 

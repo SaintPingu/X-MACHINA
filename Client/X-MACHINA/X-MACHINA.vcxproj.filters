@@ -70,6 +70,9 @@
     <Filter Include="ClientNetwork\NetworkScript">
       <UniqueIdentifier>{9f81564c-0791-487c-9d95-7ff6ee555843}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ClientNetwork\bat">
+      <UniqueIdentifier>{0797efe0-dbc5-42df-88d2-70252c436d6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -413,6 +416,9 @@
     <None Include="packages.config" />
     <None Include="..\Common\SimpleMath.inl">
       <Filter>Common</Filter>
+    </None>
+    <None Include="ClientNetwork\NetworkLib.bat">
+      <Filter>ClientNetwork\bat</Filter>
     </None>
   </ItemGroup>
 </Project>

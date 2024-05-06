@@ -51,11 +51,13 @@ bool SocketData::Bind(SOCKADDR_IN netAddr)
 
 bool SocketData::BindAnyAddress(UINT16 port)
 {
-	mSockAddr.sin_family      = AF_INET;
-	mSockAddr.sin_addr.s_addr = ::htonl(INADDR_ANY);
-	mSockAddr.sin_port        = ::htons(port);
+	SOCKADDR_IN Address{};
 
-	return SOCKET_ERROR != ::bind(mSocket, reinterpret_cast<const SOCKADDR*>(&mSockAddr), sizeof(mSockAddr));
+	Address.sin_family      = AF_INET;
+	Address.sin_addr.s_addr = ::htonl(INADDR_ANY);
+	Address.sin_port        = ::htons(port);
+
+	return SOCKET_ERROR != ::bind(mSocket, reinterpret_cast<const SOCKADDR*>(&Address), sizeof(Address));
 }
 
 bool SocketData::BindWindowsFunction(GUID guid, LPVOID* fn)

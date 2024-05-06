@@ -54,3 +54,27 @@ IN_ADDR NetworkManager::Ip2Address(const WCHAR* ip)
 	return address;
 }
 
+void NetworkManager::PrintSocketErrorDescription(int errorCode)
+{
+	LPSTR errorText = nullptr;
+
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		errorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&errorText,
+		0,
+		NULL
+	);
+
+	if (errorText != nullptr) {
+		LOG_MGR->Cout("Error Code : ", errorCode, '\n');
+		LOG_MGR->Cout("Description: ", errorText, '\n');
+		LocalFree(errorText);
+	}
+	else {
+		LOG_MGR->Cout("Failed to get error description. - ", errorCode, '\n');
+	}
+}
+

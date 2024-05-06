@@ -306,6 +306,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\SimpleMath.inl" />
+    <None Include="ClientNetwork\NetworkLib.bat" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

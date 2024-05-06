@@ -1,10 +1,11 @@
 #pragma once
+
 #define USE_MANY_LOCKS(count)	Lock::Lock _locks[count];
 #define USE_LOCK				USE_MANY_LOCKS(1)
 #define	READ_LOCK_IDX(idx)		Lock::ReadLockGuard readLockGuard_##idx(_locks[idx], typeid(this).name());
-#define READ_LOCK				READ_LOCK_IDX(0)
+#define READ_LOCK_SCOPE			READ_LOCK_IDX(0)
 #define	WRITE_LOCK_IDX(idx)		Lock::WriteLockGuard writeLockGuard_##idx(_locks[idx], typeid(this).name());
-#define WRITE_LOCK				WRITE_LOCK_IDX(0)
+#define WRITE_LOCK_SCOPE		WRITE_LOCK_IDX(0)
 
 
 namespace Lock
@@ -20,10 +21,10 @@ namespace Lock
         void UnLock();
     };
 
-//#define RWLOCK RWLock::GetInst()
+    //#define RWLOCK RWLock::GetInst()
     class RWLock {
     private:
-       // DECLARE_SINGLETON(RWLock);
+        // DECLARE_SINGLETON(RWLock);
 
     private:
         std::atomic<int> mReaderCount;
@@ -36,7 +37,7 @@ namespace Lock
         void unlockRead();
         void lockWrite();
         void unlockWrite();
-        
+
     };
 
     enum class LockFlag : UINT32
@@ -100,27 +101,52 @@ namespace Lock
     /// +---------------------------------
     ///  SRWLock - Slim Read Write Lock
     /// ---------------------------------+
-    class SRWLockGuard
+    class SRWLock
     {
+        typedef enum { NOT_INIT, UNLOCKED, READLOCKED, WRITELOCKED } MASK;
     private:
-        SRWLOCK mSrwLock;
+        SRWLOCK mSrwLock; // MSDN 
+        MASK lockMask = NOT_INIT;
 
     public:
-        SRWLockGuard() { InitializeSRWLock(&mSrwLock); }
+        SRWLock() { InitializeSRWLock(&mSrwLock); }
 
         /* Read Lock - Unlock */
-        void LockRead() { AcquireSRWLockShared(&mSrwLock); }
-        void UnlockRead() { ReleaseSRWLockShared(&mSrwLock); }
+        void LockRead() {
+            AcquireSRWLockShared(&mSrwLock);
+        }
+        void UnlockRead() {
+            ReleaseSRWLockShared(&mSrwLock);
+        }
 
         /* Write Lock - Unlock */
-        void LockWrite() { AcquireSRWLockExclusive(&mSrwLock); }
-        void UnlockWrite() { ReleaseSRWLockExclusive(&mSrwLock); }
-        
+        void LockWrite() {
+            AcquireSRWLockExclusive(&mSrwLock);
+        }
+        void UnlockWrite() {
+            ReleaseSRWLockExclusive(&mSrwLock);
+        }
+
         // 읽기 잠금을 획득한 상태인지 확인
-        bool IsReadLocked() const { return TryAcquireSRWLockShared(const_cast<SRWLOCK*>(&mSrwLock)) == FALSE; }
-        bool IsWriteLocked() const { return TryAcquireSRWLockExclusive(const_cast<SRWLOCK*>(&mSrwLock)) == FALSE; }
+        bool TryReadLocked() const {
+            return TryAcquireSRWLockShared(const_cast<SRWLOCK*>(&mSrwLock)) == TRUE;
+        }
+        bool TryWriteLocked() const {
+            return TryAcquireSRWLockExclusive(const_cast<SRWLOCK*>(&mSrwLock)) == TRUE;
+        }
 
     };
+
+    class SRW_WriteLockGaurd
+    {
+    private:
+        SRWLock& _lock;
+    public:
+        SRW_WriteLockGaurd(SRWLock& lock) : _lock(lock) { _lock.LockWrite(); }
+        ~SRW_WriteLockGaurd() { _lock.UnlockWrite(); };
+
+    };
+#define WriteLockScope(srwLock) SRW_WriteLockGuard(srwLock)
 
 }
 

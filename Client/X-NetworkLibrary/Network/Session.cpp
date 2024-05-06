@@ -14,7 +14,7 @@
 Session::Session() : NetworkObject()
 {
 	mPacketBuffer.RecvPkt = new PacketRecvBuf(static_cast<INT32>(PacketRecvBuf::Info::Size));
-	
+
 	SocketData sockdata = {};
 	sockdata.CreateSocket();
 	NetworkObject::SetSocketData(sockdata);
@@ -36,7 +36,7 @@ void Session::Dispatch(OverlappedObject* overlapped, UINT32 bytes)
 
 	/* Print.. Info */
 	int ThreadID = TLS_MGR->Get_TlsInfoData()->id;
-	
+
 	/* Process Task! */
 	ProcessIO(IoType, bytes);
 }
@@ -53,6 +53,9 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 		if (mIsConnected.load() == true)
 			return;
 
+		GetSocketData().SetReuseAddress(true);
+		GetSocketData().BindAnyAddress(0);
+
 		/* Clear & Set - Connect Overlapped IO Object */
 		mOverlapped.Connect.Clear_OVERLAPPED();
 		mOverlapped.Connect.SetOwner(shared_from_this());
@@ -60,13 +63,13 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 		/* Register Connect I/O */
 		DWORD numOfBytes = {};
 		bool ConnectExResult = NETWORK_MGR->ConnectEx()(GetSocketData().GetSocket()
-										, reinterpret_cast<SOCKADDR*>(&GetSocketData().GetSockAddr())
-										, sizeof(GetSocketData().GetSockAddr())
-										, nullptr
-										, 0
-										, &numOfBytes
-										, &mOverlapped.Connect);
-		
+			, reinterpret_cast<SOCKADDR*>(&GetSocketData().GetSockAddr())
+			, sizeof(GetSocketData().GetSockAddr())
+			, nullptr
+			, 0
+			, &numOfBytes
+			, &mOverlapped.Connect);
+
 		if (ConnectExResult == false) {
 			INT32 errCode = ::WSAGetLastError();
 			if (errCode != WSA_IO_PENDING) {
@@ -74,19 +77,19 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 			}
 		}
 	}
-		break;
-		/// +-------------------
-		///	REGISTER DISCONNECT
-		/// -------------------+
+	break;
+	/// +-------------------
+	///	REGISTER DISCONNECT
+	/// -------------------+
 	case OverlappedIO::Type::DisConnect:
 	{
 		mOverlapped.Disconnect.Clear_OVERLAPPED();
 		mOverlapped.Disconnect.SetOwner(shared_from_this());
 
 		bool DisconnectExResult = NETWORK_MGR->DiscconectEx()(GetSocketData().GetSocket()
-															, &mOverlapped.Disconnect
-															, TF_REUSE_SOCKET /* 소켓이 종료되어도 해당 주소와 포트를 다른 소켓이 사용가능 */
-															, 0);
+			, &mOverlapped.Disconnect
+			, TF_REUSE_SOCKET /* 소켓이 종료되어도 해당 주소와 포트를 다른 소켓이 사용가능 */
+			, 0);
 
 		if (DisconnectExResult == false) {
 			INT32 errCode = ::WSAGetLastError();
@@ -95,10 +98,10 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 			}
 		}
 	}
-		break;
-		/// +-------------------
-		///	   REGISTER SEND 
-		/// -------------------+
+	break;
+	/// +-------------------
+	///	   REGISTER SEND 
+	/// -------------------+
 	case OverlappedIO::Type::Send:
 	{
 		if (mIsConnected.load() == false) {
@@ -110,23 +113,13 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 
 		/* Push SendPkt to Overlapped_Send */
 		{
-		
-			//sendLock.lock();
-			//mRWSendLock.lockWrite();
-			//WRITE_LOCK;
-			mSRWLock.LockWrite();
-
-			while (mPacketBuffer.SendPkt_Queue.empty() == false) {
-				SPtr_SendPktBuf sendPktBuf = mPacketBuffer.SendPkt_Queue.front();
-				mPacketBuffer.SendPkt_Queue.pop();
-				if(sendPktBuf)
-					mOverlapped.Send.BufPush(sendPktBuf);
-			}
-			mSRWLock.UnlockWrite();
-
-
-			//mRWSendLock.unlockWrite();
-			//sendLock.unlock();
+			WRITE_LOCK_SCOPE
+				while (mPacketBuffer.SendPkt_Queue.empty() == false) {
+					SPtr_SendPktBuf sendPktBuf = mPacketBuffer.SendPkt_Queue.front();
+					mPacketBuffer.SendPkt_Queue.pop();
+					if (sendPktBuf)
+						mOverlapped.Send.BufPush(sendPktBuf);
+				}
 
 
 		}
@@ -135,23 +128,23 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 		std::vector<WSABUF> wsaBufs = { };
 		wsaBufs.reserve(mOverlapped.Send.BufSize());
 		for (SPtr_SendPktBuf sendBuf : mOverlapped.Send.GetSendBuffers()) {
-		
+
 			WSABUF wsaBuf = {};
-			wsaBuf.buf    = reinterpret_cast<char*>(sendBuf->GetBuffer());
+			wsaBuf.buf = reinterpret_cast<char*>(sendBuf->GetBuffer());
 			PacketHeader* test = reinterpret_cast<PacketHeader*>(wsaBuf.buf);
-			wsaBuf.len    = static_cast<LONG>(sendBuf->GetTotalSize());
+			wsaBuf.len = static_cast<LONG>(sendBuf->GetTotalSize());
 			wsaBufs.push_back(wsaBuf);
 		}
 
 		/* ::WSASend */
 		DWORD numOfBytes = 0;
 		if (SOCKET_ERROR == ::WSASend(GetSocketData().GetSocket()
-									, wsaBufs.data()
-									, static_cast<DWORD>(wsaBufs.size())
-									, OUT & numOfBytes
-									, 0
-									, &mOverlapped.Send
-									, nullptr))
+			, wsaBufs.data()
+			, static_cast<DWORD>(wsaBufs.size())
+			, OUT & numOfBytes
+			, 0
+			, &mOverlapped.Send
+			, nullptr))
 		{
 			INT32 errCode = ::WSAGetLastError();
 			if (errCode != WSA_IO_PENDING)
@@ -163,10 +156,10 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 		}
 
 	}
-		break;
-		/// +-------------------
-		///    REGISTER RECV
-		/// -------------------+
+	break;
+	/// +-------------------
+	///    REGISTER RECV
+	/// -------------------+
 	case OverlappedIO::Type::Recv:
 	{
 		if (mIsConnected.load() == false) {
@@ -181,14 +174,14 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 		wsaBuf.len = mPacketBuffer.RecvPkt->GetFreeSize();
 
 		DWORD numOfBytes = 0;
-		DWORD flags      = 0;
+		DWORD flags = 0;
 		int WSARecvResult = ::WSARecv(GetSocketData().GetSocket()
-									, &wsaBuf
-									, 1
-									, &numOfBytes
-									, &flags
-									, &mOverlapped.Recv
-									, nullptr);
+			, &wsaBuf
+			, 1
+			, &numOfBytes
+			, &flags
+			, &mOverlapped.Recv
+			, nullptr);
 
 		if (WSARecvResult == SOCKET_ERROR) {
 			INT32 errCode = ::WSAGetLastError();
@@ -198,7 +191,7 @@ void Session::RegisterIO(OverlappedIO::Type IoType)
 			}
 		}
 	}
-		break;
+	break;
 	}
 
 }
@@ -207,9 +200,9 @@ void Session::ProcessIO(OverlappedIO::Type IoType, INT32 BytesTransferred)
 {
 	switch (IoType)
 	{
-	/// +-------------------
-	///    PROCESS CONNECT
-	/// -------------------+
+		/// +-------------------
+		///    PROCESS CONNECT
+		/// -------------------+
 	case OverlappedIO::Type::Connect:
 	{
 		mOverlapped.Connect.DecRef_NetObj(); // Shared_ptr -> release
@@ -247,7 +240,7 @@ void Session::ProcessIO(OverlappedIO::Type IoType, INT32 BytesTransferred)
 	case OverlappedIO::Type::Send:
 	{
 
-		mOverlapped.Send.DecRef_NetObj(); 
+		mOverlapped.Send.DecRef_NetObj();
 		mOverlapped.Send.ReleaseSendBuffersReferenceCount(); /* SendBuffers Send Complete → Release Reference Count */
 
 		/* Exception Disconnect */
@@ -261,25 +254,17 @@ void Session::ProcessIO(OverlappedIO::Type IoType, INT32 BytesTransferred)
 		/* TODO : Lock 걸자!*/
 		/* 다 보냄 */
 		{
-		
-			//sendLock.lock();
-			//mRWSendLock.lockWrite();
-			//WRITE_LOCK;
-			mSRWLock.LockWrite();
+			WRITE_LOCK_SCOPE
 
-			if (mPacketBuffer.SendPkt_Queue.empty() == true) {
-				mPacketBuffer.IsSendRegistered.store(false);
+				if (mPacketBuffer.SendPkt_Queue.empty() == true) {
+					mPacketBuffer.IsSendRegistered.store(false);
 
-			}
-			//sendLock.unlock();
-			//mRWSendLock.unlockWrite();
+				}
 
 			/* 다 안보냄 */
-			if(mPacketBuffer.SendPkt_Queue.empty() == false){
+			if (mPacketBuffer.SendPkt_Queue.empty() == false) {
 				RegisterIO(OverlappedIO::Type::Send);
 			}
-
-			mSRWLock.UnlockWrite();
 
 		}
 
@@ -341,29 +326,20 @@ void Session::Send(SPtr_SendPktBuf buf)
 	}
 
 	bool RegisterSend = false;
-
 	{
-		//sendLock.lock();
-		//mRWSendLock.lockWrite();
-		//WRITE_LOCK;
-		mSRWLock.LockWrite();
+		WRITE_LOCK_SCOPE;
+		LockWrite_ThreadID.store(TLS_MGR->Get_TlsInfoData()->id);
 
 		mPacketBuffer.SendPkt_Queue.push(buf);
 
 		if (mPacketBuffer.IsSendRegistered.exchange(true) == false)
 			RegisterSend = true;
 
-		//mRWSendLock.unlockWrite();
-
-		//sendLock.unlock();
-
-		mSRWLock.UnlockWrite();
-
-
 	}
 
-	if (RegisterSend)
+	if (RegisterSend) {
 		RegisterIO(OverlappedIO::Type::Send);
+	}
 
 }
 
@@ -375,10 +351,26 @@ void Session::Connect()
 void Session::Disconnect(const WCHAR* cause)
 {
 	if (mIsConnected.exchange(false) == false)
-		return;	
+		return;
 	std::wcout << "Disconnect : " << cause << std::endl;
 
 	RegisterIO(OverlappedIO::Type::DisConnect);
 }
 
 
+void Session::SetIpPort(std::wstring ip, UINT32 port)
+{
+	SOCKADDR_IN SockAddr{};
+	/* Socket Address */
+	::memset(&SockAddr, 0, sizeof(SockAddr));
+
+	SockAddr.sin_family = AF_INET;
+	SockAddr.sin_addr = NETWORK_MGR->Ip2Address(ip.c_str());
+	SockAddr.sin_port = ::htons(port); // 포트 번호 : 16비트 숫자-host to Network - short(16bit)
+
+	int id = GetID();
+
+	GetSocketData().SetSockAddrIn(SockAddr);
+	SocketData data = GetSocketData();
+
+}

@@ -10,6 +10,9 @@
 #include "ClientNetwork/Include/MemoryManager.h"
 #include "ClientNetwork/Include/ClientNetwork.h"
 #include "ClientNetwork/Contents/ServerSession.h"
+#include "ClientNetwork/Include/ThreadManager.h"
+#include "ClientNetwork/Include/NetworkManager.h"
+
 
 #include "X-Engine.h"
 
@@ -27,11 +30,21 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	/// +--------------------------------------------------------------
 	///					        CLIENT NETWORK
 	/// --------------------------------------------------------------+
+	if (FALSE == NETWORK_MGR->Init()) {
+		LOG_MGR->Cout("NETWORK MANAGER INIT FAIL\n");
+		return;
+	}
+	LOG_MGR->Cout("NETWORK MANAGER INIT SUCCESS\n");
+
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();
 	mClientNetwork->SetMaxSessionCnt(1); // 1명 접속  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
-	mClientNetwork->Start(L"127.0.0.1", 7777);
-
+	
+	if (FALSE == mClientNetwork->Start(L"127.0.0.1", 7777)) {
+		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
+		return;
+	}
+	LOG_MGR->Cout("CLIENT NETWORK SERVICE START SUCCESS\n");
 }
 
 void ClientNetworkManager::Launch(int ThreadNum)
@@ -43,18 +56,14 @@ void ClientNetworkManager::Launch(int ThreadNum)
 	LOG_MGR->Cout("--------------------------------------+\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
-	/* Network Thread */
-	//for (int i = 0; i < ThreadNum; i++)
-	//{
-	//	THREAD_MGR->Launch([=]()
-	//		{
-	//			while (true)
-	//			{
-
-	//				mClientNetworkService->GetIocp()->Dispatch();
-	//			}
-	//		});
-	//}
+	for (int i = 0; i < ThreadNum; ++i) {
+		std::string ThreadName = "Network Thread_" + std::to_string(i);
+		THREAD_MGR->RunThread(ThreadName, [&]() {
+			while (true) {
+				mClientNetwork->Dispatch_CompletedTasks_FromIOCP(0);
+			}
+			});
+	}
 
 	/* Join은 GameFramework에서 ... */
 }

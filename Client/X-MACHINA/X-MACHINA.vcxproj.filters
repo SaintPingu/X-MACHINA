@@ -73,6 +73,9 @@
     <Filter Include="ClientNetwork\bat">
       <UniqueIdentifier>{0797efe0-dbc5-42df-88d2-70252c436d6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ClientNetwork\Contents">
+      <UniqueIdentifier>{1bfc329a-7d00-4276-bd6c-b06c3b293aaf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -265,6 +268,12 @@
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h">
       <Filter>ClientNetwork\Network</Filter>
     </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\FBsPacketFactory.h">
+      <Filter>ClientNetwork\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\GamePlayer.h">
+      <Filter>ClientNetwork\Contents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -410,6 +419,12 @@
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp">
       <Filter>ClientNetwork\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\FBsPacketFactory.cpp">
+      <Filter>ClientNetwork\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\GamePlayer.cpp">
+      <Filter>ClientNetwork\Contents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

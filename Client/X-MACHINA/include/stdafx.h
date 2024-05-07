@@ -204,6 +204,7 @@ public:
 #include "ClientNetwork/Include/UtilityMacro.h"
 #include "ClientNetwork/Include/Lock.h"
 
+using SPtr_ServerSession = std::shared_ptr<class ServerSession>;
 
 #endif
 

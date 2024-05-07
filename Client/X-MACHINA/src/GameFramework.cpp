@@ -23,11 +23,13 @@
 #include "Script_NetworkObject.h"
 #include "Script_GameManager.h"
 
+
 #include "InputMgr.h"
 #include "X-Engine.h"
 
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 #include "ClientNetwork/Include/ThreadManager.h"
+#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
 
 #define SERVER_COMMUNICATION
 
@@ -347,8 +349,8 @@ void GameFramework::InitPlayer(int sessionID)
 	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
 
-	//auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
-	//networkScript->Awake();
+	auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
+	networkScript->Awake();
 
 	mIsLogin = true;
 

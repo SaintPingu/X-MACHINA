@@ -12,6 +12,7 @@
 #include "ClientNetwork/Contents/ServerSession.h"
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Include/NetworkManager.h"
+#include "ClientNetwork/Include/SendBuffersFactory.h"
 
 
 #include "X-Engine.h"
@@ -27,24 +28,68 @@ ClientNetworkManager::~ClientNetworkManager()
 
 void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 {
-	/// +--------------------------------------------------------------
-	///					        CLIENT NETWORK
-	/// --------------------------------------------------------------+
-	if (FALSE == NETWORK_MGR->Init()) {
-		LOG_MGR->Cout("NETWORK MANAGER INIT FAIL\n");
-		return;
-	}
-	LOG_MGR->Cout("NETWORK MANAGER INIT SUCCESS\n");
 
+
+	/// +------------------------------------
+	///	TLS MGR : Thread Local Storage 관리 
+	/// ------------------------------------+
+	if (FALSE == TLS_MGR->Init()) {
+
+		LOG_MGR->SetColor(TextColor::Red);
+		LOG_MGR->Cout("[FAIL] TLS_MGR INIT\n");
+		LOG_MGR->SetColor(TextColor::Default);
+
+	}
+	TLS_MGR->Init_TlsInfoData("main Thread TLS Info"); // 0 idx 
+	TLS_MGR->Init_TlsSendBufFactory("SendPacketFactory");
+
+	LOG_MGR->Cout("[SUCCESS] TLS_MGR INIT\n");
+	/// +----------------------------------------------------------------
+///	Network Manager : 2.2버젼 Winsock 초기화 및 비동기 함수 Lpfn 초기화
+/// ----------------------------------------------------------------+
+	if (FALSE == NETWORK_MGR->Init()) {
+
+		LOG_MGR->SetColor(TextColor::Red);
+		LOG_MGR->Cout("[FAIL] NETWORK_MGR INIT\n");
+		LOG_MGR->SetColor(TextColor::Default);
+	}
+	LOG_MGR->Cout("[SUCCESS] NETWORK_MGR INIT\n");
+
+	/// +------------------------
+	///	MEMORY : Memory Pool 관리 
+	/// ------------------------+
+	if (FALSE == MEMORY->InitMemories()) {
+
+		LOG_MGR->SetColor(TextColor::Red);
+		LOG_MGR->Cout("[FAIL] MEMORY INIT\n");
+		LOG_MGR->SetColor(TextColor::Default);
+	}
+	LOG_MGR->Cout("[SUCCESS] MEMORY INIT\n");
+
+	/// +-------------------------------------------------------------------
+	///	SEND BUFFERS FACTORY : SendBuffer전용 메모리 풀 및 SendPktBuffer 생산
+	/// -------------------------------------------------------------------+
+	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) SendBuffersFactory INIT\n");
+	{
+		SENDBUF_FACTORY->InitPacketMemoryPools();
+	}
+	LOG_MGR->Cout("[SUCCESS] SendBuffersFactory INIT\n");
+
+
+	/// +------------------------
+	///	  NETWORK SERVICE START  
+	/// ------------------------+
+	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) ServerNetwork INIT \n");
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();
 	mClientNetwork->SetMaxSessionCnt(1); // 1명 접속  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
-	
+
 	if (FALSE == mClientNetwork->Start(L"127.0.0.1", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
-	LOG_MGR->Cout("CLIENT NETWORK SERVICE START SUCCESS\n");
+	LOG_MGR->Cout("[SUCCESS] CLIENT NETWORK SERVICE START \n");
+
 }
 
 void ClientNetworkManager::Launch(int ThreadNum)
@@ -56,7 +101,7 @@ void ClientNetworkManager::Launch(int ThreadNum)
 	LOG_MGR->Cout("--------------------------------------+\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
-	for (int i = 0; i < ThreadNum; ++i) {
+	for (int i = 1; i <= ThreadNum; ++i) {
 		std::string ThreadName = "Network Thread_" + std::to_string(i);
 		THREAD_MGR->RunThread(ThreadName, [&]() {
 			while (true) {
@@ -74,7 +119,7 @@ void ClientNetworkManager::ProcessEvents()
 	int FrontIdx = mFrontSceneEventIndex.load();
 
 	while (!mSceneEvnetQueue[FrontIdx].EventsQueue.empty()) {
-		sptr<NetworkEvent::Scene::EventData> EventData = nullptr;
+		sptr<NetworkEvent::Game::EventData> EventData = nullptr;
 
 		mSceneEvnetQueue[FrontIdx].EventsQueue.try_pop(EventData);
 		if (EventData == nullptr) continue;
@@ -82,14 +127,14 @@ void ClientNetworkManager::ProcessEvents()
 		
 		switch (EventData->type)
 		{
-		case NetworkEvent::Scene::Enum::AddAnotherPlayer:
+		case NetworkEvent::Game::Enum::Add_RemotePlayer:
 		{
 
-			NetworkEvent::Scene::AddOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::AddOtherPlayer*>(EventData.get());
+			NetworkEvent::Game::Add_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Add_RemotePlayer*>(EventData.get());
 
 			sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
 			remotePlayer->SetName(data->RemoteP_Name);
-			remotePlayer->SetID(data->RemoteP_ID);
+			remotePlayer->SetID(static_cast<UINT32>(data->RemoteP_ID));
 
 			remotePlayer->AddComponent<Script_NetworkObject_GroundPlayer>();
 			remotePlayer->AddComponent<Script_GroundObject>();
@@ -106,33 +151,33 @@ void ClientNetworkManager::ProcessEvents()
 		}
 
 		break;
-		case NetworkEvent::Scene::Enum::MoveOtherPlayer:
+		case NetworkEvent::Game::Enum::Move_RemotePlayer:
 		{
 
-			NetworkEvent::Scene::MoveOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::MoveOtherPlayer*>(EventData.get());
-			rsptr<GridObject> player = mRemotePlayers[data->sessionID];
+			NetworkEvent::Game::Move_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Move_RemotePlayer*>(EventData.get());
+			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 			if (player) {
-				std::cout << data->Pos.x << " " << data->Pos.y << " " << data->Pos.z << std::endl;
-				player->SetPosition(data->Pos);
+				std::cout << data->RemoteP_Pos.x << " " << data->RemoteP_Pos.y << " " << data->RemoteP_Pos.z << std::endl;
+				player->SetPosition(data->RemoteP_Pos);
 			}
 			else {
-				LOG_MGR->Cout("Player - ", data->sessionID, "Not Existed\n");
+				LOG_MGR->Cout("Player - ", data->RemoteP_ID, "Not Existed\n");
 			}
 		}
 
 		break;
-		case NetworkEvent::Scene::Enum::RemoveOtherPlayer:
+		case NetworkEvent::Game::Enum::Remove_RemotePlayer:
 		{
 			std::cout << "RemoveOtherPlayer \n";
 
-			NetworkEvent::Scene::RemoveOtherPlayer* data = reinterpret_cast<NetworkEvent::Scene::RemoveOtherPlayer*>(EventData.get());
-			mRemotePlayers.unsafe_erase(data->sessionID);
+			NetworkEvent::Game::Remove_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Remove_RemotePlayer*>(EventData.get());
+			mRemotePlayers.unsafe_erase(data->RemoteP_ID);
 		}
 		break;
 
-		case NetworkEvent::Scene::Enum::Test:
+		case NetworkEvent::Game::Enum::Test:
 		{
-			NetworkEvent::Scene::Test* data = reinterpret_cast<NetworkEvent::Scene::Test*>(EventData.get());
+			NetworkEvent::Game::Test* data = reinterpret_cast<NetworkEvent::Game::Test*>(EventData.get());
 			rsptr<GridObject> player = mRemotePlayers[data->sessionID];
 			player->GetComponent<Script_NetworkObject>()->UpdateData((void*)data);
 		}
@@ -150,7 +195,7 @@ void ClientNetworkManager::SwapEventsQueue()
 
 }
 
-void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Scene::EventData> data)
+void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Game::EventData> data)
 {
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
 }
@@ -160,19 +205,32 @@ long long ClientNetworkManager::GetTimeStamp()
 	return duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-
-void ClientNetworkManager::Send_CPkt_KeyInput(GameKeyInfo::KEY		 key
-										    , GameKeyInfo::KEY_STATE KeyState
-										    , GameKeyInfo::MoveKey	 moveKey
-										    , Vec2					 mouseDelta)
+void ClientNetworkManager::Send(SPtr_PacketSendBuf pkt)
 {
-	//auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_KeyInput(key, KeyState, moveKey, mouseDelta);
-	//mClientNetworkService->Broadcast(CPktBuf);
+	mClientNetwork->Broadcast(pkt);
 }
 
-void ClientNetworkManager::Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp)
+sptr<NetworkEvent::Game::Add_RemotePlayer> ClientNetworkManager::CreateEvent_Add_RemotePlayer(GamePlayerInfo info)
 {
-	//auto CPktBuf = PacketFactory::CreateSendBuffer_CPkt_Transform(Pos, Rot, Scale, SpineLookDir, timestamp);
+	sptr<NetworkEvent::Game::Add_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Add_RemotePlayer>();
 	
-	//mClientNetworkService->Broadcast(CPktBuf);
+	Event->type				= NetworkEvent::Game::Enum::Add_RemotePlayer;
+
+	Event->RemoteP_ID        = info.Id;
+	Event->RemoteP_Name      = info.Name;
+	Event->RemoteP_Pos       = info.Pos;
+	Event->RemoteP_Rot       = info.Rot;
+	Event->RemoteP_Scale     = info.Sca;
+	Event->RemoteP_SpineLook = info.SDir;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(int32_t remID)
+{
+	sptr<NetworkEvent::Game::Remove_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Remove_RemotePlayer>();
+
+	Event->RemoteP_ID = remID;
+
+	return Event;
 }

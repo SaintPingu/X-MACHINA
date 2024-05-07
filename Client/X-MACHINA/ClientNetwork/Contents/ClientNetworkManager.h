@@ -15,8 +15,9 @@
 ///		бщ
 /// [ Back  Events Queue ] <------  Register Events ( Worker(Server) Threads)
 /// -------------------------------------------------+
-
+#undef max
 #include "ClientNetwork/Contents/NetworkEvents.h"
+#include "ClientNetwork/Contents/GamePlayer.h"
 #include "Scene.h"
 #include "InputMgr.h"
 
@@ -24,7 +25,7 @@
 #define CLIENT_NETWORK ClientNetworkManager::GetInst()
 struct NetSceneEventQueue 
 {
-	Concurrency::concurrent_queue<sptr<NetworkEvent::Scene::EventData>> EventsQueue{};
+	Concurrency::concurrent_queue<sptr<NetworkEvent::Game::EventData>> EventsQueue{};
 };
 
 
@@ -53,20 +54,17 @@ public:
 
 	void ProcessEvents();
 	void SwapEventsQueue(); 
-	void RegisterEvent(sptr<NetworkEvent::Scene::EventData> data);
+	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	
 	long long GetTimeStamp();
 
 public:
 	/* Send Client Packet */
-	void Send_CPkt_KeyInput(
-					GameKeyInfo::KEY		 key
-				,	GameKeyInfo::KEY_STATE	 KeyState
-				,	GameKeyInfo::MoveKey	 moveKey
-				,	Vec2					 mouseDelta);
+	void Send(SPtr_PacketSendBuf pkt);
 
-	void Send_CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp);
-
+public:
+	sptr<NetworkEvent::Game::Add_RemotePlayer> CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
+	sptr<NetworkEvent::Game::Remove_RemotePlayer> CreateEvent_Remove_RemotePlayer(int32_t remID);
 
 };
 

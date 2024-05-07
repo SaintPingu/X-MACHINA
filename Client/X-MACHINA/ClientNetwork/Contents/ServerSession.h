@@ -1,8 +1,12 @@
 #pragma once
 #include "ClientNetwork/Include/Session.h"
 
+
 class ServerSession : public Session
 {
+private:
+	UINT32 mRemainDataSize = 0;
+
 public:
 	ServerSession();
 	~ServerSession();

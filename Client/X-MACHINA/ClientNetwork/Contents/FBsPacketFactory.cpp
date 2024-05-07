@@ -70,7 +70,7 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 	break;
 	case FBsProtocolID::SPkt_Transform:
 	{
-		LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ SPkt_Transform ]\n");
+		//LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ SPkt_Transform ]\n");
 		
 		const FBProtocol::SPkt_Transform* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Transform>(DataPtr);
 		if (!packet) return false;
@@ -204,6 +204,16 @@ bool FBsPacketFactory::Process_SPkt_RemovePlayer(SPtr_Session session, const FBP
 
 bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProtocol::SPkt_Transform& pkt)
 {
+	long long timestamp = pkt.timestamp();
+	uint64_t id         = pkt.object_id();
+	Vec3 pos            = GetVector3(pkt.trans()->position());
+	Vec3 rot            = GetVector3(pkt.trans()->rotation());
+	Vec3 sca            = GetVector3(pkt.trans()->scale());
+	Vec3 SDir           = GetVector3(pkt.spine_look());
+
+	sptr<NetworkEvent::Game::Move_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, pos);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
 	return true;
 }
 
@@ -370,4 +380,10 @@ GamePlayerInfo FBsPacketFactory::GetPlayerInfo(const FBProtocol::Player* player)
 	return info;
 }
 
+Vec3 FBsPacketFactory::GetVector3(const FBProtocol::Vector3* vec3)
+{
+	Vec3 Vector3 = Vec3(vec3->x(), vec3->y(), vec3->z());
+
+	return Vector3;
+}
 

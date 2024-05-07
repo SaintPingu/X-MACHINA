@@ -123,7 +123,7 @@ void ClientNetworkManager::ProcessEvents()
 
 		mSceneEvnetQueue[FrontIdx].EventsQueue.try_pop(EventData);
 		if (EventData == nullptr) continue;
-		LOG_MGR->Cout("EVENT TYPE : (1-Add) (2-Mov) (3-Rem)", EventData->type, "\n");
+		//LOG_MGR->Cout("EVENT TYPE : (1-Add) (2-Mov) (3-Rem)", EventData->type, "\n");
 		
 		switch (EventData->type)
 		{
@@ -147,7 +147,7 @@ void ClientNetworkManager::ProcessEvents()
 
 
 			mRemotePlayers[static_cast<UINT32>(data->RemoteP_ID)] = remotePlayer;
-			std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
+			//std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
 		}
 
 		break;
@@ -157,7 +157,7 @@ void ClientNetworkManager::ProcessEvents()
 			NetworkEvent::Game::Move_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Move_RemotePlayer*>(EventData.get());
 			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 			if (player) {
-				std::cout << data->RemoteP_Pos.x << " " << data->RemoteP_Pos.y << " " << data->RemoteP_Pos.z << std::endl;
+				//std::cout << data->RemoteP_Pos.x << " " << data->RemoteP_Pos.y << " " << data->RemoteP_Pos.z << std::endl;
 				player->SetPosition(data->RemoteP_Pos);
 			}
 			else {
@@ -229,8 +229,22 @@ sptr<NetworkEvent::Game::Add_RemotePlayer> ClientNetworkManager::CreateEvent_Add
 sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(int32_t remID)
 {
 	sptr<NetworkEvent::Game::Remove_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Remove_RemotePlayer>();
+	
+	Event->type = NetworkEvent::Game::Enum::Remove_RemotePlayer;
 
 	Event->RemoteP_ID = remID;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos)
+{
+	sptr<NetworkEvent::Game::Move_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Move_RemotePlayer>();
+
+	Event->type = NetworkEvent::Game::Enum::Move_RemotePlayer;
+
+	Event->RemoteP_ID  = remID;
+	Event->RemoteP_Pos = remotePos;
 
 	return Event;
 }

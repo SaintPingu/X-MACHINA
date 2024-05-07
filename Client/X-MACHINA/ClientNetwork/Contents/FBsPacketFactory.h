@@ -46,7 +46,7 @@ public:
 
 private:
 	static GamePlayerInfo GetPlayerInfo(const FBProtocol::Player* player);
-
+	static Vec3 GetVector3(const FBProtocol::Vector3* vec3);
 
 };
 

@@ -9,7 +9,7 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
-float4 PSStandard(VSOutput_Standard pin) : SV_TARGET
+float4 PSForward(VSOutput_Standard pin) : SV_TARGET
 {
     // material info
     MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];

@@ -94,6 +94,9 @@
     <Filter Include="소스 파일\Manager">
       <UniqueIdentifier>{51dec639-f228-4f7f-97df-8a4a3e5ec69c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Shader\PS\Forward\Abilities">
+      <UniqueIdentifier>{d42935dc-dd23-43cb-8e03-691c66c129ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -502,7 +505,7 @@
     <FxCompile Include="shaders\PShader_Skybox.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PShader_Standard.hlsl">
+    <FxCompile Include="shaders\PShader_Forward.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Terrain.hlsl">
@@ -594,6 +597,9 @@
     </FxCompile>
     <FxCompile Include="shaders\PShader_Scroll_Smoke.hlsl">
       <Filter>소스 파일\Shader\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_ShieldAbility.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

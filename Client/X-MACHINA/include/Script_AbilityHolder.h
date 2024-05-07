@@ -31,7 +31,7 @@ private:
 	float mActiveTime{};
 
 	AbilityState mState = AbilityState::Ready;
-	int mKey = -1;
+	int mKey{};
 
 public:
 	void SetAbility(int key, sptr<Ability> ability) { mKey = key, mAbility = ability; }

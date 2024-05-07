@@ -22,7 +22,7 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 {
 	mMasterModel = model;
 	mMasterModel->CopyModelHierarchy(this);
-
+	
 	sptr<const AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
 	if (animationInfo) {
 		mIsSkinMesh = true;

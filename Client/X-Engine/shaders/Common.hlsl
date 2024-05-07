@@ -488,15 +488,16 @@ float4 ComputeRimLight(float4 rimLightColor, float rimWidth, float rimFactor, fl
     return rim * rimLightColor;
 }
 
-float SphereMask(float2 posA, float2 posB, float radius, float hardness = 100.f)
+
+float SphereMask(float4 coords, float4 center, float radius, float hardness = 1.f)
 {
-    float dist = distance(posA, posB);
-    return saturate(dist / radius);
+    return 1 - saturate((distance(coords, center) - radius) / (1 - hardness));
 }
+
 
 void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
 {
-    float radius = 1.5f;
+    float radius = 0.5f;
     float distance = 20.f;
     
     float yDist = abs(gPassCB.CameraPos.y - posW.y);
@@ -504,7 +505,7 @@ void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
     float3 pinPosV = mul(float4(posW, 1.f), gPassCB.MtxNoLagView);
     float3 camPosV = mul(float4(gPassCB.CameraPos, 1.f), gPassCB.MtxNoLagView);
         
-    float sphereMask = 1 - SphereMask(pinPosV.xy, camPosV.xy, radius);
+    float sphereMask = SphereMask(float4(pinPosV.xy, 0.f, 0.f), float4(camPosV.xy, 0.f, 0.f), radius, 0.1f);
     
     float3 distToCam = abs(pinPosV - camPosV);
     float lengthToCam = length(distToCam);

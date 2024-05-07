@@ -13,7 +13,7 @@ void Script_AbilityHolder::Start()
 
 void Script_AbilityHolder::Update()
 {
-	if (!mAbility || mKey == -1)
+	if (!mAbility)
 		return;
 
 	switch (mState)

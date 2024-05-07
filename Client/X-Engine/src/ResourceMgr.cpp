@@ -650,7 +650,7 @@ void ResourceMgr::LoadShaders()
 
 		ShaderPath path = {
 			 "VShader_SkinnedMesh.cso",
-			 "PShader_Standard.cso",
+			 "PShader_Forward.cso",
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
@@ -856,12 +856,31 @@ void ResourceMgr::LoadShaders()
 
 		ShaderPath path = {
 			 "VShader_Standard.cso",
-			 "PShader_Standard.cso",
+			 "PShader_Forward.cso",
 		};
 
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("Transparent", shader);
+	}
+#pragma endregion
+#pragma region Transparent
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_None,
+			DepthStencilType::Less_No_Write,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_Standard.cso",
+			 "PShader_ShieldAbility.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("ShieldAbility", shader);
 	}
 #pragma endregion
 #pragma region SkyBox

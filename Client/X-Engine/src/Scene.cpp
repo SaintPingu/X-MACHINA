@@ -127,6 +127,7 @@ void Scene::UpdateMainPassCB()
 	passCB.SkyBoxIndex = mSkyBox->GetTexture()->GetSrvIdx();
 	passCB.DefaultDsIndex = RESOURCE<Texture>("DefaultDepthStencil")->GetSrvIdx();
 	passCB.ShadowDsIndex = RESOURCE<Texture>("ShadowDepthStencil")->GetSrvIdx();
+	passCB.CustomDsIndex = RESOURCE<Texture>("CustomDepthStencil")->GetSrvIdx();
 	passCB.RT0G_PositionIndex = RESOURCE<Texture>("PositionTarget")->GetSrvIdx();
 	passCB.RT1G_NormalIndex = RESOURCE<Texture>("NormalTarget")->GetSrvIdx();
 	passCB.RT2G_DiffuseIndex = RESOURCE<Texture>("DiffuseTarget")->GetSrvIdx();
@@ -419,33 +420,38 @@ void Scene::RenderShadow()
 
 #pragma region PrepareRender
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 #pragma endregion
 
 #pragma region Shadow_Global
-	RenderGridObjects(true);
+	RenderGridObjects(RenderType::Shadow);
 #pragma endregion
 #pragma region Shadow_SkinMesh
-	RenderSkinMeshObjects(true);
+	RenderSkinMeshObjects(RenderType::Shadow);
+#pragma endregion
+
+#pragma region AfterRender
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
+#pragma endregion
+}
+
+void Scene::RenderCustomDepth()
+{
+#pragma region CustomDepth_SkinMesh
+	RenderSkinMeshObjects(RenderType::CustomDepth);
 #pragma endregion
 }
 
 void Scene::RenderDeferred()
 {
-#pragma region PrepareRender
-	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-#pragma endregion
-
 #pragma region Global
-	RenderGridObjects();
+	RenderGridObjects(RenderType::Deferred);
 	RenderEnvironments();
 #pragma endregion
 #pragma region ObjectInst
 	RenderInstanceObjects();
 #pragma endregion
 #pragma region SkinMesh
-	RenderSkinMeshObjects();
+	RenderSkinMeshObjects(RenderType::Deferred);
 #pragma endregion
 #pragma region Terrain
 	RenderTerrain();
@@ -551,9 +557,11 @@ void Scene::RenderAbilities()
 	AbilityMgr::I->Render();
 }
 
-void Scene::RenderGridObjects(bool isShadowed)
+void Scene::RenderGridObjects(RenderType type)
 {
-	if (isShadowed)
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	if (type == RenderType::Shadow)
 		RESOURCE<Shader>("Shadow_Global")->Set();
 	else
 		RESOURCE<Shader>("Global")->Set();
@@ -601,15 +609,24 @@ void Scene::RenderGridObjects(bool isShadowed)
 		object->Render();
 }
 
-void Scene::RenderSkinMeshObjects(bool isShadowed)
+void Scene::RenderSkinMeshObjects(RenderType type)
 {
-	if (isShadowed) {
+	switch (type)
+	{
+	case RenderType::Shadow:
 		RESOURCE<Shader>("Shadow_SkinMesh")->Set();
 		for (auto& object : mDissolveObjects)
 			object->Render();
-	}
-	else
+		break;
+	case RenderType::Deferred:
 		RESOURCE<Shader>("SkinMesh")->Set();
+		break;
+	case RenderType::CustomDepth:
+		RESOURCE<Shader>("CustomDepth_SkinMesh")->Set();
+		for (auto& object : mDissolveObjects)
+			object->Render();
+		break;
+	}
 
 	for (auto& object : mSkinMeshObjects)
 		object->Render();

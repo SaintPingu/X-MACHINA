@@ -9,7 +9,12 @@ struct VSOutput_Standard {
     float2 UV         : UV;
 };
 
-float4 PSForward(VSOutput_Standard pin) : SV_TARGET
+struct PSOutput {
+    float4 Result     : SV_TARGET0;
+    float4 Normal     : SV_TARGET1;
+};
+
+PSOutput PSForward(VSOutput_Standard pin)
 {
     // material info
     MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];
@@ -106,5 +111,9 @@ float4 PSForward(VSOutput_Standard pin) : SV_TARGET
     litColor.a = dissolve.a;
     litColor.rgb += dissolve.rgb;
     
-    return litColor;
+    PSOutput pout = (PSOutput)0;
+    pout.Result = litColor;
+    pout.Normal = float4(bumpedNormalW, 1.f) * dissolve.a;
+    
+    return pout;
 }

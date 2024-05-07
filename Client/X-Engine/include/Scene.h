@@ -32,6 +32,15 @@ class ObjectTag;
 #pragma endregion
 
 
+#pragma region EnumClass
+enum class RenderType : UINT8 {
+	Shadow = 0,
+	Deferred,
+	CustomDepth,
+};
+#pragma endregion
+
+
 #pragma region Class
 class Scene : public Singleton<Scene> {
 	friend Singleton;
@@ -162,6 +171,7 @@ public:
 	// render scene
 	void ClearRenderedObjects();
 	void RenderShadow();
+	void RenderCustomDepth();
 	void RenderDeferred();
 	void RenderLights();
 	void RenderFinal();
@@ -175,8 +185,8 @@ private:
 	// [renderedObjects]    : ·»´õ¸µµÈ ¸ðµç °´Ã¼ (±×¸®µå¿¡ Æ÷ÇÔµÈ)
 	// [transparentObjects] : Åõ¸í °´Ã¼
 	// [billboardObjects]	: ºôº¸µå °´Ã¼ (plane)
-	void RenderGridObjects(bool isShadowed = false);
-	void RenderSkinMeshObjects(bool isShadowed = false);
+	void RenderGridObjects(RenderType type);
+	void RenderSkinMeshObjects(RenderType type);
 	void RenderEnvironments();
 	void RenderInstanceObjects();
 

@@ -58,8 +58,8 @@ public:
 	void OMSetRenderTargets(UINT count, UINT index);
 
 	// clear RTVs
-	void ClearRenderTargetView();
-	void ClearRenderTargetView(UINT index);
+	void ClearRenderTargetView(float depthClearValue);
+	void ClearRenderTargetView(UINT index, float depthClearValue);
 
 	// resource barrier for only render target
 	void WaitTargetToResource();

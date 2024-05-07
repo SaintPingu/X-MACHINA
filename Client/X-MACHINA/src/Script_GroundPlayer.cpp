@@ -30,6 +30,7 @@
 #include "Component/UI.h"
 
 #include "ShieldAbility.h"
+#include "IRDetectorAbility.h"
 
 
 
@@ -62,7 +63,8 @@ void Script_GroundPlayer::Awake()
 
 	// add scripts //
 	mObject->AddComponent<Script_GroundObject>();
-	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Q', std::make_shared<ShieldAbility>(2.f, 5.f));
+	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>(2.f, 5.f));
+	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>(2.f, 5.f));
 
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
 

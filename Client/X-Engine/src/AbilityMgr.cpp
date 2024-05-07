@@ -12,12 +12,12 @@ void RenderedAbility::Update()
 
 void RenderedAbility::Activate()
 {
-	AbilityMgr::I->AddRenderedAbilities(shared_from_this());
+	AbilityMgr::I->AddRenderedAbilities(mLayer, shared_from_this());
 }
 
 void RenderedAbility::DeActivate()
 {
-	AbilityMgr::I->RemoveRenderedAbilities(shared_from_this());
+	AbilityMgr::I->RemoveRenderedAbilities(mLayer, shared_from_this());
 }
 
 void RenderedAbility::Render()
@@ -36,7 +36,9 @@ void RenderedAbility::Render()
 
 void AbilityMgr::Render()
 {
-	for (const auto& ability : mRenderedAbilities) {
-		ability->Render();
+	for (const auto& layers : mRenderedAbilities) {
+		for (const auto& ability : layers) {
+			ability->Render();
+		}
 	}
 }

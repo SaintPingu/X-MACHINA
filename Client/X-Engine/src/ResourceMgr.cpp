@@ -642,6 +642,22 @@ void ResourceMgr::LoadShaders()
 	}
 	{
 		ShaderInfo info = {
+			ShaderType::Shadow,
+			RasterizerType::DepthBias,
+			DepthStencilType::Greater,
+		};
+
+		ShaderPath path = {
+			 "VShader_Shadow_SkinnedMesh.cso",
+			 "PShader_CustomDepth.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("CustomDepth_SkinMesh", shader);
+	}
+	{
+		ShaderInfo info = {
 			ShaderType::HDR,
 			RasterizerType::Cull_Back,
 			DepthStencilType::Less_No_Write,
@@ -864,7 +880,7 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("Transparent", shader);
 	}
 #pragma endregion
-#pragma region Transparent
+#pragma region ShieldAbility
 	{
 		ShaderInfo info = {
 			ShaderType::HDR,
@@ -881,6 +897,24 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("ShieldAbility", shader);
+	}
+#pragma endregion
+#pragma region IRDetectorAbility
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 "VShader_Tex.cso",
+			 "PShader_IRDetectorAbility.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("IRDetectorAbility", shader);
 	}
 #pragma endregion
 #pragma region SkyBox

@@ -140,18 +140,19 @@ struct PassInfo {
     int         SkyBoxIndex;
     int         DefaultDsIndex;
     int         ShadowDsIndex;
-    int         RT0G_PositionIndex;
+    int         CustomDsIndex;
     
+    int         RT0G_PositionIndex;
     int         RT1G_NormalIndex;
     int         RT2G_DiffuseIndex;
     int         RT3G_EmissiveIndex;
-    int         RT4G_MetallicSmoothnessIndex;
     
+    int         RT4G_MetallicSmoothnessIndex;
     int         RT5G_OcclusionIndex;
     int         RT0L_DiffuseIndex;
     int         RT1L_SpecularIndex;
-    int         RT2L_AmbientIndex;
     
+    int         RT2L_AmbientIndex;
     int         RT0S_SsaoIndex;
     int         LiveObjectDissolveIndex;
     int         BuildingDissolveIndex;

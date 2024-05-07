@@ -270,6 +270,7 @@ enum class GroupType : UINT8 {
 	Lighting,
 	OffScreen,
 	Ssao,
+	CustomDepth,
 
 	_count
 };

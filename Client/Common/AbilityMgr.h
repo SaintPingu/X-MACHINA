@@ -35,11 +35,12 @@ public:
 class RenderedAbility : public Ability, public std::enable_shared_from_this<RenderedAbility> {
 protected:
 	D3D_PRIMITIVE_TOPOLOGY mPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
+	
 	sptr<GameObject> mRenderedObject;
 	sptr<Mesh> mRenderedMesh;
 
 	sptr<Shader> mShader{};
+	int mLayer{};
 
 public:
 	RenderedAbility(float cooldownTime, float activeTime) : Ability(cooldownTime, activeTime) {}
@@ -60,11 +61,12 @@ class AbilityMgr : public Singleton<AbilityMgr> {
 	friend Singleton;
 
 private:
-	std::unordered_set<sptr<RenderedAbility>> mRenderedAbilities;
+	enum  { MaxAbilityLayer = 10 };
+	std::array<std::unordered_set<sptr<RenderedAbility>>, MaxAbilityLayer> mRenderedAbilities;
 
 public:
-	void AddRenderedAbilities(sptr<RenderedAbility> ability) { mRenderedAbilities.insert(ability); }
-	void RemoveRenderedAbilities(sptr<RenderedAbility> ability) { mRenderedAbilities.erase(ability); }
+	void AddRenderedAbilities(int layer, sptr<RenderedAbility> ability) { mRenderedAbilities[layer].insert(ability); }
+	void RemoveRenderedAbilities(int layer, sptr<RenderedAbility> ability) { mRenderedAbilities[layer].erase(ability); }
 
 	void Render();
 };

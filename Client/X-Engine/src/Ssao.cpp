@@ -36,7 +36,7 @@ void Ssao::RenderSsaoMap()
 	RESOURCE<Shader>("Ssao")->Set();
 
 	// ssao ·»´õ Å¸°Ù 0¹ø¿¡ Â÷ÆóÁ¤µµ¸¦ ·»´õ¸µÇÑ´Ù.
-	DXGIMgr::I->GetMRT(GroupType::Ssao)->ClearRenderTargetView(0);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->ClearRenderTargetView(0, 1.f);
 	DXGIMgr::I->GetMRT(GroupType::Ssao)->OMSetRenderTargets(1, 0);
 
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
@@ -76,7 +76,7 @@ void Ssao::BlurSsaoMap(bool horzBlur)
 	DXGIMgr::I->SetGraphicsRoot32BitConstants(RootParam::SsaoBlur, outputMapIndex, 1);
 
 	// blur ssao map
-	DXGIMgr::I->GetMRT(GroupType::Ssao)->ClearRenderTargetView(outputMapIndex);
+	DXGIMgr::I->GetMRT(GroupType::Ssao)->ClearRenderTargetView(outputMapIndex, 1.f);
 	DXGIMgr::I->GetMRT(GroupType::Ssao)->OMSetRenderTargets(1, outputMapIndex);
 
 	RESOURCE<ModelObjectMesh>("Rect")->Render();

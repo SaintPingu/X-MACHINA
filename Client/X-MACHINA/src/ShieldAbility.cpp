@@ -13,6 +13,7 @@ ShieldAbility::ShieldAbility(float cooldownTime, float activeTime)
 	:
 	RenderedAbility(cooldownTime, activeTime)
 {
+	mLayer = 1;
 	mRenderedObject = std::make_shared<GameObject>();
 	mRenderedObject->SetModel("Shield");
 	mShader = RESOURCE<Shader>("ShieldAbility");

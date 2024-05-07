@@ -89,6 +89,7 @@ private:
 	UINT								mDsvDescriptorIncSize{};
 	sptr<Texture>						mDefaultDs{};
 	sptr<Texture>						mShadowDs{};
+	sptr<Texture>						mCustomDs{};
 
 	// filter
 	DWORD								mFilterOption{};

@@ -102,7 +102,7 @@ void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 		(mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
 }
 
-void MultipleRenderTarget::ClearRenderTargetView()
+void MultipleRenderTarget::ClearRenderTargetView(float depthClearValue)
 {
 	// RTV를 클리어 하기 전 렌더 타겟 텍스처를 렌더 타겟으로 설정한다.
 	WaitResourceToTarget();
@@ -114,11 +114,11 @@ void MultipleRenderTarget::ClearRenderTargetView()
 
 	if (mTextureDs) {
 		// 사용할 깊이 버퍼도 클리어한다.
-		CMD_LIST->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+		CMD_LIST->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthClearValue, 0, 0, nullptr);
 	}
 }
 
-void MultipleRenderTarget::ClearRenderTargetView(UINT index)
+void MultipleRenderTarget::ClearRenderTargetView(UINT index, float depthClearValue)
 {
 	WaitResourceToTarget(index);
 
@@ -126,7 +126,7 @@ void MultipleRenderTarget::ClearRenderTargetView(UINT index)
 	CMD_LIST->ClearRenderTargetView(mRts[index].Target->GetRtvCpuDescriptorHandle(), mRts[index].ClearColor.data(), 0, nullptr);
 
 	if (mTextureDs) {
-		CMD_LIST->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+		CMD_LIST->ClearDepthStencilView(mTextureDs->GetDsvCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthClearValue, 0, 0, nullptr);
 	}
 }
 

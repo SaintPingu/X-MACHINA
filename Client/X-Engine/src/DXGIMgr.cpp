@@ -221,22 +221,27 @@ void DXGIMgr::Render()
 	MainPassRenderBegin();
 
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
-	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx);
-	GetMRT(GroupType::Shadow)->ClearRenderTargetView();
-	GetMRT(GroupType::GBuffer)->ClearRenderTargetView();
-	GetMRT(GroupType::Lighting)->ClearRenderTargetView();
-	GetMRT(GroupType::OffScreen)->ClearRenderTargetView();
-
+	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx, 1.f);
+	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
+	GetMRT(GroupType::GBuffer)->ClearRenderTargetView(1.f);
+	GetMRT(GroupType::Lighting)->ClearRenderTargetView(1.f);
+	GetMRT(GroupType::OffScreen)->ClearRenderTargetView(0, 1.f);
+	GetMRT(GroupType::CustomDepth)->ClearRenderTargetView(0.f);
 
 	// 그림자 맵 텍스처를 렌더 타겟으로 설정하고 그림자 렌더링
 	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 	Scene::I->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
+	// 커스텀 depth 렌더링 
+	// TODO : 설정 시에만 렌더링
+	GetMRT(GroupType::CustomDepth)->OMSetRenderTargets(0, 0);
+	Scene::I->RenderCustomDepth();
+	GetMRT(GroupType::CustomDepth)->WaitTargetToResource();
+
 	// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
 	GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
 	Scene::I->RenderDeferred();
-	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
 	// deferred 렌더링 객체에 대해서만 ssao 진행
 	if (mFilterOption & FilterOption::Ssao)
@@ -251,9 +256,10 @@ void DXGIMgr::Render()
 	GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
 	Scene::I->RenderFinal();
 	Scene::I->RenderForward();
-	GetMRT(GroupType::OffScreen)->WaitTargetToResource();
-#pragma endregion
+	GetMRT(GroupType::OffScreen)->WaitTargetToResource(0);
+	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
+#pragma endregion
 #pragma region PostProcessing
 	PostPassRenderBegin();
 
@@ -264,7 +270,6 @@ void DXGIMgr::Render()
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0), 4);
 	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0));
-
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 	Scene::I->RenderPostProcessing(offScreenIndex);
@@ -473,14 +478,19 @@ void DXGIMgr::CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, in
 void DXGIMgr::CreateDSV()
 {
 	mDefaultDs = ResourceMgr::I->CreateTexture("DefaultDepthStencil", mWindow.Width, mWindow.Height,
-		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, Vec4{1.f});
 	CreateDepthStencilView(mDefaultDs.get());
 	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
 	mShadowDs = ResourceMgr::I->CreateTexture("ShadowDepthStencil", mWindow.Width * 4, mWindow.Height * 4,
-		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ);
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, Vec4{ 1.f });
 	CreateDepthStencilView(mShadowDs.get());
 	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
+
+	mCustomDs = ResourceMgr::I->CreateTexture("CustomDepthStencil", mWindow.Width, mWindow.Height,
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, Vec4{ 0.f });
+	CreateDepthStencilView(mCustomDs.get());
+	CreateShaderResourceView(mCustomDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 }
 
 void DXGIMgr::CreateMRTs()
@@ -512,6 +522,15 @@ void DXGIMgr::CreateMRTs()
 	}
 #pragma endregion
 
+#pragma region Shadow
+	{
+		// 그림자에서는 깊이 버퍼만 사용하며 어떠한 렌더 타겟도 사용하지 않는다.
+		std::vector<RenderTarget> rts(0);
+		mMRTs[static_cast<UINT8>(GroupType::CustomDepth)] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[static_cast<UINT8>(GroupType::CustomDepth)]->Create(GroupType::CustomDepth, std::move(rts), mCustomDs);
+	}
+#pragma endregion
+
 #pragma region GBuffer
 	{
 		std::vector<RenderTarget> rts(GBufferCount);
@@ -520,7 +539,7 @@ void DXGIMgr::CreateMRTs()
 			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[1].Target = ResourceMgr::I->CreateTexture("NormalTarget", mWindow.Width, mWindow.Height,
-			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+			DXGI_FORMAT_R32G32B32A32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
 
 		rts[2].Target = ResourceMgr::I->CreateTexture("DiffuseTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
@@ -559,10 +578,12 @@ void DXGIMgr::CreateMRTs()
 
 #pragma region OffScreen
 	{
-		std::vector<RenderTarget> rts(1);
+		std::vector<RenderTarget> rts(2);
 
 		rts[0].Target = ResourceMgr::I->CreateTexture("OffScreenTarget", mWindow.Width, mWindow.Height,
 			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+
+		rts[1].Target = RESOURCE<Texture>("NormalTarget");
 
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::OffScreen)]->Create(GroupType::OffScreen, std::move(rts), mDefaultDs);

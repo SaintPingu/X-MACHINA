@@ -91,6 +91,9 @@
     <Filter Include="소스 파일\AI">
       <UniqueIdentifier>{626b7a5f-26a0-4806-b035-d4dc4bb4a894}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Manager">
+      <UniqueIdentifier>{51dec639-f228-4f7f-97df-8a4a3e5ec69c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -234,9 +237,6 @@
     <ClCompile Include="src\Ssao.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="src\ParticleSystem.cpp">
-      <Filter>소스 파일\Component</Filter>
-    </ClCompile>
     <ClCompile Include="src\X-Engine.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
@@ -260,6 +260,12 @@
     </ClCompile>
     <ClCompile Include="src\BehaviorTree.cpp">
       <Filter>소스 파일\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ParticleSystem.cpp">
+      <Filter>소스 파일\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AbilityMgr.cpp">
+      <Filter>소스 파일\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -451,6 +457,9 @@
     </ClInclude>
     <ClInclude Include="include\AnimationClip.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AbilityMgr.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

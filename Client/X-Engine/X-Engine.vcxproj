@@ -123,6 +123,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include\</AdditionalIncludeDirectories>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,6 +166,7 @@
       <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -205,6 +207,7 @@
     <ClCompile Include="Imgui\ImGuiMgr.cpp" />
     <ClCompile Include="include\TLS.cpp" />
     <ClCompile Include="Log\LogMgr.cpp" />
+    <ClCompile Include="src\AbilityMgr.cpp" />
     <ClCompile Include="src\AnimatorBlendTree.cpp" />
     <ClCompile Include="src\AnimatorState.cpp" />
     <ClCompile Include="src\AnimatorStateMachine.cpp" />
@@ -287,6 +290,7 @@
     <ClInclude Include="Imgui\ImguiCode\imstb_textedit.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h" />
     <ClInclude Include="Imgui\ImGuiMgr.h" />
+    <ClInclude Include="include\AbilityMgr.h" />
     <ClInclude Include="include\AnimatorStateMachine.h" />
     <ClInclude Include="include\BehaviorTree.h" />
     <ClInclude Include="include\BlurFilter.h" />

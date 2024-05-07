@@ -208,14 +208,15 @@ void DXGIMgr::Terminate()
 void DXGIMgr::Update()
 {
 	mFrameResourceMgr->Update();
+
+	// 현재 프레임의 명령 할당자를 가져온다.
+	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
+	cmdAllocator->Reset();
+	mCmdList->Reset(cmdAllocator.Get(), NULL);
 }
 
 void DXGIMgr::Render()
 {
-	// 현재 프레임의 명령 할당자를 가져온다.
-	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
-	cmdAllocator->Reset();
-
 #pragma region MainRender
 	MainPassRenderBegin();
 
@@ -237,6 +238,10 @@ void DXGIMgr::Render()
 	Scene::I->RenderDeferred();
 	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
+	// deferred 렌더링 객체에 대해서만 ssao 진행
+	if (mFilterOption & FilterOption::Ssao)
+		mSsao->Execute(4);
+
 	// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
 	GetMRT(GroupType::Lighting)->OMSetRenderTargets();
 	Scene::I->RenderLights();
@@ -253,8 +258,6 @@ void DXGIMgr::Render()
 	PostPassRenderBegin();
 
 	UINT offScreenIndex{};
-	if (mFilterOption & FilterOption::Ssao)
-		mSsao->Execute(4);
 	if (mFilterOption & FilterOption::None)
 		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetSrvIdx();
 	if (mFilterOption & FilterOption::Blur)
@@ -285,9 +288,6 @@ void DXGIMgr::ToggleFullScreen()
 void DXGIMgr::MainPassRenderBegin()
 {
 	Scene::I->ClearRenderedObjects();
-
-	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
-	mCmdList->Reset(cmdAllocator.Get(), NULL);
 
 	mDescriptorHeap->Set();
 

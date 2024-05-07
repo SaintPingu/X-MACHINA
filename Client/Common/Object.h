@@ -22,6 +22,7 @@ class Animator;
 class GameObject : public Object {
 	using base = Object;
 	friend class Scene;
+	friend class RenderedAbility;
 
 private:
 	bool mIsSkinMesh = false;

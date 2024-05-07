@@ -22,6 +22,7 @@
 #include "Component/Collider.h"
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
+#include "AbilityMgr.h"
 
 #include "TestCube.h"
 #include "Ssao.h"
@@ -244,8 +245,7 @@ void Scene::BuildTerrain()
 
 void Scene::BuildTest()
 {
-	mMaskTestObject = Scene::I->Instantiate("GuardHouse_A", ObjectTag::Unspecified);
-	mMaskTestObject->SetPosition(Vec3{ 70, 0, 270 });
+
 }
 
 void Scene::BuildGrid()
@@ -468,13 +468,12 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	RenderTransparentObjects(mTransparentObjects); 
+	RenderTransparentObjects(); 
 	RenderDissolveObjects();
 	RenderSkyBox();
 
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	RenderAbilities();
 	RenderParticles();
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Scene::RenderPostProcessing(int offScreenIndex)
@@ -505,10 +504,10 @@ void Scene::RenderTerrain()
 	}
 }
 
-void Scene::RenderTransparentObjects(const std::set<GridObject*>& transparentObjects)
+void Scene::RenderTransparentObjects()
 {
 	RESOURCE<Shader>("Transparent")->Set();
-	for (auto& object : transparentObjects) {
+	for (auto& object : mTransparentObjects) {
 		object->Render();
 	}
 }
@@ -542,7 +541,14 @@ void Scene::RenderSkyBox()
 
 void Scene::RenderParticles()
 {
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	ParticleManager::I->Render();
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void Scene::RenderAbilities()
+{
+	AbilityMgr::I->Render();
 }
 
 void Scene::RenderGridObjects(bool isShadowed)
@@ -924,7 +930,7 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 	object->ClearGridIndices();
 }
 
-sptr<GridObject> Scene::Instantiate(const std::string& modelName, ObjectTag tag, bool enable)
+sptr<GridObject> Scene::Instantiate(const std::string& modelName, ObjectTag tag, ObjectLayer layer, bool enable)
 {
 	const auto& model = RESOURCE<MasterModel>(modelName);
 	if (!model) {
@@ -934,6 +940,7 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, ObjectTag tag,
 	sptr<GridObject> instance = std::make_shared<GridObject>();
 	instance->SetModel(model);
 	instance->SetTag(tag);
+	instance->SetLayer(layer);
 	if (enable) {
 		instance->SetActive(true);
 	}

@@ -197,6 +197,8 @@
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
+    <ClInclude Include="include\ShieldAbility.h" />
+    <ClInclude Include="include\Script_AbilityHolder.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
     <ClInclude Include="include\CheckDeath.h" />
     <ClInclude Include="include\CheckDetectionRange.h" />
@@ -261,6 +263,8 @@
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\ServerSession.cpp" />
+    <ClCompile Include="src\ShieldAbility.cpp" />
+    <ClCompile Include="src\Script_AbilityHolder.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />
     <ClCompile Include="src\CheckDeath.cpp" />
     <ClCompile Include="src\CheckDetectionRange.cpp" />

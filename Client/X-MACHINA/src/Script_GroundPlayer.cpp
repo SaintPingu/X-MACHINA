@@ -11,6 +11,7 @@
 #include "Script_Weapon_Shotgun.h"
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
+#include "Script_AbilityHolder.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -26,8 +27,9 @@
 #include "AnimatorMotion.h"
 #include "AnimatorController.h"
 
-
 #include "Component/UI.h"
+
+#include "ShieldAbility.h"
 
 
 
@@ -60,6 +62,8 @@ void Script_GroundPlayer::Awake()
 
 	// add scripts //
 	mObject->AddComponent<Script_GroundObject>();
+	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Q', std::make_shared<ShieldAbility>(2.f, 5.f));
+
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
 
 	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
@@ -445,7 +449,7 @@ void Script_GroundPlayer::InitWeapons()
 		// weapon 타입에 따른 객체 생성 //
 		auto& weapon = mWeapons[i];
 		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), ObjectTag::Dynamic, false);
+		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), ObjectTag::Dynamic, ObjectLayer::Default, false);
 		if (!weapon) {
 			continue;
 		}

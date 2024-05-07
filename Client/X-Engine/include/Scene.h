@@ -183,10 +183,11 @@ private:
 	void RenderTerrain();
 
 	// render [transparentObjects]
-	void RenderTransparentObjects(const std::set<GridObject*>& transparentObjects);
+	void RenderTransparentObjects();
 	void RenderDissolveObjects();
 	void RenderSkyBox();
 	void RenderParticles();
+	void RenderAbilities();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
 	bool RenderBounds(const std::set<GridObject*>& renderedObjects);
@@ -220,7 +221,7 @@ public:
 	void RemoveObjectFromGrid(GridObject* object);
 
 	// create new game object from model
-	sptr<GridObject> Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, bool enable = true);
+	sptr<GridObject> Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, ObjectLayer layer = ObjectLayer::Default, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
 	void RemoveDynamicObject(GridObject* object);

@@ -70,6 +70,9 @@
     <Filter Include="Script\Network">
       <UniqueIdentifier>{e93c97fb-3ca4-4a22-ab1f-bc18295e3a4d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Abilities">
+      <UniqueIdentifier>{0ba08c84-1070-4d6d-9fc7-59fe643a2ef7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -292,6 +295,12 @@
     <ClInclude Include="include\Script_Ursacetus.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_AbilityHolder.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ShieldAbility.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -452,6 +461,12 @@
     </ClCompile>
     <ClCompile Include="src\Script_Ursacetus.cpp">
       <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_AbilityHolder.cpp">
+      <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShieldAbility.cpp">
+      <Filter>Script\Abilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

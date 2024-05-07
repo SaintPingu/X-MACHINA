@@ -848,9 +848,9 @@ void ResourceMgr::LoadShaders()
 #pragma region Transparent
 	{
 		ShaderInfo info = {
-			ShaderType::LDR,
+			ShaderType::HDR,
 			RasterizerType::Cull_Back,
-			DepthStencilType::Less_No_Write,
+			DepthStencilType::Less,
 			BlendType::Alpha_Blend,
 		};
 

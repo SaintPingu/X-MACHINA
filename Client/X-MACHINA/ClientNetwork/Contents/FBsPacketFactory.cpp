@@ -122,23 +122,25 @@ bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const F
 {
 	// 패킷으로부터 long long으로 시간을 받음
 	long long timestamp = pkt.timestamp();
+
 	
 	// 현재 시간 구하기
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	auto packetTime  = std::chrono::time_point<std::chrono::high_resolution_clock>(std::chrono::nanoseconds(timestamp));
+	auto currentTime = CLIENT_NETWORK->GetCurrentTimeMilliseconds();
 
 	// 패킷의 타임스탬프와 현재 시간의 차이를 구하기
-	auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - packetTime).count();
+	auto latency = currentTime - timestamp;
 	latency = latency / 2;
 
 	TotalLatency += latency;
 	LatencyCount += 1;
-	CurrLatency.store(TotalLatency.load() / LatencyCount.load()); /* Latency 의 평균 저장 */
 
+	// 변환된 값을 출력
+	if (LatencyCount.load() >= 10) {
+		CurrLatency.store(TotalLatency.load() / LatencyCount.load()); /* Latency 의 평균 저장 */
+		std::cout << std::chrono::milliseconds(CurrLatency.load()) << '\n';
 
-	if (TotalLatency.load() >= 1000) {
+		LatencyCount.store(0);
 		TotalLatency.store(0);
-		LatencyCount = 0;
 	}
 
 	return true;
@@ -220,7 +222,7 @@ bool FBsPacketFactory::Process_SPkt_RemovePlayer(SPtr_Session session, const FBP
 
 bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProtocol::SPkt_Transform& pkt)
 {
-	long long timestamp = pkt.timestamp();
+	long long latency  = pkt.latency();
 	uint64_t id         = pkt.object_id();
 	Vec3 pos            = GetVector3(pkt.trans()->position());
 	Vec3 rot            = GetVector3(pkt.trans()->rotation());
@@ -352,7 +354,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInf
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long latency)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 
@@ -362,7 +364,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale,
 	auto transform     = FBProtocol::CreateTransform(builder, position, rotation, scale);
 	auto Spine_LookDir = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, timestamp, transform, Spine_LookDir);
+	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, transform, Spine_LookDir);
 	builder.Finish(ServerPacket);
 
 

@@ -531,12 +531,12 @@ inline ::flatbuffers::Offset<SPkt_Chat> CreateSPkt_ChatDirect(
 struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TIMESTAMP = 4,
+    VT_LATENCY = 4,
     VT_TRANS = 6,
     VT_SPINE_LOOK = 8
   };
-  int64_t timestamp() const {
-    return GetField<int64_t>(VT_TIMESTAMP, 0);
+  int64_t latency() const {
+    return GetField<int64_t>(VT_LATENCY, 0);
   }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
@@ -546,7 +546,7 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
+           VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
@@ -559,8 +559,8 @@ struct CPkt_TransformBuilder {
   typedef CPkt_Transform Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_timestamp(int64_t timestamp) {
-    fbb_.AddElement<int64_t>(CPkt_Transform::VT_TIMESTAMP, timestamp, 0);
+  void add_latency(int64_t latency) {
+    fbb_.AddElement<int64_t>(CPkt_Transform::VT_LATENCY, latency, 0);
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(CPkt_Transform::VT_TRANS, trans);
@@ -581,11 +581,11 @@ struct CPkt_TransformBuilder {
 
 inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int64_t timestamp = 0,
+    int64_t latency = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   CPkt_TransformBuilder builder_(_fbb);
-  builder_.add_timestamp(timestamp);
+  builder_.add_latency(latency);
   builder_.add_spine_look(spine_look);
   builder_.add_trans(trans);
   return builder_.Finish();
@@ -595,15 +595,15 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECT_ID = 4,
-    VT_TIMESTAMP = 6,
+    VT_LATENCY = 6,
     VT_TRANS = 8,
     VT_SPINE_LOOK = 10
   };
   uint64_t object_id() const {
     return GetField<uint64_t>(VT_OBJECT_ID, 0);
   }
-  int64_t timestamp() const {
-    return GetField<int64_t>(VT_TIMESTAMP, 0);
+  int64_t latency() const {
+    return GetField<int64_t>(VT_LATENCY, 0);
   }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
@@ -614,7 +614,7 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
-           VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
+           VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
@@ -630,8 +630,8 @@ struct SPkt_TransformBuilder {
   void add_object_id(uint64_t object_id) {
     fbb_.AddElement<uint64_t>(SPkt_Transform::VT_OBJECT_ID, object_id, 0);
   }
-  void add_timestamp(int64_t timestamp) {
-    fbb_.AddElement<int64_t>(SPkt_Transform::VT_TIMESTAMP, timestamp, 0);
+  void add_latency(int64_t latency) {
+    fbb_.AddElement<int64_t>(SPkt_Transform::VT_LATENCY, latency, 0);
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(SPkt_Transform::VT_TRANS, trans);
@@ -653,11 +653,11 @@ struct SPkt_TransformBuilder {
 inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t object_id = 0,
-    int64_t timestamp = 0,
+    int64_t latency = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   SPkt_TransformBuilder builder_(_fbb);
-  builder_.add_timestamp(timestamp);
+  builder_.add_latency(latency);
   builder_.add_object_id(object_id);
   builder_.add_spine_look(spine_look);
   builder_.add_trans(trans);

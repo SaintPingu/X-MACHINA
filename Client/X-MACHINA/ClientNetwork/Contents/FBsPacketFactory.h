@@ -17,8 +17,9 @@
 class FBsPacketFactory
 {
 	DECLARE_SINGLETON(FBsPacketFactory);
+public:
+	static std::atomic_int		  CurrLatency; //  TotalLatency / LatencyCount(10) 1초 기준 Latency 평균을 저장 
 private:
-	static std::atomic_int CurrLatency;
 	static std::atomic<long long> TotalLatency;
 	static std::atomic<int>		  LatencyCount; 
 
@@ -46,7 +47,7 @@ public:
 	SPtr_SendPktBuf CPkt_NewPlayer();
 	SPtr_SendPktBuf CPkt_RemovePlayer(int removeSessionID);
 	SPtr_SendPktBuf CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInfo::KEY_STATE KeyState, GameKeyInfo::MoveKey moveKey, Vec2 mouseDelta);
-	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long timestamp);
+	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long latency);
 
 private:
 	static GamePlayerInfo GetPlayerInfo(const FBProtocol::Player* player);

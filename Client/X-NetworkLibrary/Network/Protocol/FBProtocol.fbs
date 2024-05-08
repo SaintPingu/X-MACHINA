@@ -89,7 +89,7 @@ table SPkt_Chat
 // ------------------------+
 table CPkt_Transform
 {
-	timestamp   : long;
+	latency     : long;
 
 	trans		: Transform;
 	spine_look	: Vector3;
@@ -98,7 +98,7 @@ table CPkt_Transform
 table SPkt_Transform
 {
 	object_id	: ulong;
-	timestamp   : long;
+	latency     : long;
 
 	trans		: Transform;
 	spine_look	: Vector3;

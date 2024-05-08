@@ -413,6 +413,7 @@ void Scene::ClearRenderedObjects()
 	mGridObjects.clear();
 }
 
+
 void Scene::RenderShadow()
 {
 	if (!DXGIMgr::I->GetFilterOption(FilterOption::Shadow))
@@ -428,21 +429,15 @@ void Scene::RenderShadow()
 #pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects(RenderType::Shadow);
 #pragma endregion
-
-#pragma region AfterRender
-	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
-#pragma endregion
 }
 
-void Scene::RenderCustomDepth()
-{
-#pragma region CustomDepth_SkinMesh
-	RenderSkinMeshObjects(RenderType::CustomDepth);
-#pragma endregion
-}
 
 void Scene::RenderDeferred()
 {
+#pragma region PrepareRender
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
+#pragma endregion
+
 #pragma region Global
 	RenderGridObjects(RenderType::Deferred);
 	RenderEnvironments();
@@ -457,6 +452,15 @@ void Scene::RenderDeferred()
 	RenderTerrain();
 #pragma endregion
 }
+
+
+void Scene::RenderCustomDepth()
+{
+#pragma region CustomDepth_SkinMesh
+	RenderSkinMeshObjects(RenderType::CustomDepth);
+#pragma endregion
+}
+
 
 void Scene::RenderLights()
 {

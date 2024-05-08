@@ -233,31 +233,32 @@ void DXGIMgr::Render()
 	Scene::I->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
-	// 커스텀 depth 렌더링 
-	// TODO : 설정 시에만 렌더링
-	GetMRT(GroupType::CustomDepth)->OMSetRenderTargets(0, 0);
-	Scene::I->RenderCustomDepth();
-	GetMRT(GroupType::CustomDepth)->WaitTargetToResource();
-
 	// GBuffer를 렌더 타겟으로 설정하고 디퍼드 렌더링
 	GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
 	Scene::I->RenderDeferred();
-
-	// deferred 렌더링 객체에 대해서만 ssao 진행
-	if (mFilterOption & FilterOption::Ssao)
-		mSsao->Execute(4);
+	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
 	// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
 	GetMRT(GroupType::Lighting)->OMSetRenderTargets();
 	Scene::I->RenderLights();
 	GetMRT(GroupType::Lighting)->WaitTargetToResource();
 
+	// 커스텀 depth 렌더링 
+	// TODO : 설정 시에만 렌더링
+	GetMRT(GroupType::CustomDepth)->OMSetRenderTargets(0, 0);
+	Scene::I->RenderCustomDepth();
+	GetMRT(GroupType::CustomDepth)->WaitTargetToResource();
+
 	// 후면 버퍼대신 화면 밖 텍스처를 렌더 타겟으로 설정하고 렌더링
+	GetMRT(GroupType::GBuffer)->WaitResourceToTarget(static_cast<UINT8>(GBuffer::Normal));
 	GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
 	Scene::I->RenderFinal();
 	Scene::I->RenderForward();
-	GetMRT(GroupType::OffScreen)->WaitTargetToResource(0);
-	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
+	GetMRT(GroupType::OffScreen)->WaitTargetToResource();
+
+	// deferred 렌더링 객체에 대해서만 ssao 진행
+	if (mFilterOption & FilterOption::Ssao)
+		mSsao->Execute(4);
 
 #pragma endregion
 #pragma region PostProcessing

@@ -456,6 +456,9 @@ void Scene::RenderDeferred()
 
 void Scene::RenderCustomDepth()
 {
+	if (!DXGIMgr::I->GetFilterOption(FilterOption::Custom))
+		return;
+
 #pragma region CustomDepth_SkinMesh
 	RenderSkinMeshObjects(RenderType::CustomDepth);
 #pragma endregion
@@ -888,11 +891,16 @@ void Scene::ToggleFilterOptions()
 {
 	static UINT8 filterIdx = 0;
 	static std::array<DWORD, 5> values = { 0x004, 0x008, 0x010, 0x020, 0x002 };
-	DXGIMgr::I->SetFilterOption(values[filterIdx++]);
+	DXGIMgr::I->SetFilterOptions(values[filterIdx++]);
 	filterIdx %= values.size();
 
 	if (filterIdx == 0)
 		std::reverse(values.begin(), values.end());
+}
+
+void Scene::SetFilterOptions(DWORD option)
+{
+	DXGIMgr::I->SetFilterOptions(option);
 }
 
 void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)

@@ -243,8 +243,7 @@ void DXGIMgr::Render()
 	Scene::I->RenderLights();
 	GetMRT(GroupType::Lighting)->WaitTargetToResource();
 
-	// Ä¿½ºÅÒ depth ·»´õ¸µ 
-	// TODO : ¼³Á¤ ½Ã¿¡¸¸ ·»´õ¸µ
+	// Ä¿½ºÅÒ ±íÀÌ ¹öÆÛ ·»´õ¸µ 
 	GetMRT(GroupType::CustomDepth)->OMSetRenderTargets(0, 0);
 	Scene::I->RenderCustomDepth();
 	GetMRT(GroupType::CustomDepth)->WaitTargetToResource();

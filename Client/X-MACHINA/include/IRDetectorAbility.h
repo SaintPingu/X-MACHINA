@@ -9,4 +9,8 @@ class IRDetectorAbility : public RenderedAbility {
 
 public:
 	IRDetectorAbility(float cooldownTime, float activeTime);
+	
+public:
+	virtual void Activate() override;
+	virtual void DeActivate() override;
 };

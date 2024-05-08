@@ -26,17 +26,6 @@ enum class DrawOption {
 	Main = 0,
 	Debug,
 };
-
-class FilterOption : public DwordOverloader<FilterOption> {
-	DWORD_OVERLOADER(FilterOption)
-
-	static const DWORD None = 0x001;
-	static const DWORD Blur = 0x002;
-	static const DWORD LUT	= 0x004;
-	static const DWORD Tone = 0x008;
-	static const DWORD Ssao = 0x010;
-	static const DWORD Shadow = 0x020;
-};
 #pragma endregion
 
 #pragma region Class
@@ -141,8 +130,8 @@ public:
 #pragma endregion
 
 #pragma region Setter
-	void SetFilterOption(DWORD option)		{ mFilterOption ^= option; }
-	void SetDrawOption(DrawOption option)	{ mDrawOption = option; }
+	void SetFilterOptions(DWORD option)				{ mFilterOption ^= option; }
+	void SetDrawOption(DrawOption option)			{ mDrawOption = option; }
 
 	// [data]를 32BitConstants에 Set한다.
 	void SetGraphicsRoot32BitConstants(RootParam param, const Matrix& data, UINT offset);

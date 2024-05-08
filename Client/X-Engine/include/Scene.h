@@ -225,6 +225,8 @@ public:
 	float CheckCollisionsRay(int gridIndex, const Ray& ray) const;
 	void ToggleDrawBoundings();
 	void ToggleFilterOptions();
+	void SetFilterOptions(DWORD option);
+
 
 	// update objects' grid indices
 	void UpdateObjectGrid(GridObject* object, bool isCheckAdj = true);

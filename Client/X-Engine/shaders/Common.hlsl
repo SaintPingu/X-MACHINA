@@ -22,6 +22,7 @@
 #define Filter_Tone              0x008
 #define Filter_Ssao              0x010
 #define Filter_Shadow            0x020
+#define Filter_Custom            0x040
 
 #define RANDOM_IA 16807
 #define RANDOM_IM 2147483647

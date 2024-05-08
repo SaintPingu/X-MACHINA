@@ -17,3 +17,15 @@ IRDetectorAbility::IRDetectorAbility(float cooldownTime, float activeTime)
 	mRenderedMesh = RESOURCE<ModelObjectMesh>("Rect");
 	mShader = RESOURCE<Shader>("IRDetectorAbility");
 }
+
+void IRDetectorAbility::Activate()
+{
+	base::Activate();
+	Scene::I->SetFilterOptions(FilterOption::Custom);
+}
+
+void IRDetectorAbility::DeActivate()
+{
+	base::DeActivate();
+	Scene::I->SetFilterOptions(FilterOption::Custom);
+}

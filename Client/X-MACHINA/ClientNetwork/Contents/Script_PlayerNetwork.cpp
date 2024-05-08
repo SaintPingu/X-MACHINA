@@ -17,6 +17,7 @@ void Script_PlayerNetwork::Awake()
 {
 	base::Awake();
 
+	mLatencyTimePoint_latest = std::chrono::steady_clock::now();
 
 }
 
@@ -68,26 +69,29 @@ void Script_PlayerNetwork::LateUpdate()
 		CLIENT_NETWORK->Send(pkt);
 	}
 
+	/* 1초에 10번 Latency 패킷을 측정한다. */
+
+	/* 1s에 PlayerNetworkInfo::SendInterval_CPkt_NetworkLateny 개수 만큼 패킷을 보낸다. */
+	auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mLatencyTimePoint_latest).count()
+		>= PlayerNetworkInfo::sendInterval_CPkt_NetworkLatency * 1000) {
+		
+		mLatencyTimePoint_latest = currentTime;
+
+		long long timeStamp = CLIENT_NETWORK->GetCurrentTimeMilliseconds();
+		auto pkt = FBS_FACTORY->CPkt_NewtorkLatency(timeStamp);
+		CLIENT_NETWORK->Send(pkt);
+
+	}
+
+
+	
+
 }
 
 void Script_PlayerNetwork::UpdateData(const void* data)
 {
 
 
-}
-
-ExtData Script_PlayerNetwork::Extrapolation(ExtData d0, ExtData d1)
-{
-	/* latency */
-	//long long Pkt_latency = d1.timestamp - d0.timestamp; /* 이때 timestamp는 패킷으로 받은 Timestamp가 아니다! 내가 받을 때 찍은 timestamp ( 즉 나의 시간.. why? 각 클라마다 시간이 다르다! ) */
-
-	/* Extrapolated Pos */
-	//Vec3 Extrapolated_Pos = (d1.pos - d0.pos).Normalize() * ; /* (d1.pos - d0.pos).normalize * velocity * latency /
-
-	/* Extrapo;ated Rot */
-	//int RotDir = (d1.Rot - d0.Rot) < 0 ? -1 : 1;
-	//Vec3 Extrapolated_Rot; /* (d1.Rot - d0.Rot = -1 ? 1) * Rotation Speed * latency */
-
-	return ExtData();
 }
 

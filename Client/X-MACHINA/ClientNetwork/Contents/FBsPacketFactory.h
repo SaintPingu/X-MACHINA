@@ -17,6 +17,10 @@
 class FBsPacketFactory
 {
 	DECLARE_SINGLETON(FBsPacketFactory);
+private:
+	static std::atomic_int CurrLatency;
+	static std::atomic<long long> TotalLatency;
+	static std::atomic<int>		  LatencyCount; 
 
 public:
 	static bool ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, UINT32 Datalen);

@@ -19,6 +19,12 @@
 
 DEFINE_SINGLETON(FBsPacketFactory);
 
+std::atomic<long long> FBsPacketFactory::TotalLatency = 0;
+std::atomic<int> FBsPacketFactory::LatencyCount       = 0;
+std::atomic_int FBsPacketFactory::CurrLatency         = 0;
+
+
+
 /// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ///	◈ PROCESS SERVER PACKET ◈
 /// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------★
@@ -61,7 +67,7 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 	break;
 	case FBsProtocolID::SPkt_NetworkLatency:
 	{
-		LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ SPkt_NetworkLatency ]\n");
+		//LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ SPkt_NetworkLatency ]\n");
 
 		const FBProtocol::SPkt_NetworkLatency* packet = flatbuffers::GetRoot<FBProtocol::SPkt_NetworkLatency>(DataPtr);
 		if (!packet) return false;
@@ -116,14 +122,24 @@ bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const F
 {
 	// 패킷으로부터 long long으로 시간을 받음
 	long long timestamp = pkt.timestamp();
-	auto end            = std::chrono::steady_clock::now();
-	auto pkt_time       = std::chrono::time_point<std::chrono::steady_clock>(std::chrono::milliseconds(timestamp));
-	auto latency        = end - pkt_time;
+	
+	// 현재 시간 구하기
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	auto packetTime  = std::chrono::time_point<std::chrono::high_resolution_clock>(std::chrono::nanoseconds(timestamp));
 
-	/*std::cout << "Now : "		<< end.time_since_epoch().count() / 1e-6 <<
-				" pkt_time : "	<< pkt_time.time_since_epoch().count() / 1e-6
-		<< "Server Latency: " << std::chrono::duration_cast<std::chrono::milliseconds>(latency).count() << "ms" << std::endl;*/
+	// 패킷의 타임스탬프와 현재 시간의 차이를 구하기
+	auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - packetTime).count();
+	latency = latency / 2;
 
+	TotalLatency += latency;
+	LatencyCount += 1;
+	CurrLatency.store(TotalLatency.load() / LatencyCount.load()); /* Latency 의 평균 저장 */
+
+
+	if (TotalLatency.load() >= 1000) {
+		TotalLatency.store(0);
+		LatencyCount = 0;
+	}
 
 	return true;
 }

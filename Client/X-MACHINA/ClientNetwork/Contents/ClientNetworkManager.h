@@ -67,5 +67,8 @@ public:
 	sptr<NetworkEvent::Game::Remove_RemotePlayer>	CreateEvent_Remove_RemotePlayer(int32_t remID);
 	sptr<NetworkEvent::Game::Move_RemotePlayer>		CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos);
 
+	long long GetCurrentTimeMilliseconds();
+
+
 };
 

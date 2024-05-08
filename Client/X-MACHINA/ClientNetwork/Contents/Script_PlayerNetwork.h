@@ -14,7 +14,9 @@ struct ExtData
 
 namespace PlayerNetworkInfo
 {
-	constexpr float SendInterval_CPkt_Trnasform = 1.f / 16.f; // 16s 간격으로 CPkt_Transform 전송
+	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 16.f; // 16s 간격으로 CPkt_Transform 전송
+	constexpr float sendInterval_CPkt_NetworkLatency = 1.f / 10.f;
+
 }
 
 class Script_PlayerNetwork : public Script_Network{
@@ -22,6 +24,8 @@ class Script_PlayerNetwork : public Script_Network{
 
 private:
 	std::chrono::steady_clock::time_point mMoveTimePoint_latest = {};
+	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
+
 
 
 public:
@@ -31,9 +35,5 @@ public:
 
 
 public:
-	/* 데드 레커닝 */
-	ExtData Extrapolation(ExtData d0, ExtData d1); /* 플레이어 위치, 회전 예측 */
-
-
 };
 

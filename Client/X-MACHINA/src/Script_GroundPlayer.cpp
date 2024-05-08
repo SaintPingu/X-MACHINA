@@ -686,6 +686,7 @@ void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
 	}
 }
 
+
 void Script_GroundPlayer::Rotate(float angle) const
 {
 	constexpr float kMaxAngle = 90.f;

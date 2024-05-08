@@ -211,6 +211,10 @@ private:
 	Vec3 GetAimWorldPos(const Vec2& aimScreenPos) const;
 	void RotateToAim(Dir dir, float& rotAngle);
 
+	float GetMovementSpeed() const { return mMovementSpeed; }
+	float GetRotationSpeed() const { return mRotationSpeed; }
+
+
 	// angle 만큼 서서히 회전한다.
 	void Rotate(float angle) const;
 	void RotateMuzzleToAim();

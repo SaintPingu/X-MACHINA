@@ -687,7 +687,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 
 			CMD_LIST->DrawIndexedInstanced(indexCnt, instanceCnt, indexLocation, vertexLocation, 0);
 			indexLocation += indexCnt;
-			mat++;
+			++mat;
 		}
 
 		vertexLocation += vertexCnt;

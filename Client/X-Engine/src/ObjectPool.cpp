@@ -82,10 +82,16 @@ void ObjectPool::UpdateShaderVars() const
 
 void ObjectPool::PushRender(const InstObject* object)
 {
+	if (mRenderedObjects.contains(object)) {
+		return;
+	}
+
 	if (!CanPush()) {
 		// Log here
 		return;
 	}
+
+	mRenderedObjects.insert(object);
 
 	void* buffer = static_cast<char*>(mSBMap_Inst) + (mStructSize * mCurrBuffIdx++);
 	object->PushFunc(buffer);
@@ -98,12 +104,20 @@ void ObjectPool::Render()
 	if (mMasterModel) {
 		mMasterModel->Render(this);
 	}
+}
 
-	ResetBuffer();
+void ObjectPool::EndRender()
+{
+	mCurrBuffIdx = 0;
+	mRenderedObjects.clear();
 }
 
 void ObjectPool::DoActiveObjects(std::function<void(rsptr<InstObject>)> func)
 {
+	if (mIsStatic) {
+		return;
+	}
+
 	std::unordered_set<int> activeObjects = mActiveObjects;	// func 실행 중 객체가 Return()할 수 있기 때문에 복사본으로 루프를 돌도록 한다.
 
 	for (const int id : activeObjects) {

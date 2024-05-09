@@ -20,7 +20,7 @@ void Script_GameManager::Awake()
 		sptr<GridObject> enemy = Scene::I->Instantiate("Aranobot_Army", ObjectTag::Enemy);
 		auto& script = enemy->AddComponent<Script_Aranobot>();
 		enemy->AddComponent<Script_MeleeBT>();
-		enemy->SetPosition(90 + i * 5, 0, 90 + i * 10);
+		enemy->SetPosition(50 + i * 5, 0, 250 + i * 10);
 		script->SetMaxHP(2000);
 	}
 }

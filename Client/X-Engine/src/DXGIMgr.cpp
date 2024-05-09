@@ -270,6 +270,7 @@ void DXGIMgr::Render()
 	GetMRT(GroupType::SwapChain)->WaitTargetToResource(mCurrBackBufferIdx);
 #pragma endregion
 
+	Scene::I->EndRender();
 	RenderEnd();
 
 	mSwapChain->Present(0, 0);

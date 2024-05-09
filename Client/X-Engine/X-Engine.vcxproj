@@ -164,7 +164,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

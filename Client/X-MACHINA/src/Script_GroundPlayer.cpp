@@ -77,8 +77,9 @@ void Script_GroundPlayer::Start()
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 360.f;
 
-	SetSpawn(Vec3(100, 0, 100));
+	SetSpawn(Vec3(25, 0, 260));
 	SetMaxHP(150.f);
+	mObject->SetPosition(25, 0, 260);
 }
 
 
@@ -1165,7 +1166,6 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 		if (rdn < 0.f) {
 			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * rdn);
 			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
-			mSlideVecs.push(mSlideVec);
 		}
 
 		prevOther = &other;

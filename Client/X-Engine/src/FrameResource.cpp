@@ -22,6 +22,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, Buffer
 	ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Object)], true);
 	SkinMeshCB = std::make_unique<UploadBuffer<SkinnedConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::SkinMesh)], true);
 	SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Ssao)], true);
+	AbilityCB = std::make_unique<UploadBuffer<AbilityConstants>>(pDevice, bufferCounts[static_cast<int>(BufferType::Ability)], true);
 
 	MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(pDevice, bufferCounts[static_cast<int>(BufferType::Material)], false);
 	ParticleSystemBuffer = std::make_unique<UploadBuffer<ParticleSystemGPUData>>(pDevice, bufferCounts[static_cast<int>(BufferType::ParticleSystem)], false);
@@ -41,6 +42,7 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	mBufferCounts[static_cast<int>(BufferType::Object)]			= 2000;
 	mBufferCounts[static_cast<int>(BufferType::SkinMesh)]		= 100;
 	mBufferCounts[static_cast<int>(BufferType::Ssao)]			= 1;
+	mBufferCounts[static_cast<int>(BufferType::Ability)]		= 20;
 	mBufferCounts[static_cast<int>(BufferType::Material)]		= 500;
 	mBufferCounts[static_cast<int>(BufferType::ParticleSystem)] = 10000;
 	mBufferCounts[static_cast<int>(BufferType::ParticleShared)]	= 10000;
@@ -80,6 +82,12 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetSSAOCBGpuAddr(int elementIn
 {
 	const auto& ssaoCB = mCurrFrameResource->SsaoCB;
 	return ssaoCB->Resource()->GetGPUVirtualAddress() + elementIndex * ssaoCB->GetElementByteSize();
+}
+
+const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetAbilityCBGpuAddr(int elementIndex) const
+{
+	const auto& abilityCB = mCurrFrameResource->AbilityCB;
+	return abilityCB->Resource()->GetGPUVirtualAddress() + elementIndex * abilityCB->GetElementByteSize();
 }
 
 const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetMatBufferGpuAddr(int elementIndex) const
@@ -161,6 +169,12 @@ void FrameResourceMgr::CopyData(int& elementIndex, const SkinnedConstants& data)
 {
 	AllocIndex(elementIndex, BufferType::SkinMesh);
 	mCurrFrameResource->SkinMeshCB->CopyData(elementIndex, data);
+}
+
+void FrameResourceMgr::CopyData(int& elementIndex, const AbilityConstants& data)
+{
+	AllocIndex(elementIndex, BufferType::Ability);
+	mCurrFrameResource->AbilityCB->CopyData(elementIndex, data);
 }
 
 void FrameResourceMgr::CopyData(int& elementIndex, const MaterialData& data)

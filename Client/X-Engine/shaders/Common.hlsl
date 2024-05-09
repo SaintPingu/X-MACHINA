@@ -157,6 +157,8 @@ struct PassInfo {
     int         RT0S_SsaoIndex;
     int         LiveObjectDissolveIndex;
     int         BuildingDissolveIndex;
+    
+    int         RT0O_OffScreenIndex;
 };
 
 struct PostPassInfo {
@@ -195,6 +197,13 @@ struct SsaoBlurInfo {
     int     IsHorzBlur;
 };
 
+struct AbilityInfo {
+	float   ActiveTime;
+	float   AccTime;
+    float   Duration;
+    int     UIIndex;
+};
+
 struct SB_StandardInst {
     matrix  MtxObject;
 };
@@ -211,6 +220,7 @@ ConstantBuffer<ColliderInfo> gColliderCB        : register(b3);
 ConstantBuffer<BoneTransformInfo> gSkinMeshCB   : register(b4);
 ConstantBuffer<SsaoInfo> gSsaoCB                : register(b5);
 ConstantBuffer<SsaoBlurInfo> gSsaoBlurCB        : register(b6);
+ConstantBuffer<AbilityInfo> gAbilityCB          : register(b7);
 
 StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
 StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
@@ -531,4 +541,23 @@ void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
         clip(0.1f - lit);
 }
 
+// 선형 감쇠 함수
+float CalcAttenuation(float d, float falloffStart, float falloffEnd)
+{
+    return saturate((falloffEnd - d) / (falloffEnd - falloffStart));
+}
+
+// 선형 강화 함수
+float CalcAmplification(float d, float falloffStart, float falloffEnd)
+{
+    return saturate((d - falloffStart) / (falloffEnd - falloffStart));
+}
+
+// Direction == false : v(UV)
+float GeneratedBand(float2 uv, bool DirectionSwitch, float4 center, float width, float hardness)
+{
+    float direction = DirectionSwitch ? frac(uv.x) : frac(uv.y);
+    
+    return SphereMask(direction, center, width, hardness);
+}
 #endif

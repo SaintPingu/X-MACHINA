@@ -172,13 +172,7 @@ public:
 
 
 #pragma region EnumClass
-enum class D3DResource {
-	Texture2D = 0,
-	Texture2D_Array,	// []
-	Texture2DArray,
-	TextureCube,
-	Buffer
-};
+
 
 // 카메라 시점
 enum class CameraMode {
@@ -198,6 +192,8 @@ enum class RootParam {
 	PostPass,
 	Ssao,
 	SsaoBlur,
+	Ability,
+
 	Instancing,
 	Material,
 	SkyBox,

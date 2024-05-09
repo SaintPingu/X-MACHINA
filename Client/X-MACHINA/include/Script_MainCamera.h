@@ -17,7 +17,7 @@ class Script_MainCamera : public Component {
 	COMPONENT(Script_MainCamera, Component)
 
 private:
-	sptr<GameObject>	mPlayer{};
+	sptr<GameObject>	mTarget{};
 	Vec3				mMainOffset{};
 	Vec2				mExtraOffset{};
 	Vec2				mMaxOffset{};
@@ -27,6 +27,7 @@ private:
 
 public:
 	void SetCameraOffset(const Vec3& offset);
+	void SetCameraTarget(sptr<GameObject> target);
 
 public:
 	virtual void Awake() override;
@@ -41,7 +42,7 @@ public:
 private:
 	void Init();
 	// 플레이어를 바라보도록 한다.
-	void LookPlayer();
+	void LookTarget();
 
 	// 천천히 중앙을 바라보도록 한다.
 	void RecoverExtraOffset();

@@ -12,10 +12,9 @@ class Object;
 #pragma region Ability
 class Ability {
 protected:
-	// TODO : 외부에서 선언하거나 내부에서 선언하거나
-	Object* mObject{};
-	float mCooldownTime{};
-	float mActiveTime{};
+	Object*		mObject{};
+	float		mCooldownTime{};
+	float		mActiveTime{};
 
 public:
 	Ability(float cooldownTime, float activeTime) : mCooldownTime(cooldownTime), mActiveTime(activeTime) {}
@@ -27,7 +26,7 @@ public:
 	void SetObject(Object* object) { mObject = object; }
 
 public:
-	virtual void Update() abstract;
+	virtual void Update(float activeTime) abstract;
 	virtual void Activate() {};
 	virtual void DeActivate() {};
 };
@@ -42,11 +41,19 @@ protected:
 	sptr<Shader> mShader{};
 	int mLayer{};
 
+	int					mAbilityCBIdx = -1;
+	AbilityConstants	mAbilityCB{};
+
 public:
 	RenderedAbility(float cooldownTime, float activeTime) : Ability(cooldownTime, activeTime) {}
 
+
 public:
-	virtual void Update() override;
+	int GetAbilityCBIdx() const { return mAbilityCBIdx; }
+	void UpdateAbilityCB(float activeTime);
+
+public:
+	virtual void Update(float activeTime) override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 	

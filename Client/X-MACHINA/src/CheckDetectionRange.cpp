@@ -14,14 +14,14 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-	mPlayer = GameFramework::I->GetPlayer();
+	mTarget = GameFramework::I->GetPlayer();
 }
 
 
 BT::NodeState CheckDetectionRange::Evaluate()
 {
 	if (!mEnemyMgr->mTarget) {
-		mEnemyMgr->mTarget = mPlayer;
+		mEnemyMgr->mTarget = mTarget;
 	}
 
 	// 경로 길찾기가 실행중이거나 감지 범위 내에 들어온 경우 다음 노드로 진행

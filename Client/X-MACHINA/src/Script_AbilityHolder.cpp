@@ -5,6 +5,7 @@
 #include "Timer.h"
 
 #include "AbilityMgr.h"
+#include "Scene.h"
 
 void Script_AbilityHolder::Start()
 {
@@ -27,8 +28,8 @@ void Script_AbilityHolder::Update()
 		break;
 	case AbilityState::Active:
 		if (mActiveTime > 0.f) {
-			mAbility->Update();
 			mActiveTime -= DeltaTime();
+			mAbility->Update(mActiveTime);
 		}
 		else {
 			mAbility->DeActivate();

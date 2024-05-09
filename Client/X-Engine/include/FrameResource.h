@@ -16,6 +16,7 @@ enum class BufferType : UINT {
     Object,
     SkinMesh,
     Ssao,
+    Ability,
     Material,
     ParticleSystem,
     ParticleShared,
@@ -73,6 +74,8 @@ struct PassConstants {
     int     RT0S_SsaoIndex               = -1;
     int     LiveObjectDissolveIndex      = -1;
     int     BuildingDissolveIndex        = -1;
+
+    int     RT0O_OffScreenIndex          = -1;
 };
 
 struct PostPassConstants {
@@ -118,17 +121,18 @@ public:
 #pragma region Class
 struct FrameResource : private UnCopyable {
 public:
-    UINT64                              Fence{};
-    ComPtr<ID3D12CommandAllocator>      CmdAllocator{};
+    UINT64                                      Fence{};
+    ComPtr<ID3D12CommandAllocator>              CmdAllocator{};
     
-    uptr<UploadBuffer<PassConstants>>       PassCB{};               // 패스 상수 버퍼
-    uptr<UploadBuffer<PostPassConstants>>   PostPassCB{};           // 포스트 프로세싱 패스 상수 버퍼
-    uptr<UploadBuffer<ObjectConstants>>     ObjectCB{};             // 오브젝트 상수 버퍼
-    uptr<UploadBuffer<SkinnedConstants>>    SkinMeshCB{};           // 스킨메쉬 상수 버퍼
-    uptr<UploadBuffer<SsaoConstants>>       SsaoCB{};               // SSAO 상수 버퍼
+    uptr<UploadBuffer<PassConstants>>           PassCB{};               // 패스 상수 버퍼
+    uptr<UploadBuffer<PostPassConstants>>       PostPassCB{};           // 포스트 프로세싱 패스 상수 버퍼
+    uptr<UploadBuffer<ObjectConstants>>         ObjectCB{};             // 오브젝트 상수 버퍼
+    uptr<UploadBuffer<SkinnedConstants>>        SkinMeshCB{};           // 스킨메쉬 상수 버퍼
+    uptr<UploadBuffer<SsaoConstants>>           SsaoCB{};               // SSAO 상수 버퍼
+    uptr<UploadBuffer<AbilityConstants>>        AbilityCB{};            // Ability 상수 버퍼
 
-    uptr<UploadBuffer<MaterialData>>        MaterialBuffer{};       // 머티리얼 버퍼
-    uptr<UploadBuffer<ParticleSystemGPUData>>  ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
+    uptr<UploadBuffer<MaterialData>>            MaterialBuffer{};       // 머티리얼 버퍼
+    uptr<UploadBuffer<ParticleSystemGPUData>>   ParticleSystemBuffer{}; // 파티클 시스템 버퍼 
     uptr<UploadBuffer<ParticleSharedData>>      ParticleSharedBuffer{}; // 파티클 공유 버퍼 
 
 public:
@@ -167,6 +171,7 @@ public:
     const D3D12_GPU_VIRTUAL_ADDRESS GetSKinMeshCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetPostPassCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetSSAOCBGpuAddr(int elementIndex = 0) const;
+    const D3D12_GPU_VIRTUAL_ADDRESS GetAbilityCBGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSystemGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSharedGpuAddr(int elementIndex = 0) const;
@@ -192,6 +197,9 @@ public:
     void CopyData(int& elementIndex, const MaterialData& data);
     // 스킨메쉬 당 상수 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const SkinnedConstants& data);
+    // 어빌리티 당 상수 버퍼에 데이터 복사
+    void CopyData(int& elementIndex, const AbilityConstants& data);
+
     // 파티클 시스템 데이터 당 구조적 버퍼에 데이터 복사
     void CopyData(int& elementIndex, const ParticleSystemGPUData& data);
     // 파티클 공유 데이터 당 구조적 버퍼에 데이터 복사

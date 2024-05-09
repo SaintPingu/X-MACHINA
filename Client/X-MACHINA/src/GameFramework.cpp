@@ -379,9 +379,9 @@ void GameFramework::ConnectToServer()
 
 void GameFramework::InitPlayer(int sessionID)
 {
-	mPlayer = Scene::I->Instantiate("EliteTrooper", ObjectTag::Player);
-	mPlayer->ResetCollider();
-	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
+	mTarget = Scene::I->Instantiate("EliteTrooper", ObjectTag::Player);
+	mTarget->ResetCollider();
+	mPlayerScript = mTarget->AddComponent<Script_GroundPlayer>();
 	mIsLogin = true;
 
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");

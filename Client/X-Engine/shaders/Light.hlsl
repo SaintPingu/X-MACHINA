@@ -226,13 +226,6 @@ namespace PBR
     }
 }
 
-
-// 선형 감쇠 함수
-float CalcAttenuation(float d, float falloffStart, float falloffEnd)
-{
-    return saturate((falloffEnd - d) / (falloffEnd - falloffStart));
-}
-
 float3 SchlickFresnel(float3 R0, float3 normal, float3 lightVec)
 {
     float cosIncidentAngle = saturate(dot(normal, lightVec));

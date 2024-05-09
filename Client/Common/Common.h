@@ -116,6 +116,14 @@ enum class BlendType : UINT8 {
 	_count
 };
 enum { BlendTypeCount = static_cast<UINT8>(BlendType::_count) };
+
+enum class D3DResource {
+	Texture2D = 0,
+	Texture2D_Array,
+	Texture2DArray,
+	TextureCube,
+	Buffer
+};
 #pragma endregion
 
 
@@ -167,6 +175,14 @@ struct ObjectConstants {
 	float	DeathElapsed{};
 	float	RimFactor{};
 };
+
+struct AbilityConstants {
+	float   ActiveTime{};
+	float   AccTime{};
+	float	Duration{};
+	int		UIIndex{};
+};
+
 #pragma endregion
 
 

@@ -32,11 +32,13 @@ void Script_Player::Start()
 {
 	base::Start();
 
-	mPlayer = mObject->GetObj<GameObject>();
+	mTarget = mObject->GetObj<GameObject>();
 }
 
 void Script_Player::Update()
 {
+	base::Update();
+
 	Vec3 pos = mObject->GetPosition();
 
 	if (!border.Contains(_VECTOR(pos))) {

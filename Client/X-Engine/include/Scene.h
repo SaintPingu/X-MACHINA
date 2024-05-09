@@ -129,6 +129,8 @@ public:
 #pragma region DirectX
 public:
 	void ReleaseUploadBuffers();
+	void UpdateAbilityCB(int& idx, const AbilityConstants& value);
+	void SetAbilityCB(int idx) const;
 
 private:
 	void UpdateShaderVars();

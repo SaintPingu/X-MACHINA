@@ -22,7 +22,7 @@ class GameFramework : public Singleton<GameFramework> {
 
 private:
 	wptr<Script_Player> mPlayerScript{};
-	sptr<GridObject> mPlayer{};
+	sptr<GridObject> mTarget{};
 	volatile bool mIsLogin{};
 
 private:
@@ -35,7 +35,7 @@ public:
 	~GameFramework();
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
-	rsptr<GridObject> GetPlayer() const { return mPlayer; }
+	rsptr<GridObject> GetPlayer() const { return mTarget; }
 
 public:
 	void Init(HINSTANCE hInstance, short width, short height);

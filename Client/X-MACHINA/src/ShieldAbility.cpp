@@ -9,32 +9,40 @@
 #include "Object.h"
 #include "ResourceMgr.h"
 
-ShieldAbility::ShieldAbility(float cooldownTime, float activeTime)
+#include "Script_LiveObject.h"
+
+ShieldAbility::ShieldAbility(float sheild)
 	:
-	RenderedAbility(cooldownTime, activeTime)
+	RenderedAbility(2.f, 4.5f),
+	mShield(sheild)
 {
 	mLayer = 1;
+	mAbilityCB.Duration = 4.f;
+
 	mRenderedObject = std::make_shared<GameObject>();
 	mRenderedObject->SetModel("Shield");
+	
 	mShader = RESOURCE<Shader>("ShieldAbility");
+}
+
+void ShieldAbility::Update(float activeTime)
+{
+	base::Update(activeTime);
+
+	const Vec3 playerPos = mObject->GetPosition() + Vec3{ 0.f, 0.85f, 0.f };
+	mRenderedObject->SetPosition(playerPos);
 }
 
 void ShieldAbility::Activate()
 {
 	base::Activate();
 
-	// 어빌리티 매니저에 삽입되자마자 렌더링되기 때문에 호출해줘야 한다.
-	FollowObject();
+	mObject->GetComponent<Script_LiveObject>()->SetShield(mShield);
 }
 
-
-void ShieldAbility::Update()
+void ShieldAbility::DeActivate()
 {
-	FollowObject();
-}
+	base::DeActivate();
 
-void ShieldAbility::FollowObject()
-{
-	const Vec3 playerPos = mObject->GetPosition() + Vec3{ 0.f, 0.85f, 0.f };
-	mRenderedObject->SetPosition(playerPos);
+	mObject->GetComponent<Script_LiveObject>()->SetShield(0.f);
 }

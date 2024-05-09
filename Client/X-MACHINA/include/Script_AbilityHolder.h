@@ -25,13 +25,14 @@ enum class AbilityState : UINT8 {
 class Script_AbilityHolder : public Component {
 	COMPONENT(Script_AbilityHolder, Component)
 
-private:
-	sptr<Ability> mAbility{};
-	float mCooldownTime{};
-	float mActiveTime{};
+protected:
+	sptr<Ability>	mAbility{};
+	float			mCooldownTime{};
+	float			mActiveTime{};
+	int				mAbilityCBIdx = -1;
 
-	AbilityState mState = AbilityState::Ready;
-	int mKey{};
+	AbilityState	mState = AbilityState::Ready;
+	int				mKey{};
 
 public:
 	void SetAbility(int key, sptr<Ability> ability) { mKey = key, mAbility = ability; }

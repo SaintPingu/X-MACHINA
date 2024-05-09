@@ -2,18 +2,20 @@
 
 #include "AbilityMgr.h"
 
+class Script_LiveObject;
 class GameObject;
 
 class ShieldAbility : public RenderedAbility {
 	using base = RenderedAbility;
 
-public:
-	ShieldAbility(float cooldownTime, float activeTime);
-
-public:
-	virtual void Update() override;
-	virtual void Activate() override;
-
 private:
-	void FollowObject();
+	float mShield{};
+
+public:
+	ShieldAbility(float sheild);
+
+public:
+	virtual void Update(float activeTime) override;
+	virtual void Activate() override;
+	virtual void DeActivate() override;
 };

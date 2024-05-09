@@ -37,7 +37,7 @@ protected:
 	Script_MainCamera* mCamera{};
 
 	PlayerType		mPlayerType{};
-	GameObject*		mPlayer{};		// self GameObject
+	GameObject*		mTarget{};		// self GameObject
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
 	int		mScore{};

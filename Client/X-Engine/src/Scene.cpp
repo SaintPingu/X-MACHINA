@@ -138,6 +138,7 @@ void Scene::UpdateMainPassCB()
 	passCB.RT1L_SpecularIndex = RESOURCE<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
 	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
+	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
 	passCB.LightCount = mLight->GetLightCount();
@@ -194,6 +195,16 @@ void Scene::UpdateSsaoCB()
 	ssaoCB.RandomVectorIndex = RESOURCE<Texture>("RandomVector")->GetSrvIdx();
 
 	FRAME_RESOURCE_MGR->CopyData(ssaoCB);
+}
+
+void Scene::UpdateAbilityCB(int& idx, const AbilityConstants& value)
+{
+	FRAME_RESOURCE_MGR->CopyData(idx, value);
+}
+
+void Scene::SetAbilityCB(int idx) const
+{
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Ability), FRAME_RESOURCE_MGR->GetAbilityCBGpuAddr(idx));
 }
 
 void Scene::UpdateMaterialBuffer()
@@ -1036,7 +1047,6 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 
 	return result;
 }
-
 
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {

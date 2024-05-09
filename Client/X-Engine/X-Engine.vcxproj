@@ -269,6 +269,7 @@
     <ClCompile Include="src\X-Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\AbilityMgr.h" />
     <ClInclude Include="..\Common\Common.h" />
     <ClInclude Include="..\Common\Component\Camera.h" />
     <ClInclude Include="..\Common\Component\Collider.h" />
@@ -290,7 +291,6 @@
     <ClInclude Include="Imgui\ImguiCode\imstb_textedit.h" />
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h" />
     <ClInclude Include="Imgui\ImGuiMgr.h" />
-    <ClInclude Include="include\AbilityMgr.h" />
     <ClInclude Include="include\AnimatorStateMachine.h" />
     <ClInclude Include="include\BehaviorTree.h" />
     <ClInclude Include="include\BlurFilter.h" />

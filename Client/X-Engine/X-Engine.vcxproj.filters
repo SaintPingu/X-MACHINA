@@ -461,7 +461,7 @@
     <ClInclude Include="include\AnimationClip.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\AbilityMgr.h">
+    <ClInclude Include="..\Common\AbilityMgr.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

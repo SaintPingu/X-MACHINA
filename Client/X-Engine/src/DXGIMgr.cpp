@@ -213,13 +213,13 @@ void DXGIMgr::Update()
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 	cmdAllocator->Reset();
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
+
+	MainPassRenderBegin();
 }
 
 void DXGIMgr::Render()
 {
 #pragma region MainRender
-	MainPassRenderBegin();
-
 	// 해당 함수들 안에서 자신이 사용할 깊이 버퍼를 클리어 한다.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx, 1.f);
 	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);

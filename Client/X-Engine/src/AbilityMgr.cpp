@@ -5,9 +5,19 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Object.h"
+#include "Scene.h"
 
-void RenderedAbility::Update()
+void RenderedAbility::UpdateAbilityCB(float activeTime)
 {
+	mAbilityCB.ActiveTime = mActiveTime;
+	mAbilityCB.AccTime = mActiveTime - activeTime;
+
+	Scene::I->UpdateAbilityCB(mAbilityCBIdx, mAbilityCB);
+}
+
+void RenderedAbility::Update(float activeTime)
+{
+	UpdateAbilityCB(activeTime);
 }
 
 void RenderedAbility::Activate()
@@ -38,6 +48,12 @@ void AbilityMgr::Render()
 {
 	for (const auto& layers : mRenderedAbilities) {
 		for (const auto& ability : layers) {
+			const int abilityCBIdx = ability->GetAbilityCBIdx();
+
+			if (abilityCBIdx == -1)
+				continue;
+
+			Scene::I->SetAbilityCB(abilityCBIdx);
 			ability->Render();
 		}
 	}

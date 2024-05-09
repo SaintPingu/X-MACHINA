@@ -15,6 +15,13 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 	MAIN_CAMERA->SetOffset(mMainOffset);
 }
 
+void Script_MainCamera::SetCameraTarget(sptr<GameObject> target)
+{
+	if (target) {
+		mTarget = target;
+	}
+}
+
 
 void Script_MainCamera::Awake()
 {
@@ -40,9 +47,9 @@ void Script_MainCamera::Start()
 void Script_MainCamera::Update()
 {
 	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y);
-	mObject->SetPosition(mPlayer->GetPosition() + offset);
+	mObject->SetPosition(mTarget->GetPosition() + offset);
 
-	Matrix noLagViewMtx = Matrix::CreateLookAt(mPlayer->GetPosition() + offset, mPlayer->GetPosition(), mPlayer->GetUp());
+	Matrix noLagViewMtx = Matrix::CreateLookAt(mTarget->GetPosition() + offset, mTarget->GetPosition(), mTarget->GetUp());
 	MAIN_CAMERA->SetNoLagViewMtx(noLagViewMtx);
 
 	RecoverExtraOffset();
@@ -112,22 +119,22 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
 
 void Script_MainCamera::Init()
 {
-	mPlayer = GameFramework::I->GetPlayer();
+	mTarget = GameFramework::I->GetPlayer();
 
 	constexpr float maxPlaneDistance = 100.f;
 	SetCameraOffset(Vec3(0.f, 12.f, -7.f));
 	//SetCameraOffset(Vec3(0.f, 6.f, -7.f));
-	mObject->SetPosition(mPlayer->GetPosition() + mMainOffset);
-	LookPlayer();
+	mObject->SetPosition(mTarget->GetPosition() + mMainOffset);
+	LookTarget();
 
 	MAIN_CAMERA->SetProjMtx(0.01f, maxPlaneDistance, 60.f);
 }
 
 
-void Script_MainCamera::LookPlayer()
+void Script_MainCamera::LookTarget()
 {
-	if (mPlayer) {
-		MAIN_CAMERA->LookAt(mPlayer->GetPosition(), mPlayer->GetUp());
+	if (mTarget) {
+		MAIN_CAMERA->LookAt(mTarget->GetPosition(), mTarget->GetUp());
 	}
 }
 

@@ -45,13 +45,6 @@ void LUTCS(int3 dispatchThreadID : SV_DispatchThreadID)
 {
     float4 color = gInput[float2(dispatchThreadID.x, dispatchThreadID.y)];
  
-    // IRDetectir 사용 중 적용x
-    if (gFilterOption & Filter_Custom)
-    {
-        gOutput[dispatchThreadID.xy] = color;
-        return;
-    }
-    
     // 톤매핑 적용
     if (gFilterOption & Filter_Tone)
     {

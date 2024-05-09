@@ -7,15 +7,20 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Object.h"
+#include "Texture.h"
 #include "ResourceMgr.h"
 
-IRDetectorAbility::IRDetectorAbility(float cooldownTime, float activeTime)
+IRDetectorAbility::IRDetectorAbility()
 	:
-	RenderedAbility(cooldownTime, activeTime)
+	RenderedAbility(2.f, 10.f)
 {
 	mLayer = 0;
+	mAbilityCB.Duration = 9.8f;
+
 	mRenderedMesh = RESOURCE<ModelObjectMesh>("Rect");
 	mShader = RESOURCE<Shader>("IRDetectorAbility");
+
+	mAbilityCB.UIIndex = RESOURCE<Texture>("IRDetectorUI")->GetSrvIdx();
 }
 
 void IRDetectorAbility::Activate()

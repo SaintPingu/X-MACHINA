@@ -16,6 +16,7 @@ class Script_LiveObject abstract : public Component {
 
 private:
 	float mMaxHP{};
+	float mShield{};
 	float mCrntHP{};
 	float mPrevHP{};
 
@@ -27,8 +28,11 @@ public:
 	virtual void Update() override;
 
 	void SetMaxHP(float hp) { mMaxHP = hp; }
+	void SetShield(float shield) { mShield = shield; }
+
 	bool IsDead() const { return mIsDead; }
 	float GetCrntHp() const { return mCrntHP; }
+
 	bool UpdatePrevHP() { bool res = mPrevHP == mCrntHP; mPrevHP = mCrntHP; return res; }
 
 	virtual bool Hit(float damage);

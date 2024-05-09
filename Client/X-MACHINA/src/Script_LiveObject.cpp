@@ -30,7 +30,13 @@ bool Script_LiveObject::Hit(float damage)
 		return false;
 	}
 
-	mCrntHP -= damage;
+	if (mShield > 0) {
+		mShield -= damage;
+	}
+	else {
+		mCrntHP -= damage;
+	}
+
 	if (mCrntHP <= 0) {
 		Dead();
 		return true;

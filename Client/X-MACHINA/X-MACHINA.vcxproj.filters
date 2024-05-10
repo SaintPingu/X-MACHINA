@@ -58,9 +58,6 @@
     <Filter Include="Script\Enemy\Object">
       <UniqueIdentifier>{c005f32c-5d45-47ec-ada1-ce1293b5c26b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Script\Network">
-      <UniqueIdentifier>{e93c97fb-3ca4-4a22-ab1f-bc18295e3a4d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Script\Abilities">
       <UniqueIdentifier>{0ba08c84-1070-4d6d-9fc7-59fe643a2ef7}</UniqueIdentifier>
     </Filter>
@@ -262,12 +259,6 @@
     <ClInclude Include="include\Script_Weapon_MissileLauncher.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\NetworkEvents.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_NetworkObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_MainCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -449,12 +440,6 @@
     </ClCompile>
     <ClCompile Include="src\Script_Weapon_MissileLauncher.cpp">
       <Filter>Script\Weapon</Filter>
-    </ClCompile>
-    <ClCompile Include="src\NetworkEvents.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_NetworkObject.cpp">
-      <Filter>Script\Network</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp">
       <Filter>ClientNetwork\NetworkScript</Filter>

@@ -11,8 +11,7 @@ namespace NetworkEvent
 			constexpr UINT16 Add_RemotePlayer         = 1;
 			constexpr UINT16 Move_RemotePlayer        = 2;
 			constexpr UINT16 Remove_RemotePlayer      = 3;
-			constexpr UINT16 Test                     = 4;
-			constexpr UINT16 Extrapolate_RemotePlayer = 5;
+			constexpr UINT16 Extrapolate_RemotePlayer = 4;
 
 		}
 

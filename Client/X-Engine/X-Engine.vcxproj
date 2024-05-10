@@ -206,7 +206,6 @@
     </ClCompile>
     <ClCompile Include="Imgui\ImGuiMgr.cpp" />
     <ClCompile Include="include\TLS.cpp" />
-    <ClCompile Include="Log\LogMgr.cpp" />
     <ClCompile Include="src\AbilityMgr.cpp" />
     <ClCompile Include="src\AnimatorBlendTree.cpp" />
     <ClCompile Include="src\AnimatorState.cpp" />

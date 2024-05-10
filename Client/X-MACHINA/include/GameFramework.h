@@ -22,7 +22,7 @@ class GameFramework : public Singleton<GameFramework> {
 
 private:
 	wptr<Script_Player> mPlayerScript{};
-	sptr<GridObject> mTarget{};
+	sptr<GridObject> mPlayer{};
 	volatile bool mIsLogin{};
 
 private:

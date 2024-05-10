@@ -509,7 +509,7 @@ void Script_GroundPlayer::InitWeapons()
 
 	// bolt action sniper √ ±‚»≠
 	{
-		CallbackType boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
+		std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
 		auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 		// callback

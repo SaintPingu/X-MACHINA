@@ -20,7 +20,6 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Player.h"
-#include "Script_NetworkObject.h"
 #include "Script_GameManager.h"
 
 
@@ -353,8 +352,9 @@ void GameFramework::InitPlayer(int sessionID)
 	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
 
+#ifdef SERVER_COMMUNICATION
 	auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
-	networkScript->Awake();
+#endif
 
 	mIsLogin = true;
 

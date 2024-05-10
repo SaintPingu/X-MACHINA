@@ -2,7 +2,6 @@
 #include "ClientNetworkManager.h"
 
 #include "Script_GroundObject.h"
-#include "Script_NetworkObject.h"
 
 #include "Object.h"
 #include "Scene.h"
@@ -86,7 +85,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	mClientNetwork->SetMaxSessionCnt(1); // 1¸í Á¢¼Ó  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
-	if (FALSE == mClientNetwork->Start(L"127.0.0.1", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.11", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -157,8 +156,8 @@ void ClientNetworkManager::ProcessEvents()
 		{
 
 			NetworkEvent::Game::Move_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Move_RemotePlayer*>(EventData.get());
-			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
-			if (player) {
+			if (mRemotePlayers.count(data->RemoteP_ID)) {
+				rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 				player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->RemoteP_Pos);
 				player->SetPosition(data->RemoteP_Pos);
 			}
@@ -177,13 +176,6 @@ void ClientNetworkManager::ProcessEvents()
 		}
 		break;
 
-		case NetworkEvent::Game::Enum::Test:
-		{
-			NetworkEvent::Game::Test* data = reinterpret_cast<NetworkEvent::Game::Test*>(EventData.get());
-			rsptr<GridObject> player = mRemotePlayers[data->sessionID];
-			player->GetComponent<Script_NetworkObject>()->UpdateData((void*)data);
-		}
-		break;
 		case NetworkEvent::Game::Enum::Extrapolate_RemotePlayer:
 		{
 			NetworkEvent::Game::Extrapolate_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Extrapolate_RemotePlayer*>(EventData.get());

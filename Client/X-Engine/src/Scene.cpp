@@ -284,7 +284,7 @@ void Scene::BuildGrid()
 			float gridZ = (mGridWidth * y) + ((float)mGridWidth / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
-			bb.Center = Vec3(gridX, kMaxHeight / 2, gridZ);
+			bb.Center = Vec3(gridX, kMaxHeight, gridZ);
 			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
 
 			int index = (y * mGridCols) + x;
@@ -357,7 +357,9 @@ void Scene::LoadGameObjects(std::ifstream& file)
 			FileIO::ReadVal(file, isInstancing);
 
 			if (isInstancing) {
-				objectPool = CreateObjectPool(model, sameObjectCount);
+				objectPool = CreateObjectPool(model, sameObjectCount, [&](rsptr<InstObject> object) {
+					object->SetTag(tag);
+					});
 			}
 		}
 
@@ -367,13 +369,12 @@ void Scene::LoadGameObjects(std::ifstream& file)
 		}
 		else {
 			object = std::make_shared<GridObject>();
+			object->SetModel(model);
+			InitObjectByTag(tag, object);
 		}
 
-		InitObjectByTag(tag, object);
 
 		object->SetLayer(layer);
-
-		object->SetModel(model);
 
 		Matrix transform;
 		FileIO::ReadVal(file, transform);
@@ -518,6 +519,13 @@ void Scene::RenderUI()
 	RenderBounds(mRenderedObjects);
 }
 
+void Scene::EndRender()
+{
+	for (const auto& objectPool : mObjectPools) {
+		objectPool->EndRender();
+	}
+}
+
 void Scene::RenderTerrain()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -592,12 +600,18 @@ void Scene::RenderGridObjects(RenderType type)
 
 			if (MAIN_CAMERA->IsInFrustum(grid->GetBB())) {
 				auto& objects = grid->GetObjects();
-				mRenderedObjects.insert(objects.begin(), objects.end());
+				for (auto& object : objects) {
+					if (MAIN_CAMERA->IsInFrustum(object->GetCollider()->GetBS())) {
+						mRenderedObjects.insert(object);
+					}
+				}
 			}
 		}
 
+		std::set<GridObject*> disabledObjects{};
 		for (auto& object : mRenderedObjects) {
 			if (!object->IsActive()) {
+				disabledObjects.insert(object);
 				continue;
 			}
 			if (object->IsTransparent()) {
@@ -620,6 +634,11 @@ void Scene::RenderGridObjects(RenderType type)
 				mGridObjects.insert(object);
 				break;
 			}
+		}
+		if (!disabledObjects.empty()) {
+			std::set<GridObject*> diff;
+			std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
+			mRenderedObjects = std::move(diff);
 		}
 	}
 
@@ -735,7 +754,7 @@ void Scene::Start()
 
 	mGameManager->Awake();
 
-	/* Enable & Start */
+	/* Enable */
 	mServerManager->SetActive(true);
 	mTerrain->SetActive(true);
 	MainCamera::I->SetActive(true);
@@ -749,8 +768,6 @@ void Scene::Start()
 
 void Scene::Update()
 {
-	//mServerManager->Update();
-
 	CheckCollisions();
 
 	mGameManager->Update();
@@ -1050,6 +1067,12 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
+	//for (auto& object : mStaticObjects) {
+	//	if (object && object->IsActive()) {
+	//		processFunc(object);
+	//	}
+	//}
+
 	for (auto& object : mDynamicObjects) {
 		if (object && object->IsActive()) {
 			processFunc(object);
@@ -1058,8 +1081,8 @@ void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFu
 
 	RemoveDesrtoyedObjects();
 
-	for (auto& object : mObjectPools) {
-		object->DoActiveObjects(processFunc);
+	for (auto& objectPool : mObjectPools) {
+		objectPool->DoActiveObjects(processFunc);
 	}
 }
 
@@ -1147,7 +1170,6 @@ ObjectLayer Scene::GetLayerByNum(int num)
 		return ObjectLayer::Water;
 
 	default:
-		assert(0);
 		break;
 	}
 

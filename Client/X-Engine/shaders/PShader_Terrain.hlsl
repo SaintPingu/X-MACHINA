@@ -30,8 +30,9 @@ PSOutput_MRT PSTerrain(VSOutput_Terrain pin)
     
     pin.NormalW = normalize(pin.NormalW);
     
-    float corr = (1.f / 512.f);
-    float2 uv1 = (pin.UV * 10) * corr;
+    float2 uv1 = (pin.UV * 10);
+    uv1.x *= (1.f / 1000.f);    // terrain width  [1000]
+    uv1.y *= (1.f / 500.f);     // terrain height [500]
     
     float4 splatColor = gTextureMaps[diffuseMap3Index].Sample(gsamLinearWrap, uv1);
     float4 layer0 = float4(0, 0, 0, 0);

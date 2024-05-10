@@ -83,8 +83,9 @@ void Script_GroundPlayer::Start()
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 360.f;
 
-	SetSpawn(Vec3(80, 0, 270));
+	SetSpawn(Vec3(25, 0, 260));
 	SetMaxHP(150.f);
+	mObject->SetPosition(25, 0, 260);
 }
 
 

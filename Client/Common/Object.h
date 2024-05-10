@@ -122,8 +122,6 @@ private:
 
 	std::function<void()> mUpdateFunc{};
 
-	bool mIsPushed{ false };			// 렌더링 버퍼(of 오브젝트 풀)에 이 객체를 넣었는가? (중복 삽입 방지)
-
 public:
 	InstObject(ObjectPool* pool, int id);
 	virtual ~InstObject() = default;
@@ -146,12 +144,11 @@ protected:
 private:
 	// 렌더링 버퍼에 이 객체를 추가한다.
 	void PushRender();
-	void Pop() { mIsPushed = false; }
 
-	// 정적 객체 업데이트 (update 실행 x, 렌더링용)
-	void UpdateStatic() { Pop(); }
+	// 정적 객체 업데이트 (update 실행 x)
+	void UpdateStatic() { }
 	// 동적 객체 업데이트 (update 실행 o)
-	void UpdateDynamic() { base::Update(); Pop(); }
+	void UpdateDynamic() { base::Update(); }
 };
 
 

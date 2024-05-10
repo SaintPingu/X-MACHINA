@@ -497,6 +497,8 @@ sptr<ModelObjectMesh> ResourceMgr::LoadPointMesh()
 
 void ResourceMgr::LoadTextures()
 {
+	std::cout << "Load textures...\n";
+
 	FileIO::ModelIO::LoadTextures("Import/Textures/");
 	FileIO::ModelIO::LoadTextures("Import/UI/");
 	FileIO::ModelIO::LoadTextures("Import/Skybox/", D3DResource::TextureCube);
@@ -504,6 +506,8 @@ void ResourceMgr::LoadTextures()
 
 void ResourceMgr::LoadModels()
 {
+	std::cout << "Load models...\n";
+
 	const std::string rootFolder = "Import/Meshes/";
 
 	sptr<MasterModel> model;
@@ -521,6 +525,8 @@ void ResourceMgr::LoadModels()
 
 void ResourceMgr::LoadShaders()
 {
+	std::cout << "Load shaders...\n";
+
 // Shadow
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region Shadow
@@ -1150,6 +1156,8 @@ void ResourceMgr::LoadShaders()
 
 void ResourceMgr::LoadAnimationClips()
 {
+	std::cout << "Load animation clips...\n";
+
 	const std::string rootFolder = "Import/AnimationClips/";
 	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
 		std::string clipFolderName = clipFolder.path().filename().string();

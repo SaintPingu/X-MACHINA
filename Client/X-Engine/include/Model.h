@@ -62,7 +62,7 @@ public:
 	virtual ~Material() = default;
 
 	void SetMaterialColors(rsptr<MaterialColors> pMaterialColors) { mMaterialColors = pMaterialColors; }
-	void SetTexture(TextureMap map, rsptr<Texture> texture) { mTextures[static_cast<UINT8>(map)] = texture; }
+	void SetTexture(TextureMap map, rsptr<Texture> texture) { assert(texture); mTextures[static_cast<UINT8>(map)] = texture; }
 	void SetMatallic(float value) { mMaterialColors->Metallic = value; }
 	void SetRoughness(float value) { mMaterialColors->Roughness = value; }
 

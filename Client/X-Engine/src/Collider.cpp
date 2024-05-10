@@ -273,7 +273,7 @@ void ObjectCollider::Render() const
 		collider->Render();
 	}
 
-	#define RENDER_BOUNDING_SPHERE
+	//#define RENDER_BOUNDING_SPHERE
 #ifdef RENDER_BOUNDING_SPHERE
 	if (mSphereCollider) {
 		mSphereCollider->Render();

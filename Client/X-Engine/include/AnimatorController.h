@@ -81,19 +81,19 @@ public:
 		case AnimatorParameter::Type::Bool:
 			val.b = static_cast<bool>(value);
 			if (param.val.b == val.b) {
-				return false;
+				return true;
 			}
 			break;
 		case AnimatorParameter::Type::Int:
 			val.i = static_cast<int>(value);
 			if (param.val.i == val.i) {
-				return false;
+				return true;
 			}
 			break;
 		case AnimatorParameter::Type::Float:
 			val.f = static_cast<float>(value);
 			if (Math::IsEqual(param.val.f, val.f)) {
-				return false;
+				return true;
 			}
 			break;
 		default:

@@ -21,8 +21,8 @@ void Script_GameManager::Awake()
 		sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
 		auto& script = enemy->AddComponent<Script_Ursacetus>();
 		enemy->AddComponent<Script_MeleeBT>();
-		enemy->SetPosition(73 + i * 3, 0, 260);
-		script->SetMaxHP(200);
+		enemy->SetPosition(50 + i * 5, 0, 250 + i * 10);
+		script->SetMaxHP(2000);
 	}
 }
 

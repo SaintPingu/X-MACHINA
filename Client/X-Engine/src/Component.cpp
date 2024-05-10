@@ -220,6 +220,13 @@ void Object::OnDisable()
 
 void Object::Start()
 {
+	if (!mIsAwake) {
+		Awake();
+	}
+	if (!mIsEnable) {
+		OnEnable();
+	}
+
 	assert(!mIsStart);
 	mIsStart = true;
 

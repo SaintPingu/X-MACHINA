@@ -269,6 +269,7 @@ namespace DirectX
             // ¹Îµ¿Çö-Ãß°¡ 24.04.02
             // y = 0
             Vector3 xz() const noexcept;
+            Vector3 yz() const noexcept;
 
             // Static functions
             static float Distance(const Vector3& v1, const Vector3& v2) noexcept;

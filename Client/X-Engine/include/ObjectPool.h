@@ -29,12 +29,14 @@ protected:
 	int mCurrBuffIdx{};
 
 private:
+	bool mIsStatic = false;
 	const sptr<const MasterModel> mMasterModel{};		// 렌더링 모델
 	std::vector<const Transform*> mMergedTransform{};	// 렌더링 모델의 transform 구조 (caching)
 
-	std::vector<sptr<InstObject>>	mObjectPool{};			// all objects
-	std::unordered_set<int>			mAvailableObjects{};	// 사용(Get) 가능한 객체 집합
-	std::unordered_set<int>			mActiveObjects{};		// 활성화(Get)된    객체 집합
+	std::vector<sptr<InstObject>>			mObjectPool{};			// all objects
+	std::unordered_set<const InstObject*>	mRenderedObjects{};		// rendered objects
+	std::unordered_set<int>					mAvailableObjects{};	// 사용(Get) 가능한 객체 집합
+	std::unordered_set<int>					mActiveObjects{};		// 활성화(Get)된    객체 집합
 
 	ComPtr<ID3D12Resource>	mSB_Inst{};		// StructuredBuffer for instance
 	void*					mSBMap_Inst{};	// mapped StructuredBuffer
@@ -63,9 +65,14 @@ public:
 			if (objectInitFunc) {
 				objectInitFunc(object);
 			}
+			
 			object->SetUpdateFunc();
 
 			++id;
+		}
+
+		if (mObjectPool.front()->GetType() == ObjectType::Static) {
+			mIsStatic = true;
 		}
 	}
 
@@ -82,19 +89,19 @@ public:
 	// 렌더링할 객체를 추가한다.
 	void PushRender(const InstObject* object);
 	void Render();
+	void EndRender();
 
 	// 활성화된(Get) 객체들에 대해 [func]을 실행한다.
 	void DoActiveObjects(std::function<void(rsptr<InstObject>)> func);
 	// pool 내의 모든 객체들에 대해 [func]을 실행한다.
 	void DoAllObjects(std::function<void(rsptr<InstObject>)> func);
 
+
 protected:
 	// 렌더링 버퍼[mSBMap_Inst]에 객체를 더 추가할 수 없으면 false를 반환한다.
 	bool CanPush() { return mCurrBuffIdx < mObjectPool.size(); }
 
 private:
-	void ResetBuffer() { mCurrBuffIdx = 0; }
-
 	// create structured buffer resource
 	void CreateShaderVars();
 };

@@ -986,6 +986,11 @@ inline Vector3 Vector3::xz() const noexcept
     return Vector3(x, 0, z);
 }
 
+inline Vector3 Vector3::yz() const noexcept
+{
+    return Vector3(0, y, z);
+}
+
 //------------------------------------------------------------------------------
 // Static functions
 //------------------------------------------------------------------------------

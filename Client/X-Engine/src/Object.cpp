@@ -79,6 +79,8 @@ GridObject::GridObject()
 
 void GridObject::Awake()
 {
+	base::Awake();
+
 	AddComponent<ObjectCollider>();
 	const auto& collider = GetComponent<ObjectCollider>();
 	if (collider) {
@@ -174,11 +176,6 @@ void InstObject::Return()
 
 void InstObject::PushRender()
 {
-	if (mIsPushed) {
-		return;
-	}
-
-	mIsPushed = true;
 	mObjectPool->PushRender(this);
 }
 #pragma endregion

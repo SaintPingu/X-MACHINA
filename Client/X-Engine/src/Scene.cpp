@@ -450,7 +450,7 @@ void Scene::RenderDeferred()
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
 #pragma endregion
 
-#pragma region Global
+#pragma region Globald
 	RenderGridObjects(RenderType::Deferred);
 	RenderEnvironments();
 #pragma endregion

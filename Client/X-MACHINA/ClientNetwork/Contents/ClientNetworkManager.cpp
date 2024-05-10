@@ -179,6 +179,9 @@ void ClientNetworkManager::ProcessEvents()
 		case NetworkEvent::Game::Enum::Extrapolate_RemotePlayer:
 		{
 			NetworkEvent::Game::Extrapolate_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Extrapolate_RemotePlayer*>(EventData.get());
+			if (!mRemotePlayers.count(data->RemoteP_ID)) {
+				return;
+			}
 
 			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 

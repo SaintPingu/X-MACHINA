@@ -30,7 +30,7 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Contents/Script_PlayerNetwork.h"
 
-#define SERVER_COMMUNICATION
+//#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -348,7 +348,7 @@ void GameFramework::ConnectToServer()
 
 void GameFramework::InitPlayer(int sessionID)
 {
-	mPlayer = Scene::I->Instantiate("EliteTrooper");
+	mPlayer = Scene::I->Instantiate("EliteTrooper", ObjectTag::Player);
 	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
 

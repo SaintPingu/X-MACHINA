@@ -441,6 +441,9 @@ void Scene::RenderShadow()
 #pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects(RenderType::Shadow);
 #pragma endregion
+#pragma region Shadow_ObjectInst
+	RenderInstanceObjects(RenderType::Shadow);
+#pragma endregion
 }
 
 
@@ -455,7 +458,7 @@ void Scene::RenderDeferred()
 	RenderEnvironments();
 #pragma endregion
 #pragma region ObjectInst
-	RenderInstanceObjects();
+	RenderInstanceObjects(RenderType::Deferred);
 #pragma endregion
 #pragma region SkinMesh
 	RenderSkinMeshObjects(RenderType::Deferred);
@@ -669,9 +672,18 @@ void Scene::RenderSkinMeshObjects(RenderType type)
 		object->Render();
 }
 
-void Scene::RenderInstanceObjects()
+void Scene::RenderInstanceObjects(RenderType type)
 {
-	RESOURCE<Shader>("ObjectInst")->Set();
+	switch (type)
+	{
+	case RenderType::Shadow:
+		RESOURCE<Shader>("Shadow_ObjectInst")->Set();
+		break;
+	case RenderType::Deferred:
+		RESOURCE<Shader>("ObjectInst")->Set();
+		break;
+	}
+
 	for (auto& buffer : mObjectPools) {
 		buffer->Render();
 	}

@@ -1,11 +1,16 @@
 #include "Common.hlsl"
 
-struct VSOutput_Shadow {
+struct VSInput_CustomDepth
+{
     float4 PosH : SV_POSITION;
+    float3 PosW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float3 BiTangentW : BITANGENT;
     float2 UV : UV;
 };
 
-void PSCustomDepth(VSOutput_Shadow pin)
+void PSCustomDepth(VSInput_CustomDepth pin)
 {
     MaterialInfo matInfo = gMaterialBuffer[gObjectCB.MatIndex];
 	float4 diffuseAlbedo = matInfo.Diffuse;

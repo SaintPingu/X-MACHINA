@@ -537,7 +537,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
-			 "VShader_Shadow.cso",
+			 "VShader_Standard.cso",
 			 "PShader_Shadow.cso",
 		};
 
@@ -571,7 +571,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
-			 "VShader_Shadow.cso",
+			 "VShader_Standard.cso",
 			 "PShader_Shadow.cso",
 		};
 
@@ -594,6 +594,21 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("ObjectInst", shader);
+	}
+	{
+		ShaderInfo info = {
+			ShaderType::Shadow,
+			RasterizerType::DepthBias,
+		};
+
+		ShaderPath path = {
+			 "VShader_StandardInstance.cso",
+			 "PShader_Shadow.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Shadow_ObjectInst", shader);
 	}
 #pragma endregion
 #pragma region ColorInst
@@ -638,7 +653,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
-			 "VShader_Shadow_SkinnedMesh.cso",
+			 "VShader_SkinnedMesh.cso",
 			 "PShader_Shadow.cso",
 		};
 
@@ -654,7 +669,7 @@ void ResourceMgr::LoadShaders()
 		};
 
 		ShaderPath path = {
-			 "VShader_Shadow_SkinnedMesh.cso",
+			 "VShader_SkinnedMesh.cso",
 			 "PShader_CustomDepth.cso",
 		};
 

@@ -191,7 +191,7 @@ private:
 	void RenderGridObjects(RenderType type);
 	void RenderSkinMeshObjects(RenderType type);
 	void RenderEnvironments();
-	void RenderInstanceObjects();
+	void RenderInstanceObjects(RenderType type);
 
 	void RenderTerrain();
 

@@ -113,7 +113,7 @@ public:
 	// return itself
 	sptr<Transform> DetachParent(bool isKeepLocalTransform = true);
 
-	void SetLocalTransform(const Matrix& transform);
+	void SetLocalTransform(const Matrix& transform, bool isComputeWorldTransform = true);
 
 	// 상수 버퍼 인덱스를 한 번이라도 설정 하였다면 오브젝트 카운트는 최소 1이다.
 	void SetObjCBIndex(int val, int index = 0) const { mObjCBIndices[index] = val; SetUseObjCB(true); }

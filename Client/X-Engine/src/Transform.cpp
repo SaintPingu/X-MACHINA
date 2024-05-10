@@ -202,11 +202,11 @@ sptr<Transform> Transform::DetachParent(bool isKeepLocalTransform)
 	return crnt;
 }
 
-void Transform::SetLocalTransform(const Matrix& transform)
+void Transform::SetLocalTransform(const Matrix& transform, bool isComputeWorldTransform)
 {
 	mLocalTransform = transform;
 	mPrevTransform = transform;
-	UpdateAxis();
+	UpdateAxis(isComputeWorldTransform);
 }
 #pragma endregion
 

@@ -50,7 +50,7 @@ void Animator::Animate()
 	for (int j = 0; j < boneFrames.size(); ++j) {
 		Matrix transform = mController->GetTransform(j, skinMesh->GetHumanBone(j));
 		
-		boneFrames[j]->SetLocalTransform(transform);
+		boneFrames[j]->SetLocalTransform(transform, false);
 	}
 }
 

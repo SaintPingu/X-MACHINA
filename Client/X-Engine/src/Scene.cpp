@@ -522,13 +522,6 @@ void Scene::RenderUI()
 	RenderBounds(mRenderedObjects);
 }
 
-void Scene::EndRender()
-{
-	for (const auto& objectPool : mObjectPools) {
-		objectPool->EndRender();
-	}
-}
-
 void Scene::RenderTerrain()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);

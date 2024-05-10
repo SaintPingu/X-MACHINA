@@ -89,7 +89,6 @@ public:
 	// 렌더링할 객체를 추가한다.
 	void PushRender(const InstObject* object);
 	void Render();
-	void EndRender();
 
 	// 활성화된(Get) 객체들에 대해 [func]을 실행한다.
 	void DoActiveObjects(std::function<void(rsptr<InstObject>)> func);
@@ -104,5 +103,7 @@ protected:
 private:
 	// create structured buffer resource
 	void CreateShaderVars();
+
+	void EndRender();
 };
 #pragma endregion

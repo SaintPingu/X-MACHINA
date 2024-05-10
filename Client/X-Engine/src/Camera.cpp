@@ -119,6 +119,11 @@ Vec2 Camera::ScreenToNDC(const Vec2& pos)
 void Camera::CalculateFrustumPlanes()
 {
 	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));
+	
+	// shadow camera frustum
+	std::memcpy(&mFrustumWorldShadow, &mFrustumWorld, sizeof(mFrustumWorld));
+	mFrustumWorldShadow.Origin.y += mOffset.y;
+	mFrustumWorldShadow.Origin.z += mOffset.z;
 }
 #pragma endregion
 

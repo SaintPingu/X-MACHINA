@@ -30,6 +30,7 @@ private:
 
 	BoundingFrustum mFrustumView{};
 	BoundingFrustum mFrustumWorld{};
+	BoundingFrustum mFrustumWorldShadow{};
 
 	D3D12_VIEWPORT	mViewport{};
 	D3D12_RECT		mScissorRect{};
@@ -63,6 +64,8 @@ public:
 	bool IsInFrustum(const BoundingBox& boundingBox)		 { return mFrustumWorld.Intersects(boundingBox); }
 	bool IsInFrustum(const BoundingOrientedBox& boundingBox) { return mFrustumWorld.Intersects(boundingBox); }
 	bool IsInFrustum(const BoundingSphere& boundingSphere)   { return mFrustumWorld.Intersects(boundingSphere); }
+	const BoundingFrustum& GetFrustum() const { return mFrustumWorld; }
+	const BoundingFrustum& GetFrustumShadow() const { return mFrustumWorldShadow; }
 
 	Vec2 WorldToScreenPoint(const Vec3& pos);
 	Vec3 ScreenToWorldRay(const Vec2& pos);

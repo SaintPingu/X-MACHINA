@@ -590,10 +590,16 @@ void Scene::RenderGridObjects(RenderType type)
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	if (type == RenderType::Shadow)
+	BoundingFrustum camFrustum;
+
+	if (type == RenderType::Shadow) {
 		RESOURCE<Shader>("Shadow_Global")->Set();
-	else
+		camFrustum = MAIN_CAMERA->GetFrustumShadow();
+	}
+	else {
 		RESOURCE<Shader>("Global")->Set();
+		camFrustum = MAIN_CAMERA->GetFrustum();
+	}
 
 	if (mRenderedObjects.empty()) {
 		for (const auto& grid : mGrids) {
@@ -601,10 +607,10 @@ void Scene::RenderGridObjects(RenderType type)
 				continue;
 			}
 
-			if (MAIN_CAMERA->IsInFrustum(grid->GetBB())) {
+			if (camFrustum.Intersects(grid->GetBB())) {
 				auto& objects = grid->GetObjects();
 				for (auto& object : objects) {
-					if (MAIN_CAMERA->IsInFrustum(object->GetCollider()->GetBS())) {
+					if (camFrustum.Intersects(object->GetCollider()->GetBS())) {
 						mRenderedObjects.insert(object);
 					}
 				}

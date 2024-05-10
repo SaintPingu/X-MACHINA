@@ -23,15 +23,15 @@
 #include "Script_NetworkObject.h"
 #include "Script_GameManager.h"
 
-#include "Log/LogMgr.h"
 
 #include "InputMgr.h"
-#include "PacketFactory.h"
-#include "ClientNetworkManager.h"
-#include "ThreadManager.h"
 #include "X-Engine.h"
 
-//#define SERVER_COMMUNICATION
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "ClientNetwork/Include/ThreadManager.h"
+#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
+
+#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -103,38 +103,8 @@ void GameFramework::Update()
 	Timer::I->Tick(0.f);
 
 #ifdef SERVER_COMMUNICATION
-	NETWORK_MGR->ProcessEvents();
+	CLIENT_NETWORK->ProcessEvents();
 
-	/* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
-	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
-	{
-		Vec3 Pos = GameFramework::I->GetPlayer()->GetPosition();
-		Vec3 Rot = GameFramework::I->GetPlayer()->GetRotation();
-		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot);
-
-	}
-	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
-	{
-		/* 1초에 2번 패킷을 보내도록 설정 */
-		static float	kSendInterval         = 0.5f;
-		static auto		lastSentTime          = std::chrono::steady_clock::now(); // 마지막으로 패킷을 보낸 시간
-		auto			currentTime           = std::chrono::steady_clock::now(); // 현재 시간
-
-		// 마지막으로 패킷을 보낸 후로 kSendInterval 이상 시간이 지났는지 확인
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastSentTime).count() >= kSendInterval * 1000)
-		{
-			Vec3 Pos = GameFramework::I->GetPlayer()->GetPosition();
-			Vec3 Rot = GameFramework::I->GetPlayer()->GetRotation();
-			NETWORK_MGR->Send_CPkt_Transform(Pos, Rot);
-		}
-	}
-	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
-	{
-		Vec3 Pos = GameFramework::I->GetPlayer()->GetPosition();
-		Vec3 Rot = GameFramework::I->GetPlayer()->GetRotation();
-		NETWORK_MGR->Send_CPkt_Transform(Pos, Rot);
-
-	}
 #endif
 
 	Engine::I->Update();
@@ -162,7 +132,7 @@ void GameFramework::Launch()
 	GameLoop();
 
 #ifdef SERVER_COMMUNICATION
-	THREAD_MGR->Join();
+	THREAD_MGR->JoinAllThreads();
 #endif
 }
 
@@ -354,16 +324,16 @@ void GameFramework::ConnectToServer()
 
 #ifdef SERVER_COMMUNICATION
 	// Communication //
-	std::cout << "IP : ";
+	//std::cout << "IP : ";
 	std::wstring ip;
-	std::wcin >> ip;
-	NETWORK_MGR->Init(ip, 7777);
+	//std::wcin >> ip;
+	CLIENT_NETWORK->Init(ip, 7777);
 
 	/* Network Thread */
-	NETWORK_MGR->Launch(2);
+	CLIENT_NETWORK->Launch(2);
 
 	while (!mIsLogin) {
-		NETWORK_MGR->ProcessEvents();
+		CLIENT_NETWORK->ProcessEvents();
 	}
 #else
 	InitPlayer(0);
@@ -379,9 +349,13 @@ void GameFramework::ConnectToServer()
 
 void GameFramework::InitPlayer(int sessionID)
 {
-	mTarget = Scene::I->Instantiate("EliteTrooper", ObjectTag::Player);
-	mTarget->ResetCollider();
-	mPlayerScript = mTarget->AddComponent<Script_GroundPlayer>();
+	mPlayer = Scene::I->Instantiate("EliteTrooper");
+	mPlayer->ResetCollider();
+	mPlayerScript = mPlayer->AddComponent<Script_GroundPlayer>();
+
+	auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
+	networkScript->Awake();
+
 	mIsLogin = true;
 
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");

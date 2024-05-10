@@ -1,0 +1,169 @@
+
+// +------------------------
+//		Protocol.fbs
+// ------------------------+
+
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+namespace FBProtocol;
+
+
+// +------------------------
+//		   LOG IN
+// ------------------------+
+table CPkt_LogIn
+{
+
+}
+
+table SPkt_LogIn
+{
+	success: bool;
+	myinfo : Player; // 나의 정보 
+	players: [Player]; // 나를 포함한 Room안의 모든 player 정보 
+}
+
+// +------------------------
+//		  NEW PLAYER 
+// ------------------------+
+table CPkt_NewPlayer
+{
+
+}
+
+table SPkt_NewPlayer
+{
+	newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
+}
+
+// +------------------------
+//		 REMOVE PLAYER 
+// ------------------------+
+table CPkt_RemovePlayer
+{
+	playerid : int; // 삭제할 플레이어의 아이디 
+
+}
+
+table SPkt_RemovePlayer
+{
+	playerid : int; // 삭제할 플레이어의 아이디 
+}
+
+
+
+// +------------------------
+//		  ENTER GAME 
+// ------------------------+
+table CPkt_EnterGame
+{
+	player_index: ulong;
+}
+
+table SPkt_EnterGame
+{
+	success: bool;
+}
+
+
+// +------------------------
+//		     CHAT 
+// ------------------------+
+table CPkt_Chat
+{
+	message: string;
+}
+
+table SPkt_Chat
+{
+	player_id: ulong; // uint64
+	message: string;
+}
+
+
+// +------------------------
+//		  TRANSFORM
+// ------------------------+
+table CPkt_Transform
+{
+	latency     : long;
+
+	velocity    : float;
+	movedir     : Vector3;
+	trans		: Transform;
+	spine_look	: Vector3;
+}
+
+table SPkt_Transform
+{
+	object_id	: ulong;
+	latency     : long;
+
+	velocity    : float;
+	movedir     : Vector3;
+	trans		: Transform;
+	spine_look	: Vector3;
+}
+
+
+// +------------------------
+//		    KEY 
+// ------------------------+
+table CPkt_KeyInput
+{
+	keyinput_state : ubyte; // UINT8
+	keyinput	   : ubyte; // UINT8;
+	keyinput_move  : ubyte; // UINT8
+
+	mouse_delta    : Vector2; // (float, float)
+
+}
+
+table SPkt_KeyInput
+{
+	object_id		: ulong;
+
+	keyinput_state	: ubyte; // UINT8
+	keyinput		: ubyte; // UINT8;
+	keyinput_move	: ubyte; // UINT8
+
+	mouse_delta		: Vector2; // (float, float)
+}
+
+
+
+// +--------------------
+// LATENCY CHECK PACKET 
+// --------------------+
+table CPkt_NetworkLatency
+{
+	timestamp : long;
+}
+
+table SPkt_NetworkLatency
+{
+	timestamp : long;
+}
+
+// +------------------------
+//		 PLAYER STATE  
+// ------------------------+
+
+table CPkt_PlayerState
+{
+	weapon_type				: ubyte; // UINT8
+	player_motion_state		: uint;  // DWORD ( 32bit )
+
+}
+
+table SPkt_PlayerState
+{
+	object_id				: ulong;
+
+	weapon_type				: ubyte; // UINT8
+	player_motion_state		: uint;  // DWORD ( 32bit )
+
+}

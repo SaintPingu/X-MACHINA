@@ -12,7 +12,6 @@
 #pragma region  - 장재문 -
 #include "../Imgui/ImguiCode/imgui.h"
 #include "../Imgui/ImGuiMgr.h"
-#include "../Log/LogMgr.h"
 #pragma endregion
 
 Engine::Engine()

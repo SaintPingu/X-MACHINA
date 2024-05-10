@@ -168,6 +168,7 @@ public:
 	PlayerMotion GetPrevState() const  { return PlayerMotion::GetState(mPrevMovement); }
 	PlayerMotion GetPrevMotion() const { return PlayerMotion::GetMotion(mPrevMovement); }
 	bool IsReloading() const;
+	Transform* GetSpineBone() { return mSpineBone; }
 
 public:
 	virtual void Awake() override;
@@ -197,6 +198,10 @@ public:
 
 	virtual void BulletFired() override;
 
+
+	float GetMovementSpeed() const { return mMovementSpeed; }
+	float GetRotationSpeed() const { return mRotationSpeed; }
+
 private:
 	void InitWeapons();
 	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
@@ -212,6 +217,8 @@ private:
 	float GetAngleSpineToAim(const Vec3& aimWorldPos) const;
 	Vec3 GetAimWorldPos(const Vec2& aimScreenPos) const;
 	void RotateToAim(Dir dir, float& rotAngle);
+
+
 
 	// angle 만큼 서서히 회전한다.
 	void Rotate(float angle) const;

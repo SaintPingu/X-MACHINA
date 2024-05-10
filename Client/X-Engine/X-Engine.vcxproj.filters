@@ -34,9 +34,6 @@
     <Filter Include="헤더 파일\Dummy">
       <UniqueIdentifier>{1e2a33d2-c04c-491b-91a0-0d911f712140}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Log">
-      <UniqueIdentifier>{127cea7f-2717-442c-a4e2-dcd0cc7d0da7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\PostProcessing">
       <UniqueIdentifier>{d8b201cf-6796-4558-ae19-9f62bac3b2a0}</UniqueIdentifier>
     </Filter>
@@ -182,9 +179,6 @@
     </ClCompile>
     <ClCompile Include="Imgui\ImguiCode\imgui_widgets.cpp">
       <Filter>Imgui\ImguiCode</Filter>
-    </ClCompile>
-    <ClCompile Include="Log\LogMgr.cpp">
-      <Filter>Log</Filter>
     </ClCompile>
     <ClCompile Include="src\FrameResource.cpp">
       <Filter>소스 파일\Framework\Device</Filter>
@@ -358,9 +352,6 @@
     </ClInclude>
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h">
       <Filter>Imgui\ImguiCode</Filter>
-    </ClInclude>
-    <ClInclude Include="Log\LogMgr.h">
-      <Filter>Log</Filter>
     </ClInclude>
     <ClInclude Include="include\FrameResource.h">
       <Filter>헤더 파일</Filter>

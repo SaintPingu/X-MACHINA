@@ -332,7 +332,6 @@
     <ClInclude Include="include\TLS.h" />
     <ClInclude Include="include\UploadBuffer.h" />
     <ClInclude Include="include\X-Engine.h" />
-    <ClInclude Include="Log\LogMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\Common.hlsl">

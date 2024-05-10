@@ -71,11 +71,22 @@ public:
 /// +-----------------------
 ///		   Library 
 /// -----------------------+
-#ifdef _DEBUG
-#pragma comment(lib, "Debug\\XMachinaServerLib.lib")
-#else
-#pragma comment(lib, "Release\\XMachinaServerLib.lib")
+#define _NETWORK_LIB_VERSION_2
+#ifdef _NETWORK_LIB_VERSION_1
+	#ifdef _DEBUG
+		#pragma comment(lib, "Debug\\XMachinaServerLib.lib")
+	#else
+		#pragma comment(lib, "Release\\XMachinaServerLib.lib")
 #endif
+
+#elif defined(_NETWORK_LIB_VERSION_2)
+	#ifdef _DEBUG
+		#pragma comment(lib, "ClientNetwork\\Lib\\Debug\\X-NetworkLibrary.lib")
+	#else
+		#pragma comment(lib, "ClientNetwork\\Lib\\Release\\X-NetworkLibrary.lib")
+	#endif
+#endif
+
 
 /// +-----------------------
 ///		  Engine Lib 
@@ -129,6 +140,7 @@ public:
 #include <filesystem>
 #include <type_traits>
 #include <numeric>
+#include <ranges>
 
 /* STL Containers */
 #include <span>
@@ -142,6 +154,7 @@ public:
 #include <unordered_set>
 #include <unordered_map>
 #include <queue>
+#include <stack>
 
 /* DirectX */
 #include <d3d12.h>
@@ -160,24 +173,40 @@ public:
 /* Custom */
 #include "Common.h"
 
+#define _NETWORK_LIB_VERSION_2
+#ifdef _NETWORK_LIB_VERSION_1
 /* IOCP Library */
-#include "Types.h"
-#include "ServerMacro.h"
-#include "ThreadLocalStorage.h"
-#include "Container.h"
-
-#include "Lock.h"
-#include "NetObjectPool.h"
-#include "TypeCast.h"
-#include "NetMemory.h"
-#include "SendBuffer.h"
-#include "Session.h"
-#include "JobQueue.h"
-#include "Log/LogMgr.h"
-#include "PacketSession.h"
+//#include "Types.h"
+//#include "ServerMacro.h"
+//#include "ThreadLocalStorage.h"
+//#include "Container.h"
+//
+//#include "Lock.h"
+//#include "NetObjectPool.h"
+//#include "TypeCast.h"
+//#include "NetMemory.h"
+//#include "SendBuffer.h"
+//#include "Session.h"
+//#include "JobQueue.h"
+//#include "Log/LogMgr.h"
+//#include "PacketSession.h"
 
 #include <concurrent_unordered_map.h>
 #include <concurrent_queue.h>
+#elif defined(_NETWORK_LIB_VERSION_2)
+
+#include <concurrent_unordered_map.h>
+#include <concurrent_queue.h>
+#include <atomic>
+
+#include "ClientNetwork/Include/LogManager.h"
+#include "ClientNetwork/Include/NetworkHeaders.h"
+#include "ClientNetwork/Include/UtilityMacro.h"
+#include "ClientNetwork/Include/Lock.h"
+
+using SPtr_ServerSession = std::shared_ptr<class ServerSession>;
+
+#endif
 
 
 #pragma endregion

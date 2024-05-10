@@ -71,27 +71,27 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\ClientNetwork\Include\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
-    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)X-MACHINA\ClientNetwork\Include\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
-    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
-    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)X-MACHINA\ClientNetwork\Include\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\include\;$(SolutionDir)X-MACHINA\Network\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-MACHINA\Network\;$(SolutionDir)X-Engine\include\</IncludePath>
-    <LibraryPath>$(SolutionDir)X-MACHINA\Network\IocpLibrary\lib\;$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)X-MACHINA\ClientNetwork\Include\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(SolutionDir)X-MACHINA\;$(SolutionDir)X-MACHINA\include\;$(SolutionDir)X-MACHINA\src\;$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-MACHINA\lib\;$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -198,6 +198,14 @@
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
     <ClInclude Include="..\Common\Singleton.h" />
+    <ClInclude Include="ClientNetwork\Contents\ClientNetworkManager.h" />
+    <ClInclude Include="ClientNetwork\Contents\FBsPacketFactory.h" />
+    <ClInclude Include="ClientNetwork\Contents\GamePlayer.h" />
+    <ClInclude Include="ClientNetwork\Contents\NetworkEvents.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_Network.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
+    <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
     <ClInclude Include="include\ShieldAbility.h" />
     <ClInclude Include="include\Script_AbilityHolder.h" />
@@ -207,7 +215,6 @@
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
-    <ClInclude Include="include\NetworkEvents.h" />
     <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
@@ -250,21 +257,20 @@
     <ClInclude Include="include\TaskPathPlanningToSpawn.h" />
     <ClInclude Include="include\Wait.h" />
     <ClInclude Include="include\X-MACHINA.h" />
-    <ClInclude Include="Network\ClientNetworkManager.h" />
-    <ClInclude Include="Network\FlatBuffers\Enum_generated.h" />
-    <ClInclude Include="Network\FlatBuffers\FBProtocol_generated.h" />
-    <ClInclude Include="Network\FlatBuffers\Player_generated.h" />
-    <ClInclude Include="Network\FlatBuffers\ServerFBsPktFactory.h" />
-    <ClInclude Include="Network\FlatBuffers\Struct_generated.h" />
-    <ClInclude Include="Network\FlatBuffers\Transform_generated.h" />
-    <ClInclude Include="Network\PacketFactory.h" />
-    <ClInclude Include="Network\ServerSession.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Network\ClientNetworkManager.cpp" />
     <ClCompile Include="Network\FlatBuffers\ServerFBsPktFactory.cpp" />
     <ClCompile Include="Network\PacketFactory.cpp" />
     <ClCompile Include="Network\ServerSession.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\FBsPacketFactory.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\GamePlayer.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\NetworkEvents.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />
     <ClCompile Include="src\ShieldAbility.cpp" />
     <ClCompile Include="src\Script_AbilityHolder.cpp" />
@@ -273,7 +279,6 @@
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
-    <ClCompile Include="src\NetworkEvents.cpp" />
     <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
@@ -328,12 +333,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\SimpleMath.inl" />
-    <None Include="Network\FlatBuffers\Enum.fbs" />
-    <None Include="Network\FlatBuffers\FBProtocol.fbs" />
-    <None Include="Network\FlatBuffers\GenFlatBuffersHeader.bat" />
-    <None Include="Network\FlatBuffers\Player.fbs" />
-    <None Include="Network\FlatBuffers\Struct.fbs" />
-    <None Include="Network\FlatBuffers\Transform.fbs" />
+    <None Include="ClientNetwork\NetworkLib.bat" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

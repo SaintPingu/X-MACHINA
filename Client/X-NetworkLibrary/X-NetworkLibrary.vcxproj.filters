@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pch">
+      <UniqueIdentifier>{4c0165a5-5a3d-4609-b033-744876012721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib">
+      <UniqueIdentifier>{27121b76-2c65-4781-b990-8abb55ba634b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Network">
+      <UniqueIdentifier>{0be62d9c-3e98-4210-a0b0-29d25fbbc516}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Network\Interface">
+      <UniqueIdentifier>{a2e0d6c7-c5e8-4acb-935c-cfc961a96eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Network\Ojbect">
+      <UniqueIdentifier>{bb6fe8c5-e57f-4198-bc39-d8068380b43a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Network\Overlapped">
+      <UniqueIdentifier>{313c8ad1-901d-4cd9-8a09-f0c03193f1cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Packet">
+      <UniqueIdentifier>{e213b81e-f304-4a2c-8572-fd8a0292c629}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Thread">
+      <UniqueIdentifier>{eb167864-ba09-420b-8029-f564e319f112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Memory">
+      <UniqueIdentifier>{af9e91b3-45d2-4472-a7f0-5e30e5a1a609}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Utils">
+      <UniqueIdentifier>{dbc96572-7a25-4c18-b195-1ced9f268d98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Protocol">
+      <UniqueIdentifier>{fcb8cd20-1234-4e3a-a7f1-0448a2ec595e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Protocol\FlatBuffers">
+      <UniqueIdentifier>{f7b08659-019d-49ff-9851-ff2ace67a8e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkLib\Protocol\bat">
+      <UniqueIdentifier>{8a686876-ce97-4bfc-8d85-42c6edb63355}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NetworkPch.h">
+      <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\ServerNetwork.h">
+      <Filter>NetworkLib\Network\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NetworkInterface.h">
+      <Filter>NetworkLib\Network\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\ClientNetwork.h">
+      <Filter>NetworkLib\Network\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NetworkObject.h">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Session.h">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Listener.h">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SessionController.h">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NetworkHeaders.h">
+      <Filter>NetworkLib\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NetworkManager.h">
+      <Filter>NetworkLib\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SocketData.h">
+      <Filter>NetworkLib\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\OverlappedObject.h">
+      <Filter>NetworkLib\Network\Overlapped</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\PacketHeader.h">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\PacketRecvBuf.h">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\PacketSendBuf.h">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SendBuffersFactory.h">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\ThreadManager.h">
+      <Filter>NetworkLib\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\MemoryManager.h">
+      <Filter>NetworkLib\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SListMemoryPool.h">
+      <Filter>NetworkLib\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Lock.h">
+      <Filter>NetworkLib\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\UtilityMacro.h">
+      <Filter>NetworkLib\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\Enum_generated.h">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBProtocol_generated.h">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\Struct_generated.h">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\Transform_generated.h">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\LogManager.h">
+      <Filter>NetworkLib\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <Filter>pch</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ServerNetwork.cpp">
+      <Filter>NetworkLib\Network\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetworkInterface.cpp">
+      <Filter>NetworkLib\Network\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ClientNetwork.cpp">
+      <Filter>NetworkLib\Network\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetworkObject.cpp">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Session.cpp">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Listener.cpp">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SessionController.cpp">
+      <Filter>NetworkLib\Network\Ojbect</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetworkManager.cpp">
+      <Filter>NetworkLib\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SocketData.cpp">
+      <Filter>NetworkLib\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\OverlappedObject.cpp">
+      <Filter>NetworkLib\Network\Overlapped</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\PacketHeader.cpp">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\PacketRecvBuf.cpp">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\PacketSendBuf.cpp">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SendBuffersFactory.cpp">
+      <Filter>NetworkLib\Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ThreadManager.cpp">
+      <Filter>NetworkLib\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\MemoryManager.cpp">
+      <Filter>NetworkLib\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SListMemoryPool.cpp">
+      <Filter>NetworkLib\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Lock.cpp">
+      <Filter>NetworkLib\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\LogManager.cpp">
+      <Filter>NetworkLib\Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Network\Protocol\Enum.fbs">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\Protocol\FBProtocol.fbs">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\Protocol\Struct.fbs">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\Protocol\Transform.fbs">
+      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    </None>
+    <None Include="Network\Protocol\GenFlatBuffersHeader.bat">
+      <Filter>NetworkLib\Protocol\bat</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -681,7 +681,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
 			objectCB.MtxWorld = transform->GetWorldTransform().Transpose();
 			objectCB.MatIndex = modelMeshInfo.Materials[mat]->mMatIndex;
-
+			
 			// 서브 메쉬에 대하여 각각의 머티리얼 인덱스를 오브젝트 상수 버퍼에 설정해야 한다.
 			// 때문에 transform의 데이터를 여러 번 설정하되 머티리얼은 설정하지 않는다. 
 			transform->UpdateShaderVars(objectCB, mat);

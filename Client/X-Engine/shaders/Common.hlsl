@@ -510,7 +510,7 @@ float SphereMask(float4 coords, float4 center, float radius, float hardness = 1.
 void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
 {
     float radius = 0.5f;
-    float distance = 20.f;
+    float distance = 50.f;
     
     float yDist = abs(gPassCB.CameraPos.y - posW.y);
         
@@ -537,7 +537,7 @@ void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
         lit = 1.f;
     }
 
-    if (yDist < 9.f)
+    //if (yDist < 9.f)
         clip(0.1f - lit);
 }
 

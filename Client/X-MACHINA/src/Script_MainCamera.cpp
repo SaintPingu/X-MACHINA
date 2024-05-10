@@ -121,8 +121,8 @@ void Script_MainCamera::Init()
 {
 	mTarget = GameFramework::I->GetPlayer();
 
-	constexpr float maxPlaneDistance = 1000.f;
-	SetCameraOffset(Vec3(0.f, 120.f, -7.f));
+	constexpr float maxPlaneDistance = 100.f;
+	SetCameraOffset(Vec3(0.f, 12.f, -7.f));
 	//SetCameraOffset(Vec3(0.f, 6.f, -7.f));
 	mObject->SetPosition(mTarget->GetPosition() + mMainOffset);
 	LookTarget();

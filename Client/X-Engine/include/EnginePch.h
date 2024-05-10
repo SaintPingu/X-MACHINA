@@ -364,7 +364,9 @@ inline void CopyBack(const std::vector<T>& src, std::vector<T>& dst)
 // assert if hResult is failed
 inline void AssertHResult(HRESULT hResult)
 {
-	assert(SUCCEEDED(hResult));
+	if (!SUCCEEDED(hResult)) {
+		assert(0);
+	}
 }
 
 // string 형식의 ANSI 문자열을 wstring으로 변환

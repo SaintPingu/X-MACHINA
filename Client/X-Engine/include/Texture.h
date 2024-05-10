@@ -51,6 +51,7 @@ public:
 #pragma endregion
 
 public:
+	void ReleaseBuffer() { mResource->Release(); }
 	void ReleaseUploadBuffers();
 
 	// load texture from [fileName] in [folder] (file must be .dds extension)

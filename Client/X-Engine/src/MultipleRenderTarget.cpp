@@ -2,6 +2,7 @@
 #include "MultipleRenderTarget.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "ResourceMgr.h"
 
 #include "Texture.h"
 
@@ -156,11 +157,9 @@ void MultipleRenderTarget::WaitResourceToTarget(UINT index)
 
 void MultipleRenderTarget::ReleaseRenderTargets()
 {
-	for (auto& res : mRts) {
-		res.Target->GetResource()->Release();
+	for (int i = 0; i < mRts.size(); ++i) {
+		ResourceMgr::I->Remove<Texture>("SwapChainTarget_" + std::to_string(i));
 	}
 
-	if (!mRts.empty()) {
-		mRts.clear();
-	}
+	mRts.clear();
 }

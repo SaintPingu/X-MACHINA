@@ -42,7 +42,10 @@ public:
 	bool Add(const std::string& key, sptr<T> resource);
 
 	template<typename T>
-	sptr<T> Get(const std::string& Key);
+	sptr<T> Get(const std::string& key);
+
+	template<typename T>
+	void Remove(const std::string& key);
 
 	template<typename T>
 	void ProcessFunc(std::function<void(sptr<T>)> processFunc);
@@ -119,6 +122,18 @@ inline sptr<T> ResourceMgr::Get(const std::string& key)
 	}
 
 	return nullptr;
+}
+
+template<typename T>
+inline void ResourceMgr::Remove(const std::string& key)
+{
+	ResourceType resourceType = GetResourceType<T>();
+	KeyResMap& keyResMap = mResources[static_cast<UINT8>(resourceType)];
+
+	auto findIt = keyResMap.find(key);
+	if (findIt != keyResMap.end()) {
+		mResources[static_cast<UINT8>(resourceType)].erase(key);
+	}
 }
 
 template<typename T>

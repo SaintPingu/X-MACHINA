@@ -35,6 +35,10 @@ DXGIMgr::DXGIMgr()
 	mFilterOption = filterOption;
 }
 
+DXGIMgr::~DXGIMgr()
+{
+}
+
 UINT DXGIMgr::GetGraphicsRootParamIndex(RootParam param) const
 {
 	return mGraphicsRootSignature->GetRootParamIndex(param);
@@ -128,11 +132,14 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 	BuildScene();
 
 	InputMgr::I->UpdateClient();
+
+	ChangeSwapChainState();
 }
 
 void DXGIMgr::Release()
 {
 	Terminate();
+
 	FRAME_RESOURCE_MGR->WaitForGpuComplete();
 
 	mGraphicsRootSignature = nullptr;
@@ -617,8 +624,6 @@ void DXGIMgr::ChangeSwapChainState()
 {
 	WaitForGpuComplete();
 
-	mCmdList->Reset(mCmdAllocator.Get(), nullptr);
-
 	BOOL isFullScreenState = FALSE;
 	mSwapChain->GetFullscreenState(&isFullScreenState, nullptr);
 	mSwapChain->SetFullscreenState(!isFullScreenState, nullptr);
@@ -661,12 +666,6 @@ void DXGIMgr::ChangeSwapChainState()
 
 	// 윈도우 사이즈가 변경되면 필터도 다시 생성해야 한다.
 	mBlurFilter->OnResize(GetWindowWidth(), GetWindowHeight());
-
-	mCmdList->Close();
-	ID3D12CommandList* cmdsLists[] = { mCmdList.Get() };
-	mCmdQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-	WaitForGpuComplete();
 }
 
 void DXGIMgr::CreateFilter()

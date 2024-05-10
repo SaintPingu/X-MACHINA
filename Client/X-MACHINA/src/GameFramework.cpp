@@ -60,7 +60,6 @@ void GameFramework::Init(HINSTANCE hInstance, short width, short height)
 
 void GameFramework::Release()
 {
-	Engine::I->Release();
 }
 
 
@@ -90,6 +89,7 @@ int GameFramework::GameLoop()
 		}
 	}
 
+	Engine::I->Release();
 	::DestroyWindow(mhWnd);
 	::UnregisterClass(L"X-MACHINA", mhInst);
 
@@ -189,6 +189,9 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case VK_F8:
 			Scene::I->ToggleFilterOptions();
+			break;
+		case VK_F9:
+			Scene::I->ToggleFullScreen();
 			break;
 		case 192:	// '`'
 			::SetFocus(NULL);

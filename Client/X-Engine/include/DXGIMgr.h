@@ -99,7 +99,7 @@ private:
 protected:
 #pragma region C/Dtor
 	DXGIMgr();
-	virtual ~DXGIMgr() = default;
+	virtual ~DXGIMgr();
 #pragma endregion
 
 public:

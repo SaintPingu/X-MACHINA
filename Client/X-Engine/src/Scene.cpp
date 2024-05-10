@@ -1065,6 +1065,11 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 	return result;
 }
 
+void Scene::ToggleFullScreen()
+{
+	DXGIMgr::I->ToggleFullScreen();
+}
+
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	//for (auto& object : mStaticObjects) {

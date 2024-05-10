@@ -246,6 +246,8 @@ public:
 
 	std::vector<sptr<Grid>> GetNeighborGrids(int gridIndex, bool includeSelf = false) const;
 
+	void ToggleFullScreen();
+
 private:
 	// do [processFunc] for activated objects
 	void ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc);

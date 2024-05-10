@@ -10,6 +10,7 @@
 #undef max 
 #include <flatbuffers/flatbuffers.h>
 #include "ClientNetwork/Include/Protocol/FBProtocol_generated.h"
+#include "NetworkEvents.h"
 #include "GamePlayer.h"
 #include "InputMgr.h"
 
@@ -47,11 +48,13 @@ public:
 	SPtr_SendPktBuf CPkt_NewPlayer();
 	SPtr_SendPktBuf CPkt_RemovePlayer(int removeSessionID);
 	SPtr_SendPktBuf CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInfo::KEY_STATE KeyState, GameKeyInfo::MoveKey moveKey, Vec2 mouseDelta);
-	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long latency);
+	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency);
 
 private:
 	static GamePlayerInfo GetPlayerInfo(const FBProtocol::Player* player);
 	static Vec3 GetVector3(const FBProtocol::Vector3* vec3);
+	static Vec3 CalculateDirection(float yAngleRadian);
+	static Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
 
 };
 

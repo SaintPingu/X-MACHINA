@@ -12,6 +12,9 @@
 #include "ClientNetwork/Include/SendBuffersFactory.h"
 #include "ClientNetwork/Include/SocketData.h"
 
+#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
+#include "ClientNetwork/Contents/Script_RemotePlayer.h"
+
 #include "ServerSession.h"
 #include "NetworkEvents.h"
 #include "ClientNetworkManager.h"
@@ -135,9 +138,9 @@ bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const F
 	LatencyCount += 1;
 
 	// 변환된 값을 출력
-	if (LatencyCount.load() >= 10) {
+	if (LatencyCount.load() >= 5) {
 		CurrLatency.store(TotalLatency.load() / LatencyCount.load()); /* Latency 의 평균 저장 */
-		std::cout << std::chrono::milliseconds(CurrLatency.load()) << '\n';
+		//std::cout << std::chrono::milliseconds(CurrLatency.load()) << '\n';
 
 		LatencyCount.store(0);
 		TotalLatency.store(0);
@@ -164,6 +167,7 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 	int PlayersCnt = pkt.players()->size();
 	for (UINT16 i = 0; i < PlayersCnt; ++i) {
 		GamePlayerInfo RemoteInfo = GetPlayerInfo(pkt.players()->Get(i));
+
 		if (RemoteInfo.Id == MyInfo.Id) continue;
 		LOG_MGR->SetColor(TextColor::BrightGreen);
 		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -222,15 +226,45 @@ bool FBsPacketFactory::Process_SPkt_RemovePlayer(SPtr_Session session, const FBP
 
 bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProtocol::SPkt_Transform& pkt)
 {
-	long long latency  = pkt.latency();
+	long long latency   = pkt.latency();
 	uint64_t id         = pkt.object_id();
-	Vec3 pos            = GetVector3(pkt.trans()->position());
+	
+	
+	float vel           = pkt.velocity();
+	Vec3 moveDir		= GetVector3(pkt.movedir());
+	Vec3 Packetpos		= GetVector3(pkt.trans()->position());
 	Vec3 rot            = GetVector3(pkt.trans()->rotation());
 	Vec3 sca            = GetVector3(pkt.trans()->scale());
 	Vec3 SDir           = GetVector3(pkt.spine_look());
+	
+	sptr<NetworkEvent::Game::Move_RemotePlayer> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos);
+	CLIENT_NETWORK->RegisterEvent(Move_EventData);
+	
+	//LOG_MGR->Cout("MOVE DIR PKT : ", moveDir.x, " ", moveDir.y, " ", moveDir.z, '\n');
 
-	sptr<NetworkEvent::Game::Move_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, pos);
-	CLIENT_NETWORK->RegisterEvent(EventData);
+	/// +---------------------------
+	///	Extrapolate Nexy Packet Pos 
+	/// ---------------------------+
+
+	/* CurrPos --------------- PacketPos --------------------------> TargetPos */
+
+	ExtData data  = {};
+	/* [Get Next Packet Duration] = (PKt Interval) + (Remote Cl Latency) + (My Latency) */
+	data.PingTime = (PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000) + (latency / 1000.0) + (CurrLatency.load() / 1000.0); 
+	data.MoveDir  = moveDir;
+
+	//LOG_MGR->Cout(data.PingTime, " ", data.PingTime / 1000.0, '\n');
+
+	/* 위치 예측 ( TargetPos ) */
+	data.TargetPos.x    = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
+	data.TargetPos.z    = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
+	
+	data.TargetRot	  = rot;
+	data.Velocity     = vel;
+
+	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> Ext_EventData = CLIENT_NETWORK->CreateEvent_Extrapolate_RemotePlayer(id, data);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
 
 	return true;
 }
@@ -354,17 +388,18 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInf
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 SpineLookDir, long long latency)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 
+	auto moveDir	   = FBProtocol::CreateVector3(builder, movedir.x, movedir.y, movedir.z);
 	auto position      = FBProtocol::CreateVector3(builder, Pos.x, Pos.y, Pos.z);
 	auto rotation      = FBProtocol::CreateVector3(builder, Rot.x, Rot.y, Rot.z);
 	auto scale         = FBProtocol::CreateVector3(builder, Scale.x, Scale.y, Scale.z);
 	auto transform     = FBProtocol::CreateTransform(builder, position, rotation, scale);
 	auto Spine_LookDir = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, transform, Spine_LookDir);
+	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, velocity, moveDir, transform, Spine_LookDir);
 	builder.Finish(ServerPacket);
 
 
@@ -403,5 +438,23 @@ Vec3 FBsPacketFactory::GetVector3(const FBProtocol::Vector3* vec3)
 	Vec3 Vector3 = Vec3(vec3->x(), vec3->y(), vec3->z());
 
 	return Vector3;
+}
+
+Vec3 FBsPacketFactory::CalculateDirection(float yAngleRadian)
+{
+	// x 및 z 방향 벡터 계산
+	float xDir = std::sin(yAngleRadian);
+	float zDir = std::cos(yAngleRadian);
+
+	Vec3 dir = Vec3(xDir, 0.0f, zDir); // y 방향은 고려하지 않음
+	dir.Normalize();
+	return dir;
+}
+
+Vec3 FBsPacketFactory::lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam)
+{
+	return Vec3((1.0f - PosLerpParam) * CurrPos.x + PosLerpParam * TargetPos.x,
+		(1.0f - PosLerpParam) * CurrPos.y + PosLerpParam * TargetPos.y,
+		(1.0f - PosLerpParam) * CurrPos.z + PosLerpParam * TargetPos.z);
 }
 

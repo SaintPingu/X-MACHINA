@@ -532,11 +532,19 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LATENCY = 4,
-    VT_TRANS = 6,
-    VT_SPINE_LOOK = 8
+    VT_VELOCITY = 6,
+    VT_MOVEDIR = 8,
+    VT_TRANS = 10,
+    VT_SPINE_LOOK = 12
   };
   int64_t latency() const {
     return GetField<int64_t>(VT_LATENCY, 0);
+  }
+  float velocity() const {
+    return GetField<float>(VT_VELOCITY, 0.0f);
+  }
+  const FBProtocol::Vector3 *movedir() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_MOVEDIR);
   }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
@@ -547,6 +555,9 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
+           VerifyField<float>(verifier, VT_VELOCITY, 4) &&
+           VerifyOffset(verifier, VT_MOVEDIR) &&
+           verifier.VerifyTable(movedir()) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
@@ -561,6 +572,12 @@ struct CPkt_TransformBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_latency(int64_t latency) {
     fbb_.AddElement<int64_t>(CPkt_Transform::VT_LATENCY, latency, 0);
+  }
+  void add_velocity(float velocity) {
+    fbb_.AddElement<float>(CPkt_Transform::VT_VELOCITY, velocity, 0.0f);
+  }
+  void add_movedir(::flatbuffers::Offset<FBProtocol::Vector3> movedir) {
+    fbb_.AddOffset(CPkt_Transform::VT_MOVEDIR, movedir);
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(CPkt_Transform::VT_TRANS, trans);
@@ -582,12 +599,16 @@ struct CPkt_TransformBuilder {
 inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int64_t latency = 0,
+    float velocity = 0.0f,
+    ::flatbuffers::Offset<FBProtocol::Vector3> movedir = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   CPkt_TransformBuilder builder_(_fbb);
   builder_.add_latency(latency);
   builder_.add_spine_look(spine_look);
   builder_.add_trans(trans);
+  builder_.add_movedir(movedir);
+  builder_.add_velocity(velocity);
   return builder_.Finish();
 }
 
@@ -596,14 +617,22 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECT_ID = 4,
     VT_LATENCY = 6,
-    VT_TRANS = 8,
-    VT_SPINE_LOOK = 10
+    VT_VELOCITY = 8,
+    VT_MOVEDIR = 10,
+    VT_TRANS = 12,
+    VT_SPINE_LOOK = 14
   };
   uint64_t object_id() const {
     return GetField<uint64_t>(VT_OBJECT_ID, 0);
   }
   int64_t latency() const {
     return GetField<int64_t>(VT_LATENCY, 0);
+  }
+  float velocity() const {
+    return GetField<float>(VT_VELOCITY, 0.0f);
+  }
+  const FBProtocol::Vector3 *movedir() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_MOVEDIR);
   }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
@@ -615,6 +644,9 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
            VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
+           VerifyField<float>(verifier, VT_VELOCITY, 4) &&
+           VerifyOffset(verifier, VT_MOVEDIR) &&
+           verifier.VerifyTable(movedir()) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
@@ -632,6 +664,12 @@ struct SPkt_TransformBuilder {
   }
   void add_latency(int64_t latency) {
     fbb_.AddElement<int64_t>(SPkt_Transform::VT_LATENCY, latency, 0);
+  }
+  void add_velocity(float velocity) {
+    fbb_.AddElement<float>(SPkt_Transform::VT_VELOCITY, velocity, 0.0f);
+  }
+  void add_movedir(::flatbuffers::Offset<FBProtocol::Vector3> movedir) {
+    fbb_.AddOffset(SPkt_Transform::VT_MOVEDIR, movedir);
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(SPkt_Transform::VT_TRANS, trans);
@@ -654,6 +692,8 @@ inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t object_id = 0,
     int64_t latency = 0,
+    float velocity = 0.0f,
+    ::flatbuffers::Offset<FBProtocol::Vector3> movedir = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   SPkt_TransformBuilder builder_(_fbb);
@@ -661,6 +701,8 @@ inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
   builder_.add_object_id(object_id);
   builder_.add_spine_look(spine_look);
   builder_.add_trans(trans);
+  builder_.add_movedir(movedir);
+  builder_.add_velocity(velocity);
   return builder_.Finish();
 }
 

@@ -13,7 +13,9 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Include/NetworkManager.h"
 #include "ClientNetwork/Include/SendBuffersFactory.h"
-
+#include "ClientNetwork/Contents/Script_RemotePlayer.h"
+#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
 
 #include "X-Engine.h"
 
@@ -136,10 +138,10 @@ void ClientNetworkManager::ProcessEvents()
 			remotePlayer->SetName(data->RemoteP_Name);
 			remotePlayer->SetID(static_cast<UINT32>(data->RemoteP_ID));
 
-			remotePlayer->AddComponent<Script_NetworkObject_GroundPlayer>();
+			remotePlayer->AddComponent<Script_RemotePlayer>();
 			remotePlayer->AddComponent<Script_GroundObject>();
 			
-			remotePlayer->SetPosition(data->RemoteP_Pos.x, data->RemoteP_Pos.y, data->RemoteP_Pos.z);
+			remotePlayer->SetPosition(data->RemoteP_Pos.x, data->RemoteP_Pos.y, data->RemoteP_Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
 			//Vec4 rot   = remotePlayer->GetRotation();
 			//Vec3 euler = Quaternion::ToEuler(rot);
 			//euler.y    = data->RemoteP_Rot.y;
@@ -157,7 +159,7 @@ void ClientNetworkManager::ProcessEvents()
 			NetworkEvent::Game::Move_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Move_RemotePlayer*>(EventData.get());
 			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 			if (player) {
-				//std::cout << data->RemoteP_Pos.x << " " << data->RemoteP_Pos.y << " " << data->RemoteP_Pos.z << std::endl;
+				player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->RemoteP_Pos);
 				player->SetPosition(data->RemoteP_Pos);
 			}
 			else {
@@ -182,7 +184,22 @@ void ClientNetworkManager::ProcessEvents()
 			player->GetComponent<Script_NetworkObject>()->UpdateData((void*)data);
 		}
 		break;
+		case NetworkEvent::Game::Enum::Extrapolate_RemotePlayer:
+		{
+			NetworkEvent::Game::Extrapolate_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Extrapolate_RemotePlayer*>(EventData.get());
 
+			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
+
+			ExtData ExtrapolatedData        = {};
+			ExtrapolatedData.PingTime       = data->PingTime;
+			ExtrapolatedData.TargetPos      = data->ExtPos;
+			ExtrapolatedData.TargetRot      = data->ExtRot;
+			ExtrapolatedData.MoveDir        = data->ExtMoveDir;
+			ExtrapolatedData.Velocity       = data->RemoteVelocity;
+
+			player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
+		}
+		break;
 		}
 
 	}
@@ -245,6 +262,22 @@ sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Mo
 
 	Event->RemoteP_ID  = remID;
 	Event->RemoteP_Pos = remotePos;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata)
+{
+	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Extrapolate_RemotePlayer>();
+
+	Event->type = NetworkEvent::Game::Enum::Extrapolate_RemotePlayer;
+
+	Event->RemoteP_ID     = remID;
+	Event->PingTime       = extdata.PingTime;
+	Event->ExtPos         = extdata.TargetPos;
+	Event->ExtRot         = extdata.TargetRot;
+	Event->ExtMoveDir     = extdata.MoveDir;
+	Event->RemoteVelocity = extdata.Velocity;
 
 	return Event;
 }

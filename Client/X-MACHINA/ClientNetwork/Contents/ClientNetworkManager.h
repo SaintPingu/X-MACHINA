@@ -18,6 +18,7 @@
 #undef max
 #include "ClientNetwork/Contents/NetworkEvents.h"
 #include "ClientNetwork/Contents/GamePlayer.h"
+#include "ClientNetwork/Contents/Script_RemotePlayer.h"
 #include "Scene.h"
 #include "InputMgr.h"
 
@@ -56,18 +57,19 @@ public:
 	void SwapEventsQueue(); 
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	
-	long long GetTimeStamp();
 
 public:
 	/* Send Client Packet */
 	void Send(SPtr_PacketSendBuf pkt);
 
 public:
-	sptr<NetworkEvent::Game::Add_RemotePlayer>		CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
-	sptr<NetworkEvent::Game::Remove_RemotePlayer>	CreateEvent_Remove_RemotePlayer(int32_t remID);
-	sptr<NetworkEvent::Game::Move_RemotePlayer>		CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos);
+	sptr<NetworkEvent::Game::Add_RemotePlayer>				CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
+	sptr<NetworkEvent::Game::Remove_RemotePlayer>			CreateEvent_Remove_RemotePlayer(int32_t remID);
+	sptr<NetworkEvent::Game::Move_RemotePlayer>				CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos);
+	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer>		CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata);
 
 	long long GetCurrentTimeMilliseconds();
+	long long GetTimeStamp();
 
 
 };

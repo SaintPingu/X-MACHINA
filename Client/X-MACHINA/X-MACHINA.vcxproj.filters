@@ -277,6 +277,9 @@
     <ClInclude Include="ClientNetwork\Contents\FBsPacketFactory.h">
       <Filter>ClientNetwork\Packet</Filter>
     </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h">
+      <Filter>ClientNetwork\NetworkScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -428,6 +431,9 @@
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\FBsPacketFactory.cpp">
       <Filter>ClientNetwork\Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp">
+      <Filter>ClientNetwork\NetworkScript</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

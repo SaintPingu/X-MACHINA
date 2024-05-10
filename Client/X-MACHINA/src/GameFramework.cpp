@@ -325,7 +325,7 @@ void GameFramework::ConnectToServer()
 	CLIENT_NETWORK->Init(ip, 7777);
 
 	/* Network Thread */
-	CLIENT_NETWORK->Launch(3);
+	CLIENT_NETWORK->Launch(2);
 
 	while (!mIsLogin) {
 		CLIENT_NETWORK->ProcessEvents();

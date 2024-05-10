@@ -36,6 +36,7 @@ public:
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
 	rsptr<GridObject> GetPlayer() const { return mPlayer; }
+	
 
 public:
 	void Init(HINSTANCE hInstance, short width, short height);

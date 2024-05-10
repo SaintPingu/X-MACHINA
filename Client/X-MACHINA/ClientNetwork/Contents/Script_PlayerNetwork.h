@@ -2,20 +2,11 @@
 
 #include "Script_Network.h"
 
-/* Extrapolation Data - 패킷을 통한 위치 예측을 위해 필요한 데이터 */
-struct ExtData
-{
-	long long timestamp{};
-	Vec3	  pos{};
-	Vec3	  Rot{};
-
-
-};
 
 namespace PlayerNetworkInfo
 {
-	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 16.f; // 16s 간격으로 CPkt_Transform 전송
-	constexpr float sendInterval_CPkt_NetworkLatency = 1.f / 10.f;
+	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 10.f; // 1s에 16번 간격으로 CPkt_Transform 전송
+	constexpr float sendInterval_CPkt_NetworkLatency = 1.f / 10.f; // 1s에 10번 간격으로 CPkt_NetworkLatency 전송
 
 }
 
@@ -26,13 +17,17 @@ private:
 	std::chrono::steady_clock::time_point mMoveTimePoint_latest = {};
 	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
 
-
+	Vec3 mPrevPos;
 
 public:
 	virtual void Awake() override;
 	virtual void LateUpdate() override;
 	virtual void UpdateData(const void* data) override;
 
+private:
+	void DoInput();
+
+	void DoNetLatency();
 
 public:
 };

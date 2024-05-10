@@ -91,6 +91,8 @@ table CPkt_Transform
 {
 	latency     : long;
 
+	velocity    : float;
+	movedir     : Vector3;
 	trans		: Transform;
 	spine_look	: Vector3;
 }
@@ -100,6 +102,8 @@ table SPkt_Transform
 	object_id	: ulong;
 	latency     : long;
 
+	velocity    : float;
+	movedir     : Vector3;
 	trans		: Transform;
 	spine_look	: Vector3;
 }

@@ -133,7 +133,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 
 	InputMgr::I->UpdateClient();
 
-	ChangeSwapChainState();
+	//ChangeSwapChainState();
 }
 
 void DXGIMgr::Release()
@@ -663,9 +663,6 @@ void DXGIMgr::ChangeSwapChainState()
 		rts[i].Target = ResourceMgr::I->CreateTexture(name, resource);
 	}
 	mMRTs[static_cast<UINT8>(GroupType::SwapChain)]->Create(GroupType::SwapChain, std::move(rts), mDefaultDs);
-
-	// 윈도우 사이즈가 변경되면 필터도 다시 생성해야 한다.
-	mBlurFilter->OnResize(GetWindowWidth(), GetWindowHeight());
 }
 
 void DXGIMgr::CreateFilter()

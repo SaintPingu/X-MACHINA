@@ -237,11 +237,14 @@ ATOM GameFramework::CreateGameClientWindow()
 	RegisterClassExW(&wcex);
 
 	RECT rc = { 0, 0, mResolution.Width, mResolution.Height };
-	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+	DWORD dwStyle = WS_OVERLAPPEDWINDOW | WS_BORDER;
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 
-	mhWnd = ::CreateWindowW(L"X-MACHINA", L"X-MACHINA", WS_OVERLAPPEDWINDOW
-		, CW_USEDEFAULT, 0, mResolution.Width, mResolution.Height
+	int adjustedWidth = rc.right - rc.left;
+	int adjustedHeight = rc.bottom - rc.top;
+
+	mhWnd = ::CreateWindow(L"X-MACHINA", L"X-MACHINA", dwStyle
+		, CW_USEDEFAULT, 0, adjustedWidth, adjustedHeight
 		, nullptr, nullptr, mhInst, nullptr);
 
 

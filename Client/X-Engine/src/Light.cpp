@@ -15,7 +15,7 @@
 
 namespace {
 	constexpr int	gkSunLightIdx = 0;
-	constexpr float gkSceneBoundsRad = 20.f;
+	constexpr float gkSceneBoundsRad = 30.f;
 }
 
 Light::Light()

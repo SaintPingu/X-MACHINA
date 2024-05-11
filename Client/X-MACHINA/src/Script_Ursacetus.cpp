@@ -11,7 +11,7 @@ void Script_Ursacetus::Awake()
 
 	mEnemyMgr->mRotationSpeed = 150.f;
 	mEnemyMgr->mMoveSpeed = 3.5f;
-	mEnemyMgr->mDetectionRange = 15.f;
+	mEnemyMgr->mDetectionRange = 20.f;
 	mEnemyMgr->mAttackRange = 7.5f;
 	mEnemyMgr->mGetHitName = "GetHitFront";
 	mEnemyMgr->mAttackName = "2HandsSmashAttack";

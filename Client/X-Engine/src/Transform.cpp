@@ -342,9 +342,8 @@ bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 {
 	const float angle = Vector3::SignedAngle(GetLook().xz(), (target - GetPosition()).xz(), Vector3::Up);
 
-	constexpr float minAngle = 1.f;
+	constexpr float minAngle = 2.f;
 	if (fabs(angle) < minAngle) {
-		Rotate(Vector3::Up, angle);
 		return false;
 	}
 

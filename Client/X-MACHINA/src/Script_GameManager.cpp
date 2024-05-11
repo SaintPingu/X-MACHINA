@@ -22,7 +22,7 @@ void Script_GameManager::Awake()
 		auto& script = enemy->AddComponent<Script_Ursacetus>();
 		enemy->AddComponent<Script_MeleeBT>();
 		enemy->SetPosition(50 + i * 5, 0, 250 + i * 10);
-		script->SetMaxHP(2000);
+		script->SetMaxHP(200);
 	}
 }
 

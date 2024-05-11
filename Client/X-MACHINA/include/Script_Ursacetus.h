@@ -22,7 +22,6 @@ public:
 	virtual void Update() override;
 
 	virtual void Attack() override;
-	virtual void Death() override;
 };
 
 #pragma endregion

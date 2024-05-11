@@ -20,7 +20,7 @@ void Script_Ursacetus::Awake()
 	base::Awake();
 
 	mEnemyMgr->mRotationSpeed = 150.f;
-	mEnemyMgr->mMoveSpeed = 1.5f;
+	mEnemyMgr->mMoveSpeed = 3.5f;
 	mEnemyMgr->mDetectionRange = 10.f;
 	mEnemyMgr->mAttackName = "2HandsSmashAttack";
 }
@@ -33,12 +33,4 @@ void Script_Ursacetus::Update()
 void Script_Ursacetus::Attack()
 {
 	
-}
-
-void Script_Ursacetus::Death()
-{
-	static float temp = 0.f;
-	if ((temp += DeltaTime() * 30.f) < 75.f) {
-		mObject->Rotate(DeltaTime() * 30.f, 0.f, 0.f);
-	}
 }

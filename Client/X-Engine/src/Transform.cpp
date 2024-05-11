@@ -541,6 +541,27 @@ void Transform::NormalizeAxis()
 	UpdateLocalTransform(false);
 }
 
+void Transform::DoAllTransforms(const std::function<void(Transform*)>& processFunc)
+{
+	processFunc(this);
+
+	if (mChild) {
+		mChild->DoAllTransforms(processFunc);
+	}
+	if (mSibling) {
+		mSibling->DoAllTransforms(processFunc);
+	}
+}
+
+void Transform::DoAllChilds(const std::function<void(Transform*)>& processFunc)
+{
+	processFunc(this);
+
+	if (mChild) {
+		mChild->DoAllTransforms(processFunc);
+	}
+}
+
 void Transform::MergeTransform(std::vector<const Transform*>& out, const Transform* transform)
 {
 	out.emplace_back(transform);

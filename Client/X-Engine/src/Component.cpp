@@ -340,7 +340,3 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 	return result;
 }
 #pragma endregion
-
-void OnEnable()
-{
-}

@@ -179,7 +179,11 @@ namespace {
 					int skinBoneCnt = FileIO::ReadVal<int>(file);
 					if (skinBoneCnt > 0) {
 						mesh->mBoneNames.resize(skinBoneCnt);
-						mesh->mBoneTypes.resize(skinBoneCnt);
+
+						if (avatar) {
+							mesh->mBoneTypes.resize(skinBoneCnt);
+						}
+
 						for (int i = 0; i < skinBoneCnt; i++)
 						{
 							FileIO::ReadString(file, mesh->mBoneNames[i]);
@@ -742,7 +746,8 @@ namespace FileIO {
 				switch (Hash(token)) {
 				case Hash("<Controller>:"):
 					animationInfo = std::make_shared<AnimationLoadInfo>();
-					FileIO::AnimationIO::LoadAnimation(file, animationInfo);
+					FileIO::AnimationIO::SetAnimation(file, animationInfo);
+					FileIO::ReadVal(file, animationInfo->IsManualBoneCalc);
 					break;
 
 				case Hash("<Hierarchy>:"):
@@ -838,7 +843,7 @@ namespace FileIO {
 	}
 
 	namespace AnimationIO {
-		void LoadAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
+		void SetAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
 		{
 			FileIO::ReadString(file, animationInfo->AnimatorControllerFile);
 		}

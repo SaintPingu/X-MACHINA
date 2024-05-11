@@ -923,6 +923,10 @@ BoneType SkinMesh::GetBoneType(int boneIndex) const
 
 HumanBone SkinMesh::GetHumanBone(int boneIndex) const
 {
+	if (mBoneTypes.empty()) {
+		return HumanBone::None;
+	}
+
 	switch (mBoneTypes[boneIndex]) {
 	case BoneType::Hips:
 	case BoneType::Spine:

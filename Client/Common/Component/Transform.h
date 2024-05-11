@@ -199,6 +199,9 @@ public:
 
 	void NormalizeAxis();
 
+	void DoAllTransforms(const std::function<void(Transform*)>& processFunc);
+	void DoAllChilds(const std::function<void(Transform*)>& processFunc);
+
 	// returns self Object
 	template<class T>
 	T* GetObj() { return static_cast<T*>(mObject); }

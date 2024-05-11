@@ -592,6 +592,9 @@
     <FxCompile Include="shaders\PShader_IRDetectorAbility.hlsl">
       <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\PShader_SkinnedMesh_Shadow.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

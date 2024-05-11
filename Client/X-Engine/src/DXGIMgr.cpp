@@ -245,6 +245,10 @@ void DXGIMgr::Render()
 	Scene::I->RenderDeferred();
 	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
+	// deferred 렌더링 객체에 대해서만 ssao 진행
+	if (mFilterOption & FilterOption::Ssao)
+		mSsao->Execute(2);
+
 	// 라이트 맵 텍스처를 렌더 타겟으로 설정하고 라이트 렌더링
 	GetMRT(GroupType::Lighting)->OMSetRenderTargets();
 	Scene::I->RenderLights();
@@ -262,9 +266,6 @@ void DXGIMgr::Render()
 	Scene::I->RenderForward();
 	GetMRT(GroupType::OffScreen)->WaitTargetToResource();
 
-	// deferred 렌더링 객체에 대해서만 ssao 진행
-	if (mFilterOption & FilterOption::Ssao)
-		mSsao->Execute(4);
 
 #pragma endregion
 #pragma region PostProcessing

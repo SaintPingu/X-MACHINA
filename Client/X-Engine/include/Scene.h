@@ -60,7 +60,6 @@ private:
 
 	/* Object */
 	sptr<Object>					mGameManager{};
-	sptr<Object>					mServerManager{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
@@ -109,7 +108,6 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
-	rsptr<Object> GetServerManager() const { return mServerManager; }
 
 	int GetGridIndexFromPos(Vec3 pos) const;
 

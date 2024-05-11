@@ -59,7 +59,6 @@ void Scene::Release()
 		});
 
 	mGameManager->OnDestroy();
-	mServerManager->OnDestroy();
 }
 #pragma endregion
 
@@ -230,7 +229,6 @@ void Scene::BuildObjects()
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
 	mGameManager   = std::make_shared<Object>();
-	mServerManager = std::make_shared<Object>();
 
 	// build settings
 	BuildTerrain();
@@ -746,9 +744,8 @@ void Scene::RenderGridBounds()
 void Scene::Start()
 {
 	/* Awake */
-	mServerManager->Awake();
-	MainCamera::I->Awake();
 	mTerrain->Awake();
+	MainCamera::I->Awake();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});
@@ -756,7 +753,6 @@ void Scene::Start()
 	mGameManager->Awake();
 
 	/* Enable */
-	mServerManager->SetActive(true);
 	mTerrain->SetActive(true);
 	MainCamera::I->SetActive(true);
 	ProcessAllObjects([](sptr<Object> object) {
@@ -773,7 +769,6 @@ void Scene::Update()
 
 	mGameManager->Update();
 	UpdateObjects();
-	mServerManager->LateUpdate();
 	mGameManager->LateUpdate();
 	ParticleManager::I->Update();
 
@@ -1138,6 +1133,9 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 
 	case Hash("Enemy"):
 		return ObjectTag::Enemy;
+
+	case Hash("Prop"):
+		return ObjectTag::Prop;
 
 	default:
 		//assert(0);

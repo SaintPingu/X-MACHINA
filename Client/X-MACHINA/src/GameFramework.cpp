@@ -106,18 +106,6 @@ void GameFramework::Update()
 #endif
 
 	Engine::I->Update();
-
-
-	//static float z = 0;
-	//z += DeltaTime();
-	//sptr<SceneEvent::Test> EventData = std::make_shared<SceneEvent::Test>();
-	//EventData->type = SceneEvent::Enum::Test;
-	//EventData->sessionID = 1;
-	//EventData->Angle = 15.f;
-	//EventData->Pos = Vec3(105, 0, 105 + z);
-	//EventData->SpineAngle = -45.f;
-
-	//SERVER_MGR->GetComponent<Script_ServerManager>()->AddEvent(EventData);
 }
 
 
@@ -360,8 +348,4 @@ void GameFramework::InitPlayer(int sessionID)
 #endif
 
 	mIsLogin = true;
-
-	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
-	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");
-	//player->AddComponent<ParticleSystem>()->Load("Fountain")->SetTarget("Humanoid_ Head");
 }

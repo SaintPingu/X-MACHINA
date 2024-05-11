@@ -71,7 +71,6 @@ private:
 	std::set<sptr<GridObject>>	mDissolveObjects{};
 	std::set<GridObject*>	    mRenderedObjects{};
 	std::set<GridObject*>	    mTransparentObjects{};
-	std::set<GridObject*>	    mBillboardObjects{};
 	std::set<GridObject*>	    mSkinMeshObjects{};
 	std::set<GridObject*>	    mGridObjects{};
 

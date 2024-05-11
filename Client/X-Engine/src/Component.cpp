@@ -11,11 +11,7 @@ namespace {
 	constexpr DWORD gkDynamicObjects {
 		ObjectTag::Unspecified		|
 		ObjectTag::Player			|
-		ObjectTag::Tank				|
-		ObjectTag::Helicopter		|
 		ObjectTag::Bullet			|
-		ObjectTag::ExplosiveBig		|
-		ObjectTag::ExplosiveSmall	|
 		ObjectTag::Enemy			|
 		ObjectTag::Dynamic
 	};
@@ -23,8 +19,6 @@ namespace {
 	constexpr DWORD gkDynamicMoveObjects {
 		ObjectTag::Unspecified		|
 		ObjectTag::Player			|
-		ObjectTag::Tank				|
-		ObjectTag::Helicopter		|
 		ObjectTag::Bullet			|
 		ObjectTag::Enemy			|
 		ObjectTag::Dynamic
@@ -33,7 +27,6 @@ namespace {
 	constexpr DWORD gkEnvObjects {
 		ObjectTag::Unspecified		|
 		ObjectTag::Environment		|
-		ObjectTag::Billboard		|
 		ObjectTag::Terrain
 	};
 

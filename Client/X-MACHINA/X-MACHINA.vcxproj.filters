@@ -133,22 +133,10 @@
     <ClInclude Include="..\Common\Component\UI.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_Apache.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_Billboard.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_Bullet.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_ExplosiveObject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Fragment.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Gunship.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_Player.h">
@@ -179,12 +167,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_Weapon.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Aranobot.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Droid.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_AimController.h">
@@ -324,19 +306,7 @@
     <ClCompile Include="src\Script_Sprite.cpp">
       <Filter>Script\Object\Billboard</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_Apache.cpp">
-      <Filter>Script\Object</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_Bullet.cpp">
-      <Filter>Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_ExplosiveObject.cpp">
-      <Filter>Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Fragment.cpp">
-      <Filter>Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Gunship.cpp">
       <Filter>Script\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_MainCamera.cpp">
@@ -371,12 +341,6 @@
     </ClCompile>
     <ClCompile Include="src\TaskPatrol.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Aranobot.cpp">
-      <Filter>Script\Enemy\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Droid.cpp">
-      <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Enemy.cpp">
       <Filter>Script\Enemy\Object</Filter>

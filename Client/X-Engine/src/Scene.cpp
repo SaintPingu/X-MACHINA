@@ -421,7 +421,6 @@ void Scene::ClearRenderedObjects()
 	mRenderedObjects.clear();
 	mSkinMeshObjects.clear();
 	mTransparentObjects.clear();
-	mBillboardObjects.clear();
 	mGridObjects.clear();
 }
 
@@ -621,20 +620,11 @@ void Scene::RenderGridObjects(RenderType type)
 				continue;
 			}
 
-			switch (object->GetTag())
-			{
-			case ObjectTag::Billboard:
-			case ObjectTag::Sprite:
-				mBillboardObjects.insert(object);
-				break;
-			default:
-				if (object->IsSkinMesh()) {
-					mSkinMeshObjects.insert(object);
-					break;
-				}
-				object->ComputeWorldTransform();
+			if (object->IsSkinMesh()) {
+				mSkinMeshObjects.insert(object);
+			}
+			else {
 				mGridObjects.insert(object);
-				break;
 			}
 		}
 		if (!disabledObjects.empty()) {

@@ -38,5 +38,8 @@ public:
 	sptr<Object> mTarget{};
 	std::stack<Vec3> mPath{};
 	sptr<AnimatorController> mController{};
+
+public:
+	void RemoveAllAnimation();
 };
 #pragma endregion

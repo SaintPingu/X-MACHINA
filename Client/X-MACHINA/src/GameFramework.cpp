@@ -4,7 +4,6 @@
 #include "Resource.h"
 #include "X-Engine.h"
 
-#include "ObjectMgr.h"
 #include "InputMgr.h"
 #include "Imgui/ImGuiMgr.h"
 
@@ -346,8 +345,6 @@ void GameFramework::ConnectToServer()
 #endif
 
 	GAME_MGR->AddComponent<Script_GameManager>();
-	ObjectMgr::I->InitObjectsScript();
-
 }
 
 

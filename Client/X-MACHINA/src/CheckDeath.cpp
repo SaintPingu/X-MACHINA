@@ -28,6 +28,7 @@ BT::NodeState CheckDeath::Evaluate()
 
 	mAccTime += DeltaTime();
 
+	mEnemyMgr->mController->SetValue("GetHit", false);
 	mEnemyMgr->mController->SetValue("Death", true);
 
 	ExecuteCallback();

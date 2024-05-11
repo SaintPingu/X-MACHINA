@@ -1008,6 +1008,10 @@ HumanBone SkinMesh::GetHumanBone(int boneIndex) const
 
 void SkinMesh::UpdateShaderVariables()
 {
+	if (!mBoneFrames) {
+		return;
+	}
+
 	SkinnedConstants skinnedConstatnts{};
 	
 	for (int i = 0; i < (*mBoneFrames).size(); ++i)

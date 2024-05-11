@@ -648,13 +648,10 @@ namespace {
 				switch (Hash(motionType)) {
 				case Hash("<BlendTree>:"):
 					motion = LoadAnimatorBlendTree(file, motionInfo);
-
 					break;
 				case Hash("<State>:"):
-				{
 					motion = LoadAnimatorState(file, motionInfo);
-				}
-				break;
+					break;
 				default:
 					assert(0);
 					break;

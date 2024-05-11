@@ -207,6 +207,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
+    <ClInclude Include="include\Script_Onyscidus.h" />
     <ClInclude Include="include\ShieldAbility.h" />
     <ClInclude Include="include\Script_AbilityHolder.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
@@ -215,7 +216,6 @@
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
-    <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
     <ClInclude Include="include\Script_Apache.h" />
@@ -267,6 +267,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />
+    <ClCompile Include="src\Script_Onyscidus.cpp" />
     <ClCompile Include="src\ShieldAbility.cpp" />
     <ClCompile Include="src\Script_AbilityHolder.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />
@@ -274,7 +275,6 @@
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
-    <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_Apache.cpp" />
     <ClCompile Include="src\Script_Aranobot.cpp" />

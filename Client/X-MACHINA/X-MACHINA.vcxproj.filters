@@ -157,9 +157,6 @@
     <ClInclude Include="include\Script_Sprite.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\ObjectMgr.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\Object.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -304,6 +301,9 @@
     <ClInclude Include="..\Common\AbilityMgr.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Onyscidus.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -341,9 +341,6 @@
     </ClCompile>
     <ClCompile Include="src\Script_MainCamera.cpp">
       <Filter>Script\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ObjectMgr.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="src\GameFramework.cpp">
       <Filter>소스 파일</Filter>
@@ -479,6 +476,9 @@
     </ClCompile>
     <ClCompile Include="src\IRDetectorAbility.cpp">
       <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Onyscidus.cpp">
+      <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

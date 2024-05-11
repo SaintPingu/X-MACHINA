@@ -7,7 +7,7 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
+class GameObject;
 #pragma endregion
 
 
@@ -15,10 +15,16 @@ class GridObject;
 class Script_GameManager : public Component {
 	COMPONENT(Script_GameManager, Component)
 
+private:
+	std::vector<sptr<GameObject>> mObjects;
+
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+
+private:
+	void InitObjectScripts();
 };
 
 #pragma endregion

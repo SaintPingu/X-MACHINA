@@ -1,16 +1,13 @@
 #include "stdafx.h"
 #include "Script_Enemy.h"
-#include "Timer.h"
 
 #include "Script_EnemyManager.h"
 #include "Script_GroundObject.h"
-#include "Script_MeleeBT.h"
 
-#include "X-Engine.h"
+#include "Timer.h"
 #include "Object.h"
 #include "Animator.h"
 #include "AnimatorController.h"
-
 
 
 void Script_Enemy::Awake()

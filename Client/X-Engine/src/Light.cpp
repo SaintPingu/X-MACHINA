@@ -23,7 +23,7 @@ Light::Light()
 	mLights(std::make_shared<SceneLight>()),
 	mLoadLights(std::make_shared<SceneLoadLight>())
 {
-	mLightModelNames = { "apache_high_light", "tank_head_light", "tank_high_light" };
+	mLightModelNames = {};
 
 	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
 	mSceneBounds.Radius = sqrt(gkSceneBoundsRad * gkSceneBoundsRad + gkSceneBoundsRad * gkSceneBoundsRad);

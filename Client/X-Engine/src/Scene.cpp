@@ -1143,27 +1143,11 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 	case Hash("Dissolve_Building"):
 		return ObjectTag::DissolveBuilding;
 
-	case Hash("Explosive_small"):
-	case Hash("Explosive_static"):
-		return ObjectTag::ExplosiveSmall;
-
-	case Hash("Explosive_big"):
-		return ObjectTag::ExplosiveBig;
-
-	case Hash("Tank"):
-		return ObjectTag::Tank;
-
-	case Hash("Helicopter"):
-		return ObjectTag::Helicopter;
-
 	case Hash("Background"):
 		return ObjectTag::Environment;
 
-	case Hash("Billboard"):
-		return ObjectTag::Billboard;
-
-	case Hash("Sprite"):
-		return ObjectTag::Sprite;
+	case Hash("Enemy"):
+		return ObjectTag::Enemy;
 
 	default:
 		//assert(0);

@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "Script_GameManager.h"
 
-#include "Script_Droid.h"
-#include "Script_Aranobot.h"
 #include "Script_Ursacetus.h"
+#include "Script_Onyscidus.h"
 #include "Script_MeleeBT.h"
 #include "Component/ParticleSystem.h"
 
@@ -16,13 +15,37 @@ void Script_GameManager::Awake()
 {
 	base::Awake();
 
-	for (int i = 0; i < 1; ++i)
 	{
 		sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
 		auto& script = enemy->AddComponent<Script_Ursacetus>();
 		enemy->AddComponent<Script_MeleeBT>();
-		enemy->SetPosition(50 + i * 5, 0, 250 + i * 10);
-		script->SetMaxHP(200);
+		enemy->SetPosition(160, 0, 280);
+	}
+
+	{
+		std::vector<Vec3> positions{
+			Vec3(90, 0, 250),
+			Vec3(90, 0, 264),
+			Vec3(73, 0, 274),
+			Vec3(55, 0, 289),
+			Vec3(75, 0, 250),
+			Vec3(112, 0, 226),
+			Vec3(104, 0, 221),
+			Vec3(111, 0, 241),
+			Vec3(109, 0, 253),
+			Vec3(144, 0, 227),
+			Vec3(153, 0, 223),
+			Vec3(148, 0, 260),
+			Vec3(131, 0, 260),
+			Vec3(86, 0, 293),
+		};
+
+		for (const auto& pos : positions) {
+			sptr<GridObject> enemy = Scene::I->Instantiate("Onyscidus", ObjectTag::Enemy);
+			auto& script = enemy->AddComponent<Script_Onyscidus>();
+			enemy->AddComponent<Script_MeleeBT>();
+			enemy->SetPosition(pos);
+		}
 	}
 }
 
@@ -34,4 +57,9 @@ void Script_GameManager::Start()
 void Script_GameManager::Update()
 {
 	base::Update();
+}
+
+void Script_GameManager::InitObjectScripts()
+{
+
 }

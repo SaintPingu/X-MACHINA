@@ -23,7 +23,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     // material info
     MaterialInfo matInfo    = gMaterialBuffer[gObjectCB.MatIndex];
     float4 diffuse          = matInfo.Diffuse;
-    float metallic          = matInfo.Metallic;
+    float metallic          = 0;
     float roughness         = matInfo.Roughness;
     float occlusion         = 1.f;
     int diffuseMapIndex     = matInfo.DiffuseMap0Index;

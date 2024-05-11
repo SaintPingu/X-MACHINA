@@ -304,7 +304,7 @@ namespace {
 					break;
 
 				case Hash("<Smoothness>:"):
-					FileIO::ReadVal(file, temp2);
+					FileIO::ReadVal(file, matInfo->Roughness);
 					break;
 
 				case Hash("<SpecularHighlight>:"):

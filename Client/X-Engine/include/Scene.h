@@ -244,6 +244,8 @@ public:
 
 	void ToggleFullScreen();
 
+	std::vector<sptr<GridObject>> FindObjectsByName(const std::string& name);
+
 private:
 	// do [processFunc] for activated objects
 	void ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc);

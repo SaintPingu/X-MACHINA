@@ -726,7 +726,7 @@ void Scene::RenderGridBounds()
 #ifdef DRAW_SCENE_GRID_3D
 		MeshRenderer::Render(grid->GetBB());
 #else
-		constexpr float kGirdHeight = 30.f;
+		constexpr float kGirdHeight = 5.f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
@@ -1066,6 +1066,20 @@ void Scene::ToggleFullScreen()
 	DXGIMgr::I->ToggleFullScreen();
 }
 
+std::vector<sptr<GridObject>> Scene::FindObjectsByName(const std::string& name)
+{
+	std::vector<sptr<GridObject>> result{};
+	auto& FindObjects = [&](sptr<GridObject> object) {
+		if (object->GetName() == name) {
+			result.push_back(object);
+		}
+		};
+
+	ProcessAllObjects(FindObjects);
+
+	return result;
+}
+
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	//for (auto& object : mStaticObjects) {
@@ -1136,6 +1150,9 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 
 	case Hash("Prop"):
 		return ObjectTag::Prop;
+
+	case Hash("Dynamic"):
+		return ObjectTag::Dynamic;
 
 	default:
 		//assert(0);

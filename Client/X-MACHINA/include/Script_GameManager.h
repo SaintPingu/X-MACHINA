@@ -7,6 +7,7 @@
 
 
 #pragma region ClassForwardDecl
+class GridObject;
 class GameObject;
 #pragma endregion
 

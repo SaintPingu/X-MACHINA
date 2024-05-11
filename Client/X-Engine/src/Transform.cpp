@@ -347,6 +347,10 @@ bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 		return false;
 	}
 
+	constexpr float maxAngle = 90.f; // 90도 이상일 때 최대 속도
+	const float t = std::clamp(fabs(angle) / maxAngle, 0.f, 1.f);
+	rotationSpeed *= t;
+
 	const float rotationValue = Math::Sign(angle) * rotationSpeed;
 	float rotationAngle       = rotationValue * DeltaTime();
 

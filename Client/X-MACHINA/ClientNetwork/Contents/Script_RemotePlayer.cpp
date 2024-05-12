@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "Script_RemotePlayer.h"
+
 #include "Timer.h"
+#include "Object.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 #include "ClientNetwork/Include/LogManager.h"
 
 #include "Script_GroundObject.h"
@@ -36,7 +40,9 @@ void Script_RemotePlayer::LateUpdate()
 		Vec3 Rot = mCurrExtraPolated_Data.TargetRot;
 		mObject->ResetRotation(Rot.y);
 
-
+		const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+		controller->SetValueOnly("Vertical", mCurrExtraPolated_Data.AnimParamV);
+		controller->SetValueOnly("Horizontal", mCurrExtraPolated_Data.AnimParamH);
 	}
 	break;
 	case ExtData::MOVESTATE::End:

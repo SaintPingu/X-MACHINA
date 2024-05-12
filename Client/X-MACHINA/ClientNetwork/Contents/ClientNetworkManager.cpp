@@ -209,10 +209,13 @@ void ClientNetworkManager::ProcessEvents()
 			}
 
 			int RemotePlayer_ID = data->RemoteP_ID;
-			int NewAnimIndex    = data->AnimationIndex;
+			int upperIndex      = data->animation_upper_index;
+			int lowerIndex      = data->animation_lower_index;
+			float paramV        = data->animation_param_v;
+			float paramH        = data->animation_param_h;
 
 			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
-			player->GetAnimator()->GetController()->SetAnimation(NewAnimIndex);
+			player->GetAnimator()->GetController()->SetAnimation(upperIndex, lowerIndex, paramV, paramH);
 
 		}
 		break;

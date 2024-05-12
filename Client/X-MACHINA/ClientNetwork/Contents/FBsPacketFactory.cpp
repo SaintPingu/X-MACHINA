@@ -258,12 +258,15 @@ bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProt
 	uint64_t id         = pkt.object_id();
 	
 	
-	float vel                       = pkt.velocity();
-	Vec3 moveDir		            = GetVector3(pkt.movedir());
-	Vec3 Packetpos		            = GetVector3(pkt.trans()->position());
-	Vec3 rot                        = GetVector3(pkt.trans()->rotation());
-	int32_t movestate = pkt.move_state(); 
-	Vec3 SDir                       = GetVector3(pkt.spine_look());
+	float	vel         = pkt.velocity();
+	Vec3	moveDir		= GetVector3(pkt.movedir());
+	Vec3	Packetpos	= GetVector3(pkt.trans()->position());
+	Vec3	rot         = GetVector3(pkt.trans()->rotation());
+	int32_t movestate   = pkt.move_state(); 
+	Vec3	SDir        = GetVector3(pkt.spine_look());
+
+	float   animparam_h   = pkt.animparam_h();
+	float   animparam_v   = pkt.animparam_v();
 	
 	ExtData::MOVESTATE mState;
 	if (movestate == PLAYER_MOVE_STATE::Start)			mState = ExtData::MOVESTATE::Start;
@@ -422,7 +425,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInf
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate , Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 
@@ -432,7 +435,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t mov
 	auto transform     = FBProtocol::CreateTransform(builder, position, rotation);
 	auto Spine_LookDir = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, movestate, velocity, moveDir, transform, Spine_LookDir);
+	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, movestate, velocity, moveDir, transform, Spine_LookDir, animparam_h, animparam_v);
 	builder.Finish(ServerPacket);
 
 

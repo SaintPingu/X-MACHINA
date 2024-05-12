@@ -95,6 +95,10 @@ table CPkt_Transform
 	movedir     : Vector3;
 	trans		: Transform;
 	spine_look	: Vector3;
+
+	animparam_h : float;
+	animparam_v : float;
+
 }
 
 table SPkt_Transform
@@ -107,6 +111,10 @@ table SPkt_Transform
 	movedir     : Vector3;
 	trans		: Transform;
 	spine_look	: Vector3;
+
+	animparam_h : float;
+	animparam_v : float;
+
 }
 
 // +------------------------

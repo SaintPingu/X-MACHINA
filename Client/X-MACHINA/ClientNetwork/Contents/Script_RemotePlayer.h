@@ -17,8 +17,12 @@ struct ExtData
 	Vec3	  TargetPos = {};
 	Vec3	  TargetRot = {};
 	Vec3	  MoveDir   = {};
+};
 
-	
+struct AnimMoveData
+{
+	float AnimParam_h = {};
+	float AnimParam_v = {};
 };
 
 class Script_RemotePlayer : public Script_Network 

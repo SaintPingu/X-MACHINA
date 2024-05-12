@@ -15,7 +15,7 @@ CheckDeath::CheckDeath(Object* object, std::function<void()> callback)
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 	mLiveObject = object->GetComponent<Script_LiveObject>();
-	mEnemyMgr->mController->FindMotionByName("Death")->AddEndCallback(std::bind(&CheckDeath::DeathEndCallback, this));
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mDeathName)->AddEndCallback(std::bind(&CheckDeath::DeathEndCallback, this));
 	mRemoveTime = 4.f;
 }
 

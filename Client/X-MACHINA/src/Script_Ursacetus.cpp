@@ -16,13 +16,3 @@ void Script_Ursacetus::Awake()
 	mEnemyMgr->mGetHitName = "GetHitFront";
 	mEnemyMgr->mAttackName = "2HandsSmashAttack";
 }
-
-void Script_Ursacetus::Update()
-{
-	base::Update();
-}
-
-void Script_Ursacetus::Attack()
-{
-	
-}

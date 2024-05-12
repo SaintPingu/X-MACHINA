@@ -211,6 +211,7 @@
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
     <ClInclude Include="include\MinimapAbility.h" />
+    <ClInclude Include="include\Script_AdvancedCombatDroid_5.h" />
     <ClInclude Include="include\Script_Onyscidus.h" />
     <ClInclude Include="include\ShieldAbility.h" />
     <ClInclude Include="include\Script_AbilityHolder.h" />
@@ -266,6 +267,7 @@
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />
     <ClCompile Include="src\MinimapAbility.cpp" />
+    <ClCompile Include="src\Script_AdvancedCombatDroid_5.cpp" />
     <ClCompile Include="src\Script_Onyscidus.cpp" />
     <ClCompile Include="src\ShieldAbility.cpp" />
     <ClCompile Include="src\Script_AbilityHolder.cpp" />

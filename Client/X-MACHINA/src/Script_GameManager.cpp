@@ -3,6 +3,7 @@
 
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
+#include "Script_AdvancedCombatDroid_5.h"
 #include "Script_MeleeBT.h"
 #include "Component/ParticleSystem.h"
 
@@ -43,6 +44,25 @@ void Script_GameManager::Awake()
 		for (const auto& pos : positions) {
 			sptr<GridObject> enemy = Scene::I->Instantiate("Onyscidus", ObjectTag::Enemy);
 			auto& script = enemy->AddComponent<Script_Onyscidus>();
+			enemy->AddComponent<Script_MeleeBT>();
+			enemy->SetPosition(pos);
+		}
+	}
+
+	{
+		std::vector<Vec3> positions{
+			Vec3(70, 0, 247),
+			Vec3(65, 0, 241),
+			Vec3(58, 0, 232),
+			Vec3(70, 0, 298),
+			Vec3(110, 0, 273),
+			Vec3(90, 0, 229),
+			Vec3(145, 0, 243),
+		};
+
+		for (const auto& pos : positions) {
+			sptr<GridObject> enemy = Scene::I->Instantiate("AdvancedCombatDroid_5", ObjectTag::Enemy);
+			auto& script = enemy->AddComponent<Script_AdvancedCombatDroid_5>();
 			enemy->AddComponent<Script_MeleeBT>();
 			enemy->SetPosition(pos);
 		}

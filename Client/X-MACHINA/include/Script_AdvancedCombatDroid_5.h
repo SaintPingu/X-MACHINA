@@ -8,8 +8,8 @@
 
 
 #pragma region Class
-class Script_Onyscidus : public Script_Enemy {
-	COMPONENT(Script_Onyscidus, Script_Enemy)
+class Script_AdvancedCombatDroid_5 : public Script_Enemy {
+	COMPONENT(Script_AdvancedCombatDroid_5, Script_Enemy)
 
 public:
 	virtual void Awake() override;

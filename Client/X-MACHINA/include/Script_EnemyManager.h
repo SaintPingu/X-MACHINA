@@ -33,6 +33,7 @@ public:
 	float mAttackCoolTime	= 1.5f;
 	std::string mAttackName = "Attack";
 	std::string mGetHitName = "GetHit";
+	std::string mDeathName  = "Death";
 	EnemyState mState		= EnemyState::Idle;
 
 	sptr<Object> mTarget{};

@@ -197,11 +197,20 @@ struct SsaoBlurInfo {
     int     IsHorzBlur;
 };
 
+struct MinimapInfo {
+    float2 PlayerPos;
+    float2 MinimapStartPos;
+	float2 MinimapSize;
+	float2 MinimapWorldSize;
+};
+
 struct AbilityInfo {
 	float   ActiveTime;
 	float   AccTime;
     float   Duration;
     int     UIIndex;
+
+    MinimapInfo MinimapData;
 };
 
 struct InstanceInfo {

@@ -31,6 +31,7 @@
 
 #include "ShieldAbility.h"
 #include "IRDetectorAbility.h"
+#include "MinimapAbility.h"
 
 
 
@@ -65,6 +66,7 @@ void Script_GroundPlayer::Awake()
 	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>(30.f));
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
+	mObject->AddComponent<Script_AbilityHolder>()->SetAbility(VK_TAB, std::make_shared<MinimapAbility>());
 
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
 

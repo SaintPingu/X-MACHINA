@@ -50,7 +50,7 @@ public:
 
 public:
 	int GetAbilityCBIdx() const { return mAbilityCBIdx; }
-	void UpdateAbilityCB(float activeTime);
+	void UpdateAbilityCB(float activeTime = 0.f);
 
 public:
 	virtual void Update(float activeTime) override;

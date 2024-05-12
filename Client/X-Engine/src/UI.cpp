@@ -14,10 +14,11 @@
 
 
 #pragma region UI
-UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height)
+UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height, rsptr<Shader> shader)
 	:
 	Transform(this),
-	mTexture(texture)
+	mTexture(texture),
+	mShader(shader)
 {
 	mWidth = width / Canvas::I->GetWidth();
 	mHeight = height / Canvas::I->GetHeight();
@@ -37,11 +38,21 @@ void UI::UpdateShaderVars() const
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
-
 void UI::Render()
 {
+	if (!mIsActive) {
+		return;
+	}
+
 	if (!mTexture) {
 		return;
+	}
+
+	if (mShader) {
+		mShader->Set();
+	}
+	else {
+		RESOURCE<Shader>("Canvas")->Set();
 	}
 
 	UpdateShaderVars();
@@ -172,8 +183,6 @@ void Canvas::Init()
 void Canvas::BuildUIs()
 {
 	mFont = std::make_shared<MyFont>(Vec2(-600, 900), 100.f, 100.f);
-	//mFont->SetText("YOUR SCORE IS ");
-	//mFont->SetScore("0");
 }
 
 void Canvas::Update()
@@ -185,17 +194,14 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
-	RESOURCE<Shader>("Canvas")->Set();
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}
-
-	//mFont->Render();
 }
 
-sptr<UI> Canvas::CreateUI(const std::string& texture, const Vec2& pos, float width, float height)
+sptr<UI> Canvas::CreateUI(const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
 {
-	sptr<UI> ui = std::make_shared<UI>(RESOURCE<Texture>(texture), pos, width, height);
+	sptr<UI> ui = std::make_shared<UI>(RESOURCE<Texture>(texture), pos, width, height, RESOURCE<Shader>(shader));
 	mUIs.insert(ui);
 	return ui;
 }

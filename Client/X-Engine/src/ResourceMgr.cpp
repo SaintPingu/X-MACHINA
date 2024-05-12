@@ -918,6 +918,25 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("IRDetectorAbility", shader);
 	}
 #pragma endregion
+#pragma region MinimapAbility
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_Canvas.cso",
+			 "PShader_MinimapAbility.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("MinimapAbility", shader);
+	}
+#pragma endregion
 #pragma region SkyBox
 	{
 		ShaderInfo info = {

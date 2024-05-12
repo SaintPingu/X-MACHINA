@@ -12,7 +12,7 @@ struct AnimationLoadInfo {
 	std::vector<sptr<SkinMesh>> SkinMeshes{};
 	std::string					AnimatorControllerFile{};
 };
-
+     
 // Animation의 재생 및 상태 전이 등의 전반을 관리한다.
 class Animator {
 private:

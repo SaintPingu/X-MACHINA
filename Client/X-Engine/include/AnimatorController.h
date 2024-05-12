@@ -37,10 +37,15 @@ class AnimatorController : public Resource {
 	static constexpr bool is_valid_param_type = (std::is_same<T, bool>::value || std::is_same<T, int>::value || std::is_same<T, float>::value);
 
 private:
+	bool mIsPlayer{};
 	bool mIsCheckTransition{};
 	Animations::ParamMap mParameters{};
 
 	std::vector<sptr<AnimatorLayer>> mLayers;
+	std::unordered_map<int, std::string> mMotionMapInt{};
+	std::unordered_map<std::string, int> mMotionMapString{};
+
+	std::function<void()> mSendCallback{};
 
 public:
 	AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers);
@@ -54,13 +59,15 @@ public:
 	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
 	const AnimatorParameter* GetParamRef(const std::string& paramName) const { return &mParameters.at(paramName); }
 
+	int GetMotionIndex(const std::string& layerName);
+
 	template<class T, typename std::enable_if<is_valid_param_type<T>>::type* = nullptr>
 	T GetParamValue(const std::string & paramName) const
 	{
-		if (std::is_same<T, bool>::value) {
+		if (std::is_same_v<T, bool>) {
 			return mParameters.at(paramName).val.b;
 		}
-		if (std::is_same<T, int>::value) {
+		if (std::is_same_v<T, int>) {
 			return mParameters.at(paramName).val.i;
 		}
 
@@ -121,6 +128,9 @@ public:
 		}
 	}
 
+	void SetAnimation(int upperIndex, int lowerIndex, float v, float h);
+	void SetPlayer() { mIsPlayer = true; }
+
 public:
 	void Start();
 	void Animate();
@@ -133,6 +143,7 @@ public:
 
 	bool IsEndTransition(const std::string& layerName) const;
 	void UpdateTransition();
+	void SetAnimationSendCallback(const std::function<void()>& callback) { mSendCallback = callback; }
 
 private:
 	void InitLayers();

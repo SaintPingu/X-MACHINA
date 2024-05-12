@@ -11,3 +11,4 @@ enum OBJECTTYPE : byte {
   MONSTER,
   STRUCTURE
 }
+

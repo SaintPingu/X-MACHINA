@@ -1,9 +1,9 @@
 ﻿  pch.cpp
   ClientNetwork.cpp
-C:\Github\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(18,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  Listener.cpp
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(18,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 '/Network/ClientNetwork.cpp'을(를) 컴파일하는 중)
   
-  Listener.cpp
   Lock.cpp
   LogManager.cpp
   MemoryManager.cpp
@@ -18,11 +18,11 @@ C:\Github\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(18
   ServerNetwork.cpp
   Session.cpp
   SessionController.cpp
-C:\Github\DirectX12_Project\Client\X-NetworkLibrary\Network\SessionController.cpp(33,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\SessionController.cpp(33,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 '/Network/SessionController.cpp'을(를) 컴파일하는 중)
   
   SListMemoryPool.cpp
   SocketData.cpp
   ThreadManager.cpp
   코드를 생성하고 있습니다...
-  X-NetworkLibrary.vcxproj -> C:\Github\DirectX12_Project\Client\X-NetworkLibrary\Executable\Debug\X-NetworkLibrary.lib
+  X-NetworkLibrary.vcxproj -> C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Executable\Debug\X-NetworkLibrary.lib

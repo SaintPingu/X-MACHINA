@@ -10,6 +10,8 @@
 #include "Scene.h"
 #include "Timer.h"
 #include "Object.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 
 #include "ObjectPool.h"
 

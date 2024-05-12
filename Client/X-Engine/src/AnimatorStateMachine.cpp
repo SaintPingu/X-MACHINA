@@ -286,4 +286,15 @@ sptr<AnimatorMotion> AnimatorStateMachine::FindMotionByName(const std::string& m
 
 	return nullptr;
 }
+void AnimatorStateMachine::AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString)
+{
+	for (auto& state : mStates) {
+		motionMapInt.insert(std::make_pair(index, state.first));
+		motionMapString.insert(std::make_pair(state.first, index++));
+	}
+
+	for (auto& stateMachine : mStateMachines) {
+		stateMachine.second->AddStates(index, motionMapInt, motionMapString);
+	}
+}
 #pragma endregion

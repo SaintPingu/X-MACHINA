@@ -111,20 +111,24 @@ void AnimatorLayer::Animate()
 }
 
 
-void AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
+sptr<AnimatorMotion> AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
 {
 	const auto& nextState = mRootStateMachine->CheckTransition(controller);
 	if (!nextState) {
-		return;
+		return nullptr;
 	}
 
 	if (isChangeImmed) {
 		mNextStates.clear();
 		ChangeState(nextState);
-		return;
+		return nextState;
 	}
 
-	PushState(nextState);
+	if (PushState(nextState)) {
+		return nextState;
+	}
+
+	return nullptr;
 }
 
 void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
@@ -210,16 +214,16 @@ void AnimatorLayer::SyncComplete()
 }
 #pragma endregion
 
-void AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
+bool AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
 {
 	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
 	if (it != mNextStates.end()) {
-		return;
+		return false;
 	}
 
 	if (nextState == mCrntState) {
 		if (mNextStates.empty()) {
-			return;
+			return false;
 		}
 		else {
 			mIsReverse = true;
@@ -241,4 +245,22 @@ void AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
 			mNextStates.push_back(nextState);
 		}
 	}
+
+	return true;
+}
+
+bool AnimatorLayer::SetAnimation(const std::string& motionName)
+{
+	const auto& state = mRootStateMachine->FindMotionByName(motionName);
+	if (state) {
+		PushState(state);
+		return true;
+	}
+
+	return false;
+}
+
+void AnimatorLayer::AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString)
+{
+	mRootStateMachine->AddStates(index, motionMapInt, motionMapString);
 }

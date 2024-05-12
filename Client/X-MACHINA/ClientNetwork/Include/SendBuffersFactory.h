@@ -39,7 +39,7 @@ namespace SendPktInfo {
 		// ... 
 	};
 
-	constexpr UINT16 MemoryNum = 1000;
+	constexpr UINT16 MemoryNum = 200;
 }
 
 #define SENDBUF_FACTORY SendBuffersFactory::GetInst()

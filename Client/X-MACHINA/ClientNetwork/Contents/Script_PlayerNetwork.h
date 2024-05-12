@@ -2,10 +2,12 @@
 
 #include "Script_Network.h"
 
+class GridObject;
+class AnimatorController;
 
 namespace PlayerNetworkInfo
 {
-	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 10.f; // 1s에 16번 간격으로 CPkt_Transform 전송
+	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 30.f; // 1s에 16번 간격으로 CPkt_Transform 전송
 	constexpr float sendInterval_CPkt_NetworkLatency = 1.f / 10.f; // 1s에 10번 간격으로 CPkt_NetworkLatency 전송
 
 }
@@ -29,6 +31,12 @@ private:
 
 	void DoNetLatency();
 
-public:
+public:	
+	float GetYRotation();
+
+private:
+	void SetClientCallback_ChangeAnimation();
+	void ClientCallBack_ChangeAnimation(); // AnimationController 에서 Animation이 바뀌었을 때 이 함수가 호출된다. 
+
 };
 

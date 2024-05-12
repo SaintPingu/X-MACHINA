@@ -31,6 +31,19 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 	InitLayers();
 }
 
+void AnimatorController::SetAnimation(int upperIndex, int lowerIndex, float v, float h)
+{
+	auto& SetIndex = [&](int layerIndex, int index) {
+		if (mMotionMapInt.count(index)) {
+			std::string motionName = mMotionMapInt.at(index);
+			mLayers[layerIndex]->SetAnimation(motionName);
+		}
+		};
+
+	SetIndex(0, upperIndex);
+	SetIndex(1, lowerIndex);
+}
+
 void AnimatorController::Start()
 {
 	CheckTransition();
@@ -60,6 +73,20 @@ Matrix AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 	}
 
 	return Matrix::Identity;
+}
+
+int AnimatorController::GetMotionIndex(const std::string& layerName)
+{
+	for (auto& layer : mLayers) {
+		if (layer->GetName() == layerName) {
+			const auto& motion = layer->GetLastMotion();
+			if (mMotionMapString.count(motion->GetName())) {
+				return mMotionMapString.at(motion->GetName());
+			}
+		}
+	}
+
+	return -1;
 }
 
 void AnimatorController::SyncAnimation() const
@@ -99,8 +126,23 @@ bool AnimatorController::IsEndTransition(const std::string& layerName) const
 
 void AnimatorController::CheckTransition(bool isChangeImmed) const
 {
+	if (!mIsPlayer) {
+		return;
+	}
+
+	bool isSend = false;
+	int upperIndex = 0;
+	int lowerIndex = 0;
+
 	for (auto& layer : mLayers) {
-		layer->CheckTransition(this, isChangeImmed);
+		rsptr<AnimatorMotion> nextMotion = layer->CheckTransition(this, isChangeImmed);
+		if (nextMotion && mSendCallback) {
+			isSend = true;
+		}
+	}
+
+	if (isSend) {
+		mSendCallback();
 	}
 }
 
@@ -112,11 +154,13 @@ void AnimatorController::UpdateTransition()
 
 void AnimatorController::InitLayers()
 {
+	int index = 0;
 	for (auto& layer : mLayers) {
 		layer->Init(this);
 		if (layer->GetName().contains("Legs")) {
 			layer->SetSyncStateMachine(true);
 		}
+		layer->AddStates(index, mMotionMapInt, mMotionMapString);
 	}
 	CheckTransition(true);
 }

@@ -156,6 +156,7 @@ public:
 	bool RotateTargetAxisY(const Vec3& target, float rotationSpeed);
 	// (local) set rotation to quaternion
 	void SetLocalRotation(const Vec4& quaternion);
+	void ResetRotation(float yAngle);
 
 	// (local) rotates to the [lookTo] direction
 	void LookTo(const Vec3& lookTo, const Vec3& up = Vector3::Up);

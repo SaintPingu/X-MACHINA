@@ -60,4 +60,6 @@ public:
 	sptr<AnimatorMotion> Entry() const;
 	sptr<AnimatorMotion> CheckTransition(const AnimatorController* controller) const;
 	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
+
+	void AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString);
 };

@@ -5,6 +5,8 @@
 
 #include "Object.h"
 #include "Scene.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 
 #include "ClientNetwork/Include/MemoryManager.h"
 #include "ClientNetwork/Include/ClientNetwork.h"
@@ -141,6 +143,8 @@ void ClientNetworkManager::ProcessEvents()
 			remotePlayer->AddComponent<Script_GroundObject>();
 			
 			remotePlayer->SetPosition(data->RemoteP_Pos.x, data->RemoteP_Pos.y, data->RemoteP_Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
+			LOG_MGR->Cout("ID : ", data->RemoteP_ID, " POS : ", data->RemoteP_Pos.x, " ", data->RemoteP_Pos.y, " ", data->RemoteP_Pos.z, '\n');
+
 			//Vec4 rot   = remotePlayer->GetRotation();
 			//Vec3 euler = Quaternion::ToEuler(rot);
 			//euler.y    = data->RemoteP_Rot.y;
@@ -159,7 +163,7 @@ void ClientNetworkManager::ProcessEvents()
 			if (mRemotePlayers.count(data->RemoteP_ID)) {
 				rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 				player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->RemoteP_Pos);
-				player->SetPosition(data->RemoteP_Pos);
+				//player->SetPosition(data->RemoteP_Pos);
 			}
 			else {
 				LOG_MGR->Cout("Player - ", data->RemoteP_ID, "Not Existed\n");
@@ -185,14 +189,36 @@ void ClientNetworkManager::ProcessEvents()
 
 			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 
-			ExtData ExtrapolatedData        = {};
-			ExtrapolatedData.PingTime       = data->PingTime;
-			ExtrapolatedData.TargetPos      = data->ExtPos;
-			ExtrapolatedData.TargetRot      = data->ExtRot;
-			ExtrapolatedData.MoveDir        = data->ExtMoveDir;
-			ExtrapolatedData.Velocity       = data->RemoteVelocity;
+			ExtData ExtrapolatedData                    = {};
+			ExtrapolatedData.PingTime                   = data->PingTime;
+			ExtrapolatedData.TargetPos                  = data->ExtPos;
+			ExtrapolatedData.TargetRot                  = data->ExtRot;
+			ExtrapolatedData.MoveDir                    = data->ExtMoveDir;
+			ExtrapolatedData.MoveState		            = data->RemoteP_MoveState;
+			ExtrapolatedData.Velocity                   = data->RemoteVelocity;
+			ExtrapolatedData.Animdata.AnimParam_h       = data->animparam_h;
+			ExtrapolatedData.Animdata.AnimParam_v       = data->animparam_v;
 
 			player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
+		}
+		break;
+
+		case NetworkEvent::Game::Enum::ChangeAnim_RemotePlayer:
+		{
+			NetworkEvent::Game::ChangeAnimation_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::ChangeAnimation_RemotePlayer*>(EventData.get());
+			if (!mRemotePlayers.count(data->RemoteP_ID)) {
+				return;
+			}
+
+			int RemotePlayer_ID = data->RemoteP_ID;
+			int upperIndex      = data->animation_upper_index;
+			int lowerIndex      = data->animation_lower_index;
+			float paramV        = data->animation_param_v;
+			float paramH        = data->animation_param_h;
+
+			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
+			player->GetAnimator()->GetController()->SetAnimation(upperIndex, lowerIndex, paramV, paramH);
+
 		}
 		break;
 		}
@@ -211,6 +237,7 @@ void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Game::EventData> dat
 {
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
 }
+
 
 long long ClientNetworkManager::GetTimeStamp()
 {
@@ -249,14 +276,15 @@ sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos)
+sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate )
 {
 	sptr<NetworkEvent::Game::Move_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Move_RemotePlayer>();
 
 	Event->type = NetworkEvent::Game::Enum::Move_RemotePlayer;
 
-	Event->RemoteP_ID  = remID;
-	Event->RemoteP_Pos = remotePos;
+	Event->RemoteP_ID        = remID;
+	Event->RemoteP_Pos       = remotePos;
+	Event->RemoteP_MoveState = movestate;
 
 	return Event;
 }
@@ -267,12 +295,30 @@ sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateE
 
 	Event->type = NetworkEvent::Game::Enum::Extrapolate_RemotePlayer;
 
-	Event->RemoteP_ID     = remID;
-	Event->PingTime       = extdata.PingTime;
-	Event->ExtPos         = extdata.TargetPos;
-	Event->ExtRot         = extdata.TargetRot;
-	Event->ExtMoveDir     = extdata.MoveDir;
-	Event->RemoteVelocity = extdata.Velocity;
+	Event->RemoteP_ID        = remID;
+	Event->PingTime          = extdata.PingTime;
+	Event->ExtPos            = extdata.TargetPos;
+	Event->ExtRot            = extdata.TargetRot;
+	Event->ExtMoveDir        = extdata.MoveDir;
+	Event->RemoteP_MoveState = extdata.MoveState;
+	Event->RemoteVelocity    = extdata.Velocity;
+	Event->animparam_h       = extdata.Animdata.AnimParam_h;
+	Event->animparam_v       = extdata.Animdata.AnimParam_v;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
+{
+	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::ChangeAnimation_RemotePlayer>();
+
+	Event->type = NetworkEvent::Game::Enum::ChangeAnim_RemotePlayer;
+	
+	Event->RemoteP_ID            = remID;
+	Event->animation_upper_index = static_cast<int32_t>(anim_upper_idx);
+	Event->animation_lower_index = static_cast<int32_t>(anim_lower_idx);
+	Event->animation_param_h     = anim_param_h;
+	Event->animation_param_v     = anim_param_v;
 
 	return Event;
 }

@@ -10,7 +10,7 @@ struct GamePlayerInfo
 
 	/* Transform Info */
 	Vec3 Pos  = {}; // Position
-	Vec3 Rot  = {}; // Rotation 
+	Vec4 Rot  = {}; // Rotation 
 	Vec3 Sca  = {}; // Scale 
 	Vec3 SDir = {}; // Spine Look Direction 
 };

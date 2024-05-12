@@ -11,6 +11,8 @@
 #include "Scene.h"
 #include "Timer.h"
 #include "Object.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 
 #include "ObjectPool.h"
 
@@ -30,7 +32,7 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Contents/Script_PlayerNetwork.h"
 
-//#define SERVER_COMMUNICATION
+#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -357,6 +359,7 @@ void GameFramework::InitPlayer(int sessionID)
 #endif
 
 	mIsLogin = true;
+	CLIENT_NETWORK->SetClientCallback_ChangeAnimation(mPlayer);
 
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
 	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");

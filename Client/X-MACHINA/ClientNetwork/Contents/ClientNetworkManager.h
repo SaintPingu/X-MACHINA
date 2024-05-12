@@ -58,15 +58,20 @@ public:
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	
 
+	void SetClientCallback_ChangeAnimation(sptr<GridObject> player);
+	void ClientCallBack_ChangeAnimation(int index); // AnimationController 에서 Animation이 바뀌었을 때 이 함수가 호출된다. 
+
+
 public:
 	/* Send Client Packet */
 	void Send(SPtr_PacketSendBuf pkt);
 
 public:
-	sptr<NetworkEvent::Game::Add_RemotePlayer>				CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
-	sptr<NetworkEvent::Game::Remove_RemotePlayer>			CreateEvent_Remove_RemotePlayer(int32_t remID);
-	sptr<NetworkEvent::Game::Move_RemotePlayer>				CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos);
-	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer>		CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata);
+	sptr<NetworkEvent::Game::Add_RemotePlayer>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
+	sptr<NetworkEvent::Game::Remove_RemotePlayer>				CreateEvent_Remove_RemotePlayer(int32_t remID);
+	sptr<NetworkEvent::Game::Move_RemotePlayer>					CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
+	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer>			CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata);
+	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer>		CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int AnimIndex);
 
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();

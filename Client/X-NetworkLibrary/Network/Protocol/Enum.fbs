@@ -11,3 +11,9 @@ enum OBJECTTYPE : byte {
   MONSTER,
   STRUCTURE
 }
+
+enum MOVESTATE : byte{
+	MOVE_START,
+	MOVE_PROGRESS,
+	MOVE_END
+}

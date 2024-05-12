@@ -83,13 +83,13 @@ table SPkt_Chat
 	message: string;
 }
 
-
 // +------------------------
 //		  TRANSFORM
 // ------------------------+
 table CPkt_Transform
 {
 	latency     : long;
+	move_state  : MOVESTATE;
 
 	velocity    : float;
 	movedir     : Vector3;
@@ -101,13 +101,13 @@ table SPkt_Transform
 {
 	object_id	: ulong;
 	latency     : long;
+	move_state  : MOVESTATE;
 
 	velocity    : float;
 	movedir     : Vector3;
 	trans		: Transform;
 	spine_look	: Vector3;
 }
-
 
 // +------------------------
 //		    KEY 
@@ -167,3 +167,21 @@ table SPkt_PlayerState
 	player_motion_state		: uint;  // DWORD ( 32bit )
 
 }
+
+
+// +------------------------
+//	   PALYER ANIMATION 
+// ------------------------+
+
+table CPkt_PlayerAnimation
+{
+	animation_index         : int;
+}
+
+table SPkt_PlayerAnimation
+{
+	object_id				: ulong;
+
+	animation_index         : int;
+}
+

@@ -104,6 +104,15 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_RemovePlayer(session, *packet);
 	}
 	break;
+	case FBsProtocolID::SPkt_PlayerAnimation:
+	{
+		const FBProtocol::SPkt_PlayerAnimation* packet = flatbuffers::GetRoot<FBProtocol::SPkt_PlayerAnimation>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_PlayerAnimation(session, *packet);
+
+	}
+	break;
+
 	}
 
 	return true;
@@ -119,6 +128,17 @@ bool FBsPacketFactory::Process_SPkt_Chat(SPtr_Session session, const FBProtocol:
 	std::cout << "SPkt CHAT [" << session->GetID() << "] - SESSION : " << session.get() << " DATA : " <<
 		pkt.message()->c_str() << std::endl;
 	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_PlayerAnimation(SPtr_Session session, const FBProtocol::SPkt_PlayerAnimation& pkt)
+{
+	int SessionId = pkt.object_id();
+	int AnimIndex = pkt.animation_index();
+
+	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_ChangeAnimation_RemotePlayer(SessionId, AnimIndex);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
+	return false;
 }
 
 bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const FBProtocol::SPkt_NetworkLatency& pkt)
@@ -156,7 +176,8 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 #endif
 
 	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
-	GameFramework::I->InitPlayer(static_cast<int>(MyInfo.Id));
+	GameFramework::I->InitPlayer(static_cast<int>(MyInfo.Id)); /* INIT PLAYER */
+
 
 	LOG_MGR->SetColor(TextColor::BrightGreen);
 	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
@@ -230,14 +251,20 @@ bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProt
 	uint64_t id         = pkt.object_id();
 	
 	
-	float vel           = pkt.velocity();
-	Vec3 moveDir		= GetVector3(pkt.movedir());
-	Vec3 Packetpos		= GetVector3(pkt.trans()->position());
-	Vec3 rot            = GetVector3(pkt.trans()->rotation());
-	Vec3 sca            = GetVector3(pkt.trans()->scale());
-	Vec3 SDir           = GetVector3(pkt.spine_look());
+	float vel                       = pkt.velocity();
+	Vec3 moveDir		            = GetVector3(pkt.movedir());
+	Vec3 Packetpos		            = GetVector3(pkt.trans()->position());
+	Vec3 rot                        = GetVector3(pkt.trans()->rotation());
+	FBProtocol::MOVESTATE movestate = pkt.move_state(); 
+	Vec3 SDir                       = GetVector3(pkt.spine_look());
 	
-	sptr<NetworkEvent::Game::Move_RemotePlayer> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos);
+	ExtData::MOVESTATE mState;
+	if (movestate == FBProtocol::MOVESTATE::MOVESTATE_MOVE_START)			mState = ExtData::MOVESTATE::Start;
+	else if (movestate == FBProtocol::MOVESTATE::MOVESTATE_MOVE_PROGRESS)	mState = ExtData::MOVESTATE::Progress;
+	else if (movestate == FBProtocol::MOVESTATE::MOVESTATE_MOVE_END)		mState = ExtData::MOVESTATE::End;
+
+
+	sptr<NetworkEvent::Game::Move_RemotePlayer> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
 	CLIENT_NETWORK->RegisterEvent(Move_EventData);
 	
 	//LOG_MGR->Cout("MOVE DIR PKT : ", moveDir.x, " ", moveDir.y, " ", moveDir.z, '\n');
@@ -252,7 +279,7 @@ bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProt
 	/* [Get Next Packet Duration] = (PKt Interval) + (Remote Cl Latency) + (My Latency) */
 	data.PingTime = (PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000) + (latency / 1000.0) + (CurrLatency.load() / 1000.0); 
 	data.MoveDir  = moveDir;
-
+	data.MoveState = mState;
 	//LOG_MGR->Cout(data.PingTime, " ", data.PingTime / 1000.0, '\n');
 
 	/* 위치 예측 ( TargetPos ) */
@@ -388,24 +415,35 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInf
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, FBProtocol::MOVESTATE movestate , Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 
 	auto moveDir	   = FBProtocol::CreateVector3(builder, movedir.x, movedir.y, movedir.z);
 	auto position      = FBProtocol::CreateVector3(builder, Pos.x, Pos.y, Pos.z);
 	auto rotation      = FBProtocol::CreateVector3(builder, Rot.x, Rot.y, Rot.z);
-	auto scale         = FBProtocol::CreateVector3(builder, Scale.x, Scale.y, Scale.z);
-	auto transform     = FBProtocol::CreateTransform(builder, position, rotation, scale);
+	auto transform     = FBProtocol::CreateTransform(builder, position, rotation);
 	auto Spine_LookDir = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, velocity, moveDir, transform, Spine_LookDir);
+	auto ServerPacket = FBProtocol::CreateCPkt_Transform(builder, latency, movestate, velocity, moveDir, transform, Spine_LookDir);
 	builder.Finish(ServerPacket);
 
 
 	const uint8_t* bufferPointer      = builder.GetBufferPointer();
 	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
 	SPtr_SendPktBuf sendBuffer        = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_Transform);
+	return sendBuffer;
+}
+
+SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayerAnimation(int AnimationIndex)
+{
+	flatbuffers::FlatBufferBuilder builder{};
+	auto ServerPacket = FBProtocol::CreateCPkt_PlayerAnimation(builder, static_cast<int32_t>(AnimationIndex));
+	builder.Finish(ServerPacket);
+
+	const uint8_t* bufferPointer      = builder.GetBufferPointer();
+	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
+	SPtr_SendPktBuf sendBuffer        = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::SPkt_PlayerAnimation);
 	return sendBuffer;
 }
 
@@ -424,9 +462,6 @@ GamePlayerInfo FBsPacketFactory::GetPlayerInfo(const FBProtocol::Player* player)
 	const FBProtocol::Vector3* Rot  = player->trans()->rotation();
 	info.Rot = Vec3(Rot->x(), Rot->y(), Rot->z());
 
-	const FBProtocol::Vector3* Sca  = player->trans()->scale();
-	info.Sca = Vec3(Sca->x(), Sca->y(), Sca->z());
-
 	const FBProtocol::Vector3* SDir = player->spine_look();
 	info.SDir = Vec3(SDir->x(), SDir->y(), SDir->z());
 
@@ -439,6 +474,16 @@ Vec3 FBsPacketFactory::GetVector3(const FBProtocol::Vector3* vec3)
 
 	return Vector3;
 }
+
+Vec4 FBsPacketFactory::GetVector4(const FBProtocol::Vector4* vec4)
+{
+	Vec4 Vector4 = Vec4(vec4->x(), vec4->y(), vec4->z(), vec4->w());
+
+	return Vector4;
+}
+
+
+
 
 Vec3 FBsPacketFactory::CalculateDirection(float yAngleRadian)
 {

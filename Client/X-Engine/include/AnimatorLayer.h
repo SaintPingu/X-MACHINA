@@ -41,7 +41,7 @@ public:
 
 	void Animate();
 
-	void CheckTransition(const AnimatorController* controller, bool isChangeImmed = false);
+	sptr<AnimatorMotion> CheckTransition(const AnimatorController* controller, bool isChangeImmed = false);
 	bool IsEndTransition() const { return mNextStates.empty(); }
 
 	void SyncAnimation(rsptr<const AnimatorMotion> srcState);
@@ -50,6 +50,9 @@ public:
 	sptr<AnimatorMotion> GetCrntMotion() const { return mCrntState; }
 
 	void PushState(rsptr<AnimatorMotion> nextState);
+
+	bool SetAnimation(const std::string& motionName);
+	void AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString);
 
 private:
 	void SyncComplete();

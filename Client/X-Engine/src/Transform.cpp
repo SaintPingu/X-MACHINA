@@ -366,6 +366,12 @@ void Transform::SetLocalRotation(const Vec4& quaternion)
 	UpdateAxis();
 }
 
+void Transform::ResetRotation(float yAngle)
+{
+	SetLocalRotation(Quat::Identity);
+	Rotate(0, yAngle, 0);
+}
+
 void Transform::LookTo(const Vec3& lookTo, const Vec3& up)
 {
 	SetAxis(Matrix4x4::LookToLH(GetPosition(), lookTo, up, false));

@@ -111,20 +111,21 @@ void AnimatorLayer::Animate()
 }
 
 
-void AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
+sptr<AnimatorMotion> AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
 {
 	const auto& nextState = mRootStateMachine->CheckTransition(controller);
 	if (!nextState) {
-		return;
+		return nullptr;
 	}
 
 	if (isChangeImmed) {
 		mNextStates.clear();
 		ChangeState(nextState);
-		return;
+		return nextState;
 	}
 
 	PushState(nextState);
+	return nextState;
 }
 
 void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
@@ -241,4 +242,20 @@ void AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
 			mNextStates.push_back(nextState);
 		}
 	}
+}
+
+bool AnimatorLayer::SetAnimation(const std::string& motionName)
+{
+	const auto& state = mRootStateMachine->FindMotionByName(motionName);
+	if (state) {
+		PushState(state);
+		return true;
+	}
+
+	return false;
+}
+
+void AnimatorLayer::AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString)
+{
+	mRootStateMachine->AddStates(index, motionMapInt, motionMapString);
 }

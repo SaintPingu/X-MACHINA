@@ -36,6 +36,7 @@ void Script_PlayerNetwork::UpdateData(const void* data)
 
 }
 
+#include <math.h>
 void Script_PlayerNetwork::DoInput()
 {
 	///* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
@@ -43,19 +44,23 @@ void Script_PlayerNetwork::DoInput()
 	{
 		mMoveTimePoint_latest = std::chrono::steady_clock::now();
 		
-		float Vel             = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
-		Vec3 Pos              = GameFramework::I->GetPlayer()->GetPosition();
-		Vec3 MoveDir          = GameFramework::I->GetPlayer()->GetDirection(Dir::Front);
-		Vec3 Rot              = GameFramework::I->GetPlayer()->GetRotation();
-		Vec3 Sca              = Vec3(1.f, 1.f, 1.f);
-		Vec3 SpineDir         = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
-		long long latency     = FBS_FACTORY->CurrLatency.load();
+		float					Vel        = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
+		Vec3					Pos        = GameFramework::I->GetPlayer()->GetPosition();
+		Vec3					MoveDir    = Pos - mPrevPos; MoveDir.Normalize();
+		
+		Vec4					QuatRot = GameFramework::I->GetPlayer()->GetRotation();
+		Vec3 Rot{};  Rot.y = GetYRotation();
 
-		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, Sca, MoveDir, Vel, SpineDir, latency);
+		FBProtocol::MOVESTATE	moveState  = FBProtocol::MOVESTATE::MOVESTATE_MOVE_START;
+		Vec3					SpineDir   = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
+		long long				latency    = FBS_FACTORY->CurrLatency.load();
+
+		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency);
 		CLIENT_NETWORK->Send(pkt);
 
 		mPrevPos = Pos;
 	}
+
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
 	{
 		/* 1s에 PlayerNetworkInfo::SendInterval_CPkt_Trnasform 개수 만큼 패킷을 보낸다. */
@@ -65,32 +70,37 @@ void Script_PlayerNetwork::DoInput()
 		{
 			mMoveTimePoint_latest = currentTime;
 
-			float Vel         = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
-			Vec3 Pos          = GameFramework::I->GetPlayer()->GetPosition();
-			Vec3 MoveDir      = GameFramework::I->GetPlayer()->GetDirection(Dir::Front);
-			Vec3 Rot          = GameFramework::I->GetPlayer()->GetRotation();
-			Vec3 Sca          = Vec3(1.f, 1.f, 1.f);
-			Vec3 SpineDir     = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
-			long long latency = FBS_FACTORY->CurrLatency.load();
+			float					Vel       = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
+			Vec3					Pos       = GameFramework::I->GetPlayer()->GetPosition();
+			Vec3					MoveDir   = Pos - mPrevPos; MoveDir.Normalize();
+			Vec4					QuatRot       = GameFramework::I->GetPlayer()->GetRotation();
+			Vec3 Rot{};  Rot.y = GetYRotation();
 
-			auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, Sca, MoveDir, Vel, SpineDir, latency);
+			FBProtocol::MOVESTATE	moveState = FBProtocol::MOVESTATE::MOVESTATE_MOVE_PROGRESS;
+			Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
+			long long				latency   = FBS_FACTORY->CurrLatency.load();
+
+			auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency);
 			CLIENT_NETWORK->Send(pkt);
 
 			mPrevPos = Pos;
 
 		}
 	}
+
 	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
 	{
-		float Vel         = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
-		Vec3 Pos          = GameFramework::I->GetPlayer()->GetPosition();
-		Vec3 MoveDir      = GameFramework::I->GetPlayer()->GetDirection(Dir::Front);
-		Vec3 Rot          = GameFramework::I->GetPlayer()->GetRotation();
-		Vec3 Sca          = Vec3(1.f, 1.f, 1.f);
-		Vec3 SpineDir     = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
-		long long latency = FBS_FACTORY->CurrLatency.load();
+		float					Vel       = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
+		Vec3					Pos       = GameFramework::I->GetPlayer()->GetPosition();
+		Vec3					MoveDir   = Pos - mPrevPos; MoveDir.Normalize();
+		Vec4					QuatRot = GameFramework::I->GetPlayer()->GetRotation();
+		Vec3 Rot{};  Rot.y = GetYRotation();
 
-		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, Sca, MoveDir, Vel, SpineDir, latency);
+		FBProtocol::MOVESTATE	moveState = FBProtocol::MOVESTATE::MOVESTATE_MOVE_END;
+		Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
+		long long				latency   = FBS_FACTORY->CurrLatency.load();
+
+		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency);
 		CLIENT_NETWORK->Send(pkt);
 
 		mPrevPos = Pos;
@@ -116,3 +126,7 @@ void Script_PlayerNetwork::DoNetLatency()
 	}
 }
 
+float Script_PlayerNetwork::GetYRotation()
+{
+	return Vector3::SignedAngle(Vector3::Forward, mObject->GetLook().xz(), Vector3::Up);
+}

@@ -28,7 +28,9 @@ public:
 	static bool ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, UINT32 Datalen);
 
 private:
-	/* ¡Ø INVALID ¡Ø */
+	/// +------------------------
+	///	  PROCESS SERVER PACKET 
+	/// ------------------------+
 	static bool Process_SPkt_Invalid(SPtr_Session session, BYTE* packetBuf, UINT32 Datalen);
 	static bool Process_SPkt_LogIn(SPtr_Session session, const FBProtocol::SPkt_LogIn& pkt);
 	static bool Process_SPkt_EnterGame(SPtr_Session session, const FBProtocol::SPkt_EnterGame& pkt);
@@ -39,8 +41,13 @@ private:
 	static bool Process_SPkt_PlayerState(SPtr_Session session, const FBProtocol::SPkt_PlayerState& pkt);
 	static bool Process_SPkt_NetworkLatency(SPtr_Session session, const FBProtocol::SPkt_NetworkLatency& pkt);
 	static bool Process_SPkt_Chat(SPtr_Session session, const FBProtocol::SPkt_Chat& pkt);
+	static bool Process_SPkt_PlayerAnimation(SPtr_Session session, const FBProtocol::SPkt_PlayerAnimation& pkt);
+
 
 public:
+	/// +------------------------
+	///	  CREATE CLIENT PACKET  
+	/// ------------------------+
 	SPtr_SendPktBuf CPkt_Chat(UINT32 sessionID, std::string msg);
 	SPtr_SendPktBuf CPkt_NewtorkLatency(long long timestamp);
 	SPtr_SendPktBuf CPkt_LogIn();
@@ -48,11 +55,19 @@ public:
 	SPtr_SendPktBuf CPkt_NewPlayer();
 	SPtr_SendPktBuf CPkt_RemovePlayer(int removeSessionID);
 	SPtr_SendPktBuf CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInfo::KEY_STATE KeyState, GameKeyInfo::MoveKey moveKey, Vec2 mouseDelta);
-	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, Vec3 Scale, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency);
+	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, FBProtocol::MOVESTATE movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency);
+	SPtr_SendPktBuf CPkt_PlayerAnimation(int AnimationIndex);
+
 
 private:
+
+	/// +------------------------
+	///	         UTILITY 
+	/// ------------------------+
 	static GamePlayerInfo GetPlayerInfo(const FBProtocol::Player* player);
 	static Vec3 GetVector3(const FBProtocol::Vector3* vec3);
+	static Vec4 GetVector4(const FBProtocol::Vector4* vec4);
+
 	static Vec3 CalculateDirection(float yAngleRadian);
 	static Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
 

@@ -73,6 +73,12 @@ struct CPkt_PlayerStateBuilder;
 struct SPkt_PlayerState;
 struct SPkt_PlayerStateBuilder;
 
+struct CPkt_PlayerAnimation;
+struct CPkt_PlayerAnimationBuilder;
+
+struct SPkt_PlayerAnimation;
+struct SPkt_PlayerAnimationBuilder;
+
 struct CPkt_LogIn FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_LogInBuilder Builder;
   bool Verify(::flatbuffers::Verifier &verifier) const {
@@ -532,13 +538,17 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LATENCY = 4,
-    VT_VELOCITY = 6,
-    VT_MOVEDIR = 8,
-    VT_TRANS = 10,
-    VT_SPINE_LOOK = 12
+    VT_MOVE_STATE = 6,
+    VT_VELOCITY = 8,
+    VT_MOVEDIR = 10,
+    VT_TRANS = 12,
+    VT_SPINE_LOOK = 14
   };
   int64_t latency() const {
     return GetField<int64_t>(VT_LATENCY, 0);
+  }
+  FBProtocol::MOVESTATE move_state() const {
+    return static_cast<FBProtocol::MOVESTATE>(GetField<int8_t>(VT_MOVE_STATE, 0));
   }
   float velocity() const {
     return GetField<float>(VT_VELOCITY, 0.0f);
@@ -555,6 +565,7 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
+           VerifyField<int8_t>(verifier, VT_MOVE_STATE, 1) &&
            VerifyField<float>(verifier, VT_VELOCITY, 4) &&
            VerifyOffset(verifier, VT_MOVEDIR) &&
            verifier.VerifyTable(movedir()) &&
@@ -572,6 +583,9 @@ struct CPkt_TransformBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_latency(int64_t latency) {
     fbb_.AddElement<int64_t>(CPkt_Transform::VT_LATENCY, latency, 0);
+  }
+  void add_move_state(FBProtocol::MOVESTATE move_state) {
+    fbb_.AddElement<int8_t>(CPkt_Transform::VT_MOVE_STATE, static_cast<int8_t>(move_state), 0);
   }
   void add_velocity(float velocity) {
     fbb_.AddElement<float>(CPkt_Transform::VT_VELOCITY, velocity, 0.0f);
@@ -599,6 +613,7 @@ struct CPkt_TransformBuilder {
 inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int64_t latency = 0,
+    FBProtocol::MOVESTATE move_state = FBProtocol::MOVESTATE_MOVE_START,
     float velocity = 0.0f,
     ::flatbuffers::Offset<FBProtocol::Vector3> movedir = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
@@ -609,6 +624,7 @@ inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
   builder_.add_trans(trans);
   builder_.add_movedir(movedir);
   builder_.add_velocity(velocity);
+  builder_.add_move_state(move_state);
   return builder_.Finish();
 }
 
@@ -617,16 +633,20 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECT_ID = 4,
     VT_LATENCY = 6,
-    VT_VELOCITY = 8,
-    VT_MOVEDIR = 10,
-    VT_TRANS = 12,
-    VT_SPINE_LOOK = 14
+    VT_MOVE_STATE = 8,
+    VT_VELOCITY = 10,
+    VT_MOVEDIR = 12,
+    VT_TRANS = 14,
+    VT_SPINE_LOOK = 16
   };
   uint64_t object_id() const {
     return GetField<uint64_t>(VT_OBJECT_ID, 0);
   }
   int64_t latency() const {
     return GetField<int64_t>(VT_LATENCY, 0);
+  }
+  FBProtocol::MOVESTATE move_state() const {
+    return static_cast<FBProtocol::MOVESTATE>(GetField<int8_t>(VT_MOVE_STATE, 0));
   }
   float velocity() const {
     return GetField<float>(VT_VELOCITY, 0.0f);
@@ -644,6 +664,7 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
            VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
+           VerifyField<int8_t>(verifier, VT_MOVE_STATE, 1) &&
            VerifyField<float>(verifier, VT_VELOCITY, 4) &&
            VerifyOffset(verifier, VT_MOVEDIR) &&
            verifier.VerifyTable(movedir()) &&
@@ -664,6 +685,9 @@ struct SPkt_TransformBuilder {
   }
   void add_latency(int64_t latency) {
     fbb_.AddElement<int64_t>(SPkt_Transform::VT_LATENCY, latency, 0);
+  }
+  void add_move_state(FBProtocol::MOVESTATE move_state) {
+    fbb_.AddElement<int8_t>(SPkt_Transform::VT_MOVE_STATE, static_cast<int8_t>(move_state), 0);
   }
   void add_velocity(float velocity) {
     fbb_.AddElement<float>(SPkt_Transform::VT_VELOCITY, velocity, 0.0f);
@@ -692,6 +716,7 @@ inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t object_id = 0,
     int64_t latency = 0,
+    FBProtocol::MOVESTATE move_state = FBProtocol::MOVESTATE_MOVE_START,
     float velocity = 0.0f,
     ::flatbuffers::Offset<FBProtocol::Vector3> movedir = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
@@ -703,6 +728,7 @@ inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
   builder_.add_trans(trans);
   builder_.add_movedir(movedir);
   builder_.add_velocity(velocity);
+  builder_.add_move_state(move_state);
   return builder_.Finish();
 }
 
@@ -1051,6 +1077,98 @@ inline ::flatbuffers::Offset<SPkt_PlayerState> CreateSPkt_PlayerState(
   builder_.add_object_id(object_id);
   builder_.add_player_motion_state(player_motion_state);
   builder_.add_weapon_type(weapon_type);
+  return builder_.Finish();
+}
+
+struct CPkt_PlayerAnimation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_PlayerAnimationBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ANIMATION_INDEX = 4
+  };
+  int32_t animation_index() const {
+    return GetField<int32_t>(VT_ANIMATION_INDEX, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_ANIMATION_INDEX, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_PlayerAnimationBuilder {
+  typedef CPkt_PlayerAnimation Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_animation_index(int32_t animation_index) {
+    fbb_.AddElement<int32_t>(CPkt_PlayerAnimation::VT_ANIMATION_INDEX, animation_index, 0);
+  }
+  explicit CPkt_PlayerAnimationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_PlayerAnimation> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_PlayerAnimation>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_PlayerAnimation> CreateCPkt_PlayerAnimation(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t animation_index = 0) {
+  CPkt_PlayerAnimationBuilder builder_(_fbb);
+  builder_.add_animation_index(animation_index);
+  return builder_.Finish();
+}
+
+struct SPkt_PlayerAnimation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_PlayerAnimationBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_OBJECT_ID = 4,
+    VT_ANIMATION_INDEX = 6
+  };
+  uint64_t object_id() const {
+    return GetField<uint64_t>(VT_OBJECT_ID, 0);
+  }
+  int32_t animation_index() const {
+    return GetField<int32_t>(VT_ANIMATION_INDEX, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
+           VerifyField<int32_t>(verifier, VT_ANIMATION_INDEX, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_PlayerAnimationBuilder {
+  typedef SPkt_PlayerAnimation Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_object_id(uint64_t object_id) {
+    fbb_.AddElement<uint64_t>(SPkt_PlayerAnimation::VT_OBJECT_ID, object_id, 0);
+  }
+  void add_animation_index(int32_t animation_index) {
+    fbb_.AddElement<int32_t>(SPkt_PlayerAnimation::VT_ANIMATION_INDEX, animation_index, 0);
+  }
+  explicit SPkt_PlayerAnimationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_PlayerAnimation> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_PlayerAnimation>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_PlayerAnimation> CreateSPkt_PlayerAnimation(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t object_id = 0,
+    int32_t animation_index = 0) {
+  SPkt_PlayerAnimationBuilder builder_(_fbb);
+  builder_.add_object_id(object_id);
+  builder_.add_animation_index(animation_index);
   return builder_.Finish();
 }
 

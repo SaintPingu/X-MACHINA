@@ -47,7 +47,7 @@ public:
 	~PacketSendBuf();
 
 	void    SetOwnerInfo(BYTE* ownerPtr, UINT16 ownerMemSize) { mPtrFromMemPool = ownerPtr; mMemoryPoolSize = ownerMemSize; }
-	void    SetPacketHederInfo(class PacketHeader info);
+	void    SetPacketHederInfo(struct PacketHeader info);
 
 	void     SetBuffer(BYTE* buf);
 

@@ -214,8 +214,7 @@ struct Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POSITION = 4,
-    VT_ROTATION = 6,
-    VT_SCALE = 8
+    VT_ROTATION = 6
   };
   const FBProtocol::Vector3 *position() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_POSITION);
@@ -223,17 +222,12 @@ struct Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const FBProtocol::Vector3 *rotation() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_ROTATION);
   }
-  const FBProtocol::Vector3 *scale() const {
-    return GetPointer<const FBProtocol::Vector3 *>(VT_SCALE);
-  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_POSITION) &&
            verifier.VerifyTable(position()) &&
            VerifyOffset(verifier, VT_ROTATION) &&
            verifier.VerifyTable(rotation()) &&
-           VerifyOffset(verifier, VT_SCALE) &&
-           verifier.VerifyTable(scale()) &&
            verifier.EndTable();
   }
 };
@@ -247,9 +241,6 @@ struct TransformBuilder {
   }
   void add_rotation(::flatbuffers::Offset<FBProtocol::Vector3> rotation) {
     fbb_.AddOffset(Transform::VT_ROTATION, rotation);
-  }
-  void add_scale(::flatbuffers::Offset<FBProtocol::Vector3> scale) {
-    fbb_.AddOffset(Transform::VT_SCALE, scale);
   }
   explicit TransformBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -265,10 +256,8 @@ struct TransformBuilder {
 inline ::flatbuffers::Offset<Transform> CreateTransform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<FBProtocol::Vector3> position = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> rotation = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> scale = 0) {
+    ::flatbuffers::Offset<FBProtocol::Vector3> rotation = 0) {
   TransformBuilder builder_(_fbb);
-  builder_.add_scale(scale);
   builder_.add_rotation(rotation);
   builder_.add_position(position);
   return builder_.Finish();

@@ -463,9 +463,6 @@
     <FxCompile Include="shaders\VShader_Canvas.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\VShader_Instance.hlsl">
-      <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\VShader_Skybox.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>

@@ -163,10 +163,12 @@ void InstObject::SetUpdateFunc()
 	}
 }
 
-void InstObject::PushFunc(void* structuredBuffer) const
+void InstObject::PushFunc(int buffIdx, UploadBuffer<InstanceData>* buffer) const
 {
-	SB_StandardInst* buffer = static_cast<SB_StandardInst*>(structuredBuffer);
-	XMStoreFloat4x4(&buffer->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
+	InstanceData instData;
+	instData.MtxWorld = GetWorldTransform().Transpose();
+
+	buffer->CopyData(buffIdx, instData);
 }
 
 void InstObject::Return()
@@ -185,13 +187,6 @@ void InstObject::PushRender()
 
 
 #pragma region InstBulletObject
-void InstBulletObject::PushFunc(void* structuredBuffer) const
-{
-	SB_ColorInst* buffer = static_cast<SB_ColorInst*>(structuredBuffer);
-	XMStoreFloat4x4(&buffer->LocalTransform, XMMatrixTranspose(_MATRIX(GetWorldTransform())));
-	buffer->Color = Vec4(1, 1, 0, 1);
-}
-
 void InstBulletObject::UpdateGrid()
 {
 	Scene::I->UpdateObjectGrid(this, false);

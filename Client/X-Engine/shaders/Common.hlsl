@@ -204,13 +204,8 @@ struct AbilityInfo {
     int     UIIndex;
 };
 
-struct SB_StandardInst {
+struct InstanceInfo {
     matrix  MtxObject;
-};
-
-struct SB_ColorInst {
-    matrix  MtxObject;
-    float4  Color;
 };
 
 ConstantBuffer<ObjectInfo> gObjectCB            : register(b0);
@@ -222,8 +217,7 @@ ConstantBuffer<SsaoInfo> gSsaoCB                : register(b5);
 ConstantBuffer<SsaoBlurInfo> gSsaoBlurCB        : register(b6);
 ConstantBuffer<AbilityInfo> gAbilityCB          : register(b7);
 
-StructuredBuffer<SB_StandardInst> gInstBuffer   : register(t0);
-StructuredBuffer<SB_ColorInst> gColorInstBuffer : register(t0);
+StructuredBuffer<InstanceInfo> gInstBuffer   : register(t0);
 StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);
 StructuredBuffer<ParticleInfo> gInputPraticles   : register(t0, space2);
 

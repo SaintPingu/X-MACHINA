@@ -4,6 +4,7 @@
 #define DEVICE DXGIMgr::I->GetDevice()
 #define CMD_LIST DXGIMgr::I->GetCmdList()
 #define FRAME_RESOURCE_MGR DXGIMgr::I->GetFrameResourceMgr()
+#define CURR_FRAME_INDEX DXGIMgr::I->GetFrameResourceMgr()->GetCurrFrameResourceIndex()
 #pragma endregion
 
 #pragma region ClassForwardDecl

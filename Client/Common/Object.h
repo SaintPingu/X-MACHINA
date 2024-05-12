@@ -2,6 +2,7 @@
 
 #pragma region Include
 #include "Component/Component.h"
+#include "UploadBuffer.h"
 #pragma endregion
 
 
@@ -116,7 +117,7 @@ class InstObject : public GridObject {
 
 	using GridObject::Render;
 
-private:
+protected:
 	const int mPoolID{};				// my ID(index) of ObjectPool
 	ObjectPool* const mObjectPool{};	// my ObjectPool
 
@@ -132,7 +133,7 @@ public:
 	// [mUpdateFunc]를 바인딩한다.
 	virtual void SetUpdateFunc();
 	// 객체가 렌더링 버퍼에 추가될 때, 풀로부터 할당받은 structured buffer에 값을 삽입한다.
-	virtual void PushFunc(void* structuredBuffer) const;
+	virtual void PushFunc(int buffIdx, UploadBuffer<InstanceData>* buffer) const;
 
 	void Return();
 
@@ -164,8 +165,6 @@ public:
 	virtual ~InstBulletObject() = default;
 
 public:
-	virtual void PushFunc(void* structuredBuffer) const override;
-
 	virtual void UpdateGrid() override;
 };
 #pragma endregion

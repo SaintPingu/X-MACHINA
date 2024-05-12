@@ -5,17 +5,19 @@
 #include "Model.h"
 #include "Object.h"
 
+#include "FrameResource.h"
 
-
-ObjectPool::ObjectPool(rsptr<const MasterModel> model, int maxSize, size_t structSize)
+ObjectPool::ObjectPool(rsptr<const MasterModel> model, int maxSize)
 	:
 	mMasterModel(model),
-	mStructSize(structSize),
 	mObjectPool(maxSize)
 {
 	Transform::MergeTransform(mMergedTransform, mMasterModel->GetTransform());
 
-	CreateShaderVars();
+	mInstanceBuffers.resize(FrameResourceMgr::mkFrameResourceCount);
+	for (auto& buffer : mInstanceBuffers) {
+		buffer = std::make_unique<UploadBuffer<InstanceData>>(DEVICE.Get(), maxSize, false);
+	}
 }
 
 sptr<InstObject> ObjectPool::Get(bool enable)
@@ -74,10 +76,9 @@ void ObjectPool::Return(InstObject* object)
 	object->SetActive(false);
 }
 
-
 void ObjectPool::UpdateShaderVars() const
 {
-	DXGIMgr::I->SetGraphicsRootShaderResourceView(RootParam::Instancing, mSB_Inst->GetGPUVirtualAddress());
+	DXGIMgr::I->SetGraphicsRootShaderResourceView(RootParam::Instancing, FrameResourceMgr::GetBufferGpuAddr(0, mInstanceBuffers[CURR_FRAME_INDEX].get()));
 }
 
 void ObjectPool::PushRender(const InstObject* object)
@@ -93,10 +94,8 @@ void ObjectPool::PushRender(const InstObject* object)
 
 	mRenderedObjects.insert(object);
 
-	void* buffer = static_cast<char*>(mSBMap_Inst) + (mStructSize * mCurrBuffIdx++);
-	object->PushFunc(buffer);
+	object->PushFunc(mCurrBuffIdx++, mInstanceBuffers[CURR_FRAME_INDEX].get());
 }
-
 
 void ObjectPool::Render()
 {
@@ -126,12 +125,6 @@ void ObjectPool::DoAllObjects(std::function<void(rsptr<InstObject>)> func)
 	for (const auto& object : mObjectPool) {
 		func(object);
 	}
-}
-
-void ObjectPool::CreateShaderVars()
-{
-	D3DUtil::CreateBufferResource(nullptr, mStructSize * mObjectPool.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, mSB_Inst);
-	mSB_Inst->Map(0, nullptr, (void**)&mSBMap_Inst);
 }
 
 void ObjectPool::EndRender()

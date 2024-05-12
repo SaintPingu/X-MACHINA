@@ -144,8 +144,10 @@ public:
 
 // 모든 프레임 리소스를 관리하는 클래스
 class FrameResourceMgr {
+public:
+    static constexpr int mkFrameResourceCount = 3;
+
 private:
-    int mFrameResourceCount;
 
     std::array<int, BufferTypeCount> mBufferCounts;
 
@@ -175,6 +177,12 @@ public:
     const D3D12_GPU_VIRTUAL_ADDRESS GetMatBufferGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSystemGpuAddr(int elementIndex = 0) const;
     const D3D12_GPU_VIRTUAL_ADDRESS GetParticleSharedGpuAddr(int elementIndex = 0) const;
+
+    template<typename T>
+    static const D3D12_GPU_VIRTUAL_ADDRESS GetBufferGpuAddr(int elementIndex, UploadBuffer<T>* buffer);
+
+    int GetCurrFrameResourceIndex() const { return mCurrFrameResourceIndex; }
+
 #pragma endregion
 public:
     // 프레임 리소스 생성
@@ -213,3 +221,8 @@ public:
 
 #pragma endregion
 
+template<typename T>
+inline const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetBufferGpuAddr(int elementIndex, UploadBuffer<T>* buffer)
+{
+    return buffer->Resource()->GetGPUVirtualAddress() + elementIndex * buffer->GetElementByteSize();
+}

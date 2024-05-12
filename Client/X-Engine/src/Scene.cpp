@@ -1026,7 +1026,7 @@ sptr<ObjectPool> Scene::CreateObjectPool(const std::string& modelName, int maxSi
 
 sptr<ObjectPool> Scene::CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc)
 {
-	sptr<ObjectPool> pool = mObjectPools.emplace_back(std::make_shared<ObjectPool>(model, maxSize, sizeof(SB_StandardInst)));
+	sptr<ObjectPool> pool = mObjectPools.emplace_back(std::make_shared<ObjectPool>(model, maxSize));
 	pool->CreateObjects<InstObject>(objectInitFunc);
 
 	return pool;

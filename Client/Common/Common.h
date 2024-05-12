@@ -161,6 +161,10 @@ struct NavMesh {
 	std::vector<UINT> Indices;
 };
 
+struct InstanceData {
+	Matrix	MtxWorld{};
+};
+
 struct ObjectConstants {
 	Matrix  MtxWorld{};
 	Matrix  MtxSprite{};
@@ -176,7 +180,6 @@ struct AbilityConstants {
 	float	Duration{};
 	int		UIIndex{};
 };
-
 #pragma endregion
 
 

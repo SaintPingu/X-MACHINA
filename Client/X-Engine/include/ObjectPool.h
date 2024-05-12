@@ -1,5 +1,7 @@
 #pragma once
 
+#include "UploadBuffer.h"
+
 #pragma region ClassForwardDecl
 class MasterModel;
 class Transform;
@@ -7,24 +9,13 @@ class InstObject;
 #pragma endregion
 
 
-#pragma region Struct
-// 표준 인스턴싱 StructuredBuffer
-struct SB_StandardInst {
-	Matrix LocalTransform{};
-};
-
-// Color를 가지는 객체의 인스턴싱 StructuredBuffer
-struct SB_ColorInst {
-	Matrix	LocalTransform{};
-	Vec4	Color{};
-};
-#pragma endregion
 
 
 #pragma region Class
 // 인스턴싱 객체들을 관리하기 위한 버퍼 (객체 메모리 할당)
 // 각 객체가 아닌 풀에서 하나의 모델을 가지고, 각 객체의 transform 정보만 받아와 인스턴싱 렌더링한다.
 class ObjectPool {
+
 protected:
 	int mCurrBuffIdx{};
 
@@ -38,15 +29,13 @@ private:
 	std::unordered_set<int>					mAvailableObjects{};	// 사용(Get) 가능한 객체 집합
 	std::unordered_set<int>					mActiveObjects{};		// 활성화(Get)된    객체 집합
 
-	ComPtr<ID3D12Resource>	mSB_Inst{};		// StructuredBuffer for instance
-	void*					mSBMap_Inst{};	// mapped StructuredBuffer
-	const size_t			mStructSize{};  // sizeof(structured buffer)
+	std::vector<uptr<UploadBuffer<InstanceData>>> mInstanceBuffers{};
+
 
 public:
 	// model = 랜더링 모델
 	// maxSize = 풀 최대 크기
-	// structSize = structured buffer의 크기 [sizeof(SB_StandardInst)]
-	ObjectPool(rsptr<const MasterModel> model, int maxSize, size_t structSize);
+	ObjectPool(rsptr<const MasterModel> model, int maxSize);
 	virtual ~ObjectPool() = default;
 
 	int GetInstanceCnt() const										{ return mCurrBuffIdx; }
@@ -101,9 +90,6 @@ protected:
 	bool CanPush() { return mCurrBuffIdx < mObjectPool.size(); }
 
 private:
-	// create structured buffer resource
-	void CreateShaderVars();
-
 	void EndRender();
 };
 #pragma endregion

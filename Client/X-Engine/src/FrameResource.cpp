@@ -34,8 +34,7 @@ FrameResource::FrameResource(ID3D12Device* pDevice, const std::array<int, Buffer
 #pragma region FrameResourceMgr
 FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
-	mFence(fence),
-	mFrameResourceCount(3)
+	mFence(fence)
 {
 	mBufferCounts[static_cast<int>(BufferType::Pass)]			= 2;
 	mBufferCounts[static_cast<int>(BufferType::PostPass)]		= 1;
@@ -111,7 +110,7 @@ const D3D12_GPU_VIRTUAL_ADDRESS FrameResourceMgr::GetParticleSharedGpuAddr(int e
 void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 {
 	// 프레임 리소스 최대 개수만큼 프레임 리소스를 생성한다.
-	for (int i = 0; i < mFrameResourceCount; ++i) {
+	for (int i = 0; i < mkFrameResourceCount; ++i) {
 		mFrameResources.push_back(std::make_unique<FrameResource>(pDevice, mBufferCounts));
 	}
 
@@ -121,7 +120,7 @@ void FrameResourceMgr::CreateFrameResources(ID3D12Device* pDevice)
 void FrameResourceMgr::Update()
 {
 	// 프레임마다 프레임 리소스를 순환하여 현재의 프레임 리소스를 저장한다.
-	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % mFrameResourceCount;
+	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % mkFrameResourceCount;
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 
 	// 프레임 리소스 개수만큼의 순환이 끝났음에도 GPU가 첫 프레임의 리소스를 처리하지 않았다면 동기화 해야 한다.
@@ -136,7 +135,7 @@ void FrameResourceMgr::Update()
 
 void FrameResourceMgr::WaitForGpuComplete()
 {
-	for (int i = 0; i < mFrameResourceCount; ++i) {
+	for (int i = 0; i < mkFrameResourceCount; ++i) {
 		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		THROW_IF_FAILED(mFence->SetEventOnCompletion(mFrameResources[i]->Fence, eventHandle));
 		WaitForSingleObject(eventHandle, INFINITE);

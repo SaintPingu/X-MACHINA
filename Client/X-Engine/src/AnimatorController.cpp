@@ -31,16 +31,17 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 	InitLayers();
 }
 
-void AnimatorController::SetAnimation(int motionIndex)
+void AnimatorController::SetAnimation(int upperIndex, int lowerIndex)
 {
-	if (mMotionMapInt.count(motionIndex)) {
-		std::string motionName = mMotionMapInt.at(motionIndex);
-		for (auto& layer : mLayers) {
-			if (layer->SetAnimation(motionName)) {
-				break;
-			}
+	auto& SetIndex = [&](int index) {
+		if (mMotionMapInt.count(index)) {
+			std::string motionName = mMotionMapInt.at(index);
+			mLayers[index]->SetAnimation(motionName);
 		}
-	}
+		};
+
+	SetIndex(upperIndex);
+	SetIndex(lowerIndex);
 }
 
 void AnimatorController::Start()
@@ -115,12 +116,28 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 		return;
 	}
 
-	rsptr<AnimatorMotion> nextMotion = mLayers[0]->CheckTransition(this, isChangeImmed);
-	if (nextMotion && mSendCallback) {
-		if (mMotionMapString.count(nextMotion->GetName())) {
-			int index = mMotionMapString.at(nextMotion->GetName());
-			mSendCallback(index);
+	bool isSend = false;
+	int upperIndex = 0;
+	int lowerIndex = 0;
+
+	for (auto& layer : mLayers) {
+		rsptr<AnimatorMotion> nextMotion = layer->CheckTransition(this, isChangeImmed);
+		if (nextMotion && mSendCallback) {
+			if (mMotionMapString.count(nextMotion->GetName())) {
+				int index = mMotionMapString.at(nextMotion->GetName());
+				if (isSend) {
+					lowerIndex = index;
+				}
+				else {
+					upperIndex = index;
+				}
+				isSend = true;
+			}
 		}
+	}
+
+	if (isSend) {
+		mSendCallback(upperIndex, lowerIndex);
 	}
 }
 

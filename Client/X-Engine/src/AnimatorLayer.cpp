@@ -253,7 +253,6 @@ bool AnimatorLayer::SetAnimation(const std::string& motionName)
 {
 	const auto& state = mRootStateMachine->FindMotionByName(motionName);
 	if (state) {
-		std::cout << state->GetName() << std::endl;
 		PushState(state);
 		return true;
 	}

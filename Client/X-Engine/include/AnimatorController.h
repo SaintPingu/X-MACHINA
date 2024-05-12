@@ -45,7 +45,7 @@ private:
 	std::unordered_map<int, std::string> mMotionMapInt{};
 	std::unordered_map<std::string, int> mMotionMapString{};
 
-	std::function<void(int)> mSendCallback{};
+	std::function<void(int, int)> mSendCallback{};
 
 public:
 	AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers);
@@ -126,7 +126,7 @@ public:
 		}
 	}
 
-	void SetAnimation(int motionIndex);
+	void SetAnimation(int upperIndex, int lowerIndex);
 	void SetPlayer() { mIsPlayer = true; }
 
 public:
@@ -141,7 +141,7 @@ public:
 
 	bool IsEndTransition(const std::string& layerName) const;
 	void UpdateTransition();
-	void SetAnimationSendCallback(std::function<void(int)> callback) { mSendCallback = callback; }
+	void SetAnimationSendCallback(std::function<void(int, int)> callback) { mSendCallback = callback; }
 
 private:
 	void InitLayers();

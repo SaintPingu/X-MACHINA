@@ -2,6 +2,7 @@
 
 #include "Script_Network.h"
 
+class GridObject;
 
 namespace PlayerNetworkInfo
 {
@@ -31,6 +32,10 @@ private:
 
 public:	
 	float GetYRotation();
+
+private:
+	void SetClientCallback_ChangeAnimation();
+	void ClientCallBack_ChangeAnimation(int index); // AnimationController 에서 Animation이 바뀌었을 때 이 함수가 호출된다. 
 
 };
 

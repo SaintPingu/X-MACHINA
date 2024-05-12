@@ -37,6 +37,7 @@ class AnimatorController : public Resource {
 	static constexpr bool is_valid_param_type = (std::is_same<T, bool>::value || std::is_same<T, int>::value || std::is_same<T, float>::value);
 
 private:
+	bool mIsPlayer{};
 	bool mIsCheckTransition{};
 	Animations::ParamMap mParameters{};
 
@@ -126,6 +127,7 @@ public:
 	}
 
 	void SetAnimation(int motionIndex);
+	void SetPlayer() { mIsPlayer = true; }
 
 public:
 	void Start();

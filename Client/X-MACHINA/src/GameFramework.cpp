@@ -359,7 +359,6 @@ void GameFramework::InitPlayer(int sessionID)
 #endif
 
 	mIsLogin = true;
-	CLIENT_NETWORK->SetClientCallback_ChangeAnimation(mPlayer);
 
 	//player->AddComponent<ParticleSystem>()->Load("Green")->SetTarget("Humanoid_ R Hand");
 	//player->AddComponent<ParticleSystem>()->Load("Fire")->SetTarget("Humanoid_ L Hand");

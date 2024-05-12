@@ -233,18 +233,6 @@ void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Game::EventData> dat
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
 }
 
-void ClientNetworkManager::SetClientCallback_ChangeAnimation(sptr<GridObject> player)
-{
-	player->GetAnimator()->GetController()->SetAnimationSendCallback(std::bind(&ClientNetworkManager::ClientCallBack_ChangeAnimation, this, std::placeholders::_1));
-}
-
-void ClientNetworkManager::ClientCallBack_ChangeAnimation(int index)
-{
-	/* Send Changed Animation Packet To Server */
-	auto pkt = FBS_FACTORY->CPkt_PlayerAnimation(index);
-	Send(pkt);
-
-}
 
 long long ClientNetworkManager::GetTimeStamp()
 {

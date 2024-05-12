@@ -443,7 +443,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayerAnimation(int AnimationIndex)
 
 	const uint8_t* bufferPointer      = builder.GetBufferPointer();
 	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-	SPtr_SendPktBuf sendBuffer        = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::SPkt_PlayerAnimation);
+	SPtr_SendPktBuf sendBuffer        = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_PlayerAnimation);
 	return sendBuffer;
 }
 

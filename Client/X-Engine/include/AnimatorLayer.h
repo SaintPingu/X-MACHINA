@@ -49,7 +49,7 @@ public:
 	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
 	sptr<AnimatorMotion> GetCrntMotion() const { return mCrntState; }
 
-	void PushState(rsptr<AnimatorMotion> nextState);
+	bool PushState(rsptr<AnimatorMotion> nextState);
 
 	bool SetAnimation(const std::string& motionName);
 	void AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString);

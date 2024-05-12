@@ -124,8 +124,11 @@ sptr<AnimatorMotion> AnimatorLayer::CheckTransition(const AnimatorController* co
 		return nextState;
 	}
 
-	PushState(nextState);
-	return nextState;
+	if (PushState(nextState)) {
+		return nextState;
+	}
+
+	return nullptr;
 }
 
 void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
@@ -211,16 +214,16 @@ void AnimatorLayer::SyncComplete()
 }
 #pragma endregion
 
-void AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
+bool AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
 {
 	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
 	if (it != mNextStates.end()) {
-		return;
+		return false;
 	}
 
 	if (nextState == mCrntState) {
 		if (mNextStates.empty()) {
-			return;
+			return false;
 		}
 		else {
 			mIsReverse = true;
@@ -242,12 +245,15 @@ void AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
 			mNextStates.push_back(nextState);
 		}
 	}
+
+	return true;
 }
 
 bool AnimatorLayer::SetAnimation(const std::string& motionName)
 {
 	const auto& state = mRootStateMachine->FindMotionByName(motionName);
 	if (state) {
+		std::cout << state->GetName() << std::endl;
 		PushState(state);
 		return true;
 	}

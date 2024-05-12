@@ -8,6 +8,8 @@
 #include "Object.h"
 #include "FBsPacketFactory.h"
 #include "Animator.h"
+#include "AnimatorController.h"
+#include "Object.h"
 
 #include "InputMgr.h"
 #include "Script_GroundObject.h"
@@ -19,7 +21,7 @@ void Script_PlayerNetwork::Awake()
 	base::Awake();
 
 	mLatencyTimePoint_latest = std::chrono::steady_clock::now();
-
+	SetClientCallback_ChangeAnimation();
 }
 
 void Script_PlayerNetwork::LateUpdate()
@@ -27,7 +29,7 @@ void Script_PlayerNetwork::LateUpdate()
 	base::LateUpdate();
 
 	DoInput();
-	DoNetLatency();
+	//DoNetLatency();
 
 }
 
@@ -130,4 +132,18 @@ void Script_PlayerNetwork::DoNetLatency()
 float Script_PlayerNetwork::GetYRotation()
 {
 	return Vector3::SignedAngle(Vector3::Forward, mObject->GetLook().xz(), Vector3::Up);
+}
+
+void Script_PlayerNetwork::SetClientCallback_ChangeAnimation()
+{
+	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+	controller->SetAnimationSendCallback(std::bind(&Script_PlayerNetwork::ClientCallBack_ChangeAnimation, this, std::placeholders::_1));
+	controller->SetPlayer();
+}
+
+void Script_PlayerNetwork::ClientCallBack_ChangeAnimation(int index)
+{
+	/* Send Changed Animation Packet To Server */
+	auto pkt = FBS_FACTORY->CPkt_PlayerAnimation(index);
+	CLIENT_NETWORK->Send(pkt);
 }

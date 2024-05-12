@@ -44,6 +44,8 @@ private:
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
 	std::atomic_int	    mBackSceneEventIndex = 1;	// BACK SCENE EVENT QUEUE INDEX 
 
+	int mAnimationIndex = -1;
+
 public:
 	ClientNetworkManager();
 	~ClientNetworkManager();
@@ -56,10 +58,6 @@ public:
 	void ProcessEvents();
 	void SwapEventsQueue(); 
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
-	
-
-	void SetClientCallback_ChangeAnimation(sptr<GridObject> player);
-	void ClientCallBack_ChangeAnimation(int index); // AnimationController 에서 Animation이 바뀌었을 때 이 함수가 호출된다. 
 
 
 public:

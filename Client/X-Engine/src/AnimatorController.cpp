@@ -126,10 +126,6 @@ bool AnimatorController::IsEndTransition(const std::string& layerName) const
 
 void AnimatorController::CheckTransition(bool isChangeImmed) const
 {
-	if (!mIsPlayer) {
-		return;
-	}
-
 	bool isSend = false;
 	int upperIndex = 0;
 	int lowerIndex = 0;
@@ -141,7 +137,7 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 		}
 	}
 
-	if (isSend) {
+	if (mIsPlayer && isSend) {
 		mSendCallback();
 	}
 }
@@ -160,7 +156,9 @@ void AnimatorController::InitLayers()
 		if (layer->GetName().contains("Legs")) {
 			layer->SetSyncStateMachine(true);
 		}
-		layer->AddStates(index, mMotionMapInt, mMotionMapString);
+		if (mIsPlayer) {
+			layer->AddStates(index, mMotionMapInt, mMotionMapString);
+		}
 	}
 	CheckTransition(true);
 }

@@ -8,6 +8,7 @@
 #pragma region ClassForwardDecl
 class Canvas;
 class Texture;
+class Shader;
 class ModelObjectMesh;
 #pragma endregion
 
@@ -16,13 +17,15 @@ class ModelObjectMesh;
 // 2D object (not entity)
 class UI : public Transform {
 protected:
+	bool			mIsActive = true;
 	sptr<Texture>	mTexture{};		// image
+	sptr<Shader>	mShader{};
 	float			mWidth{};
 	float			mHeight{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(rsptr<Texture> texture, Vec2 pos, float width, float height);
+	UI(rsptr<Texture> texture, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr);
 	virtual ~UI() = default;
 
 public:
@@ -32,6 +35,8 @@ public:
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec2& pos);
 	void SetPosition(const Vec3& pos);
+
+	void SetActive(bool val) { mIsActive = val; }
 
 private:
 	void UpdateShaderVars() const;
@@ -95,6 +100,6 @@ public:
 
 	void Update();
 	void Render() const;
-	sptr<UI> CreateUI(const std::string& texture, const Vec2& pos, float width, float height);
+	sptr<UI> CreateUI(const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
 };
 #pragma endregion

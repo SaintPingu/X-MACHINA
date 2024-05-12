@@ -286,6 +286,9 @@
     <ClInclude Include="include\Script_Onyscidus.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\MinimapAbility.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -443,6 +446,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_Onyscidus.cpp">
       <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MinimapAbility.cpp">
+      <Filter>Script\Abilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

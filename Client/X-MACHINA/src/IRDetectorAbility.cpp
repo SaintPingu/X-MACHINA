@@ -19,7 +19,6 @@ IRDetectorAbility::IRDetectorAbility()
 
 	mRenderedMesh = RESOURCE<ModelObjectMesh>("Rect");
 	mShader = RESOURCE<Shader>("IRDetectorAbility");
-
 	mAbilityCB.UIIndex = RESOURCE<Texture>("IRDetectorUI")->GetSrvIdx();
 }
 

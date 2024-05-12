@@ -174,11 +174,20 @@ struct ObjectConstants {
 	float	RimFactor{};
 };
 
+struct MinimapConstants {
+	Vec2 PlayerPos{};
+	Vec2 MinimapStartPos{};
+	Vec2 MinimapSize{};
+	Vec2 MinimapWorldSize{};
+};
+
 struct AbilityConstants {
 	float   ActiveTime{};
 	float   AccTime{};
 	float	Duration{};
 	int		UIIndex{};
+
+	MinimapConstants MinimapData{};
 };
 #pragma endregion
 

@@ -132,10 +132,17 @@ bool FBsPacketFactory::Process_SPkt_Chat(SPtr_Session session, const FBProtocol:
 
 bool FBsPacketFactory::Process_SPkt_PlayerAnimation(SPtr_Session session, const FBProtocol::SPkt_PlayerAnimation& pkt)
 {
-	int SessionId = pkt.object_id();
-	int AnimIndex = pkt.animation_index();
-
-	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_ChangeAnimation_RemotePlayer(SessionId, AnimIndex);
+	int ObjectID                = pkt.object_id();
+	int32_t animation_upper_idx = pkt.animation_upper_index();
+	int32_t animation_lower_idx = pkt.animation_lower_index();
+	int32_t animation_param_h   = pkt.animation_param_h();
+	int32_t animation_param_v   = pkt.animation_param_v();
+	
+	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_ChangeAnimation_RemotePlayer(ObjectID
+																																, animation_upper_idx
+																																, animation_lower_idx
+																																, animation_param_h
+																																, animation_param_v);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
 	return false;
@@ -435,10 +442,16 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t mov
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayerAnimation(int AnimationIndex)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayerAnimation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
 {
 	flatbuffers::FlatBufferBuilder builder{};
-	auto ServerPacket = FBProtocol::CreateCPkt_PlayerAnimation(builder, static_cast<int32_t>(AnimationIndex));
+
+	int32_t animation_upper_index = static_cast<int32_t>(anim_upper_idx);
+	int32_t animation_lower_index = static_cast<int32_t>(anim_lower_idx);
+	int32_t animation_param_h     = static_cast<int32_t>(anim_param_h);
+	int32_t animation_param_v     = static_cast<int32_t>(anim_param_v);
+
+	auto ServerPacket = FBProtocol::CreateCPkt_PlayerAnimation(builder, animation_upper_index, animation_lower_index, animation_param_h, animation_param_v);
 	builder.Finish(ServerPacket);
 
 	const uint8_t* bufferPointer      = builder.GetBufferPointer();

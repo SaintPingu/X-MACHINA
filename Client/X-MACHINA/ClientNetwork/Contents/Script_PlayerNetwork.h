@@ -3,6 +3,7 @@
 #include "Script_Network.h"
 
 class GridObject;
+class AnimatorController;
 
 namespace PlayerNetworkInfo
 {
@@ -15,6 +16,7 @@ class Script_PlayerNetwork : public Script_Network{
 	COMPONENT(Script_PlayerNetwork, Script_Network)
 
 private:
+	sptr<AnimatorController> mController{};
 	std::chrono::steady_clock::time_point mMoveTimePoint_latest = {};
 	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
 
@@ -35,7 +37,7 @@ public:
 
 private:
 	void SetClientCallback_ChangeAnimation();
-	void ClientCallBack_ChangeAnimation(int index); // AnimationController 에서 Animation이 바뀌었을 때 이 함수가 호출된다. 
+	void ClientCallBack_ChangeAnimation(int anim_upper_idx, int anim_lower_idx); // AnimationController 에서 Animation이 바뀌었을 때 이 함수가 호출된다. 
 
 };
 

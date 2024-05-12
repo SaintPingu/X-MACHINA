@@ -51,39 +51,6 @@ inline const char *EnumNameOBJECTTYPE(OBJECTTYPE e) {
   return EnumNamesOBJECTTYPE()[index];
 }
 
-enum MOVESTATE : int8_t {
-  MOVESTATE_MOVE_START = 0,
-  MOVESTATE_MOVE_PROGRESS = 1,
-  MOVESTATE_MOVE_END = 2,
-  MOVESTATE_MIN = MOVESTATE_MOVE_START,
-  MOVESTATE_MAX = MOVESTATE_MOVE_END
-};
-
-inline const MOVESTATE (&EnumValuesMOVESTATE())[3] {
-  static const MOVESTATE values[] = {
-    MOVESTATE_MOVE_START,
-    MOVESTATE_MOVE_PROGRESS,
-    MOVESTATE_MOVE_END
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesMOVESTATE() {
-  static const char * const names[4] = {
-    "MOVE_START",
-    "MOVE_PROGRESS",
-    "MOVE_END",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameMOVESTATE(MOVESTATE e) {
-  if (::flatbuffers::IsOutRange(e, MOVESTATE_MOVE_START, MOVESTATE_MOVE_END)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesMOVESTATE()[index];
-}
-
 }  // namespace FBProtocol
 
 #endif  // FLATBUFFERS_GENERATED_ENUM_FBPROTOCOL_H_

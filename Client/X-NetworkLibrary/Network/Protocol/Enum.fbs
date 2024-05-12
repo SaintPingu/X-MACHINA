@@ -12,8 +12,3 @@ enum OBJECTTYPE : byte {
   STRUCTURE
 }
 
-enum MOVESTATE : byte{
-	MOVE_START,
-	MOVE_PROGRESS,
-	MOVE_END
-}

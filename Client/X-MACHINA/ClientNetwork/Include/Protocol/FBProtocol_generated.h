@@ -547,8 +547,8 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   int64_t latency() const {
     return GetField<int64_t>(VT_LATENCY, 0);
   }
-  FBProtocol::MOVESTATE move_state() const {
-    return static_cast<FBProtocol::MOVESTATE>(GetField<int8_t>(VT_MOVE_STATE, 0));
+  int32_t move_state() const {
+    return GetField<int32_t>(VT_MOVE_STATE, 0);
   }
   float velocity() const {
     return GetField<float>(VT_VELOCITY, 0.0f);
@@ -565,7 +565,7 @@ struct CPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
-           VerifyField<int8_t>(verifier, VT_MOVE_STATE, 1) &&
+           VerifyField<int32_t>(verifier, VT_MOVE_STATE, 4) &&
            VerifyField<float>(verifier, VT_VELOCITY, 4) &&
            VerifyOffset(verifier, VT_MOVEDIR) &&
            verifier.VerifyTable(movedir()) &&
@@ -584,8 +584,8 @@ struct CPkt_TransformBuilder {
   void add_latency(int64_t latency) {
     fbb_.AddElement<int64_t>(CPkt_Transform::VT_LATENCY, latency, 0);
   }
-  void add_move_state(FBProtocol::MOVESTATE move_state) {
-    fbb_.AddElement<int8_t>(CPkt_Transform::VT_MOVE_STATE, static_cast<int8_t>(move_state), 0);
+  void add_move_state(int32_t move_state) {
+    fbb_.AddElement<int32_t>(CPkt_Transform::VT_MOVE_STATE, move_state, 0);
   }
   void add_velocity(float velocity) {
     fbb_.AddElement<float>(CPkt_Transform::VT_VELOCITY, velocity, 0.0f);
@@ -613,7 +613,7 @@ struct CPkt_TransformBuilder {
 inline ::flatbuffers::Offset<CPkt_Transform> CreateCPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int64_t latency = 0,
-    FBProtocol::MOVESTATE move_state = FBProtocol::MOVESTATE_MOVE_START,
+    int32_t move_state = 0,
     float velocity = 0.0f,
     ::flatbuffers::Offset<FBProtocol::Vector3> movedir = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
@@ -645,8 +645,8 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   int64_t latency() const {
     return GetField<int64_t>(VT_LATENCY, 0);
   }
-  FBProtocol::MOVESTATE move_state() const {
-    return static_cast<FBProtocol::MOVESTATE>(GetField<int8_t>(VT_MOVE_STATE, 0));
+  int32_t move_state() const {
+    return GetField<int32_t>(VT_MOVE_STATE, 0);
   }
   float velocity() const {
     return GetField<float>(VT_VELOCITY, 0.0f);
@@ -664,7 +664,7 @@ struct SPkt_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
            VerifyField<int64_t>(verifier, VT_LATENCY, 8) &&
-           VerifyField<int8_t>(verifier, VT_MOVE_STATE, 1) &&
+           VerifyField<int32_t>(verifier, VT_MOVE_STATE, 4) &&
            VerifyField<float>(verifier, VT_VELOCITY, 4) &&
            VerifyOffset(verifier, VT_MOVEDIR) &&
            verifier.VerifyTable(movedir()) &&
@@ -686,8 +686,8 @@ struct SPkt_TransformBuilder {
   void add_latency(int64_t latency) {
     fbb_.AddElement<int64_t>(SPkt_Transform::VT_LATENCY, latency, 0);
   }
-  void add_move_state(FBProtocol::MOVESTATE move_state) {
-    fbb_.AddElement<int8_t>(SPkt_Transform::VT_MOVE_STATE, static_cast<int8_t>(move_state), 0);
+  void add_move_state(int32_t move_state) {
+    fbb_.AddElement<int32_t>(SPkt_Transform::VT_MOVE_STATE, move_state, 0);
   }
   void add_velocity(float velocity) {
     fbb_.AddElement<float>(SPkt_Transform::VT_VELOCITY, velocity, 0.0f);
@@ -716,7 +716,7 @@ inline ::flatbuffers::Offset<SPkt_Transform> CreateSPkt_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t object_id = 0,
     int64_t latency = 0,
-    FBProtocol::MOVESTATE move_state = FBProtocol::MOVESTATE_MOVE_START,
+    int32_t move_state = 0,
     float velocity = 0.0f,
     ::flatbuffers::Offset<FBProtocol::Vector3> movedir = 0,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,

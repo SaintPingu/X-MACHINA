@@ -112,8 +112,8 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 	for (auto& layer : mLayers) {
 		rsptr<AnimatorMotion> nextMotion = layer->CheckTransition(this, isChangeImmed);
 		if (nextMotion && mSendCallback) {
-			int index = mMotionMapString.at(nextMotion->GetName());
-			mSendCallback(index);
+			//int index = mMotionMapString.at(nextMotion->GetName());
+			//mSendCallback(index);
 		}
 	}
 }

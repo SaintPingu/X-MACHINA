@@ -6,6 +6,7 @@
 #include "GameFramework.h"
 #include "X-Engine.h"
 #include "Object.h"
+#include "FBsPacketFactory.h"
 #include "Animator.h"
 
 #include "InputMgr.h"
@@ -26,7 +27,7 @@ void Script_PlayerNetwork::LateUpdate()
 	base::LateUpdate();
 
 	DoInput();
-	DoNetLatency();
+	//DoNetLatency();
 
 }
 
@@ -51,7 +52,7 @@ void Script_PlayerNetwork::DoInput()
 		Vec4					QuatRot = GameFramework::I->GetPlayer()->GetRotation();
 		Vec3 Rot{};  Rot.y = GetYRotation();
 
-		FBProtocol::MOVESTATE	moveState  = FBProtocol::MOVESTATE::MOVESTATE_MOVE_START;
+		int32_t	moveState = PLAYER_MOVE_STATE::Start;
 		Vec3					SpineDir   = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 		long long				latency    = FBS_FACTORY->CurrLatency.load();
 
@@ -76,7 +77,7 @@ void Script_PlayerNetwork::DoInput()
 			Vec4					QuatRot       = GameFramework::I->GetPlayer()->GetRotation();
 			Vec3 Rot{};  Rot.y = GetYRotation();
 
-			FBProtocol::MOVESTATE	moveState = FBProtocol::MOVESTATE::MOVESTATE_MOVE_PROGRESS;
+			int32_t	moveState = PLAYER_MOVE_STATE::Progress;
 			Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 			long long				latency   = FBS_FACTORY->CurrLatency.load();
 
@@ -96,7 +97,7 @@ void Script_PlayerNetwork::DoInput()
 		Vec4					QuatRot = GameFramework::I->GetPlayer()->GetRotation();
 		Vec3 Rot{};  Rot.y = GetYRotation();
 
-		FBProtocol::MOVESTATE	moveState = FBProtocol::MOVESTATE::MOVESTATE_MOVE_END;
+		int32_t	moveState = PLAYER_MOVE_STATE::End;
 		Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 		long long				latency   = FBS_FACTORY->CurrLatency.load();
 

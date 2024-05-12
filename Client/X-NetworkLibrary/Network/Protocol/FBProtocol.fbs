@@ -89,7 +89,7 @@ table SPkt_Chat
 table CPkt_Transform
 {
 	latency     : long;
-	move_state  : MOVESTATE;
+	move_state  : int;
 
 	velocity    : float;
 	movedir     : Vector3;
@@ -101,7 +101,7 @@ table SPkt_Transform
 {
 	object_id	: ulong;
 	latency     : long;
-	move_state  : MOVESTATE;
+	move_state  : int;
 
 	velocity    : float;
 	movedir     : Vector3;

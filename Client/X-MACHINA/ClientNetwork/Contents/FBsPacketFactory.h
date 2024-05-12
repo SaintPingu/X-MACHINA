@@ -14,6 +14,14 @@
 #include "GamePlayer.h"
 #include "InputMgr.h"
 
+namespace PLAYER_MOVE_STATE
+{
+	constexpr int32_t Start    = 0;
+	constexpr int32_t Progress = 1;
+	constexpr int32_t End      = 2;
+
+}
+
 #define FBS_FACTORY FBsPacketFactory::GetInst()
 class FBsPacketFactory
 {
@@ -55,7 +63,7 @@ public:
 	SPtr_SendPktBuf CPkt_NewPlayer();
 	SPtr_SendPktBuf CPkt_RemovePlayer(int removeSessionID);
 	SPtr_SendPktBuf CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInfo::KEY_STATE KeyState, GameKeyInfo::MoveKey moveKey, Vec2 mouseDelta);
-	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, FBProtocol::MOVESTATE movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency);
+	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency);
 	SPtr_SendPktBuf CPkt_PlayerAnimation(int AnimationIndex);
 
 

@@ -255,13 +255,13 @@ bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProt
 	Vec3 moveDir		            = GetVector3(pkt.movedir());
 	Vec3 Packetpos		            = GetVector3(pkt.trans()->position());
 	Vec3 rot                        = GetVector3(pkt.trans()->rotation());
-	FBProtocol::MOVESTATE movestate = pkt.move_state(); 
+	int32_t movestate = pkt.move_state(); 
 	Vec3 SDir                       = GetVector3(pkt.spine_look());
 	
 	ExtData::MOVESTATE mState;
-	if (movestate == FBProtocol::MOVESTATE::MOVESTATE_MOVE_START)			mState = ExtData::MOVESTATE::Start;
-	else if (movestate == FBProtocol::MOVESTATE::MOVESTATE_MOVE_PROGRESS)	mState = ExtData::MOVESTATE::Progress;
-	else if (movestate == FBProtocol::MOVESTATE::MOVESTATE_MOVE_END)		mState = ExtData::MOVESTATE::End;
+	if (movestate == PLAYER_MOVE_STATE::Start)			mState = ExtData::MOVESTATE::Start;
+	else if (movestate == PLAYER_MOVE_STATE::Progress)	mState = ExtData::MOVESTATE::Progress;
+	else if (movestate == PLAYER_MOVE_STATE::End)		mState = ExtData::MOVESTATE::End;
 
 
 	sptr<NetworkEvent::Game::Move_RemotePlayer> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
@@ -415,7 +415,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInf
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, FBProtocol::MOVESTATE movestate , Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate , Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 

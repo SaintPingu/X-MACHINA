@@ -31,17 +31,17 @@ AnimatorController::AnimatorController(const AnimatorController& other)
 	InitLayers();
 }
 
-void AnimatorController::SetAnimation(int upperIndex, int lowerIndex)
+void AnimatorController::SetAnimation(int upperIndex, int lowerIndex, float v, float h)
 {
-	auto& SetIndex = [&](int index) {
+	auto& SetIndex = [&](int layerIndex, int index) {
 		if (mMotionMapInt.count(index)) {
 			std::string motionName = mMotionMapInt.at(index);
-			mLayers[index]->SetAnimation(motionName);
+			mLayers[layerIndex]->SetAnimation(motionName);
 		}
 		};
 
-	SetIndex(upperIndex);
-	SetIndex(lowerIndex);
+	SetIndex(0, upperIndex);
+	SetIndex(1, lowerIndex);
 }
 
 void AnimatorController::Start()
@@ -73,6 +73,20 @@ Matrix AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 	}
 
 	return Matrix::Identity;
+}
+
+int AnimatorController::GetMotionIndex(const std::string& layerName)
+{
+	for (auto& layer : mLayers) {
+		if (layer->GetName() == layerName) {
+			const auto& motion = layer->GetLastMotion();
+			if (mMotionMapString.count(motion->GetName())) {
+				return mMotionMapString.at(motion->GetName());
+			}
+		}
+	}
+
+	return -1;
 }
 
 void AnimatorController::SyncAnimation() const
@@ -123,21 +137,12 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 	for (auto& layer : mLayers) {
 		rsptr<AnimatorMotion> nextMotion = layer->CheckTransition(this, isChangeImmed);
 		if (nextMotion && mSendCallback) {
-			if (mMotionMapString.count(nextMotion->GetName())) {
-				int index = mMotionMapString.at(nextMotion->GetName());
-				if (isSend) {
-					lowerIndex = index;
-				}
-				else {
-					upperIndex = index;
-				}
-				isSend = true;
-			}
+			isSend = true;
 		}
 	}
 
 	if (isSend) {
-		mSendCallback(upperIndex, lowerIndex);
+		mSendCallback();
 	}
 }
 
@@ -155,9 +160,7 @@ void AnimatorController::InitLayers()
 		if (layer->GetName().contains("Legs")) {
 			layer->SetSyncStateMachine(true);
 		}
-		else {
-			layer->AddStates(index, mMotionMapInt, mMotionMapString);
-		}
+		layer->AddStates(index, mMotionMapInt, mMotionMapString);
 	}
 	CheckTransition(true);
 }

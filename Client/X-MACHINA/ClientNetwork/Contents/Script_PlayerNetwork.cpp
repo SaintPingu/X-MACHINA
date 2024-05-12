@@ -22,7 +22,6 @@ void Script_PlayerNetwork::Awake()
 
 	mLatencyTimePoint_latest = std::chrono::steady_clock::now();
 	SetClientCallback_ChangeAnimation();
-	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 }
 
 void Script_PlayerNetwork::LateUpdate()
@@ -137,14 +136,20 @@ float Script_PlayerNetwork::GetYRotation()
 
 void Script_PlayerNetwork::SetClientCallback_ChangeAnimation()
 {
-	mController->SetAnimationSendCallback(std::bind(&Script_PlayerNetwork::ClientCallBack_ChangeAnimation, this, std::placeholders::_1, std::placeholders::_2));
-	mController->SetPlayer();
+	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+
+	controller->SetAnimationSendCallback(std::bind(&Script_PlayerNetwork::ClientCallBack_ChangeAnimation, this));
+	controller->SetPlayer();
 }
 
-void Script_PlayerNetwork::ClientCallBack_ChangeAnimation(int anim_upper_idx, int anim_lower_idx)
+void Script_PlayerNetwork::ClientCallBack_ChangeAnimation()
 {
-	float v = mController->GetParamValue<float>("Vertical");
-	float h = mController->GetParamValue<float>("Horizontal");
+	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+
+	int anim_upper_idx = controller->GetMotionIndex("Body");
+	int anim_lower_idx = controller->GetMotionIndex("Legs");
+	float v = controller->GetParam("Vertical")->val.f;
+	float h = controller->GetParam("Horizontal")->val.f;
 
 	/* Send Changed Animation Packet To Server */
 	auto pkt = FBS_FACTORY->CPkt_PlayerAnimation(anim_upper_idx, anim_lower_idx, h, v);

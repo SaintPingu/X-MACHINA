@@ -29,7 +29,7 @@ void Script_PlayerNetwork::LateUpdate()
 	base::LateUpdate();
 
 	DoInput();
-	//DoNetLatency();
+	DoNetLatency();
 
 }
 
@@ -86,7 +86,7 @@ void Script_PlayerNetwork::DoInput()
 			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 			float					animparam_h = controller->GetParam("Horizontal")->val.f;
 			float					animparam_v = controller->GetParam("Vertical")->val.f;
-			std::cout << "Send : " << animparam_h << ", " << animparam_v << std::endl;
+
 			auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
 			CLIENT_NETWORK->Send(pkt);
 

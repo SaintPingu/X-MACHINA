@@ -27,7 +27,7 @@ void Script_PlayerNetwork::LateUpdate()
 	base::LateUpdate();
 
 	DoInput();
-	//DoNetLatency();
+	DoNetLatency();
 
 }
 

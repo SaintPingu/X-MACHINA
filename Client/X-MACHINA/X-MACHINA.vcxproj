@@ -169,7 +169,10 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\X-Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -207,6 +210,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
+    <ClInclude Include="include\Script_Onyscidus.h" />
     <ClInclude Include="include\ShieldAbility.h" />
     <ClInclude Include="include\Script_AbilityHolder.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
@@ -215,23 +219,16 @@
     <ClInclude Include="include\CheckPatrolRange.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\GameFramework.h" />
-    <ClInclude Include="include\ObjectMgr.h" />
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
-    <ClInclude Include="include\Script_Apache.h" />
-    <ClInclude Include="include\Script_Aranobot.h" />
     <ClInclude Include="include\Script_BehaviorTree.h" />
     <ClInclude Include="include\Script_Billboard.h" />
     <ClInclude Include="include\Script_Bullet.h" />
     <ClInclude Include="include\Script_Missile.h" />
-    <ClInclude Include="include\Script_Droid.h" />
     <ClInclude Include="include\Script_Enemy.h" />
     <ClInclude Include="include\Script_EnemyManager.h" />
-    <ClInclude Include="include\Script_ExplosiveObject.h" />
-    <ClInclude Include="include\Script_Fragment.h" />
     <ClInclude Include="include\Script_GameManager.h" />
     <ClInclude Include="include\Script_GroundObject.h" />
-    <ClInclude Include="include\Script_Gunship.h" />
     <ClInclude Include="include\Script_LiveObject.h" />
     <ClInclude Include="include\Script_MainCamera.h" />
     <ClInclude Include="include\Script_MeleeBT.h" />
@@ -267,6 +264,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />
+    <ClCompile Include="src\Script_Onyscidus.cpp" />
     <ClCompile Include="src\ShieldAbility.cpp" />
     <ClCompile Include="src\Script_AbilityHolder.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />
@@ -274,23 +272,16 @@
     <ClCompile Include="src\CheckDetectionRange.cpp" />
     <ClCompile Include="src\CheckPatrolRange.cpp" />
     <ClCompile Include="src\GameFramework.cpp" />
-    <ClCompile Include="src\ObjectMgr.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
-    <ClCompile Include="src\Script_Apache.cpp" />
-    <ClCompile Include="src\Script_Aranobot.cpp" />
     <ClCompile Include="src\Script_BehaviorTree.cpp" />
     <ClCompile Include="src\Script_Billboard.cpp" />
     <ClCompile Include="src\Script_Bullet.cpp" />
     <ClCompile Include="src\Script_Missile.cpp" />
-    <ClCompile Include="src\Script_Droid.cpp" />
     <ClCompile Include="src\Script_Enemy.cpp" />
     <ClCompile Include="src\Script_EnemyManager.cpp" />
-    <ClCompile Include="src\Script_ExplosiveObject.cpp" />
-    <ClCompile Include="src\Script_Fragment.cpp" />
     <ClCompile Include="src\Script_GameManager.cpp" />
     <ClCompile Include="src\Script_GroundObject.cpp" />
     <ClCompile Include="src\Script_GroundPlayer.cpp" />
-    <ClCompile Include="src\Script_Gunship.cpp" />
     <ClCompile Include="src\Script_LiveObject.cpp" />
     <ClCompile Include="src\Script_MainCamera.cpp" />
     <ClCompile Include="src\Script_MeleeBT.cpp" />

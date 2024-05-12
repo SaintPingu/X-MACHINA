@@ -126,9 +126,11 @@ bool TaskPathPlanningAStar::PathPlanningAStar(Pos start, Pos dest)
 		prevDir = dir;
 	}
 
-	// 자연스러운 움직임을 위해 첫 번째 경로는 삭제
+	// 자연스러운 움직임을 위해 첫 번째 경로는 삭	제
 	Scene::I->GetOpenList().push_back(Scene::I->GetTilePosFromUniqueIndex(start));
-	mPath->pop();
+	if (!mPath->empty()) {
+		mPath->pop();
+	}
 
 	if (mPath->empty()) {
 		return false;

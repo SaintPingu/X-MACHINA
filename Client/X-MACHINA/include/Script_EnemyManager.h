@@ -32,10 +32,14 @@ public:
 	float mAttackRange		= 2.f;
 	float mAttackCoolTime	= 1.5f;
 	std::string mAttackName = "Attack";
+	std::string mGetHitName = "GetHit";
 	EnemyState mState		= EnemyState::Idle;
 
 	sptr<Object> mTarget{};
 	std::stack<Vec3> mPath{};
 	sptr<AnimatorController> mController{};
+
+public:
+	void RemoveAllAnimation();
 };
 #pragma endregion

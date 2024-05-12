@@ -77,7 +77,7 @@ namespace FileIO {
 	}
 
 	namespace AnimationIO {
-		void LoadAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo);
+		void SetAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo);
 		sptr<AnimationClip> LoadAnimationClip(const std::string& filePath);
 
 		sptr<AnimatorController> LoadAnimatorController(const std::string& filePath);

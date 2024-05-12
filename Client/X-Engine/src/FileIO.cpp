@@ -179,7 +179,11 @@ namespace {
 					int skinBoneCnt = FileIO::ReadVal<int>(file);
 					if (skinBoneCnt > 0) {
 						mesh->mBoneNames.resize(skinBoneCnt);
-						mesh->mBoneTypes.resize(skinBoneCnt);
+
+						if (avatar) {
+							mesh->mBoneTypes.resize(skinBoneCnt);
+						}
+
 						for (int i = 0; i < skinBoneCnt; i++)
 						{
 							FileIO::ReadString(file, mesh->mBoneNames[i]);
@@ -300,7 +304,7 @@ namespace {
 					break;
 
 				case Hash("<Smoothness>:"):
-					FileIO::ReadVal(file, temp2);
+					FileIO::ReadVal(file, matInfo->Roughness);
 					break;
 
 				case Hash("<SpecularHighlight>:"):
@@ -644,13 +648,10 @@ namespace {
 				switch (Hash(motionType)) {
 				case Hash("<BlendTree>:"):
 					motion = LoadAnimatorBlendTree(file, motionInfo);
-
 					break;
 				case Hash("<State>:"):
-				{
 					motion = LoadAnimatorState(file, motionInfo);
-				}
-				break;
+					break;
 				default:
 					assert(0);
 					break;
@@ -742,7 +743,8 @@ namespace FileIO {
 				switch (Hash(token)) {
 				case Hash("<Controller>:"):
 					animationInfo = std::make_shared<AnimationLoadInfo>();
-					FileIO::AnimationIO::LoadAnimation(file, animationInfo);
+					FileIO::AnimationIO::SetAnimation(file, animationInfo);
+					FileIO::ReadVal(file, animationInfo->IsManualBoneCalc);
 					break;
 
 				case Hash("<Hierarchy>:"):
@@ -838,7 +840,7 @@ namespace FileIO {
 	}
 
 	namespace AnimationIO {
-		void LoadAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
+		void SetAnimation(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
 		{
 			FileIO::ReadString(file, animationInfo->AnimatorControllerFile);
 		}

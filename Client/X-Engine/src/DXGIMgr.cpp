@@ -216,7 +216,7 @@ void DXGIMgr::Update()
 {
 	mFrameResourceMgr->Update();
 
-	// ÇöÀç ÇÁ·¹ÀÓÀÇ ¸í·É ÇÒ´çÀÚ¸¦ °¡Á®¿Â´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½.
 	auto& cmdAllocator = mFrameResourceMgr->GetCurrFrameResource()->CmdAllocator;
 	cmdAllocator->Reset();
 	mCmdList->Reset(cmdAllocator.Get(), NULL);
@@ -227,7 +227,7 @@ void DXGIMgr::Update()
 void DXGIMgr::Render()
 {
 #pragma region MainRender
-	// ÇØ´ç ÇÔ¼öµé ¾È¿¡¼­ ÀÚ½ÅÀÌ »ç¿ëÇÒ ±íÀÌ ¹öÆÛ¸¦ Å¬¸®¾î ÇÑ´Ù.
+	// ï¿½Ø´ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½È¿ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx, 1.f);
 	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView(1.f);
@@ -235,31 +235,31 @@ void DXGIMgr::Render()
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView(0, 1.f);
 	GetMRT(GroupType::CustomDepth)->ClearRenderTargetView(0.f);
 
-	// ±×¸²ÀÚ ¸Ê ÅØ½ºÃ³¸¦ ·»´õ Å¸°ÙÀ¸·Î ¼³Á¤ÇÏ°í ±×¸²ÀÚ ·»´õ¸µ
+	// ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 	Scene::I->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();
 
-	// GBuffer¸¦ ·»´õ Å¸°ÙÀ¸·Î ¼³Á¤ÇÏ°í µðÆÛµå ·»´õ¸µ
+	// GBufferï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½Ûµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	GetMRT(GroupType::GBuffer)->OMSetRenderTargets();
 	Scene::I->RenderDeferred();
 	GetMRT(GroupType::GBuffer)->WaitTargetToResource();
 
-	// deferred ·»´õ¸µ °´Ã¼¿¡ ´ëÇØ¼­¸¸ ssao ÁøÇà
+	// deferred ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ ssao ï¿½ï¿½ï¿½ï¿½
 	if (mFilterOption & FilterOption::Ssao)
-		mSsao->Execute(2);
+		mSsao->Execute(1);
 
-	// ¶óÀÌÆ® ¸Ê ÅØ½ºÃ³¸¦ ·»´õ Å¸°ÙÀ¸·Î ¼³Á¤ÇÏ°í ¶óÀÌÆ® ·»´õ¸µ
+	// ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	GetMRT(GroupType::Lighting)->OMSetRenderTargets();
 	Scene::I->RenderLights();
 	GetMRT(GroupType::Lighting)->WaitTargetToResource();
 
-	// Ä¿½ºÅÒ ±íÀÌ ¹öÆÛ ·»´õ¸µ 
+	// Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	GetMRT(GroupType::CustomDepth)->OMSetRenderTargets(0, 0);
 	Scene::I->RenderCustomDepth();
 	GetMRT(GroupType::CustomDepth)->WaitTargetToResource();
 
-	// ÈÄ¸é ¹öÆÛ´ë½Å È­¸é ¹Û ÅØ½ºÃ³¸¦ ·»´õ Å¸°ÙÀ¸·Î ¼³Á¤ÇÏ°í ·»´õ¸µ
+	// ï¿½Ä¸ï¿½ ï¿½ï¿½ï¿½Û´ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	GetMRT(GroupType::GBuffer)->WaitResourceToTarget(static_cast<UINT8>(GBuffer::Normal));
 	GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
 	Scene::I->RenderFinal();
@@ -304,14 +304,14 @@ void DXGIMgr::MainPassRenderBegin()
 
 	mDescriptorHeap->Set();
 
-	// ±×·¡ÇÈ½º ½¦ÀÌ´õ °ü·Ã ¼³Á¤
+	// ï¿½×·ï¿½ï¿½È½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	CMD_LIST->SetGraphicsRootSignature(GetGraphicsRootSignature().Get());
 	CMD_LIST->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Ssao), FRAME_RESOURCE_MGR->GetSSAOCBGpuAddr());
 	CMD_LIST->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(RootParam::Material), FRAME_RESOURCE_MGR->GetMatBufferGpuAddr());
 	CMD_LIST->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::Texture), mDescriptorHeap->GetGPUHandle());
 	CMD_LIST->SetGraphicsRootDescriptorTable(GetGraphicsRootParamIndex(RootParam::SkyBox), mDescriptorHeap->GetSkyBoxGPUStartSrvHandle());
 
-	// ÆÄÆ¼Å¬ ÄÄÇ»Æ® ½¦ÀÌ´õ °ü·Ã ¼³Á¤
+	// ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½Ç»Æ® ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	CMD_LIST->SetComputeRootSignature(GetParticleComputeRootSignature().Get());
 	CMD_LIST->SetComputeRootShaderResourceView(GetParticleComputeRootParamIndex(RootParam::ParticleSystem), FRAME_RESOURCE_MGR->GetParticleSystemGpuAddr());
 	CMD_LIST->SetComputeRootUnorderedAccessView(GetParticleComputeRootParamIndex(RootParam::ParticleShared), FRAME_RESOURCE_MGR->GetParticleSharedGpuAddr());
@@ -319,11 +319,11 @@ void DXGIMgr::MainPassRenderBegin()
 
 void DXGIMgr::PostPassRenderBegin()
 {
-	// imgui ·»´õ ÁØºñ ¹× ¾÷µ¥ÀÌÆ®
+	// imgui ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	//ImGuiMgr::I->Render_Prepare();
 	//ImGuiMgr::I->Update();
 
-	// Æ÷½ºÆ® ÇÁ·Î¼¼½Ì ÄÄÇ»Æ® ½¦ÀÌ´õ °ü·Ã ¼³Á¤
+	// ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½ï¿½Ç»Æ® ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	CMD_LIST->SetComputeRootSignature(GetComputeRootSignature().Get());
 }
 
@@ -427,7 +427,7 @@ void DXGIMgr::CreateCmdQueueAndList()
 
 void DXGIMgr::CreateSwapChain()
 {
-	// clientÀÇ screen rect¸¦ OS·ÎºÎÅÍ ¹Þ¾Æ¿Í ¼³Á¤ÇÑ´Ù.
+	// clientï¿½ï¿½ screen rectï¿½ï¿½ OSï¿½Îºï¿½ï¿½ï¿½ ï¿½Þ¾Æ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	RECT clientRect;
 	::GetClientRect(mWindow.Hwnd, &clientRect);
 	mWindow.Width = static_cast<short>(clientRect.right - clientRect.left);
@@ -507,7 +507,7 @@ void DXGIMgr::CreateMRTs()
 	{
 		std::vector<RenderTarget> rts(mSwapChainBuffCnt);
 
-		// ÈÄ¸é ¹öÆÛ ¸®¼Ò½º¸¦ MRT Å¸°Ù¿¡ ¼³Á¤ÇÑ´Ù. 
+		// ï¿½Ä¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ MRT Å¸ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. 
 		for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 			ComPtr<ID3D12Resource> resource;
 			mSwapChain->GetBuffer(i, IID_PPV_ARGS(&resource));
@@ -523,7 +523,7 @@ void DXGIMgr::CreateMRTs()
 
 #pragma region Shadow
 	{
-		// ±×¸²ÀÚ¿¡¼­´Â ±íÀÌ ¹öÆÛ¸¸ »ç¿ëÇÏ¸ç ¾î¶°ÇÑ ·»´õ Å¸°Ùµµ »ç¿ëÇÏÁö ¾Ê´Â´Ù.
+		// ï¿½×¸ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½î¶°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ùµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 		std::vector<RenderTarget> rts(0);
 		mMRTs[static_cast<UINT8>(GroupType::Shadow)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->Create(GroupType::Shadow, std::move(rts), mShadowDs);
@@ -532,7 +532,7 @@ void DXGIMgr::CreateMRTs()
 
 #pragma region Shadow
 	{
-		// ±×¸²ÀÚ¿¡¼­´Â ±íÀÌ ¹öÆÛ¸¸ »ç¿ëÇÏ¸ç ¾î¶°ÇÑ ·»´õ Å¸°Ùµµ »ç¿ëÇÏÁö ¾Ê´Â´Ù.
+		// ï¿½×¸ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½î¶°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ùµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 		std::vector<RenderTarget> rts(0);
 		mMRTs[static_cast<UINT8>(GroupType::CustomDepth)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::CustomDepth)]->Create(GroupType::CustomDepth, std::move(rts), mCustomDs);
@@ -638,7 +638,7 @@ void DXGIMgr::ChangeSwapChainState()
 	dxgiTargetParameters.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	mSwapChain->ResizeTarget(&dxgiTargetParameters);
 
-	// ·»´õ Å¸°ÙÀ» ¸ðµÎ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	GetMRT(GroupType::SwapChain)->ReleaseRenderTargets();
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
@@ -653,7 +653,7 @@ void DXGIMgr::ChangeSwapChainState()
 
 	mCurrBackBufferIdx = mSwapChain->GetCurrentBackBufferIndex();
 
-	// ÅØ½ºÃ³¿Í MRT¸¦ »õ·Î »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½Ã³ï¿½ï¿½ MRTï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	std::vector<RenderTarget> rts(mSwapChainBuffCnt);
 	for (UINT i = 0; i < mSwapChainBuffCnt; ++i) {
 		ComPtr<ID3D12Resource> resource;
@@ -692,7 +692,7 @@ void DXGIMgr::WaitForGpuComplete()
 
 void DXGIMgr::MoveToNextFrame()
 {
-	// ´ÙÀ½ ÇÁ·¹ÀÓÀ¸·Î ³Ñ¾î°¥ ¶§ µ¿±âÈ­¸¦ ÇÏÁö ¾Ê´Â´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾î°¥ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 	mCurrBackBufferIdx = mSwapChain->GetCurrentBackBufferIndex();
 
 	mFrameResourceMgr->GetCurrFrameResource()->Fence = ++mFenceValues;
@@ -708,7 +708,7 @@ void DXGIMgr::BuildScene()
 	ID3D12CommandList* cmdsLists[] = { mCmdList.Get() };
 	mCmdQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	// GPUÀÇ ¸ðµç ½ÇÇàÀÌ ³¡³­ ÈÄ ¾÷·Îµå ¹öÆÛ¸¦ ÇØÁ¦ÇØ¾ß ÇÑ´Ù.
+	// GPUï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Ñ´ï¿½.
 	WaitForGpuComplete();
 
 	Scene::I->ReleaseUploadBuffers();

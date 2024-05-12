@@ -79,9 +79,9 @@ GridObject::GridObject()
 
 void GridObject::Awake()
 {
+	AddComponent<ObjectCollider>();
 	base::Awake();
 
-	AddComponent<ObjectCollider>();
 	const auto& collider = GetComponent<ObjectCollider>();
 	if (collider) {
 		mCollider = collider.get();

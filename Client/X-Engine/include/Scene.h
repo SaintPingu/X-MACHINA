@@ -60,7 +60,6 @@ private:
 
 	/* Object */
 	sptr<Object>					mGameManager{};
-	sptr<Object>					mServerManager{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
@@ -71,7 +70,6 @@ private:
 	std::set<sptr<GridObject>>	mDissolveObjects{};
 	std::set<GridObject*>	    mRenderedObjects{};
 	std::set<GridObject*>	    mTransparentObjects{};
-	std::set<GridObject*>	    mBillboardObjects{};
 	std::set<GridObject*>	    mSkinMeshObjects{};
 	std::set<GridObject*>	    mGridObjects{};
 
@@ -110,7 +108,6 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	rsptr<Object> GetGameManager() const { return mGameManager; }
-	rsptr<Object> GetServerManager() const { return mServerManager; }
 
 	int GetGridIndexFromPos(Vec3 pos) const;
 
@@ -246,6 +243,8 @@ public:
 	std::vector<sptr<Grid>> GetNeighborGrids(int gridIndex, bool includeSelf = false) const;
 
 	void ToggleFullScreen();
+
+	std::vector<sptr<GridObject>> FindObjectsByName(const std::string& name);
 
 private:
 	// do [processFunc] for activated objects

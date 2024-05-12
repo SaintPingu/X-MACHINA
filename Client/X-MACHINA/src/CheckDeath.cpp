@@ -28,6 +28,7 @@ BT::NodeState CheckDeath::Evaluate()
 
 	mAccTime += DeltaTime();
 
+	mEnemyMgr->RemoveAllAnimation();
 	mEnemyMgr->mController->SetValue("Death", true);
 
 	ExecuteCallback();

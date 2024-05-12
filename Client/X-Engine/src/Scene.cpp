@@ -59,7 +59,6 @@ void Scene::Release()
 		});
 
 	mGameManager->OnDestroy();
-	mServerManager->OnDestroy();
 }
 #pragma endregion
 
@@ -230,7 +229,6 @@ void Scene::BuildObjects()
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
 	mGameManager   = std::make_shared<Object>();
-	mServerManager = std::make_shared<Object>();
 
 	// build settings
 	BuildTerrain();
@@ -421,7 +419,6 @@ void Scene::ClearRenderedObjects()
 	mRenderedObjects.clear();
 	mSkinMeshObjects.clear();
 	mTransparentObjects.clear();
-	mBillboardObjects.clear();
 	mGridObjects.clear();
 }
 
@@ -621,20 +618,11 @@ void Scene::RenderGridObjects(RenderType type)
 				continue;
 			}
 
-			switch (object->GetTag())
-			{
-			case ObjectTag::Billboard:
-			case ObjectTag::Sprite:
-				mBillboardObjects.insert(object);
-				break;
-			default:
-				if (object->IsSkinMesh()) {
-					mSkinMeshObjects.insert(object);
-					break;
-				}
-				object->ComputeWorldTransform();
+			if (object->IsSkinMesh()) {
+				mSkinMeshObjects.insert(object);
+			}
+			else {
 				mGridObjects.insert(object);
-				break;
 			}
 		}
 		if (!disabledObjects.empty()) {
@@ -738,7 +726,7 @@ void Scene::RenderGridBounds()
 #ifdef DRAW_SCENE_GRID_3D
 		MeshRenderer::Render(grid->GetBB());
 #else
-		constexpr float kGirdHeight = 30.f;
+		constexpr float kGirdHeight = 5.f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
@@ -756,9 +744,8 @@ void Scene::RenderGridBounds()
 void Scene::Start()
 {
 	/* Awake */
-	mServerManager->Awake();
-	MainCamera::I->Awake();
 	mTerrain->Awake();
+	MainCamera::I->Awake();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});
@@ -766,7 +753,6 @@ void Scene::Start()
 	mGameManager->Awake();
 
 	/* Enable */
-	mServerManager->SetActive(true);
 	mTerrain->SetActive(true);
 	MainCamera::I->SetActive(true);
 	ProcessAllObjects([](sptr<Object> object) {
@@ -783,7 +769,6 @@ void Scene::Update()
 
 	mGameManager->Update();
 	UpdateObjects();
-	mServerManager->LateUpdate();
 	mGameManager->LateUpdate();
 	ParticleManager::I->Update();
 
@@ -1081,6 +1066,20 @@ void Scene::ToggleFullScreen()
 	DXGIMgr::I->ToggleFullScreen();
 }
 
+std::vector<sptr<GridObject>> Scene::FindObjectsByName(const std::string& name)
+{
+	std::vector<sptr<GridObject>> result{};
+	auto& FindObjects = [&](sptr<GridObject> object) {
+		if (object->GetName() == name) {
+			result.push_back(object);
+		}
+		};
+
+	ProcessAllObjects(FindObjects);
+
+	return result;
+}
+
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	//for (auto& object : mStaticObjects) {
@@ -1143,27 +1142,17 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 	case Hash("Dissolve_Building"):
 		return ObjectTag::DissolveBuilding;
 
-	case Hash("Explosive_small"):
-	case Hash("Explosive_static"):
-		return ObjectTag::ExplosiveSmall;
-
-	case Hash("Explosive_big"):
-		return ObjectTag::ExplosiveBig;
-
-	case Hash("Tank"):
-		return ObjectTag::Tank;
-
-	case Hash("Helicopter"):
-		return ObjectTag::Helicopter;
-
 	case Hash("Background"):
 		return ObjectTag::Environment;
 
-	case Hash("Billboard"):
-		return ObjectTag::Billboard;
+	case Hash("Enemy"):
+		return ObjectTag::Enemy;
 
-	case Hash("Sprite"):
-		return ObjectTag::Sprite;
+	case Hash("Prop"):
+		return ObjectTag::Prop;
+
+	case Hash("Dynamic"):
+		return ObjectTag::Dynamic;
 
 	default:
 		//assert(0);

@@ -165,8 +165,10 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\..\Engine\include\</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EnginePch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

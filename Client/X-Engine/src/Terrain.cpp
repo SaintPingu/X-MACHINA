@@ -211,9 +211,9 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
-	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("GrassUV01"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("Stone"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Detail_Texture_5"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("GrassUV012"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("CobbleStone"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Sand"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap3, RESOURCE<Texture>("Terrain_splatmap"));
 }
 

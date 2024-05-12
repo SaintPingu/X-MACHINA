@@ -27,12 +27,18 @@ BT::NodeState CheckAttackRange::Evaluate()
 		return BT::NodeState::Success;
 	}
 
-	if ((mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length() < mEnemyMgr->mAttackRange) {
-		mEnemyMgr->mState = EnemyState::Attack;
-		mEnemyMgr->mController->SetValue("Walk", false);
-		mEnemyMgr->mController->SetValue("Attack", true);
+	constexpr float minDistance = 1.f;
+	const float distance = (mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length();
+	if (distance < mEnemyMgr->mAttackRange) {
+		const Vec3 toTargetDir = Vector3::Normalized(mEnemyMgr->mTarget->GetPosition() - mObject->GetPosition());
+		const float angle = Vector3::Angle(mObject->GetLook(), toTargetDir);
+		if (minDistance < 1.f || angle < 20.f) {
+			mEnemyMgr->mState = EnemyState::Attack;
+			mEnemyMgr->RemoveAllAnimation();
+			mEnemyMgr->mController->SetValue("Attack", true);
 
-		return BT::NodeState::Success;
+			return BT::NodeState::Success;
+		}
 	}
 
 	return BT::NodeState::Failure;

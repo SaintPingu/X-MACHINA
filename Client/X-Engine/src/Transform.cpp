@@ -342,11 +342,14 @@ bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 {
 	const float angle = Vector3::SignedAngle(GetLook().xz(), (target - GetPosition()).xz(), Vector3::Up);
 
-	constexpr float minAngle = 1.f;
+	constexpr float minAngle = 2.f;
 	if (fabs(angle) < minAngle) {
-		Rotate(Vector3::Up, angle);
 		return false;
 	}
+
+	constexpr float maxAngle = 90.f; // 90도 이상일 때 최대 속도
+	const float t = std::clamp(fabs(angle) / maxAngle, 0.f, 1.f);
+	rotationSpeed *= t;
 
 	const float rotationValue = Math::Sign(angle) * rotationSpeed;
 	float rotationAngle       = rotationValue * DeltaTime();
@@ -539,6 +542,27 @@ void Transform::NormalizeAxis()
 	mUp = Vector3::Normalized(mLook.Cross(mRight));
 
 	UpdateLocalTransform(false);
+}
+
+void Transform::DoAllTransforms(const std::function<void(Transform*)>& processFunc)
+{
+	processFunc(this);
+
+	if (mChild) {
+		mChild->DoAllTransforms(processFunc);
+	}
+	if (mSibling) {
+		mSibling->DoAllTransforms(processFunc);
+	}
+}
+
+void Transform::DoAllChilds(const std::function<void(Transform*)>& processFunc)
+{
+	processFunc(this);
+
+	if (mChild) {
+		mChild->DoAllTransforms(processFunc);
+	}
 }
 
 void Transform::MergeTransform(std::vector<const Transform*>& out, const Transform* transform)

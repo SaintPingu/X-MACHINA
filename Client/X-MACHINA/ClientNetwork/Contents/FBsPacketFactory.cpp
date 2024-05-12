@@ -299,6 +299,9 @@ bool FBsPacketFactory::Process_SPkt_Transform(SPtr_Session session, const FBProt
 	data.TargetRot	  = rot;
 	data.Velocity     = vel;
 
+	data.Animdata.AnimParam_h = animparam_h;
+	data.Animdata.AnimParam_v = animparam_v;
+
 	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> Ext_EventData = CLIENT_NETWORK->CreateEvent_Extrapolate_RemotePlayer(id, data);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 

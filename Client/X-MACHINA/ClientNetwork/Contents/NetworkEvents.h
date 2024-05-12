@@ -83,6 +83,8 @@ namespace NetworkEvent
 			Vec3				ExtPos                = {};
 			Vec3				ExtRot                = {};
 			Vec3				ExtMoveDir            = {};
+			float				animparam_h           = {};
+			float				animparam_v           = {};
 		};
 
 

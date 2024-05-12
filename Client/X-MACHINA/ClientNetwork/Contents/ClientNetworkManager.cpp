@@ -189,13 +189,15 @@ void ClientNetworkManager::ProcessEvents()
 
 			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
 
-			ExtData ExtrapolatedData        = {};
-			ExtrapolatedData.PingTime       = data->PingTime;
-			ExtrapolatedData.TargetPos      = data->ExtPos;
-			ExtrapolatedData.TargetRot      = data->ExtRot;
-			ExtrapolatedData.MoveDir        = data->ExtMoveDir;
-			ExtrapolatedData.MoveState		= data->RemoteP_MoveState;
-			ExtrapolatedData.Velocity       = data->RemoteVelocity;
+			ExtData ExtrapolatedData                    = {};
+			ExtrapolatedData.PingTime                   = data->PingTime;
+			ExtrapolatedData.TargetPos                  = data->ExtPos;
+			ExtrapolatedData.TargetRot                  = data->ExtRot;
+			ExtrapolatedData.MoveDir                    = data->ExtMoveDir;
+			ExtrapolatedData.MoveState		            = data->RemoteP_MoveState;
+			ExtrapolatedData.Velocity                   = data->RemoteVelocity;
+			ExtrapolatedData.Animdata.AnimParam_h       = data->animparam_h;
+			ExtrapolatedData.Animdata.AnimParam_v       = data->animparam_v;
 
 			player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
 		}
@@ -300,6 +302,8 @@ sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateE
 	Event->ExtMoveDir        = extdata.MoveDir;
 	Event->RemoteP_MoveState = extdata.MoveState;
 	Event->RemoteVelocity    = extdata.Velocity;
+	Event->animparam_h       = extdata.Animdata.AnimParam_h;
+	Event->animparam_v       = extdata.Animdata.AnimParam_v;
 
 	return Event;
 }

@@ -58,7 +58,7 @@ void Script_PlayerNetwork::DoInput()
 		Vec3					SpineDir   = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 		long long				latency    = FBS_FACTORY->CurrLatency.load();
 
-		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency);
+		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
 		CLIENT_NETWORK->Send(pkt);
 
 		mPrevPos = Pos;
@@ -83,7 +83,11 @@ void Script_PlayerNetwork::DoInput()
 			Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 			long long				latency   = FBS_FACTORY->CurrLatency.load();
 
-			auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency);
+			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+			float					animparam_h = controller->GetParam("Horizontal")->val.f;
+			float					animparam_v = controller->GetParam("Vertical")->val.f;
+			std::cout << "Send : " << animparam_h << ", " << animparam_v << std::endl;
+			auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
 			CLIENT_NETWORK->Send(pkt);
 
 			mPrevPos = Pos;
@@ -103,7 +107,7 @@ void Script_PlayerNetwork::DoInput()
 		Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 		long long				latency   = FBS_FACTORY->CurrLatency.load();
 
-		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency);
+		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
 		CLIENT_NETWORK->Send(pkt);
 
 		mPrevPos = Pos;

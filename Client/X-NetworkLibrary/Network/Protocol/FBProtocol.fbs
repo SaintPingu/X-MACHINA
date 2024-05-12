@@ -175,13 +175,19 @@ table SPkt_PlayerState
 
 table CPkt_PlayerAnimation
 {
-	animation_index         : int;
+	animation_upper_index   : int;
+	animation_lower_index   : int;
+	animation_param_h		: float;
+	animation_param_v       : float;
 }
 
 table SPkt_PlayerAnimation
 {
 	object_id				: ulong;
 
-	animation_index         : int;
+	animation_upper_index   : int;
+	animation_lower_index   : int;
+	animation_param_h		: float;
+	animation_param_v       : float;
 }
 

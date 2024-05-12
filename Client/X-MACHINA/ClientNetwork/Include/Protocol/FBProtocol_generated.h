@@ -1083,14 +1083,29 @@ inline ::flatbuffers::Offset<SPkt_PlayerState> CreateSPkt_PlayerState(
 struct CPkt_PlayerAnimation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_PlayerAnimationBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ANIMATION_INDEX = 4
+    VT_ANIMATION_UPPER_INDEX = 4,
+    VT_ANIMATION_LOWER_INDEX = 6,
+    VT_ANIMATION_PARAM_H = 8,
+    VT_ANIMATION_PARAM_V = 10
   };
-  int32_t animation_index() const {
-    return GetField<int32_t>(VT_ANIMATION_INDEX, 0);
+  int32_t animation_upper_index() const {
+    return GetField<int32_t>(VT_ANIMATION_UPPER_INDEX, 0);
+  }
+  int32_t animation_lower_index() const {
+    return GetField<int32_t>(VT_ANIMATION_LOWER_INDEX, 0);
+  }
+  float animation_param_h() const {
+    return GetField<float>(VT_ANIMATION_PARAM_H, 0.0f);
+  }
+  float animation_param_v() const {
+    return GetField<float>(VT_ANIMATION_PARAM_V, 0.0f);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int32_t>(verifier, VT_ANIMATION_INDEX, 4) &&
+           VerifyField<int32_t>(verifier, VT_ANIMATION_UPPER_INDEX, 4) &&
+           VerifyField<int32_t>(verifier, VT_ANIMATION_LOWER_INDEX, 4) &&
+           VerifyField<float>(verifier, VT_ANIMATION_PARAM_H, 4) &&
+           VerifyField<float>(verifier, VT_ANIMATION_PARAM_V, 4) &&
            verifier.EndTable();
   }
 };
@@ -1099,8 +1114,17 @@ struct CPkt_PlayerAnimationBuilder {
   typedef CPkt_PlayerAnimation Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_animation_index(int32_t animation_index) {
-    fbb_.AddElement<int32_t>(CPkt_PlayerAnimation::VT_ANIMATION_INDEX, animation_index, 0);
+  void add_animation_upper_index(int32_t animation_upper_index) {
+    fbb_.AddElement<int32_t>(CPkt_PlayerAnimation::VT_ANIMATION_UPPER_INDEX, animation_upper_index, 0);
+  }
+  void add_animation_lower_index(int32_t animation_lower_index) {
+    fbb_.AddElement<int32_t>(CPkt_PlayerAnimation::VT_ANIMATION_LOWER_INDEX, animation_lower_index, 0);
+  }
+  void add_animation_param_h(float animation_param_h) {
+    fbb_.AddElement<float>(CPkt_PlayerAnimation::VT_ANIMATION_PARAM_H, animation_param_h, 0.0f);
+  }
+  void add_animation_param_v(float animation_param_v) {
+    fbb_.AddElement<float>(CPkt_PlayerAnimation::VT_ANIMATION_PARAM_V, animation_param_v, 0.0f);
   }
   explicit CPkt_PlayerAnimationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1115,9 +1139,15 @@ struct CPkt_PlayerAnimationBuilder {
 
 inline ::flatbuffers::Offset<CPkt_PlayerAnimation> CreateCPkt_PlayerAnimation(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t animation_index = 0) {
+    int32_t animation_upper_index = 0,
+    int32_t animation_lower_index = 0,
+    float animation_param_h = 0.0f,
+    float animation_param_v = 0.0f) {
   CPkt_PlayerAnimationBuilder builder_(_fbb);
-  builder_.add_animation_index(animation_index);
+  builder_.add_animation_param_v(animation_param_v);
+  builder_.add_animation_param_h(animation_param_h);
+  builder_.add_animation_lower_index(animation_lower_index);
+  builder_.add_animation_upper_index(animation_upper_index);
   return builder_.Finish();
 }
 
@@ -1125,18 +1155,33 @@ struct SPkt_PlayerAnimation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   typedef SPkt_PlayerAnimationBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECT_ID = 4,
-    VT_ANIMATION_INDEX = 6
+    VT_ANIMATION_UPPER_INDEX = 6,
+    VT_ANIMATION_LOWER_INDEX = 8,
+    VT_ANIMATION_PARAM_H = 10,
+    VT_ANIMATION_PARAM_V = 12
   };
   uint64_t object_id() const {
     return GetField<uint64_t>(VT_OBJECT_ID, 0);
   }
-  int32_t animation_index() const {
-    return GetField<int32_t>(VT_ANIMATION_INDEX, 0);
+  int32_t animation_upper_index() const {
+    return GetField<int32_t>(VT_ANIMATION_UPPER_INDEX, 0);
+  }
+  int32_t animation_lower_index() const {
+    return GetField<int32_t>(VT_ANIMATION_LOWER_INDEX, 0);
+  }
+  float animation_param_h() const {
+    return GetField<float>(VT_ANIMATION_PARAM_H, 0.0f);
+  }
+  float animation_param_v() const {
+    return GetField<float>(VT_ANIMATION_PARAM_V, 0.0f);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_OBJECT_ID, 8) &&
-           VerifyField<int32_t>(verifier, VT_ANIMATION_INDEX, 4) &&
+           VerifyField<int32_t>(verifier, VT_ANIMATION_UPPER_INDEX, 4) &&
+           VerifyField<int32_t>(verifier, VT_ANIMATION_LOWER_INDEX, 4) &&
+           VerifyField<float>(verifier, VT_ANIMATION_PARAM_H, 4) &&
+           VerifyField<float>(verifier, VT_ANIMATION_PARAM_V, 4) &&
            verifier.EndTable();
   }
 };
@@ -1148,8 +1193,17 @@ struct SPkt_PlayerAnimationBuilder {
   void add_object_id(uint64_t object_id) {
     fbb_.AddElement<uint64_t>(SPkt_PlayerAnimation::VT_OBJECT_ID, object_id, 0);
   }
-  void add_animation_index(int32_t animation_index) {
-    fbb_.AddElement<int32_t>(SPkt_PlayerAnimation::VT_ANIMATION_INDEX, animation_index, 0);
+  void add_animation_upper_index(int32_t animation_upper_index) {
+    fbb_.AddElement<int32_t>(SPkt_PlayerAnimation::VT_ANIMATION_UPPER_INDEX, animation_upper_index, 0);
+  }
+  void add_animation_lower_index(int32_t animation_lower_index) {
+    fbb_.AddElement<int32_t>(SPkt_PlayerAnimation::VT_ANIMATION_LOWER_INDEX, animation_lower_index, 0);
+  }
+  void add_animation_param_h(float animation_param_h) {
+    fbb_.AddElement<float>(SPkt_PlayerAnimation::VT_ANIMATION_PARAM_H, animation_param_h, 0.0f);
+  }
+  void add_animation_param_v(float animation_param_v) {
+    fbb_.AddElement<float>(SPkt_PlayerAnimation::VT_ANIMATION_PARAM_V, animation_param_v, 0.0f);
   }
   explicit SPkt_PlayerAnimationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1165,10 +1219,16 @@ struct SPkt_PlayerAnimationBuilder {
 inline ::flatbuffers::Offset<SPkt_PlayerAnimation> CreateSPkt_PlayerAnimation(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t object_id = 0,
-    int32_t animation_index = 0) {
+    int32_t animation_upper_index = 0,
+    int32_t animation_lower_index = 0,
+    float animation_param_h = 0.0f,
+    float animation_param_v = 0.0f) {
   SPkt_PlayerAnimationBuilder builder_(_fbb);
   builder_.add_object_id(object_id);
-  builder_.add_animation_index(animation_index);
+  builder_.add_animation_param_v(animation_param_v);
+  builder_.add_animation_param_h(animation_param_h);
+  builder_.add_animation_lower_index(animation_lower_index);
+  builder_.add_animation_upper_index(animation_upper_index);
   return builder_.Finish();
 }
 

@@ -301,14 +301,17 @@ sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateE
 	return Event;
 }
 
-sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int AnimIndex)
+sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
 {
 	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::ChangeAnimation_RemotePlayer>();
 
 	Event->type = NetworkEvent::Game::Enum::ChangeAnim_RemotePlayer;
 	
-	Event->RemoteP_ID     = remID;
-	Event->AnimationIndex = AnimIndex;
+	Event->RemoteP_ID            = remID;
+	Event->animation_upper_index = static_cast<int32_t>(anim_upper_idx);
+	Event->animation_lower_index = static_cast<int32_t>(anim_lower_idx);
+	Event->animation_param_h     = anim_param_h;
+	Event->animation_param_v     = anim_param_v;
 
 	return Event;
 }

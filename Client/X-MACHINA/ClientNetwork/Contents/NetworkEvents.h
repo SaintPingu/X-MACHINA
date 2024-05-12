@@ -90,8 +90,13 @@ namespace NetworkEvent
 		///			 CHANGE PLAYER ANIMATION 
 		/// -------------------------------------------+
 		struct ChangeAnimation_RemotePlayer : public EventData {
-			UINT16	RemoteP_ID     = {};
-			int		AnimationIndex = {};
+			UINT16		RemoteP_ID            = {};
+			int32_t			animation_upper_index = {};
+			int32_t			animation_lower_index = {};
+			float		animation_param_h     = {};
+			float		animation_param_v     = {};
+
+
 		};
 
 	}

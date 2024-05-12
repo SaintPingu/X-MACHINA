@@ -64,7 +64,7 @@ public:
 	SPtr_SendPktBuf CPkt_RemovePlayer(int removeSessionID);
 	SPtr_SendPktBuf CPkt_KeyInput(GameKeyInfo::KEY key, GameKeyInfo::KEY_STATE KeyState, GameKeyInfo::MoveKey moveKey, Vec2 mouseDelta);
 	SPtr_SendPktBuf CPkt_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency);
-	SPtr_SendPktBuf CPkt_PlayerAnimation(int AnimationIndex);
+	SPtr_SendPktBuf CPkt_PlayerAnimation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 
 
 private:

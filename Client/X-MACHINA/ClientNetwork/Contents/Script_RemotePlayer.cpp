@@ -41,8 +41,8 @@ void Script_RemotePlayer::LateUpdate()
 		mObject->ResetRotation(Rot.y);
 
 		const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-		controller->SetValueOnly("Vertical", mCurrExtraPolated_Data.AnimParamV);
-		controller->SetValueOnly("Horizontal", mCurrExtraPolated_Data.AnimParamH);
+		controller->SetValueOnly("Vertical", mCurrExtraPolated_Data.Animdata.Param_h);
+		controller->SetValueOnly("Horizontal", mCurrExtraPolated_Data.Animdata.Param_v);
 	}
 	break;
 	case ExtData::MOVESTATE::End:

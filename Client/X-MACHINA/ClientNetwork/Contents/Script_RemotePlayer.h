@@ -4,6 +4,11 @@
 
 /* Extrapolation Data - 패킷을 통한 위치 예측을 위해 필요한 데이터 */
 
+struct AnimMoveData
+{
+	float AnimParam_h = {};
+	float AnimParam_v = {};
+};
 
 
 struct ExtData
@@ -17,13 +22,11 @@ struct ExtData
 	Vec3	  TargetPos = {};
 	Vec3	  TargetRot = {};
 	Vec3	  MoveDir   = {};
+
+	AnimMoveData Animdata = {};
+
 };
 
-struct AnimMoveData
-{
-	float AnimParam_h = {};
-	float AnimParam_v = {};
-};
 
 class Script_RemotePlayer : public Script_Network 
 {	

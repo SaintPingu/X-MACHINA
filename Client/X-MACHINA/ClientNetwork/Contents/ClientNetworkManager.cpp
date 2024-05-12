@@ -82,12 +82,15 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	/// +------------------------
 	///	  NETWORK SERVICE START  
 	/// ------------------------+
+	LOG_MGR->Cout("SERVER IP 입력 :");
+	std::wcin >> mServerIP;
+
 	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) ServerNetwork INIT \n");
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();
 	mClientNetwork->SetMaxSessionCnt(1); // 1명 접속  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
-	if (FALSE == mClientNetwork->Start(L"192.168.0.11", 7777)) {
+	if (FALSE == mClientNetwork->Start(mServerIP, 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}

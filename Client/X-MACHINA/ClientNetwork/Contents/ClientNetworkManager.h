@@ -35,9 +35,9 @@ class ClientNetworkManager
 	DECLARE_SINGLETON(ClientNetworkManager);
 
 private:
-	Lock::SRWLock mSRWLock{};
+	Lock::SRWLock		mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
-
+	std::wstring		mServerIP		= L"127.0.0.1";
 
 	Concurrency::concurrent_unordered_map<UINT32, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 

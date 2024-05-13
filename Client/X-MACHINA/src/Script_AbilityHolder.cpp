@@ -20,21 +20,30 @@ void Script_AbilityHolder::Update()
 	switch (mState)
 	{
 	case AbilityState::Ready:
-		if (KEY_PRESSED(mKey)) {
+		if (KEY_TAP(mKey)) {
 			mAbility->Activate();
 			mState = AbilityState::Active;
 			mActiveTime = mAbility->GetActiveTime();
 		}
 		break;
 	case AbilityState::Active:
-		if (mActiveTime > 0.f) {
-			mActiveTime -= DeltaTime();
-			mAbility->Update(mActiveTime);
+		if (KEY_TAP(mKey)) {
+			if (mState == AbilityState::Active) {
+				mState = AbilityState::Ready;
+				mAbility->DeActivate();
+			}
 		}
-		else {
-			mAbility->DeActivate();
-			mState = AbilityState::Cooldown;
-			mCooldownTime = mAbility->GetCooldownTime();
+		else
+		{
+			if (mActiveTime > 0.f) {
+				mActiveTime -= DeltaTime();
+				mAbility->Update(mActiveTime);
+			}
+			else {
+				mAbility->DeActivate();
+				mState = AbilityState::Cooldown;
+				mCooldownTime = mAbility->GetCooldownTime();
+			}
 		}
 		break;
 	case AbilityState::Cooldown:

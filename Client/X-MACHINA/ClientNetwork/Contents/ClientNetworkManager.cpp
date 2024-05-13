@@ -82,8 +82,12 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	/// +------------------------
 	///	  NETWORK SERVICE START  
 	/// ------------------------+
-	LOG_MGR->Cout("SERVER IP ют╥б :");
-	std::wcin >> mServerIP;
+	std::ifstream serverIPFile{ "ServerIP.txt" };
+	std::string serverIP;
+	std::cout << "Get Server IP\n";
+	serverIPFile >> serverIP;
+	mServerIP.assign(serverIP.begin(), serverIP.end());
+	LOG_MGR->WCout(L"SERVER IP :: " , mServerIP, L"\n");
 
 	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) ServerNetwork INIT \n");
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();

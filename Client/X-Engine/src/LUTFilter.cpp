@@ -35,7 +35,7 @@ UINT LUTFilter::Execute(rsptr<Texture> input)
 
 	// LUT 텍스처는 BC7 형식으로 압축해야 포토샵 LUT와 최대한 똑같은 색상을 추출할 수 있다.
 	CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::LUT0), RESOURCE<Texture>("LUT_RGB")->GetGpuDescriptorHandle());
-	CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::LUT1), RESOURCE<Texture>("LUT_RGB")->GetGpuDescriptorHandle());
+	CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::LUT1), RESOURCE<Texture>("LUT_Moonlight")->GetGpuDescriptorHandle());
 	CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::Read), input->GetGpuDescriptorHandle());
 	CMD_LIST->SetComputeRootDescriptorTable(DXGIMgr::I->GetComputeRootParamIndex(RootParam::Write), mOutput->GetUavGpuDescriptorHandle());
 

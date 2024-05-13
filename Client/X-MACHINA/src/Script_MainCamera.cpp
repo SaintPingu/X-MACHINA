@@ -46,7 +46,9 @@ void Script_MainCamera::Start()
 
 void Script_MainCamera::Update()
 {
-	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y);
+	Shake();
+
+	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y) + mShakeOffset;
 	offset *= mZoomAmount;
 	mObject->SetPosition(mTarget->GetPosition() + offset);
 
@@ -170,4 +172,22 @@ void Script_MainCamera::RecoverExtraOffset()
 
 	Recover(mExtraOffset.x);
 	Recover(mExtraOffset.y);
+}
+
+void Script_MainCamera::Shake()
+{
+	if (mCrntShakeTime <= 0.f) {
+		mShakeOffset = Vector3::Zero;
+		return;
+	}
+
+	mCrntShakeTime -= DeltaTime();
+
+	mShakeOffset.x += ((rand() % 60) - 30) * mShakeAmount;
+	mShakeOffset.y += ((rand() % 60) - 30) * mShakeAmount;
+	mShakeOffset.z += ((rand() % 60) - 30) * mShakeAmount;
+
+	mShakeOffset.x = std::clamp(mShakeOffset.x, -0.05f, 0.05f);
+	mShakeOffset.y = std::clamp(mShakeOffset.y, -0.05f, 0.05f);
+	mShakeOffset.z = std::clamp(mShakeOffset.z, -0.05f, 0.05f);
 }

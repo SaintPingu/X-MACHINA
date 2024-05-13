@@ -9,6 +9,7 @@
 #pragma region ClassForwardDecl
 class GridObject;
 class GameObject;
+class Script_MainCamera;
 #pragma endregion
 
 
@@ -17,12 +18,15 @@ class Script_GameManager : public Component {
 	COMPONENT(Script_GameManager, Component)
 
 private:
-	std::vector<sptr<GameObject>> mObjects;
+	sptr<Script_MainCamera> mMainCamera{};
+	std::vector<sptr<GameObject>> mObjects{};
 
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+
+	rsptr<Script_MainCamera> GetCamera() const { return mMainCamera; }
 
 private:
 	void InitObjectScripts();

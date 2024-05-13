@@ -24,9 +24,12 @@ private:
 	Vec3				mMainOffset{};
 	Vec2				mExtraOffset{};
 	Vec2				mMaxOffset{};
+	Vec3				mShakeOffset{};
 
 	float				mSpeed{};
 	float				mZoomAmount{ 1.f };
+	float				mCrntShakeTime{};
+	float				mShakeAmount{};
 	bool				mIsMoved{};
 
 public:
@@ -47,6 +50,8 @@ public:
 	void ZoomOut();
 	void ZoomReset() { mZoomAmount = 1.f; }
 
+	void StartShake(float shakeTime, float amount = 0.002f) { mCrntShakeTime = shakeTime; mShakeAmount = amount; }
+
 private:
 	void Init();
 	// 플레이어를 바라보도록 한다.
@@ -54,5 +59,7 @@ private:
 
 	// 천천히 중앙을 바라보도록 한다.
 	void RecoverExtraOffset();
+
+	void Shake();
 };
 #pragma endregion

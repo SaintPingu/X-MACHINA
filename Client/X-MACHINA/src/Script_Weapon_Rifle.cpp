@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "Script_Weapon_Rifle.h"
+#include "Script_MainCamera.h"
+#include "Script_GameManager.h"
 #include "Component/ParticleSystem.h"
 
+#include "GameFramework.h"
 #include "Timer.h"
 
 
@@ -49,6 +52,8 @@ void Script_Weapon_Rifle::FireBullet()
 	// °ª Àû¿ë
 	mErrX = Vec2(-mCurErr.x, mCurErr.x);
 	mErrY = Vec2(-mCurErr.y, mCurErr.y);
+
+	GameFramework::I->GetGameManager()->GetCamera()->StartShake(0.1f, 0.0005f);
 }
 #pragma endregion
 

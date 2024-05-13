@@ -31,7 +31,7 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Contents/Script_PlayerNetwork.h"
 
-#define SERVER_COMMUNICATION
+//#define SERVER_COMMUNICATION
 
 
 HINSTANCE GameFramework::mhInst = nullptr;
@@ -334,7 +334,7 @@ void GameFramework::ConnectToServer()
 
 #endif
 
-	GAME_MGR->AddComponent<Script_GameManager>();
+	mGameManager = GAME_MGR->AddComponent<Script_GameManager>();
 }
 
 

@@ -5,7 +5,11 @@
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
 #include "Script_MeleeBT.h"
+#include "Script_MainCamera.h"
 #include "Component/ParticleSystem.h"
+#include "Component/Camera.h"
+
+#include "GameFramework.h"
 
 #include "Scene.h"
 #include "Object.h"
@@ -74,6 +78,8 @@ void Script_GameManager::Awake()
 void Script_GameManager::Start()
 {
 	base::Start();
+
+	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
 }
 
 void Script_GameManager::Update()

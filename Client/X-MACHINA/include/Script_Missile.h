@@ -8,6 +8,7 @@
 
 #pragma region ClassForwardDecl
 class SphereCollider;
+class Script_MainCamera;
 #pragma endregion
 
 
@@ -16,6 +17,7 @@ class Script_Missile : public Script_Bullet {
 	COMPONENT(Script_Missile, Script_Bullet)
 
 private:
+	sptr<Script_MainCamera> mCamera{};
 	sptr<SphereCollider> mExplosionCollider{};
 	float mExplosionDamage;
 

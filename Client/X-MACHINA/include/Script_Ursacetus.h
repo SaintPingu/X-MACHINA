@@ -19,6 +19,9 @@ class Script_Ursacetus : public Script_Enemy {
 
 public:
 	virtual void Awake() override;
+
+private:
+	void SmashCallback();
 };
 
 #pragma endregion

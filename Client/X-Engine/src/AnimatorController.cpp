@@ -44,6 +44,11 @@ void AnimatorController::SetAnimation(int upperIndex, int lowerIndex, float v, f
 	SetIndex(1, lowerIndex);
 }
 
+void AnimatorController::SetPlayer()
+{
+	mIsPlayer = true;
+}
+
 void AnimatorController::Start()
 {
 	CheckTransition();
@@ -127,8 +132,6 @@ bool AnimatorController::IsEndTransition(const std::string& layerName) const
 void AnimatorController::CheckTransition(bool isChangeImmed) const
 {
 	bool isSend = false;
-	int upperIndex = 0;
-	int lowerIndex = 0;
 
 	for (auto& layer : mLayers) {
 		rsptr<AnimatorMotion> nextMotion = layer->CheckTransition(this, isChangeImmed);
@@ -156,9 +159,7 @@ void AnimatorController::InitLayers()
 		if (layer->GetName().contains("Legs")) {
 			layer->SetSyncStateMachine(true);
 		}
-		if (mIsPlayer) {
-			layer->AddStates(index, mMotionMapInt, mMotionMapString);
-		}
+		layer->AddStates(index, mMotionMapInt, mMotionMapString);
 	}
 	CheckTransition(true);
 }

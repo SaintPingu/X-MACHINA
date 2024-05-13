@@ -129,7 +129,7 @@ public:
 	}
 
 	void SetAnimation(int upperIndex, int lowerIndex, float v, float h);
-	void SetPlayer() { mIsPlayer = true; }
+	void SetPlayer();
 
 public:
 	void Start();

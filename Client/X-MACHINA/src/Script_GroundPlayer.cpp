@@ -76,6 +76,7 @@ void Script_GroundPlayer::Awake()
 	}
 
 	mAimController = mObject->AddComponent<Script_AimController>();
+	mController->SetPlayer();
 }
 
 void Script_GroundPlayer::Start()

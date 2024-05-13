@@ -487,9 +487,6 @@
     <FxCompile Include="shaders\PShader_Canvas.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PShader_Instance.hlsl">
-      <Filter>소스 파일\Shader\PS\Forward</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\PShader_Skybox.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>

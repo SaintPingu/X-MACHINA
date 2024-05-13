@@ -591,26 +591,6 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("Shadow_ObjectInst", shader);
 	}
 #pragma endregion
-#pragma region ColorInst
-	{
-		ShaderInfo info = {
-			ShaderType::Deferred,
-			RasterizerType::Cull_Back,
-			DepthStencilType::Less,
-			BlendType::Default,
-			InputLayoutType::ColorInst
-		};
-
-		ShaderPath path = {
-			 "VShader_Instance.cso",
-			 "PShader_Instance.cso",
-		};
-
-		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
-		Add<Shader>("ColorInst", shader);
-	}
-#pragma endregion
 #pragma region SkinMesh
 	{
 		ShaderInfo info = {

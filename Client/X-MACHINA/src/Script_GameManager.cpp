@@ -46,6 +46,7 @@ void Script_GameManager::Awake()
 			auto& script = enemy->AddComponent<Script_Onyscidus>();
 			enemy->AddComponent<Script_MeleeBT>();
 			enemy->SetPosition(pos);
+			enemy->Rotate(0, rand() % 360, 0);
 		}
 	}
 
@@ -65,6 +66,7 @@ void Script_GameManager::Awake()
 			auto& script = enemy->AddComponent<Script_AdvancedCombatDroid_5>();
 			enemy->AddComponent<Script_MeleeBT>();
 			enemy->SetPosition(pos);
+			enemy->Rotate(0, rand() % 360, 0);
 		}
 	}
 }

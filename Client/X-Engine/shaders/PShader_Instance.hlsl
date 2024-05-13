@@ -13,11 +13,17 @@ struct PSOutput_MRT {
 
 PSOutput_MRT PSInstancing(VSOutput_Inst input)
 {
-    MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
-    
     PSOutput_MRT output;
-    output.Texture = mat.Diffuse;
-    //output.Distance = input.PosW;
+    if (gObjectCB.MatIndex == 0)
+    {
+        output.Texture = float4(1, 1, 1, 1);
+    }
+    else
+    {
+        MaterialInfo mat = gMaterialBuffer[gObjectCB.MatIndex];
+    
+        output.Texture = mat.Diffuse;
+    }
     
     return output;
 }

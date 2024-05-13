@@ -17,12 +17,16 @@ class Script_MainCamera : public Component {
 	COMPONENT(Script_MainCamera, Component)
 
 private:
+	static constexpr float mkMaxZoomIn  = 0.25f;
+	static constexpr float mkMaxZoomOut = 2.f;
+
 	sptr<GameObject>	mTarget{};
 	Vec3				mMainOffset{};
 	Vec2				mExtraOffset{};
 	Vec2				mMaxOffset{};
 
 	float				mSpeed{};
+	float				mZoomAmount{ 1.f };
 	bool				mIsMoved{};
 
 public:
@@ -38,6 +42,10 @@ public:
 	// [maxOffset_t] : [mMaxOffset]을 얼마나 반영할 것인가 (0~1)
 	// [isAlign]     : 방향이 없는 경우 중앙으로 이동한다.
 	void Move(Vec2 dir, Vec2 weight, float maxOffset_t = 1.f);
+
+	void ZoomIn();
+	void ZoomOut();
+	void ZoomReset() { mZoomAmount = 1.f; }
 
 private:
 	void Init();

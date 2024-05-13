@@ -27,6 +27,7 @@ void Script_Weapon::Awake()
 	SetParticleSystemNames();
 
 	InitValues();
+	mMaxMag = 100; // TODO : for demo
 	CreateBulletPool();
 }
 

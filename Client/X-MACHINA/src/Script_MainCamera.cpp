@@ -47,6 +47,7 @@ void Script_MainCamera::Start()
 void Script_MainCamera::Update()
 {
 	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y);
+	offset *= mZoomAmount;
 	mObject->SetPosition(mTarget->GetPosition() + offset);
 
 	Matrix noLagViewMtx = Matrix::CreateLookAt(mTarget->GetPosition() + offset, mTarget->GetPosition(), mTarget->GetUp());
@@ -115,6 +116,22 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
 
 	mExtraOffset.x = std::clamp(mExtraOffset.x, -mMaxOffset.x, mMaxOffset.x);
 	mExtraOffset.y = std::clamp(mExtraOffset.y, -mMaxOffset.y, mMaxOffset.y);
+}
+
+void Script_MainCamera::ZoomIn()
+{
+	mZoomAmount -= DeltaTime();
+	if (mZoomAmount < mkMaxZoomIn) {
+		mZoomAmount = mkMaxZoomIn;
+	}
+}
+
+void Script_MainCamera::ZoomOut()
+{
+	mZoomAmount += DeltaTime();
+	if (mZoomAmount > mkMaxZoomOut) {
+		mZoomAmount = mkMaxZoomOut;
+	}
 }
 
 void Script_MainCamera::Init()

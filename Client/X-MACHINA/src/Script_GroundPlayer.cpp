@@ -210,6 +210,10 @@ void Script_GroundPlayer::ProcessInput()
 		mController->SetValueOnly("Vertical", fabs(mParamV) > 0.1f ? mParamV : 0.f);
 		mController->SetValueOnly("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
 	}
+
+	if (KEY_PRESSED('O')) mCamera->ZoomOut();
+	if (KEY_PRESSED('P')) mCamera->ZoomIn();
+	if (KEY_PRESSED('I')) mCamera->ZoomReset();
 }
 
 

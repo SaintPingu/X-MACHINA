@@ -12,7 +12,7 @@ void Script_AdvancedCombatDroid_5::Awake()
 	mEnemyMgr->mRotationSpeed = 150.f;
 	mEnemyMgr->mMoveSpeed = 2.5f;
 	mEnemyMgr->mDetectionRange = 15.f;
-	mEnemyMgr->mAttackRange = 4.f;
+	mEnemyMgr->mAttackRange = 1.5f;
 	mEnemyMgr->mGetHitName = "IdleCombat";
 	mEnemyMgr->mAttackName = "2HitComboUnarmed";
 	mEnemyMgr->mDeathName = "DeathFrontCombat";

@@ -12,7 +12,7 @@ void Script_Onyscidus::Awake()
 	mEnemyMgr->mRotationSpeed = 150.f;
 	mEnemyMgr->mMoveSpeed = 2.5f;
 	mEnemyMgr->mDetectionRange = 15.f;
-	mEnemyMgr->mAttackRange = 1.5f;
+	mEnemyMgr->mAttackRange = 4.f;
 	mEnemyMgr->mGetHitName = "BlockIdle";
 	mEnemyMgr->mAttackName = "2HitComboClawsAttack";
 }

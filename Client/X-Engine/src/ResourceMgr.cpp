@@ -749,6 +749,42 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("Final", shader);
 	}
 #pragma endregion
+#pragma region Luminance
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 "VShader_Tex.cso",
+			 "PShader_Bloom.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Bloom", shader);
+	}
+#pragma endregion
+#pragma region DownSampling
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 "VShader_Tex.cso",
+			 "PShader_DownSampling.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("DownSampling", shader);
+	}
+#pragma endregion
 #pragma region Canvas
 	{
 		ShaderInfo info = {

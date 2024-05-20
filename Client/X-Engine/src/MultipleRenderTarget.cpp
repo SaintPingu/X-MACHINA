@@ -11,6 +11,8 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 	mGroupType = groupType;
 	mRts = std::move(rts);
 	mRtCnt = static_cast<UINT>(mRts.size());
+	mViewport.resize(mRtCnt);
+	mScissorRect.resize(mRtCnt);
 
 	if (dsTexture)
 		mTextureDs = dsTexture;
@@ -19,8 +21,8 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 
 	// 렌더 타겟 배열이 없는 경우(그림자) 깊이 텍스처를 사용한다.
 	if (mRts.empty()) {
-		mViewport = D3D12_VIEWPORT{ 0.f, 0.f, dsTexture->GetWidth(), dsTexture->GetHeight(), 0.f, 1.f };
-		mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(dsTexture->GetWidth()), static_cast<LONG>(dsTexture->GetHeight()) };
+		mViewport.emplace_back(0.f, 0.f, dsTexture->GetWidth(), dsTexture->GetHeight(), 0.f, 1.f);
+		mScissorRect.emplace_back(0, 0, static_cast<LONG>(dsTexture->GetWidth()), static_cast<LONG>(dsTexture->GetHeight()));
 
 		mTargetToResource[0] = CD3DX12_RESOURCE_BARRIER::Transition(dsTexture->GetResource().Get(),
 			D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -31,8 +33,10 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		return;
 	}
 
-	mViewport = D3D12_VIEWPORT{ 0.f, 0.f, mRts[0].Target->GetWidth(), mRts[0].Target->GetHeight(), 0.f, 1.f };
-	mScissorRect = D3D12_RECT{ 0, 0, static_cast<LONG>(mRts[0].Target->GetWidth()), static_cast<LONG>(mRts[0].Target->GetHeight()) };
+	for (int i = 0; i < mRts.size(); ++i) {
+		mViewport[i] = D3D12_VIEWPORT{ 0.f, 0.f, mRts[i].Target->GetWidth(), mRts[i].Target->GetHeight(), 0.f, 1.f };
+		mScissorRect[i] = D3D12_RECT{0, 0, static_cast<LONG>(mRts[i].Target->GetWidth()), static_cast<LONG>(mRts[i].Target->GetHeight())};
+	}
 
 	// window resize를 할 때 Create함수가 다시 불리기 때문에 RTV 힙이 이미 존재하는지 검사한다.
 	if (!mRtvHeap) {
@@ -65,6 +69,9 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		case GroupType::GBuffer:	
 		case GroupType::Lighting:
 		case GroupType::Ssao:
+		case GroupType::Luminance:
+		case GroupType::DownSampling:
+		case GroupType::UpSampling:
 			DXGIMgr::I->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:
@@ -88,16 +95,16 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 
 void MultipleRenderTarget::OMSetRenderTargets()
 {
-	CMD_LIST->RSSetViewports(1, &mViewport);
-	CMD_LIST->RSSetScissorRects(1, &mScissorRect);
+	CMD_LIST->RSSetViewports(1, &mViewport[0]);
+	CMD_LIST->RSSetScissorRects(1, &mScissorRect[0]);
 
 	CMD_LIST->OMSetRenderTargets(mRtCnt, &mRtvHeapBegin, TRUE, (mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);
 }
 
 void MultipleRenderTarget::OMSetRenderTargets(UINT count, UINT index)
 {
-	CMD_LIST->RSSetViewports(1, &mViewport);
-	CMD_LIST->RSSetScissorRects(1, &mScissorRect);
+	CMD_LIST->RSSetViewports(1, &mViewport[index]);
+	CMD_LIST->RSSetScissorRects(1, &mScissorRect[index]);
 
 	CMD_LIST->OMSetRenderTargets(count, (mRtCnt != 0) ? &mRts[index].Target->GetRtvCpuDescriptorHandle() : nullptr, FALSE, 
 		(mTextureDs) ? &mTextureDs->GetDsvCpuDescriptorHandle() : nullptr);

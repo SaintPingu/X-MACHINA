@@ -15,6 +15,7 @@ class Texture;
 class BlurFilter;
 class LUTFilter;
 class Ssao;
+class Bloom;
 class DescriptorHeap;
 class GraphicsRootSignature;
 class ComputeRootSignature;
@@ -85,6 +86,7 @@ private:
 	DWORD								mFilterOption{};
 	uptr<BlurFilter>					mBlurFilter;
 	uptr<LUTFilter>						mLUTFilter;
+	uptr<Bloom>							mBloom;
 
 	// SSAO
 	uptr<Ssao>							mSsao;

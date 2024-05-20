@@ -264,6 +264,9 @@
     <ClCompile Include="src\AbilityMgr.cpp">
       <Filter>소스 파일\Manager</Filter>
     </ClCompile>
+    <ClCompile Include="src\Bloom.cpp">
+      <Filter>소스 파일\PostProcessing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DDSTextureLoader12.h">
@@ -455,6 +458,9 @@
     <ClInclude Include="..\Common\AbilityMgr.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="include\Bloom.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\VShader_Billboard.hlsl">
@@ -591,6 +597,12 @@
     </FxCompile>
     <FxCompile Include="shaders\PShader_MinimapAbility.hlsl">
       <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Bloom.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_DownSampling.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

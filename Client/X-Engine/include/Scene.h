@@ -175,6 +175,7 @@ public:
 	void RenderLights();
 	void RenderFinal();
 	void RenderForward();
+	void RenderBloom();
 	void RenderPostProcessing(int offScreenIndex);
 	void RenderUI();
 

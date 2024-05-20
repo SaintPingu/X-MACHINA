@@ -501,6 +501,13 @@ void Scene::RenderForward()
 	RenderParticles();
 }
 
+void Scene::RenderBloom()
+{
+	RESOURCE<Shader>("Bloom")->Set();
+
+	RESOURCE<ModelObjectMesh>("Rect")->Render();
+}
+
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
 	// 포스트 프로세싱에 필요한 상수 버퍼 뷰 설정

@@ -197,6 +197,10 @@ struct SsaoBlurInfo {
     int     IsHorzBlur;
 };
 
+struct BloomInfo {
+    int     SamplingMapIndex;
+};
+
 struct MinimapInfo {
     float2 PlayerPos;
     float2 MinimapStartPos;
@@ -225,6 +229,7 @@ ConstantBuffer<BoneTransformInfo> gSkinMeshCB   : register(b4);
 ConstantBuffer<SsaoInfo> gSsaoCB                : register(b5);
 ConstantBuffer<SsaoBlurInfo> gSsaoBlurCB        : register(b6);
 ConstantBuffer<AbilityInfo> gAbilityCB          : register(b7);
+ConstantBuffer<BloomInfo> gBloomCB              : register(b8);
 
 StructuredBuffer<InstanceInfo> gInstBuffer   : register(t0);
 StructuredBuffer<MaterialInfo> gMaterialBuffer  : register(t0, space1);

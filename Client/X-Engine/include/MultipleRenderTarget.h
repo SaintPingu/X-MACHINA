@@ -22,8 +22,8 @@ public:
 private:
 	GroupType mGroupType{};
 
-	D3D12_VIEWPORT	mViewport{};
-	D3D12_RECT		mScissorRect{};
+	std::vector<D3D12_VIEWPORT>	mViewport{};
+	std::vector<D3D12_RECT>		mScissorRect{};
 
 	UINT mRtCnt{};
 	std::vector<RenderTarget> mRts{};

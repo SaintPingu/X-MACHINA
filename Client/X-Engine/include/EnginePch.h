@@ -193,6 +193,7 @@ enum class RootParam {
 	Ssao,
 	SsaoBlur,
 	Ability,
+	Bloom,
 
 	Instancing,
 	Material,
@@ -267,6 +268,9 @@ enum class GroupType : UINT8 {
 	OffScreen,
 	Ssao,
 	CustomDepth,
+	Luminance,
+	DownSampling,
+	UpSampling,
 
 	_count
 };

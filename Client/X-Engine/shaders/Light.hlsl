@@ -263,7 +263,7 @@ LightColor ComputeDirectionalLight(LightInfo L, Material mat, float3 pos, float3
     float3 lightVec = -L.Direction;
     
     // Lambert를 half Lambert로 변경
-    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 4));
+    float ndotl = saturate(pow(dot(lightVec, normal) * 0.5f + 0.5f, 2));
     float3 lightStrength = L.Strength * ndotl;
     
     LightColor result = BRDF(normal, lightVec, lightStrength, mat, toCameraW);

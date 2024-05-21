@@ -43,14 +43,14 @@ PSOutput_Lighting PSDirLighting(VSOutput_Lighting pin)
     float shadowFactor = clamp(ComputeShadowFactor(shadowPosH), gPassCB.ShadowIntensity, 1.f);
     LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, posW, normalW, toCameraW, shadowFactor);
     
-    // specular reflection
-    float3 r = reflect(-toCameraW, normalW);
-    float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
-    float3 fresnelFactor = SchlickFresnel(specularAlbedo, normalW, r);
-    float3 reflection = (metallicSmoothness.r) * fresnelFactor * reflectionColor.rgb;
+    //// specular reflection
+    //float3 r = reflect(-toCameraW, normalW);
+    //float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
+    //float3 fresnelFactor = SchlickFresnel(specularAlbedo, normalW, r);
+    //float3 reflection = (metallicSmoothness.r) * fresnelFactor * reflectionColor.rgb;
     
     pout.Diffuse = GammaEncoding(float4(lightColor.Diffuse, 0.f));
-    pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f)) + float4(reflection, 0.f);
+    pout.Specular = GammaEncoding(float4(lightColor.Specular, 0.f))/* + float4(reflection, 0.f)*/;
     pout.Ambient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * ambientAcess);
     
     return pout;

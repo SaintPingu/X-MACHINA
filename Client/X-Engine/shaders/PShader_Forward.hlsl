@@ -12,6 +12,7 @@ struct VSOutput_Standard {
 struct PSOutput {
     float4 Result     : SV_TARGET0;
     float4 Normal     : SV_TARGET1;
+    float4 Emissive   : SV_TARGET2;
 };
 
 PSOutput PSForward(VSOutput_Standard pin)
@@ -47,10 +48,10 @@ PSOutput PSForward(VSOutput_Standard pin)
     }
     
     // sampling emissiveMap
-    float4 emissiveMapSample = (float4)0;
+    float4 emissive = (float4)0;
     if (metallicMapIndex != -1)
     {
-        emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        emissive = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
     
     // sampling metallicMap
@@ -74,7 +75,6 @@ PSOutput PSForward(VSOutput_Standard pin)
     float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
     rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gObjectCB.RimFactor;
     
-    float4 emissive = emissiveMapSample + gRimLightColor * rim;
     float1 ambientAcess = 1.f;
     
     float2 uvRect = float2(pin.PosH.x / gPassCB.FrameBufferWidth, pin.PosH.y / gPassCB.FrameBufferHeight);
@@ -91,21 +91,21 @@ PSOutput PSForward(VSOutput_Standard pin)
     float shadowFactor = clamp(ComputeShadowFactor(shadowPosH), gPassCB.ShadowIntensity, 1.f);
     LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
     
-    // specular reflection
-    float3 r = reflect(-toCameraW, bumpedNormalW);
-    float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
-    float3 fresnelFactor = SchlickFresnel(specularAlbedo, bumpedNormalW, r);
-    float3 reflection = (metallic) * fresnelFactor * reflectionColor.rgb;
+    //// specular reflection
+    //float3 r = reflect(-toCameraW, bumpedNormalW);
+    //float4 reflectionColor = gSkyBoxMaps[gPassCB.SkyBoxIndex].Sample(gsamLinearWrap, r);
+    //float3 fresnelFactor = SchlickFresnel(specularAlbedo, bumpedNormalW, r);
+    //float3 reflection = (metallic) * fresnelFactor * reflectionColor.rgb;
     
     // litColor
     float4 litDiffuse = GammaEncoding(float4(lightColor.Diffuse, 1.f));
-    float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) + float4(reflection, 1.f);
+    float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) /*+ float4(reflection, 1.f)*/;
     float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissive;
     
-    float4 litColor = litAmbient + litDiffuse + litSpecular;
+    float4 litColor = litAmbient + litDiffuse + litSpecular + gRimLightColor * rim;
     
     // temp
-    float3 dissolveColor = float3(3.f, 1.f, 0.f);
+    float3 dissolveColor = float3(5.f, 1.f, 0.f);
     float4 dissolve = Dissolve(dissolveColor, gTextureMaps[gPassCB.LiveObjectDissolveIndex].Sample(gsamAnisotropicWrap, pin.UV * 2.f).x, gObjectCB.DeathElapsed);
     
     litColor.a = dissolve.a;
@@ -114,6 +114,7 @@ PSOutput PSForward(VSOutput_Standard pin)
     PSOutput pout = (PSOutput)0;
     pout.Result = litColor;
     pout.Normal = float4(bumpedNormalW, 1.f) * dissolve.a;
+    pout.Emissive = dissolve;
     
     return pout;
 }

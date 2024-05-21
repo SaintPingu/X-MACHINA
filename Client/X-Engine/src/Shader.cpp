@@ -56,9 +56,10 @@ void Shader::CreateGraphicsShader(bool isClose)
 		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R8G8B8A8_UNORM;
 		break;
 	case ShaderType::HDR:
-		mGraphicsPipelineStateDesc.NumRenderTargets = 2;
+		mGraphicsPipelineStateDesc.NumRenderTargets = 3;
 		mGraphicsPipelineStateDesc.RTVFormats[0]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 		mGraphicsPipelineStateDesc.RTVFormats[1]	= DXGI_FORMAT_R32G32B32A32_FLOAT;
+		mGraphicsPipelineStateDesc.RTVFormats[2]	= DXGI_FORMAT_R8G8B8A8_UNORM;
 		break;
 	case ShaderType::Shadow:
 		mGraphicsPipelineStateDesc.NumRenderTargets = 0;

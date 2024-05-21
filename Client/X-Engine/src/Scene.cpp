@@ -138,6 +138,7 @@ void Scene::UpdateMainPassCB()
 	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
+	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
 	passCB.LightCount = mLight->GetLightCount();
@@ -504,7 +505,6 @@ void Scene::RenderForward()
 void Scene::RenderBloom()
 {
 	RESOURCE<Shader>("Bloom")->Set();
-
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
 

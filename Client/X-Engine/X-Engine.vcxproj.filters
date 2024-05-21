@@ -55,9 +55,6 @@
     <Filter Include="소스 파일\Shader\PS\Forward">
       <UniqueIdentifier>{8766729d-2a85-45e6-9231-2c832752630d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Shader\CS">
-      <UniqueIdentifier>{68cd4ff5-98b2-43c6-8ada-72d142bdc938}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Shader\VS">
       <UniqueIdentifier>{460d0eb9-0431-47dc-91a6-b483b586539d}</UniqueIdentifier>
     </Filter>
@@ -93,6 +90,9 @@
     </Filter>
     <Filter Include="소스 파일\Shader\PS\Forward\Abilities">
       <UniqueIdentifier>{d42935dc-dd23-43cb-8e03-691c66c129ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\PostProcessing">
+      <UniqueIdentifier>{30ba85a9-8c19-4472-b6c9-2589ba1de572}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -514,9 +514,6 @@
     <FxCompile Include="shaders\PShader_Final.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\CShader_LUT.hlsl">
-      <Filter>소스 파일\Shader\CS</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\VShader_SkinnedMesh.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
@@ -534,12 +531,6 @@
     </FxCompile>
     <FxCompile Include="shaders\VShader_Sprite.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\CShader_VertBlur.hlsl">
-      <Filter>소스 파일\Shader\CS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\CShader_HorzBlur.hlsl">
-      <Filter>소스 파일\Shader\CS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_SpotPointLighting.hlsl">
       <Filter>소스 파일\Shader\Lighting</Filter>
@@ -598,11 +589,29 @@
     <FxCompile Include="shaders\PShader_MinimapAbility.hlsl">
       <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\PShader_Bloom.hlsl">
-      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    <FxCompile Include="shaders\CShader_VertBlur.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CShader_HorzBlur.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CShader_LUT.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Luminance.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_DownSampling.hlsl">
-      <Filter>소스 파일\Shader\PS\Forward</Filter>
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_UpSampling.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_BloomBlur.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_Bloom.hlsl">
+      <Filter>소스 파일\Shader\PostProcessing</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

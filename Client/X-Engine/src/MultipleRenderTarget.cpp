@@ -69,9 +69,7 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		case GroupType::GBuffer:	
 		case GroupType::Lighting:
 		case GroupType::Ssao:
-		case GroupType::Luminance:
-		case GroupType::DownSampling:
-		case GroupType::UpSampling:
+		case GroupType::Bloom:
 			DXGIMgr::I->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:

@@ -76,6 +76,7 @@ struct PassConstants {
     int     BuildingDissolveIndex        = -1;
 
     int     RT0O_OffScreenIndex          = -1;
+    int     BloomIndex                   = -1;
 };
 
 struct PostPassConstants {

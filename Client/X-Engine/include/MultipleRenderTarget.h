@@ -17,7 +17,7 @@ struct RenderTarget {
 class MultipleRenderTarget
 {
 public:
-	static constexpr UINT mMaxRtCnt = 8;
+	static constexpr UINT mMaxRtCnt = 12;
 
 private:
 	GroupType mGroupType{};

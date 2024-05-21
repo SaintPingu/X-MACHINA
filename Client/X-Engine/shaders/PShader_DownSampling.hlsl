@@ -7,7 +7,7 @@ struct VSOutput_Tex {
 
 float4 PSDownSampling(VSOutput_Tex pin) : SV_TARGET
 {
-    float4 downSample = gTextureMaps[gBloomCB.SamplingMapIndex].SampleLevel(gsamPointWrap, pin.UV, 0.f);
+    float4 downSample = gTextureMaps[gBloomCB.PrevTargetIndex].SampleLevel(gsamLinearClamp, pin.UV, 0.f);
  
     return downSample;
 }

@@ -260,6 +260,29 @@ enum class SsaoMap : UINT8 {
 };
 enum { SsaoCount = static_cast<UINT8>(SsaoMap::_count) };
 
+enum class BloomType : UINT8 {
+	Luminance = 0,
+	DownSampling0,
+	DownSampling1,
+	DownSampling2,
+	Blur0_h,
+	Blur0_v,
+	UpSampling0,
+	Blur1_h,
+	Blur1_v,
+	UpSampling1,
+	Blur2_h,
+	Blur2_v,
+
+	_count
+};
+enum { BloomCount = static_cast<UINT8>(BloomType::_count) };
+
+enum {
+	DownSamplingCount = 3,
+	UpSamplingCount = 2,
+};
+
 enum class GroupType : UINT8 {
 	SwapChain = 0,
 	Shadow,
@@ -268,9 +291,7 @@ enum class GroupType : UINT8 {
 	OffScreen,
 	Ssao,
 	CustomDepth,
-	Luminance,
-	DownSampling,
-	UpSampling,
+	Bloom,
 
 	_count
 };

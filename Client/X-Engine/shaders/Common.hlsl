@@ -159,6 +159,7 @@ struct PassInfo {
     int         BuildingDissolveIndex;
     
     int         RT0O_OffScreenIndex;
+    int         BloomIndex;
 };
 
 struct PostPassInfo {
@@ -198,7 +199,10 @@ struct SsaoBlurInfo {
 };
 
 struct BloomInfo {
-    int     SamplingMapIndex;
+    int     PrevTargetIndex;
+    int     BaseTargetIndex;
+    float2  InvRenderTargetSize;
+    int     IsVertBlur;
 };
 
 struct MinimapInfo {

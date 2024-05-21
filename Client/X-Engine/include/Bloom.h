@@ -8,14 +8,11 @@ class Texture;
 
 #pragma region Class
 class Bloom {
-public:
-	static constexpr int mkSamplingCount = 3;
-
 private:
-	sptr<Texture> mLuminance;
-	std::array<sptr<Texture>, mkSamplingCount> mDownSamples;
-	std::array<sptr<Texture>, mkSamplingCount> mUpSamples;
-	
+	std::array<sptr<Texture>, BloomCount> mTargets;
+	std::stack<sptr<Texture>> mBaseTargets;
+	sptr<Texture> mOutput;
+
 public:
 #pragma region C/Dtor
 	Bloom();
@@ -24,9 +21,14 @@ public:
 
 public:
 	void Execute();
+	UINT GetOutput();
 
 private:
+	void ExtractLuminace();
+
 	void DownSampling();
 	void UpSampling();
+
+	void Blur(int vertBlur, const Vec2& renderTargetSize);
 };
 #pragma endregion

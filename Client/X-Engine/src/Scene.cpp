@@ -921,7 +921,7 @@ void Scene::ToggleDrawBoundings()
 void Scene::ToggleFilterOptions()
 {
 	static UINT8 filterIdx = 0;
-	static std::array<DWORD, 5> values = { 0x004, 0x008, 0x010, 0x020, 0x002 };
+	static std::array<DWORD, 6> values = { 0x004, 0x008, 0x010, 0x020, 0x080, 0x002 };
 	DXGIMgr::I->SetFilterOptions(values[filterIdx++]);
 	filterIdx %= values.size();
 

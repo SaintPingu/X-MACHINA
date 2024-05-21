@@ -63,13 +63,14 @@ class ObjectTag : public DwordOverloader<ObjectTag> {
 
 class FilterOption : public DwordOverloader<FilterOption> {
 	DWORD_OVERLOADER(FilterOption)
-		static const DWORD None = 0x001;
-	static const DWORD Blur = 0x002;
-	static const DWORD LUT = 0x004;
-	static const DWORD Tone = 0x008;
-	static const DWORD Ssao = 0x010;
-	static const DWORD Shadow = 0x020;
-	static const DWORD Custom = 0x040;
+	static const DWORD None				= 0x001;
+	static const DWORD Blur				= 0x002;
+	static const DWORD LUT				= 0x004;
+	static const DWORD Tone				= 0x008;
+	static const DWORD Ssao				= 0x010;
+	static const DWORD Shadow			= 0x020;
+	static const DWORD Custom			= 0x040;
+	static const DWORD Bloom			= 0x080;
 };
 
 // rendering layer

@@ -7,7 +7,7 @@ struct VSOutput_Tex {
 
 float4 PSOffScreen(VSOutput_Tex pin) : SV_TARGET
 {
-    float4 color = gTextureMaps[gPostPassCB.RT0_OffScreenIndex].Sample(gsamLinearClamp, pin.UV);
+    float4 color = gTextureMaps[gPassCB.RT1G_NormalIndex].Sample(gsamLinearClamp, pin.UV);
 
     return color;
 }

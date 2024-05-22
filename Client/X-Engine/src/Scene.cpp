@@ -354,7 +354,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 
 			FileIO::ReadString(file, token); //"<IsInstancing>:"
 			FileIO::ReadVal(file, isInstancing);
-
+			
 			if (isInstancing) {
 				objectPool = CreateObjectPool(model, sameObjectCount, [&](rsptr<InstObject> object) {
 					object->SetTag(tag);
@@ -442,6 +442,8 @@ void Scene::RenderShadow()
 #pragma region Shadow_ObjectInst
 	RenderInstanceObjects(RenderType::Shadow);
 #pragma endregion
+
+	ClearRenderedObjects();
 }
 
 
@@ -585,58 +587,63 @@ void Scene::RenderAbilities()
 
 void Scene::RenderGridObjects(RenderType type)
 {
+	assert(mRenderedObjects.empty());
+
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	BoundingFrustum camFrustum;
 
-	if (type == RenderType::Shadow) {
+	switch (type) {
+	case RenderType::Shadow:
 		RESOURCE<Shader>("Shadow_Global")->Set();
 		camFrustum = MAIN_CAMERA->GetFrustumShadow();
-	}
-	else {
+		break;
+	case RenderType::Deferred:
 		RESOURCE<Shader>("Global")->Set();
 		camFrustum = MAIN_CAMERA->GetFrustum();
+		break;
+	default:
+		assert(0);
+		break;
 	}
 
-	if (mRenderedObjects.empty()) {
-		for (const auto& grid : mGrids) {
-			if (grid->Empty()) {
-				continue;
-			}
+	for (const auto& grid : mGrids) {
+		if (grid->Empty()) {
+			continue;
+		}
 
-			if (camFrustum.Intersects(grid->GetBB())) {
-				auto& objects = grid->GetObjects();
-				for (auto& object : objects) {
-					if (camFrustum.Intersects(object->GetCollider()->GetBS())) {
-						mRenderedObjects.insert(object);
-					}
+		if (camFrustum.Intersects(grid->GetBB())) {
+			auto& objects = grid->GetObjects();
+			for (auto& object : objects) {
+				if (camFrustum.Intersects(object->GetCollider()->GetBS())) {
+					mRenderedObjects.insert(object);
 				}
 			}
 		}
+	}
 
-		std::set<GridObject*> disabledObjects{};
-		for (auto& object : mRenderedObjects) {
-			if (!object->IsActive()) {
-				disabledObjects.insert(object);
-				continue;
-			}
-			if (object->IsTransparent()) {
-				mTransparentObjects.insert(object);
-				continue;
-			}
+	std::set<GridObject*> disabledObjects{};
+	for (auto& object : mRenderedObjects) {
+		if (!object->IsActive()) {
+			disabledObjects.insert(object);
+			continue;
+		}
+		if (object->IsTransparent()) {
+			mTransparentObjects.insert(object);
+			continue;
+		}
 
-			if (object->IsSkinMesh()) {
-				mSkinMeshObjects.insert(object);
-			}
-			else {
-				mGridObjects.insert(object);
-			}
+		if (object->IsSkinMesh()) {
+			mSkinMeshObjects.insert(object);
 		}
-		if (!disabledObjects.empty()) {
-			std::set<GridObject*> diff;
-			std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
-			mRenderedObjects = std::move(diff);
+		else {
+			mGridObjects.insert(object);
 		}
+	}
+	if (!disabledObjects.empty()) {
+		std::set<GridObject*> diff;
+		std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
+		mRenderedObjects = std::move(diff);
 	}
 
 	for (auto& object : mGridObjects)

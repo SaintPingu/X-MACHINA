@@ -442,8 +442,6 @@ void Scene::RenderShadow()
 #pragma region Shadow_ObjectInst
 	RenderInstanceObjects(RenderType::Shadow);
 #pragma endregion
-
-	ClearRenderedObjects();
 }
 
 
@@ -587,67 +585,62 @@ void Scene::RenderAbilities()
 
 void Scene::RenderGridObjects(RenderType type)
 {
-	assert(mRenderedObjects.empty());
-
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	BoundingFrustum camFrustum;
 
 	switch (type) {
 	case RenderType::Shadow:
 		RESOURCE<Shader>("Shadow_Global")->Set();
-		camFrustum = MAIN_CAMERA->GetFrustumShadow();
 		break;
 	case RenderType::Deferred:
 		RESOURCE<Shader>("Global")->Set();
-		camFrustum = MAIN_CAMERA->GetFrustum();
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	for (const auto& grid : mGrids) {
-		if (grid->Empty()) {
-			continue;
-		}
+	if (mRenderedObjects.empty()) {
+		for (const auto& grid : mGrids) {
+			if (grid->Empty()) {
+				continue;
+			}
 
-		if (camFrustum.Intersects(grid->GetBB())) {
-			auto& objects = grid->GetObjects();
-			for (auto& object : objects) {
-				if (camFrustum.Intersects(object->GetCollider()->GetBS())) {
-					mRenderedObjects.insert(object);
+			if (MAIN_CAMERA->GetFrustumShadow().Intersects(grid->GetBB())) {
+				auto& objects = grid->GetObjects();
+				for (auto& object : objects) {
+					if (MAIN_CAMERA->GetFrustumShadow().Intersects(object->GetCollider()->GetBS())) {
+						mRenderedObjects.insert(object);
+					}
 				}
 			}
 		}
+
+		std::set<GridObject*> disabledObjects{};
+		for (auto& object : mRenderedObjects) {
+			if (!object->IsActive()) {
+				disabledObjects.insert(object);
+				continue;
+			}
+			if (object->IsTransparent()) {
+				mTransparentObjects.insert(object);
+				continue;
+			}
+
+			if (object->IsSkinMesh()) {
+				mSkinMeshObjects.insert(object);
+			}
+			else {
+				mGridObjects.insert(object);
+			}
+		}
+		if (!disabledObjects.empty()) {
+			std::set<GridObject*> diff;
+			std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
+			mRenderedObjects = std::move(diff);
+		}
 	}
 
-	std::set<GridObject*> disabledObjects{};
-	for (auto& object : mRenderedObjects) {
-		if (!object->IsActive()) {
-			disabledObjects.insert(object);
-			continue;
-		}
-		if (object->IsTransparent()) {
-			mTransparentObjects.insert(object);
-			continue;
-		}
-
-		if (object->IsSkinMesh()) {
-			mSkinMeshObjects.insert(object);
-		}
-		else {
-			mGridObjects.insert(object);
-		}
-	}
-	if (!disabledObjects.empty()) {
-		std::set<GridObject*> diff;
-		std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
-		mRenderedObjects = std::move(diff);
-	}
-
-	for (auto& object : mGridObjects)
-		object->Render();
+	RenderObjectsWithFrustumCulling(mGridObjects, type);
 }
 
 void Scene::RenderSkinMeshObjects(RenderType type)
@@ -669,8 +662,7 @@ void Scene::RenderSkinMeshObjects(RenderType type)
 		break;
 	}
 
-	for (auto& object : mSkinMeshObjects)
-		object->Render();
+	RenderObjectsWithFrustumCulling(mSkinMeshObjects, type);
 }
 
 void Scene::RenderInstanceObjects(RenderType type)
@@ -687,6 +679,25 @@ void Scene::RenderInstanceObjects(RenderType type)
 
 	for (auto& buffer : mObjectPools) {
 		buffer->Render();
+	}
+}
+
+void Scene::RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects, RenderType type)
+{
+	for (auto it = objects.begin(); it != objects.end();) {
+		(*it)->Render();
+
+		if (type == RenderType::Shadow) {
+			if (!MAIN_CAMERA->GetFrustum().Intersects((*it)->GetCollider()->GetBS())) {
+				it = objects.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		else {
+			++it;
+		}
 	}
 }
 

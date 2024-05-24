@@ -187,8 +187,9 @@ private:
 	// [billboardObjects]	: ºôº¸µå °´Ã¼ (plane)
 	void RenderGridObjects(RenderType type);
 	void RenderSkinMeshObjects(RenderType type);
-	void RenderEnvironments();
 	void RenderInstanceObjects(RenderType type);
+	void RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects, RenderType type);
+	void RenderEnvironments();
 
 	void RenderTerrain();
 

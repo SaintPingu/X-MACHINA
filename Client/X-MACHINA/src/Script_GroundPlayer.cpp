@@ -77,13 +77,15 @@ void Script_GroundPlayer::Awake()
 
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mController->SetPlayer();
+
+	mWeapons.resize(3);
+	AquireWeapon(WeaponName::H_Lock);
 }
 
 void Script_GroundPlayer::Start()
 {
 	base::Start();
 
-	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 360.f;
 	SetMaxHP(150.f);
 
@@ -396,9 +398,17 @@ void Script_GroundPlayer::BulletFired()
 
 
 
-void Script_GroundPlayer::InitWeapons()
+void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 {
-	const std::unordered_map<WeaponType, std::string> defaultWeapons{
+	static const std::unordered_map<WeaponName, WeaponType> kWeaponTypes{
+		{WeaponName::H_Lock, WeaponType::HandedGun },
+		{WeaponName::DBMS, WeaponType::ShotGun },
+		{WeaponName::SkyLine, WeaponType::AssaultRifle },
+		{WeaponName::Burnout, WeaponType::MissileLauncher },
+		{WeaponName::PipeLine, WeaponType::Sniper },
+	};
+
+	static const std::unordered_map<WeaponType, std::string> kDefaultWeapons{
 		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
 		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
 		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
@@ -408,7 +418,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::Sniper, "Sniper" },
 	};
 
-	const std::unordered_map<WeaponType, std::string> defaultTransforms{
+	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
 		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
 		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
 		{WeaponType::LightingGun, "RefPosLightningGun_Action" },
@@ -419,7 +429,7 @@ void Script_GroundPlayer::InitWeapons()
 	};
 
 
-	const std::unordered_map<WeaponType, std::string> reloadMotions{
+	static const std::unordered_map<WeaponType, std::string> kReloadMotions{
 		{WeaponType::HandedGun, "Reload2HandedGun" },
 		{WeaponType::AssaultRifle, "ReloadAssaultRifle" },
 		{WeaponType::LightingGun, "ReloadOverheatBeamGun" },
@@ -429,7 +439,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::Sniper, "ReloadAssaultRifle" },
 	};
 
-	const std::unordered_map<WeaponType, std::string> drawMotions{
+	static const std::unordered_map<WeaponType, std::string> kDrawMotions{
 		{WeaponType::HandedGun, "Draw2HandedGun" },
 		{WeaponType::AssaultRifle, "DrawAssaultRifle" },
 		{WeaponType::LightingGun, "DrawBeamGun" },
@@ -439,7 +449,7 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::Sniper, "DrawAssaultRifle" },
 	};
 
-	const std::unordered_map<WeaponType, std::string> putbackMotions{
+	static const std::unordered_map<WeaponType, std::string> kPutbackMotions{
 		{WeaponType::HandedGun, "PutBack2HandedGun" },
 		{WeaponType::AssaultRifle, "PutBackAssaultRifle" },
 		{WeaponType::LightingGun, "PutBackBeamGun" },
@@ -449,87 +459,98 @@ void Script_GroundPlayer::InitWeapons()
 		{WeaponType::Sniper, "PutBackAssaultRifle" },
 	};
 
-	std::function<void()> reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
-	std::function<void()> reloadStopCallback   = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
-	std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
-	std::function<void()> drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
-	std::function<void()> drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
-	std::function<void()> putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
+	// 애니메이션 콜백 함수 //
+	static const std::function<void()> reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
+	static const std::function<void()> reloadStopCallback   = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
+	static const std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
+	static const std::function<void()> drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
+	static const std::function<void()> drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
+	static const std::function<void()> putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
-	mWeapons.resize(gkWeaponTypeCnt, nullptr);
-	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
-		// weapon 타입에 따른 객체 생성 //
-		auto& weapon = mWeapons[i];
-		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), ObjectTag::Dynamic, ObjectLayer::Default, false);
-		if (!weapon) {
-			continue;
+	assert(kWeaponTypes.contains(weaponName));
+	WeaponType weaponType = kWeaponTypes.at(weaponName);
+
+	sptr<GameObject> weapon = Scene::I->Instantiate(kDefaultWeapons.at(weaponType), ObjectTag::Dynamic, ObjectLayer::Default, false);
+
+	// 스크립트 추가 //
+	switch (weaponName) {
+	case WeaponName::H_Lock:
+		weapon->AddComponent<Script_Weapon_Pistol>();
+		break;
+	case WeaponName::DBMS:
+		weapon->AddComponent<Script_Weapon_DBMS>();
+		break;
+	case WeaponName::SkyLine:
+		weapon->AddComponent<Script_Weapon_Skyline>();
+		break;
+	case WeaponName::Burnout:
+		weapon->AddComponent<Script_Weapon_Burnout>();
+		break;
+	case WeaponName::PipeLine:
+		weapon->AddComponent<Script_Weapon_PipeLine>();
+		// bolt action sniper 초기화
+		{
+			static const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
+			auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+
+			// callback
+			boltActionMotion->AddEndCallback(boltActionCallback);
+			boltActionMotion->AddChangeCallback(boltActionCallback);
+
+			// motion speed
+			constexpr float decTime = 0.1f; // [decTime]초 만큼 애니메이션을 더 빨리 재생한다.
+			const float fireDelay = weapon->GetComponent<Script_Weapon>()->GetFireDelay();
+			SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 		}
-
-		// weaponType에 따른 스크립트 추가 //
-		switch (weaponType) {
-		case WeaponType::HandedGun:
-		case WeaponType::LightingGun:
-		case WeaponType::GatlinGun:
-			weapon->AddComponent<Script_Weapon_Pistol>();
-			break;
-		case WeaponType::AssaultRifle:
-			weapon->AddComponent<Script_Weapon_Skyline>();
-			break;
-		case WeaponType::ShotGun:
-			weapon->AddComponent<Script_Weapon_DBMS>();
-			break;
-		case WeaponType::Sniper:
-			weapon->AddComponent<Script_Weapon_PipeLine>();
-			break;
-		case WeaponType::MissileLauncher:
-			weapon->AddComponent<Script_Weapon_Burnout>();
-			break;
-		default:
-			assert(0);
-			break;
-		}
-
-		// 스크립트 설정 //
-		weapon->GetComponent<Script_Weapon>()->SetOwner(this);
-
-		// transform 설정 //
-		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
-		if (!transform) {
-			continue;
-		}
-		transform->SetChild(weapon);
-
-		// setting callbacks //
-		constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
-
-		auto& realodMotion  = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
-		auto& drawMotion    = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
-		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
-
-		// add callbacks
-		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
-		realodMotion->AddStopCallback(reloadStopCallback);
-		realodMotion->AddChangeCallback(reloadChangeCallback);
-		drawMotion->AddCallback(drawCallback, kDrawFrame);
-		drawMotion->AddEndCallback(drawEndCallback);
-		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
+		break;
+	default:
+		assert(0);
+		break;
 	}
 
-	// bolt action sniper 초기화
-	{
-		std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
-		auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+	// 스크립트 설정 //
+	weapon->GetComponent<Script_Weapon>()->SetOwner(this);
 
-		// callback
-		boltActionMotion->AddEndCallback(boltActionCallback);
-		boltActionMotion->AddChangeCallback(boltActionCallback);
+	// transform 설정 //
+	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
+	assert(transform);
 
-		// motion speed
-		constexpr float decTime = 0.1f; // [decTime]초 만큼 애니메이션을 더 빨리 재생한다.
-		const float fireDelay = mWeapons[static_cast<int>(WeaponType::Sniper)]->GetComponent<Script_Weapon>()->GetFireDelay();
-		SetMotionSpeed(boltActionMotion, fireDelay - decTime);
+	transform->SetChild(weapon);
+
+	// setting callbacks //
+	constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
+
+	auto& realodMotion = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
+	auto& drawMotion = mController->FindMotionByName(kDrawMotions.at(weaponType), "Body");
+	auto& putbackMotion = mController->FindMotionByName(kPutbackMotions.at(weaponType), "Body");
+
+	// add callbacks
+	realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
+	realodMotion->AddStopCallback(reloadStopCallback);
+	realodMotion->AddChangeCallback(reloadChangeCallback);
+	drawMotion->AddCallback(drawCallback, kDrawFrame);
+	drawMotion->AddEndCallback(drawEndCallback);
+	putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
+
+	int weaponIdx{};
+	switch (weaponType) {
+	case WeaponType::HandedGun:
+		weaponIdx = 0;
+		break;
+	case WeaponType::ShotGun:
+	case WeaponType::AssaultRifle:
+		weaponIdx = 1;
+		break;
+	case WeaponType::MissileLauncher:
+	case WeaponType::Sniper:
+		weaponIdx = 2;
+		break;
+	default:
+		assert(0);
+		break;
 	}
+
+	SwitchWeapon(weaponIdx, weapon);
 }
 
 void Script_GroundPlayer::DrawWeaponStart(int weaponIdx, bool isDrawImmed)
@@ -1187,4 +1208,13 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 		//prevOther = &other;
 		//prevSlideVec = mSlideVec;
 	}
+}
+
+void Script_GroundPlayer::SwitchWeapon(int index, rsptr<GameObject> weapon)
+{
+	if (mWeapons[index]) {
+		mWeapons[index]->Destroy();
+	}
+
+	mWeapons[index] = weapon;
 }

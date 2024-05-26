@@ -81,6 +81,13 @@ void Script_ShootingPlayer::SetWeapon(int weaponIdx)
 		return;
 	}
 
+	if (mWeapons.size() <= weaponIdx - 1) {
+		return;
+	}
+	if (mWeapons[weaponIdx - 1] == nullptr) {
+		return;
+	}
+
 	// 이미 무기를 들고 있다면 putback 후 draw한다.
 	if (mWeapon) {
 		if (mWeapon == mWeapons[weaponIdx - 1]) {

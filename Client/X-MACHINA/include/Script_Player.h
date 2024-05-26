@@ -19,12 +19,16 @@ class Script_MainCamera;
 
 
 #pragma region EnumClass
-// 플레이어 객체 타입
-enum class PlayerType {
-	Unspecified = 0,
-	Tank,
-	Airplane,
-	Human
+enum class WeaponName {
+	H_Lock,
+	DBMS,
+	Stuart,
+	SkyLine,
+	Descriptor,
+	T_12,
+	PipeLine,
+	Burnout,
+	Direct_Drain
 };
 #pragma endregion
 
@@ -36,15 +40,12 @@ class Script_Player abstract : public Script_LiveObject {
 protected:
 	Script_MainCamera* mCamera{};
 
-	PlayerType		mPlayerType{};
 	GameObject*		mTarget{};		// self GameObject
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
 	int		mScore{};
 
 public:
-	PlayerType GetPlayerType() const { return mPlayerType; }
-
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -86,9 +87,6 @@ protected:
 	Transform* mMuzzle{};
 
 public:
-	virtual void Start() { base::Start();  InitWeapons(); }
-
-public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
@@ -101,8 +99,6 @@ public:
 protected:
 	int GetCrntWeaponIdx() const { return mCrntWeaponIdx; }
 	int GetNextWeaponIdx() const { return mNextWeaponIdx; }
-
-	virtual void InitWeapons() abstract;
 
 	virtual void SetWeapon(int weaponIdx);
 
@@ -198,12 +194,12 @@ public:
 
 	virtual void BulletFired() override;
 
-
 	float GetMovementSpeed() const { return mMovementSpeed; }
 	float GetRotationSpeed() const { return mRotationSpeed; }
 
+	void AquireWeapon(WeaponName weaponName);
+
 private:
-	void InitWeapons();
 	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
 	virtual void DrawWeaponCallback();
 	virtual void DrawWeaponEndCallback();
@@ -247,6 +243,8 @@ private:
 	// [time] 내에 [motion]이 끝나도록 [motion]의 속도를 변경한다.
 	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
 	void ComputeSlideVector(Object& other);
+
+	void SwitchWeapon(int index, rsptr<GameObject> weapon);
 };
 
 #pragma endregion

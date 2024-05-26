@@ -79,6 +79,9 @@
     <Filter Include="ClientNetwork\Packet">
       <UniqueIdentifier>{ac4feb10-a732-4dde-8d5a-3474b17ab9e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Item">
+      <UniqueIdentifier>{f4849f9b-fda9-48ef-89fb-d2fdffb31391}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -292,6 +295,9 @@
     <ClInclude Include="include\Script_AdvancedCombatDroid_5.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Item.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -455,6 +461,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_AdvancedCombatDroid_5.cpp">
       <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Item.cpp">
+      <Filter>Script\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

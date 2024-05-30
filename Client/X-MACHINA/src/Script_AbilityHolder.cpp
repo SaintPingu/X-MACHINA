@@ -27,11 +27,9 @@ void Script_AbilityHolder::Update()
 		}
 		break;
 	case AbilityState::Active:
-		if (KEY_TAP(mKey)) {
-			if (mState == AbilityState::Active) {
-				mState = AbilityState::Ready;
-				mAbility->DeActivate();
-			}
+		if (mAbility->IsToggleAbility() && KEY_TAP(mKey)) {
+			mState = AbilityState::Ready;
+			mAbility->DeActivate();
 		}
 		else
 		{
@@ -56,3 +54,4 @@ void Script_AbilityHolder::Update()
 		break;
 	}
 }
+

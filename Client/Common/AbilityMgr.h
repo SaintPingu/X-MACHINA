@@ -15,6 +15,7 @@ protected:
 	Object*		mObject{};
 	float		mCooldownTime{};
 	float		mActiveTime{};
+	bool		mIsToggleAbility{};
 
 public:
 	Ability(float cooldownTime, float activeTime) : mCooldownTime(cooldownTime), mActiveTime(activeTime) {}
@@ -22,6 +23,7 @@ public:
 public:
 	float GetCooldownTime() const { return mCooldownTime; }
 	float GetActiveTime() const { return mActiveTime; }
+	bool IsToggleAbility() const { return mIsToggleAbility; }
 
 	void SetObject(Object* object) { mObject = object; }
 
@@ -30,6 +32,7 @@ public:
 	virtual void Activate() {};
 	virtual void DeActivate() {};
 };
+
 
 class RenderedAbility : public Ability, public std::enable_shared_from_this<RenderedAbility> {
 protected:

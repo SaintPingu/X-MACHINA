@@ -38,7 +38,7 @@ void Script_Missile::Explode()
 		}
 	}
 
-	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001);
+	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001f);
 
 	base::Explode();
 

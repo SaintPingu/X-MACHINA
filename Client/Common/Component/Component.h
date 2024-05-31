@@ -113,6 +113,7 @@ private:
 class Object : public Transform {
 	friend class Scene;
 	friend class Grid;
+	friend class CollisionManager;
 
 private:
 	UINT32			mID;

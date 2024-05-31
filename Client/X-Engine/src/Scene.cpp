@@ -233,7 +233,6 @@ void Scene::BuildObjects()
 
 	// build settings
 	BuildTerrain();
-	BuildTest();
 
 	// build static meshes
 	MeshRenderer::BuildMeshes();
@@ -252,11 +251,6 @@ void Scene::BuildTerrain()
 	mTerrain = std::make_shared<Terrain>("Import/Terrain.bin");
 
 	BuildGrid();
-}
-
-void Scene::BuildTest()
-{
-
 }
 
 void Scene::BuildGrid()
@@ -599,46 +593,7 @@ void Scene::RenderGridObjects(RenderType type)
 		break;
 	}
 
-	if (mRenderedObjects.empty()) {
-		for (const auto& grid : mGrids) {
-			if (grid->Empty()) {
-				continue;
-			}
 
-			if (MAIN_CAMERA->GetFrustumShadow().Intersects(grid->GetBB())) {
-				auto& objects = grid->GetObjects();
-				for (auto& object : objects) {
-					if (MAIN_CAMERA->GetFrustumShadow().Intersects(object->GetCollider()->GetBS())) {
-						mRenderedObjects.insert(object);
-					}
-				}
-			}
-		}
-
-		std::set<GridObject*> disabledObjects{};
-		for (auto& object : mRenderedObjects) {
-			if (!object->IsActive()) {
-				disabledObjects.insert(object);
-				continue;
-			}
-			if (object->IsTransparent()) {
-				mTransparentObjects.insert(object);
-				continue;
-			}
-
-			if (object->IsSkinMesh()) {
-				mSkinMeshObjects.insert(object);
-			}
-			else {
-				mGridObjects.insert(object);
-			}
-		}
-		if (!disabledObjects.empty()) {
-			std::set<GridObject*> diff;
-			std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
-			mRenderedObjects = std::move(diff);
-		}
-	}
 
 	RenderObjectsWithFrustumCulling(mGridObjects, type);
 }
@@ -790,8 +745,9 @@ void Scene::Start()
 
 void Scene::Update()
 {
+	UpdateRenderedObjects();
+	
 	CheckCollisions();
-
 	mGameManager->Update();
 	UpdateObjects();
 	mGameManager->LateUpdate();
@@ -801,6 +757,7 @@ void Scene::Update()
 	MAIN_CAMERA->UpdateViewMtx();
 	mLight->Update();
 	Canvas::I->Update();
+	UpdateSurroundGrids();
 
 	UpdateShaderVars();
 
@@ -810,7 +767,7 @@ void Scene::Update()
 
 void Scene::CheckCollisions()
 {
-	for (const auto& grid : mGrids) {
+	for (const auto& grid : mSurroundGrids) {
 		grid->CheckCollisions();
 	}
 }
@@ -841,17 +798,68 @@ void Scene::UpdateObjects()
 		}
 		});
 
-	ProcessActiveObjects([this](sptr<Object> object) {
-		if (object->IsActive()) {
-			object->Animate();
-		}
-		});
+	// TODO : 걸러낸 렌더링 오브젝트만 애니메이션하도록 했는데 
+	// 추후에 동현이가 인스턴싱 객체도 포함시켜야 함
+	AnimateObjects();
 
 	ProcessActiveObjects([this](sptr<Object> object) {
 		if (object->IsActive()) {
 			object->LateUpdate();
 		}
 		});
+}
+
+void Scene::AnimateObjects()
+{
+	for (auto& object : mRenderedObjects) {
+		if (object->IsActive()) {
+			object->Animate();
+		}
+	}
+}
+
+void Scene::UpdateRenderedObjects()
+{
+	if (mRenderedObjects.empty()) {
+		for (const auto& grid : mSurroundGrids) {
+			if (grid->Empty()) {
+				continue;
+			}
+
+			if (MAIN_CAMERA->GetFrustumShadow().Intersects(grid->GetBB())) {
+				auto& objects = grid->GetObjects();
+				for (auto& object : objects) {
+					if (MAIN_CAMERA->GetFrustumShadow().Intersects(object->GetCollider()->GetBS())) {
+						mRenderedObjects.insert(object);
+					}
+				}
+			}
+		}
+
+		std::set<GridObject*> disabledObjects{};
+		for (auto& object : mRenderedObjects) {
+			if (!object->IsActive()) {
+				disabledObjects.insert(object);
+				continue;
+			}
+			if (object->IsTransparent()) {
+				mTransparentObjects.insert(object);
+				continue;
+			}
+
+			if (object->IsSkinMesh()) {
+				mSkinMeshObjects.insert(object);
+			}
+			else {
+				mGridObjects.insert(object);
+			}
+		}
+		if (!disabledObjects.empty()) {
+			std::set<GridObject*> diff;
+			std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
+			mRenderedObjects = std::move(diff);
+		}
+	}
 }
 #pragma endregion
 
@@ -1008,6 +1016,20 @@ void Scene::RemoveObjectFromGrid(GridObject* object)
 	object->ClearGridIndices();
 }
 
+void Scene::UpdateSurroundGrids()
+{
+	const Vec3 cameraPos = MAIN_CAMERA->GetPosition();
+	const int currGridIndex = GetGridIndexFromPos(cameraPos);
+
+	// 그리드 인덱스가 변경된 경우에만 주변 그리드를 업데이트
+	static int prevGridIndex;
+	if (prevGridIndex != currGridIndex) {
+		mSurroundGrids.clear();
+		mSurroundGrids = GetNeighborGrids(currGridIndex, true);
+		prevGridIndex = currGridIndex;
+	}
+}
+
 sptr<GridObject> Scene::Instantiate(const std::string& modelName, ObjectTag tag, ObjectLayer layer, bool enable)
 {
 	const auto& model = RESOURCE<MasterModel>(modelName);
@@ -1107,12 +1129,6 @@ std::vector<sptr<GridObject>> Scene::FindObjectsByName(const std::string& name)
 
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
-	//for (auto& object : mStaticObjects) {
-	//	if (object && object->IsActive()) {
-	//		processFunc(object);
-	//	}
-	//}
-
 	for (auto& object : mDynamicObjects) {
 		if (object && object->IsActive()) {
 			processFunc(object);

@@ -18,7 +18,7 @@ public:													\
 
 template<class T>
 class DwordOverloader {
-private:
+protected:
 	DWORD mValue;
 
 public:

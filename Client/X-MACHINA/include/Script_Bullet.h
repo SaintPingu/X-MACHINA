@@ -20,9 +20,7 @@ class Script_Bullet : public Component {
 private:
 	InstObject*		mGameObject{};	// self GameObject
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
-	//sptr<ParticleSystem> mParticleSystem{};
 	sptr<Rigidbody> mRigid{};
-	ParticleSystem* contrail;
 
 	std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames;
 	std::array<std::queue<ParticleSystem*>, BulletPSTypeCount> mPSs;

@@ -67,14 +67,11 @@ private:
 	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
 	std::set<size_t>				mDestroyObjects{};
 
-	std::set<sptr<GridObject>>	mDissolveObjects{};
-	std::set<GridObject*>	    mRenderedObjects{};
-	std::set<GridObject*>	    mTransparentObjects{};
-	std::set<GridObject*>	    mSkinMeshObjects{};
-	std::set<GridObject*>	    mGridObjects{};
-
-	/* TestCube */
-	sptr<GridObject>			mMaskTestObject{};
+	std::set<sptr<GridObject>>		mDissolveObjects{};
+	std::set<GridObject*>			mRenderedObjects{};
+	std::set<GridObject*>			mTransparentObjects{};
+	std::set<GridObject*>			mSkinMeshObjects{};
+	std::set<GridObject*>			mGridObjects{};
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};
@@ -82,6 +79,8 @@ private:
 
 	/* Grid */
 	std::vector<sptr<Grid>>	mGrids{};				// all scene grids
+	std::vector<sptr<Grid>>	mSurroundGrids{};		// around player grids
+
 	float					mGridStartPoint{};		// leftmost coord of the entire grid
 	int						mGridWidth{};			// length of x for one grid
 	int						mGridCols{};			// number of columns in the grid
@@ -145,7 +144,6 @@ public:
 private:
 	/* Object */
 	void BuildTerrain();
-	void BuildTest();
 
 	/* Grid */
 	// generate grids
@@ -217,6 +215,8 @@ private:
 
 	// update all objects
 	void UpdateObjects();
+	void AnimateObjects();
+	void UpdateRenderedObjects();
 
 #pragma endregion
 
@@ -232,6 +232,8 @@ public:
 	// update objects' grid indices
 	void UpdateObjectGrid(GridObject* object, bool isCheckAdj = true);
 	void RemoveObjectFromGrid(GridObject* object);
+
+	void UpdateSurroundGrids();
 
 	// create new game object from model
 	sptr<GridObject> Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, ObjectLayer layer = ObjectLayer::Default, bool enable = true);

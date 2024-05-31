@@ -9,6 +9,160 @@ int Grid::mTileRows = 0;
 int Grid::mTileCols = 0;
 
 
+inline bool IsNotBuilding(ObjectTag tag)
+{
+	return tag != ObjectTag::Building && tag != ObjectTag::DissolveBuilding;
+}
+
+void CollisionManager::AddCollisionPair(ObjectTag tagA, ObjectTag tagB)
+{
+	mPairs.insert({ tagA, tagB });
+}
+
+bool CollisionManager::AddObject(GridObject* object)
+{
+	const ObjectTag tag = object->GetTag();
+
+	if (mObjects[tag].find(object) != mObjects[tag].end()) {
+		return false;
+	}
+
+	mObjects[tag].insert(object);
+
+	switch (object->GetType())
+	{
+	case ObjectType::DynamicMove:
+		mDynamicObjets.insert(object);
+		break;
+	case ObjectType::Static:
+		mStaticObjects.insert(object);
+		break;
+	default:
+		break;
+	}
+
+	return true;
+}
+
+bool CollisionManager::RemoveObject(GridObject* object)
+{
+	const ObjectTag tag = object->GetTag();
+
+	if (mObjects[tag].find(object) == mObjects[tag].end()) {
+		return false;
+	}
+
+	mObjects[tag].erase(object);
+
+	switch (object->GetType())
+	{
+	case ObjectType::DynamicMove:
+		mDynamicObjets.erase(object);
+		break;
+	case ObjectType::Static:
+		mStaticObjects.erase(object);
+		break;
+	default:
+		break;
+	}
+
+	return true;
+}
+
+void CollisionManager::CheckCollisions()
+{
+	for (Pair pair : mPairs) {
+		auto& groupA = mObjects[pair.first];
+		auto& groupB = mObjects[pair.second];
+
+		if (groupA.empty() || groupB.empty())
+			continue;
+
+		if ((DWORD)pair.first == (DWORD)pair.second)
+			CheckCollisionObjects(groupA);
+		else 
+			CheckCollisionObjects(groupA, groupB);
+	}
+}
+
+float CollisionManager::CheckCollisionsRay(const Ray& ray) const
+{
+	float minDist = 999.f;
+	for (const auto& object : mStaticObjects) {
+		// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
+		if (IsNotBuilding(object->GetTag()))
+			continue;
+
+		float dist = 100;
+		for (const auto& collider : object->GetCollider()->GetColliders()) {
+			if (collider->Intersects(ray, dist)) {
+				minDist = min(minDist, dist);
+			}
+		}
+	}
+
+	return minDist;
+}
+
+void CollisionManager::CheckCollisions(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type) const
+{
+	if (type & CollisionType::Dynamic) {
+		for (const auto& object : mDynamicObjets) {
+			if (object->GetCollider()->Intersects(collider)) {
+				out.push_back(object);
+			}
+		}
+	}
+	if (type & CollisionType::Static) {
+		for (const auto& object : mStaticObjects) {
+			if (object->GetCollider()->Intersects(collider)) {
+				out.push_back(object);
+			}
+		}
+	}
+}
+
+void CollisionManager::CheckCollisionObjects(std::unordered_set<GridObject*> objects)
+{
+	for (auto a = objects.begin(); a != std::prev(objects.end()); ++a) {
+		GridObject* objectA = *a;
+		if (!objectA->IsActive()) {
+			continue;
+		}
+
+		for (auto b = std::next(a); b != objects.end(); ++b) {
+			GridObject* objectB = *b;
+			if (!objectB->IsActive()) {
+				continue;
+			}
+
+			CollisionManager::ProcessCollision(objectA, objectB);
+		}
+	}
+}
+
+void CollisionManager::CheckCollisionObjects(std::unordered_set<GridObject*> objectsA, std::unordered_set<GridObject*> objectsB)
+{
+	for (auto a = objectsA.begin(); a != objectsA.end(); ++a) {
+		GridObject* objectA = *a;
+
+		for (auto b = objectsB.begin(); b != objectsB.end(); ++b) {
+			GridObject* objectB = *b;
+
+			CollisionManager::ProcessCollision(objectA, objectB);
+		}
+	}
+}
+
+void CollisionManager::ProcessCollision(GridObject* objectA, GridObject* objectB)
+{
+	if (ObjectCollider::Intersects(*objectA, *objectB)) {
+		objectA->OnCollisionStay(*objectB);
+		objectB->OnCollisionStay(*objectA);
+	}
+}
+
+
 Grid::Grid(int index, int width, const BoundingBox& bb)
 	:
 	mIndex(index),
@@ -17,6 +171,12 @@ Grid::Grid(int index, int width, const BoundingBox& bb)
 	mTileRows = static_cast<int>(width / mkTileHeight);
 	mTileCols = static_cast<int>(width / mkTileWidth);
 	mTiles = std::vector<std::vector<Tile>>(mTileCols, std::vector<Tile>(mTileRows, Tile::None));
+
+	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Building);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::DissolveBuilding);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Enemy);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Building);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::DissolveBuilding);
 }
 
 Tile Grid::GetTileFromUniqueIndex(const Pos& tPos) const
@@ -36,24 +196,11 @@ void Grid::AddObject(GridObject* object)
 	}
 
 	mObjects.insert(object);
+	mCollisionMgr.AddObject(object);
 
-	switch (object->GetType()) {
-	case ObjectType::DynamicMove:
-		mDynamicObjets.insert(object);
-		break;
-	case ObjectType::Env:
-		mEnvObjects.insert(object);
-		break;
-	default:
-		mStaticObjects.insert(object);
+	if (ObjectType::Static == object->GetType()) {
 		UpdateTiles(Tile::Static, object);
-		break;
 	}
-}
-
-inline bool IsNotBuilding(ObjectTag tag)
-{
-	return tag != ObjectTag::Building && tag != ObjectTag::DissolveBuilding;
 }
 
 void Grid::UpdateTiles(Tile tile, GridObject* object)
@@ -111,18 +258,10 @@ void Grid::RemoveObject(GridObject* object)
 	}
 
 	mObjects.erase(object);
+	mCollisionMgr.RemoveObject(object);
 
-	switch (object->GetType()) {
-	case ObjectType::DynamicMove:
-		mDynamicObjets.erase(object);
-		break;
-	case ObjectType::Env:
-		mEnvObjects.erase(object);
-		break;
-	default:
-		mStaticObjects.erase(object);
+	if (ObjectType::Static == object->GetType()) {
 		UpdateTiles(Tile::None, object);
-		break;
 	}
 }
 
@@ -137,96 +276,15 @@ bool Grid::Intersects(GridObject* object)
 
 void Grid::CheckCollisions()
 {
-	if (!mDynamicObjets.empty()) {
-		CheckCollisionObjects(mDynamicObjets);						// 동적 객체간 충돌 검사를 수행한다.
-		if (!mStaticObjects.empty()) {
-			CheckCollisionObjects(mDynamicObjets, mStaticObjects);	// 동적<->정적 객체간 충돌 검사를 수행한다.
-		}
-	}
+	mCollisionMgr.CheckCollisions();
 }
 
 float Grid::CheckCollisionsRay(const Ray& ray) const
 {
-	float minDist = 999.f;
-	for (const auto& object : mStaticObjects) {
-		// 정적 오브젝트가 Building 태그인 경우에만 벽으로 설정
-		if (IsNotBuilding(object->GetTag()))
-			continue;
-
-		float dist = 100;
-		for (const auto& collider : object->GetCollider()->GetColliders()) {
-			if (collider->Intersects(ray, dist)) {
-				minDist = min(minDist, dist);
-			}
-		}
-	}
-
-	return minDist;
+	return mCollisionMgr.CheckCollisionsRay(ray);
 }
 
 void Grid::CheckCollisions(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type) const
 {
-	if (type & CollisionType::Dynamic) {
-		for (const auto& object : mDynamicObjets) {
-			if (object->GetCollider()->Intersects(collider)) {
-				out.push_back(object);
-			}
-		}
-	}
-	if (type & CollisionType::Static) {
-		for (const auto& object : mStaticObjects) {
-			if (object->GetCollider()->Intersects(collider)) {
-				out.push_back(object);
-			}
-		}
-	}
-}
-
-
-
-
-
-
-// check collision for each object in objects
-void Grid::CheckCollisionObjects(std::unordered_set<GridObject*> objects)
-{
-	for (auto a = objects.begin(); a != std::prev(objects.end()); ++a) {
-		GridObject* objectA = *a;
-		if (!objectA->IsActive()) {
-			continue;
-		}
-
-		for (auto b = std::next(a); b != objects.end(); ++b) {
-			GridObject* objectB = *b;
-			if (!objectB->IsActive()) {
-				continue;
-			}
-
-			Grid::ProcessCollision(objectA, objectB);
-		}
-	}
-}
-
-
-// check collision for (each objectsA) <-> (each objectsB)
-void Grid::CheckCollisionObjects(std::unordered_set<GridObject*> objectsA, std::unordered_set<GridObject*> objectsB)
-{
-	for (auto a = objectsA.begin(); a != objectsA.end(); ++a) {
-		GridObject* objectA = *a;
-
-		for (auto b = objectsB.begin(); b != objectsB.end(); ++b) {
-			GridObject* objectB = *b;
-
-			Grid::ProcessCollision(objectA, objectB);
-		}
-	}
-}
-
-// call collision function if collide
-void Grid::ProcessCollision(GridObject* objectA, GridObject* objectB)
-{
-	if (ObjectCollider::Intersects(*objectA, *objectB)) {
-		objectA->OnCollisionStay(*objectB);
-		objectB->OnCollisionStay(*objectA);
-	}
+	mCollisionMgr.CheckCollisions(collider, out, type);
 }

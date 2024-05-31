@@ -213,6 +213,8 @@
     <ClInclude Include="include\MinimapAbility.h" />
     <ClInclude Include="include\Script_AdvancedCombatDroid_5.h" />
     <ClInclude Include="include\Script_Onyscidus.h" />
+    <ClInclude Include="include\Script_Phero.h" />
+    <ClInclude Include="include\Script_PheroObject.h" />
     <ClInclude Include="include\ShieldAbility.h" />
     <ClInclude Include="include\Script_AbilityHolder.h" />
     <ClInclude Include="include\CheckAttackRange.h" />
@@ -269,6 +271,8 @@
     <ClCompile Include="src\MinimapAbility.cpp" />
     <ClCompile Include="src\Script_AdvancedCombatDroid_5.cpp" />
     <ClCompile Include="src\Script_Onyscidus.cpp" />
+    <ClCompile Include="src\Script_Phero.cpp" />
+    <ClCompile Include="src\Script_PheroObject.cpp" />
     <ClCompile Include="src\ShieldAbility.cpp" />
     <ClCompile Include="src\Script_AbilityHolder.cpp" />
     <ClCompile Include="src\CheckAttackRange.cpp" />

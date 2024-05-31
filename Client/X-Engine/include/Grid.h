@@ -18,18 +18,44 @@ enum class Tile: UINT8{
 using namespace Path;
 #pragma endregion
 
+class CollisionManager {
+private:
+	using Pair = std::pair<ObjectTag, ObjectTag>;
+
+	std::map<ObjectTag, std::unordered_set<GridObject*>> mObjects;
+	std::set<Pair> mPairs;
+
+	std::unordered_set<GridObject*> mStaticObjects{};
+	std::unordered_set<GridObject*> mDynamicObjets{};
+
+public:
+	const auto& GetDynamicObjects() const { return mDynamicObjets; }
+
+public:
+	void AddCollisionPair(ObjectTag tagA, ObjectTag tagB);
+	bool AddObject(GridObject* object);
+	bool RemoveObject(GridObject* object);
+
+public:
+	void CheckCollisions();
+	float CheckCollisionsRay(const Ray& ray) const;
+	void CheckCollisions(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type = CollisionType::All) const;
+
+	static void CheckCollisionObjects(std::unordered_set<GridObject*> objects);
+	static void CheckCollisionObjects(std::unordered_set<GridObject*> objectsA, std::unordered_set<GridObject*> objectsB);
+	static void ProcessCollision(GridObject* objectA, GridObject* objectB);
+};
+
 
 class Grid {
 private:
 	const int mIndex{};
 	const BoundingBox mBB{};
-
 	std::vector<std::vector<Tile>> mTiles{};
 
-	std::unordered_set<GridObject*> mObjects{};			// all objects (env, static, dynamic, ...)
-	std::unordered_set<GridObject*> mEnvObjects{};
-	std::unordered_set<GridObject*> mStaticObjects{};
-	std::unordered_set<GridObject*> mDynamicObjets{};
+	std::unordered_set<GridObject*> mObjects{};	
+	CollisionManager mCollisionMgr{};
+
 
 public:
 	static constexpr float mkTileHeight = 0.5f;
@@ -42,10 +68,11 @@ public:
 	virtual ~Grid() = default;
 
 	int GetIndex() const { return mIndex; }
-	const BoundingBox& GetBB() const	{ return mBB; }
+	const BoundingBox& GetBB() const { return mBB; }
 
 	// return all objects
-	const auto& GetObjects() const		{ return mObjects; }
+	const auto& GetObjects() const { return mObjects; }
+	const auto& GetDynamicObjects() const { return mCollisionMgr.GetDynamicObjects(); }
 
 	Tile GetTileFromUniqueIndex(const Pos& tPos) const;
 	void SetTileFromUniqueIndex(const Pos& tPos, Tile tile);
@@ -68,10 +95,5 @@ public:
 	void CheckCollisions();
 	float CheckCollisionsRay(const Ray& ray) const;
 	void CheckCollisions(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type = CollisionType::All) const;
-
-private:
-	static void CheckCollisionObjects(std::unordered_set<GridObject*> objects);
-	static void CheckCollisionObjects(std::unordered_set<GridObject*> objectsA, std::unordered_set<GridObject*> objectsB);
-	static void ProcessCollision(GridObject* objectA, GridObject* objectB);
 };
 #pragma endregion

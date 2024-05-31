@@ -67,6 +67,7 @@ void Script_Bullet::OnCollisionStay(Object& other)
 void Script_Bullet::Init()
 {
 	mGameObject = mObject->GetObj<InstObject>();
+	mObject->SetTag(ObjectTag::Bullet);
 
 	mRigid = mObject->GetComponent<Rigidbody>();
 	mRigid->SetFriction(0.001f);

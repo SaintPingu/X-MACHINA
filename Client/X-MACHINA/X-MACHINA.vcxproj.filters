@@ -292,6 +292,12 @@
     <ClInclude Include="include\Script_AdvancedCombatDroid_5.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_PheroObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Phero.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -455,6 +461,12 @@
     </ClCompile>
     <ClCompile Include="src\Script_AdvancedCombatDroid_5.cpp">
       <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_PheroObject.cpp">
+      <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Phero.cpp">
+      <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -35,6 +35,7 @@ public:
 	void AddCollisionPair(ObjectTag tagA, ObjectTag tagB);
 	bool AddObject(GridObject* object);
 	bool RemoveObject(GridObject* object);
+	bool IsContainTagInPairs(ObjectTag tag);
 
 public:
 	void CheckCollisions();

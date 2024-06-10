@@ -16,10 +16,12 @@ void Script_PheroObject::OnDestroy()
 {
 	base::OnDestroy();
 
-	//auto& pool = Scene::I->CreateObjectPool("bullet", 100, nullptr);
+	auto& pool = Scene::I->CreateObjectPool("Prop_Book_C", 10, [&](rsptr<InstObject> object) {
+		object->SetTag(ObjectTag::Dynamic);
+		});
 
-//for (auto& object : pool->GetMulti(100, true))
-//{
-//	object->SetPosition(mObject->GetPosition());
-//}
+	for (auto& object : pool->GetMulti(10, true))
+	{
+		object->SetPosition(mObject->GetPosition());
+	}
 }

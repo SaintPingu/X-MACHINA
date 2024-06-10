@@ -17,13 +17,20 @@ inline bool IsNotBuilding(ObjectTag tag)
 void CollisionManager::AddCollisionPair(ObjectTag tagA, ObjectTag tagB)
 {
 	mPairs.insert({ tagA, tagB });
+
+	if (!mObjects.contains(tagA)) {
+		mObjects[tagA].rehash(10);
+	}
+	if (!mObjects.contains(tagB)) {
+		mObjects[tagB].rehash(10);
+	}
 }
 
 bool CollisionManager::AddObject(GridObject* object)
 {
 	const ObjectTag tag = object->GetTag();
 
-	if (mObjects[tag].find(object) != mObjects[tag].end()) {
+	if (mObjects[tag].contains(object)) {
 		return false;
 	}
 
@@ -48,7 +55,7 @@ bool CollisionManager::RemoveObject(GridObject* object)
 {
 	const ObjectTag tag = object->GetTag();
 
-	if (mObjects[tag].find(object) == mObjects[tag].end()) {
+	if (!mObjects[tag].contains(object)) {
 		return false;
 	}
 
@@ -67,6 +74,15 @@ bool CollisionManager::RemoveObject(GridObject* object)
 	}
 
 	return true;
+}
+
+bool CollisionManager::IsContainTagInPairs(ObjectTag tag)
+{
+	if (mObjects.contains(tag)) {
+		return true;
+	}
+
+	return false;
 }
 
 void CollisionManager::CheckCollisions()
@@ -196,11 +212,16 @@ void Grid::AddObject(GridObject* object)
 	}
 
 	mObjects.insert(object);
-	mCollisionMgr.AddObject(object);
 
 	if (ObjectType::Static == object->GetType()) {
 		UpdateTiles(Tile::Static, object);
 	}
+
+	if (!mCollisionMgr.IsContainTagInPairs(object->GetTag())) {
+		return;
+	}
+
+	mCollisionMgr.AddObject(object);
 }
 
 void Grid::UpdateTiles(Tile tile, GridObject* object)
@@ -258,11 +279,16 @@ void Grid::RemoveObject(GridObject* object)
 	}
 
 	mObjects.erase(object);
-	mCollisionMgr.RemoveObject(object);
 
 	if (ObjectType::Static == object->GetType()) {
 		UpdateTiles(Tile::None, object);
 	}
+
+	if (!mCollisionMgr.IsContainTagInPairs(object->GetTag())) {
+		return;
+	}
+
+	mCollisionMgr.RemoveObject(object);
 }
 
 bool Grid::Intersects(GridObject* object)

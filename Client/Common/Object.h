@@ -27,6 +27,7 @@ class GameObject : public Object {
 
 private:
 	bool mIsSkinMesh = false;
+	bool mUseShadow = true;
 
 	sptr<const MasterModel>		  mMasterModel{};		// ·»´õ¸µ ¸ðµ¨
 	std::vector<const Transform*> mMergedTransform{};	// ¸ðµç °èÃþÀÇ transfom (ºü¸¥ Á¢±ÙÀ» À§ÇÑ Ä³½Ì)
@@ -44,9 +45,11 @@ public:
 
 	void SetModel(rsptr<const MasterModel> model);
 	void SetModel(const std::string& modelName);
+	void SetUseShadow(bool useShadow) { mUseShadow = useShadow; }
 
 public:
 	sptr<Animator> GetAnimator() const { return mAnimator; }
+	bool GetUseShadow() const { return mUseShadow; }
 
 protected:
 	virtual void Animate() override;

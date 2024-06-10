@@ -231,6 +231,12 @@ namespace Math {
 		return distribution(dre);
 	}
 
+	inline int RandInt(int min = 0, int max = 1)
+	{
+		std::uniform_int_distribution<int> distribution(min, max);
+		return distribution(dre);
+	}
+
 	constexpr float uint16ToFloat(std::uint16_t value)
 	{
 		return static_cast<float>(value) / 65535.0f * 255.0f;

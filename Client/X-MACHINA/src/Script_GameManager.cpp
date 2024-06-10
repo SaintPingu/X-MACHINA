@@ -6,7 +6,6 @@
 #include "Script_AdvancedCombatDroid_5.h"
 #include "Script_MeleeBT.h"
 #include "Script_MainCamera.h"
-#include "Script_PheroObject.h"
 #include "Component/ParticleSystem.h"
 #include "Component/Camera.h"
 
@@ -70,7 +69,6 @@ void Script_GameManager::Awake()
 			sptr<GridObject> enemy = Scene::I->Instantiate("AdvancedCombatDroid_5", ObjectTag::Enemy);
 			auto& script = enemy->AddComponent<Script_AdvancedCombatDroid_5>();
 			enemy->AddComponent<Script_MeleeBT>();
-			enemy->AddComponent<Script_PheroObject>();
 			enemy->SetPosition(pos);
 			enemy->Rotate(0, rand() % 360, 0);
 		}

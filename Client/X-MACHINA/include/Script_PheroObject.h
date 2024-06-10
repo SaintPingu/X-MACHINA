@@ -15,9 +15,11 @@ class ObjectPool;
 class Script_PheroObject : public Component {
 	COMPONENT(Script_PheroObject, Component)
 
+private:
+	int mCreateCnt{};
+
 public:
 	virtual void Start() override;
 	virtual void OnDestroy() override;
-
 };
 #pragma endregion

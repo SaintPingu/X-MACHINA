@@ -16,7 +16,13 @@ class Script_Phero : public Component {
 	COMPONENT(Script_Phero, Component)
 
 private:
-	InstObject* mGameObject{};
+	float mLifeTime{};
+	float mCurrTime{};
+
+public:
+	void Start() override;
+	void Update() override;
+	void LateUpdate() override;
 };
 #pragma endregion
 

@@ -3,6 +3,7 @@
 
 #include "Script_EnemyManager.h"
 #include "Script_GroundObject.h"
+#include "Script_PheroObject.h"
 
 #include "Timer.h"
 #include "Object.h"
@@ -15,6 +16,7 @@ void Script_Enemy::Awake()
 	base::Awake();
 
 	mObject->AddComponent<Script_GroundObject>();
+	mObject->AddComponent<Script_PheroObject>();
 
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
 	mEnemyMgr->mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();

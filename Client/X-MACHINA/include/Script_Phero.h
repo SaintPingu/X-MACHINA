@@ -3,6 +3,7 @@
 
 #pragma region Include
 #include "Component/Component.h"
+#include "XLManager.h"
 #pragma endregion
 
 
@@ -22,11 +23,35 @@ enum class PheroState : UINT8 {
 #pragma endregion
 
 
-#pragma region EnumClass
-struct PheroStat {
+#pragma region Struct
+struct PheroStat : public XLData {
 	float LifeTime{};
 	float Amount{};
-	float Level{};
+};
+
+struct PheroStatTable : public XLTable {
+public:
+	virtual void Load(const std::string& path) override {
+		xlnt::workbook wb;
+		wb.load(path);
+		auto ws = wb.active_sheet();
+		
+		// 첫 행을 빼기 위해서 더미 값을 넣어준다.
+		mDatas.resize(1);
+		bool first_row_skipped = false;
+
+		for (auto row : ws.rows(false)) {
+			if (!first_row_skipped) {
+				first_row_skipped = true;
+				continue;
+			}
+
+			sptr<PheroStat> stat = std::make_shared<PheroStat>();
+			stat->LifeTime = row[0].value<float>();
+			stat->Amount = row[1].value<float>();
+			mDatas.push_back(stat);
+		}
+	}
 };
 #pragma endregion
 
@@ -53,7 +78,7 @@ public:
 	void LateUpdate() override;
 
 public:
-	void SetPheroLevel();
+	void SetPheroStat(int level);
 
 private:
 	bool IntersectTerrain();

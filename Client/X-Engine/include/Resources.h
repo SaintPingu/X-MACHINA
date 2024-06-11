@@ -1,7 +1,7 @@
 #pragma once
 
 enum class ResourceType : UINT8 {
-	None,
+	None = 0,
 	Texture,
 	Mesh,
 	Model,

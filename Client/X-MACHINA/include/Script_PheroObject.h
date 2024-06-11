@@ -17,12 +17,10 @@ class Script_PheroObject : public Component {
 
 private:
 	int mCreateCnt{};
+	int mPheroLevel{};
 
 public:
 	virtual void Start() override;
 	virtual void OnDestroy() override;
-
-//private:
-	//Vec3 GetRandomPoint(const Vec3& center, float radius) const;
 };
 #pragma endregion

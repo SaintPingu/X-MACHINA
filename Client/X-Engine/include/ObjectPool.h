@@ -21,7 +21,7 @@ protected:
 
 private:
 	bool mIsStatic = false;
-	const sptr<const MasterModel> mMasterModel{};		// ·»´õ¸µ ¸ðµ¨
+	sptr<const MasterModel> mMasterModel{};				// ·»´õ¸µ ¸ðµ¨
 	std::vector<const Transform*> mMergedTransform{};	// ·»´õ¸µ ¸ðµ¨ÀÇ transform ±¸Á¶ (caching)
 
 	std::vector<sptr<InstObject>>			mObjectPool{};			// all objects
@@ -83,6 +83,10 @@ public:
 	void DoActiveObjects(std::function<void(rsptr<InstObject>)> func);
 	// pool ³»ÀÇ ¸ðµç °´Ã¼µé¿¡ ´ëÇØ [func]À» ½ÇÇàÇÑ´Ù.
 	void DoAllObjects(std::function<void(rsptr<InstObject>)> func);
+
+	// ¸ðµ¨ º¯°æ
+	void ChangeModel(const std::string& modelName);
+	void ChangeModel(rsptr<const MasterModel> model);
 
 
 protected:

@@ -15,15 +15,16 @@ void Script_PheroObject::Start()
 
 void Script_PheroObject::OnDestroy()
 {
-	auto& pheroPool = Scene::I->CreateObjectPool("Phero", mCreateCnt, [&](rsptr<InstObject> object) {
+	auto& pheroPool = Scene::I->CreateObjectPool("Level3Phero", mCreateCnt, [&](rsptr<InstObject> object) {
 		object->SetTag(ObjectTag::Dynamic);
 		});
 	
 	for (auto& phero : pheroPool->GetMulti(mCreateCnt, true))
 	{
 		phero->SetPosition(mObject->GetPosition());
-		phero->AddComponent<Script_Phero>();
+		phero->AddComponent<Script_Phero>()->SetPheroStat(1);
 	}
+
 
 	base::OnDestroy();
 }

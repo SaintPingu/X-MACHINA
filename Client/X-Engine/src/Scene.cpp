@@ -239,6 +239,8 @@ void Scene::BuildObjects()
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
+
+	
 }
 
 void Scene::ReleaseObjects()

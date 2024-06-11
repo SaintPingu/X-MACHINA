@@ -298,6 +298,9 @@
     <ClInclude Include="include\Script_Phero.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\XLManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -467,6 +470,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_Phero.cpp">
       <Filter>Script\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XLManger.cpp">
+      <Filter>Script\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

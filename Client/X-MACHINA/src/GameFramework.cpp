@@ -26,6 +26,7 @@
 
 #include "InputMgr.h"
 #include "X-Engine.h"
+#include "XLManager.h"
 
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 #include "ClientNetwork/Include/ThreadManager.h"
@@ -57,6 +58,8 @@ void GameFramework::Init(HINSTANCE hInstance, short width, short height)
 
 	// Init //
 	Engine::I->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
+
+	XLManger::I->LoadTables();
 }
 
 void GameFramework::Release()

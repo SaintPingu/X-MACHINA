@@ -6,6 +6,7 @@
 #include "Object.h"
 
 #include "FrameResource.h"
+#include "ResourceMgr.h"
 
 ObjectPool::ObjectPool(rsptr<const MasterModel> model, int maxSize)
 	:
@@ -125,6 +126,19 @@ void ObjectPool::DoAllObjects(std::function<void(rsptr<InstObject>)> func)
 	for (const auto& object : mObjectPool) {
 		func(object);
 	}
+}
+
+void ObjectPool::ChangeModel(const std::string& modelName)
+{
+	ChangeModel(RESOURCE<MasterModel>(modelName));
+}
+
+void ObjectPool::ChangeModel(rsptr<const MasterModel> model)
+{
+	mMergedTransform.clear();
+	mMasterModel = model;
+	
+	Transform::MergeTransform(mMergedTransform, mMasterModel->GetTransform());
 }
 
 void ObjectPool::EndRender()

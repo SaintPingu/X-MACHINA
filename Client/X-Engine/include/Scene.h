@@ -11,11 +11,6 @@
 #pragma endregion
 
 
-#pragma region Using
-using namespace Path;
-#pragma endregion
-
-
 #pragma region ClassForwardDecl
 class Camera;
 class Object;

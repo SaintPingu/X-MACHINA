@@ -7,6 +7,7 @@
 #include "Component/Rigidbody.h"
 #include "Scene.h"
 #include "GameFramework.h"
+#include "XLManager.h"
 
 
 void Script_Phero::Start()
@@ -16,7 +17,6 @@ void Script_Phero::Start()
 		object->SetUseShadow(false);
 	}
 
-	mStat.LifeTime = Math::RandFloat(10.f, 15.f);
 	mPickupRange = 1.5f;	// 추후에 업그레이드 느낌으로 플레이어가 들고 있어도 됨
 
 	mState = PheroState::Spread;
@@ -68,9 +68,9 @@ void Script_Phero::LateUpdate()
 	}
 }
 
-void Script_Phero::SetPheroLevel()
+void Script_Phero::SetPheroStat(int level)
 {
-
+	XLManger::I->Set(level, mStat);
 }
 
 bool Script_Phero::IntersectTerrain()
@@ -132,4 +132,3 @@ void Script_Phero::FollowToTarget()
 	const Vec3 dir = mTarget->GetPosition().xz() - mObject->GetPosition().xz();
 	mObject->Translate(dir, newFllowSpeed * DeltaTime());
 }
-

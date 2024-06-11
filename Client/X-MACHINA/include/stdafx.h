@@ -67,6 +67,9 @@ public:
 #pragma comment(lib, "dxguid.lib")
 #pragma endregion
 
+#pragma region Pragma Warning
+#pragma warning(disable:4996)
+#pragma endregion
 
 /// +-----------------------
 ///		   Library 
@@ -97,9 +100,18 @@ public:
 #pragma comment(lib, "Release\\X-Engine.lib")
 #endif
 
+#ifdef _DEBUG
+#pragma comment(lib, "Debug\\xlntd.lib")
+#else 
+#pragma comment(lib, "Release\\xlnt.lib")
+#endif
+
 /// +------------------------
-///			WINSOCK
+///			Excel
 /// ------------------------+
+#include <xlnt/xlnt.hpp>
+
+
 #pragma region WinSock 
 #include <winsock2.h>
 #include <mswsock.h>
@@ -112,6 +124,7 @@ public:
 
 
 #pragma region Include
+
 /* Windows */
 #include <windows.h>
 #include <Mmsystem.h>

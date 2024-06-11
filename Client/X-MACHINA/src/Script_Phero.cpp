@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "Script_Phero.h"
 
@@ -6,6 +7,7 @@
 #include "Component/Rigidbody.h"
 #include "Scene.h"
 #include "GameFramework.h"
+
 
 void Script_Phero::Start()
 {
@@ -23,6 +25,7 @@ void Script_Phero::Start()
 	mRigid->SetGravity(true);
 	mRigid->SetMass(2.f);
 }
+
 
 void Script_Phero::Update()
 {
@@ -124,10 +127,9 @@ void Script_Phero::FollowToTarget()
 
 	mFllowSpeed += DeltaTime();
 
-	const float adjSpeed = 0.05f;
-	const float newFllowSpeed = ((mFllowSpeed * 2.5f) * (mFllowSpeed * 2.5f) - 1.f) * adjSpeed;
+	const float newFllowSpeed = ((mFllowSpeed * 4.f) * (mFllowSpeed * 4.f) - 1.f) * 5.f;
 
 	const Vec3 dir = mTarget->GetPosition().xz() - mObject->GetPosition().xz();
-	mObject->Translate(dir, newFllowSpeed);
+	mObject->Translate(dir, newFllowSpeed * DeltaTime());
 }
 

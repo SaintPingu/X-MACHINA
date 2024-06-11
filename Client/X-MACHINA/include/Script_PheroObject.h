@@ -21,5 +21,8 @@ private:
 public:
 	virtual void Start() override;
 	virtual void OnDestroy() override;
+
+//private:
+	//Vec3 GetRandomPoint(const Vec3& center, float radius) const;
 };
 #pragma endregion

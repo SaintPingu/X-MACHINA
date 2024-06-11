@@ -11,7 +11,7 @@ class Rigidbody : public Component {
 	COMPONENT(Rigidbody, Component)
 
 private	:
-	bool mUseGravity	= false;	// controls whether gravity affects this rigidbody.
+	bool mUseGravity		= false;	// controls whether gravity affects this rigidbody.
 	float mGravityScale	= 1.f;
 
 	float mMass		= 1.f;

@@ -4,6 +4,7 @@
 #include "Script_EnemyManager.h"
 #include "Script_GameManager.h"
 #include "Script_MainCamera.h"
+#include "Script_PheroObject.h"
 
 #include "GameFramework.h"
 
@@ -24,6 +25,8 @@ void Script_Ursacetus::Awake()
 	mEnemyMgr->mAttackName = "2HandsSmashAttack";
 
 	mEnemyMgr->mController->FindMotionByName("2HandsSmashAttack")->AddCallback(std::bind(&Script_Ursacetus::SmashCallback, this), 65);
+
+	mObject->GetComponent<Script_PheroObject>()->SetPheroObjectLevel(5);
 }
 
 void Script_Ursacetus::SmashCallback()

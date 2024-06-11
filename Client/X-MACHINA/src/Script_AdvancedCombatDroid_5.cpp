@@ -2,6 +2,7 @@
 #include "Script_AdvancedCombatDroid_5.h"
 
 #include "Script_EnemyManager.h"
+#include "Script_PheroObject.h"
 
 void Script_AdvancedCombatDroid_5::Awake()
 {
@@ -16,4 +17,6 @@ void Script_AdvancedCombatDroid_5::Awake()
 	mEnemyMgr->mGetHitName = "IdleCombat";
 	mEnemyMgr->mAttackName = "2HitComboUnarmed";
 	mEnemyMgr->mDeathName = "DeathFrontCombat";
+
+	mObject->GetComponent<Script_PheroObject>()->SetPheroObjectLevel(3);
 }

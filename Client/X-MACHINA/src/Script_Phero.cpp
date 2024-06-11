@@ -97,7 +97,7 @@ void Script_Phero::FloatGently()
 	const float floatSpeed = 3.f;
 
 	Vec3 pos = mSpreadDest;
-	pos.y = (sinf(mCurrTime * floatSpeed) + 1.f) * 0.1f;
+	pos.y = (sinf(mCurrTime * floatSpeed) + 2.f) * 0.1f;
 
 	mObject->SetPosition(pos);
 }

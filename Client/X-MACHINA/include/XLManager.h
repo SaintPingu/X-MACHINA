@@ -2,13 +2,15 @@
 
 
 #pragma region ClassForwardDecl
-class PheroStat;
+struct PheroStat;
+struct PheroObjectStat;
 #pragma endregion
 
 
 #pragma region EnumClass
 enum class XLDataType : UINT8 {
 	PheroStat = 0,
+	PheroObjectStat,
 
 	_count
 };
@@ -25,10 +27,8 @@ struct XLData {
 };
 
 struct XLTable {
-public:
 	std::vector<sptr<XLData>> mDatas{};
 
-public:
 	virtual void Load(const std::string& path) abstract;
 	const sptr<XLData>& Get(int row) { return mDatas[row]; }
 };
@@ -78,7 +78,7 @@ inline sptr<T> XLManger::Get(int row)
 template<typename T>
 inline void XLManger::Set(int row, T& data)
 {
-	auto& tableData = XLManger::I->Get<PheroStat>(row);
+	auto& tableData = XLManger::I->Get<T>(row);
 	if (nullptr != tableData) {
 		data = *tableData.get();
 	}
@@ -89,4 +89,6 @@ inline XLDataType XLManger::GetXLDataType()
 {
 	if (std::is_same_v<T, PheroStat>)
 		return XLDataType::PheroStat;
+	else if (std::is_same_v<T, PheroObjectStat>)
+		return XLDataType::PheroObjectStat;
 }

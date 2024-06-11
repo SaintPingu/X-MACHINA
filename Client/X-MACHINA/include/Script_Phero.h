@@ -25,8 +25,9 @@ enum class PheroState : UINT8 {
 
 #pragma region Struct
 struct PheroStat : public XLData {
-	float LifeTime{};
-	float Amount{};
+	std::string		ModelName{};
+	float			LifeTime{};
+	float			Amount{};
 };
 
 struct PheroStatTable : public XLTable {
@@ -47,8 +48,9 @@ public:
 			}
 
 			sptr<PheroStat> stat = std::make_shared<PheroStat>();
-			stat->LifeTime = row[0].value<float>();
-			stat->Amount = row[1].value<float>();
+			stat->ModelName = row[0].value<std::string>();
+			stat->LifeTime = row[1].value<float>();
+			stat->Amount = row[2].value<float>();
 			mDatas.push_back(stat);
 		}
 	}
@@ -78,6 +80,7 @@ public:
 	void LateUpdate() override;
 
 public:
+	const PheroStat& GetPheroStat() { return mStat; }
 	void SetPheroStat(int level);
 
 private:

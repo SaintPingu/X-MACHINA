@@ -47,7 +47,7 @@ void Script_PlayerNetwork::DoInput()
 	{
 		mMoveTimePoint_latest = std::chrono::steady_clock::now();
 		
-		float					Vel        = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
+		float					Vel        = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetMovementSpeed();
 		Vec3					Pos        = GameFramework::I->GetPlayer()->GetPosition();
 		Vec3					MoveDir    = Pos - mPrevPos; MoveDir.Normalize();
 		
@@ -55,8 +55,8 @@ void Script_PlayerNetwork::DoInput()
 		Vec3 Rot{};  Rot.y = GetYRotation();
 
 		int32_t	moveState = PLAYER_MOVE_STATE::Start;
-		Vec3					SpineDir   = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
-		long long				latency    = FBS_FACTORY->CurrLatency.load();
+		Vec3					SpineDir   = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetSpineBone()->GetLook();
+		long long				latency = FBS_FACTORY->CurrLatency.load();
 
 		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
 		CLIENT_NETWORK->Send(pkt);
@@ -73,15 +73,15 @@ void Script_PlayerNetwork::DoInput()
 		{
 			mMoveTimePoint_latest = currentTime;
 
-			float					Vel       = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
-			Vec3					Pos       = GameFramework::I->GetPlayer()->GetPosition();
-			Vec3					MoveDir   = Pos - mPrevPos; MoveDir.Normalize();
-			Vec4					QuatRot       = GameFramework::I->GetPlayer()->GetRotation();
+			float					Vel = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetMovementSpeed();
+			Vec3					Pos = GameFramework::I->GetPlayer()->GetPosition();
+			Vec3					MoveDir = Pos - mPrevPos; MoveDir.Normalize();
+			Vec4					QuatRot = GameFramework::I->GetPlayer()->GetRotation();
 			Vec3 Rot{};  Rot.y = GetYRotation();
 
 			int32_t	moveState = PLAYER_MOVE_STATE::Progress;
-			Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
-			long long				latency   = FBS_FACTORY->CurrLatency.load();
+			Vec3					SpineDir = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetSpineBone()->GetLook();
+			long long				latency = FBS_FACTORY->CurrLatency.load();
 
 			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 			float					animparam_h = controller->GetParam("Horizontal")->val.f;
@@ -97,14 +97,14 @@ void Script_PlayerNetwork::DoInput()
 
 	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
 	{
-		float					Vel       = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
-		Vec3					Pos       = GameFramework::I->GetPlayer()->GetPosition();
-		Vec3					MoveDir   = Pos - mPrevPos; MoveDir.Normalize();
+		float					Vel = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetMovementSpeed();
+		Vec3					Pos = GameFramework::I->GetPlayer()->GetPosition();
+		Vec3					MoveDir = Pos - mPrevPos; MoveDir.Normalize();
 		Vec4					QuatRot = GameFramework::I->GetPlayer()->GetRotation();
 		Vec3 Rot{};  Rot.y = GetYRotation();
 
 		int32_t	moveState = PLAYER_MOVE_STATE::End;
-		Vec3					SpineDir  = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
+		Vec3					SpineDir = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetSpineBone()->GetLook();
 		long long				latency   = FBS_FACTORY->CurrLatency.load();
 
 		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);

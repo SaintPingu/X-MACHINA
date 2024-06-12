@@ -22,19 +22,19 @@ UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height, rsptr<Shader
 {
 	mWidth = width / Canvas::I->GetWidth();
 	mHeight = height / Canvas::I->GetHeight();
+	mObjectCB.SliderValue = 1.f;
 
 	// 오브젝트 상수 버퍼 사용 플래그는 직접 설정할 수 있다.
 	SetUseObjCB(true);
 	SetPosition(pos);
 }
 
-void UI::UpdateShaderVars() const
+void UI::UpdateShaderVars()
 {
-	ObjectConstants objectConstants;
-	objectConstants.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
-	objectConstants.MatIndex = mTexture->GetSrvIdx();
+	mObjectCB.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
+	mObjectCB.MatIndex = mTexture->GetSrvIdx();
 
-	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), objectConstants);
+	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), mObjectCB);
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
 }
 
@@ -163,6 +163,22 @@ void MyFont::Render()
 
 
 
+#pragma region SliderUI
+SliderUI::SliderUI(rsptr<Texture> texture, const Vec2& pos, float width, float height, rsptr<Shader> shader)
+	:
+	UI(texture, pos, width, height, shader)
+{
+}
+
+void SliderUI::UpdateShaderVars()
+{
+	mObjectCB.SliderValue = mValue;
+
+	UI::UpdateShaderVars();
+}
+#pragma endregion
+
+
 
 
 
@@ -187,22 +203,39 @@ void Canvas::BuildUIs()
 
 void Canvas::Update()
 {
-	for (auto& ui : mUIs) {
-		ui->Update();
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			ui->Update();
+		}
 	}
 }
 
 void Canvas::Render() const
 {
-	for (auto& ui : mUIs) {
-		ui->Render();
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			ui->Render();
+		}
 	}
 }
 
-sptr<UI> Canvas::CreateUI(const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
+sptr<UI> Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
 {
+	if (layer > (mkLayerCnt - 1))
+		return nullptr;
+
 	sptr<UI> ui = std::make_shared<UI>(RESOURCE<Texture>(texture), pos, width, height, RESOURCE<Shader>(shader));
-	mUIs.insert(ui);
+	mUIs[layer].insert(ui);
+	return ui;
+}
+
+sptr<SliderUI> Canvas::CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
+{
+	if (layer > (mkLayerCnt - 1))
+		return nullptr;
+
+	sptr<SliderUI> ui = std::make_shared<SliderUI>(RESOURCE<Texture>(texture), pos, width, height, RESOURCE<Shader>(shader));
+	mUIs[layer].insert(ui);
 	return ui;
 }
 #pragma endregion

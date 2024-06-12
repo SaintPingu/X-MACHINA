@@ -16,7 +16,7 @@ MinimapAbility::MinimapAbility()
 	:
 	RenderedAbility(2.f, 10.f)
 {
-	mUI = Canvas::I->CreateUI("Minimap", Vec2(0, 0), 1720 * 0.8, 1100 * 0.8, "MinimapAbility");
+	mUI = Canvas::I->CreateUI(0, "Minimap", Vec2(0, 0), 1720 * 0.8, 1100 * 0.8, "MinimapAbility");
 	mUI->SetActive(false);
 
 	mAbilityCB.MinimapData.MinimapSize = Vec2{ 1720.f, 1100.f };

@@ -22,6 +22,7 @@ protected:
 	sptr<Shader>	mShader{};
 	float			mWidth{};
 	float			mHeight{};
+	ObjectConstants mObjectCB{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
@@ -32,14 +33,19 @@ public:
 	virtual void Update() {}
 	virtual void Render();
 
+	float GetWidth() const { return mWidth; }
+	float GetHeight() const { return mHeight; }
+	void SetWidth(float width) { mWidth = width; }
+	void SetHeight(float height) { mHeight = height; }
+
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec2& pos);
 	void SetPosition(const Vec3& pos);
 
 	void SetActive(bool val) { mIsActive = val; }
 
-private:
-	void UpdateShaderVars() const;
+protected:
+	virtual void UpdateShaderVars();
 };
 
 
@@ -63,23 +69,39 @@ public:
 	virtual void Render() override;
 
 private:
-	// 하나의 이미지에서 특정 문자를 지정하는 matrix를 추출해 set(SetGraphicsRoot32BitConstants)한다. (x)
-	// 상수 버퍼 뷰에 set 하기 위해서 방식을 변경하였다.
-	// mObjCBIdxes에 있는 인덱스를 참고하여 set(SetGraphicsRootConstantBufferView)한다.
 	void UpdateShaderVars(char ch, int cnt) const;
 };
 
 
+class SliderUI : public UI {
+private:
+	float mMinValue = 0.f;
+	float mMaxValue = 1.f;
+	float mValue{};			// 0~1 normalize value
+
+public:
+	SliderUI(rsptr<Texture> texture, const Vec2& pos, float width, float height, rsptr<Shader> shader = nullptr);
+	virtual ~SliderUI() = default;
+
+public:
+	void SetMinMaxValue(float min = 0.f, float max = 1.f) { mMinValue = min, mMaxValue = max; }
+	void SetValue(float value) { mValue = value / mMaxValue; }
+
+protected:
+	virtual void UpdateShaderVars() override;
+};
 
 
 
 // Canvas 위에 UI를 그리도록 한다.
 class Canvas : public Singleton<Canvas> {
 	friend Singleton;
+	using Layer = int;
 
 private:
-	std::unordered_set<sptr<UI>>	mUIs{};		// all UIs
-	sptr<MyFont>					mFont{};
+	static constexpr UINT8 mkLayerCnt = 5;
+	std::array<std::unordered_set<sptr<UI>>, mkLayerCnt> mUIs{}; // all UIs
+	sptr<MyFont> mFont{};
 
 	float mWidth{};
 	float mHeight{};
@@ -100,6 +122,8 @@ public:
 
 	void Update();
 	void Render() const;
-	sptr<UI> CreateUI(const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
+
+	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
+	sptr<SliderUI> CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
 };
 #pragma endregion

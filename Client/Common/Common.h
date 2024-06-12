@@ -173,6 +173,9 @@ struct ObjectConstants {
 	int     LightIndex{};
 	float	DeathElapsed{};
 	float	RimFactor{};
+
+	float	SliderValue{};
+	Vec3	Padding{};
 };
 
 struct MinimapConstants {
@@ -235,6 +238,10 @@ namespace Math {
 	{
 		std::uniform_int_distribution<int> distribution(min, max);
 		return distribution(dre);
+	}
+
+	inline float LerpFloat(float a, float b, float t) {
+		return a * (1.f - t) + b * t;
 	}
 
 	constexpr float uint16ToFloat(std::uint16_t value)

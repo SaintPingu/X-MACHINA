@@ -111,6 +111,9 @@ struct ObjectInfo {
     int     LightIndex;
     float   DeathElapsed;
     float   RimFactor;
+    
+    float   SliderValue;
+    float3  Padding;
 };
 
 struct PassInfo {

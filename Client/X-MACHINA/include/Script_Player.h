@@ -15,6 +15,8 @@ class AnimatorController;
 class Script_Weapon;
 class Script_AimController;
 class Script_MainCamera;
+class SliderUI;
+class UI;
 #pragma endregion
 
 
@@ -254,15 +256,42 @@ private:
 class Script_PheroPlayer : public Script_GroundPlayer {
 	COMPONENT(Script_PheroPlayer, Script_GroundPlayer)
 
-private:
-	float mPheroAmount{};
+protected:
 	float mMaxPheroAmount{};
+	float mCurrPheroAmount{};
 
 public:
 	void Start() override;
+	void Update() override;
 
 public:
-	void AddPheroAmount(float pheroAmount);
-	void ReducePheroAmount(float pheroAmount);
+	virtual void AddPheroAmount(float pheroAmount);
+	virtual void ReducePheroAmount(float pheroAmount);
+};
+
+
+// 메인 플레이어만 UI를 생성한다. TODO : 추후에 바뀔 수도 있음
+class Script_PheroMainPlayer : public Script_PheroPlayer {
+	COMPONENT(Script_PheroMainPlayer, Script_PheroPlayer)
+
+private:
+	float mDisplayFillPheroAmount{};
+	float mDisplayEasePheroAmount{};
+
+	sptr<SliderUI> mFillPheroBarUI;
+	sptr<SliderUI> mEasePheroBarUI;
+	sptr<UI> mBackgroundPheroBarUI;
+
+public:
+	void Start() override;
+	void Update() override;
+
+public:
+	virtual void AddPheroAmount(float pheroAmount) override;
+	virtual void ReducePheroAmount(float pheroAmount) override;
+
+private:
+	void AddDisplayPheroAmount();
+	void ReduceDisplayPheroAmount();
 };
 #pragma endregion

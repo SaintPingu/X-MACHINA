@@ -10,12 +10,13 @@ class ShieldAbility : public RenderedAbility {
 
 private:
 	float mShield{};
+	float mPheroCost{};
 
 public:
 	ShieldAbility(float sheild);
 
 public:
 	virtual void Update(float activeTime) override;
-	virtual void Activate() override;
+	virtual bool Activate() override;
 	virtual void DeActivate() override;
 };

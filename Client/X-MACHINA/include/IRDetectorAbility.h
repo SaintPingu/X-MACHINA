@@ -11,6 +11,6 @@ public:
 	IRDetectorAbility();
 
 public:
-	virtual void Activate() override;
+	virtual bool Activate() override;
 	virtual void DeActivate() override;
 };

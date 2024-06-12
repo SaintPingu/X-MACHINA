@@ -266,7 +266,8 @@ public:
 
 public:
 	virtual void AddPheroAmount(float pheroAmount);
-	virtual void ReducePheroAmount(float pheroAmount);
+	virtual bool ReducePheroAmount(float pheroCost);
+
 };
 
 
@@ -288,7 +289,7 @@ public:
 
 public:
 	virtual void AddPheroAmount(float pheroAmount) override;
-	virtual void ReducePheroAmount(float pheroAmount) override;
+	virtual bool ReducePheroAmount(float pheroCost) override;
 
 private:
 	void AddDisplayPheroAmount();

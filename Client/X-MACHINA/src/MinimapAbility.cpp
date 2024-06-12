@@ -33,11 +33,13 @@ void MinimapAbility::Update(float activeTime)
 	base::Update(activeTime);
 }
 
-void MinimapAbility::Activate()
+bool MinimapAbility::Activate()
 {
 	mUI->SetActive(true);
 	base::Activate();
 	Scene::I->SetFilterOptions(FilterOption::Blur);
+
+	return true;
 }
 
 void MinimapAbility::DeActivate()

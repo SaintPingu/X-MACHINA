@@ -29,8 +29,8 @@ public:
 
 public:
 	virtual void Update(float activeTime) abstract;
-	virtual void Activate() {};
-	virtual void DeActivate() {};
+	virtual bool Activate() { return true; }
+	virtual void DeActivate() { }
 };
 
 
@@ -57,7 +57,7 @@ public:
 
 public:
 	virtual void Update(float activeTime) override;
-	virtual void Activate() override;
+	virtual bool Activate() override;
 	virtual void DeActivate() override;
 	
 public:

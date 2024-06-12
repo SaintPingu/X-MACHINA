@@ -10,6 +10,7 @@
 #include "ResourceMgr.h"
 
 #include "Script_LiveObject.h"
+#include "Script_Player.h"
 
 ShieldAbility::ShieldAbility(float sheild)
 	:
@@ -23,6 +24,7 @@ ShieldAbility::ShieldAbility(float sheild)
 	mRenderedObject->SetModel("Shield");
 	
 	mShader = RESOURCE<Shader>("ShieldAbility");
+	mPheroCost = 100.f;
 }
 
 void ShieldAbility::Update(float activeTime)
@@ -33,11 +35,18 @@ void ShieldAbility::Update(float activeTime)
 	mRenderedObject->SetPosition(playerPos);
 }
 
-void ShieldAbility::Activate()
+bool ShieldAbility::Activate()
 {
-	base::Activate();
+	if (!mObject->GetComponent<Script_PheroMainPlayer>()->ReducePheroAmount(mPheroCost)) {
+		return false;
+	}
+
+	if (!base::Activate()) {
+		return false;
+	}
 
 	mObject->GetComponent<Script_LiveObject>()->SetShield(mShield);
+	return true;
 }
 
 void ShieldAbility::DeActivate()

@@ -21,7 +21,9 @@ void Script_AbilityHolder::Update()
 	{
 	case AbilityState::Ready:
 		if (KEY_TAP(mKey)) {
-			mAbility->Activate();
+			if (!mAbility->Activate()) {
+				return;
+			}
 			mState = AbilityState::Active;
 			mActiveTime = mAbility->GetActiveTime();
 		}

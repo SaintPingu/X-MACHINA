@@ -24,9 +24,14 @@ void Script_PheroPlayer::AddPheroAmount(float pheroAmount)
 	mCurrPheroAmount = min(mCurrPheroAmount + pheroAmount, mMaxPheroAmount);
 }
 
-void Script_PheroPlayer::ReducePheroAmount(float pheroAmount)
+bool Script_PheroPlayer::ReducePheroAmount(float pheroCost)
 {
-	mCurrPheroAmount = max(mCurrPheroAmount - pheroAmount, 0.f);
+	if (mCurrPheroAmount < pheroCost) {
+		return false;
+	}
+
+	mCurrPheroAmount = max(mCurrPheroAmount - pheroCost, 0.f);
+	return true;
 }
 #pragma endregion
 
@@ -71,10 +76,15 @@ void Script_PheroMainPlayer::AddPheroAmount(float pheroAmount)
 	base::AddPheroAmount(pheroAmount);
 }
 
-void Script_PheroMainPlayer::ReducePheroAmount(float pheroAmount)
+bool Script_PheroMainPlayer::ReducePheroAmount(float pheroCost)
 {
+	if (mCurrPheroAmount < pheroCost) {
+		return false;
+	}
+
 	mDisplayEasePheroAmount = mCurrPheroAmount;
-	mCurrPheroAmount = max(mCurrPheroAmount - pheroAmount, 0.f);
+	mCurrPheroAmount = max(mCurrPheroAmount - pheroCost, 0.f);
+	return true;
 }
 
 void Script_PheroMainPlayer::AddDisplayPheroAmount()

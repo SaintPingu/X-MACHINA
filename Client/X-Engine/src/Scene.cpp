@@ -1045,6 +1045,7 @@ sptr<GridObject> Scene::Instantiate(const std::string& modelName, ObjectTag tag,
 	instance->SetModel(model);
 	instance->SetTag(tag);
 	instance->SetLayer(layer);
+	instance->SetName(modelName);
 	if (enable) {
 		instance->SetActive(true);
 	}

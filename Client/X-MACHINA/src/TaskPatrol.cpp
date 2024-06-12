@@ -13,7 +13,7 @@ TaskPatrol::TaskPatrol(Object* object, std::vector<Vec3>&& wayPoints)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-	mPatrolSpeed = mEnemyMgr->mMoveSpeed * 0.5f;
+	mPatrolSpeed = mEnemyMgr->mStat.MoveSpeed * 0.5f;
 
 	mWayPoints = wayPoints;
 }
@@ -27,7 +27,7 @@ BT::NodeState TaskPatrol::Evaluate()
 	const Vec3 toWayPoint = wayPoint - mObject->GetPosition().xz();
 	
 	if (toWayPoint.Length() > kMinDistance) {
-		mObject->RotateTargetAxisY(wayPoint, mEnemyMgr->mRotationSpeed);
+		mObject->RotateTargetAxisY(wayPoint, mEnemyMgr->mStat.RotationSpeed);
 		mObject->Translate(mObject->GetLook(), mPatrolSpeed * DeltaTime());
 	}
 	else {

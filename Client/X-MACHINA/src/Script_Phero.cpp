@@ -75,7 +75,7 @@ void Script_Phero::LateUpdate()
 
 void Script_Phero::SetPheroStat(int level)
 {
-	XLManger::I->Set(level, mStat);
+	XLManager::I->Set(level, mStat);
 }
 
 bool Script_Phero::IntersectTerrain()

@@ -8,8 +8,8 @@
 
 
 #pragma region Class
-class Script_MeleeBT : public Script_BehaviorTree {
-	COMPONENT(Script_MeleeBT, Script_BehaviorTree)
+class Script_DefaultEnemyBT : public Script_BehaviorTree {
+	COMPONENT(Script_DefaultEnemyBT, Script_BehaviorTree)
 
 protected:
 	BT::Node* SetupTree() override;

@@ -248,7 +248,7 @@
     <ClInclude Include="include\Script_GroundObject.h" />
     <ClInclude Include="include\Script_LiveObject.h" />
     <ClInclude Include="include\Script_MainCamera.h" />
-    <ClInclude Include="include\Script_MeleeBT.h" />
+    <ClInclude Include="include\Script_DefaultEnemyBT.h" />
     <ClInclude Include="include\Script_Player.h" />
     <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\Script_Ursacetus.h" />
@@ -307,7 +307,7 @@
     <ClCompile Include="src\Script_GroundPlayer.cpp" />
     <ClCompile Include="src\Script_LiveObject.cpp" />
     <ClCompile Include="src\Script_MainCamera.cpp" />
-    <ClCompile Include="src\Script_MeleeBT.cpp" />
+    <ClCompile Include="src\Script_DefaultEnemyBT.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
     <ClCompile Include="src\Script_Sprite.cpp" />

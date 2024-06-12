@@ -31,28 +31,12 @@ struct PheroStat : public XLData {
 };
 
 struct PheroStatTable : public XLTable {
-public:
-	virtual void Load(const std::string& path) override {
-		xlnt::workbook wb;
-		wb.load(path);
-		auto ws = wb.active_sheet();
-		
-		// 첫 행을 빼기 위해서 더미 값을 넣어준다.
-		mDatas.resize(1);
-		bool first_row_skipped = false;
-
-		for (auto row : ws.rows(false)) {
-			if (!first_row_skipped) {
-				first_row_skipped = true;
-				continue;
-			}
-
-			sptr<PheroStat> stat = std::make_shared<PheroStat>();
-			stat->ModelName = row[0].value<std::string>();
-			stat->LifeTime = row[1].value<float>();
-			stat->Amount = row[2].value<float>();
-			mDatas.push_back(stat);
-		}
+	virtual sptr<XLData> SetData(const xlnt::range_iterator::reference& row) override {
+		sptr<PheroStat> stat = std::make_shared<PheroStat>();
+		stat->ModelName = row[0].value<std::string>();
+		stat->LifeTime = row[1].value<float>();
+		stat->Amount = row[2].value<float>();
+		return stat;
 	}
 };
 #pragma endregion

@@ -14,7 +14,7 @@ CheckAttackRange::CheckAttackRange(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mAttackName)->AddEndCallback(std::bind(&CheckAttackRange::AttackEndCallback, this));
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddEndCallback(std::bind(&CheckAttackRange::AttackEndCallback, this));
 }
 
 BT::NodeState CheckAttackRange::Evaluate()
@@ -29,7 +29,7 @@ BT::NodeState CheckAttackRange::Evaluate()
 
 	constexpr float minDistance = 1.f;
 	const float distance = (mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length();
-	if (distance < mEnemyMgr->mAttackRange) {
+	if (distance < mEnemyMgr->mStat.AttackRange) {
 		const Vec3 toTargetDir = Vector3::Normalized(mEnemyMgr->mTarget->GetPosition() - mObject->GetPosition());
 		const float angle = Vector3::Angle(mObject->GetLook(), toTargetDir);
 		if (minDistance < 1.f || angle < 20.f) {

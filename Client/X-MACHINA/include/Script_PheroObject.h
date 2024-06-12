@@ -24,29 +24,13 @@ struct PheroObjectLastStat {
 };
 
 struct PheroObjectStatTable : public XLTable {
-public:
-	virtual void Load(const std::string& path) override {
-		xlnt::workbook wb;
-		wb.load(path);
-		auto ws = wb.active_sheet();
-
-		// 첫 행을 빼기 위해서 더미 값을 넣어준다.
-		mDatas.resize(1);
-		bool first_row_skipped = false;
-
-		for (auto row : ws.rows(false)) {
-			if (!first_row_skipped) {
-				first_row_skipped = true;
-				continue;
-			}
-
-			sptr<PheroObjectStat> stat = std::make_shared<PheroObjectStat>();
-			stat->MaxPheroCount = row[0].value<int>();
-			stat->LevelPerPDRs.push_back(row[1].value<int>());
-			stat->LevelPerPDRs.push_back(row[2].value<int>());
-			stat->LevelPerPDRs.push_back(row[3].value<int>());
-			mDatas.push_back(stat);
-		}
+	virtual sptr<XLData> SetData(const xlnt::range_iterator::reference& row) override {
+		sptr<PheroObjectStat> stat = std::make_shared<PheroObjectStat>();
+		stat->MaxPheroCount = row[0].value<int>();
+		stat->LevelPerPDRs.push_back(row[1].value<int>());
+		stat->LevelPerPDRs.push_back(row[2].value<int>());
+		stat->LevelPerPDRs.push_back(row[3].value<int>());
+		return stat;
 	}
 };
 #pragma endregion
@@ -57,16 +41,12 @@ class Script_PheroObject : public Component {
 	COMPONENT(Script_PheroObject, Component)
 
 private:
-	int mPheroObjectLevel{};
 	PheroObjectStat mStartStat{};
 	PheroObjectLastStat mLastStat{};
 
 public:
 	virtual void Start() override;
 	virtual void OnDestroy() override;
-
-public:
-	void SetPheroObjectLevel(int level) { mPheroObjectLevel = level; }
 
 private:
 	void GenerateRandomPheroCount();

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Script_MeleeBT.h"
+#include "Script_DefaultEnemyBT.h"
 
 #include "Script_Enemy.h"
 
@@ -16,7 +16,7 @@
 #include "TaskGetHit.h"
 #include "Wait.h"
 
-BT::Node* Script_MeleeBT::SetupTree()
+BT::Node* Script_DefaultEnemyBT::SetupTree()
 {
 #pragma region WayPoint
 	// 오브젝트 스폰 위치 중심 (5, 5) 만큼 정찰 위치 설정

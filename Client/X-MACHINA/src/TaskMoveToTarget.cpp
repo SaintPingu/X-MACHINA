@@ -51,8 +51,8 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	if (toTarget.Length() > kMinDistance) {
 		mEnemyMgr->mController->SetValue("Return", false);
 
-		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mRotationSpeed);
-		mObject->Translate(mObject->GetLook(), mEnemyMgr->mMoveSpeed * DeltaTime());
+		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.RotationSpeed);
+		mObject->Translate(mObject->GetLook(), mEnemyMgr->mStat.MoveSpeed * DeltaTime());
 	}
 
 	return BT::NodeState::Success;

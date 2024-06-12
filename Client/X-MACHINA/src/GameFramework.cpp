@@ -59,7 +59,7 @@ void GameFramework::Init(HINSTANCE hInstance, short width, short height)
 	// Init //
 	Engine::I->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
 
-	XLManger::I->LoadTables();
+	XLManager::I->LoadTables();
 }
 
 void GameFramework::Release()

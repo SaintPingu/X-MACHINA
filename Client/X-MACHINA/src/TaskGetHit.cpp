@@ -14,7 +14,7 @@ TaskGetHit::TaskGetHit(Object* object)
 	mLiveObject = object->GetComponent<Script_LiveObject>();
 	mPrevHp = mLiveObject->GetCrntHp();
 	mKnockBack = 0.05f;
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mGetHitName)->AddEndCallback(std::bind(&TaskGetHit::GetHitEndCallback, this));
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.GetHitAnimName)->AddEndCallback(std::bind(&TaskGetHit::GetHitEndCallback, this));
 }
 
 BT::NodeState TaskGetHit::Evaluate()

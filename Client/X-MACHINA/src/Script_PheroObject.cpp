@@ -4,15 +4,23 @@
 #include "Scene.h"
 #include "ObjectPool.h"
 #include "Object.h"
-#include "Script_Phero.h"
 #include "XLManager.h"
+
+#include "Script_Phero.h"
+#include "Script_EnemyManager.h"
 
 
 void Script_PheroObject::Start()
 {
 	base::Start();
 	
-	XLManger::I->Set(mPheroObjectLevel, mStartStat);
+	int level = 1;
+	auto& enemyMgr = mObject->GetComponent<Script_EnemyManager>();
+	if (enemyMgr) {
+		level = enemyMgr->mStat.PheroLevel;
+	}
+
+	XLManager::I->Set(level, mStartStat);
 
 	GenerateRandomPheroCount();
 }
@@ -32,7 +40,7 @@ void Script_PheroObject::GenerateRandomPheroCount()
 	mLastStat.LevelPerPDCs.resize(mStartStat.LevelPerPDRs.size());
 
 	for (int i = 0; i < mLastStat.PheroCount; ++i) {
-		float randValue = Math::RandInt(0, 100);
+		int randValue = Math::RandInt(0, 100);
 		float cumulativeProbability = 0.f;
 
 		for (int j = 0; j < mStartStat.LevelPerPDRs.size(); ++j) {

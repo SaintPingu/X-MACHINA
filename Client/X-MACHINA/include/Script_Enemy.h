@@ -27,5 +27,8 @@ public:
 	virtual void Attack();
 	virtual void Death();
 	virtual bool Hit(float damage) override;
+
+public:
+	void SetEnemyStat(const std::string& modelName);
 };
 #pragma endregion

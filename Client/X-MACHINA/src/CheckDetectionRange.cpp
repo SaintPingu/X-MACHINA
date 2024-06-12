@@ -25,7 +25,7 @@ BT::NodeState CheckDetectionRange::Evaluate()
 	}
 
 	// 경로 길찾기가 실행중이거나 감지 범위 내에 들어온 경우 다음 노드로 진행
-	if ((mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length() < mEnemyMgr->mDetectionRange) {
+	if ((mObject->GetPosition() - mEnemyMgr->mTarget->GetPosition()).Length() < mEnemyMgr->mStat.DetectionRange) {
 		mEnemyMgr->mState = EnemyState::Walk;
 		mEnemyMgr->mController->SetValue("Walk", true);
 		return BT::NodeState::Success;

@@ -12,7 +12,7 @@ TaskMoveToPath::TaskMoveToPath(Object* object)
 {
 	mObject = object;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
-	mMoveSpeed = mEnemyMgr->mMoveSpeed;
+	mMoveSpeed = mEnemyMgr->mStat.MoveSpeed;
 	mReturnSpeed = 1.7f * mMoveSpeed;
 	mPath = &mEnemyMgr->mPath;
 
@@ -43,7 +43,7 @@ BT::NodeState TaskMoveToPath::Evaluate()
 	}
 
 	// 다음 경로를 향해 이동 및 회전
-	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mRotationSpeed);
+	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mStat.MoveSpeed);
 	mObject->Translate(XMVector3Normalize(nextPos), speed * DeltaTime());
 
 	// 다음 경로에 도착 시 해당 경로 삭제

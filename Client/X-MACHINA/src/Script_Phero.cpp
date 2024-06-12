@@ -9,6 +9,7 @@
 #include "GameFramework.h"
 #include "XLManager.h"
 
+#include "Script_Player.h"
 
 void Script_Phero::Start()
 {
@@ -17,7 +18,7 @@ void Script_Phero::Start()
 		object->SetUseShadow(false);
 	}
 
-	mPickupRange = 1.5f;	// 추후에 업그레이드 느낌으로 플레이어가 들고 있어도 됨
+	mPickupRange = 1.5f; // 추후에 업그레이드 느낌으로 플레이어가 들고 있어도 됨
 
 	mState = PheroState::Spread;
 	mRigid = mObject->AddComponent<Rigidbody>();
@@ -60,9 +61,13 @@ void Script_Phero::LateUpdate()
 	}
 
 	if (mState == PheroState::Follow) {
-		const float dis = 0.3f;
-		if (Vec3::Distance(mObject->GetPosition().xz(), mTarget->GetPosition().xz()) < dis) {
-			// TODO : 타겟의 페로 증가
+		constexpr float kDis = 0.3f;
+		if (Vec3::Distance(mObject->GetPosition().xz(), mTarget->GetPosition().xz()) < kDis) {
+			auto& pheroPlayer = mTarget->GetComponent<Script_PheroPlayer>();
+			if (pheroPlayer) {
+				pheroPlayer->AddPheroAmount(mStat.Amount);
+			}
+
 			mObject->Destroy();
 		}
 	}
@@ -82,9 +87,9 @@ bool Script_Phero::IntersectTerrain()
 	const Vec3& pos = mObject->GetPosition();
 	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
 
-	const float adjHeight = 0.5f;
+	constexpr float kAdjHeight = 0.5f;
 
-	if (pos.y <= terrainHeight + adjHeight) {
+	if (pos.y <= terrainHeight + kAdjHeight) {
 		mSpreadDest = pos;
 		return true;
 	}
@@ -94,10 +99,12 @@ bool Script_Phero::IntersectTerrain()
 
 void Script_Phero::FloatGently()
 {
-	const float floatSpeed = 3.f;
+	constexpr float kFloatSpeed = 3.f;
+	constexpr float kAdjValue = 2.f;
+	constexpr float kFloatRange = 0.1f;
 
 	Vec3 pos = mSpreadDest;
-	pos.y = (sinf(mCurrTime * floatSpeed) + 2.f) * 0.1f;
+	pos.y = (sinf(mCurrTime * kFloatSpeed) + kAdjValue) * kFloatRange;
 
 	mObject->SetPosition(pos);
 }
@@ -127,7 +134,10 @@ void Script_Phero::FollowToTarget()
 
 	mFllowSpeed += DeltaTime();
 
-	const float newFllowSpeed = ((mFllowSpeed * 4.f) * (mFllowSpeed * 4.f) - 1.f) * 5.f;
+	constexpr float kAdjTotalSpeed = 5.f;
+	constexpr float kAdjFllowSpeed = 4.f;
+
+	const float newFllowSpeed = (powf(mFllowSpeed * kAdjFllowSpeed, 2) - 1.f) * kAdjTotalSpeed;
 
 	const Vec3 dir = mTarget->GetPosition().xz() - mObject->GetPosition().xz();
 	mObject->Translate(dir, newFllowSpeed * DeltaTime());

@@ -280,6 +280,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
+    <ClCompile Include="src\Script_PheroPlayer.cpp" />
     <ClCompile Include="src\XLManger.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />
     <ClCompile Include="src\MinimapAbility.cpp" />

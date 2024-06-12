@@ -249,4 +249,20 @@ private:
 	void ComputeSlideVector(Object& other);
 };
 
+
+// 페로 능력을 가진 플레이어
+class Script_PheroPlayer : public Script_GroundPlayer {
+	COMPONENT(Script_PheroPlayer, Script_GroundPlayer)
+
+private:
+	float mPheroAmount{};
+	float mMaxPheroAmount{};
+
+public:
+	void Start() override;
+
+public:
+	void AddPheroAmount(float pheroAmount);
+	void ReducePheroAmount(float pheroAmount);
+};
 #pragma endregion

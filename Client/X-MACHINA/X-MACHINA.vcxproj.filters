@@ -474,6 +474,9 @@
     <ClCompile Include="src\XLManger.cpp">
       <Filter>Script\Manager</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_PheroPlayer.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

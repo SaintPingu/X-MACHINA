@@ -43,7 +43,7 @@ struct XLTable {
 	ContainerVariant mDatas{};
 	std::vector<std::string> mKeys{};
 
-	XLTable(bool useStringKey) {
+	XLTable(bool useStringKey = false) {
 		if (!useStringKey) {
 			mDatas = std::vector<sptr<XLData>>(1);
 		}

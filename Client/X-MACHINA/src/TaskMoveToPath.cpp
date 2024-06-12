@@ -43,7 +43,7 @@ BT::NodeState TaskMoveToPath::Evaluate()
 	}
 
 	// 다음 경로를 향해 이동 및 회전
-	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mStat.MoveSpeed);
+	mObject->RotateTargetAxisY(mPath->top(), mEnemyMgr->mStat.RotationSpeed);
 	mObject->Translate(XMVector3Normalize(nextPos), speed * DeltaTime());
 
 	// 다음 경로에 도착 시 해당 경로 삭제

@@ -38,11 +38,11 @@ class RenderedAbility : public Ability, public std::enable_shared_from_this<Rend
 protected:
 	D3D_PRIMITIVE_TOPOLOGY mPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	
-	sptr<GameObject> mRenderedObject;
-	sptr<Mesh> mRenderedMesh;
+	sptr<GameObject>	mRenderedObject;
+	sptr<Mesh>			mRenderedMesh;
 
-	sptr<Shader> mShader{};
-	int mLayer{};
+	sptr<Shader>		mShader{};
+	int					mLayer{};
 
 	int					mAbilityCBIdx = -1;
 	AbilityConstants	mAbilityCB{};

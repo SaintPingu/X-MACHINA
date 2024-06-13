@@ -221,6 +221,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
+    <ClInclude Include="include\PheroAbilityInterface.h" />
     <ClInclude Include="include\XLManager.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
     <ClInclude Include="include\MinimapAbility.h" />
@@ -280,6 +281,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
+    <ClCompile Include="src\PheroAbilityInterface.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
     <ClCompile Include="src\XLManger.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />

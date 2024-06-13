@@ -272,7 +272,7 @@ public:
 };
 
 
-// 메인 플레이어만 UI를 생성한다. TODO : 추후에 바뀔 수도 있음
+// 메인 플레이어는 UI를 생성한다. TODO : 추후에 바뀔 수도 있음
 class Script_PheroMainPlayer : public Script_PheroPlayer {
 	COMPONENT(Script_PheroMainPlayer, Script_PheroPlayer)
 

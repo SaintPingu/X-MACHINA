@@ -15,7 +15,8 @@
 ShieldAbility::ShieldAbility(float sheild)
 	:
 	RenderedAbility(2.f, 4.5f),
-	mShield(sheild)
+	PheroAbilityInterface(100.f),
+	mShieldAmount(sheild)
 {
 	mLayer = 1;
 	mAbilityCB.Duration = 4.f;
@@ -24,7 +25,6 @@ ShieldAbility::ShieldAbility(float sheild)
 	mRenderedObject->SetModel("Shield");
 	
 	mShader = RESOURCE<Shader>("ShieldAbility");
-	mPheroCost = 100.f;
 }
 
 void ShieldAbility::Update(float activeTime)
@@ -37,15 +37,16 @@ void ShieldAbility::Update(float activeTime)
 
 bool ShieldAbility::Activate()
 {
-	if (!mObject->GetComponent<Script_PheroMainPlayer>()->ReducePheroAmount(mPheroCost)) {
+	if (!ReducePheroAmount()) {
 		return false;
 	}
 
-	if (!base::Activate()) {
+	if (!RenderedAbility::Activate()) {
 		return false;
 	}
 
-	mObject->GetComponent<Script_LiveObject>()->SetShield(mShield);
+	mObject->GetComponent<Script_LiveObject>()->SetShield(mShieldAmount);
+
 	return true;
 }
 
@@ -54,4 +55,14 @@ void ShieldAbility::DeActivate()
 	base::DeActivate();
 
 	mObject->GetComponent<Script_LiveObject>()->SetShield(0.f);
+}
+
+bool ShieldAbility::ReducePheroAmount()
+{
+	sptr<Script_PheroMainPlayer> pheroPlayer = mObject->GetComponent<Script_PheroMainPlayer>();
+	if (pheroPlayer) {
+		return pheroPlayer->ReducePheroAmount(mPheroCost);
+	}
+
+	return false;
 }

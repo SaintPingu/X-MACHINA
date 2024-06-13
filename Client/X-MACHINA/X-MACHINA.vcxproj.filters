@@ -79,6 +79,9 @@
     <Filter Include="ClientNetwork\Packet">
       <UniqueIdentifier>{ac4feb10-a732-4dde-8d5a-3474b17ab9e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Interface">
+      <UniqueIdentifier>{57ce70e4-f4e8-4c7a-90b7-75aa7646f50a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -301,6 +304,9 @@
     <ClInclude Include="include\XLManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\PheroAbilityInterface.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -476,6 +482,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_PheroPlayer.cpp">
       <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PheroAbilityInterface.cpp">
+      <Filter>Script\Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

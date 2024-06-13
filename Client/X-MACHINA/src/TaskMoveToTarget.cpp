@@ -17,6 +17,10 @@ TaskMoveToTarget::TaskMoveToTarget(Object* object)
 
 BT::NodeState TaskMoveToTarget::Evaluate()
 {
+	if (!mEnemyMgr->mTarget) {
+		return BT::NodeState::Failure;
+	}
+
 	// 허리 쪽부터 광선을 쏴야 맞는다.
 	Vec3 objectAdjPos = mObject->GetPosition() + mObject->GetUp() * 0.5f;
 	Vec3 targetAdjPos = mEnemyMgr->mTarget->GetPosition() + mEnemyMgr->mTarget->GetUp() * 0.5f;
@@ -28,8 +32,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	Ray r{ objectAdjPos, XMVector3Normalize(toTarget)};
 
 	// 타겟이 속한 모든 그리드를 검사해야 한다.
-	if (!mGridTarget)
-		mGridTarget = std::dynamic_pointer_cast<GridObject>(mEnemyMgr->mTarget);
+	GridObject* mGridTarget = dynamic_cast<GridObject*>(mEnemyMgr->mTarget);
 
 	// 해당 광선에 맞은 다른 Static 오브젝트의 거리가 타겟까지의 거리보다 가까운 경우 벽에 막혀있는 경우이다.
 	if (mGridTarget) {

@@ -23,6 +23,7 @@ struct EnemyStat : public XLData {
 	int PheroLevel{};
 	float MoveSpeed{};
 	float RotationSpeed{};
+	float AttackRotationSpeed{};
 	float DetectionRange{};
 	float AttackRate{};
 	float AttackRange{};
@@ -42,15 +43,16 @@ struct EnemyStatTable : public XLTable {
 		stat->EnemyLevel = row[1].value<int>();
 		stat->PheroLevel = row[2].value<int>();
 		stat->MoveSpeed = row[3].value<float>();
-		stat->RotationSpeed = row[4].value<float>();
-		stat->DetectionRange = row[5].value<float>();
-		stat->AttackRate = row[6].value<float>();
-		stat->AttackRange = row[7].value<float>();
-		stat->AttackCoolTime = row[8].value<float>();
-		stat->MaxHp = row[9].value<float>();
-		stat->AttackAnimName = row[10].value<std::string>();
-		stat->GetHitAnimName = row[11].value<std::string>();
-		stat->DeathAnimName = row[12].value<std::string>();
+		stat->DetectionRange = row[4].value<float>();
+		stat->RotationSpeed = row[5].value<float>();
+		stat->AttackRotationSpeed = row[6].value<float>();
+		stat->AttackRate = row[7].value<float>();
+		stat->AttackRange = row[8].value<float>();
+		stat->AttackCoolTime = row[9].value<float>();
+		stat->MaxHp = row[10].value<float>();
+		stat->AttackAnimName = row[11].value<std::string>();
+		stat->GetHitAnimName = row[12].value<std::string>();
+		stat->DeathAnimName = row[13].value<std::string>();
 		return stat;
 	}
 };
@@ -70,11 +72,16 @@ public:
 	EnemyStat mStat{};
 	EnemyState mState = EnemyState::Idle;
 
-	sptr<Object> mTarget{};
+	Object* mTarget{};
+
 	std::stack<Vec3> mPath{};
 	sptr<AnimatorController> mController{};
 
 public:
+	void Update() override;
+
+public:
 	void RemoveAllAnimation();
+	void ForceSetTarget(Object* target) { mTarget = target; }
 };
 #pragma endregion

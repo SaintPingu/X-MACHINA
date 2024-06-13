@@ -15,8 +15,7 @@ class Script_EnemyManager;
 #pragma region Class
 class TaskMoveToTarget : public BT::Node {
 private:
-	sptr<Script_EnemyManager>	mEnemyMgr;
-	sptr<GridObject>			mGridTarget;
+	sptr<Script_EnemyManager> mEnemyMgr;
 
 public:
 	TaskMoveToTarget(Object* object);

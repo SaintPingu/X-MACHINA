@@ -7,6 +7,7 @@
 
 
 #pragma region ClassForwardDecl
+class Object;
 #pragma endregion
 
 
@@ -35,7 +36,7 @@ public:
 
 	bool UpdatePrevHP() { bool res = mPrevHP == mCrntHP; mPrevHP = mCrntHP; return res; }
 
-	virtual bool Hit(float damage);
+	virtual bool Hit(float damage, Object* instigator = nullptr);
 	virtual void Dead();
 	virtual void Resurrect();
 };

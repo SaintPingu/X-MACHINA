@@ -24,7 +24,7 @@ void Script_LiveObject::Update()
 	base::Update();
 }
 
-bool Script_LiveObject::Hit(float damage)
+bool Script_LiveObject::Hit(float damage, Object* instigator)
 {
 	if (mCrntHP <= 0) {
 		return false;

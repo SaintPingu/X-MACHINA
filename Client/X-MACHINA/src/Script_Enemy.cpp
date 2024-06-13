@@ -44,11 +44,15 @@ void Script_Enemy::Death()
 {
 }
 
-bool Script_Enemy::Hit(float damage)
+bool Script_Enemy::Hit(float damage, Object* instigator)
 {
-	bool res = base::Hit(damage);
+	bool res = base::Hit(damage, instigator);
 
 	mObject->mObjectCB.RimFactor = 0.7f;
+	
+	if (nullptr != instigator) {
+		mEnemyMgr->mTarget = instigator;
+	}
 
 	return res;
 }

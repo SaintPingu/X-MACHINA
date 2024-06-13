@@ -21,7 +21,7 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 BT::NodeState CheckDetectionRange::Evaluate()
 {
 	if (!mEnemyMgr->mTarget) {
-		mEnemyMgr->mTarget = mTarget;
+		mEnemyMgr->mTarget = mTarget.get();
 	}
 
 	// 경로 길찾기가 실행중이거나 감지 범위 내에 들어온 경우 다음 노드로 진행

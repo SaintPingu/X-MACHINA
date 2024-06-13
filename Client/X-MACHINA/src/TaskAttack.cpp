@@ -22,6 +22,7 @@ TaskAttack::TaskAttack(Object* object, std::function<void()> callback)
 
 BT::NodeState TaskAttack::Evaluate()
 {
+	mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.AttackRotationSpeed);
 	mLiveObject->UpdatePrevHP();
 	ExecuteCallback();
 

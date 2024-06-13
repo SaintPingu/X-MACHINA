@@ -2,6 +2,16 @@
 #include "Script_EnemyManager.h"
 
 #include "AnimatorController.h"
+#include "Script_LiveObject.h"
+
+void Script_EnemyManager::Update()
+{
+	if (mTarget) {
+		if (mTarget->GetComponent<Script_LiveObject>()->IsDead()) {
+			mTarget = nullptr;
+		}
+	}
+}
 
 void Script_EnemyManager::RemoveAllAnimation()
 {

@@ -26,7 +26,7 @@ public:
 
 	virtual void Attack();
 	virtual void Death();
-	virtual bool Hit(float damage) override;
+	virtual bool Hit(float damage, Object* instigator = nullptr) override;
 
 public:
 	void SetEnemyStat(const std::string& modelName);

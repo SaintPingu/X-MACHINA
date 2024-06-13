@@ -29,3 +29,15 @@ void Script_AimController::Update()
 
 	mUI->SetPosition(mMousePos);
 }
+
+Vec2 Script_AimController::GetScreenAimPos() const
+{
+	float windowWidth = static_cast<float>(GameFramework::I->GetWindowResolution().Width);
+	float windowHeight = static_cast<float>(GameFramework::I->GetWindowResolution().Height);
+
+	Vec2 screenPos = mMousePos / 2.f;
+	screenPos.y = 1.f - screenPos.y;
+	screenPos += Vec2{ windowWidth, windowHeight } / 2.f;
+
+	return screenPos;
+}

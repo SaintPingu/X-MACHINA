@@ -27,5 +27,6 @@ public:
 public:
 	Vec2 GetAimDirection() const { return Vector2::Normalized(mMousePos); }
 	Vec2 GetAimPos() const { return mMousePos; }
+	Vec2 GetScreenAimPos() const;
 };
 #pragma endregion

@@ -34,13 +34,7 @@ void MindControlAbility::Update(float activeTime)
 			return;
 		}
 
-		// TODO : 에임 마우스 좌표가 -1920 ~ 1920까지인 문제
-		Vec2 screenPos = aim->GetAimPos() / 2.f;
-		screenPos.y = 1 - screenPos.y;
-		
-		screenPos += Vec2{ mWindowWidth, mWindowHeight } / 2.f;
-
-		Object* mPickedObject = PickingObject(screenPos);
+		Object* mPickedObject = PickingObject(aim->GetScreenAimPos());
 
 		if (mPickedObject) {
 			mPickedObject->GetComponent<Script_LiveObject>()->Dead();

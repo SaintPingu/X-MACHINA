@@ -78,6 +78,7 @@ public:
 	sptr<AnimatorController> mController{};
 
 public:
+	void Awake() override;
 	void Update() override;
 
 public:

@@ -316,6 +316,12 @@
     <ClInclude Include="include\MindControlAbility.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_MindControlledEnemyBT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CheckMindDetectionRange.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -500,6 +506,12 @@
     </ClCompile>
     <ClCompile Include="src\MindControlAbility.cpp">
       <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_MindControlledEnemyBT.cpp">
+      <Filter>Script\Enemy\AI\BehaviorTree</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CheckMindDetectionRange.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

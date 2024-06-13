@@ -8,8 +8,6 @@
 
 #include "Timer.h"
 #include "Object.h"
-#include "Animator.h"
-#include "AnimatorController.h"
 
 #include "XLManager.h"
 
@@ -23,7 +21,6 @@ void Script_Enemy::Awake()
 	mObject->AddComponent<Script_DefaultEnemyBT>();
 
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
-	mEnemyMgr->mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 
 	SetEnemyStat(mObject->GetName());
 	SetMaxHP(mEnemyMgr->mStat.MaxHp);

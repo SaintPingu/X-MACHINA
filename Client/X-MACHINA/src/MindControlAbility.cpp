@@ -12,46 +12,51 @@
 #include "Script_Player.h"
 #include "Script_MainCamera.h"
 #include "Script_AimController.h"
+#include "Script_DefaultEnemyBT.h"
+#include "Script_MindControlledEnemyBT.h"
+#include "Script_BehaviorTree.h"
 
 
 MindControlAbility::MindControlAbility()
 	:
 	RenderedAbility(10.f, 30.f),
-	PheroAbilityInterface(0.f),
+	PheroAbilityInterface(200.f),
 	mWindowWidth(static_cast<float>(GameFramework::I->GetWindowResolution().Width)),
 	mWindowHeight(static_cast<float>(GameFramework::I->GetWindowResolution().Height))
 {
 	mCamera = MainCamera::I->GetCamera();
+	mMaxControlledObjectCnt = 1;
+	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 }
 
 void MindControlAbility::Update(float activeTime)
 {
 	base::Update(activeTime);
 
-	if (KEY_TAP(VK_LBUTTON)) {
+	if (KEY_TAP(VK_LBUTTON) && mCurrControlledObjectCnt > 0) {
 		sptr<Script_AimController> aim = mObject->GetComponent<Script_AimController>();
 		if (!aim) {
 			return;
 		}
 
-		Object* mPickedObject = PickingObject(aim->GetScreenAimPos());
+		mPickedTarget = PickingObject(aim->GetScreenAimPos());
 
-		if (mPickedObject) {
-			mPickedObject->GetComponent<Script_LiveObject>()->Dead();
+		if (mPickedTarget) {
+			if (!ReducePheroAmount()) {
+				mTerminateCallback();
+				return;
+			}
+
+
+			ActiveMindControlledEnemyBT();
+			mCurrControlledObjectCnt--;
 		}
-	}
-
-	if (KEY_TAP(VK_RBUTTON)) {
-		mTerminateCallback();
 	}
 }
 
 void MindControlAbility::Activate()
 {
-	if (!ReducePheroAmount()) {
-		mTerminateCallback();
-		return;
-	}
+	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 
 	RenderedAbility::Activate();
 }
@@ -59,6 +64,10 @@ void MindControlAbility::Activate()
 void MindControlAbility::DeActivate()
 {
 	base::DeActivate();
+
+	if (mPickedTarget) {
+		ActivePrevEnemyBT();
+	}
 }
 
 bool MindControlAbility::ReducePheroAmount()
@@ -115,4 +124,39 @@ Object* MindControlAbility::PickingObject(const Vec2& screenPos)
 	}
 
 	return pickedObject;
+}
+
+void MindControlAbility::ActiveMindControlledEnemyBT()
+{
+	if (!mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()) {
+		mPickedTarget->AddComponent<Script_MindControlledEnemyBT>();
+	}
+
+	for (const auto& component : mPickedTarget->GetAllComponents()) {
+		if (std::dynamic_pointer_cast<Script_BehaviorTree>(component)) {
+			component->SetActive(false);
+			break;
+		}
+	}
+
+	mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()->SetActive(true);
+}
+
+void MindControlAbility::ActivePrevEnemyBT()
+{
+	sptr<Script_MindControlledEnemyBT> mindControlledEnemyBT;
+	if (mindControlledEnemyBT = mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()) {
+		mindControlledEnemyBT->SetActive(false);
+	}
+
+	for (const auto& component : mPickedTarget->GetAllComponents()) {
+		if (component == mindControlledEnemyBT) {
+			continue;
+		}
+
+		if (std::dynamic_pointer_cast<Script_BehaviorTree>(component)) {
+			component->SetActive(true);
+			break;
+		}
+	}
 }

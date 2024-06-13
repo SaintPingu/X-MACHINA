@@ -13,8 +13,8 @@ void Script_PheroPlayer::Start()
 {
 	base::Start();
 
-	mStartPheroAmount = 100.f;
-	mCurrPheroAmount = 100.f;
+	mStartPheroAmount = 200.f;
+	mCurrPheroAmount = mStartPheroAmount;
 	mMaxPheroAmount = 1000.f;
 	mPheroRegenRate = 3.f; // 초당 페로 회복량 (초당 3회복)
 

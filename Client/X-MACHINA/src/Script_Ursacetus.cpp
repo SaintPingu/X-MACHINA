@@ -22,10 +22,10 @@ void Script_Ursacetus::SmashCallback()
 {
 	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001f);
 
-	if (Vec3::Distance(mEnemyMgr->mTarget->GetPosition(), mObject->GetPosition()) < 5.f) {
+	if (Vec3::Distance(mEnemyMgr->mTarget->GetPosition(), mObject->GetPosition()) <= mEnemyMgr->mStat.AttackRange) {
 		auto liveObject = mEnemyMgr->mTarget->GetComponent<Script_LiveObject>();
 		if (liveObject) {
-			if (liveObject->Hit(20.f, mObject)) {
+			if (liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject)) {
 				mEnemyMgr->mTarget = nullptr;
 			}
 		}

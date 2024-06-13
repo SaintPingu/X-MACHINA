@@ -9,6 +9,8 @@
 
 #include "Object.h"
 
+#include "SliderBarUI.h"
+
 namespace {
 	BoundingBox border = { Vec3(256, 100, 256), Vec3(240, 1100, 240) };
 }
@@ -33,6 +35,8 @@ void Script_Player::Start()
 	base::Start();
 
 	mTarget = mObject->GetObj<GameObject>();
+
+	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -850.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
 }
 
 void Script_Player::Update()
@@ -44,11 +48,22 @@ void Script_Player::Update()
 	if (!border.Contains(_VECTOR(pos))) {
 		mObject->ReturnToPrevTransform();
 	}
+
+	mHpBarUI->Update(GetCrntHp());
 }
 
 void Script_Player::Rotate(float pitch, float yaw, float roll)
 {
 	mObject->Rotate(pitch, yaw, roll);
+}
+
+bool Script_Player::Hit(float damage, Object* instigator)
+{
+	mHpBarUI->MustCallBeforeOnValueDecrease(GetCrntHp());
+
+	bool res = base::Hit(damage, instigator);
+
+	return res;
 }
 
 void Script_Player::Dead()
@@ -58,6 +73,7 @@ void Script_Player::Dead()
 
 void Script_Player::Respawn()
 {
+	Resurrect();
 	mObject->SetWorldTransform(mSpawnTransform);
 }
 

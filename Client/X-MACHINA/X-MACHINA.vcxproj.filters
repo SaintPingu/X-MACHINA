@@ -82,6 +82,9 @@
     <Filter Include="Script\Interface">
       <UniqueIdentifier>{57ce70e4-f4e8-4c7a-90b7-75aa7646f50a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\UI">
+      <UniqueIdentifier>{716b808f-3529-4b17-905b-ff86120d3dc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -307,6 +310,9 @@
     <ClInclude Include="include\PheroAbilityInterface.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SliderBarUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -485,6 +491,9 @@
     </ClCompile>
     <ClCompile Include="src\PheroAbilityInterface.cpp">
       <Filter>Script\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="SliderBarUI.cpp">
+      <Filter>Script\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

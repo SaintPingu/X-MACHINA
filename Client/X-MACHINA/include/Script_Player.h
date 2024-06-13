@@ -15,8 +15,8 @@ class AnimatorController;
 class Script_Weapon;
 class Script_AimController;
 class Script_MainCamera;
-class SliderUI;
 class UI;
+class SliderBarUI;
 #pragma endregion
 
 
@@ -42,7 +42,8 @@ protected:
 	GameObject*		mTarget{};		// self GameObject
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
-	int		mScore{};
+	int				mScore{};
+	sptr<SliderBarUI> mHpBarUI{};
 
 public:
 	PlayerType GetPlayerType() const { return mPlayerType; }
@@ -62,8 +63,10 @@ public:
 
 	virtual void Rotate(float pitch, float yaw, float roll);
 
+	virtual bool Hit(float damage, Object* instigator) override;
 	virtual void Dead() override;
-	void Respawn();
+	virtual void Respawn();
+
 	void AddScore(int score);
 };
 
@@ -257,43 +260,19 @@ class Script_PheroPlayer : public Script_GroundPlayer {
 	COMPONENT(Script_PheroPlayer, Script_GroundPlayer)
 
 protected:
-	float mMaxPheroAmount{};
+	float mStartPheroAmount{};
 	float mCurrPheroAmount{};
+	float mMaxPheroAmount{};
 	float mPheroRegenRate{};
+	sptr<SliderBarUI> mPheroBarUI{};
 
 public:
-	void Start() override;
-	void Update() override;
+	virtual void Start() override;
+	virtual void Update() override;
+	virtual void Respawn() override;
 
 public:
 	virtual void AddPheroAmount(float pheroAmount);
 	virtual bool ReducePheroAmount(float pheroCost);
-
-};
-
-
-// 메인 플레이어는 UI를 생성한다. TODO : 추후에 바뀔 수도 있음
-class Script_PheroMainPlayer : public Script_PheroPlayer {
-	COMPONENT(Script_PheroMainPlayer, Script_PheroPlayer)
-
-private:
-	float mDisplayFillPheroAmount{};
-	float mDisplayEasePheroAmount{};
-
-	sptr<SliderUI> mFillPheroBarUI;
-	sptr<SliderUI> mEasePheroBarUI;
-	sptr<UI> mBackgroundPheroBarUI;
-
-public:
-	void Start() override;
-	void Update() override;
-
-public:
-	virtual void AddPheroAmount(float pheroAmount) override;
-	virtual bool ReducePheroAmount(float pheroCost) override;
-
-private:
-	void AddDisplayPheroAmount();
-	void ReduceDisplayPheroAmount();
 };
 #pragma endregion

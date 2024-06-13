@@ -59,7 +59,7 @@ void ShieldAbility::DeActivate()
 
 bool ShieldAbility::ReducePheroAmount()
 {
-	sptr<Script_PheroMainPlayer> pheroPlayer = mObject->GetComponent<Script_PheroMainPlayer>();
+	sptr<Script_PheroPlayer> pheroPlayer = mObject->GetComponent<Script_PheroPlayer>();
 	if (pheroPlayer) {
 		return pheroPlayer->ReducePheroAmount(mPheroCost);
 	}

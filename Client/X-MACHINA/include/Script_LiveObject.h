@@ -33,6 +33,7 @@ public:
 
 	bool IsDead() const { return mIsDead; }
 	float GetCrntHp() const { return mCrntHP; }
+	float GetMaxHp() const { return mMaxHP; }
 
 	bool UpdatePrevHP() { bool res = mPrevHP == mCrntHP; mPrevHP = mCrntHP; return res; }
 

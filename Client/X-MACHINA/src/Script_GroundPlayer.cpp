@@ -77,6 +77,8 @@ void Script_GroundPlayer::Awake()
 
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mController->SetPlayer();
+
+	SetMaxHP(1000.f);
 }
 
 void Script_GroundPlayer::Start()
@@ -85,7 +87,6 @@ void Script_GroundPlayer::Start()
 
 	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 360.f;
-	SetMaxHP(150.f);
 
 	constexpr Vec3 kSpawnPoint = Vec3(25, 0, 260);
 

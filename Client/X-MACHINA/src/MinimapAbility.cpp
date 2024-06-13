@@ -14,7 +14,7 @@
 
 MinimapAbility::MinimapAbility()
 	:
-	RenderedAbility(2.f, 10.f)
+	RenderedAbility()
 {
 	mUI = Canvas::I->CreateUI(0, "Minimap", Vec2(0, 0), 1720 * 0.8, 1100 * 0.8, "MinimapAbility");
 	mUI->SetActive(false);
@@ -33,18 +33,18 @@ void MinimapAbility::Update(float activeTime)
 	base::Update(activeTime);
 }
 
-bool MinimapAbility::Activate()
+void MinimapAbility::Activate()
 {
 	mUI->SetActive(true);
+
 	base::Activate();
 	Scene::I->SetFilterOptions(FilterOption::Blur);
-
-	return true;
 }
 
 void MinimapAbility::DeActivate()
 {
 	mUI->SetActive(false);
+
 	base::DeActivate();
 	Scene::I->SetFilterOptions(FilterOption::Blur);
 }

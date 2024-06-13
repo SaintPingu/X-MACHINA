@@ -24,7 +24,7 @@ public:
 
 public:
 	virtual void Update(float activeTime) override;
-	virtual bool Activate() override;
+	virtual void Activate() override;
 	virtual void DeActivate() override;
 
 protected:

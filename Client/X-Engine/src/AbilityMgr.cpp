@@ -20,10 +20,9 @@ void RenderedAbility::Update(float activeTime)
 	UpdateAbilityCB(activeTime);
 }
 
-bool RenderedAbility::Activate()
+void RenderedAbility::Activate()
 {
 	AbilityMgr::I->AddRenderedAbilities(mLayer, shared_from_this());
-	return true;
 }
 
 void RenderedAbility::DeActivate()

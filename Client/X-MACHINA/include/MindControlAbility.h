@@ -20,15 +20,15 @@ class MindControlAbility : public RenderedAbility, public PheroAbilityInterface 
 
 private:
 	sptr<Camera> mCamera{};
-	const float mWindowWidth;
-	const float mWindowHeight;
+	const float mWindowWidth{};
+	const float mWindowHeight{};
 
 public:
 	MindControlAbility();
 
 public:
 	virtual void Update(float activeTime) override;
-	virtual bool Activate() override;
+	virtual void Activate() override;
 	virtual void DeActivate() override;
 
 protected:

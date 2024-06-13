@@ -40,19 +40,20 @@ void MindControlAbility::Update(float activeTime)
 			mPickedObject->GetComponent<Script_LiveObject>()->Dead();
 		}
 	}
+
+	if (KEY_TAP(VK_RBUTTON)) {
+		mTerminateCallback();
+	}
 }
 
-bool MindControlAbility::Activate()
+void MindControlAbility::Activate()
 {
 	if (!ReducePheroAmount()) {
-		return false;
+		mTerminateCallback();
+		return;
 	}
 
-	if (!RenderedAbility::Activate()) {
-		return false;
-	}
-
-	return true;
+	RenderedAbility::Activate();
 }
 
 void MindControlAbility::DeActivate()

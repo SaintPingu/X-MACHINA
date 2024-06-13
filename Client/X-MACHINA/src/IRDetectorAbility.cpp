@@ -22,15 +22,10 @@ IRDetectorAbility::IRDetectorAbility()
 	mAbilityCB.UIIndex = RESOURCE<Texture>("IRDetectorUI")->GetSrvIdx();
 }
 
-bool IRDetectorAbility::Activate()
+void IRDetectorAbility::Activate()
 {
-	if (!base::Activate()) {
-		return false;
-	}
-
+	base::Activate();
 	Scene::I->SetFilterOptions(FilterOption::Custom);
-
-	return true;
 }
 
 void IRDetectorAbility::DeActivate()

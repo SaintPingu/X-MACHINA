@@ -40,5 +40,15 @@ public:
 public:
 	virtual void Start() override;
 	virtual void Update() override;
+
+public:
+	void Terminate();
+};
+
+class Script_ToggleAbilityHolder : public Script_AbilityHolder {
+	COMPONENT(Script_ToggleAbilityHolder, Script_AbilityHolder)
+
+public:
+	virtual void Update() override;
 };
 #pragma endregion

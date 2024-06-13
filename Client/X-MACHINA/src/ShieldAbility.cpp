@@ -35,19 +35,16 @@ void ShieldAbility::Update(float activeTime)
 	mRenderedObject->SetPosition(playerPos);
 }
 
-bool ShieldAbility::Activate()
+void ShieldAbility::Activate()
 {
 	if (!ReducePheroAmount()) {
-		return false;
+		mTerminateCallback();
+		return;
 	}
 
-	if (!RenderedAbility::Activate()) {
-		return false;
-	}
+	RenderedAbility::Activate();
 
 	mObject->GetComponent<Script_LiveObject>()->SetShield(mShieldAmount);
-
-	return true;
 }
 
 void ShieldAbility::DeActivate()

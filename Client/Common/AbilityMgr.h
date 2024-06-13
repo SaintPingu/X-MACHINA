@@ -17,19 +17,23 @@ protected:
 	float		mActiveTime{};
 	bool		mIsToggleAbility{};
 
+	std::function<void()> mTerminateCallback{};
+
 public:
-	Ability(float cooldownTime, float activeTime) : mCooldownTime(cooldownTime), mActiveTime(activeTime) {}
+	Ability(float cooldownTime = 0.f, float activeTime = 0.f) : mCooldownTime(cooldownTime), mActiveTime(activeTime) {}
 
 public:
 	float GetCooldownTime() const { return mCooldownTime; }
 	float GetActiveTime() const { return mActiveTime; }
 	bool IsToggleAbility() const { return mIsToggleAbility; }
 
+public:
 	void SetObject(Object* object) { mObject = object; }
+	void SetTerminateCallback(const std::function<void()>& callback) { mTerminateCallback = callback; }
 
 public:
 	virtual void Update(float activeTime) abstract;
-	virtual bool Activate() { return true; }
+	virtual void Activate() { }
 	virtual void DeActivate() { }
 };
 
@@ -48,7 +52,7 @@ protected:
 	AbilityConstants	mAbilityCB{};
 
 public:
-	RenderedAbility(float cooldownTime, float activeTime) : Ability(cooldownTime, activeTime) {}
+	RenderedAbility(float cooldownTime = 0.f, float activeTime = 0.f) : Ability(cooldownTime, activeTime) {}
 
 
 public:
@@ -57,7 +61,7 @@ public:
 
 public:
 	virtual void Update(float activeTime) override;
-	virtual bool Activate() override;
+	virtual void Activate() override;
 	virtual void DeActivate() override;
 	
 public:

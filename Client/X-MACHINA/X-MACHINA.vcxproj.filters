@@ -499,7 +499,7 @@
       <Filter>Script\UI</Filter>
     </ClCompile>
     <ClCompile Include="src\MindControlAbility.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Script\Abilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

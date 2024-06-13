@@ -221,6 +221,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
+    <ClInclude Include="include\MindControlAbility.h" />
     <ClInclude Include="include\PheroAbilityInterface.h" />
     <ClInclude Include="include\XLManager.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
@@ -283,6 +284,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="SliderBarUI.cpp" />
+    <ClCompile Include="src\MindControlAbility.cpp" />
     <ClCompile Include="src\PheroAbilityInterface.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
     <ClCompile Include="src\XLManger.cpp" />

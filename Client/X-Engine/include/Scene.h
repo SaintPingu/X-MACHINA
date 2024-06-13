@@ -101,8 +101,10 @@ public:
 #pragma region Getter
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
+	std::set<GridObject*> GetRenderedObjects() const { return mRenderedObjects; }
 	rsptr<Object> GetGameManager() const { return mGameManager; }
 
+	rsptr<Grid> GetGridFromPos(const Vec3& pos);
 	int GetGridIndexFromPos(Vec3 pos) const;
 
 	Pos GetTileUniqueIndexFromPos(const Vec3& pos) const;

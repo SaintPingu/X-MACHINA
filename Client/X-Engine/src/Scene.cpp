@@ -880,6 +880,11 @@ void Scene::PopObjectBuffer()
 }
 
 //////////////////* Others *//////////////////
+rsptr<Grid> Scene::GetGridFromPos(const Vec3& pos)
+{
+	return mGrids[GetGridIndexFromPos(pos)];
+}
+
 int Scene::GetGridIndexFromPos(Vec3 pos) const
 {
 	pos.x -= mGridStartPoint;

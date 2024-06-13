@@ -8,19 +8,23 @@
 
 
 #pragma region ClassForwardDecl
-class Script_LiveObject;
-class GameObject;
+class Camera;
+class Object;
+class GridObject;
 #pragma endregion
 
 
 #pragma region Class
-class ShieldAbility : public RenderedAbility, public PheroAbilityInterface {
+class MindControlAbility : public RenderedAbility, public PheroAbilityInterface {
 	using base = RenderedAbility;
+
 private:
-	float mShieldAmount{};
+	sptr<Camera> mCamera{};
+	const float mWindowWidth;
+	const float mWindowHeight;
 
 public:
-	ShieldAbility(float sheild);
+	MindControlAbility();
 
 public:
 	virtual void Update(float activeTime) override;
@@ -29,5 +33,9 @@ public:
 
 protected:
 	virtual bool ReducePheroAmount() override;
+
+private:
+	Object* PickingObject(const Vec2& screenPos);
 };
 #pragma endregion
+

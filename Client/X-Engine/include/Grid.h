@@ -30,6 +30,7 @@ private:
 
 public:
 	const auto& GetDynamicObjects() const { return mDynamicObjets; }
+	const auto& GetObjectsFromTag(ObjectTag tag) { return mObjects[tag]; }
 
 public:
 	void AddCollisionPair(ObjectTag tagA, ObjectTag tagB);
@@ -74,6 +75,7 @@ public:
 	// return all objects
 	const auto& GetObjects() const { return mObjects; }
 	const auto& GetDynamicObjects() const { return mCollisionMgr.GetDynamicObjects(); }
+	const auto& GetObjectsFromTag(ObjectTag tag) { return mCollisionMgr.GetObjectsFromTag(tag); }
 
 	Tile GetTileFromUniqueIndex(const Pos& tPos) const;
 	void SetTileFromUniqueIndex(const Pos& tPos, Tile tile);

@@ -12,11 +12,14 @@ void Script_PheroPlayer::Start()
 
 	mCurrPheroAmount = 100.f;
 	mMaxPheroAmount = 1000.f;
+	mPheroRegenRate = 3.f; // 초당 페로 회복량 (초당 3회복)
 }
 
 void Script_PheroPlayer::Update()
 {
 	base::Update();
+
+	AddPheroAmount(DeltaTime() * mPheroRegenRate);
 }
 
 void Script_PheroPlayer::AddPheroAmount(float pheroAmount)

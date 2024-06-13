@@ -259,6 +259,7 @@ class Script_PheroPlayer : public Script_GroundPlayer {
 protected:
 	float mMaxPheroAmount{};
 	float mCurrPheroAmount{};
+	float mPheroRegenRate{};
 
 public:
 	void Start() override;

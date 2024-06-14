@@ -30,6 +30,7 @@ public:
 
 	void SetMaxHP(float hp) { mMaxHP = hp; }
 	void SetShield(float shield) { mShieldAmount = shield; }
+	void AddShield(float shield) { mShieldAmount += shield; }
 
 	bool IsDead() const { return mIsDead; }
 	float GetCrntHp() const { return mCrntHP; }

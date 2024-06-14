@@ -15,19 +15,12 @@ void Script_Ursacetus::Awake()
 {
 	base::Awake();
 
-	mEnemyMgr->mController->FindMotionByName("2HandsSmashAttack")->AddCallback(std::bind(&Script_Ursacetus::SmashCallback, this), 65);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_Ursacetus::AttackCallback, this), 65);
 }
 
-void Script_Ursacetus::SmashCallback()
+void Script_Ursacetus::AttackCallback()
 {
-	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001f);
+	base::AttackCallback();
 
-	if (Vec3::Distance(mEnemyMgr->mTarget->GetPosition(), mObject->GetPosition()) <= mEnemyMgr->mStat.AttackRange) {
-		auto liveObject = mEnemyMgr->mTarget->GetComponent<Script_LiveObject>();
-		if (liveObject) {
-			if (liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject)) {
-				mEnemyMgr->mTarget = nullptr;
-			}
-		}
-	}
+	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001f);
 }

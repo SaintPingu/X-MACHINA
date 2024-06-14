@@ -6,9 +6,13 @@
 #include "Grid.h"
 #include "Scene.h"
 #include "InputMgr.h"
+#include "ResourceMgr.h"
+#include "Texture.h"
 
 #include "Component/Camera.h"
 #include "Component/Collider.h"
+#include "Component/UI.h"
+
 #include "Script_Player.h"
 #include "Script_MainCamera.h"
 #include "Script_AimController.h"
@@ -27,6 +31,7 @@ MindControlAbility::MindControlAbility()
 	mCamera = MainCamera::I->GetCamera();
 	mMaxControlledObjectCnt = 1;
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
+	mMindControlAimUITexture = std::make_shared<UITexture>("MindControlAim", 300.f, 300.f);
 }
 
 void MindControlAbility::Update(float activeTime)
@@ -34,31 +39,42 @@ void MindControlAbility::Update(float activeTime)
 	base::Update(activeTime);
 
 	if (KEY_TAP(VK_LBUTTON) && mCurrControlledObjectCnt > 0) {
-		sptr<Script_AimController> aim = mObject->GetComponent<Script_AimController>();
-		if (!aim) {
-			return;
-		}
 
-		mPickedTarget = PickingObject(aim->GetScreenAimPos());
+		mPickedTarget = PickingObject(mAimController->GetScreenAimPos());
 
 		if (mPickedTarget) {
 			if (!ReducePheroAmount()) {
-				mTerminateCallback();
+				Terminate();
 				return;
 			}
-
 
 			ActiveMindControlledEnemyBT();
 			mCurrControlledObjectCnt--;
 		}
+
+		if (mCurrControlledObjectCnt <= 0) {
+			mAimController->ChangeAimUITexture(mPrevUITexture);
+		}
+	}
+	else if (KEY_TAP(mHolderKey) && mCurrControlledObjectCnt > 0) {
+		Terminate();
 	}
 }
 
 void MindControlAbility::Activate()
 {
-	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
-
 	RenderedAbility::Activate();
+
+	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
+	
+	mAimController = mObject->GetComponent<Script_AimController>();
+	if (!mAimController) {
+		Terminate();
+		return;
+	}
+
+	mPrevUITexture = mAimController->GetUITexture();
+	mAimController->ChangeAimUITexture(mMindControlAimUITexture);
 }
 
 void MindControlAbility::DeActivate()
@@ -161,4 +177,10 @@ void MindControlAbility::ActivePrevEnemyBT()
 			break;
 		}
 	}
+}
+
+void MindControlAbility::Terminate()
+{
+	mAimController->ChangeAimUITexture(mPrevUITexture);
+	mTerminateCallback();
 }

@@ -18,8 +18,10 @@ class Script_MindControlledEnemyBT : public Script_BehaviorTree {
 
 private:
 	Object* mInvoker{};
+	float mShieldBuffAmount{};
 
 public:
+	virtual void Awake() override;
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
 

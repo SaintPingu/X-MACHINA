@@ -41,3 +41,13 @@ Vec2 Script_AimController::GetScreenAimPos() const
 
 	return screenPos;
 }
+
+rsptr<UITexture> Script_AimController::GetUITexture() 
+{
+	return mUI->GetUITexture();
+}
+
+void Script_AimController::ChangeAimUITexture(rsptr<UITexture> newUITexture)
+{
+	mUI->ChangeUITexture(newUITexture);
+}

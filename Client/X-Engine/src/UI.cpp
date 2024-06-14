@@ -1,3 +1,4 @@
+#include "UI.h"
 #include "EnginePch.h"
 #include "Component/UI.h"
 
@@ -13,15 +14,23 @@
 #include "MultipleRenderTarget.h"
 
 
+#pragma region UITexture
+UITexture::UITexture(const std::string& imageName, float width, float height)
+{
+	UIImage = RESOURCE<Texture>(imageName);
+	Width = width / Canvas::I->GetWidth();
+	Height = height / Canvas::I->GetHeight();
+}
+#pragma endregion
+
+
 #pragma region UI
-UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height, rsptr<Shader> shader)
+UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader)
 	:
 	Transform(this),
-	mTexture(texture),
 	mShader(shader)
 {
-	mWidth = width / Canvas::I->GetWidth();
-	mHeight = height / Canvas::I->GetHeight();
+	mUITexture = std::make_shared<UITexture>(textureName, width, height);
 	mObjectCB.SliderValue = 1.f;
 
 	// 오브젝트 상수 버퍼 사용 플래그는 직접 설정할 수 있다.
@@ -29,10 +38,15 @@ UI::UI(rsptr<Texture> texture, Vec2 pos, float width, float height, rsptr<Shader
 	SetPosition(pos);
 }
 
+void UI::ChangeUITexture(rsptr<UITexture> newUITexture)
+{
+	mUITexture = newUITexture;
+}
+
 void UI::UpdateShaderVars()
 {
-	mObjectCB.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
-	mObjectCB.MatIndex = mTexture->GetSrvIdx();
+	mObjectCB.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mUITexture->Width, mUITexture->Height, 1.f), _MATRIX(GetWorldTransform())));
+	mObjectCB.MatIndex = mUITexture->UIImage->GetSrvIdx();
 
 	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), mObjectCB);
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
@@ -44,7 +58,7 @@ void UI::Render()
 		return;
 	}
 
-	if (!mTexture) {
+	if (!mUITexture->UIImage) {
 		return;
 	}
 
@@ -86,7 +100,7 @@ void UI::SetPosition(const Vec3& pos)
 #pragma region Font
 MyFont::MyFont(const Vec2& pos, float width, float height)
 	:
-	UI(RESOURCE<Texture>("Alphabet"), pos, width, height)
+	UI("Alphabet", pos, width, height)
 {
 }
 
@@ -117,9 +131,9 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 
 	// 머티리얼을 사용하지 않는 경우 MatIndex에 텍스처 인덱스를 넣어준다.
 	ObjectConstants objectConstants;
-	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mWidth, mHeight, 1.f), _MATRIX(GetWorldTransform())));
+	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mUITexture->Width, mUITexture->Height, 1.f), _MATRIX(GetWorldTransform())));
 	objectConstants.MtxSprite	= spriteMtx.Transpose();
-	objectConstants.MatIndex	= mTexture->GetSrvIdx(); 
+	objectConstants.MatIndex	= mUITexture->UIImage->GetSrvIdx();
 
 	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices[cnt], objectConstants);
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices[cnt]));
@@ -127,7 +141,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 
 void MyFont::Render()
 {
-	if (!mTexture) {
+	if (!mUITexture->UIImage) {
 		return;
 	}
 
@@ -164,9 +178,9 @@ void MyFont::Render()
 
 
 #pragma region SliderUI
-SliderUI::SliderUI(rsptr<Texture> texture, const Vec2& pos, float width, float height, rsptr<Shader> shader)
+SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, float width, float height, rsptr<Shader> shader)
 	:
-	UI(texture, pos, width, height, shader)
+	UI(textureName, pos, width, height, shader)
 {
 }
 
@@ -198,7 +212,7 @@ void Canvas::Init()
 
 void Canvas::BuildUIs()
 {
-	mFont = std::make_shared<MyFont>(Vec2(-600, 900), 100.f, 100.f);
+	//mFont = std::make_shared<MyFont>(Vec2(-600, 900), 100.f, 100.f);
 }
 
 void Canvas::Update()
@@ -224,7 +238,7 @@ sptr<UI> Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& p
 	if (layer > (mkLayerCnt - 1))
 		return nullptr;
 
-	sptr<UI> ui = std::make_shared<UI>(RESOURCE<Texture>(texture), pos, width, height, RESOURCE<Shader>(shader));
+	sptr<UI> ui = std::make_shared<UI>(texture, pos, width, height, RESOURCE<Shader>(shader));
 	mUIs[layer].insert(ui);
 	return ui;
 }
@@ -234,7 +248,7 @@ sptr<SliderUI> Canvas::CreateSliderUI(Layer layer, const std::string& texture, c
 	if (layer > (mkLayerCnt - 1))
 		return nullptr;
 
-	sptr<SliderUI> ui = std::make_shared<SliderUI>(RESOURCE<Texture>(texture), pos, width, height, RESOURCE<Shader>(shader));
+	sptr<SliderUI> ui = std::make_shared<SliderUI>(texture, pos, width, height, RESOURCE<Shader>(shader));
 	mUIs[layer].insert(ui);
 	return ui;
 }

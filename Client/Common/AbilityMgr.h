@@ -15,7 +15,7 @@ protected:
 	Object*		mObject{};
 	float		mCooldownTime{};
 	float		mActiveTime{};
-	bool		mIsToggleAbility{};
+	int			mHolderKey{};
 
 	std::function<void()> mTerminateCallback{};
 
@@ -25,10 +25,10 @@ public:
 public:
 	float GetCooldownTime() const { return mCooldownTime; }
 	float GetActiveTime() const { return mActiveTime; }
-	bool IsToggleAbility() const { return mIsToggleAbility; }
 
 public:
 	void SetObject(Object* object) { mObject = object; }
+	void SetHolderKey(int holderKey) { mHolderKey = holderKey; }
 	void SetTerminateCallback(const std::function<void()>& callback) { mTerminateCallback = callback; }
 
 public:

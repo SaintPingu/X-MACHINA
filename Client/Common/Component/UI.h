@@ -13,36 +13,51 @@ class ModelObjectMesh;
 #pragma endregion
 
 
+#pragma region Struct
+struct UITexture {
+	sptr<Texture>	UIImage{};
+	float			Width{};
+	float			Height{};
+
+	UITexture(const std::string& imageName , float width, float height);
+};
+#pragma endregion
+
+
 #pragma region Class
 // 2D object (not entity)
 class UI : public Transform {
 protected:
 	bool			mIsActive = true;
-	sptr<Texture>	mTexture{};		// image
+	sptr<UITexture> mUITexture{};
 	sptr<Shader>	mShader{};
-	float			mWidth{};
-	float			mHeight{};
+
 	ObjectConstants mObjectCB{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(rsptr<Texture> texture, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr);
+	UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr);
 	virtual ~UI() = default;
 
 public:
 	virtual void Update() {}
 	virtual void Render();
 
-	float GetWidth() const { return mWidth; }
-	float GetHeight() const { return mHeight; }
-	void SetWidth(float width) { mWidth = width; }
-	void SetHeight(float height) { mHeight = height; }
+	rsptr<UITexture> GetUITexture() const { return mUITexture; }
+	rsptr<Texture> GetTexture() const { return mUITexture->UIImage; }
+	float GetWidth() const { return mUITexture->Width; }
+	float GetHeight() const { return mUITexture->Height; }
+	void SetWidth(float width) { mUITexture->Width = width; }
+	void SetHeight(float height) { mUITexture->Height = height; }
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec2& pos);
 	void SetPosition(const Vec3& pos);
 
 	void SetActive(bool val) { mIsActive = val; }
+
+public:
+	void ChangeUITexture(rsptr<UITexture> newUITexture);
 
 protected:
 	virtual void UpdateShaderVars();
@@ -80,7 +95,7 @@ private:
 	float mValue{};			// 0~1 normalize value
 
 public:
-	SliderUI(rsptr<Texture> texture, const Vec2& pos, float width, float height, rsptr<Shader> shader = nullptr);
+	SliderUI(const std::string& textureName, const Vec2& pos, float width, float height, rsptr<Shader> shader = nullptr);
 	virtual ~SliderUI() = default;
 
 public:

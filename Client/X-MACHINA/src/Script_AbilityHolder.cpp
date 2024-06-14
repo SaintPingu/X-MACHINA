@@ -9,6 +9,13 @@
 
 
 #pragma region Default
+void Script_AbilityHolder::SetAbility(int key, sptr<Ability> ability)
+{
+	mKey = key;
+	mAbility = ability;
+	mAbility->SetHolderKey(key);
+}
+
 void Script_AbilityHolder::Start()
 {
 	mAbility->SetObject(mObject);
@@ -78,7 +85,7 @@ void Script_ToggleAbilityHolder::Update()
 		}
 		break;
 	case AbilityState::Active:
-		if (mAbility->IsToggleAbility() && KEY_TAP(mKey)) {
+		if (KEY_TAP(mKey)) {
 			mState = AbilityState::Ready;
 			mAbility->DeActivate();
 		}

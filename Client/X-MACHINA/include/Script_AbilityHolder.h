@@ -35,7 +35,7 @@ protected:
 	int				mKey{};
 
 public:
-	void SetAbility(int key, sptr<Ability> ability) { mKey = key, mAbility = ability; }
+	void SetAbility(int key, sptr<Ability> ability);
 
 public:
 	virtual void Start() override;

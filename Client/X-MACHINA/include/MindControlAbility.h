@@ -11,6 +11,8 @@
 class Camera;
 class Object;
 class GridObject;
+class Script_AimController;
+struct UITexture;
 #pragma endregion
 
 
@@ -29,7 +31,11 @@ private:
 	
 	// TODO : 여러 적을 움직이기 위해서는 배열로 관리해야함
 	Object* mPickedTarget{};
-	
+	sptr<Script_AimController> mAimController{};
+
+	sptr<UITexture> mPrevUITexture{};
+	sptr<UITexture> mMindControlAimUITexture{};
+
 public:
 	MindControlAbility();
 
@@ -47,6 +53,7 @@ private:
 	// 행동트리 변경
 	void ActiveMindControlledEnemyBT();
 	void ActivePrevEnemyBT();
+	void Terminate();
 };
 #pragma endregion
 

@@ -3,6 +3,7 @@
 
 #include "Script_Enemy.h"
 #include "Script_EnemyManager.h"
+#include "Script_LiveObject.h"
 
 #include "CheckMindDetectionRange.h"
 #include "CheckAttackRange.h"
@@ -18,11 +19,17 @@
 #include "TaskMoveToMindControlInvoker.h"
 
 
+void Script_MindControlledEnemyBT::Awake()
+{
+	mShieldBuffAmount = 100.f;
+}
+
 void Script_MindControlledEnemyBT::OnEnable()
 {
 	base::OnEnable();
 	mObject->mObjectCB.MindRimFactor = 1.f;
 	mObject->GetComponent<Script_EnemyManager>()->Reset();
+	mObject->GetComponent<Script_LiveObject>()->SetShield(mShieldBuffAmount);
 }
 
 void Script_MindControlledEnemyBT::OnDisable()

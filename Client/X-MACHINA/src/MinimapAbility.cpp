@@ -22,7 +22,6 @@ MinimapAbility::MinimapAbility()
 	mAbilityCB.MinimapData.MinimapSize = Vec2{ 1720.f, 1100.f };
 	mAbilityCB.MinimapData.MinimapWorldSize = Vec2{ 224.f, 143.f };
 	mAbilityCB.MinimapData.MinimapStartPos = Vec2{ -17.f, 195.f };
-	mIsToggleAbility = true;
 }
 
 void MinimapAbility::Update(float activeTime)

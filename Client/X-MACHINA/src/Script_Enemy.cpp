@@ -32,6 +32,20 @@ void Script_Enemy::Update()
 	mObject->mObjectCB.HitRimFactor = max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
 }
 
+void Script_Enemy::AttackCallback()
+{
+	if (!mEnemyMgr->mTarget) {
+		return;
+	}
+
+	if (Vec3::Distance(mEnemyMgr->mTarget->GetPosition(), mObject->GetPosition()) <= mEnemyMgr->mStat.AttackRange) {
+		auto liveObject = mEnemyMgr->mTarget->GetComponent<Script_LiveObject>();
+		if (liveObject) {
+			liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject);
+		}
+	}
+}
+
 void Script_Enemy::Attack()
 {
 }

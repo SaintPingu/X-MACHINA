@@ -6,6 +6,7 @@
 
 #pragma region ClassForwardDecl
 class UI;
+struct UITexture;
 #pragma endregion
 
 #pragma region Class
@@ -28,5 +29,10 @@ public:
 	Vec2 GetAimDirection() const { return Vector2::Normalized(mMousePos); }
 	Vec2 GetAimPos() const { return mMousePos; }
 	Vec2 GetScreenAimPos() const;
+	
+	rsptr<UITexture> GetUITexture();
+
+public:
+	void ChangeAimUITexture(rsptr<UITexture> newUITexture);
 };
 #pragma endregion

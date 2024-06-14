@@ -24,11 +24,15 @@ public:
 	virtual void Awake() override;
 	virtual void Update() override;
 
+public:
 	virtual void Attack();
 	virtual void Death();
 	virtual bool Hit(float damage, Object* instigator = nullptr) override;
 
 public:
 	void SetEnemyStat(const std::string& modelName);
+
+protected:
+	virtual void AttackCallback();
 };
 #pragma endregion

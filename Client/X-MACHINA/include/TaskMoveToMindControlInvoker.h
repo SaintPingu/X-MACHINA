@@ -7,23 +7,22 @@
 
 
 #pragma region ClassForwardDecl
+class GridObject;
 class Script_EnemyManager;
 #pragma endregion
 
 
 #pragma region Class
-class CheckMindDetectionRange : public BT::Node {
+class TaskMoveToMindControlInvoker : public BT::Node {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
+	Object* mInvoker;
 
 public:
-	CheckMindDetectionRange(Object* object);
-	virtual ~CheckMindDetectionRange() = default;
+	TaskMoveToMindControlInvoker(Object* object, Object* invoker);
+	virtual ~TaskMoveToMindControlInvoker() = default;
 
+public:
 	virtual BT::NodeState Evaluate() override;
-
-private:
-	bool SetTargetNearestEnemy();
 };
 #pragma endregion
-

@@ -18,6 +18,10 @@ TaskPathPlanningToTarget::TaskPathPlanningToTarget(Object* object) : TaskPathPla
 
 BT::NodeState TaskPathPlanningToTarget::Evaluate()
 {
+	if (!mEnemyMgr->mPathTarget) {
+		return BT::NodeState::Failure;
+	}
+
 	// 경로가 비었다면 경로 재 탐색
 	if (mPath->empty()){
 		mEnemyMgr->mController->SetValue("Return", false);
@@ -25,7 +29,7 @@ BT::NodeState TaskPathPlanningToTarget::Evaluate()
 		// 시작 지점과 목적지 위치 값을 타일 고유 인덱스로 변환
 		Pos start = Scene::I->GetTileUniqueIndexFromPos(mObject->GetPosition());
 
-		Pos dest = Scene::I->GetTileUniqueIndexFromPos(mEnemyMgr->mTarget->GetPosition());
+		Pos dest = Scene::I->GetTileUniqueIndexFromPos(mEnemyMgr->mPathTarget->GetPosition());
 
 		// 경로 계획에 실패했다면 Failure를 호출하여 다음 노드로 넘어감
 		if (base::PathPlanningAStar(start, dest)) {

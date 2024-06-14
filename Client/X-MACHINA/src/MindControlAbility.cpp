@@ -139,7 +139,9 @@ void MindControlAbility::ActiveMindControlledEnemyBT()
 		}
 	}
 
-	mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()->SetActive(true);
+	auto mindControlledEnemyBT = mPickedTarget->GetComponent<Script_MindControlledEnemyBT>();
+	mindControlledEnemyBT->SetActive(true);
+	mindControlledEnemyBT->SetInvoker(mObject);
 }
 
 void MindControlAbility::ActivePrevEnemyBT()

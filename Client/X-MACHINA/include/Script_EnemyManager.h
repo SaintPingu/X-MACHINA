@@ -73,6 +73,7 @@ public:
 	EnemyState mState = EnemyState::Idle;
 
 	Object* mTarget{};
+	Object* mPathTarget{};
 
 	std::stack<Vec3> mPath{};
 	sptr<AnimatorController> mController{};
@@ -81,7 +82,9 @@ public:
 	void Awake() override;
 	void Update() override;
 
+
 public:
+	void Reset();
 	void RemoveAllAnimation();
 	void ForceSetTarget(Object* target) { mTarget = target; }
 };

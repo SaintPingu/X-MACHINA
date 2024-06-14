@@ -322,6 +322,9 @@
     <ClInclude Include="include\CheckMindDetectionRange.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\TaskMoveToMindControlInvoker.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -511,6 +514,9 @@
       <Filter>Script\Enemy\AI\BehaviorTree</Filter>
     </ClCompile>
     <ClCompile Include="src\CheckMindDetectionRange.cpp">
+      <Filter>Script\Enemy\AI\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
     </ClCompile>
   </ItemGroup>

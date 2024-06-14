@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TaskMoveToTarget.h"
+#include "TaskMoveToMindControlInvoker.h"
 
 #include "Script_EnemyManager.h"
 
@@ -9,23 +9,29 @@
 #include "AnimatorController.h"
 #include "MeshRenderer.h"
 
-TaskMoveToTarget::TaskMoveToTarget(Object* object)
+TaskMoveToMindControlInvoker::TaskMoveToMindControlInvoker(Object* object, Object* invoker)
 {
 	mObject = object;
+	mInvoker = invoker;
 	mEnemyMgr = object->GetComponent<Script_EnemyManager>();
 }
 
-BT::NodeState TaskMoveToTarget::Evaluate()
+BT::NodeState TaskMoveToMindControlInvoker::Evaluate()
 {
-	if (!mEnemyMgr->mTarget) {
-		return BT::NodeState::Failure;
+	Object* target = mEnemyMgr->mTarget;
+	if (!target) {
+		if (mInvoker) {
+			target = mInvoker;
+			mEnemyMgr->mPathTarget = mInvoker;
+		}
+		else {
+			return BT::NodeState::Failure;
+		}
 	}
-
-	mEnemyMgr->mPathTarget = mEnemyMgr->mTarget;
 
 	// 허리 쪽부터 광선을 쏴야 맞는다.
 	Vec3 objectAdjPos = mObject->GetPosition() + mObject->GetUp() * 0.5f;
-	Vec3 targetAdjPos = mEnemyMgr->mTarget->GetPosition() + mEnemyMgr->mTarget->GetUp() * 0.5f;
+	Vec3 targetAdjPos = target->GetPosition() + target->GetUp() * 0.5f;
 
 	// 오브젝트로부터 타겟까지의 벡터
 	Vec3 toTarget = targetAdjPos - objectAdjPos;
@@ -34,7 +40,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	Ray r{ objectAdjPos, XMVector3Normalize(toTarget)};
 
 	// 타겟이 속한 모든 그리드를 검사해야 한다.
-	GridObject* mGridTarget = dynamic_cast<GridObject*>(mEnemyMgr->mTarget);
+	GridObject* mGridTarget = dynamic_cast<GridObject*>(target);
 
 	// 해당 광선에 맞은 다른 Static 오브젝트의 거리가 타겟까지의 거리보다 가까운 경우 벽에 막혀있는 경우이다.
 	if (mGridTarget) {
@@ -56,7 +62,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	if (toTarget.Length() > kMinDistance) {
 		mEnemyMgr->mController->SetValue("Return", false);
 
-		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.RotationSpeed);
+		mObject->RotateTargetAxisY(target->GetPosition(), mEnemyMgr->mStat.RotationSpeed);
 		mObject->Translate(mObject->GetLook(), mEnemyMgr->mStat.MoveSpeed * DeltaTime());
 	}
 

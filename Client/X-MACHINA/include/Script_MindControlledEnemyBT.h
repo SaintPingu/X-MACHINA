@@ -7,13 +7,24 @@
 #pragma endregion
 
 
+#pragma region ClassForwardDecl
+class Object;
+#pragma endregion
+
+
 #pragma region Class
 class Script_MindControlledEnemyBT : public Script_BehaviorTree {
 	COMPONENT(Script_MindControlledEnemyBT, Script_BehaviorTree)
 
+private:
+	Object* mInvoker{};
+
 public:
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
+
+public:
+	void SetInvoker(Object* invoker) { mInvoker = invoker; }
 
 protected:
 	BT::Node* SetupTree() override;

@@ -22,6 +22,18 @@ void Script_EnemyManager::Update()
 	}
 }
 
+void Script_EnemyManager::Reset()
+{
+	mState = EnemyState::Idle;
+	mTarget = nullptr;
+	
+	while (!mPath.empty()) {
+		mPath.pop();
+	}
+
+	RemoveAllAnimation();
+}
+
 void Script_EnemyManager::RemoveAllAnimation()
 {
 	mController->SetValue("Walk", false);

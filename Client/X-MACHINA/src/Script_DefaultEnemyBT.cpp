@@ -2,6 +2,7 @@
 #include "Script_DefaultEnemyBT.h"
 
 #include "Script_Enemy.h"
+#include "Script_EnemyManager.h"
 
 #include "CheckDetectionRange.h"
 #include "CheckAttackRange.h"
@@ -15,6 +16,13 @@
 #include "TaskMoveToPath.h"
 #include "TaskGetHit.h"
 #include "Wait.h"
+
+
+void Script_DefaultEnemyBT::OnEnable()
+{
+	base::OnEnable();
+	mObject->GetComponent<Script_EnemyManager>()->Reset();
+}
 
 BT::Node* Script_DefaultEnemyBT::SetupTree()
 {

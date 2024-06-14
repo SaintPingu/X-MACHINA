@@ -23,7 +23,7 @@ BT::NodeState CheckDeath::Evaluate()
 {
 	if (!mLiveObject->IsDead())
 		return BT::NodeState::Failure;
-	
+
 	mEnemyMgr->mState = EnemyState::Death;
 
 	mAccTime += DeltaTime();

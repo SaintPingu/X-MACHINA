@@ -16,11 +16,10 @@ void Script_Enemy::Awake()
 {
 	base::Awake();
 
+	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
 	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_PheroObject>();
 	mObject->AddComponent<Script_DefaultEnemyBT>();
-
-	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
 
 	SetEnemyStat(mObject->GetName());
 	SetMaxHP(mEnemyMgr->mStat.MaxHp);

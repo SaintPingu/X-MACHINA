@@ -110,10 +110,13 @@ struct ObjectInfo {
     int     MatIndex;
     int     LightIndex;
     float   DeathElapsed;
-    float   RimFactor;
-    
     float   SliderValue;
-    float3  Padding;
+    
+    float   HitRimFactor;
+    float3  HitRimColor;
+    
+    float   MindRimFactor;
+    float3  MindRimColor;
 };
 
 struct PassInfo {
@@ -510,7 +513,7 @@ float NdcDepthToViewDepth(float zNdc)
 float4 ComputeRimLight(float4 rimLightColor, float rimWidth, float rimFactor, float3 posW, float3 normalW)
 {
     float rim = 1.0f - max(0, dot(normalW, normalize(gPassCB.CameraPos - posW)));
-    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gObjectCB.RimFactor;
+    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * rimFactor;
     
     return rim * rimLightColor;
 }

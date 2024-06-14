@@ -70,10 +70,9 @@ PSOutput PSForward(VSOutput_Standard pin)
     
     float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
     
-    float rimWidth = 0.6f;
-    float4 gRimLightColor = float4(1.f, 0.f, 0.f, 0.f);
-    float rim = 1.0f - max(0, dot(bumpedNormalW, normalize(gPassCB.CameraPos - pin.PosW)));
-    rim = smoothstep(1.0f - rimWidth, 1.0f, rim) * gObjectCB.RimFactor;
+    // apply rim light
+    float4 hitRimLight = ComputeRimLight(float4(gObjectCB.HitRimColor, 1.f), 0.6f, gObjectCB.HitRimFactor, pin.PosW, bumpedNormalW);
+    float4 mindRimLight = ComputeRimLight(float4(gObjectCB.MindRimColor, 1.f),0.6f, gObjectCB.MindRimFactor, pin.PosW, bumpedNormalW);
     
     float1 ambientAcess = 1.f;
     
@@ -102,7 +101,7 @@ PSOutput PSForward(VSOutput_Standard pin)
     float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) /*+ float4(reflection, 1.f)*/;
     float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissive;
     
-    float4 litColor = litAmbient + litDiffuse + litSpecular + gRimLightColor * rim;
+    float4 litColor = litAmbient + litDiffuse + litSpecular + hitRimLight + mindRimLight;
     
     // temp
     float3 dissolveColor = float3(5.f, 1.f, 0.f);

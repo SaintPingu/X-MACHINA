@@ -62,7 +62,8 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         occlusion = (float)GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
     
     // apply rim light
-    float4 rimLight = ComputeRimLight(float4(1.f, 0.f, 0.f, 0.f), 0.6f, gObjectCB.RimFactor, pin.PosW, bumpedNormalW);
+    float4 hitRimLight = ComputeRimLight(float4(gObjectCB.HitRimColor, 1.f), 0.6f, gObjectCB.HitRimFactor, pin.PosW, bumpedNormalW);
+    float4 mindRimLight = ComputeRimLight(float4(gObjectCB.MindRimColor, 1.f),0.6f, gObjectCB.MindRimFactor, pin.PosW, bumpedNormalW);
 
     // apply occlusion mask
     if (occlusionMask == TRUE) 
@@ -72,7 +73,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
     pout.Normal = float4(bumpedNormalW, 0.f);
-    pout.Diffuse = diffuse + rimLight;
+    pout.Diffuse = diffuse + hitRimLight + mindRimLight;
     pout.Emissive = emissiveMapSample;
     pout.MetallicSmoothness = float2(metallic, roughness);
     pout.Occlusion = occlusion;

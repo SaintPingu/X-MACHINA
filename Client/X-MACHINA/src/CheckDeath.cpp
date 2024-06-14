@@ -34,7 +34,7 @@ BT::NodeState CheckDeath::Evaluate()
 	ExecuteCallback();
 
 	if (mAccTime >= mRemoveTime) {
-		mObject->mObjectCB.RimFactor = 0.7f;
+		mObject->mObjectCB.HitRimFactor = 0.7f;
 		mObject->Destroy();
 	}
 

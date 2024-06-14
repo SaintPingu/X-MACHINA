@@ -169,13 +169,17 @@ struct InstanceData {
 struct ObjectConstants {
 	Matrix  MtxWorld{};
 	Matrix  MtxSprite{};
+
 	int     MatIndex{};
 	int     LightIndex{};
 	float	DeathElapsed{};
-	float	RimFactor{};
-
 	float	SliderValue{};
-	Vec3	Padding{};
+
+	float	HitRimFactor{};
+	Vec3	HitRimColor{ 1.f, 0.f, 0.f };
+
+	float	MindRimFactor{};
+	Vec3	MindRimColor{ 0.5f, 0.f, 0.5f};
 };
 
 struct MinimapConstants {

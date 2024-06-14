@@ -16,6 +16,18 @@
 #include "TaskGetHit.h"
 #include "Wait.h"
 
+void Script_MindControlledEnemyBT::OnEnable()
+{
+	base::OnEnable();
+	mObject->mObjectCB.MindRimFactor = 1.f;
+}
+
+void Script_MindControlledEnemyBT::OnDisable()
+{
+	base::OnDisable();
+	mObject->mObjectCB.MindRimFactor = 0.f;
+}
+
 BT::Node* Script_MindControlledEnemyBT::SetupTree()
 {
 #pragma region WayPoint

@@ -30,7 +30,7 @@ void Script_Enemy::Update()
 {
 	base::Update();
 
-	mObject->mObjectCB.RimFactor = max(mObject->mObjectCB.RimFactor - DeltaTime(), 0.f);
+	mObject->mObjectCB.HitRimFactor = max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
 }
 
 void Script_Enemy::Attack()
@@ -45,7 +45,7 @@ bool Script_Enemy::Hit(float damage, Object* instigator)
 {
 	bool res = base::Hit(damage, instigator);
 
-	mObject->mObjectCB.RimFactor = 0.7f;
+	mObject->mObjectCB.HitRimFactor = 0.7f;
 	
 	if (nullptr != instigator) {
 		mEnemyMgr->mTarget = instigator;

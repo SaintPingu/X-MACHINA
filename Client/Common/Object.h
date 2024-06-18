@@ -24,6 +24,7 @@ class GameObject : public Object {
 	using base = Object;
 	friend class Scene;
 	friend class RenderedAbility;
+	friend class DynamicEnvironmentMappingManager;
 
 private:
 	bool mIsSkinMesh = false;
@@ -170,4 +171,38 @@ public:
 public:
 	virtual void UpdateGrid() override;
 };
+
+
+
+
+
+// use dynamic environment mapping Object
+class DynamicEnvironmentMappingManager : public Singleton<DynamicEnvironmentMappingManager> {
+	friend Singleton;
+
+private:
+	static constexpr UINT mkMaxMRTCount = 1;
+
+	std::array<sptr<class MultipleRenderTarget>, mkMaxMRTCount> mMRTs{};
+	std::array<std::array<sptr<class CameraObject>, 6>, mkMaxMRTCount> mCameras{};
+
+	std::map<Object*, class MultipleRenderTarget*> mDynamicEnvironmentObjectMap;
+
+public:
+	DynamicEnvironmentMappingManager() = default;
+	virtual ~DynamicEnvironmentMappingManager() = default;
+
+public:
+	UINT AddObject(Object* object);
+	void RemoveObject(Object* object);
+
+public:
+	void Init();
+	void UpdatePassCB(sptr<class Camera> camera, UINT index);
+	void Render(const std::set<GridObject*>& objects);
+
+private:
+	void BuildCubeFaceCamera();
+};
+
 #pragma endregion

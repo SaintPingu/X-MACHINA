@@ -70,6 +70,7 @@ void MultipleRenderTarget::Create(GroupType groupType, std::vector<RenderTarget>
 		case GroupType::Lighting:
 		case GroupType::Ssao:
 		case GroupType::Bloom:
+		case GroupType::DynamicEnvironment:
 			DXGIMgr::I->CreateShaderResourceView(mRts[i].Target.get());
 			break;
 		case GroupType::OffScreen:

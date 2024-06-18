@@ -31,9 +31,9 @@ void ResourceMgr::Clear()
 	}
 }
 
-sptr<Texture> ResourceMgr::CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
+sptr<Texture> ResourceMgr::CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor, D3DResource textureType)
 {
-	sptr<Texture> texture = std::make_shared<Texture>();
+	sptr<Texture> texture = std::make_shared<Texture>(textureType);
 	texture->Create(width, height, dxgiFormat, resourcecFlags, resourceStates, clearColor);
 	Add<Texture>(name, texture);
 	return texture;
@@ -653,6 +653,23 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("Dissolve", shader);
+	}	
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::Less,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_SkinnedMesh.cso",
+			 "PShader_DEM_Forward.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("DEMSkinnedMesh", shader);
 	}
 #pragma endregion
 #pragma region Terrain

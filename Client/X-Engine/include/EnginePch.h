@@ -292,6 +292,7 @@ enum class GroupType : UINT8 {
 	Ssao,
 	CustomDepth,
 	Bloom,
+	DynamicEnvironment,
 
 	_count
 };

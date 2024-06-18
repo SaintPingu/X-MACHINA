@@ -114,6 +114,7 @@ class Object : public Transform {
 	friend class Scene;
 	friend class Grid;
 	friend class CollisionManager;
+	friend class DynamicEnvironmentMappingManager;
 
 private:
 	UINT32			mID;

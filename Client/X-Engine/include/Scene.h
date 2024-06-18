@@ -166,6 +166,7 @@ public:
 	void ClearRenderedObjects();
 	void RenderShadow();
 	void RenderCustomDepth();
+	void RenderDynamicEnvironmentMapping();
 	void RenderDeferred();
 	void RenderLights();
 	void RenderFinal();

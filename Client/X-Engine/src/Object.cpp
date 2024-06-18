@@ -7,8 +7,11 @@
 #include "Scene.h"
 #include "Component/Collider.h"
 #include "ObjectPool.h"
+#include "MultipleRenderTarget.h"
 
 #include "Animator.h"
+#include "Texture.h"
+#include "Component/Camera.h"
 
 
 #pragma region GameObject
@@ -192,3 +195,156 @@ void InstBulletObject::UpdateGrid()
 	Scene::I->UpdateObjectGrid(this, false);
 }
 #pragma endregion
+
+
+
+
+
+#pragma region DynamicEnvironmentObject
+UINT DynamicEnvironmentMappingManager::AddObject(Object* object)
+{
+	if (!mDynamicEnvironmentObjectMap.contains(object)) {
+		for (const auto& mrt : mMRTs) {
+
+			bool isContain = false;
+			for (const auto& map : mDynamicEnvironmentObjectMap) {
+				if (mrt.get() == map.second) {
+					isContain = true;
+				}
+			}
+
+			if (!isContain) {
+				mDynamicEnvironmentObjectMap.insert({ object, mrt.get() });
+				return mrt->GetTexture(0)->GetSrvIdx();
+			}
+		}
+	}
+
+	return -1;
+}
+
+void DynamicEnvironmentMappingManager::RemoveObject(Object* object)
+{
+	mDynamicEnvironmentObjectMap.erase(object);
+}
+
+void DynamicEnvironmentMappingManager::Init()
+{
+	const UINT width = static_cast<UINT>(DXGIMgr::I->GetWindow().Width);
+	const UINT height = static_cast<UINT>(DXGIMgr::I->GetWindow().Height);
+
+	for (int i = 0; i < mkMaxMRTCount; ++i) {
+		// create depth stencil buffer
+		std::string dsName = "DynamicEnvironmentDs_" + std::to_string(i);
+		sptr<Texture> depthStencilBuffer = ResourceMgr::I->CreateTexture(dsName, width, height,
+			DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, Vec4{ 1.f });
+		DXGIMgr::I->CreateDepthStencilView(depthStencilBuffer.get());
+
+		// create mrt
+		std::vector<RenderTarget> rts(6);
+		std::string rtName = "DynamicEnvironmentRT_" + std::to_string(i);
+		sptr<Texture> dynamicCubeMap = ResourceMgr::I->CreateTexture(rtName, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{}, D3DResource::TextureCube);
+
+		for (auto& rt : rts) {
+			rt.Target = dynamicCubeMap;
+		}
+
+		mMRTs[i] = std::make_shared<MultipleRenderTarget>();
+		mMRTs[i]->Create(GroupType::DynamicEnvironment, std::move(rts), depthStencilBuffer);
+	}
+
+	BuildCubeFaceCamera();
+}
+
+void DynamicEnvironmentMappingManager::UpdatePassCB(sptr<Camera> camera, UINT index)
+{
+	Matrix proj = camera->GetProjMtx();
+	PassConstants passCB;
+	passCB.MtxView = camera->GetViewMtx().Transpose();
+	passCB.MtxProj = camera->GetProjMtx().Transpose();
+	passCB.MtxInvProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+	passCB.MtxNoLagView = camera->GetNoLagViewtx().Transpose();
+	passCB.CameraPos = camera->GetPosition();
+	passCB.CameraRight = camera->GetRight();
+	passCB.CameraUp = camera->GetUp();
+	passCB.FrameBufferWidth = DXGIMgr::I->GetWindowWidth();
+	passCB.FrameBufferHeight = DXGIMgr::I->GetWindowHeight();
+	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
+	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
+
+	FRAME_RESOURCE_MGR->CopyData(2 + index, passCB);
+}
+
+void DynamicEnvironmentMappingManager::Render(const std::set<GridObject*>& objects)
+{
+	int cnt{};
+	for (auto& [object, mrt] : mDynamicEnvironmentObjectMap) {
+		auto& cameras = mCameras[cnt];
+
+		for (int i = 0; i < 6; ++i) {
+			mrt->ClearRenderTargetView(i, 1.f);
+			mrt->OMSetRenderTargets(1, i);
+
+			cameras[i]->SetPosition(object->GetPosition() + Vec3{0.f, 2.f, 0.f});
+
+			auto& cameraScript = cameras[i]->GetCamera();
+			cameraScript->UpdateViewMtx();
+			UpdatePassCB(cameraScript, i);
+
+			CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(2 + i));
+
+			for (const auto& renderObject : objects) {
+				if (renderObject == object) {
+					continue;
+				}
+
+				renderObject->Render();
+			}
+
+			mrt->WaitTargetToResource(i);
+		}
+
+		cnt++;
+	}
+}
+
+void DynamicEnvironmentMappingManager::BuildCubeFaceCamera()
+{
+	const Vec3 center{ 0.f };
+
+	const Vec3 targets[6] =
+	{
+		Vec3(1.0f, 0.f, 0.f), 
+		Vec3(-1.0f, 0.f, 0.f),
+		Vec3(0.f, 1.0f, 0.f), 
+		Vec3(0.f, -1.0f, 0.f),
+		Vec3(0.f, 0.f, 1.0f), 
+		Vec3(0.f, 0.f, -1.0f) 
+	};
+
+	const Vec3 ups[6] =
+	{
+		Vec3(0.0f, 1.0f, 0.0f), 
+		Vec3(0.0f, 1.0f, 0.0f), 
+		Vec3(0.0f, 0.0f, -1.0f),
+		Vec3(0.0f, 0.0f, +1.0f),
+		Vec3(0.0f, 1.0f, 0.0f),	
+		Vec3(0.0f, 1.0f, 0.0f)	
+	};
+
+	for (int i = 0; i < mkMaxMRTCount; ++i) {
+		auto& cameras = mCameras[i];
+		
+		for (int i = 0; i < 6; ++i) {
+			cameras[i] = std::make_shared<CameraObject>();
+			cameras[i]->Awake();
+
+			cameras[i]->LookAt(targets[i], ups[i]);
+			auto& cameraScript = cameras[i]->GetCamera();
+			cameraScript->SetProjMtx(0.01f, 50.f, 60.f);
+		}
+	}
+}
+#pragma endregion
+
+

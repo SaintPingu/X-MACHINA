@@ -4,6 +4,7 @@
 #include "DXGIMgr.h"
 #include "MultipleRenderTarget.h"
 #include "FrameResource.h"
+#include "Ssao.h"
 
 #include "ResourceMgr.h"
 #include "Object.h"
@@ -23,9 +24,6 @@
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
 #include "AbilityMgr.h"
-
-#include "TestCube.h"
-#include "Ssao.h"
 #pragma endregion
 
 
@@ -411,6 +409,7 @@ namespace {
 	}
 }
 
+
 void Scene::ClearRenderedObjects()
 {
 	mRenderedObjects.clear();
@@ -438,6 +437,14 @@ void Scene::RenderShadow()
 #pragma region Shadow_ObjectInst
 	RenderInstanceObjects(RenderType::Shadow);
 #pragma endregion
+}
+
+
+void Scene::RenderDynamicEnvironmentMapping()
+{
+	RESOURCE<Shader>("DEMSkinnedMesh")->Set();
+
+	DynamicEnvironmentMappingManager::I->Render(mSkinMeshObjects);
 }
 
 

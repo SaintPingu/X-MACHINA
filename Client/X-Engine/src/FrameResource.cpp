@@ -36,7 +36,7 @@ FrameResourceMgr::FrameResourceMgr(ID3D12Fence* fence)
 	:
 	mFence(fence)
 {
-	mBufferCounts[static_cast<int>(BufferType::Pass)]			= 2;
+	mBufferCounts[static_cast<int>(BufferType::Pass)]			= 8;
 	mBufferCounts[static_cast<int>(BufferType::PostPass)]		= 1;
 	mBufferCounts[static_cast<int>(BufferType::Object)]			= 2000;
 	mBufferCounts[static_cast<int>(BufferType::SkinMesh)]		= 100;

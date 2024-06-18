@@ -57,7 +57,7 @@ public:
 public:
 	void LoadResources();
 	void Clear();
-	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4());
+	sptr<Texture> CreateTexture(const std::string& name, UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor = Vec4(), D3DResource textureType = D3DResource::Texture2D);
 	sptr<Texture> CreateTexture(const std::string& name, ComPtr<ID3D12Resource> resource);
 	void CreateParticleSystemCPUData();
 

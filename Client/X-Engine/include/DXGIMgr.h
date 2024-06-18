@@ -121,6 +121,7 @@ public:
 	bool GetFilterOption(FilterOption op) const				{ return (mFilterOption & op) != false; }
 	rsptr<DescriptorHeap> GetDescHeap() const				{ return mDescriptorHeap; }
 	Ssao* GetSsao() const									{ return mSsao.get(); }
+	const WindowInfo& GetWindow() const						{ return mWindow; }
 
 	// [param]에 해당하는 root parameter index를 반환한다.
 	UINT GetGraphicsRootParamIndex(RootParam param) const;

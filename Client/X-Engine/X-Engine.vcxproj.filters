@@ -94,6 +94,9 @@
     <Filter Include="소스 파일\Shader\PostProcessing">
       <UniqueIdentifier>{30ba85a9-8c19-4472-b6c9-2589ba1de572}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Shader\PS\Forward\DynamicEnviromentMapping">
+      <UniqueIdentifier>{fa68a7bf-3232-4cf1-be38-ec4f1db3d2da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -612,6 +615,9 @@
     </FxCompile>
     <FxCompile Include="shaders\PShader_Bloom.hlsl">
       <Filter>소스 파일\Shader\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_DEM_Forward.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward\DynamicEnviromentMapping</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

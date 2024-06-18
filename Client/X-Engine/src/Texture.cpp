@@ -110,7 +110,18 @@ void Texture::LoadTexture(const std::string& name, const std::string& path)
 
 ComPtr<ID3D12Resource> Texture::Create(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
 {
-	return mResource = D3DUtil::CreateTexture2DResource(width, height, 1, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
+	UINT elements = 1;
+	switch (mTextureType)
+	{
+	case D3DResource::TextureCube:
+		elements = 6;
+		break;
+	default:
+		elements = 1;
+		break;
+	}
+
+	return mResource = D3DUtil::CreateTexture2DResource(width, height, elements, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
 }
 
 ComPtr<ID3D12Resource> Texture::Create(ComPtr<ID3D12Resource> resource)

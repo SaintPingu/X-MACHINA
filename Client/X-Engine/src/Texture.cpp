@@ -88,11 +88,6 @@ void Texture::SetDsvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE dsvGpuDescri
 	mDsvDescriptorHandle = dsvGpuDescriptorHandle;
 }
 
-void Texture::SetRtvGpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptorHandle)
-{
-	mRtvDescriptorHandle = rtvDescriptorHandle;
-}
-
 void Texture::ReleaseUploadBuffers()
 {
 	mTextureUploadBuffer = nullptr;
@@ -111,17 +106,20 @@ void Texture::LoadTexture(const std::string& name, const std::string& path)
 ComPtr<ID3D12Resource> Texture::Create(UINT width, UINT height, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS resourcecFlags, D3D12_RESOURCE_STATES resourceStates, Vec4 clearColor)
 {
 	UINT elements = 1;
+	UINT mipLevels = 0;
 	switch (mTextureType)
 	{
 	case D3DResource::TextureCube:
 		elements = 6;
+		mipLevels = 1;
 		break;
 	default:
 		elements = 1;
+		mipLevels = 0;
 		break;
 	}
 
-	return mResource = D3DUtil::CreateTexture2DResource(width, height, elements, 0, dxgiFormat, resourcecFlags, resourceStates, clearColor);
+	return mResource = D3DUtil::CreateTexture2DResource(width, height, elements, mipLevels, dxgiFormat, resourcecFlags, resourceStates, clearColor);
 }
 
 ComPtr<ID3D12Resource> Texture::Create(ComPtr<ID3D12Resource> resource)

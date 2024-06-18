@@ -440,11 +440,17 @@ void Scene::RenderShadow()
 }
 
 
-void Scene::RenderDynamicEnvironmentMapping()
+void Scene::ApplyDynamicContext()
 {
-	RESOURCE<Shader>("DEMSkinnedMesh")->Set();
-
 	DynamicEnvironmentMappingManager::I->Render(mSkinMeshObjects);
+}
+
+void Scene::RenderDynamicEnvironmentMappingObjects()
+{
+	RenderGridObjects(RenderType::DynamicEnvironmentMapping);
+	RenderInstanceObjects(RenderType::DynamicEnvironmentMapping);
+	RenderTerrain(RenderType::DynamicEnvironmentMapping);
+	RenderSkyBox(RenderType::DynamicEnvironmentMapping);
 }
 
 
@@ -465,7 +471,7 @@ void Scene::RenderDeferred()
 	RenderSkinMeshObjects(RenderType::Deferred);
 #pragma endregion
 #pragma region Terrain
-	RenderTerrain();
+	RenderTerrain(RenderType::Deferred);
 #pragma endregion
 }
 
@@ -499,7 +505,7 @@ void Scene::RenderForward()
 {
 	RenderTransparentObjects(); 
 	RenderDissolveObjects();
-	RenderSkyBox();
+	RenderSkyBox(RenderType::Forward);
 
 	RenderAbilities();
 	RenderParticles();
@@ -529,10 +535,19 @@ void Scene::RenderUI()
 	RenderBounds(mRenderedObjects);
 }
 
-void Scene::RenderTerrain()
+void Scene::RenderTerrain(RenderType type)
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	RESOURCE<Shader>("Terrain")->Set();
+
+	switch (type)
+	{
+	case RenderType::DynamicEnvironmentMapping:
+		RESOURCE<Shader>("DEM_Terrain")->Set();
+		break;
+	default:
+		RESOURCE<Shader>("Terrain")->Set();
+		break;
+	}
 
 	if (mTerrain) {
 		mTerrain->Render();
@@ -569,8 +584,18 @@ void Scene::RenderDissolveObjects()
 	}
 }
 
-void Scene::RenderSkyBox()
+void Scene::RenderSkyBox(RenderType type)
 {
+	switch (type)
+	{
+	case RenderType::DynamicEnvironmentMapping:
+		RESOURCE<Shader>("DEM_SkyBox")->Set();
+		break;
+	default:
+		RESOURCE<Shader>("SkyBox")->Set();
+		break;
+	}
+
 	mSkyBox->Render();
 }
 
@@ -597,8 +622,8 @@ void Scene::RenderGridObjects(RenderType type)
 	case RenderType::Deferred:
 		RESOURCE<Shader>("Global")->Set();
 		break;
-	default:
-		assert(0);
+	case RenderType::DynamicEnvironmentMapping:
+		RESOURCE<Shader>("DEM_Global")->Set();
 		break;
 	}
 
@@ -607,21 +632,31 @@ void Scene::RenderGridObjects(RenderType type)
 
 void Scene::RenderSkinMeshObjects(RenderType type)
 {
+	bool isRenderDissolve{};
 	switch (type)
 	{
 	case RenderType::Shadow:
 		RESOURCE<Shader>("Shadow_SkinMesh")->Set();
-		for (auto& object : mDissolveObjects)
-			object->Render();
-		break;
-	case RenderType::Deferred:
-		RESOURCE<Shader>("SkinMesh")->Set();
+		isRenderDissolve = true;
 		break;
 	case RenderType::CustomDepth:
 		RESOURCE<Shader>("CustomDepth_SkinMesh")->Set();
-		for (auto& object : mDissolveObjects)
-			object->Render();
+		isRenderDissolve = true;
 		break;
+	case RenderType::Deferred:
+		RESOURCE<Shader>("SkinMesh")->Set();
+		isRenderDissolve = false;
+		break;
+	case RenderType::DynamicEnvironmentMapping:
+		RESOURCE<Shader>("DEM_SkinMesh")->Set();
+		isRenderDissolve = false;
+		break;
+	}
+
+	if (isRenderDissolve) {
+		for (auto& object : mDissolveObjects) {
+			object->Render();
+		}
 	}
 
 	RenderObjectsWithFrustumCulling(mSkinMeshObjects, type);
@@ -636,6 +671,9 @@ void Scene::RenderInstanceObjects(RenderType type)
 		break;
 	case RenderType::Deferred:
 		RESOURCE<Shader>("ObjectInst")->Set();
+		break;
+	case RenderType::DynamicEnvironmentMapping:
+		RESOURCE<Shader>("DEM_ObjectInst")->Set();
 		break;
 	}
 

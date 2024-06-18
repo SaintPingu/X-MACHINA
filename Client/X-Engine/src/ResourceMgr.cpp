@@ -559,6 +559,20 @@ void ResourceMgr::LoadShaders()
 		shader->Load(info, path);
 		Add<Shader>("Shadow_Global", shader);
 	}
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+		};
+
+		ShaderPath path = {
+			 "VShader_Standard.cso",
+			 "PShader_DEM_Forward.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("DEM_Global", shader);
+	}
 #pragma endregion
 #pragma region ObjectInst
 	{
@@ -589,6 +603,20 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("Shadow_ObjectInst", shader);
+	}
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+		};
+
+		ShaderPath path = {
+			 "VShader_StandardInstance.cso",
+			 "PShader_DEM_Forward.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("DEM_ObjectInst", shader);
 	}
 #pragma endregion
 #pragma region SkinMesh
@@ -669,7 +697,7 @@ void ResourceMgr::LoadShaders()
 
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
-		Add<Shader>("DEMSkinnedMesh", shader);
+		Add<Shader>("DEM_SkinMesh", shader);
 	}
 #pragma endregion
 #pragma region Terrain
@@ -686,6 +714,20 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("Terrain", shader);
+	}
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+		};
+
+		ShaderPath path = {
+			 "VShader_Terrain.cso",
+			 "PShader_DEM_Terrain.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("DEM_Terrain", shader);
 	}
 #pragma endregion
 
@@ -1040,6 +1082,22 @@ void ResourceMgr::LoadShaders()
 		sptr<Shader> shader = std::make_shared<Shader>();
 		shader->Load(info, path);
 		Add<Shader>("SkyBox", shader);
+	}
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+			RasterizerType::Cull_None,
+			DepthStencilType::Less_Equal,
+		};
+
+		ShaderPath path = {
+			 "VShader_Skybox.cso",
+			 "PShader_Skybox.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("DEM_SkyBox", shader);
 	}
 #pragma endregion
 #pragma region SSAO

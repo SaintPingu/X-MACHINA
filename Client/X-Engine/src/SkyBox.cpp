@@ -19,7 +19,6 @@ SkyBox::SkyBox() : Transform(this)
 
 void SkyBox::Render()
 {
-	RESOURCE<Shader>("SkyBox")->Set();
 	UpdateShaderVars();
 	mMesh->Render();
 }

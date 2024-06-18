@@ -117,6 +117,9 @@ struct ObjectInfo {
     
     float   MindRimFactor;
     float3  MindRimColor;
+    
+    uint    UseRefract;
+    float3  Padding;
 };
 
 struct PassInfo {

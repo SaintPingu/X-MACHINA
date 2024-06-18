@@ -230,20 +230,17 @@ void DynamicEnvironmentMappingManager::RemoveObject(Object* object)
 
 void DynamicEnvironmentMappingManager::Init()
 {
-	const UINT width = static_cast<UINT>(DXGIMgr::I->GetWindow().Width);
-	const UINT height = static_cast<UINT>(DXGIMgr::I->GetWindow().Height);
-
 	for (int i = 0; i < mkMaxMRTCount; ++i) {
 		// create depth stencil buffer
 		std::string dsName = "DynamicEnvironmentDs_" + std::to_string(i);
-		sptr<Texture> depthStencilBuffer = ResourceMgr::I->CreateTexture(dsName, width, height,
+		sptr<Texture> depthStencilBuffer = ResourceMgr::I->CreateTexture(dsName, 512, 512,
 			DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, Vec4{ 1.f });
 		DXGIMgr::I->CreateDepthStencilView(depthStencilBuffer.get());
 
 		// create mrt
 		std::vector<RenderTarget> rts(6);
 		std::string rtName = "DynamicEnvironmentRT_" + std::to_string(i);
-		sptr<Texture> dynamicCubeMap = ResourceMgr::I->CreateTexture(rtName, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{}, D3DResource::TextureCube);
+		sptr<Texture> dynamicCubeMap = ResourceMgr::I->CreateTexture(rtName, 512, 512, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, Vec4{}, D3DResource::TextureCube);
 
 		for (auto& rt : rts) {
 			rt.Target = dynamicCubeMap;
@@ -271,6 +268,7 @@ void DynamicEnvironmentMappingManager::UpdatePassCB(sptr<Camera> camera, UINT in
 	passCB.FrameBufferHeight = DXGIMgr::I->GetWindowHeight();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
+	passCB.SkyBoxIndex = 1;
 
 	FRAME_RESOURCE_MGR->CopyData(2 + index, passCB);
 }
@@ -285,7 +283,7 @@ void DynamicEnvironmentMappingManager::Render(const std::set<GridObject*>& objec
 			mrt->ClearRenderTargetView(i, 1.f);
 			mrt->OMSetRenderTargets(1, i);
 
-			cameras[i]->SetPosition(object->GetPosition() + Vec3{0.f, 2.f, 0.f});
+			cameras[i]->SetPosition(object->GetPosition() + Vec3{0.f, 3.f, 0.f});
 
 			auto& cameraScript = cameras[i]->GetCamera();
 			cameraScript->UpdateViewMtx();
@@ -293,13 +291,7 @@ void DynamicEnvironmentMappingManager::Render(const std::set<GridObject*>& objec
 
 			CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(2 + i));
 
-			for (const auto& renderObject : objects) {
-				if (renderObject == object) {
-					continue;
-				}
-
-				renderObject->Render();
-			}
+			Scene::I->RenderDynamicEnvironmentMappingObjects();
 
 			mrt->WaitTargetToResource(i);
 		}
@@ -341,7 +333,7 @@ void DynamicEnvironmentMappingManager::BuildCubeFaceCamera()
 
 			cameras[i]->LookAt(targets[i], ups[i]);
 			auto& cameraScript = cameras[i]->GetCamera();
-			cameraScript->SetProjMtx(0.01f, 50.f, 60.f);
+			cameraScript->SetProjMtx(0.1f, 1000.0f, 60.f);
 		}
 	}
 }

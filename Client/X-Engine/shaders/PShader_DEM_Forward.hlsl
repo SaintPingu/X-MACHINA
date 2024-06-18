@@ -57,22 +57,11 @@ float4 PSDEMForward(VSOutput_Standard pin) : SV_TARGET0
         roughness = 1 - metallicMapSample.a;
     }
     
-    if (occlusionMapIndex != -1)
-    {
-        occlusion = (float)GammaDecoding(gTextureMaps[occlusionMapIndex].Sample(gsamAnisotropicWrap, pin.UV).x);
-    }
-    
     float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
     
     // apply rim light
     float4 hitRimLight = ComputeRimLight(float4(gObjectCB.HitRimColor, 1.f), 0.6f, gObjectCB.HitRimFactor, pin.PosW, bumpedNormalW);
     float4 mindRimLight = ComputeRimLight(float4(gObjectCB.MindRimColor, 1.f),0.6f, gObjectCB.MindRimFactor, pin.PosW, bumpedNormalW);
-    
-    float1 ambientAcess = 1.f;
-    
-    float2 uvRect = float2(pin.PosH.x / gPassCB.FrameBufferWidth, pin.PosH.y / gPassCB.FrameBufferHeight);
-    if (gPassCB.FilterOption & Filter_Ssao)
-        ambientAcess = gTextureMaps[gPassCB.RT0S_SsaoIndex].Sample(gsamAnisotropicWrap, uvRect).r * occlusion;
     
     // 메탈릭 값을 적용
     float3 diffuseAlbedo = lerp(diffuse.xyz, 0.0f, metallic);
@@ -80,9 +69,7 @@ float4 PSDEMForward(VSOutput_Standard pin) : SV_TARGET0
     Material mat = { diffuseAlbedo, specularAlbedo, metallic, roughness };
     
     // 조명 계산
-    float4 shadowPosH = mul(float4(pin.PosW, 1.f), gPassCB.MtxShadow);
-    float shadowFactor = clamp(ComputeShadowFactor(shadowPosH), gPassCB.ShadowIntensity, 1.f);
-    LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, pin.PosW, bumpedNormalW, toCameraW, shadowFactor);
+    LightColor lightColor = ComputeDirectionalLight(gPassCB.Lights[gObjectCB.LightIndex], mat, pin.PosW, bumpedNormalW, toCameraW, 1.f);
     
     //// specular reflection
     //float3 r = reflect(-toCameraW, bumpedNormalW);
@@ -93,7 +80,7 @@ float4 PSDEMForward(VSOutput_Standard pin) : SV_TARGET0
     // litColor
     float4 litDiffuse = GammaEncoding(float4(lightColor.Diffuse, 1.f));
     float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) /*+ float4(reflection, 1.f)*/;
-    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissive;
+    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient) + emissive;
     
     float4 litColor = litAmbient + litDiffuse + litSpecular + hitRimLight + mindRimLight;
     

@@ -29,9 +29,11 @@ class ObjectTag;
 
 #pragma region EnumClass
 enum class RenderType : UINT8 {
-	Shadow = 0,
+	Shadow,
+	Forward,
 	Deferred,
 	CustomDepth,
+	DynamicEnvironmentMapping,
 };
 #pragma endregion
 
@@ -166,7 +168,8 @@ public:
 	void ClearRenderedObjects();
 	void RenderShadow();
 	void RenderCustomDepth();
-	void RenderDynamicEnvironmentMapping();
+	void ApplyDynamicContext();
+	void RenderDynamicEnvironmentMappingObjects();
 	void RenderDeferred();
 	void RenderLights();
 	void RenderFinal();
@@ -186,13 +189,12 @@ private:
 	void RenderInstanceObjects(RenderType type);
 	void RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects, RenderType type);
 	void RenderEnvironments();
-
-	void RenderTerrain();
+	void RenderTerrain(RenderType type);
 
 	// render [transparentObjects]
 	void RenderTransparentObjects();
 	void RenderDissolveObjects();
-	void RenderSkyBox();
+	void RenderSkyBox(RenderType type);
 	void RenderParticles();
 	void RenderAbilities();
 

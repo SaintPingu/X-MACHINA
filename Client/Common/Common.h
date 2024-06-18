@@ -180,6 +180,9 @@ struct ObjectConstants {
 
 	float	MindRimFactor{};
 	Vec3	MindRimColor{ 0.5f, 0.f, 0.5f};
+
+	int		UseRefract{};
+	Vec3	Padding{};
 };
 
 struct MinimapConstants {

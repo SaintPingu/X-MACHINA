@@ -23,7 +23,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     // material info
     MaterialInfo matInfo    = gMaterialBuffer[gObjectCB.MatIndex];
     float4 diffuse          = matInfo.Diffuse;
-    float metallic          = 0;
+    float metallic          = matInfo.Metallic;
     float roughness         = matInfo.Roughness;
     float occlusion         = 1.f;
     int diffuseMapIndex     = matInfo.DiffuseMap0Index;
@@ -35,7 +35,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     
     // sampling diffuseMap
     if (diffuseMapIndex != NONE) 
-        diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+         diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
 
     // sampling normalMap
     pin.NormalW = normalize(pin.NormalW);
@@ -68,6 +68,15 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     // apply occlusion mask
     if (occlusionMask == TRUE) 
         ApplyOcculsionMaskByCamera(pin.PosW, pin.UV);
+    
+    if (gObjectCB.UseRefract == TRUE)
+    {
+        float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
+
+        // TODO : 텍스처 인덱스 하드코딩 변경
+        float3 r = refract(-toCameraW, pin.NormalW, 0.9f);
+        diffuse = GammaDecoding(gSkyBoxMaps[3].Sample(gsamLinearWrap, r));
+    }
     
     // lit color
     PSOutput_MRT pout;

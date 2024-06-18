@@ -662,6 +662,8 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const Vec3& hitRimColor = root->mObjectCB.HitRimColor;
 	const float mindRimFactor = root->mObjectCB.MindRimFactor;
 	const Vec3& mindRimColor = root->mObjectCB.MindRimColor;
+	const bool useRefract = root->mObjectCB.UseRefract;
+	
 
 	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
 		const Transform* transform = mergedTransform[transformIndex];
@@ -684,6 +686,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		objectCB.HitRimColor = hitRimColor;
 		objectCB.MindRimFactor = mindRimFactor;
 		objectCB.MindRimColor = mindRimColor;
+		objectCB.UseRefract = useRefract;
 
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
 			objectCB.MtxWorld = transform->GetWorldTransform().Transpose();

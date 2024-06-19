@@ -12,15 +12,14 @@
 #include "Script_LiveObject.h"
 #include "Script_Player.h"
 
-ShieldAbility::ShieldAbility(float sheild)
+ShieldAbility::ShieldAbility()
 	:
-	RenderedAbility(2.f, 4.5f),
-	PheroAbilityInterface(100.f),
-	mShieldAmount(sheild)
+	RenderedAbility("Shield", 2.f, 4.5f),
+	PheroAbilityInterface(100.f)
 {
 	mLayer = 1;
 	mAbilityCB.Duration = 4.f;
-
+	mShieldAmount = 30.f;
 	mRenderedObject = std::make_shared<GameObject>();
 	mRenderedObject->SetModel("Shield");
 	
@@ -42,7 +41,7 @@ void ShieldAbility::Activate()
 		return;
 	}
 
-	RenderedAbility::Activate();
+	base::Activate();
 
 	mObject->GetComponent<Script_LiveObject>()->SetShield(mShieldAmount);
 }

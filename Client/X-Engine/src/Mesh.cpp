@@ -426,6 +426,108 @@ void ModelObjectMesh::CreateSphereMesh(float radius, int numSegments, bool isLin
 	CreateIndexBufferView(indices);
 }
 
+void ModelObjectMesh::CreateSphere(float radius, int sliceCount, int stackCount)
+{
+	Vec3 topVertex{ 0.f, radius, 0.f };
+	Vec3 bottomVertex{ 0.f, -radius, 0.f };
+
+	Vec3 topNormal{ 0.f, 1.f, 0.f };
+	Vec3 bottomNormal{ 0.f, -1.f, 0.f };
+
+	Vec2 topUV{ 0.f, 0.f };
+	Vec2 bottomUV{ 0.f, 1.f };
+
+	std::vector<Vec3> positions;
+	positions.push_back(topVertex);
+
+	std::vector<Vec3> normals;
+	normals.push_back(topNormal);
+
+	std::vector<Vec2> uvs;
+	uvs.push_back(topUV);
+
+	float phiStep = XM_PI / stackCount;
+	float thetaStep = 2.0f * XM_PI / sliceCount;
+
+	for (int i = 1; i <= stackCount - 1; ++i)
+	{
+		float phi = i * phiStep;
+
+		// Vertices of ring.
+		for (int j = 0; j <= sliceCount; ++j)
+		{
+			float theta = j * thetaStep;
+
+			Vec3 pos;
+			Vec3 normal;
+			Vec2 uv;
+
+			// spherical to cartesian
+			pos.x = radius * sinf(phi) * cosf(theta);
+			pos.y = radius * cosf(phi);
+			pos.z = radius * sinf(phi) * sinf(theta);
+
+
+			XMVECTOR p = XMLoadFloat3(&pos);
+			XMStoreFloat3(&normal, XMVector3Normalize(p));
+
+			uv.x = theta / XM_2PI;
+			uv.y = phi / XM_PI;
+
+			positions.push_back(pos);
+			normals.push_back(normal);
+			uvs.push_back(uv);
+		}
+	}
+
+	positions.push_back(bottomVertex);
+	normals.push_back(bottomNormal);
+	uvs.push_back(bottomUV);
+
+
+	std::vector<UINT> indices;
+	for (int i = 1; i <= sliceCount; ++i)
+	{
+		indices.push_back(0);
+		indices.push_back(i + 1);
+		indices.push_back(i);
+	}
+
+	int baseIndex = 1;
+	int ringVertexCount = sliceCount + 1;
+	for (int i = 0; i < stackCount - 2; ++i)
+	{
+		for (int j = 0; j < sliceCount; ++j)
+		{
+			indices.push_back(baseIndex + i * ringVertexCount + j);
+			indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+			indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+
+			indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+			indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+			indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
+		}
+	}
+
+	int southPoleIndex = (int)positions.size() - 1;
+	baseIndex = southPoleIndex - ringVertexCount;
+	for (int i = 0; i < sliceCount; ++i)
+	{
+		indices.push_back(southPoleIndex);
+		indices.push_back(baseIndex + i);
+		indices.push_back(baseIndex + i + 1);
+	}
+
+	mVertexCnt = positions.size();
+	mIndexCnt = indices.size();
+
+	D3DUtil::CreateVertexBufferResource(positions, mVertexUploadBuffer, mVertexBuffer);
+	D3DUtil::CreateVertexBufferResource(normals, mNormalUploadBuffer, mNormalBuffer);
+	D3DUtil::CreateVertexBufferResource(uvs, mUV0UploadBuffer, mUV0Buffer);
+	CreateVertexBufferViews();
+	CreateIndexBufferView(indices);
+}
+
 void ModelObjectMesh::CreateRectangleMesh()
 {
 	mVertexCnt = 4;
@@ -657,14 +759,6 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const Transform* root = mergedTransform[0];
 	root->SetUseObjCB(true);
 
-	const float deathElapsed = root->mObjectCB.DeathElapsed;
-	const float hitRimFactor = root->mObjectCB.HitRimFactor;
-	const Vec3& hitRimColor = root->mObjectCB.HitRimColor;
-	const float mindRimFactor = root->mObjectCB.MindRimFactor;
-	const Vec3& mindRimColor = root->mObjectCB.MindRimColor;
-	const bool useRefract = root->mObjectCB.UseRefract;
-	
-
 	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
 		const Transform* transform = mergedTransform[transformIndex];
 
@@ -680,13 +774,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		UINT vertexCnt = modelMeshInfo.VertexCnt;
 		UINT mat{ 0 };
 
-		ObjectConstants objectCB;
-		objectCB.DeathElapsed = deathElapsed;
-		objectCB.HitRimFactor = hitRimFactor;
-		objectCB.HitRimColor = hitRimColor;
-		objectCB.MindRimFactor = mindRimFactor;
-		objectCB.MindRimColor = mindRimColor;
-		objectCB.UseRefract = useRefract;
+		ObjectConstants objectCB = root->mObjectCB;
 
 		for (UINT indexCnt : modelMeshInfo.IndicesCnts) {
 			objectCB.MtxWorld = transform->GetWorldTransform().Transpose();

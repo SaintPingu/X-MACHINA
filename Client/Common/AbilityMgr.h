@@ -16,15 +16,17 @@ protected:
 	float		mCooldownTime{};
 	float		mActiveTime{};
 	int			mHolderKey{};
+	std::string mAbilityName{};
 
 	std::function<void()> mTerminateCallback{};
 
 public:
-	Ability(float cooldownTime = 0.f, float activeTime = 0.f) : mCooldownTime(cooldownTime), mActiveTime(activeTime) {}
+	Ability(std::string abilityName, float cooldownTime = 0.f, float activeTime = 0.f) : mAbilityName(abilityName), mCooldownTime(cooldownTime), mActiveTime(activeTime) {}
 
 public:
 	float GetCooldownTime() const { return mCooldownTime; }
 	float GetActiveTime() const { return mActiveTime; }
+	const std::string& GetName() const { return mAbilityName; }
 
 public:
 	void SetObject(Object* object) { mObject = object; }
@@ -52,7 +54,7 @@ protected:
 	AbilityConstants	mAbilityCB{};
 
 public:
-	RenderedAbility(float cooldownTime = 0.f, float activeTime = 0.f) : Ability(cooldownTime, activeTime) {}
+	RenderedAbility(std::string abilityName, float cooldownTime = 0.f, float activeTime = 0.f) : Ability(abilityName, cooldownTime, activeTime) {}
 
 
 public:

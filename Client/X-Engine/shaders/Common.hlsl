@@ -119,7 +119,8 @@ struct ObjectInfo {
     float3  MindRimColor;
     
     uint    UseRefract;
-    float3  Padding;
+	int		DynamicEnvironmentMapIndex;
+    float2  Padding;
 };
 
 struct PassInfo {

@@ -107,8 +107,21 @@ PSOutput PSForward(VSOutput_Standard pin)
     float3 dissolveColor = float3(5.f, 1.f, 0.f);
     float4 dissolve = Dissolve(dissolveColor, gTextureMaps[gPassCB.LiveObjectDissolveIndex].Sample(gsamAnisotropicWrap, pin.UV * 2.f).x, gObjectCB.DeathElapsed);
     
+
+    
     litColor.a = dissolve.a;
     litColor.rgb += dissolve.rgb;
+    
+    if (gObjectCB.UseRefract == TRUE)
+    {
+        float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
+
+        // TODO : 텍스처 인덱스 하드코딩 변경
+        float3 r = refract(-toCameraW, pin.NormalW, 0.95f);
+        //float3 r = reflect(-toCameraW, pin.NormalW);
+        litColor = GammaDecoding(gSkyBoxMaps[3].Sample(gsamLinearWrap, r));
+        litColor.a = 0.6f;
+    }
     
     PSOutput pout = (PSOutput)0;
     pout.Result = litColor;

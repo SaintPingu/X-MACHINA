@@ -74,8 +74,9 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
 
         // TODO : 텍스처 인덱스 하드코딩 변경
-        float3 r = refract(-toCameraW, pin.NormalW, 0.9f);
-        diffuse = GammaDecoding(gSkyBoxMaps[3].Sample(gsamLinearWrap, r));
+        float3 r = refract(-toCameraW, pin.NormalW, 0.99f);
+        //float3 r = reflect(-toCameraW, pin.NormalW);
+        diffuse = GammaDecoding(gSkyBoxMaps[gObjectCB.DynamicEnvironmentMapIndex].Sample(gsamLinearWrap, r));
     }
     
     // lit color

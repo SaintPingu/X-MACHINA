@@ -143,6 +143,7 @@ public:
 	void CreateCubeMesh(float width, float height, float depth, bool hasTexture = false, bool isLine = false);
 	void CreatePlaneMesh(float width, float depth, bool isLine = false);
 	void CreateSphereMesh(float radius, int numSegments = 12, bool isLine = false);
+	void CreateSphere(float radius, int sliceCount, int stackCount);
 
 	// static
 	void CreateRectangleMesh();

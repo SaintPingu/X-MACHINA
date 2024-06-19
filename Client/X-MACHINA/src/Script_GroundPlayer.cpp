@@ -33,6 +33,7 @@
 #include "IRDetectorAbility.h"
 #include "MinimapAbility.h"
 #include "MindControlAbility.h"
+#include "CloakingAbility.h"
 
 
 #pragma region Variable
@@ -64,9 +65,10 @@ void Script_GroundPlayer::Awake()
 
 	// add scripts //
 	mObject->AddComponent<Script_GroundObject>();
-	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>(30.f));
+	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('U', std::make_shared<MindControlAbility>());
+	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility('I', std::make_shared<CloakingAbility>());
 	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility(VK_TAB, std::make_shared<MinimapAbility>());
 
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");

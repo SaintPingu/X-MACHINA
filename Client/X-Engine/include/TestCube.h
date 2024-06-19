@@ -2,6 +2,7 @@
 
 #pragma region Include
 #include "Component/Transform.h"
+#include "Component/Component.h"
 #pragma endregion
 
 #pragma region ClassForwardDecl
@@ -12,7 +13,7 @@ class Material;
 #pragma endregion
 
 // 테스트 용도 큐브
-class TestCube : public Transform {
+class TestCube : public Object {
 private:
 	float mSize = 2.f;
 

@@ -12,7 +12,7 @@
 
 IRDetectorAbility::IRDetectorAbility()
 	:
-	RenderedAbility(2.f, 10.f)
+	RenderedAbility("IRDetector", 2.f, 10.f)
 {
 	mLayer = 0;
 	mAbilityCB.Duration = 9.8f;

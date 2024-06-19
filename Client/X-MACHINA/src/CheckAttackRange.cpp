@@ -9,6 +9,8 @@
 #include "AnimatorMotion.h"
 #include "AnimatorController.h"
 
+#include "Script_AbilityHolder.h"
+#include "CloakingAbility.h"
 
 CheckAttackRange::CheckAttackRange(Object* object)
 {
@@ -25,6 +27,14 @@ BT::NodeState CheckAttackRange::Evaluate()
 
 	if (mEnemyMgr->mState == EnemyState::Attack) {
 		return BT::NodeState::Success;
+	}
+
+	const auto& abilitys = mEnemyMgr->mTarget->GetComponents<Script_AbilityHolder>();
+	for (const auto& ability : abilitys) {
+		if (ability->GetAbilityName() == "Cloaking" && ability->GetAbilityState() == AbilityState::Active) {
+			mEnemyMgr->mTarget = nullptr;
+			return BT::NodeState::Failure;
+		}
 	}
 
 	constexpr float minDistance = 1.f;

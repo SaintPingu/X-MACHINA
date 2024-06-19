@@ -7,20 +7,12 @@
 #pragma endregion
 
 
-#pragma region ClassForwardDecl
-class Script_LiveObject;
-class GameObject;
-#pragma endregion
-
-
 #pragma region Class
-class ShieldAbility : public RenderedAbility, public PheroAbilityInterface {
-	using base = RenderedAbility;
-private:
-	float mShieldAmount{};
+class CloakingAbility : public Ability, public PheroAbilityInterface {
+	using base = Ability;
 
 public:
-	ShieldAbility();
+	CloakingAbility();
 
 public:
 	virtual void Update(float activeTime) override;

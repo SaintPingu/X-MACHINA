@@ -533,6 +533,7 @@ void Transform::UpdateShaderVars(const int cnt, const int matIndex) const
 	}
 
 	ObjectConstants objectConstants;
+	objectConstants = mObjectCB;
 	objectConstants.MtxWorld = XMMatrixTranspose(_MATRIX(GetWorldTransform()));
 	objectConstants.MatIndex = matIndex;
 

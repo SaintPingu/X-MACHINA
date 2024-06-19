@@ -53,6 +53,7 @@ public:
 
 	void UpdateViewMtx();
 	void SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float fovAngle);
+	void SetLens(float fovY, float aspect, float zn, float zf);
 	void SetNoLagViewMtx(const Matrix& mtx) { mNoLagViewTransform = mtx; }
 		 
 	void SetViewport(int xTopLeft, int yTopLeft, int width, int height, float minZ = 0.f, float maxZ = 1.f);

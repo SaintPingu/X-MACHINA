@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "CheckDetectionRange.h"
 
-#include "Script_EnemyManager.h"
-
 #include "GameFramework.h"
 #include "Timer.h"
 #include "Scene.h"
 #include "Object.h"
 #include "AnimatorController.h"
 
+#include "Script_EnemyManager.h"
+#include "Script_AbilityHolder.h"
+#include "CloakingAbility.h"
 
 CheckDetectionRange::CheckDetectionRange(Object* object)
 {
@@ -22,6 +23,14 @@ BT::NodeState CheckDetectionRange::Evaluate()
 {
 	if (!mEnemyMgr->mTarget) {
 		mEnemyMgr->mTarget = mTarget.get();
+	}
+
+	const auto& abilitys = mEnemyMgr->mTarget->GetComponents<Script_AbilityHolder>();
+	for (const auto& ability : abilitys) {
+		if (ability->GetAbilityName() == "Cloaking" && ability->GetAbilityState() == AbilityState::Active) {
+			mEnemyMgr->mTarget = nullptr;
+			return BT::NodeState::Failure;
+		}
 	}
 
 	// 경로 길찾기가 실행중이거나 감지 범위 내에 들어온 경우 다음 노드로 진행

@@ -36,6 +36,8 @@ protected:
 
 public:
 	void SetAbility(int key, sptr<Ability> ability);
+	const AbilityState GetAbilityState() const { return mState; }
+	const std::string& GetAbilityName() const;
 
 public:
 	virtual void Start() override;

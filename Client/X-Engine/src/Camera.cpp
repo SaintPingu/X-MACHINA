@@ -48,6 +48,14 @@ void Camera::SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float f
 	BoundingFrustum::CreateFromMatrix(mFrustumView, kProjMtx);
 }
 
+void Camera::SetLens(float fovY, float aspect, float farPlaneDistance, float fovAngle)
+{
+	const XMMATRIX kProjMtx = XMMatrixPerspectiveFovLH(fovY, aspect, farPlaneDistance, fovAngle);
+	XMStoreFloat4x4(&mProjTransform, kProjMtx);
+
+	BoundingFrustum::CreateFromMatrix(mFrustumView, kProjMtx);
+}
+
 
 void Camera::SetViewport(int xTopLeft, int yTopLeft, int width, int height, float minZ, float maxZ)
 {

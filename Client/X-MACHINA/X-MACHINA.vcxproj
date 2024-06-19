@@ -222,6 +222,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\CheckMindDetectionRange.h" />
+    <ClInclude Include="include\CloakingAbility.h" />
     <ClInclude Include="include\MindControlAbility.h" />
     <ClInclude Include="include\PheroAbilityInterface.h" />
     <ClInclude Include="include\Script_MindControlledEnemyBT.h" />
@@ -288,6 +289,7 @@
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="SliderBarUI.cpp" />
     <ClCompile Include="src\CheckMindDetectionRange.cpp" />
+    <ClCompile Include="src\CloakingAbility.cpp" />
     <ClCompile Include="src\MindControlAbility.cpp" />
     <ClCompile Include="src\PheroAbilityInterface.cpp" />
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp" />

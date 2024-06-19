@@ -9,12 +9,12 @@
 #include "Shader.h"
 #include "Model.h"
 
-TestCube::TestCube(Vec2 pos) : Transform(this)
+TestCube::TestCube(Vec2 pos)
 {
 	SetPosition(Vec3(pos.x, Scene::I->GetTerrainHeight(pos.x, pos.y) + mSize / 2.f, pos.y));
 
 	mMesh = std::make_unique<ModelObjectMesh>();
-	mMesh->CreateCubeMesh(mSize, mSize, mSize, true);
+	mMesh->CreateSphere(mSize, 64, 64);
 	
 	MaterialLoadInfo materialInfo{};
 	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
@@ -22,6 +22,8 @@ TestCube::TestCube(Vec2 pos) : Transform(this)
 	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
+
+	mObjectCB.UseRefract = true;
 }
 
 void TestCube::Render()

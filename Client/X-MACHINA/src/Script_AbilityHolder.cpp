@@ -16,6 +16,11 @@ void Script_AbilityHolder::SetAbility(int key, sptr<Ability> ability)
 	mAbility->SetHolderKey(key);
 }
 
+const std::string& Script_AbilityHolder::GetAbilityName() const
+{
+	return mAbility->GetName();
+}
+
 void Script_AbilityHolder::Start()
 {
 	mAbility->SetObject(mObject);

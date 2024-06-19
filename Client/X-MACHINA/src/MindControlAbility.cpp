@@ -23,7 +23,7 @@
 
 MindControlAbility::MindControlAbility()
 	:
-	RenderedAbility(10.f, 30.f),
+	RenderedAbility("MindControl", 10.f, 30.f),
 	PheroAbilityInterface(200.f),
 	mWindowWidth(static_cast<float>(GameFramework::I->GetWindowResolution().Width)),
 	mWindowHeight(static_cast<float>(GameFramework::I->GetWindowResolution().Height))

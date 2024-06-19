@@ -215,6 +215,8 @@ UINT DynamicEnvironmentMappingManager::AddObject(Object* object)
 
 			if (!isContain) {
 				mDynamicEnvironmentObjectMap.insert({ object, mrt.get() });
+				object->mObjectCB.UseRefract = true;
+				object->mObjectCB.DynamicEnvironmentMapIndex = mrt->GetTexture(0)->GetSrvIdx();
 				return mrt->GetTexture(0)->GetSrvIdx();
 			}
 		}
@@ -226,6 +228,8 @@ UINT DynamicEnvironmentMappingManager::AddObject(Object* object)
 void DynamicEnvironmentMappingManager::RemoveObject(Object* object)
 {
 	mDynamicEnvironmentObjectMap.erase(object);
+	object->mObjectCB.UseRefract = false;
+	object->mObjectCB.DynamicEnvironmentMapIndex = 0;
 }
 
 void DynamicEnvironmentMappingManager::Init()
@@ -277,7 +281,7 @@ void DynamicEnvironmentMappingManager::Render(const std::set<GridObject*>& objec
 {
 	int cnt{};
 	for (auto& [object, mrt] : mDynamicEnvironmentObjectMap) {
-		auto& cameras = mCameras[cnt];
+		auto& cameras = mCameras.at(cnt++);
 
 		for (int i = 0; i < 6; ++i) {
 			mrt->ClearRenderTargetView(i, 1.f);
@@ -295,8 +299,6 @@ void DynamicEnvironmentMappingManager::Render(const std::set<GridObject*>& objec
 
 			mrt->WaitTargetToResource(i);
 		}
-
-		cnt++;
 	}
 }
 
@@ -333,7 +335,7 @@ void DynamicEnvironmentMappingManager::BuildCubeFaceCamera()
 
 			cameras[i]->LookAt(targets[i], ups[i]);
 			auto& cameraScript = cameras[i]->GetCamera();
-			cameraScript->SetProjMtx(0.1f, 1000.0f, 60.f);
+			cameraScript->SetLens(0.5f * XM_PI, 1.0f, 0.1f, 1000.0f);
 		}
 	}
 }

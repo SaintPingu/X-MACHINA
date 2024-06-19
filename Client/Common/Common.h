@@ -182,7 +182,8 @@ struct ObjectConstants {
 	Vec3	MindRimColor{ 0.5f, 0.f, 0.5f};
 
 	int		UseRefract{};
-	Vec3	Padding{};
+	int		DynamicEnvironmentMapIndex = -1;
+	Vec2	Padding{};
 };
 
 struct MinimapConstants {

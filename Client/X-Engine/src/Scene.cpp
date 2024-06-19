@@ -26,6 +26,7 @@
 #include "AbilityMgr.h"
 #pragma endregion
 
+#include "TestCube.h"
 
 
 
@@ -237,8 +238,6 @@ void Scene::BuildObjects()
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
-
-	
 }
 
 void Scene::ReleaseObjects()
@@ -459,7 +458,6 @@ void Scene::RenderDeferred()
 #pragma region PrepareRender
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
 #pragma endregion
-
 #pragma region Globald
 	RenderGridObjects(RenderType::Deferred);
 	RenderEnvironments();

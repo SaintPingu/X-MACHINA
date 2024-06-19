@@ -13,6 +13,8 @@ class CloakingAbility : public Ability, public PheroAbilityInterface {
 
 public:
 	CloakingAbility();
+	class ParticleSystem* mBuffSparkPS;
+	class ParticleSystem* mBuffDotPS;
 
 public:
 	virtual void Update(float activeTime) override;
@@ -20,6 +22,6 @@ public:
 	virtual void DeActivate() override;
 
 protected:
-	virtual bool ReducePheroAmount() override;
+	virtual bool ReducePheroAmount(bool checkOnly = false) override;
 };
 #pragma endregion

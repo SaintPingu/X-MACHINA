@@ -63,6 +63,11 @@ void MindControlAbility::Update(float activeTime)
 
 void MindControlAbility::Activate()
 {
+	if (!ReducePheroAmount(true)) {
+		mTerminateCallback();
+		return;
+	}
+
 	RenderedAbility::Activate();
 
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
@@ -86,11 +91,11 @@ void MindControlAbility::DeActivate()
 	}
 }
 
-bool MindControlAbility::ReducePheroAmount()
+bool MindControlAbility::ReducePheroAmount(bool checkOnly)
 {
 	sptr<Script_PheroPlayer> pheroPlayer = mObject->GetComponent<Script_PheroPlayer>();
 	if (pheroPlayer) {
-		return pheroPlayer->ReducePheroAmount(mPheroCost);
+		return pheroPlayer->ReducePheroAmount(mPheroCost, checkOnly);
 	}
 
 	return false;

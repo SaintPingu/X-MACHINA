@@ -45,7 +45,7 @@ public:
 	virtual void DeActivate() override;
 
 protected:
-	virtual bool ReducePheroAmount() override;
+	virtual bool ReducePheroAmount(bool checkOnly = false) override;
 
 private:
 	Object* PickingObject(const Vec2& screenPos);

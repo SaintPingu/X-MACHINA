@@ -273,6 +273,6 @@ public:
 
 public:
 	virtual void AddPheroAmount(float pheroAmount);
-	virtual bool ReducePheroAmount(float pheroCost);
+	virtual bool ReducePheroAmount(float pheroCost, bool checkOnly = false);
 };
 #pragma endregion

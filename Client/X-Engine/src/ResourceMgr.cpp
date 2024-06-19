@@ -469,6 +469,52 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.Renderer.BlendType = BlendType::Scroll_Smoke;
 		ParticleSystem::SavePSCD(pscd);
 	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "MagicCircle_Sparks";
+		pscd.Looping = true;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.5f };
+		pscd.StartSpeed = Vec2{ 0.f, 0.f };
+		pscd.StartSize = Vec2{ 0.1f, 0.2f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.8f, 0.3f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxAddCount = 2;
+		pscd.MaxParticles = 300;
+		pscd.Emission.RateOverTime = 40;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 1.f, 0.f }, { 0.f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Grow";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.LengthScale = 4.f;
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ 0.f, 1.f, 0.f, 0.f }, Vec4{ 0.f, 15.f, 0.f, 0.f } }).SetParam(1.f);
+		pscd.Shape.SetSphere(0.9f, 0.01f, 0.f, true);
+		ParticleSystem::SavePSCD(pscd);
+	}
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "MagicCircle_Dot";
+		pscd.Looping = true;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 1.f };
+		pscd.StartSpeed = Vec2{ 0.f, 0.f };
+		pscd.StartSize = Vec2{ 1.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.5f, 0.3f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpeed = 0.8f;
+		pscd.MaxAddCount = 1;
+		pscd.MaxParticles = 100;
+		pscd.Emission.RateOverTime = 20;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.15f, 0.f }, { 0.1f, 1.f });
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
+		pscd.Renderer.TextureName = "Explosion_Grow";
+		pscd.Renderer.LengthScale = 5.f;
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ 0.f, 0.6f, 0.f, 0.f }, Vec4{ 0.f, 10.f, 0.f, 0.f } }).SetParam(1.f);
+		pscd.Shape.SetSphere(0.9f, 0.01f, 0.f, true);
+		ParticleSystem::SavePSCD(pscd);
+	}
 }
 
 sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()

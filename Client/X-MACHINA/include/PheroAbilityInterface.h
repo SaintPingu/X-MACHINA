@@ -10,6 +10,6 @@ public:
 	virtual ~PheroAbilityInterface() = default;
 
 protected:
-	virtual bool ReducePheroAmount() abstract;
+	virtual bool ReducePheroAmount(bool checkOnly = false) abstract;
 };
 

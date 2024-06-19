@@ -6,6 +6,7 @@
 #include "Timer.h"
 
 #include "Script_Player.h"
+#include "Component/ParticleSystem.h"
 
 
 CloakingAbility::CloakingAbility()
@@ -27,6 +28,8 @@ void CloakingAbility::Update(float activeTime)
 void CloakingAbility::Activate()
 {
 	base::Activate();
+	mBuffSparkPS = ParticleManager::I->Play("MagicCircle_Sparks", mObject);
+	mBuffDotPS = ParticleManager::I->Play("MagicCircle_Dot", mObject);
 
 	DynamicEnvironmentMappingManager::I->AddObject(mObject);
 }
@@ -34,11 +37,13 @@ void CloakingAbility::Activate()
 void CloakingAbility::DeActivate()
 {
 	base::DeActivate();
+	mBuffSparkPS->Stop();
+	mBuffDotPS->Stop();
 
 	DynamicEnvironmentMappingManager::I->RemoveObject(mObject);
 }
 
-bool CloakingAbility::ReducePheroAmount()
+bool CloakingAbility::ReducePheroAmount(bool checkOnly)
 {
 	sptr<Script_PheroPlayer> pheroPlayer = mObject->GetComponent<Script_PheroPlayer>();
 	if (pheroPlayer) {

@@ -41,15 +41,17 @@ void Script_PheroPlayer::AddPheroAmount(float pheroAmount)
 	mCurrPheroAmount = min(mCurrPheroAmount + pheroAmount, mMaxPheroAmount);
 }
 
-bool Script_PheroPlayer::ReducePheroAmount(float pheroCost)
+bool Script_PheroPlayer::ReducePheroAmount(float pheroCost, bool checkOnly)
 {
 	if (mCurrPheroAmount < pheroCost) {
 		return false;
 	}
 
-	mPheroBarUI->MustCallBeforeOnValueDecrease(mCurrPheroAmount);
+	if (!checkOnly) {
+		mPheroBarUI->MustCallBeforeOnValueDecrease(mCurrPheroAmount);
+		mCurrPheroAmount = max(mCurrPheroAmount - pheroCost, 0.f);
+	}
 
-	mCurrPheroAmount = max(mCurrPheroAmount - pheroCost, 0.f);
 	return true;
 }
 #pragma endregion

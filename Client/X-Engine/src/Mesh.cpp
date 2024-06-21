@@ -518,8 +518,8 @@ void ModelObjectMesh::CreateSphere(float radius, int sliceCount, int stackCount)
 		indices.push_back(baseIndex + i + 1);
 	}
 
-	mVertexCnt = positions.size();
-	mIndexCnt = indices.size();
+	mVertexCnt = (int)positions.size();
+	mIndexCnt = (int)indices.size();
 
 	D3DUtil::CreateVertexBufferResource(positions, mVertexUploadBuffer, mVertexBuffer);
 	D3DUtil::CreateVertexBufferResource(normals, mNormalUploadBuffer, mNormalBuffer);

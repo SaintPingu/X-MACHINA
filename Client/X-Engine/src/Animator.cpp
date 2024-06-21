@@ -56,6 +56,10 @@ void Animator::Animate()
 
 void Animator::UpdateTransform()
 {
+	if (mIsCloned) {
+		return;
+	}
+
 	auto& skinMesh = mSkinMeshes.front();
 
 	for (int i = 0; i < mBoneFrames.size(); ++i) {
@@ -73,6 +77,20 @@ void Animator::UpdateTransformManual()
 		Matrix transform = mController->GetTransform(i, HumanBone::None);
 
 		mFrames[i]->SetLocalTransform(transform, false);
+	}
+}
+
+void Animator::CloneBoneFrames(Object* other)
+{
+	GameObject* gameObject = dynamic_cast<GameObject*>(other);
+	if (!gameObject) {
+		return;
+	}
+
+	mIsCloned = true;
+
+	for (int i = 0; i < mBoneFrames.size(); ++i) {
+		*mBoneFrames[i] = gameObject->GetAnimator()->GetBoneFrame(i);
 	}
 }
 

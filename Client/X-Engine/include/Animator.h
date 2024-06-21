@@ -16,6 +16,7 @@ struct AnimationLoadInfo {
 // Animation의 재생 및 상태 전이 등의 전반을 관리한다.
 class Animator {
 private:
+	bool mIsCloned{};
 	sptr<AnimatorController> mController{};
 
 	std::vector<Transform*>		mBoneFrames{};
@@ -28,6 +29,7 @@ public:
 	~Animator();
 
 	rsptr<AnimatorController> GetController() const { return mController; }
+	const Transform& GetBoneFrame(int index) const { return *mBoneFrames[index]; }
 
 public:
 	void UpdateShaderVariables();
@@ -35,6 +37,7 @@ public:
 	void Animate();
 	void UpdateTransform();
 	void UpdateTransformManual();
+	void CloneBoneFrames(class Object* other);
 
 private:
 	void InitController(rsptr<const AnimationLoadInfo> animationInfo);

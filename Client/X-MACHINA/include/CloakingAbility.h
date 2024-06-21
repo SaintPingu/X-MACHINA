@@ -16,6 +16,8 @@ public:
 	class ParticleSystem* mBuffSparkPS;
 	class ParticleSystem* mBuffDotPS;
 
+	sptr<class GameObject> mAfterImageObject;
+
 public:
 	virtual void Update(float activeTime) override;
 	virtual void Activate() override;

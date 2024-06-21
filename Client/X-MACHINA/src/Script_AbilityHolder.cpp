@@ -23,8 +23,13 @@ const std::string& Script_AbilityHolder::GetAbilityName() const
 
 void Script_AbilityHolder::Start()
 {
+	base::Start();
+
 	mAbility->SetObject(mObject);
+	mAbility->Start();
+
 	mAbility->SetTerminateCallback(std::bind_back(&Script_AbilityHolder::Terminate, this));
+
 }
 
 void Script_AbilityHolder::Update()

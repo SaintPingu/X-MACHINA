@@ -13,13 +13,13 @@ class CloakingAbility : public Ability, public PheroAbilityInterface {
 
 public:
 	CloakingAbility();
-	class ParticleSystem* mBuffSparkPS;
-	class ParticleSystem* mBuffDotPS;
-
-	sptr<class GameObject> mAfterImageObject;
+	class ParticleSystem* mBuffSparkPS{};
+	class ParticleSystem* mBuffDotPS{};
+	sptr<class Script_AfterImageObject> mAfterImage{};
 
 public:
 	virtual void Update(float activeTime) override;
+	virtual void Start();
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 

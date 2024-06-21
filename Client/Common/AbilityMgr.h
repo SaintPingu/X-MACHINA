@@ -35,6 +35,7 @@ public:
 
 public:
 	virtual void Update(float activeTime) abstract;
+	virtual void Start() { }
 	virtual void Activate() { }
 	virtual void DeActivate() { }
 };

@@ -11,9 +11,10 @@ class Script_AfterImageObject : public Component {
 	COMPONENT(Script_AfterImageObject, Component)
 
 private:
-	static constexpr UINT mkMaxCreateCnt = 50;
+	static constexpr UINT mkMaxCreateCnt = 100;
 
 	float mAccTime{};
+	bool mIsActiveUpdate{};
 
 	UINT mRateOverCreateCnt{};
 	float mAfterImageLifeTime{};
@@ -23,13 +24,15 @@ private:
 
 public:
 	void SetAfterImage(UINT createCnt, float lifeTime);
+	void SetActiveUpdate(bool isActiveUpdate);
 
 public:
-	virtual void OnEnable() override;
 	virtual void Awake() override;
 	virtual void Update() override;
-	
+
 private:
+	void ActiveUpdate();
+
 	void PushObject();
 	void PopObject();
 };

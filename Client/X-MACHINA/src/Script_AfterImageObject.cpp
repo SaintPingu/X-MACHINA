@@ -12,16 +12,19 @@ void Script_AfterImageObject::SetAfterImage(UINT createCnt, float lifeTime)
 	mAfterImageLifeTime = lifeTime;
 }
 
-void Script_AfterImageObject::OnEnable()
+void Script_AfterImageObject::SetActiveUpdate(bool isActiveUpdate)
 {
-	base::OnEnable();
+	mIsActiveUpdate = isActiveUpdate;
 
-	mAccTime = 0.f;
-	mCurrObjectIndex = 0;
+	if (mIsActiveUpdate) {
+		mAccTime = 0.f;
+		mCurrObjectIndex = 0;
 
-	for (auto& object : mAfterImageObjects) {
-		object->mObjectCB.HitRimColor = Vec3{ 2.f, 1.f, 2.f };
-		object->mObjectCB.HitRimFactor = 1.f;
+		for (auto& object : mAfterImageObjects) {
+			object->mObjectCB.HitRimColor = Vec3{ 2.f, 1.f, 2.f };
+			object->mObjectCB.HitRimFactor = 1.f;
+			object->SetActive(false);
+		}
 	}
 }
 
@@ -37,6 +40,7 @@ void Script_AfterImageObject::Awake()
 		}
 
 		object->SetUseShadow(false);
+		object->SetActive(false);
 	}
 }
 
@@ -44,10 +48,11 @@ void Script_AfterImageObject::Update()
 {
 	mAccTime += DeltaTime();
 	
-	const float createInterval = 1.f / static_cast<float>(mRateOverCreateCnt);
-	if (mAccTime >= createInterval) {
-		PushObject();
-		mAccTime = 0.f;
+	if (mIsActiveUpdate) {
+		ActiveUpdate();
+	}
+	else if (mCurrObjectIndex == 0) {
+		return;
 	}
 
 	for (int i = 0; i < mCurrObjectIndex; ++i) {
@@ -60,12 +65,22 @@ void Script_AfterImageObject::Update()
 	}
 }
 
+void Script_AfterImageObject::ActiveUpdate()
+{
+	const float createInterval = 1.f / static_cast<float>(mRateOverCreateCnt);
+	if (mAccTime >= createInterval) {
+		PushObject();
+		mAccTime = 0.f;
+	}
+}
+
 void Script_AfterImageObject::PushObject()
 {
 	if (mCurrObjectIndex >= mkMaxCreateCnt) {
 		return;
 	}
 
+	mAfterImageObjects[mCurrObjectIndex]->SetActive(true);
 	mAfterImageObjects[mCurrObjectIndex]->mObjectCB.HitRimFactor = 1.f;
 	mAfterImageObjects[mCurrObjectIndex]->SetPosition(mObject->GetPosition());
 	mAfterImageObjects[mCurrObjectIndex]->SetLocalRotation(mObject->GetRotation());
@@ -76,6 +91,7 @@ void Script_AfterImageObject::PushObject()
 void Script_AfterImageObject::PopObject()
 {
 	auto& front = mAfterImageObjects.front();
+	front->SetActive(false);
 	mAfterImageObjects.pop_front();
 	mAfterImageObjects.push_back(front);
 	mCurrObjectIndex--;

@@ -96,11 +96,20 @@ void Script_ToggleAbilityHolder::Update()
 		break;
 	case AbilityState::Active:
 		if (KEY_TAP(mKey)) {
-			mState = AbilityState::Ready;
+			mState = AbilityState::Cooldown;
 			mAbility->DeActivate();
+			mCooldownTime = mAbility->GetCooldownTime();
 		}
 		else{
 			mAbility->Update(0.f);
+		}
+		break;
+	case AbilityState::Cooldown:
+		if (mCooldownTime > 0.f) {
+			mCooldownTime -= DeltaTime();
+		}
+		else {
+			mState = AbilityState::Ready;
 		}
 		break;
 	default:

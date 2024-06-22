@@ -21,10 +21,12 @@ PSOutput PSAfterSkinImage(VSOutput_Standard pin)
     pin.NormalW = normalize(pin.NormalW);
 
     // apply rim light
-    float4 rimLight = ComputeRimLight(float4(gObjectCB.HitRimColor, 1.f), 2.f, gObjectCB.HitRimFactor, pin.PosW, pin.NormalW);
+    float4 startColor = ComputeRimLight(float4(gObjectCB.HitRimColor, 1.f), 2.f, gObjectCB.HitRimFactor, pin.PosW, pin.NormalW);
+    float4 endColor = ComputeRimLight(float4(1.f, 0.f, 0.f, 1.f), 2.f, gObjectCB.HitRimFactor, pin.PosW, pin.NormalW);
     
     PSOutput pout = (PSOutput)0;
-    pout.Result = rimLight;
+    pout.Result = lerp(endColor, startColor, gObjectCB.HitRimFactor);
+    pout.Normal = float4(pin.NormalW, 1.f);
     
     return pout;
 }

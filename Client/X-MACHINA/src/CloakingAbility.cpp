@@ -15,7 +15,7 @@
 CloakingAbility::CloakingAbility()
 	:
 	Ability("Cloaking", 3.f),
-	PheroAbilityInterface(30.f)
+	PheroAbilityInterface(0.f)
 {
 }
 
@@ -40,8 +40,7 @@ void CloakingAbility::Start()
 void CloakingAbility::Activate()
 {
 	base::Activate();
-	mBuffSparkPS = ParticleManager::I->Play("MagicCircle_Sparks", mObject);
-	mBuffDotPS = ParticleManager::I->Play("MagicCircle_Dot", mObject);
+	mBuffPS = ParticleManager::I->Play("MagicCircle_Dot", mObject);
 
 	mObject->mObjectCB.HitRimFactor = 1.f;
 	mAfterImage->SetActiveUpdate(true);
@@ -51,8 +50,7 @@ void CloakingAbility::Activate()
 void CloakingAbility::DeActivate()
 {
 	base::DeActivate();
-	mBuffSparkPS->Stop();
-	mBuffDotPS->Stop();
+	mBuffPS->Stop();
 
 	mObject->mObjectCB.HitRimFactor = 0.f;
 	mAfterImage->SetActiveUpdate(false);

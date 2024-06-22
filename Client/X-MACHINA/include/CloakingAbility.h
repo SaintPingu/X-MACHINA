@@ -13,8 +13,7 @@ class CloakingAbility : public Ability, public PheroAbilityInterface {
 
 public:
 	CloakingAbility();
-	class ParticleSystem* mBuffSparkPS{};
-	class ParticleSystem* mBuffDotPS{};
+	class ParticleSystem* mBuffPS{};
 	sptr<class Script_AfterImageObject> mAfterImage{};
 	ObjectTag mPrevInvokerTag = ObjectTag::Player;
 

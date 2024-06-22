@@ -502,9 +502,9 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartSpeed = Vec2{ 0.f, 0.f };
 		pscd.StartSize = Vec2{ 1.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.5f, 0.3f, 1.f, 1.f } });
-		pscd.SimulationSpace = PSSimulationSpace::Local;
+		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 0.8f;
-		pscd.MaxAddCount = 1;
+		pscd.MaxAddCount = 2;
 		pscd.MaxParticles = 100;
 		pscd.Emission.RateOverTime = 20;
 		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.15f, 0.f }, { 0.1f, 1.f });

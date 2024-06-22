@@ -745,6 +745,23 @@ void ResourceMgr::LoadShaders()
 		shader->Load(info, path);
 		Add<Shader>("DEM_SkinMesh", shader);
 	}
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::Less,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_SkinnedMesh.cso",
+			 "PShader_AfterSkinImage.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("AfterSkinImage", shader);
+	}
 #pragma endregion
 #pragma region Terrain
 	{

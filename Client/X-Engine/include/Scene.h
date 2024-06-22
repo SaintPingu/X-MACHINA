@@ -69,6 +69,8 @@ private:
 	std::set<GridObject*>			mTransparentObjects{};
 	std::set<GridObject*>			mSkinMeshObjects{};
 	std::set<GridObject*>			mGridObjects{};
+	
+	std::map<ObjectTag, std::set<GridObject*>> mObjectsByShader;
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};
@@ -190,6 +192,7 @@ private:
 	void RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects, RenderType type);
 	void RenderEnvironments();
 	void RenderTerrain(RenderType type);
+	void RenderAfterSkinImage();
 
 	// render [transparentObjects]
 	void RenderTransparentObjects();

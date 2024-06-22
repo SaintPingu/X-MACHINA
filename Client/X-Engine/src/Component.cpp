@@ -13,7 +13,8 @@ namespace {
 		ObjectTag::Player			|
 		ObjectTag::Bullet			|
 		ObjectTag::Enemy			|
-		ObjectTag::Dynamic
+		ObjectTag::Dynamic			|
+		ObjectTag::AfterSkinImage
 	};
 
 	constexpr DWORD gkDynamicMoveObjects {

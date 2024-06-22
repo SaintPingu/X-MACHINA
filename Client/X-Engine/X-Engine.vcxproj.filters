@@ -622,6 +622,9 @@
     <FxCompile Include="shaders\PShader_DEM_Terrain.hlsl">
       <Filter>소스 파일\Shader\PS\Forward\DynamicEnviromentMapping</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\PShader_AfterSkinImage.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

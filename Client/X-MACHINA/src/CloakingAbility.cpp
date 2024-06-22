@@ -14,7 +14,7 @@
 
 CloakingAbility::CloakingAbility()
 	:
-	Ability("Cloaking", 5.f),
+	Ability("Cloaking", 3.f),
 	PheroAbilityInterface(30.f)
 {
 }
@@ -30,8 +30,11 @@ void CloakingAbility::Update(float activeTime)
 
 void CloakingAbility::Start()
 {
+	mObject->mObjectCB.HitRimColor = Vec3{ 2.f, 1.f, 2.f };
+
 	mAfterImage = mObject->AddComponent<Script_AfterImageObject>();
 	mAfterImage->SetAfterImage(10, 1.f);
+	mPrevInvokerTag = mObject->GetTag();
 }
 
 void CloakingAbility::Activate()
@@ -40,7 +43,9 @@ void CloakingAbility::Activate()
 	mBuffSparkPS = ParticleManager::I->Play("MagicCircle_Sparks", mObject);
 	mBuffDotPS = ParticleManager::I->Play("MagicCircle_Dot", mObject);
 
+	mObject->mObjectCB.HitRimFactor = 1.f;
 	mAfterImage->SetActiveUpdate(true);
+	mObject->SetTag(ObjectTag::AfterSkinImage);
 }
 
 void CloakingAbility::DeActivate()
@@ -49,7 +54,9 @@ void CloakingAbility::DeActivate()
 	mBuffSparkPS->Stop();
 	mBuffDotPS->Stop();
 
+	mObject->mObjectCB.HitRimFactor = 0.f;
 	mAfterImage->SetActiveUpdate(false);
+	mObject->SetTag(mPrevInvokerTag);
 }
 
 bool CloakingAbility::ReducePheroAmount(bool checkOnly)

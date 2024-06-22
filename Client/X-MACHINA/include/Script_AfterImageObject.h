@@ -11,7 +11,7 @@ class Script_AfterImageObject : public Component {
 	COMPONENT(Script_AfterImageObject, Component)
 
 private:
-	static constexpr UINT mkMaxCreateCnt = 100;
+	static constexpr UINT mkMaxCreateCnt = 50;
 
 	float mAccTime{};
 	bool mIsActiveUpdate{};

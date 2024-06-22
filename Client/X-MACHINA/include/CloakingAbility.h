@@ -16,6 +16,7 @@ public:
 	class ParticleSystem* mBuffSparkPS{};
 	class ParticleSystem* mBuffDotPS{};
 	sptr<class Script_AfterImageObject> mAfterImage{};
+	ObjectTag mPrevInvokerTag = ObjectTag::Player;
 
 public:
 	virtual void Update(float activeTime) override;

@@ -59,6 +59,8 @@ class ObjectTag : public DwordOverloader<ObjectTag> {
 	static const DWORD Bullet			= 0x0040;
 	static const DWORD Enemy			= 0x0080;
 	static const DWORD Prop				= 0x0100;
+	static const DWORD AfterStaticImage	= 0x0200;
+	static const DWORD AfterSkinImage	= 0x0400;
 };
 
 class FilterOption : public DwordOverloader<FilterOption> {

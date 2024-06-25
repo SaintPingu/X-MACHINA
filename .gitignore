@@ -14,7 +14,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+
 
 # Fortran module files
 *.mod
@@ -33,7 +33,6 @@
 
 Client/.vs/
 Client/X-MACHINA/build/
-Client/X-MACHINA/lib/
 Client/X-Engine/x64/
 
 Client/X-MACHINA/shaders/cso/

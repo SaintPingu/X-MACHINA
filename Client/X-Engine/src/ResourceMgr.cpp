@@ -14,14 +14,19 @@ void ResourceMgr::LoadResources()
 {
 	CreateParticleSystemCPUData();
 
+#ifndef RENDER_FOR_SERVER
 	LoadTextures();
+	LoadParticleSystemCPUData();
+#else
+	LoadTexturesForServer();
+#endif
+
 	LoadRectangleMesh();
 	LoadPointMesh();
 	LoadModels();
 	LoadShaders();
 	LoadAnimationClips();
 	LoadAnimatorControllers();
-	LoadParticleSystemCPUData();
 }
 
 void ResourceMgr::Clear()
@@ -545,9 +550,20 @@ void ResourceMgr::LoadTextures()
 {
 	std::cout << "Load textures...\n";
 
-	FileIO::ModelIO::LoadTextures("Import/Textures/");
-	FileIO::ModelIO::LoadTextures("Import/UI/");
-	FileIO::ModelIO::LoadTextures("Import/Skybox/", D3DResource::TextureCube);
+	FileIO::ModelIO::LoadTextures("Import/Textures/Model/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/UI/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/Terrain/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/Skybox/", D3DResource::TextureCube);
+}
+
+
+void ResourceMgr::LoadTexturesForServer()
+{
+	std::cout << "Load textures...\n";
+
+	FileIO::ModelIO::LoadTextures("Import/Textures/UI/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/Terrain/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/Skybox/", D3DResource::TextureCube);
 }
 
 void ResourceMgr::LoadModels()

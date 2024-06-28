@@ -31,7 +31,7 @@ public:
 	virtual void OnEnable() override;
 
 public:
-	virtual void Render() const {};
+	virtual void Render(Vec4 color = Vec4::Zero) const {};
 
 	virtual bool Intersects(rsptr<Collider> other) const abstract;
 	virtual bool Intersects(const BoundingBox& bb) const abstract;
@@ -62,7 +62,7 @@ public:
 
 public:
 	virtual void Update() override;
-	virtual void Render() const override;
+	virtual void Render(Vec4 color = Vec4::Zero) const override;
 
 	virtual bool Intersects(rsptr<Collider> other) const override;
 	virtual bool Intersects(const BoundingBox& bb) const override;
@@ -93,7 +93,7 @@ public:
 
 public:
 	virtual void Update() override;
-	virtual void Render() const override;
+	virtual void Render(Vec4 color = Vec4::Zero) const override;
 
 	virtual bool Intersects(rsptr<Collider> other) const override;
 	virtual bool Intersects(const BoundingBox& bb) const override;
@@ -132,7 +132,7 @@ public:
 	virtual void Update() override;
 
 public:
-	void Render() const;
+	void Render(Vec4 color = Vec4::Zero) const;
 
 	bool Intersects(const ObjectCollider* other) const;
 	bool Intersects(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }

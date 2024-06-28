@@ -179,6 +179,8 @@ public:
 	void RenderBloom();
 	void RenderPostProcessing(int offScreenIndex);
 	void RenderUI();
+	void RenderDeferredForServer();
+	void CullingRenderObjects();
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.
@@ -202,8 +204,8 @@ private:
 	void RenderAbilities();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
-	bool RenderBounds(const std::set<GridObject*>& renderedObjects);
-	void RenderObjectBounds(const std::set<GridObject*>& renderedObjects);
+	bool RenderBounds();
+	void RenderObjectBounds();
 	void RenderGridBounds();
 #pragma endregion
 

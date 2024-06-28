@@ -58,10 +58,10 @@ void BoxCollider::Update()
 }
 
 
-void BoxCollider::Render() const
+void BoxCollider::Render(Vec4 color) const
 {
 	if (IsActive()) {
-		MeshRenderer::Render(mBox);
+		MeshRenderer::Render(mBox, color);
 	}
 }
 bool BoxCollider::Intersects(rsptr<Collider> other) const
@@ -145,10 +145,10 @@ void SphereCollider::Update()
 }
 
 
-void SphereCollider::Render() const
+void SphereCollider::Render(Vec4 color) const
 {
 	if (IsActive()) {
-		MeshRenderer::Render(mBS);
+		MeshRenderer::Render(mBS, color);
 	}
 }
 bool SphereCollider::Intersects(rsptr<Collider> other) const
@@ -263,14 +263,14 @@ void ObjectCollider::Update()
 	}
 }
 
-void ObjectCollider::Render() const
+void ObjectCollider::Render(Vec4 color) const
 {
 	if (!IsActive()) {
 		return;
 	}
 
 	for (auto& collider : mColliders) {
-		collider->Render();
+		collider->Render(color);
 	}
 
 	//#define RENDER_BOUNDING_SPHERE

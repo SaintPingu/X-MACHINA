@@ -33,7 +33,7 @@ UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rspt
 	mUITexture = std::make_shared<UITexture>(textureName, width, height);
 	mObjectCB.SliderValue = 1.f;
 
-	// ¿ÀºêÁ§Æ® »ó¼ö ¹öÆÛ »ç¿ë ÇÃ·¡±×´Â Á÷Á¢ ¼³Á¤ÇÒ ¼ö ÀÖ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½×´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½.
 	SetUseObjCB(true);
 	SetPosition(pos);
 }
@@ -129,7 +129,7 @@ void MyFont::UpdateShaderVars(char ch, int cnt) const
 		mObjCBCount = cnt + 1;
 	}
 
-	// ¸ÓÆ¼¸®¾óÀ» »ç¿ëÇÏÁö ¾Ê´Â °æ¿ì MatIndex¿¡ ÅØ½ºÃ³ ÀÎµ¦½º¸¦ ³Ö¾îÁØ´Ù.
+	// ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ MatIndexï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½Ø´ï¿½.
 	ObjectConstants objectConstants;
 	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mUITexture->Width, mUITexture->Height, 1.f), _MATRIX(GetWorldTransform())));
 	objectConstants.MtxSprite	= spriteMtx.Transpose();
@@ -150,7 +150,7 @@ void MyFont::Render()
 
 	int cnt{ 0 };
 	for (char ch : mText) {
-		// ·»´õ¸µÇÏÁö ¾Ê´Â´Ù¸é ±»ÀÌ ·çÆ® »ó¼ö¸¦ setÇÒ ÇÊ¿ä°¡ ¾ø´Ù.
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ setï¿½ï¿½ ï¿½Ê¿ä°¡ ï¿½ï¿½ï¿½ï¿½.
 		if (ch != ' ') {
 			UpdateShaderVars(ch, cnt++);
 			RESOURCE<ModelObjectMesh>("Rect")->Render();
@@ -226,6 +226,8 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
 	for (auto& layer : mUIs) {
 		for (auto& ui : layer) {
 			ui->Render();

@@ -113,7 +113,7 @@ void Script_Bullet::PlayPSs(BulletPSType type)
 		auto* ps = ParticleManager::I->Play(psName, mObject);
 
 		// 루핑이 설정되어 있다면 직접 해제해야 한다.
-		if (ps->GetPSCD()->Looping) {
+		if (ps && ps->GetPSCD()->Looping) {
 			mPSs[static_cast<UINT8>(type)].push(ps);
 		}
 	}

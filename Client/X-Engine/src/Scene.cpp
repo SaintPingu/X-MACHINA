@@ -28,8 +28,6 @@
 
 #include "TestCube.h"
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
 namespace {
@@ -101,8 +99,10 @@ void Scene::ReleaseUploadBuffers()
 void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
+#ifndef RENDER_FOR_SERVER
 	UpdateShadowPassCB();
 	UpdateSsaoCB();
+#endif
 	UpdateMaterialBuffer();
 }
 
@@ -138,8 +138,10 @@ void Scene::UpdateMainPassCB()
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
 	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
+#ifndef RENDER_FOR_SERVER
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
+#endif
 	passCB.LightCount = mLight->GetLightCount();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
@@ -356,7 +358,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 		}
 
 		if (isInstancing) {
-			// ÀÎ½ºÅÏ½Ì °´Ã¼´Â »ý¼ºµÈ °´Ã¼¸¦ ¹Þ¾Æ¿Â´Ù.
+			// ï¿½Î½ï¿½ï¿½Ï½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Þ¾Æ¿Â´ï¿½.
 			object = objectPool->Get(false);
 		}
 		else {
@@ -427,7 +429,7 @@ void Scene::RenderShadow()
 #pragma region PrepareRender
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
 #pragma endregion
-
+	
 #pragma region Shadow_Global
 	RenderGridObjects(RenderType::Shadow);
 #pragma endregion
@@ -495,7 +497,7 @@ void Scene::RenderLights()
 
 void Scene::RenderFinal()
 {
-	// Á¶¸í¿¡¼­ Ãâ·ÂÇÑ diffuse¿Í specular¸¦ °áÇÕÇÏ¿© ÃÖÁ¾ »ö»óÀ» ·»´õ¸µÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ diffuseï¿½ï¿½ specularï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	RESOURCE<Shader>("Final")->Set();
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
@@ -519,7 +521,7 @@ void Scene::RenderBloom()
 
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
-	// Æ÷½ºÆ® ÇÁ·Î¼¼½Ì¿¡ ÇÊ¿äÇÑ »ó¼ö ¹öÆÛ ºä ¼³Á¤
+	// ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Î¼ï¿½ï¿½Ì¿ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	FRAME_RESOURCE_MGR->CopyData(passConstants);
@@ -532,7 +534,14 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 void Scene::RenderUI()
 {
 	Canvas::I->Render();
-	RenderBounds(mRenderedObjects);
+	RenderBounds();
+}
+
+void Scene::RenderDeferredForServer()
+{
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
+
+	Scene::I->CullingRenderObjects();
 }
 
 void Scene::RenderTerrain(RenderType type)
@@ -574,7 +583,7 @@ void Scene::RenderTransparentObjects()
 void Scene::RenderDissolveObjects()
 {
 	RESOURCE<Shader>("Dissolve")->Set();
-	// [destroyTime]ÃÊ °æ°ú ÈÄ °´Ã¼ Á¦°Å
+	// [destroyTime]ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	constexpr float destroyTime = 1.f;
 	std::set<sptr<GridObject>> destroyedObjects{};
 	for (auto& it = mDissolveObjects.begin(); it != mDissolveObjects.end(); ++it) {
@@ -721,20 +730,20 @@ void Scene::RenderEnvironments()
 	}
 }
 
-bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
+bool Scene::RenderBounds()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	RESOURCE<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 
-	//// ¿ÀÇÂ ¸®½ºÆ®¸¦ ÃÊ·Ï»öÀ¸·Î Ãâ·Â
+	//// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê·Ï»ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	//for (auto& path : mOpenList) {
 	//	path.y = GetTerrainHeight(path.x, path.z);
 	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
 	//}
 
-	//// Å¬·ÎÁîµå ¸®½ºÆ®¸¦ »¡°£»öÀ¸·Î Ãâ·Â
+	//// Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	//for (auto& path : mClosedList) {
 	//	path.y = GetTerrainHeight(path.x, path.z);
 	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
@@ -744,15 +753,15 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 		return false;
 	}
 
-	RenderObjectBounds(renderedObjects);
+	RenderObjectBounds();
 	RenderGridBounds();
 
 	return true;
 }
 
-void Scene::RenderObjectBounds(const std::set<GridObject*>& renderedObjects)
+void Scene::RenderObjectBounds()
 {
-	for (auto& object : renderedObjects) {
+	for (auto& object : mRenderedObjects) {
 		object->RenderBounds();
 	}
 }
@@ -764,7 +773,7 @@ void Scene::RenderGridBounds()
 #ifdef DRAW_SCENE_GRID_3D
 		MeshRenderer::Render(grid->GetBB());
 #else
-		constexpr float kGirdHeight = 5.f;
+		constexpr float kGirdHeight = 0.5f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
@@ -844,7 +853,7 @@ void Scene::CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObj
 
 float Scene::CheckCollisionsRay(int gridIndex, const Ray& ray) const
 {
-	// »óÇÏÁÂ¿ì, ´ë°¢¼± ±×¸®µåµµ Ã¼Å© ÇÊ¿ä
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Â¿ï¿½, ï¿½ë°¢ï¿½ï¿½ ï¿½×¸ï¿½ï¿½åµµ Ã¼Å© ï¿½Ê¿ï¿½
 	return mGrids[gridIndex]->CheckCollisionsRay(ray);
 }
 
@@ -856,8 +865,8 @@ void Scene::UpdateObjects()
 		}
 		});
 
-	// TODO : °É·¯³½ ·»´õ¸µ ¿ÀºêÁ§Æ®¸¸ ¾Ö´Ï¸ÞÀÌ¼ÇÇÏµµ·Ï Çß´Âµ¥ 
-	// ÃßÈÄ¿¡ µ¿ÇöÀÌ°¡ ÀÎ½ºÅÏ½Ì °´Ã¼µµ Æ÷ÇÔ½ÃÄÑ¾ß ÇÔ
+	// TODO : ï¿½É·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½Ïµï¿½ï¿½ï¿½ ï¿½ß´Âµï¿½ 
+	// ï¿½ï¿½ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ô½ï¿½ï¿½Ñ¾ï¿½ ï¿½ï¿½
 	AnimateObjects();
 
 	ProcessActiveObjects([this](sptr<Object> object) {
@@ -957,7 +966,7 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 {
-	// ¿ùµå Æ÷Áö¼ÇÀ¸·ÎºÎÅÍ Å¸ÀÏÀÇ °íÀ¯ ÀÎµ¦½º¸¦ °è»ê
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
 	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
 
@@ -966,7 +975,7 @@ Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 
 Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
 {
-	// Å¸ÀÏÀÇ °íÀ¯ ÀÎµ¦½º·ÎºÎÅÍ ¿ùµå Æ÷Áö¼ÇÀ» °è»ê
+	// Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
 	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
 
@@ -980,7 +989,7 @@ Tile Scene::GetTileFromPos(const Vec3& pos) const
 
 Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 {
-	// Å¸ÀÏÀÇ °íÀ¯ ÀÎµ¦½º·ÎºÎÅÍ Å¸ÀÏÀÇ °ªÀ» ¹ÝÈ¯
+	// Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
 	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
 
@@ -992,7 +1001,7 @@ Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 
 void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 {
-	// Å¸ÀÏÀÇ °íÀ¯ ÀÎµ¦½º·ÎºÎÅÍ Å¸ÀÏÀÇ °ªÀ» ¹ÝÈ¯
+	// Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
 	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
 
@@ -1045,14 +1054,14 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	}
 
 
-	// ObjectCollider°¡ È°¼ºÈ­µÈ °æ¿ì
-	// 1Ä­ ÀÌ³»ÀÇ "ÀÎÁ¢ ±×¸®µå(8°³)¿Í Ãæµ¹°Ë»ç"
+	// ObjectColliderï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½
+	// 1Ä­ ï¿½Ì³ï¿½ï¿½ï¿½ "ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½(8ï¿½ï¿½)ï¿½ï¿½ ï¿½æµ¹ï¿½Ë»ï¿½"
 	const auto& collider = object->GetCollider();
 	if (collider && collider->IsActive()) {
 		std::unordered_set<int> gridIndices{ gridIndex };
 		const auto& objectBS = collider->GetBS();
 
-		// BoundingSphere°¡ Grid ³»ºÎ¿¡ ¿ÏÀüÈ÷ Æ÷ÇÔµÇ¸é "ÀÎÁ¢ ±×¸®µå Ãæµ¹°Ë»ç" X
+		// BoundingSphereï¿½ï¿½ Grid ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÔµÇ¸ï¿½ "ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½Ë»ï¿½" X
 		if (isCheckAdj && mGrids[gridIndex]->GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
 
 			for (const auto& neighborGrid : GetNeighborGrids(gridIndex)) {
@@ -1089,7 +1098,7 @@ void Scene::UpdateSurroundGrids()
 	const Vec3 cameraPos = MAIN_CAMERA->GetPosition();
 	const int currGridIndex = GetGridIndexFromPos(cameraPos);
 
-	// ±×¸®µå ÀÎµ¦½º°¡ º¯°æµÈ °æ¿ì¿¡¸¸ ÁÖº¯ ±×¸®µå¸¦ ¾÷µ¥ÀÌÆ®
+	// ï¿½×¸ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½Öºï¿½ ï¿½×¸ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	static int prevGridIndex;
 	if (prevGridIndex != currGridIndex) {
 		mSurroundGrids.clear();
@@ -1161,7 +1170,7 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 			const int neighborX = gridX + offsetX;
 			const int neighborZ = gridZ + offsetZ;
 
-			// ÀÎµ¦½º°¡ ÀüÃ¼ ±×¸®µå ¹üÀ§ ³»¿¡ ÀÖ´ÂÁö È®ÀÎ
+			// ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 			if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
 				const int neighborIndex = neighborZ * mGridCols + neighborX;
 

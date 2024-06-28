@@ -338,6 +338,10 @@ void ParticleManager::Init()
 
 ParticleSystem* ParticleManager::Play(const std::string& pscdName, Transform* target)
 {
+#ifdef RENDER_FOR_SERVER
+	return nullptr;
+#endif
+
 	const auto& pscd = RESOURCE<ParticleSystemCPUData>(pscdName);
 	return mPSPools[static_cast<UINT8>(pscd->Renderer.BlendType)]->Create(pscd, target);
 }

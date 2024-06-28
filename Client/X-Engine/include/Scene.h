@@ -177,6 +177,7 @@ public:
 	void RenderForward();
 	void RenderPostProcessing(int offScreenIndex);
 	void RenderUI();
+	void CullingRenderObjects();
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.

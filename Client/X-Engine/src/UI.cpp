@@ -194,6 +194,8 @@ void Canvas::Update()
 
 void Canvas::Render() const
 {
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	for (auto& ui : mUIs) {
 		ui->Render();
 	}

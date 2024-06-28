@@ -169,6 +169,8 @@ public:
 	// render scene
 	void Render();
 
+	void RenderForServer();
+
 	// full screen on/off
 	void ToggleFullScreen();
 

@@ -120,8 +120,20 @@ void GridObject::OnDestroy()
 
 void GridObject::RenderBounds()
 {
+	Vec4 color{};
+	switch (GetTag()) {
+	case ObjectTag::Player:
+		color = Vec4(0, 1, 0, 1);
+		break;
+	case ObjectTag::Enemy:
+		color = Vec4(1, 0, 0, 1);
+		break;
+	default:
+		color = Vec4(1, 1, 1, 1);
+		break;
+	}
 	if (mIsDrawBounding && mCollider) {
-		GetComponent<ObjectCollider>()->Render();
+		GetComponent<ObjectCollider>()->Render(color);
 	}
 }
 

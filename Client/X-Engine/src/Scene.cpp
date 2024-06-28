@@ -29,7 +29,7 @@
 #pragma endregion
 
 
-
+#define RENDER_FOR_SERVER
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
@@ -431,7 +431,7 @@ void Scene::RenderShadow()
 #pragma region PrepareRender
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
 #pragma endregion
-
+	
 #pragma region Shadow_Global
 	RenderGridObjects(RenderType::Shadow);
 #pragma endregion
@@ -576,20 +576,9 @@ void Scene::RenderAbilities()
 	AbilityMgr::I->Render();
 }
 
-void Scene::RenderGridObjects(RenderType type)
+void Scene::CullingRenderObjects()
 {
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	BoundingFrustum camFrustum;
-
-	if (type == RenderType::Shadow) {
-		RESOURCE<Shader>("Shadow_Global")->Set();
-		camFrustum = MAIN_CAMERA->GetFrustumShadow();
-	}
-	else {
-		RESOURCE<Shader>("Global")->Set();
-		camFrustum = MAIN_CAMERA->GetFrustum();
-	}
+	BoundingFrustum camFrustum = MAIN_CAMERA->GetFrustumShadow();
 
 	if (mRenderedObjects.empty()) {
 		for (const auto& grid : mGrids) {
@@ -631,6 +620,20 @@ void Scene::RenderGridObjects(RenderType type)
 			mRenderedObjects = std::move(diff);
 		}
 	}
+}
+
+void Scene::RenderGridObjects(RenderType type)
+{
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	if (type == RenderType::Shadow) {
+		RESOURCE<Shader>("Shadow_Global")->Set();
+	}
+	else {
+		RESOURCE<Shader>("Global")->Set();
+	}
+
+	CullingRenderObjects();
 
 	for (auto& object : mGridObjects)
 		object->Render();
@@ -726,7 +729,7 @@ void Scene::RenderGridBounds()
 #ifdef DRAW_SCENE_GRID_3D
 		MeshRenderer::Render(grid->GetBB());
 #else
-		constexpr float kGirdHeight = 5.f;
+		constexpr float kGirdHeight = 0.f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);

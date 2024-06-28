@@ -59,9 +59,8 @@ void Engine::Update()
 	InputMgr::I->Update();
 
 	// rendering
-	DXGIMgr::I->Render();
-
-	//Scene::I = nullptr;
+	//DXGIMgr::I->Render();
+	DXGIMgr::I->RenderForServer();
 
 	// update title with fps
 	std::wstring title = mTitle + L" | FPS : " + Timer::I->GetFrameRate();

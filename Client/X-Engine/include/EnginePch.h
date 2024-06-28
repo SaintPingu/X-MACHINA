@@ -166,6 +166,10 @@ public:
     if(FAILED(hResult)) { throw DxException(hResult, L#hFunctionCall, fileName, __LINE__); }	\
 }
 
+
+// 서버 렌더링용
+#define RENDER_FOR_SERVER
+
 #pragma endregion
 
 

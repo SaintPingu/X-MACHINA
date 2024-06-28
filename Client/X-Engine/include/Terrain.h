@@ -88,6 +88,7 @@ protected:
 	void PushObject(TerrainBlock* block);
 
 private:
+	void InitMaterials();
 	void ResetBuffer() { mCurrBuffIdx = 0; }
 };
 

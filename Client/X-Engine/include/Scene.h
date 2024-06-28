@@ -177,6 +177,7 @@ public:
 	void RenderForward();
 	void RenderPostProcessing(int offScreenIndex);
 	void RenderUI();
+	void RenderDeferredForServer();
 	void CullingRenderObjects();
 
 private:

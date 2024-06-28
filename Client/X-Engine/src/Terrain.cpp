@@ -202,19 +202,9 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 		}
 	}
 
-	MaterialLoadInfo materialInfo{};
-	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
-	materialInfo.Metallic = 0.0f;
-	materialInfo.Roughness = 1.f;
-
-	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
-	mMaterial = std::make_shared<Material>();
-	mMaterial->SetMaterialColors(materialColors);
-
-	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("GrassUV012"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("CobbleStone"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Sand"));
-	mMaterial->SetTexture(TextureMap::DiffuseMap3, RESOURCE<Texture>("Terrain_splatmap"));
+#ifndef RENDER_FOR_SERVER
+	InitMaterials();
+#endif
 }
 
 
@@ -280,6 +270,22 @@ void Terrain::PushObject(TerrainBlock* block)
 	assert(mCurrBuffIdx < mBuffer.size());
 
 	mBuffer[mCurrBuffIdx++] = block;
+}
+void Terrain::InitMaterials()
+{
+	MaterialLoadInfo materialInfo{};
+	materialInfo.DiffuseAlbedo = Vec4(1.f, 1.f, 1.f, 1.f);
+	materialInfo.Metallic = 0.0f;
+	materialInfo.Roughness = 1.f;
+
+	sptr<MaterialColors> materialColors = std::make_shared<MaterialColors>(materialInfo);
+	mMaterial = std::make_shared<Material>();
+	mMaterial->SetMaterialColors(materialColors);
+
+	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("GrassUV012"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("CobbleStone"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Sand"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap3, RESOURCE<Texture>("Terrain_splatmap"));
 }
 #pragma endregion
 

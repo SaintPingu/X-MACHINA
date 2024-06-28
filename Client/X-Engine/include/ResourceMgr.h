@@ -66,6 +66,7 @@ public:
 
 private:
 	void LoadTextures();
+	void LoadTexturesForServer();
 	void LoadModels();
 	void LoadShaders();
 	void LoadAnimationClips();

@@ -29,8 +29,6 @@
 #pragma endregion
 
 
-#define RENDER_FOR_SERVER
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
 namespace {
@@ -102,9 +100,11 @@ void Scene::ReleaseUploadBuffers()
 void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
+#ifndef RENDER_FOR_SERVER
 	UpdateShadowPassCB();
 	UpdateSsaoCB();
 	UpdateMaterialBuffer();
+#endif
 }
 
 void Scene::UpdateMainPassCB()
@@ -123,6 +123,7 @@ void Scene::UpdateMainPassCB()
 	passCB.TotalTime = Timer::I->GetTotalTime();
 	passCB.FrameBufferWidth = DXGIMgr::I->GetWindowWidth();
 	passCB.FrameBufferHeight = DXGIMgr::I->GetWindowHeight();
+#ifndef RENDER_FOR_SERVER
 	passCB.SkyBoxIndex = mSkyBox->GetTexture()->GetSrvIdx();
 	passCB.DefaultDsIndex = RESOURCE<Texture>("DefaultDepthStencil")->GetSrvIdx();
 	passCB.ShadowDsIndex = RESOURCE<Texture>("ShadowDepthStencil")->GetSrvIdx();
@@ -140,6 +141,7 @@ void Scene::UpdateMainPassCB()
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
+#endif
 	passCB.LightCount = mLight->GetLightCount();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
@@ -519,6 +521,13 @@ void Scene::RenderUI()
 	RenderBounds(mRenderedObjects);
 }
 
+void Scene::RenderDeferredForServer()
+{
+	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
+
+	Scene::I->CullingRenderObjects();
+}
+
 void Scene::RenderTerrain()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -729,7 +738,7 @@ void Scene::RenderGridBounds()
 #ifdef DRAW_SCENE_GRID_3D
 		MeshRenderer::Render(grid->GetBB());
 #else
-		constexpr float kGirdHeight = 0.f;
+		constexpr float kGirdHeight = 0.5f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
 		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);

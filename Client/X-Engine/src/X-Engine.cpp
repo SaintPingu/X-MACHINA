@@ -60,7 +60,8 @@ void Engine::Update()
 
 	// rendering
 #ifdef RENDER_FOR_SERVER
-	DXGIMgr::I->RenderForServer();
+	//DXGIMgr::I->RenderForServer();
+	DXGIMgr::I->RenderForServerWithTerrain();
 #else
 	DXGIMgr::I->Render();
 #endif

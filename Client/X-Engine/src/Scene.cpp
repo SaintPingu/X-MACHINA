@@ -103,8 +103,8 @@ void Scene::UpdateShaderVars()
 #ifndef RENDER_FOR_SERVER
 	UpdateShadowPassCB();
 	UpdateSsaoCB();
-	UpdateMaterialBuffer();
 #endif
+	UpdateMaterialBuffer();
 }
 
 void Scene::UpdateMainPassCB()
@@ -123,7 +123,6 @@ void Scene::UpdateMainPassCB()
 	passCB.TotalTime = Timer::I->GetTotalTime();
 	passCB.FrameBufferWidth = DXGIMgr::I->GetWindowWidth();
 	passCB.FrameBufferHeight = DXGIMgr::I->GetWindowHeight();
-#ifndef RENDER_FOR_SERVER
 	passCB.SkyBoxIndex = mSkyBox->GetTexture()->GetSrvIdx();
 	passCB.DefaultDsIndex = RESOURCE<Texture>("DefaultDepthStencil")->GetSrvIdx();
 	passCB.ShadowDsIndex = RESOURCE<Texture>("ShadowDepthStencil")->GetSrvIdx();
@@ -139,6 +138,7 @@ void Scene::UpdateMainPassCB()
 	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
+#ifndef RENDER_FOR_SERVER
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
 #endif
@@ -518,7 +518,7 @@ void Scene::RenderPostProcessing(int offScreenIndex)
 void Scene::RenderUI()
 {
 	Canvas::I->Render();
-	RenderBounds(mRenderedObjects);
+	RenderBounds();
 }
 
 void Scene::RenderDeferredForServer()
@@ -695,7 +695,7 @@ void Scene::RenderEnvironments()
 	}
 }
 
-bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
+bool Scene::RenderBounds()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -718,15 +718,15 @@ bool Scene::RenderBounds(const std::set<GridObject*>& renderedObjects)
 		return false;
 	}
 
-	RenderObjectBounds(renderedObjects);
+	RenderObjectBounds();
 	RenderGridBounds();
 
 	return true;
 }
 
-void Scene::RenderObjectBounds(const std::set<GridObject*>& renderedObjects)
+void Scene::RenderObjectBounds()
 {
-	for (auto& object : renderedObjects) {
+	for (auto& object : mRenderedObjects) {
 		object->RenderBounds();
 	}
 }

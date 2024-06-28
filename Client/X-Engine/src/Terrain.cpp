@@ -202,9 +202,14 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 		}
 	}
 
-#ifndef RENDER_FOR_SERVER
-	InitMaterials();
+#ifdef RENDER_FOR_SERVER
+#ifndef RENDER_FOR_SERVER_WITH_TERRAIN
+	return;
 #endif
+#endif
+
+	InitMaterials();
+	SetTextures();
 }
 
 
@@ -282,6 +287,10 @@ void Terrain::InitMaterials()
 	mMaterial = std::make_shared<Material>();
 	mMaterial->SetMaterialColors(materialColors);
 
+}
+
+void Terrain::SetTextures()
+{
 	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("GrassUV012"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("CobbleStone"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Sand"));

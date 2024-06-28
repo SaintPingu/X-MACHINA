@@ -89,6 +89,7 @@ protected:
 
 private:
 	void InitMaterials();
+	void SetTextures();
 	void ResetBuffer() { mCurrBuffIdx = 0; }
 };
 

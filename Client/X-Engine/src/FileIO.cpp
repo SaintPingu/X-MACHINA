@@ -494,7 +494,9 @@ namespace {
 				}
 			}
 
+#ifndef RENDER_FOR_SERVER
 			model->SetMeshInfo(meshInfo);
+#endif
 			return model;
 		}
 

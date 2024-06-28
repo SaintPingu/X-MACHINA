@@ -201,8 +201,8 @@ private:
 	void RenderAbilities();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
-	bool RenderBounds(const std::set<GridObject*>& renderedObjects);
-	void RenderObjectBounds(const std::set<GridObject*>& renderedObjects);
+	bool RenderBounds();
+	void RenderObjectBounds();
 	void RenderGridBounds();
 #pragma endregion
 

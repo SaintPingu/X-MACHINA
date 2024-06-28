@@ -516,6 +516,8 @@ void ResourceMgr::LoadTexturesForServer()
 	std::cout << "Load textures...\n";
 
 	FileIO::ModelIO::LoadTextures("Import/Textures/UI/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/Terrain/");
+	FileIO::ModelIO::LoadTextures("Import/Textures/Skybox/", D3DResource::TextureCube);
 }
 
 void ResourceMgr::LoadModels()

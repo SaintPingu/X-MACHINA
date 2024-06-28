@@ -50,7 +50,9 @@ void CloakingAbility::Activate()
 void CloakingAbility::DeActivate()
 {
 	base::DeActivate();
-	mBuffPS->Stop();
+	if (mBuffPS) {
+		mBuffPS->Stop();
+	}
 
 	mObject->mObjectCB.HitRimFactor = 0.f;
 	mAfterImage->SetActiveUpdate(false);

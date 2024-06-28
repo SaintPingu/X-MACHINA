@@ -167,11 +167,16 @@ public:
 }
 
 
+// 엔진 실행 옵션
+#pragma region EngineOptions
+
 // 서버 렌더링용
-#define RENDER_FOR_SERVER
+//#define RENDER_FOR_SERVER
 #ifdef RENDER_FOR_SERVER
 #define RENDER_FOR_SERVER_WITH_TERRAIN
 #endif
+
+#pragma endregion
 
 #pragma endregion
 

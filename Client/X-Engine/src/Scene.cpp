@@ -541,7 +541,7 @@ void Scene::RenderDeferredForServer()
 {
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
 
-	Scene::I->CullingRenderObjects();
+	Scene::I->UpdateRenderedObjects();
 }
 
 void Scene::RenderTerrain(RenderType type)

@@ -25,8 +25,7 @@ table CPkt_LogIn
 table SPkt_LogIn
 {
 	success : bool;			// 1 byte
-	myinfo  : Player;		// 나의 정보 
-	players : [Player];		// 나를 포함한 Room안의 모든 player 정보 
+
 }
 
 
@@ -74,7 +73,8 @@ table CPkt_EnterGame
 
 table SPkt_EnterGame
 {
-	success: bool;			// 1 byte
+	myinfo  : Player;		// 나의 정보 
+	players : [Player];		// 나를 포함한 Room안의 모든 player 정보 
 }
 
 

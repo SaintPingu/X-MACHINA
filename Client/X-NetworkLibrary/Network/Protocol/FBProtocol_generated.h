@@ -150,27 +150,14 @@ inline ::flatbuffers::Offset<CPkt_LogIn> CreateCPkt_LogIn(
 struct SPkt_LogIn FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_LogInBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SUCCESS = 4,
-    VT_MYINFO = 6,
-    VT_PLAYERS = 8
+    VT_SUCCESS = 4
   };
   bool success() const {
     return GetField<uint8_t>(VT_SUCCESS, 0) != 0;
   }
-  const FBProtocol::Player *myinfo() const {
-    return GetPointer<const FBProtocol::Player *>(VT_MYINFO);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>> *players() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>> *>(VT_PLAYERS);
-  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
-           VerifyOffset(verifier, VT_MYINFO) &&
-           verifier.VerifyTable(myinfo()) &&
-           VerifyOffset(verifier, VT_PLAYERS) &&
-           verifier.VerifyVector(players()) &&
-           verifier.VerifyVectorOfTables(players()) &&
            verifier.EndTable();
   }
 };
@@ -181,12 +168,6 @@ struct SPkt_LogInBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_success(bool success) {
     fbb_.AddElement<uint8_t>(SPkt_LogIn::VT_SUCCESS, static_cast<uint8_t>(success), 0);
-  }
-  void add_myinfo(::flatbuffers::Offset<FBProtocol::Player> myinfo) {
-    fbb_.AddOffset(SPkt_LogIn::VT_MYINFO, myinfo);
-  }
-  void add_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players) {
-    fbb_.AddOffset(SPkt_LogIn::VT_PLAYERS, players);
   }
   explicit SPkt_LogInBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -201,27 +182,10 @@ struct SPkt_LogInBuilder {
 
 inline ::flatbuffers::Offset<SPkt_LogIn> CreateSPkt_LogIn(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool success = false,
-    ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players = 0) {
+    bool success = false) {
   SPkt_LogInBuilder builder_(_fbb);
-  builder_.add_players(players);
-  builder_.add_myinfo(myinfo);
   builder_.add_success(success);
   return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<SPkt_LogIn> CreateSPkt_LogInDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool success = false,
-    ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
-    const std::vector<::flatbuffers::Offset<FBProtocol::Player>> *players = nullptr) {
-  auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<FBProtocol::Player>>(*players) : 0;
-  return FBProtocol::CreateSPkt_LogIn(
-      _fbb,
-      success,
-      myinfo,
-      players__);
 }
 
 struct CPkt_Chat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -467,14 +431,22 @@ inline ::flatbuffers::Offset<CPkt_EnterGame> CreateCPkt_EnterGame(
 struct SPkt_EnterGame FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_EnterGameBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SUCCESS = 4
+    VT_MYINFO = 4,
+    VT_PLAYERS = 6
   };
-  bool success() const {
-    return GetField<uint8_t>(VT_SUCCESS, 0) != 0;
+  const FBProtocol::Player *myinfo() const {
+    return GetPointer<const FBProtocol::Player *>(VT_MYINFO);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>> *players() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>> *>(VT_PLAYERS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
+           VerifyOffset(verifier, VT_MYINFO) &&
+           verifier.VerifyTable(myinfo()) &&
+           VerifyOffset(verifier, VT_PLAYERS) &&
+           verifier.VerifyVector(players()) &&
+           verifier.VerifyVectorOfTables(players()) &&
            verifier.EndTable();
   }
 };
@@ -483,8 +455,11 @@ struct SPkt_EnterGameBuilder {
   typedef SPkt_EnterGame Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_success(bool success) {
-    fbb_.AddElement<uint8_t>(SPkt_EnterGame::VT_SUCCESS, static_cast<uint8_t>(success), 0);
+  void add_myinfo(::flatbuffers::Offset<FBProtocol::Player> myinfo) {
+    fbb_.AddOffset(SPkt_EnterGame::VT_MYINFO, myinfo);
+  }
+  void add_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players) {
+    fbb_.AddOffset(SPkt_EnterGame::VT_PLAYERS, players);
   }
   explicit SPkt_EnterGameBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -499,10 +474,23 @@ struct SPkt_EnterGameBuilder {
 
 inline ::flatbuffers::Offset<SPkt_EnterGame> CreateSPkt_EnterGame(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool success = false) {
+    ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players = 0) {
   SPkt_EnterGameBuilder builder_(_fbb);
-  builder_.add_success(success);
+  builder_.add_players(players);
+  builder_.add_myinfo(myinfo);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<SPkt_EnterGame> CreateSPkt_EnterGameDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
+    const std::vector<::flatbuffers::Offset<FBProtocol::Player>> *players = nullptr) {
+  auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<FBProtocol::Player>>(*players) : 0;
+  return FBProtocol::CreateSPkt_EnterGame(
+      _fbb,
+      myinfo,
+      players__);
 }
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------

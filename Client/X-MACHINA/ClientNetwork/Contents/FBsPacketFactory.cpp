@@ -165,34 +165,29 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 #ifdef CONNECT_WITH_TEST_CLIENT
 	return true;
 #endif
-
-	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
-	GameFramework::I->InitPlayer(static_cast<int>(MyInfo.Id)); /* INIT PLAYER */
+	bool IsLogInSuccess = pkt.success();
 
 
-	LOG_MGR->SetColor(TextColor::BrightGreen);
-	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
-	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
-	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
-	LOG_MGR->SetColor(TextColor::Default);
-
-	int PlayersCnt = pkt.players()->size();
-	for (UINT16 i = 0; i < PlayersCnt; ++i) {
-		GamePlayerInfo RemoteInfo = GetPlayerInfo(pkt.players()->Get(i));
-
-		if (RemoteInfo.Id == MyInfo.Id) continue;
-		LOG_MGR->SetColor(TextColor::BrightGreen);
-		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		LOG_MGR->Cout("[REMOTE] NAME : ", RemoteInfo.Name, " ", " SESSION ID : ", RemoteInfo.Id, '\n');
-		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		LOG_MGR->SetColor(TextColor::Default);
-
-		sptr<NetworkEvent::Game::Add_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(RemoteInfo);
-		CLIENT_NETWORK->RegisterEvent(EventData);
+	/// +------------------------------------------------------------------------------
+	///	 ( X )	FAIL - LOGIN 
+	/// ------------------------------------------------------------------------------+
+	if (IsLogInSuccess == false) {
+		/* 아이디와 패스워드를 다시 입력한 후 로그인 재요청해야함 */
 	}
 
-	auto CPkt = FBS_FACTORY->CPkt_EnterGame(0); /* 0 : 의미없음 */
-	session->Send(CPkt);
+	/// +------------------------------------------------------------------------------
+	///	 ( O ) 	SUCCESS - LOGIN 
+	/// ------------------------------------------------------------------------------+
+	else if (IsLogInSuccess == true) {
+		// 로그인이 허가 되었으니 서버에 EnterGame 요청 
+		auto CPkt_EnterGame = FBS_FACTORY->CPkt_EnterGame(session->GetID()); 
+		session->Send(CPkt_EnterGame);
+
+	}
+	
+
+
+	
 
 	return true;
 }
@@ -208,6 +203,38 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 
+	/// ________________________________________________________________________________
+	/// My Player Info 
+	/// ________________________________________________________________________________ 
+	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
+	GameFramework::I->InitPlayer(static_cast<int>(MyInfo.Id)); /* INIT PLAYER */
+
+
+	LOG_MGR->SetColor(TextColor::BrightGreen);
+	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
+	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
+	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
+	LOG_MGR->SetColor(TextColor::Default);
+
+	/// ________________________________________________________________________________
+	/// Remote Player infos ( Range : Same Room ) 
+	/// ________________________________________________________________________________ 
+
+
+	int PlayersCnt = pkt.players()->size();
+	for (UINT16 i = 0; i < PlayersCnt; ++i) {
+		GamePlayerInfo RemoteInfo = GetPlayerInfo(pkt.players()->Get(i));
+
+		if (RemoteInfo.Id == MyInfo.Id) continue;
+		LOG_MGR->SetColor(TextColor::BrightGreen);
+		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+		LOG_MGR->Cout("[REMOTE] NAME : ", RemoteInfo.Name, " ", " SESSION ID : ", RemoteInfo.Id, '\n');
+		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+		LOG_MGR->SetColor(TextColor::Default);
+
+		sptr<NetworkEvent::Game::Add_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(RemoteInfo);
+		CLIENT_NETWORK->RegisterEvent(EventData);
+	}
 	return true;
 }
 
@@ -314,24 +341,24 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	/// table SPkt_Player_Transform
 	/// {
-	/// 	player_id: uint;					// 8 bytes				// uint64
+	/// 	player_id: uint;						// 8 bytes				// uint64
 	/// 
-	/// 	move_state: PLAYER_MOTION_STATE_TYPE; // 1 byte
+	/// 	move_state: PLAYER_MOTION_STATE_TYPE;	// 1 byte
 	/// 
-	/// 	latency: long;						// 8 bytes
-	/// 	velocity: float;					// 4 bytes
-	/// 	movedir: Vector3;					// 12 bytes (3 * 4 bytes)
-	/// 	trans: Transform;				// 24 bytes (Vector3 * 2)
+	/// 	latency: long;							// 8 bytes
+	/// 	velocity: float;						// 4 bytes
+	/// 	movedir: Vector3;						// 12 bytes (3 * 4 bytes)
+	/// 	trans: Transform;						// 24 bytes (Vector3 * 2)
 	/// 
 	/// 
 	/// 	spine_look: Vector3;					// 12 bytes (3 * 4 bytes)
-	/// 	animparam_h: float;					// 4 bytes
-	/// 	animparam_v: float;					// 4 bytes
+	/// 	animparam_h: float;						// 4 bytes
+	/// 	animparam_v: float;						// 4 bytes
 	/// 
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	long long latency = pkt.latency();
-	uint64_t id = pkt.player_id();
+	uint32_t id = pkt.player_id();
 
 
 	float	vel       = pkt.velocity();
@@ -576,7 +603,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_NetworkLatency(long long timestamp)
 	return SENDBUF_FACTORY->CreatePacket(bufferPtr, serializedDataSize, FBsProtocolID::CPkt_NetworkLatency);
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t playerIdx)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	/// table CPkt_EnterGame
@@ -586,7 +613,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t playerIdx)
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder;
 
-	auto enterGamePkt = FBProtocol::CreateCPkt_EnterGame(builder, playerIdx);
+	auto enterGamePkt = FBProtocol::CreateCPkt_EnterGame(builder, player_id);
 	builder.Finish(enterGamePkt);
 
 	const uint8_t* bufferPointer = builder.GetBufferPointer();
@@ -702,6 +729,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Animation(int anim_upper_idx, int 
 	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_Player_Animation);
 	return sendBuffer;
+
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType)

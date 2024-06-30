@@ -71,7 +71,7 @@ public:
 	/// ------------------------+
 	/* LOGIN, ENTER GAME, LATENCY, CHAT */
 	SPtr_SendPktBuf CPkt_LogIn();
-	SPtr_SendPktBuf CPkt_EnterGame(uint32_t playerIdx);
+	SPtr_SendPktBuf CPkt_EnterGame(uint32_t player_id);
 	SPtr_SendPktBuf CPkt_Chat(UINT32 sessionID, std::string msg);
 	SPtr_SendPktBuf CPkt_NetworkLatency(long long timestamp);
 

@@ -167,6 +167,7 @@ private:
 	float mMaxRecoil{20.f};
 
 	Vec3 mDirVec{};
+	Vec3 mPrevDirVec{};
 	Vec3 mSlideVec{};
 
 public:
@@ -206,7 +207,8 @@ public:
 
 	float GetMovementSpeed() const { return mMovementSpeed; }
 	float GetRotationSpeed() const { return mRotationSpeed; }
-
+	Vec3  GetMoveDir()			   { return mDirVec; }
+	Vec3  GetPrevMoveDir()		   { return mPrevDirVec; }
 private:
 	void InitWeapons();
 	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
@@ -222,6 +224,7 @@ private:
 	float GetAngleSpineToAim(const Vec3& aimWorldPos) const;
 	Vec3 GetAimWorldPos(const Vec2& aimScreenPos) const;
 	void RotateToAim(Dir dir, float& rotAngle);
+
 
 
 

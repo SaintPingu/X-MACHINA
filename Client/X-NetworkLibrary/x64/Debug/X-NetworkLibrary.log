@@ -14,6 +14,7 @@ C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\Cl
   PacketHeader.cpp
   PacketRecvBuf.cpp
   PacketSendBuf.cpp
+  SListMemoryPool.cpp
   SendBuffersFactory.cpp
   ServerNetwork.cpp
   Session.cpp
@@ -21,7 +22,6 @@ C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\Cl
 C:\MyGithub\Xmachina\Client\DirectX12_Project\Client\X-NetworkLibrary\Network\SessionController.cpp(33,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 '/Network/SessionController.cpp'을(를) 컴파일하는 중)
   
-  SListMemoryPool.cpp
   SocketData.cpp
   ThreadManager.cpp
   코드를 생성하고 있습니다...

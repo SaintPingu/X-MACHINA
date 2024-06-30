@@ -84,10 +84,15 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	/// ------------------------+
 	std::ifstream serverIPFile{ "ServerIP.txt" };
 	std::string serverIP;
+
+#define USE_LOOPBACK_ADDR
+	serverIP = "127.0.0.1";
+#ifndef USE_LOOPBACK_ADDR
 	std::cout << "Get Server IP\n";
 	serverIPFile >> serverIP;
 	mServerIP.assign(serverIP.begin(), serverIP.end());
 	LOG_MGR->WCout(L"SERVER IP :: " , mServerIP, L"\n");
+#endif
 
 	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) ServerNetwork INIT \n");
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();

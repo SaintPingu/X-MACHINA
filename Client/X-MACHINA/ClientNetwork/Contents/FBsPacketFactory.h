@@ -48,19 +48,19 @@ private:
 	static bool Process_SPkt_EnterGame(SPtr_Session session, const FBProtocol::SPkt_EnterGame& pkt);
 	static bool Process_SPkt_NetworkLatency(SPtr_Session session, const FBProtocol::SPkt_NetworkLatency& pkt);
 	static bool Process_SPkt_Chat(SPtr_Session session, const FBProtocol::SPkt_Chat& pkt);
-
+	
 	/* PLAYER */
 	static bool Process_SPkt_NewPlayer(SPtr_Session session, const FBProtocol::SPkt_NewPlayer& pkt);
 	static bool Process_SPkt_RemovePlayer(SPtr_Session session, const FBProtocol::SPkt_RemovePlayer& pkt);
 	static bool Process_SPkt_Player_Transform(SPtr_Session session, const FBProtocol::SPkt_Player_Transform& pkt);
 	static bool Process_SPkt_Player_Animation(SPtr_Session session, const FBProtocol::SPkt_Player_Animation& pkt);
 	static bool Process_SPkt_Player_Weapon(SPtr_Session session, const FBProtocol::SPkt_Player_Weapon& pkt);
-
+	
 	/* MONSTER */
 	static bool Process_SPkt_Monster_Transform(SPtr_Session session, const FBProtocol::SPkt_Monster_Transform& pkt);
 	static bool Process_SPkt_Monster_HP(SPtr_Session session, const FBProtocol::SPkt_Monster_HP& pkt);
 	static bool Process_SPkt_Monster_State(SPtr_Session session, const FBProtocol::SPkt_Monster_State& pkt);
-
+	
 	/* BULLET */
 	static bool Process_SPkt_Bullet_OnShoot(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnShoot& pkt);
 	static bool Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt);
@@ -81,14 +81,14 @@ public:
 	SPtr_SendPktBuf CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v);
 	SPtr_SendPktBuf CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType);
-
+	
 	/* MONSTER */
 	SPtr_SendPktBuf CPkt_NewMonster();
 	SPtr_SendPktBuf CPkt_RemoveMonster(uint32_t monsterID);
 	SPtr_SendPktBuf CPkt_Monster_Transform(uint32_t monsterID, Vec3 Pos, Vec3 Rot);
 	SPtr_SendPktBuf CPkt_Monster_HP(uint32_t monsterID, float hp);
 	SPtr_SendPktBuf CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_STATE_TYPE state);
-
+	
 	/* BULLET */
 	SPtr_SendPktBuf CPkt_Bullet_OnShoot(uint32_t playerID, uint32_t gunID, uint32_t bulletID, Vec3 ray);
 	SPtr_SendPktBuf CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID);

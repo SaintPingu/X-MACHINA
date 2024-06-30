@@ -35,11 +35,11 @@ class ClientNetworkManager
 	DECLARE_SINGLETON(ClientNetworkManager);
 
 private:
-	Lock::SRWLock		mSRWLock{};
+	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
-	std::wstring		mServerIP		= L"127.0.0.1";
 
-	Concurrency::concurrent_unordered_map<UINT32, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */
+
+	Concurrency::concurrent_unordered_map<uint32_t, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
 	std::atomic_int	    mBackSceneEventIndex = 1;	// BACK SCENE EVENT QUEUE INDEX 
@@ -66,10 +66,10 @@ public:
 
 public:
 	sptr<NetworkEvent::Game::Add_RemotePlayer>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
-	sptr<NetworkEvent::Game::Remove_RemotePlayer>				CreateEvent_Remove_RemotePlayer(int32_t remID);
-	sptr<NetworkEvent::Game::Move_RemotePlayer>					CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
-	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer>			CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata);
-	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer>		CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
+	sptr<NetworkEvent::Game::Remove_RemotePlayer>				CreateEvent_Remove_RemotePlayer(uint32_t remID);
+	sptr<NetworkEvent::Game::Move_RemotePlayer>					CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
+	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer>			CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata);
+	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer>		CreateEvent_ChangeAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();

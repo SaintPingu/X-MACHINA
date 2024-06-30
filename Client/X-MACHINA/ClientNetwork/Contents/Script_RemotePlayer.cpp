@@ -20,99 +20,26 @@ void Script_RemotePlayer::LateUpdate()
 
 	/* CurrPos ---- PktPos ----------- TargetPos */
 
-	mMoveState = mCurrExtraPolated_Data.MoveState;
+	/* 베지어 곡선에 따라서 보간하며 움직인다. */
+/// +------------------------------------------
+///		BEZIER CURVE with Dead Reckoning 
+/// ------------------------------------------+
+#define BEZIER_CURVE_DR
+#ifdef BEZIER_CURVE_DR
 
-	switch (mMoveState)
-	{
-	case ExtData::MOVESTATE::Start:
-	{
-		mMoveState = ExtData::MOVESTATE::Progress;
-		mObject->SetPosition(mCurrPacketPos);
-		Vec3 Rot = mCurrExtraPolated_Data.TargetRot;
-		mObject->ResetRotation(Rot.y);
+	Vec3& curpos = mObject->GetPosition();
+	Vec3& TarPos = mCurrExtraPolated_Data.TargetPos;
 
-	}
-	break;
-	case ExtData::MOVESTATE::Progress:
-	{
-		Vec3 MoveVal = mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
-		mObject->Translate(MoveVal);
-		Vec3 Rot = mCurrExtraPolated_Data.TargetRot;
-		mObject->ResetRotation(Rot.y);
+	mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
 
-		const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-		controller->SetValueOnly("Vertical", mCurrExtraPolated_Data.Animdata.AnimParam_v);
-		controller->SetValueOnly("Horizontal", mCurrExtraPolated_Data.Animdata.AnimParam_h);
-	}
-	break;
-	case ExtData::MOVESTATE::End:
-	{
-		mObject->SetPosition(mCurrPacketPos);
-		Vec3 Rot = mCurrExtraPolated_Data.TargetRot;
-		mObject->ResetRotation(Rot.y);
+	if (mBezierTime >= 1.f)
+		mBezierTime = 1.f;
 
-	}
-	break;
-	}
+	Vec3 point = Bezier_Curve_3(curpos, TarPos, mBezierTime);
+	mObject->SetPosition(point);
 
 	return;
-
-	t += DeltaTime() ;
-
-	
-	Vec3 CurrPos = mObject->GetLocalPosition();
-	Vec3 PacketPos = mCurrPacketPos;
-	Vec3 TargetPos = mCurrExtraPolated_Data.TargetPos;
-
-	//Vec3 MoveDir   = mExtraPolated_Data.MoveDir;
-	Vec3 MoveDir = mCurrPacketPos - mPrevPacketPos;
-
-	//Vec3 MoveDir   = (mCurrPacketPos - mPrevPacketPos);
-	Vec3 MoveLen = MoveDir;
-	MoveDir.Normalize();
-
-	Vec3 Move = MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
-	mObject->Translate(Move);
-
-
-
-	//Vec3 NewPos = lerp(CurrPos, TargetPos, t);
-	//mObject->SetPosition(NewPos);
-
-	/*Vec3 movelen = Vec3();
-	movelen.x    = MoveDir.x * mExtraPolated_Data.Velocity * DeltaTime() * MoveLen.x;
-	movelen.z    = MoveDir.z * mExtraPolated_Data.Velocity * DeltaTime() * MoveLen.z;
-
-	mObject->Translate(Vec3(movelen.x, 0, movelen.z));*/
-
-
-	if (t >= 1.f)
-		t = 0.f;
-
-	/* CurrPos ---- PktPos ----------- TargetPos */
-	//CurrPos = lerp(PktPos, TargetPos, DeltaTime());
-	//mObject->SetPosition(CurrPos);
-
-	//MoveToPacketPos(mCurrPacketPos);
-	//MoveToTargetPos(mExtraPolated_Data.Pos);
-
-	
-	/* CurrPos ---- Move Auto ----> TargetPos */
-
-	//Vec3 CurrPos   = mObject->GetPosition();
-	//Vec3 TargetPos = mExtraPolated_Data.Pos;
-	//Vec3 MoveDir   = TargetPos - CurrPos;
-	//MoveDir.Normalize();
-
-
-	//Vec3 movelen = Vec3();
-	//movelen.x = MoveDir.x * mExtraPolated_Data.Velocity * DeltaTime();
-	//movelen.z = MoveDir.z * mExtraPolated_Data.Velocity * DeltaTime();
-
-	//mObject->Translate(Vec3(movelen.x, 0, movelen.z));
-	
-	//std::cout << "	mObject->Translate(dirVec * mExtraPolated_Data.Velocity * DeltaTime())\n";
-
+#endif
 
 }
 
@@ -120,36 +47,44 @@ void Script_RemotePlayer::UpdateData(const void* data)
 {
 }
 
-void Script_RemotePlayer::MoveToTargetPos(Vec3 TargetPos)
+
+
+// 3차원 베지어 곡선 생성 
+Vec3 Script_RemotePlayer::Bezier_Curve_3(Vec3 currpos, Vec3 targetpos, float t)
 {
-	Vec3 CurrPos = mObject->GetLocalPosition();
-	mCurrMoveDir = TargetPos - CurrPos;
-	mCurrMoveDir.Normalize();
+	float acc = 0.f; // 가속도는 쓰지 않는다. 
+	ExtData data = mCurrExtraPolated_Data;
 
-	/* 이동 거리 계산 */
-	Vec3 movelen = Vec3();
-	movelen.x = mCurrMoveDir.x * mCurrExtraPolated_Data.Velocity * DeltaTime();
-	movelen.z = mCurrMoveDir.z * mCurrExtraPolated_Data.Velocity * DeltaTime();
+	// 시작점
+	Vec3 p0 = currpos;
 
-	/* 이동 거리 조정 */
-	Vec3 RestMoveLen = TargetPos - CurrPos;
+	// 종료점
+	Vec3 p3 = targetpos;
 
+	// 각 제어점의 위치 계산
+	Vec3 p1 = p0 + (p3 - p0) * (1.0f / 3.0f);
+	Vec3 p2 = p0 + (p3 - p0) * (2.0f / 3.0f);
 
-	mObject->Translate(Vec3(movelen.x, 0, movelen.z));
+	// 베지어 곡선 계산
+	Vec3 point = Bezier_Curve(p0, p1, p2, p3, t);
+
+	return point;
 }
 
-void Script_RemotePlayer::MoveToPacketPos(Vec3 PacketPos)
+
+// 베지어 곡선을 계산하는 함수
+Vec3 Script_RemotePlayer::Bezier_Curve(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float t)
 {
-	Vec3 CurrPos = mObject->GetLocalPosition();
-	Vec3 MoveDir = PacketPos - CurrPos;
-	MoveDir.Normalize();
+	// 베지어 곡선의 공식을 사용하여 위치를 계산
+	float u   = 1.0f - t;
+	float tt  = t * t;
+	float uu  = u * u;
+	float uuu = uu * u;
+	float ttt = tt * t;
 
-	if (mCurrExtraPolated_Data.MoveDir.x != MoveDir.x &&
-		mCurrExtraPolated_Data.MoveDir.z != MoveDir.z) {
+	Vec3 point = (uuu * p0) + (3.0f * uu * t * p1) + (3.0f * u * tt * p2) + (ttt * p3);
 
-		MoveToTargetPos(PacketPos);
-	}
-
+	return point;
 }
 
 Vec3 Script_RemotePlayer::GetDirection(Vec3 dir)
@@ -166,7 +101,7 @@ Vec3 Script_RemotePlayer::CalculateDirection(float yAngleRadian)
 
 	Vec3 dir = Vec3(xDir, 0.0f, zDir); // y 방향은 고려하지 않음
 	dir.Normalize();
-	return dir; 
+	return dir;
 }
 
 Vec3 Script_RemotePlayer::lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam)
@@ -227,4 +162,44 @@ void Script_RemotePlayer::RotateTo(const Vec3& Angle)
 		// 즉시 회전
 		mObject->Rotate(0, rotationAngle, 0);
 	}
+}
+
+
+void Script_RemotePlayer::MoveToTargetPos(Vec3 TargetPos)
+{
+	Vec3 CurrPos = mObject->GetLocalPosition();
+	mCurrMoveDir = TargetPos - CurrPos;
+	mCurrMoveDir.Normalize();
+
+	/* 이동 거리 계산 */
+	Vec3 movelen = Vec3();
+	movelen.x = mCurrMoveDir.x * mCurrExtraPolated_Data.Velocity * DeltaTime();
+	movelen.z = mCurrMoveDir.z * mCurrExtraPolated_Data.Velocity * DeltaTime();
+
+	/* 이동 거리 조정 */
+	Vec3 RestMoveLen = TargetPos - CurrPos;
+
+
+	mObject->Translate(Vec3(movelen.x, 0, movelen.z));
+}
+
+void Script_RemotePlayer::MoveToPacketPos(Vec3 PacketPos)
+{
+	Vec3 CurrPos = mObject->GetLocalPosition();
+	Vec3 MoveDir = PacketPos - CurrPos;
+	MoveDir.Normalize();
+
+	if (mCurrExtraPolated_Data.MoveDir.x != MoveDir.x &&
+		mCurrExtraPolated_Data.MoveDir.z != MoveDir.z) {
+
+		MoveToTargetPos(PacketPos);
+	}
+
+}
+
+void Script_RemotePlayer::SetExtrapolatedData(ExtData& extData)
+{
+	mBezierTime = 0.f;
+	mPrevExtrapolated_Data = mCurrExtraPolated_Data;
+	mCurrExtraPolated_Data = extData;
 }

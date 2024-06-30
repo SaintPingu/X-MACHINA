@@ -29,7 +29,7 @@ namespace NetworkEvent
 		struct Add_RemotePlayer : public EventData {
 			
 			/* Remote Player Info */
-			uint64_t	RemoteP_ID			= {};
+			uint32_t	RemoteP_ID			= {};
 			std::string RemoteP_Name		= {};
 			/* Transform Info */
 			Vec3		RemoteP_Pos			= {};
@@ -44,7 +44,7 @@ namespace NetworkEvent
 		/// -------------------------------------------+
 
 		struct Move_RemotePlayer : public EventData {
-			UINT16				RemoteP_ID        = {};
+			uint32_t				RemoteP_ID        = {};
 			Vec3				RemoteP_Pos       = {};
 			ExtData::MOVESTATE	RemoteP_MoveState = {};
 		};
@@ -54,7 +54,7 @@ namespace NetworkEvent
 		/// -------------------------------------------+
 
 		struct Remove_RemotePlayer : public EventData {
-			UINT16 RemoteP_ID = {};
+			uint32_t RemoteP_ID = {};
 		};
 
 		/// +-------------------------------------------
@@ -62,7 +62,7 @@ namespace NetworkEvent
 		/// -------------------------------------------+
 
 		struct Test : public EventData {
-			UINT16	sessionID;
+			uint32_t	sessionID;
 			Vec3	Pos{};
 			float	Angle{};
 			float	SpineAngle{};
@@ -76,15 +76,16 @@ namespace NetworkEvent
 		/// -------------------------------------------+
 
 		struct Extrapolate_RemotePlayer : public EventData {
-			long long			PingTime              = {};
-			float				RemoteVelocity        = {};
-			UINT16				RemoteP_ID            = {};
-			ExtData::MOVESTATE	RemoteP_MoveState     = {};
-			Vec3				ExtPos                = {};
-			Vec3				ExtRot                = {};
-			Vec3				ExtMoveDir            = {};
-			float				animparam_h           = {};
-			float				animparam_v           = {};
+			long long			PingTime                  = {};
+			float				RemoteVelocity            = {};
+
+			uint32_t				RemoteP_ID            = {};
+			ExtData::MOVESTATE	RemoteP_MoveState         = {};
+			Vec3				ExtPos                    = {};
+			Vec3				ExtRot                    = {};
+			Vec3				ExtMoveDir                = {};
+			float				animparam_h               = {};
+			float				animparam_v               = {};
 		};
 
 
@@ -92,13 +93,11 @@ namespace NetworkEvent
 		///			 CHANGE PLAYER ANIMATION 
 		/// -------------------------------------------+
 		struct ChangeAnimation_RemotePlayer : public EventData {
-			UINT16		RemoteP_ID            = {};
-			int32_t			animation_upper_index = {};
-			int32_t			animation_lower_index = {};
+			uint32_t		RemoteP_ID            = {};
+			int32_t		animation_upper_index = {};
+			int32_t		animation_lower_index = {};
 			float		animation_param_h     = {};
 			float		animation_param_v     = {};
-
-
 		};
 
 	}

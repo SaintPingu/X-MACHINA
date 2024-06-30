@@ -82,24 +82,12 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	/// +------------------------
 	///	  NETWORK SERVICE START  
 	/// ------------------------+
-	std::ifstream serverIPFile{ "ServerIP.txt" };
-	std::string serverIP;
-
-#define USE_LOOPBACK_ADDR
-	serverIP = "127.0.0.1";
-#ifndef USE_LOOPBACK_ADDR
-	std::cout << "Get Server IP\n";
-	serverIPFile >> serverIP;
-	mServerIP.assign(serverIP.begin(), serverIP.end());
-	LOG_MGR->WCout(L"SERVER IP :: " , mServerIP, L"\n");
-#endif
-
 	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) ServerNetwork INIT \n");
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();
 	mClientNetwork->SetMaxSessionCnt(1); // 1¸í Á¢¼Ó  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
-	if (FALSE == mClientNetwork->Start(mServerIP, 7777)) {
+	if (FALSE == mClientNetwork->Start(L"127.0.0.1", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -222,7 +210,7 @@ void ClientNetworkManager::ProcessEvents()
 				return;
 			}
 
-			int RemotePlayer_ID = data->RemoteP_ID;
+			uint64_t RemotePlayer_ID = data->RemoteP_ID;
 			int upperIndex      = data->animation_upper_index;
 			int lowerIndex      = data->animation_lower_index;
 			float paramV        = data->animation_param_v;
@@ -277,7 +265,7 @@ sptr<NetworkEvent::Game::Add_RemotePlayer> ClientNetworkManager::CreateEvent_Add
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(int32_t remID)
+sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(uint32_t remID)
 {
 	sptr<NetworkEvent::Game::Remove_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Remove_RemotePlayer>();
 	
@@ -288,7 +276,7 @@ sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate )
+sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate )
 {
 	sptr<NetworkEvent::Game::Move_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Move_RemotePlayer>();
 
@@ -301,7 +289,7 @@ sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Mo
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata)
+sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata)
 {
 	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Extrapolate_RemotePlayer>();
 
@@ -320,7 +308,7 @@ sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateE
 	return Event;
 }
 
-sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
+sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::CreateEvent_ChangeAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
 {
 	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::ChangeAnimation_RemotePlayer>();
 

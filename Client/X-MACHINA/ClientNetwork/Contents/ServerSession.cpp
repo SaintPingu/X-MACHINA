@@ -68,8 +68,8 @@ UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)
 
 		/* 패킷 해석 */
 		FBsPacketFactory::ProcessFBsPacket(static_pointer_cast<Session>(shared_from_this()), buffer + ProcessDataSize, packet->PacketSize);
-		//std::cout << "GAMESESSION ON RECV : " << static_cast<void*>(buffer) << " " << packet->PacketSize << std::endl;
 		ProcessDataSize += packet->PacketSize;
+
 	}
 
 	return len;

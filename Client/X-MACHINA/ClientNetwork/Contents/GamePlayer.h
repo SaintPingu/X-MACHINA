@@ -5,7 +5,7 @@
 struct GamePlayerInfo
 {
 	std::string			   Name = {};
-	int32_t			   Id   = {};
+	uint32_t			   Id   = {};
 
 	/* Transform Info */
 	Vec3 Pos  = {}; // Position

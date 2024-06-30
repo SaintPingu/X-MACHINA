@@ -58,7 +58,7 @@ void Script_PlayerNetwork::DoInput()
 		Vec3					SpineDir   = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetSpineBone()->GetLook();
 		long long				latency = FBS_FACTORY->CurrLatency.load();
 
-		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
+		auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
 		CLIENT_NETWORK->Send(pkt);
 
 		mPrevPos = Pos;
@@ -87,7 +87,7 @@ void Script_PlayerNetwork::DoInput()
 			float					animparam_h = controller->GetParam("Horizontal")->val.f;
 			float					animparam_v = controller->GetParam("Vertical")->val.f;
 
-			auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
+			auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
 			CLIENT_NETWORK->Send(pkt);
 
 			mPrevPos = Pos;
@@ -107,7 +107,7 @@ void Script_PlayerNetwork::DoInput()
 		Vec3					SpineDir = GameFramework::I->GetPlayer()->GetComponent<Script_PheroPlayer>()->GetSpineBone()->GetLook();
 		long long				latency   = FBS_FACTORY->CurrLatency.load();
 
-		auto pkt = FBS_FACTORY->CPkt_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
+		auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, 0, 0);
 		CLIENT_NETWORK->Send(pkt);
 
 		mPrevPos = Pos;
@@ -127,7 +127,7 @@ void Script_PlayerNetwork::DoNetLatency()
 		mLatencyTimePoint_latest = currentTime;
 
 		long long timeStamp = CLIENT_NETWORK->GetCurrentTimeMilliseconds();
-		auto pkt = FBS_FACTORY->CPkt_NewtorkLatency(timeStamp);
+		auto pkt = FBS_FACTORY->CPkt_NetworkLatency(timeStamp);
 		CLIENT_NETWORK->Send(pkt);
 
 	}
@@ -156,6 +156,6 @@ void Script_PlayerNetwork::ClientCallBack_ChangeAnimation()
 	float h = controller->GetParam("Horizontal")->val.f;
 
 	/* Send Changed Animation Packet To Server */
-	auto pkt = FBS_FACTORY->CPkt_PlayerAnimation(anim_upper_idx, anim_lower_idx, h, v);
+	auto pkt = FBS_FACTORY->CPkt_Player_Animation(anim_upper_idx, anim_lower_idx, h, v);
 	CLIENT_NETWORK->Send(pkt);
 }

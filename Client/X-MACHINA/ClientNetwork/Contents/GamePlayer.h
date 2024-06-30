@@ -5,8 +5,7 @@
 struct GamePlayerInfo
 {
 	std::string			   Name = {};
-	uint64_t			   Id   = {};
-	FBProtocol::OBJECTTYPE Type = {};
+	int32_t			   Id   = {};
 
 	/* Transform Info */
 	Vec3 Pos  = {}; // Position

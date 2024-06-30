@@ -21,23 +21,26 @@ namespace FBProtocol {
 struct Player;
 struct PlayerBuilder;
 
+struct Monster;
+struct MonsterBuilder;
+
 struct Player FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef PlayerBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_NAME = 6,
-    VT_PLAYER_TYPE = 8,
+    VT_HP = 8,
     VT_TRANS = 10,
     VT_SPINE_LOOK = 12
   };
-  uint64_t id() const {
-    return GetField<uint64_t>(VT_ID, 0);
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
   }
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
-  FBProtocol::OBJECTTYPE player_type() const {
-    return static_cast<FBProtocol::OBJECTTYPE>(GetField<int8_t>(VT_PLAYER_TYPE, 0));
+  float hp() const {
+    return GetField<float>(VT_HP, 0.0f);
   }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
@@ -47,10 +50,10 @@ struct Player FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_ID, 8) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
-           VerifyField<int8_t>(verifier, VT_PLAYER_TYPE, 1) &&
+           VerifyField<float>(verifier, VT_HP, 4) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
            VerifyOffset(verifier, VT_SPINE_LOOK) &&
@@ -63,14 +66,14 @@ struct PlayerBuilder {
   typedef Player Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_id(uint64_t id) {
-    fbb_.AddElement<uint64_t>(Player::VT_ID, id, 0);
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Player::VT_ID, id, 0);
   }
   void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(Player::VT_NAME, name);
   }
-  void add_player_type(FBProtocol::OBJECTTYPE player_type) {
-    fbb_.AddElement<int8_t>(Player::VT_PLAYER_TYPE, static_cast<int8_t>(player_type), 0);
+  void add_hp(float hp) {
+    fbb_.AddElement<float>(Player::VT_HP, hp, 0.0f);
   }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(Player::VT_TRANS, trans);
@@ -91,25 +94,25 @@ struct PlayerBuilder {
 
 inline ::flatbuffers::Offset<Player> CreatePlayer(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t id = 0,
+    uint32_t id = 0,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    FBProtocol::OBJECTTYPE player_type = FBProtocol::OBJECTTYPE_NONE,
+    float hp = 0.0f,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   PlayerBuilder builder_(_fbb);
-  builder_.add_id(id);
   builder_.add_spine_look(spine_look);
   builder_.add_trans(trans);
+  builder_.add_hp(hp);
   builder_.add_name(name);
-  builder_.add_player_type(player_type);
+  builder_.add_id(id);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Player> CreatePlayerDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t id = 0,
+    uint32_t id = 0,
     const char *name = nullptr,
-    FBProtocol::OBJECTTYPE player_type = FBProtocol::OBJECTTYPE_NONE,
+    float hp = 0.0f,
     ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
@@ -117,9 +120,71 @@ inline ::flatbuffers::Offset<Player> CreatePlayerDirect(
       _fbb,
       id,
       name__,
-      player_type,
+      hp,
       trans,
       spine_look);
+}
+
+struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MonsterBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_TYPE = 6,
+    VT_TRANS = 8
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  uint8_t type() const {
+    return GetField<uint8_t>(VT_TYPE, 0);
+  }
+  const FBProtocol::Transform *trans() const {
+    return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
+           VerifyOffset(verifier, VT_TRANS) &&
+           verifier.VerifyTable(trans()) &&
+           verifier.EndTable();
+  }
+};
+
+struct MonsterBuilder {
+  typedef Monster Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Monster::VT_ID, id, 0);
+  }
+  void add_type(uint8_t type) {
+    fbb_.AddElement<uint8_t>(Monster::VT_TYPE, type, 0);
+  }
+  void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
+    fbb_.AddOffset(Monster::VT_TRANS, trans);
+  }
+  explicit MonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Monster> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Monster>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Monster> CreateMonster(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint8_t type = 0,
+    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0) {
+  MonsterBuilder builder_(_fbb);
+  builder_.add_trans(trans);
+  builder_.add_id(id);
+  builder_.add_type(type);
+  return builder_.Finish();
 }
 
 }  // namespace FBProtocol

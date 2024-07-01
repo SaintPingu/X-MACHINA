@@ -180,7 +180,7 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 	/// ------------------------------------------------------------------------------+
 	else if (IsLogInSuccess == true) {
 		// 로그인이 허가 되었으니 서버에 EnterGame 요청 
-		auto CPkt_EnterGame = FBS_FACTORY->CPkt_EnterGame(session->GetID()); 
+		auto CPkt_EnterGame = FBS_FACTORY->CPkt_EnterGame(0); 
 		session->Send(CPkt_EnterGame);
 
 	}

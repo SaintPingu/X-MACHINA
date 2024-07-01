@@ -152,7 +152,7 @@ void ClientNetworkManager::ProcessEvents()
 
 
 			mRemotePlayers[static_cast<UINT32>(data->RemoteP_ID)] = remotePlayer;
-			//std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
+			std::cout << "Process Event : Add_RemotePlayer - " << remotePlayer << std::endl;
 		}
 
 		break;

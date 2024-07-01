@@ -1,105 +1,145 @@
 #pragma once
 
 #include "Script_RemotePlayer.h"
+
+#undef max
+#include "ClientNetwork/Include/Protocol/FBProtocol_generated.h"
 class GridObject;
 
 namespace NetworkEvent
 {
 	namespace Game
 	{
-		namespace Enum
+		namespace RemotePlayerType
 		{
-			constexpr UINT16 Add_RemotePlayer         = 1;
-			constexpr UINT16 Move_RemotePlayer        = 2;
-			constexpr UINT16 Remove_RemotePlayer      = 3;
-			constexpr UINT16 Extrapolate_RemotePlayer = 4;
-			constexpr UINT16 ChangeAnim_RemotePlayer  = 5;
+			constexpr UINT16 Add              = 1; // 새로운 플레이어 생성
+			constexpr UINT16 Remove           = 2; // Remote 플레이어 제거 
+			constexpr UINT16 Move             = 3; // Remote 플레이어 이동 
+			constexpr UINT16 Extrapolate      = 4; // Remote 플레이어 위치 예측 
+			constexpr UINT16 UpdateAnimation  = 5; // Remote 플레이어 애니메이션 업데이트 
 		}
 
-		/// +-------------------------------------------
-		///					EVENT DATA 
-		/// -------------------------------------------+
+		namespace MonsterType
+		{
+			constexpr UINT16 Add    = 6;
+			constexpr UINT16 Remove = 7;
+			constexpr UINT16 Move   = 8;
+
+		}
+
+		namespace BulletType
+		{
+			constexpr UINT16 OnShoot	 = 9;
+			constexpr UINT16 OnCollision = 10;
+		}
+
+		/* EVENT DATA */
 		struct EventData {
 			UINT16 type = {};
 		};
 
-		/// +-------------------------------------------
-		///				ADD REMOTE PLAYER 
-		/// -------------------------------------------+
-		struct Add_RemotePlayer : public EventData {
-			
-			/* Remote Player Info */
-			uint32_t	RemoteP_ID			= {};
-			std::string RemoteP_Name		= {};
-			/* Transform Info */
-			Vec3		RemoteP_Pos			= {};
-			Vec4		RemoteP_Rot			= {};
-			Vec3		RemoteP_Scale		= {};
-			Vec3		RemoteP_SpineLook	= {};
-		};
+		/// +---------------------------------------------------------------------
+		///	EVENT ▶▶▶▶▶ REMOTE PLAYER 
+		/// ---------------------------------------------------------------------+
+		namespace Event_RemotePlayer // RP
+		{
+			/// >> ADD 
+			struct Add : public EventData {
+				uint32_t	Id		 = {}; 
+				std::string Name		 = {};
+
+				/* Transform Info */
+				Vec3		Pos       = {};
+				Vec4		Rot       = {};
+				Vec3		SpineLook = {};
+			};
+
+			/// >> MOVE 
+			struct Move : public EventData {
+				uint32_t			Id        = {};
+				Vec3				Pos       = {};
+				ExtData::MOVESTATE	MoveState = {};
+			};
+
+			/// >> REMOVE 
+			struct Remove : public EventData {
+				uint32_t			Id = {};
+
+			};
+
+			/// >> EXTRAPOLATE 
+			struct Extrapolate : public EventData {
+				uint32_t			Id			= {};
+				
+				ExtData::MOVESTATE	MoveState	= {};
+
+				long long			PingTime		= {};
+				float				Velocity		= {};
+
+				Vec3				ExtMoveDir	= {};
+
+				Vec3				ExtPos		= {};
+				Vec3				ExtRot		= {};
+
+				float				animparam_h	= {};
+				float				animparam_v	= {};
+			};
+
+			/// >> UPDATE ANIMATION 
+			struct UpdateAnimation : public EventData {
+				uint32_t	Id = {};
+
+				int32_t		animation_upper_index = {};
+				int32_t		animation_lower_index = {};
+				float		animation_param_h = {};
+				float		animation_param_v = {};
+			};
+		}
 
 
-		/// +-------------------------------------------
-		///				MOVE REMOTE PLAYER  
-		/// -------------------------------------------+
+		/// +---------------------------------------------------------------------
+		///	EVENT ▶▶▶▶▶ MONSTER  
+		/// ---------------------------------------------------------------------+
+		namespace Event_Monster // MON
+		{
+			/// >> ADD
+			struct Add : public EventData {
+				std::vector<uint32_t> IDs;
+			};
 
-		struct Move_RemotePlayer : public EventData {
-			uint32_t				RemoteP_ID        = {};
-			Vec3				RemoteP_Pos       = {};
-			ExtData::MOVESTATE	RemoteP_MoveState = {};
-		};
+			/// >> REMOVE 
+			struct Remove : public EventData {
+				std::vector<uint32_t> IDs;
+			};
 
-		/// +-------------------------------------------
-		///				REMOVE REMOTE PLAYER 
-		/// -------------------------------------------+
+			/// >> MOVE 
+			struct MonsterMove {
+				uint32_t	Id;
+				Vec3		Pos;
+				Vec3		Rot;
+			};
+			struct Move : public EventData {
+				std::vector<MonsterMove> Mons;
+			};
 
-		struct Remove_RemotePlayer : public EventData {
-			uint32_t RemoteP_ID = {};
-		};
+			/// >> UPDATE HP 
+			struct MonsterHP {
+				uint32_t Id;
+				float	 HP;
+			};
+			struct UpdateHP : public EventData {
+				std::vector<MonsterHP> Mons;
+			};
 
-		/// +-------------------------------------------
-		///				TEST
-		/// -------------------------------------------+
-
-		struct Test : public EventData {
-			uint32_t	sessionID;
-			Vec3	Pos{};
-			float	Angle{};
-			float	SpineAngle{};
-
-			PlayerMotion PlayerMotion{};
-			int WeaponID{};
-		};
-
-		/// +-------------------------------------------
-		///			 EXTRAPOLATE REMOTE PLAYER 
-		/// -------------------------------------------+
-
-		struct Extrapolate_RemotePlayer : public EventData {
-			long long			PingTime                  = {};
-			float				RemoteVelocity            = {};
-
-			uint32_t				RemoteP_ID            = {};
-			ExtData::MOVESTATE	RemoteP_MoveState         = {};
-			Vec3				ExtPos                    = {};
-			Vec3				ExtRot                    = {};
-			Vec3				ExtMoveDir                = {};
-			float				animparam_h               = {};
-			float				animparam_v               = {};
-		};
-
-
-		/// +-------------------------------------------
-		///			 CHANGE PLAYER ANIMATION 
-		/// -------------------------------------------+
-		struct ChangeAnimation_RemotePlayer : public EventData {
-			uint32_t		RemoteP_ID            = {};
-			int32_t		animation_upper_index = {};
-			int32_t		animation_lower_index = {};
-			float		animation_param_h     = {};
-			float		animation_param_v     = {};
-		};
-
+			/// >> UPDATE STATE 
+			struct MonsterUpdateState {
+				uint32_t Id;
+				FBProtocol::MONSTER_STATE_TYPE state;
+			};
+			struct UpdateState {
+				std::vector<MonsterUpdateState> Mons;
+			};
+		}
 	}
 }
 

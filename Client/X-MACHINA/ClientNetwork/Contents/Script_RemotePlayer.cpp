@@ -20,15 +20,17 @@ void Script_RemotePlayer::LateUpdate()
 
 	/* CurrPos ---- PktPos ----------- TargetPos */
 
-	/* 베지어 곡선에 따라서 보간하며 움직인다. */
-/// +------------------------------------------
-///		BEZIER CURVE with Dead Reckoning 
-/// ------------------------------------------+
-#define BEZIER_CURVE_DR
-#ifdef BEZIER_CURVE_DR
 
 	Vec3& curpos = mObject->GetPosition();
 	Vec3& TarPos = mCurrExtraPolated_Data.TargetPos;
+
+//#define BEZIER_CURVE_DR
+#ifdef BEZIER_CURVE_DR
+
+		/* 베지어 곡선에 따라서 보간하며 움직인다. */
+	/// +------------------------------------------
+	///		BEZIER CURVE with Dead Reckoning 
+	/// ------------------------------------------+
 
 	mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
 
@@ -37,6 +39,13 @@ void Script_RemotePlayer::LateUpdate()
 
 	Vec3 point = Bezier_Curve_3(curpos, TarPos, mBezierTime);
 	mObject->SetPosition(point);
+
+	return;
+#else
+
+	Vec3 dir = TarPos - curpos; dir.Normalize();
+	curpos += dir * mCurrExtraPolated_Data.Velocity * DeltaTime();
+	mObject->SetPosition(curpos);
 
 	return;
 #endif

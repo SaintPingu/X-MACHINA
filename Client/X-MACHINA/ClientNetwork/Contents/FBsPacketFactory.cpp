@@ -232,7 +232,7 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 		LOG_MGR->Cout("¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á\n");
 		LOG_MGR->SetColor(TextColor::Default);
 
-		sptr<NetworkEvent::Game::Add_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(RemoteInfo);
+		sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(RemoteInfo);
 		CLIENT_NETWORK->RegisterEvent(EventData);
 	}
 	return true;
@@ -307,7 +307,7 @@ bool FBsPacketFactory::Process_SPkt_NewPlayer(SPtr_Session session, const FBProt
 	LOG_MGR->Cout("¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
-	sptr<NetworkEvent::Game::Add_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(NewPInfo);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(NewPInfo);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
 	return true;
@@ -330,7 +330,7 @@ bool FBsPacketFactory::Process_SPkt_RemovePlayer(SPtr_Session session, const FBP
 	LOG_MGR->Cout("¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹¢¹\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
-	sptr<NetworkEvent::Game::Remove_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_Remove_RemotePlayer(removeID);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> EventData = CLIENT_NETWORK->CreateEvent_Remove_RemotePlayer(removeID);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
 	return true;
@@ -377,7 +377,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	else if (movestate == PLAYER_MOVE_STATE::End)		mState = ExtData::MOVESTATE::End;
 
 
-	sptr<NetworkEvent::Game::Move_RemotePlayer> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
 	CLIENT_NETWORK->RegisterEvent(Move_EventData);
 
 	//LOG_MGR->Cout("MOVE DIR PKT : ", moveDir.x, " ", moveDir.y, " ", moveDir.z, '\n');
@@ -390,7 +390,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 
 	ExtData data                  = {};
 	/* [Get Next Packet Duration] = (PKt Interval) + (Remote Cl Latency) + (My Latency) */
-	data.PingTime                 = (PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000) + (latency / 1000.0) + (CurrLatency.load() / 1000.0);
+	data.PingTime                 = static_cast<long long>((PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000) + (latency / 1000.0) + (CurrLatency.load() / 1000.0));
 	data.MoveDir                  = moveDir;
 	data.MoveState                = mState;
 	//LOG_MGR->Cout(data.PingTime, " ", data.PingTime / 1000.0, '\n');
@@ -405,7 +405,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	data.Animdata.AnimParam_h = animparam_h;
 	data.Animdata.AnimParam_v = animparam_v;
 
-	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> Ext_EventData = CLIENT_NETWORK->CreateEvent_Extrapolate_RemotePlayer(id, data);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Extrapolate_RemotePlayer(id, data);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 
 
@@ -426,13 +426,13 @@ bool FBsPacketFactory::Process_SPkt_Player_Animation(SPtr_Session session, const
 	/// }
 
 	/// ¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û¡Û
-	uint64_t ObjectID = pkt.player_id();
+	uint32_t ObjectID = pkt.player_id();
 	int32_t animation_upper_idx = pkt.animation_upper_index();
 	int32_t animation_lower_idx = pkt.animation_lower_index();
 	float animation_param_h = pkt.animation_param_h();
 	float animation_param_v = pkt.animation_param_v();
 
-	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> EventData = CLIENT_NETWORK->CreateEvent_ChangeAnimation_RemotePlayer(ObjectID
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> EventData = CLIENT_NETWORK->CreateEvent_UpdateAnimation_RemotePlayer(ObjectID
 		, animation_upper_idx
 		, animation_lower_idx
 		, animation_param_h

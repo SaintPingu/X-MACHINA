@@ -68,7 +68,7 @@ public:
 
 	void SetExtrapolated_Pos(Vec3 pos)									{ mCurrExtraPolated_Data.TargetPos      = pos;									 }	
 	void SetExtrapolated_Rot(Vec3 rot)									{ mCurrExtraPolated_Data.TargetRot      = rot;									 }
-	void SetExtrapolated_PingTime(double pingTime)					{ mCurrExtraPolated_Data.PingTime       = pingTime;								 }
+	void SetExtrapolated_PingTime(long long pingTime)						{ mCurrExtraPolated_Data.PingTime       = pingTime;								 }
 	void SetExtrapolated_MoveState(ExtData::MOVESTATE movestate)		{ mCurrExtraPolated_Data.MoveState      = movestate;							 }
 	
 	void SetPacketPos(Vec3 pos) { mPrevPacketPos = mCurrPacketPos;  mCurrPacketPos = pos; mBezierTime = 0.f;  }

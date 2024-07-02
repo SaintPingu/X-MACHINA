@@ -9,6 +9,8 @@
 
 #include "ClientNetwork/Contents/Script_PlayerNetwork.h"
 #include "ClientNetwork/Contents/Script_RemotePlayer.h"
+#include "ClientNetwork/Contents/ServerSession.h"
+
 
 #include "ServerSession.h"
 #include "NetworkEvents.h"
@@ -396,8 +398,21 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	//LOG_MGR->Cout(data.PingTime, " ", data.PingTime / 1000.0, '\n');
 
 	/* 위치 예측 ( TargetPos ) */
-	data.TargetPos.x = static_cast<float>(Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0)));
-	data.TargetPos.z = static_cast<float>(Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0)));
+	SPtr_ServerSession serversession = std::static_pointer_cast<ServerSession>(session);
+
+	if (mState == ExtData::MOVESTATE::End) {
+ 		data.TargetPos.x = Packetpos.x;
+		data.TargetPos.z = Packetpos.z;
+
+	}
+	else {
+		if (mState == ExtData::MOVESTATE::Start)
+			int i = 0;
+
+		data.TargetPos.x = static_cast<float>(Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0)));
+		data.TargetPos.z = static_cast<float>(Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0)));
+		
+	}
 
 	data.TargetRot = rot;
 	data.Velocity = vel;
@@ -439,7 +454,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Animation(SPtr_Session session, const
 		, animation_param_v);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
-	return false;
+	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FBProtocol::SPkt_Player_Weapon& pkt)
@@ -451,13 +466,42 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 	/// 	weapon_type: WEAPON_TYPE;	// 1 byte
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return false;
+	return true;
 }
 
 
 /// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ///	◈ PROCESS [ MONSTER ] Server PACKET ◈
 /// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------★
+
+bool FBsPacketFactory::Process_SPkt_Monster_New(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt)
+{
+	auto monsters = pkt.new_monsters();
+
+	std::vector<uint32_t> infos;
+	int newMonstersCnt = pkt.new_monsters()->size();
+	for (UINT16 i = 0; i < newMonstersCnt; ++i) {
+		GameMonsterInfo info = GetMonsterInfo(pkt.new_monsters()->Get(i));
+		infos.push_back(info.Id);
+	}
+
+	sptr<NetworkEvent::Game::Event_Monster::Add> Ext_EventData = CLIENT_NETWORK->CreateEvent_Add_Monster(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_Monster_Remove(SPtr_Session session, const FBProtocol::SPkt_RemoveMonster& pkt)
+{
+	auto monster_id = pkt.monster_id();
+	 
+	// TODO : 여러개를 한번에 하는 걸로 바꾸기
+	std::vector<uint32_t> remInfos;
+	remInfos.push_back(monster_id);
+	
+	sptr<NetworkEvent::Game::Event_Monster::Remove> Ext_EventData = CLIENT_NETWORK->CreateEvent_Remove_Monster(remInfos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+	return true;
+}
 
 bool FBsPacketFactory::Process_SPkt_Monster_Transform(SPtr_Session session, const FBProtocol::SPkt_Monster_Transform& pkt)
 {
@@ -468,7 +512,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_Transform(SPtr_Session session, cons
 	/// 	trans: Transform;				// 24 bytes (Vector3 * 2)
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return false;
+	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Monster_HP(SPtr_Session session, const FBProtocol::SPkt_Monster_HP& pkt)
@@ -480,7 +524,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_HP(SPtr_Session session, const FBPro
 	/// 	hp: float;		// 4 bytes
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return false;
+	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FBProtocol::SPkt_Monster_State& pkt)
@@ -493,7 +537,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 	/// 
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return false;
+	return true;
 }
 
 /// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -513,7 +557,7 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 	/// }
 
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return false;
+	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt)
@@ -522,11 +566,11 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, con
 	/// table SPkt_Bullet_OnCollision
 	/// {
 	/// 	player_id: int; // 4 bytes - 어떤 플레이어가 
-	/// 	gun_id: int; // 4 bytes - 어떤 총이고 
+	/// 	gun_id: int;	// 4 bytes - 어떤 총이고 
 	/// 	bullet_id: int; // 4 bytes - 어떤 총알이 충돌했는가?
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return false;
+	return true;
 }
 
 
@@ -839,7 +883,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnCollision(uint32_t playerID, uin
 GamePlayerInfo FBsPacketFactory::GetPlayerInfo(const FBProtocol::Player* player)
 {
 	GamePlayerInfo info = {};
-
+	 
 	info.Id   = player->id();
 	info.Name = player->name()->c_str();
 
@@ -850,6 +894,24 @@ GamePlayerInfo FBsPacketFactory::GetPlayerInfo(const FBProtocol::Player* player)
 	info.Rot = Vec3(Rot->x(), Rot->y(), Rot->z());
 
 	const FBProtocol::Vector3* SDir = player->spine_look();
+	info.SDir = Vec3(SDir->x(), SDir->y(), SDir->z());
+
+	return info;
+}
+
+GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* monster)
+{
+	GameMonsterInfo info = {};
+
+	info.Id = monster->id();
+
+	const FBProtocol::Vector3* pos = monster->trans()->position();
+	info.Pos = Vec3(pos->x(), pos->y(), pos->z());
+
+	const FBProtocol::Vector3* Rot = monster->trans()->rotation();
+	info.Rot = Vec3(Rot->x(), Rot->y(), Rot->z());
+
+	const FBProtocol::Vector3* SDir = monster->spine_look();
 	info.SDir = Vec3(SDir->x(), SDir->y(), SDir->z());
 
 	return info;

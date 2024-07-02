@@ -43,9 +43,36 @@ void Script_RemotePlayer::LateUpdate()
 	return;
 #else
 
-	Vec3 dir = TarPos - curpos; dir.Normalize();
-	curpos += dir * mCurrExtraPolated_Data.Velocity * DeltaTime();
-	mObject->SetPosition(curpos);
+	switch (mCurrExtraPolated_Data.MoveState)
+	{
+	case ExtData::MOVESTATE::Start:
+	case ExtData::MOVESTATE::Progress:
+	{
+		if (mCurrExtraPolated_Data.MoveState == ExtData::MOVESTATE::Start) {
+			//std::cout << "START \n";
+			//std::cout << "CURPOS : " << curpos.x << " " << curpos.z << "  TARPOS : " << TarPos.x << " " << TarPos.z << "\n";
+		}
+		mCurrMoveDir = TarPos - curpos; mCurrMoveDir.Normalize();
+		curpos += mCurrMoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
+		mObject->SetPosition(curpos);
+
+
+	}
+		break;
+	case ExtData::MOVESTATE::End:
+	{
+		mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
+
+		if (mBezierTime >= 1.f)
+			mBezierTime = 1.f;
+
+		//Vec3 point = Bezier_Curve_3(curpos, TarPos, mBezierTime);
+		Vec3 point = lerp(curpos, TarPos, mBezierTime);
+		mObject->SetPosition(point);
+	}
+		break;
+	}
+	mPrevMoveDir = mCurrMoveDir;
 
 	return;
 #endif
@@ -115,6 +142,8 @@ Vec3 Script_RemotePlayer::CalculateDirection(float yAngleRadian)
 
 Vec3 Script_RemotePlayer::lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam)
 {
+	//return CurrPos + t * (TargetPos - CurrPos);
+
 	return Vec3((1.0f - PosLerpParam) * CurrPos.x + PosLerpParam * TargetPos.x,
 		(1.0f - PosLerpParam) * CurrPos.y + PosLerpParam * TargetPos.y,
 		(1.0f - PosLerpParam) * CurrPos.z + PosLerpParam * TargetPos.z);

@@ -21,16 +21,17 @@ namespace NetworkEvent
 
 		namespace MonsterType
 		{
-			constexpr UINT16 Add    = 6;
-			constexpr UINT16 Remove = 7;
-			constexpr UINT16 Move   = 8;
-
+			constexpr UINT16 Add         = 6;
+			constexpr UINT16 Remove      = 7;
+			constexpr UINT16 Move        = 8;
+			constexpr UINT16 UpdateHP    = 9;
+			constexpr UINT16 UpdateState = 10;
 		}
 
 		namespace BulletType
 		{
-			constexpr UINT16 OnShoot	 = 9;
-			constexpr UINT16 OnCollision = 10;
+			constexpr UINT16 OnShoot	 = 11;
+			constexpr UINT16 OnCollision = 12;
 		}
 
 		/* EVENT DATA */
@@ -136,9 +137,18 @@ namespace NetworkEvent
 				uint32_t Id;
 				FBProtocol::MONSTER_STATE_TYPE state;
 			};
-			struct UpdateState {
+			struct UpdateState : public EventData {
 				std::vector<MonsterUpdateState> Mons;
 			};
+		}
+
+
+
+		/// +---------------------------------------------------------------------
+		///	EVENT ¢º¢º¢º¢º¢º BULLET  
+		/// ---------------------------------------------------------------------+
+		namespace Bullet {
+
 		}
 	}
 }

@@ -16,6 +16,8 @@
 
 #include "NetworkEvents.h"
 #include "GamePlayer.h"
+#include "GameMonster.h"
+
 #include "InputMgr.h"
 
 namespace PLAYER_MOVE_STATE
@@ -57,6 +59,8 @@ private:
 	static bool Process_SPkt_Player_Weapon(SPtr_Session session, const FBProtocol::SPkt_Player_Weapon& pkt);
 	
 	/* MONSTER */
+	static bool Process_SPkt_Monster_New(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt);
+	static bool Process_SPkt_Monster_Remove(SPtr_Session session, const FBProtocol::SPkt_RemoveMonster& pkt);
 	static bool Process_SPkt_Monster_Transform(SPtr_Session session, const FBProtocol::SPkt_Monster_Transform& pkt);
 	static bool Process_SPkt_Monster_HP(SPtr_Session session, const FBProtocol::SPkt_Monster_HP& pkt);
 	static bool Process_SPkt_Monster_State(SPtr_Session session, const FBProtocol::SPkt_Monster_State& pkt);
@@ -100,6 +104,8 @@ private:
 	///	         UTILITY 
 	/// ------------------------+
 	static GamePlayerInfo GetPlayerInfo(const FBProtocol::Player* player);
+	static GameMonsterInfo GetMonsterInfo(const FBProtocol::Monster* monster);
+
 	static Vec3 GetVector3(const FBProtocol::Vector3* vec3);
 	static Vec4 GetVector4(const FBProtocol::Vector4* vec4);
 

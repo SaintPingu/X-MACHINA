@@ -130,7 +130,9 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_TYPE = 6,
-    VT_TRANS = 8
+    VT_HP = 8,
+    VT_TRANS = 10,
+    VT_SPINE_LOOK = 12
   };
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
@@ -138,15 +140,24 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint8_t type() const {
     return GetField<uint8_t>(VT_TYPE, 0);
   }
+  float hp() const {
+    return GetField<float>(VT_HP, 0.0f);
+  }
   const FBProtocol::Transform *trans() const {
     return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
+  }
+  const FBProtocol::Vector3 *spine_look() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
+           VerifyField<float>(verifier, VT_HP, 4) &&
            VerifyOffset(verifier, VT_TRANS) &&
            verifier.VerifyTable(trans()) &&
+           VerifyOffset(verifier, VT_SPINE_LOOK) &&
+           verifier.VerifyTable(spine_look()) &&
            verifier.EndTable();
   }
 };
@@ -161,8 +172,14 @@ struct MonsterBuilder {
   void add_type(uint8_t type) {
     fbb_.AddElement<uint8_t>(Monster::VT_TYPE, type, 0);
   }
+  void add_hp(float hp) {
+    fbb_.AddElement<float>(Monster::VT_HP, hp, 0.0f);
+  }
   void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
     fbb_.AddOffset(Monster::VT_TRANS, trans);
+  }
+  void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
+    fbb_.AddOffset(Monster::VT_SPINE_LOOK, spine_look);
   }
   explicit MonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -179,9 +196,13 @@ inline ::flatbuffers::Offset<Monster> CreateMonster(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     uint8_t type = 0,
-    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0) {
+    float hp = 0.0f,
+    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
   MonsterBuilder builder_(_fbb);
+  builder_.add_spine_look(spine_look);
   builder_.add_trans(trans);
+  builder_.add_hp(hp);
   builder_.add_id(id);
   builder_.add_type(type);
   return builder_.Finish();

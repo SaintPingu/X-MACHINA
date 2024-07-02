@@ -334,6 +334,9 @@
     <ClInclude Include="ClientNetwork\Contents\ClientNetworkManager.h">
       <Filter>ClientNetwork\Network\NetworkEvent</Filter>
     </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\GameMonster.h">
+      <Filter>ClientNetwork\Contents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -533,6 +536,9 @@
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp">
       <Filter>ClientNetwork\Network\NetworkEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\GameMonster.cpp">
+      <Filter>ClientNetwork\Contents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

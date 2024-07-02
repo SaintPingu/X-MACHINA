@@ -23,7 +23,9 @@ table Player {
 //	    MONSTER STRUCT 
 // ------------------------+
 table Monster{
-	id      :  uint; 
-	type	:  ubyte; // UINT8
-	trans	:  Transform;
+	id			:  uint; 
+	type		:  ubyte; // UINT8
+	hp			:  float;
+	trans		:  Transform;
+	spine_look	:  Vector3;
 }

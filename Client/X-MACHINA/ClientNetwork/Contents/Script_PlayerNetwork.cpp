@@ -45,8 +45,33 @@ void Script_PlayerNetwork::DoInput()
 	///* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
 	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
 	{
+		Vec3		MoveDir; //= //Pos - mPrevPos; MoveDir.Normalize();
+		if (KEY_TAP('W')) MoveDir = Vec3(0.f, 0.f, 1.f);
+		if (KEY_TAP('A')) MoveDir = Vec3(-1.f, 0.f, 0.f);
+		if (KEY_TAP('S')) MoveDir = Vec3(0.f, 0.f, -1.f);
+		if (KEY_TAP('D')) MoveDir = Vec3(1.f, 0.f, 0.f);
+
+
+
 		mMoveTimePoint_latest = std::chrono::steady_clock::now();
-		Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
+		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
+
+		float		Vel		 = 5.f; // GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
+		Vec3		Pos      = GameFramework::I->GetPlayer()->GetPosition();
+		//Vec3		MoveDir  = //Pos - mPrevPos; MoveDir.Normalize();
+		float		y_rot    = GetYRotation();
+		Vec3		Rot      = Vec3(0.f, y_rot, 0.f);
+		Vec3		SpineDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
+		long long	latency  = FBS_FACTORY->CurrLatency.load();
+
+		const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+		float					animparam_h = controller->GetParam("Horizontal")->val.f;
+		float					animparam_v = controller->GetParam("Vertical")->val.f;
+
+		auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, PLAYER_MOVE_STATE::Start, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
+		CLIENT_NETWORK->Send(pkt);
+
+		//std::cout << "SEND TRAN CPKT : START\n";
 	}
 
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
@@ -58,20 +83,21 @@ void Script_PlayerNetwork::DoInput()
 		{
 			mMoveTimePoint_latest = currentTime;
 			Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Progress);
-	
+			//std::cout << "SEND TRAN CPKT : PROGRESS\n";
 		}
 	}
 
 	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
 	{
 		Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::End);
+		//std::cout << "SEND TRAN CPKT : END\n";
 	}
 
 	if (GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMoveDir() !=
 		GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetPrevMoveDir())
 	{
-		mMoveTimePoint_latest = std::chrono::steady_clock::now();
-		Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
+		//mMoveTimePoint_latest = std::chrono::steady_clock::now();
+		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
 	}
 }
 

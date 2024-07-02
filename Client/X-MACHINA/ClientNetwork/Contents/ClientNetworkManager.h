@@ -18,6 +18,7 @@
 #undef max
 #include "ClientNetwork/Contents/NetworkEvents.h"
 #include "ClientNetwork/Contents/GamePlayer.h"
+#include "ClientNetwork/Contents/GameMonster.h"
 #include "ClientNetwork/Contents/Script_RemotePlayer.h"
 #include "Scene.h"
 #include "InputMgr.h"
@@ -65,11 +66,40 @@ public:
 	void Send(SPtr_PacketSendBuf pkt);
 
 public:
+	/// +---------------------------------------------------------------------------
+	/// >> ¢º¢º¢º¢º¢º CREATE EVENT 
+	/// ---------------------------------------------------------------------------+
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Add>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove>				CreateEvent_Remove_RemotePlayer(uint32_t remID);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Move>					CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>			CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>		CreateEvent_UpdateAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
+	
+	sptr<NetworkEvent::Game::Event_Monster::Add>						CreateEvent_Add_Monster(std::vector<uint32_t> infos);
+	sptr<NetworkEvent::Game::Event_Monster::Remove>						CreateEvent_Remove_Monster(std::vector<uint32_t> Ids);
+	sptr<NetworkEvent::Game::Event_Monster::Move>						CreateEvent_Move_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos);
+	sptr<NetworkEvent::Game::Event_Monster::UpdateHP>					CreateEvent_UpdateHP_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterHP> infos);
+	sptr<NetworkEvent::Game::Event_Monster::UpdateState>				CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos);
+
+	
+	
+	/// +---------------------------------------------------------------------------
+	/// >> ¢º¢º¢º¢º¢º PROCESS EVENT 
+	/// ---------------------------------------------------------------------------+
+	/// REMOTE PLAYER 
+	void ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data);
+	void ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data);
+	void ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Event_RemotePlayer::Move* data);
+	void ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data);
+	void ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data);
+
+	/// MONSTER 
+	void ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data);
+	void ProcessEvent_Monster_Remove(NetworkEvent::Game::Event_Monster::Remove* data);
+	void ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data);
+	void ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data);
+	void ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data);
+
 
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();

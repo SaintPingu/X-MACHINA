@@ -16,7 +16,10 @@ struct AnimMoveData
 struct ExtData
 {
 	enum class MOVESTATE {
-		NONE, Start, Progress, End,
+		Start   = 0, 
+		Progress= 1,
+		End     = 2,
+		NONE,
 	};	
 	long long		PingTime     = {}; // 다음 Transform 패킷이 오기까지 걸리는 시간 ( 추측 - ( SPkt_Transform Recv Interval + Remote Client Latency + My Latency )
 	MOVESTATE	MoveState = MOVESTATE::NONE;
@@ -38,7 +41,8 @@ private:
 	ExtData mCurrExtraPolated_Data = {};
 	ExtData mPrevExtrapolated_Data = {};
 
-	Vec3 mCurrMoveDir = Vec3();
+	Vec3 mCurrMoveDir   = Vec3();
+	Vec3 mPrevMoveDir   = Vec3();
 	Vec3 mCurrPacketPos = Vec3();
 	Vec3 mPrevPacketPos = Vec3();
 
@@ -68,7 +72,7 @@ public:
 
 	void SetExtrapolated_Pos(Vec3 pos)									{ mCurrExtraPolated_Data.TargetPos      = pos;									 }	
 	void SetExtrapolated_Rot(Vec3 rot)									{ mCurrExtraPolated_Data.TargetRot      = rot;									 }
-	void SetExtrapolated_PingTime(long long pingTime)						{ mCurrExtraPolated_Data.PingTime       = pingTime;								 }
+	void SetExtrapolated_PingTime(long long pingTime)					{ mCurrExtraPolated_Data.PingTime       = pingTime;								 }
 	void SetExtrapolated_MoveState(ExtData::MOVESTATE movestate)		{ mCurrExtraPolated_Data.MoveState      = movestate;							 }
 	
 	void SetPacketPos(Vec3 pos) { mPrevPacketPos = mCurrPacketPos;  mCurrPacketPos = pos; mBezierTime = 0.f;  }

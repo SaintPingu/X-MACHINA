@@ -101,6 +101,16 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Player_Animation(session, *packet);
 	}
 	break;
+
+
+	case FBsProtocolID::SPkt_NewMonster:
+	{
+		const FBProtocol::SPkt_NewMonster* packet = flatbuffers::GetRoot<FBProtocol::SPkt_NewMonster>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Monster_New(session, *packet);
+	}
+	break;
+
 	case FBsProtocolID::SPkt_Monster_Transform:
 	{
 		const FBProtocol::SPkt_Monster_Transform* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Monster_Transform>(DataPtr);
@@ -476,13 +486,15 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 
 bool FBsPacketFactory::Process_SPkt_Monster_New(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt)
 {
+	std::cout << "PROCESS MONSTER NEW \n";
 	auto monsters = pkt.new_monsters();
 
-	std::vector<uint32_t> infos;
+	std::vector<GameMonsterInfo> infos;
 	int newMonstersCnt = pkt.new_monsters()->size();
 	for (UINT16 i = 0; i < newMonstersCnt; ++i) {
-		GameMonsterInfo info = GetMonsterInfo(pkt.new_monsters()->Get(i));
-		infos.push_back(info.Id);
+		auto info = GetMonsterInfo(pkt.new_monsters()->Get(i));
+		std::cout << info.Id << " \n";
+		infos.push_back(info);
 	}
 
 	sptr<NetworkEvent::Game::Event_Monster::Add> Ext_EventData = CLIENT_NETWORK->CreateEvent_Add_Monster(infos);
@@ -904,6 +916,7 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 	GameMonsterInfo info = {};
 
 	info.Id = monster->id();
+	info.Type = static_cast<MonsterType>(monster->type());
 
 	const FBProtocol::Vector3* pos = monster->trans()->position();
 	info.Pos = Vec3(pos->x(), pos->y(), pos->z());

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Script_RemotePlayer.h"
+#include "GameMonster.h"
+
 
 #undef max
 #include "ClientNetwork/Include/Protocol/FBProtocol_generated.h"
@@ -105,7 +107,7 @@ namespace NetworkEvent
 		{
 			/// >> ADD
 			struct Add : public EventData {
-				std::vector<uint32_t> IDs;
+				std::vector<GameMonsterInfo> NewMonsterInfos;
 			};
 
 			/// >> REMOVE 

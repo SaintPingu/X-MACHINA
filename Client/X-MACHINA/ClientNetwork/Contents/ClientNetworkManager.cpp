@@ -87,6 +87,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	mClientNetwork->SetMaxSessionCnt(1); // 1명 접속  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
+	
 	if (FALSE == mClientNetwork->Start(L"192.168.120.9", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
@@ -213,6 +214,41 @@ void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Game::EventData> dat
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
 }
 
+std::string ClientNetworkManager::GetLocalIPv4Address()
+{
+	std::string ipAddress;
+
+	// 초기화
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+	// 네트워크 인터페이스 정보 가져오기
+	ULONG bufferSize = 0;
+	if (GetAdaptersAddresses(AF_INET, 0, nullptr, nullptr, &bufferSize) == ERROR_BUFFER_OVERFLOW) {
+		std::vector<char> buffer(bufferSize);
+		PIP_ADAPTER_ADDRESSES addressesBuffer = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&buffer[0]);
+
+		if (GetAdaptersAddresses(AF_INET, 0, nullptr, addressesBuffer, &bufferSize) == NO_ERROR) {
+			for (PIP_ADAPTER_ADDRESSES adapter = addressesBuffer; adapter != nullptr; adapter = adapter->Next) {
+				if (adapter->IfType == IF_TYPE_IEEE80211 && adapter->OperStatus == IfOperStatusUp) {
+					IP_ADAPTER_UNICAST_ADDRESS* unicast = adapter->FirstUnicastAddress;
+					if (unicast != nullptr) {
+						sockaddr_in* addr = reinterpret_cast<sockaddr_in*>(unicast->Address.lpSockaddr);
+						char ipBuffer[INET_ADDRSTRLEN];
+						inet_ntop(AF_INET, &(addr->sin_addr), ipBuffer, INET_ADDRSTRLEN);
+						ipAddress = ipBuffer;
+						break; // 첫 번째 IP만 필요하므로 루프 종료
+					}
+				}
+			}
+		}
+	}
+
+	WSACleanup();
+	return ipAddress;
+}
+
+
 
 long long ClientNetworkManager::GetTimeStamp()
 {
@@ -302,12 +338,12 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> ClientNetworkManag
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_Add_Monster(std::vector<uint32_t> infos)
+sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos)
 {
 	sptr<NetworkEvent::Game::Event_Monster::Add> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Add>();
 
 	Event->type = NetworkEvent::Game::MonsterType::Add;
-	Event->IDs = infos;
+	Event->NewMonsterInfos = infos;
 
 	return Event;
 }
@@ -426,6 +462,13 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEven
 
 void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
 {
+	std::vector<GameMonsterInfo> MonInfos = data->NewMonsterInfos;
+
+	for (int i = 0; i < MonInfos.size(); ++i) {
+		// Monster 생성! 
+		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(MonInfos[i].Type) << " \n";
+	}
+	
 
 }
 void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event_Monster::Remove* data)

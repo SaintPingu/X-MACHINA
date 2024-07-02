@@ -2,6 +2,9 @@
 #include "ClientNetworkManager.h"
 
 #include "Script_GroundObject.h"
+#include "Script_Ursacetus.h"
+#include "Script_Onyscidus.h"
+#include "Script_AdvancedCombatDroid_5.h"
 
 #include "Object.h"
 #include "Scene.h"
@@ -462,11 +465,48 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEven
 
 void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
 {
-	std::vector<GameMonsterInfo> MonInfos = data->NewMonsterInfos;
+	std::vector<GameMonsterInfo> monInfos = data->NewMonsterInfos;
 
-	for (int i = 0; i < MonInfos.size(); ++i) {
+	for (int i = 0; i < monInfos.size(); ++i) {
 		// Monster »ý¼º! 
-		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(MonInfos[i].Type) << " \n";
+		std::string monsterName{};
+		switch (monInfos[i].Type) {
+		case MonsterType::AdvancedCombatDroid_5:
+			monsterName = "AdvancedCombatDroid_5";
+			break;
+		case MonsterType::Onyscidus:
+			monsterName = "Onyscidus";
+			break;
+		case MonsterType::Ursacetus:
+			monsterName = "Ursacetus";
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		sptr<GridObject> monster = Scene::I->Instantiate(monsterName, ObjectTag::Enemy);
+		monster->SetID(monInfos[i].Id);
+		monster->SetName(monsterName);
+		monster->SetPosition(monInfos[i].Pos);
+		monster->SetLocalRotation(monInfos[i].Rot);
+
+		switch (monInfos[i].Type) {
+		case MonsterType::AdvancedCombatDroid_5:
+			monster->AddComponent<Script_AdvancedCombatDroid_5>();
+			break;
+		case MonsterType::Onyscidus:
+			monster->AddComponent<Script_Onyscidus>();
+			break;
+		case MonsterType::Ursacetus:
+			monster->AddComponent<Script_Ursacetus>();
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
 	}
 	
 

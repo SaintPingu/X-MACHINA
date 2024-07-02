@@ -218,6 +218,16 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('O')) mCamera->ZoomOut();
 	if (KEY_PRESSED('P')) mCamera->ZoomIn();
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
+
+	if (KEY_PRESSED('Q')) {
+		sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
+		remotePlayer->SetName("TEST");
+
+		remotePlayer->AddComponent<Script_GroundObject>();
+
+		remotePlayer->SetPosition(mObject->GetPosition());
+	}
+
 }
 
 

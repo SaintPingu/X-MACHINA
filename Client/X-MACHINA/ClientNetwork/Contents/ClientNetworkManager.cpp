@@ -87,7 +87,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	mClientNetwork->SetMaxSessionCnt(1); // 1¸í Á¢¼Ó  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
-	if (FALSE == mClientNetwork->Start(L"127.0.0.1", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.120.9", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}

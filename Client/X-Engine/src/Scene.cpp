@@ -42,7 +42,9 @@ Scene::Scene()
 	mGridWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
 	mLight(std::make_shared<Light>())
 {
-
+#ifdef RENDER_FOR_SERVER
+	mIsRenderBounds = true;
+#endif
 }
 
 void Scene::Release()
@@ -1009,16 +1011,6 @@ void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 	const int tileZ = index.Z % Grid::mTileCols;
 
 	mGrids[gridZ * mGridCols + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
-}
-
-
-void Scene::ToggleDrawBoundings()
-{
-	mIsRenderBounds = !mIsRenderBounds;
-
-	ProcessAllObjects([](sptr<GridObject> object) {
-		object->ToggleDrawBoundings();
-		});
 }
 
 void Scene::ToggleFilterOptions()

@@ -158,7 +158,11 @@ namespace D3DUtil {
 		DDS_ALPHA_MODE ddsAlphaMode = DDS_ALPHA_MODE_UNKNOWN;
 		bool bIsCubeMap{ false };
 
-		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(DEVICE.Get(), fileName.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
+		size_t maxsize = 0;
+#ifdef RENDER_FOR_SERVER
+		maxsize = 256;
+#endif
+		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(DEVICE.Get(), fileName.c_str(), maxsize, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_MIP_RESERVE, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
 		AssertHResult(hResult);
 
 		D3D12_HEAP_PROPERTIES heapProperties{};

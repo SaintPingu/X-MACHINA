@@ -173,8 +173,10 @@ public:
 // 서버 렌더링용
 #define RENDER_FOR_SERVER
 #ifdef RENDER_FOR_SERVER
-#define RENDER_FOR_SERVER_WITH_TERRAIN
+#define RENDER_FOR_SERVER_WITH_TEXTURE
 #endif
+
+#define RENDER_TEXTURE (!defined(RENDER_FOR_SERVER) || defined(RENDER_FOR_SERVER_WITH_TEXTURE))
 
 #pragma endregion
 

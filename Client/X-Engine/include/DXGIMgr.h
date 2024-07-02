@@ -174,6 +174,7 @@ public:
 
 	void RenderForServer();
 	void RenderForServerWithTerrain();
+	void RenderForServerWithTexture();
 
 	// full screen on/off
 	void ToggleFullScreen();

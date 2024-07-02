@@ -494,7 +494,7 @@ namespace {
 				}
 			}
 
-#ifndef RENDER_FOR_SERVER
+#ifdef RENDER_TEXTURE
 			model->SetMeshInfo(meshInfo);
 #endif
 			return model;

@@ -29,7 +29,7 @@ void Script_PlayerNetwork::LateUpdate()
 	base::LateUpdate();
 
 	DoInput();
-	//DoNetLatency();
+	DoNetLatency();
 
 }
 
@@ -42,33 +42,141 @@ void Script_PlayerNetwork::UpdateData(const void* data)
 #include <math.h>
 void Script_PlayerNetwork::DoInput()
 {
+#define TEST_1
+#ifdef TEST_1
 
-	Dir dir;
-	float v{}, h{};
-	if (KEY_PRESSED('W')) { v += 1; }
-	if (KEY_PRESSED('S')) { v -= 1; }
-	if (KEY_PRESSED('A')) { h -= 1; }
-	if (KEY_PRESSED('D')) { h += 1; }
+	/// ◆ 움직임 방향, 움직임 속도 中 하나라도 0이라면 움직이지 않을 것이다! 
 
-	dir |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
-	dir |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
 
-	UpdateMovement(dir);
+	/// +--------------------------------------------------
+	///	>> ▶▶▶▶▶ KEY TAP  
+	/// --------------------------------------------------+
 
-	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+	//if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
+	//{
+	//	mMovementSpeed = mkRunSpeed;
+	//	/* 움직임 방향 */
+	//	mMoveDir_Key_Tap = GetMoveDirection_Key_Tap();
+	//	mMoveDir_Curr = mMoveDir_Key_Tap;
+	//	LOG_MGR->Cout_Vec3("KEY_TAP : MoveDirection", mMoveDir_Curr);
 
-	auto pkt = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
-												  /* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
-												  /* MOVESATE  */ PLAYER_MOVE_STATE::Start,
-												  /* MOVEDIR   */ Transform::GetWorldDirection(dir),
-												  /* MOVESPEED */ mMovementSpeed,
-												  /* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
-												  /* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
-												  /* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
-												  /* ANiM _F   */ controller->GetParam("Vertical")->val.f);
-	CLIENT_NETWORK->Send(pkt);
+	//	/* 움직임 속도 */
+
+	//	/* - 즉시 패킷을 보낸다. */
+	//	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+	//	auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
+	//		/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
+	//		/* MOVESATE  */ PLAYER_MOVE_STATE::Start,
+	//		/* MOVEDIR   */ mMoveDir_Curr,
+	//		/* MOVESPEED */ mMovementSpeed,
+	//		/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
+	//		/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
+	//		/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
+	//		/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
+	//	CLIENT_NETWORK->Send(packet);
+
+
+	//}
+	/// +--------------------------------------------------
+	///	>> ▶▶▶▶▶ KEY PRESSED
+	/// --------------------------------------------------+
+	
+	bool bSendPacket = false;
+
+	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
+	{
+		mMoveDir_Key_Pressed = GetMoveDirection_Key_Pressed();
+
+		mMovementSpeed = mkRunSpeed;
+		/// +--------------------------------------------------------------------------------------------------------------------
+		///	♣ 이동방향이 바뀌었다면 즉시 패킷을 보낸다. 
+		/// _____________________________________________________________________________________________________________________
+		if (mMoveDir_Curr != mMoveDir_Key_Pressed) {
+			mMoveDir_Curr = mMoveDir_Key_Pressed;
+			LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
+
+			mMoveTimePoint_latest = std::chrono::steady_clock::now(); // 현재 시간
+			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+			auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
+				/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
+				/* MOVESATE  */ PLAYER_MOVE_STATE::Progress,
+				/* MOVEDIR   */ mMoveDir_Curr,
+				/* MOVESPEED */ mMovementSpeed,
+				/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
+				/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
+				/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
+				/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
+			CLIENT_NETWORK->Send(packet);
+			bSendPacket = true;
+		}
+
+		/// +--------------------------------------------------------------------------------------------------------------------
+		///	♣ 이동방향이 같다면 (PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000 ) ms시간 간격으로 보낸다.
+		/// _____________________________________________________________________________________________________________________
+
+		else if (mMoveDir_Curr == mMoveDir_Key_Pressed) {
+			auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
+			if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMoveTimePoint_latest).count() >= PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000)
+			{
+				LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
+
+				mMoveTimePoint_latest = currentTime;
+				const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+				auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
+					/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
+					/* MOVESATE  */ PLAYER_MOVE_STATE::Progress,
+					/* MOVEDIR   */ mMoveDir_Curr,
+					/* MOVESPEED */ mMovementSpeed,
+					/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
+					/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
+					/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
+					/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
+				CLIENT_NETWORK->Send(packet);
+				bSendPacket = true;
+
+			}
+		}
+
+		mMoveDir_Curr = mMoveDir_Key_Pressed;
+	}
+
+	/// +--------------------------------------------------
+	///	>> ▶▶▶▶▶ KEY AWAY  
+	/// --------------------------------------------------+
+	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
+	{
+		if (bSendPacket == false) {
+			Vec3 MoveDir = Vec3(0.f, 0.f, 0.f);
+			LOG_MGR->Cout_Vec3("KEY_AWAY : MoveDirection", MoveDir);
+
+			/* 즉시 패킷을 보낸다. */
+			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+			auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
+				/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
+				/* MOVESATE  */ PLAYER_MOVE_STATE::End,
+				/* MOVEDIR   */ MoveDir,
+				/* MOVESPEED */ mMovementSpeed,
+				/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
+				/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
+				/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
+				/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
+			CLIENT_NETWORK->Send(packet);
+
+			/* 움직임 상태 초기화 */
+			mMoveDir_Key_Pressed = MoveDir;
+			mMoveDir_Key_Tap = MoveDir;
+		}
+
+	}
+
 
 	return;
+#endif
+
+#ifdef TEST_2 
+	/*
+		KEY_TAP 했을 때 스피드랑 움직임 방향이 0이라 패킷을 보내도 적용이 안됨 이를 주의해서 다시 짜자
+	*/
 
 	///* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
 	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
@@ -84,7 +192,7 @@ void Script_PlayerNetwork::DoInput()
 		mMoveTimePoint_latest = std::chrono::steady_clock::now();
 		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
 
-		float		Vel		 = 5.f; // GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
+		float		Vel      = 5.f; // GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
 		Vec3		Pos      = GameFramework::I->GetPlayer()->GetPosition();
 		//Vec3		MoveDir  = //Pos - mPrevPos; MoveDir.Normalize();
 		float		y_rot    = GetYRotation();
@@ -120,13 +228,67 @@ void Script_PlayerNetwork::DoInput()
 		Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::End);
 		//std::cout << "SEND TRAN CPKT : END\n";
 	}
+#endif
 
-	if (GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMoveDir() !=
-		GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetPrevMoveDir())
-	{
-		//mMoveTimePoint_latest = std::chrono::steady_clock::now();
-		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
-	}
+
+	
+}
+
+Vec3 Script_PlayerNetwork::GetMoveDirection_Key_Tap()
+{
+	Dir MoveDirection = Dir::None;
+	float v{};
+	float h{};
+
+	// 움직임 방향을 구한다.
+	if (KEY_TAP('W')) { v += 1; }
+	if (KEY_TAP('S')) { v -= 1; }
+	if (KEY_TAP('A')) { h -= 1; }
+	if (KEY_TAP('D')) { h += 1; }
+
+	MoveDirection |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
+	MoveDirection |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
+
+	Vec3 MoveDir = Transform::GetWorldDirection(MoveDirection);
+	return MoveDir;
+}
+
+Vec3 Script_PlayerNetwork::GetMoveDirection_Key_Pressed()
+{
+	Dir MoveDirection = Dir::None;
+	float v{};
+	float h{};
+
+	// 움직임 방향을 구한다.
+	if (KEY_PRESSED('W')) { v += 1; }
+	if (KEY_PRESSED('S')) { v -= 1; }
+	if (KEY_PRESSED('A')) { h -= 1; }
+	if (KEY_PRESSED('D')) { h += 1; }
+
+	MoveDirection |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
+	MoveDirection |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
+
+	Vec3 MoveDir = Transform::GetWorldDirection(MoveDirection);
+	return MoveDir;
+}
+
+Vec3 Script_PlayerNetwork::GetmoveDirection_Key_Away()
+{
+	Dir MoveDirection = Dir::None;
+	float v{};
+	float h{};
+
+	// 움직임 방향을 구한다.
+	if (KEY_AWAY('W')) { v += 1; }
+	if (KEY_AWAY('S')) { v -= 1; }
+	if (KEY_AWAY('A')) { h -= 1; }
+	if (KEY_AWAY('D')) { h += 1; }
+
+	MoveDirection |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
+	MoveDirection |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
+
+	Vec3 MoveDir = Transform::GetWorldDirection(MoveDirection);
+	return MoveDir;
 }
 
 void Script_PlayerNetwork::UpdateMovement(Dir dir)

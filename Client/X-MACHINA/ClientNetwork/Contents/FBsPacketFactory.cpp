@@ -70,6 +70,11 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_NetworkLatency(session, *packet);
 	}
 	break;
+
+	/// ________________________________________________________________________________
+	/// Remote Player 
+	/// ________________________________________________________________________________ 
+
 	case FBsProtocolID::SPkt_Player_Transform:
 	{
 		//LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ SPkt_Transform ]\n");
@@ -102,6 +107,10 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 	}
 	break;
 
+
+	/// ________________________________________________________________________________
+	/// Monster 
+	/// ________________________________________________________________________________ 
 
 	case FBsProtocolID::SPkt_NewMonster:
 	{
@@ -370,7 +379,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	long long latency = pkt.latency();
-	uint32_t id = pkt.player_id();
+	uint32_t id       = pkt.player_id();
 
 
 	float	vel       = pkt.velocity();
@@ -392,8 +401,6 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
 	CLIENT_NETWORK->RegisterEvent(Move_EventData);
 
-	//LOG_MGR->Cout("MOVE DIR PKT : ", moveDir.x, " ", moveDir.y, " ", moveDir.z, '\n');
-
 	/// +---------------------------
 	///	Extrapolate Next Packet Pos 
 	/// ---------------------------+
@@ -405,9 +412,8 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	data.PingTime                 = static_cast<long long>((PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000) + (latency / 1000.0) + (CurrLatency.load() / 1000.0));
 	data.MoveDir                  = moveDir;
 	data.MoveState                = mState;
-	//LOG_MGR->Cout(data.PingTime, " ", data.PingTime / 1000.0, '\n');
 
-	/* 위치 예측 ( TargetPos ) */
+	LOG_MGR->Cout(data.PingTime, " ms ping \n");
 	SPtr_ServerSession serversession = std::static_pointer_cast<ServerSession>(session);
 
 	if (mState == ExtData::MOVESTATE::End) {
@@ -416,16 +422,15 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 
 	}
 	else {
-		if (mState == ExtData::MOVESTATE::Start)
-			int i = 0;
-
-		data.TargetPos.x = static_cast<float>(Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0)));
-		data.TargetPos.z = static_cast<float>(Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0)));
-		
+		data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
 	}
 
+	//LOG_MGR->Cout_Vec3("Packet Pos : ", Packetpos);
+	//LOG_MGR->Cout_Vec3("Target Pos : ", data.TargetPos);
+	LOG_MGR->Cout_Vec3(" MOVE DIR ", moveDir);
+
 	data.TargetRot = rot;
-	data.Velocity = vel;
+	data.Velocity  = vel;
 
 	data.Animdata.AnimParam_h = animparam_h;
 	data.Animdata.AnimParam_v = animparam_v;

@@ -43,24 +43,27 @@ void Script_RemotePlayer::LateUpdate()
 	return;
 #else
 
+
+
 	switch (mCurrExtraPolated_Data.MoveState)
 	{
 	case ExtData::MOVESTATE::Start:
+	{
+		curpos      += mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
+		mObject->SetPosition(curpos);
+	}
+	break;
 	case ExtData::MOVESTATE::Progress:
 	{
-		if (mCurrExtraPolated_Data.MoveState == ExtData::MOVESTATE::Start) {
-			//std::cout << "START \n";
-			//std::cout << "CURPOS : " << curpos.x << " " << curpos.z << "  TARPOS : " << TarPos.x << " " << TarPos.z << "\n";
-		}
-		mCurrMoveDir = TarPos - curpos; mCurrMoveDir.Normalize();
-		curpos += mCurrMoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
+		curpos += mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
 		mObject->SetPosition(curpos);
-
-
 	}
-		break;
+	break;
 	case ExtData::MOVESTATE::End:
 	{
+		//break;
+		//LOG_MGR->Cout("REMOTE MOVE END : \n");
+
 		mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
 
 		if (mBezierTime >= 1.f)
@@ -70,7 +73,7 @@ void Script_RemotePlayer::LateUpdate()
 		Vec3 point = lerp(curpos, TarPos, mBezierTime);
 		mObject->SetPosition(point);
 	}
-		break;
+	break;
 	}
 	mPrevMoveDir = mCurrMoveDir;
 

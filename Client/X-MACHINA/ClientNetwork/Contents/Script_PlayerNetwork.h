@@ -20,7 +20,17 @@ private:
 	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
 
 	Vec3 mPrevPos;
+	PlayerMotion mMotion;	
+	PlayerMotion mPrevMovement;
+	bool mIsAim{};
 
+
+	float mMovementSpeed = 0.f;
+	float mkSitWalkSpeed   = 1.5f;
+	float mkStandWalkSpeed = 2.2f;
+	float mkRunSpeed       = 5.f;
+	float mkSprintSpeed    = 8.f;
+	float mkStartRotAngle  = 40.f;
 public:
 	virtual void Awake() override;
 	virtual void LateUpdate() override;
@@ -28,6 +38,9 @@ public:
 
 private:
 	void DoInput();
+	void UpdateMovement(Dir dir);
+	void SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState);
+
 
 	void DoNetLatency();
 

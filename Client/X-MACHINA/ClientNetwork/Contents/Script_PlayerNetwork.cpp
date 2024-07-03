@@ -45,24 +45,30 @@ void Script_PlayerNetwork::DoInput()
 
 	Dir dir;
 	float v{}, h{};
-	if (KEY_TAP('W')) { v += 1; }
-	if (KEY_TAP('S')) { v -= 1; }
-	if (KEY_TAP('A')) { h -= 1; }
-	if (KEY_TAP('D')) { h += 1; }
+	if (KEY_PRESSED('W')) { v += 1; }
+	if (KEY_PRESSED('S')) { v -= 1; }
+	if (KEY_PRESSED('A')) { h -= 1; }
+	if (KEY_PRESSED('D')) { h += 1; }
 
 	dir |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
 	dir |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
 
 	UpdateMovement(dir);
-	const Vec3 dirVec = Transform::GetWorldDirection(dir);
 
 	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-	float animparam_h      = controller->GetParam("Horizontal")->val.f;
-	float animparam_v      = controller->GetParam("Vertical")->val.f;
 
-	auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, PLAYER_MOVE_STATE::Start, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
+	auto pkt = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
+												  /* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
+												  /* MOVESATE  */ PLAYER_MOVE_STATE::Start,
+												  /* MOVEDIR   */ Transform::GetWorldDirection(dir),
+												  /* MOVESPEED */ mMovementSpeed,
+												  /* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
+												  /* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
+												  /* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
+												  /* ANiM _F   */ controller->GetParam("Vertical")->val.f);
 	CLIENT_NETWORK->Send(pkt);
 
+	return;
 
 	///* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
 	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
@@ -77,7 +83,7 @@ void Script_PlayerNetwork::DoInput()
 
 		mMoveTimePoint_latest = std::chrono::steady_clock::now();
 		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
-0
+
 		float		Vel		 = 5.f; // GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
 		Vec3		Pos      = GameFramework::I->GetPlayer()->GetPosition();
 		//Vec3		MoveDir  = //Pos - mPrevPos; MoveDir.Normalize();

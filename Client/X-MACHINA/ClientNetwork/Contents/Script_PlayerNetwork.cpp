@@ -42,6 +42,28 @@ void Script_PlayerNetwork::UpdateData(const void* data)
 #include <math.h>
 void Script_PlayerNetwork::DoInput()
 {
+
+	Dir dir;
+	float v{}, h{};
+	if (KEY_TAP('W')) { v += 1; }
+	if (KEY_TAP('S')) { v -= 1; }
+	if (KEY_TAP('A')) { h -= 1; }
+	if (KEY_TAP('D')) { h += 1; }
+
+	dir |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
+	dir |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
+
+	UpdateMovement(dir);
+	const Vec3 dirVec = Transform::GetWorldDirection(dir);
+
+	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+	float animparam_h      = controller->GetParam("Horizontal")->val.f;
+	float animparam_v      = controller->GetParam("Vertical")->val.f;
+
+	auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, PLAYER_MOVE_STATE::Start, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
+	CLIENT_NETWORK->Send(pkt);
+
+
 	///* Player Network 관련 기능을 담당하는 Script에 넣을 예정 .. */
 	if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
 	{
@@ -55,7 +77,7 @@ void Script_PlayerNetwork::DoInput()
 
 		mMoveTimePoint_latest = std::chrono::steady_clock::now();
 		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
-
+0
 		float		Vel		 = 5.f; // GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
 		Vec3		Pos      = GameFramework::I->GetPlayer()->GetPosition();
 		//Vec3		MoveDir  = //Pos - mPrevPos; MoveDir.Normalize();
@@ -98,6 +120,86 @@ void Script_PlayerNetwork::DoInput()
 	{
 		//mMoveTimePoint_latest = std::chrono::steady_clock::now();
 		//Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start);
+	}
+}
+
+void Script_PlayerNetwork::UpdateMovement(Dir dir)
+{	
+	// 현재 캐릭터의 움직임 상태를 키 입력에 따라 설정한다.
+	PlayerMotion crntMovement = PlayerMotion::None;
+	// Stand / Sit
+	if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= PlayerMotion::Sit; }
+	else { crntMovement |= PlayerMotion::Stand; }
+	// Walk / Run / Sprint
+	if (dir != Dir::None) {
+		if (mIsAim) {
+			crntMovement |= PlayerMotion::Walk;
+		}
+		else {
+			if (KEY_PRESSED(VK_SHIFT)) { crntMovement |= PlayerMotion::Sprint; }
+			else if (KEY_PRESSED('C')) { crntMovement |= PlayerMotion::Walk; }
+			else { crntMovement |= PlayerMotion::Run; }
+		}
+	}
+
+	PlayerMotion prevState = PlayerMotion::GetState(mPrevMovement);
+	PlayerMotion prevMotion = PlayerMotion::GetMotion(mPrevMovement);
+
+	PlayerMotion crntState = PlayerMotion::GetState(crntMovement);
+	PlayerMotion crntMotion = PlayerMotion::GetMotion(crntMovement);
+
+	SetState(prevState, prevMotion, crntState);
+
+	mPrevMovement = crntState | crntMotion;
+}
+
+void Script_PlayerNetwork::SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState)
+{	// 이전 움직임 상태와 다른 경우만 값을 업데이트 한다.
+	// 이전 상태를 취소하고 현재 상태로 전환한다.
+	if (!(crntState & prevState)) {
+		switch (prevState) {
+		case PlayerMotion::None:
+		case PlayerMotion::Stand:
+			break;
+		case PlayerMotion::Sit:
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
+
+		switch (crntState) {
+		case PlayerMotion::None:
+			break;
+		case PlayerMotion::Stand:
+		{
+			switch (prevMotion) {
+			case PlayerMotion::None:
+				break;
+			case PlayerMotion::Walk:
+				mMovementSpeed = mkStandWalkSpeed;
+				break;
+			case PlayerMotion::Run:
+				mMovementSpeed = mkRunSpeed;
+				break;
+			case PlayerMotion::Sprint:
+				mMovementSpeed = mkSprintSpeed;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
+		break;
+		case PlayerMotion::Sit:
+			mMovementSpeed = mkSitWalkSpeed;
+			break;
+
+		default:
+			assert(0);
+			break;
+		}
 	}
 }
 

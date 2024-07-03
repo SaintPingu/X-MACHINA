@@ -70,7 +70,7 @@ HeightMapImage::HeightMapImage(const std::string& fileName)
 
 	FileIO::ReadVal(file, mWidth);
 	FileIO::ReadVal(file, mLength);
-
+	 
 	FileIO::ReadRange(file, mHeightMapPixels, mWidth * mLength);
 }
 

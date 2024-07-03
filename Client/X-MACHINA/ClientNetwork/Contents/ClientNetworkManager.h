@@ -1,18 +1,18 @@
-#pragma once
+ï»¿#pragma once
 
 /// +-------------------------------------------------
 ///				 Client Network Manager 
 /// __________________________________________________
-///		         Å¬¶óÀÌ¾ðÆ® ³×Æ®¿öÅ© ¸Å´ÏÀú
+///		         í´ë¼ì´ì–¸íŠ¸ ë„¤íŠ¸ì›Œí¬ ë§¤ë‹ˆì €
 /// 
-/// ±â´É : ¼­¹ö¿ÍÀÇ Åë½Å ¹× ¼ö½Å¹ÞÀº ÆÐÅ¶À» Ã³¸®ÇÏ´Â ¿ªÇÒ 
-///        LockÀº ÃÖ´ëÇÑ ¿©±â¼­¸¸ °É °ÍÀ» ÁöÇâÇÑ´Ù.  
-/// (LockÀÌ Áß±¸³­¹æ ÀÖÀ¸¸é ³ªÁß¿¡ ¹ö±×¿øÀÎÀ» Ã£±â ±²ÀåÈ÷ Èûµé´Ù.)
+/// ê¸°ëŠ¥ : ì„œë²„ì™€ì˜ í†µì‹  ë° ìˆ˜ì‹ ë°›ì€ íŒ¨í‚·ì„ ì²˜ë¦¬í•˜ëŠ” ì—­í•  
+///        Lockì€ ìµœëŒ€í•œ ì—¬ê¸°ì„œë§Œ ê±¸ ê²ƒì„ ì§€í–¥í•œë‹¤.  
+/// (Lockì´ ì¤‘êµ¬ë‚œë°© ìžˆìœ¼ë©´ ë‚˜ì¤‘ì— ë²„ê·¸ì›ì¸ì„ ì°¾ê¸° êµ‰ìž¥ížˆ íž˜ë“¤ë‹¤.)
 /// 
 /// [ Front Events Queue ] -------> Process Events  ( GameLoop(main) Thread )
-///		¡è
+///		â†‘
 ///    LOCK -- ( Change )
-///		¡é
+///		â†“
 /// [ Back  Events Queue ] <------  Register Events ( Worker(Server) Threads)
 /// -------------------------------------------------+
 #undef max
@@ -68,7 +68,7 @@ public:
 
 public:
 	/// +---------------------------------------------------------------------------
-	/// >> ¢º¢º¢º¢º¢º CREATE EVENT 
+	/// >> â–¶â–¶â–¶â–¶â–¶ CREATE EVENT 
 	/// ---------------------------------------------------------------------------+
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Add>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove>				CreateEvent_Remove_RemotePlayer(uint32_t remID);
@@ -85,7 +85,7 @@ public:
 	
 	
 	/// +---------------------------------------------------------------------------
-	/// >> ¢º¢º¢º¢º¢º PROCESS EVENT 
+	/// >> â–¶â–¶â–¶â–¶â–¶ PROCESS EVENT 
 	/// ---------------------------------------------------------------------------+
 	/// REMOTE PLAYER 
 	void ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data);
@@ -105,6 +105,8 @@ public:
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();
 
+	std::string		WstrToStr(const std::wstring& source);
+	std::wstring	StrToWstr(const std::string& source);
 
 };
 

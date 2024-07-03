@@ -14,7 +14,7 @@ void ResourceMgr::LoadResources()
 {
 	CreateParticleSystemCPUData();
 
-#if RENDER_TEXTURE
+#ifdef RENDER_TEXTURE
 	LoadTextures();
 	LoadParticleSystemCPUData();
 #else

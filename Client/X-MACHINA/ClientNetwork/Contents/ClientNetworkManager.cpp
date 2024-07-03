@@ -90,13 +90,20 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	mClientNetwork->SetMaxSessionCnt(1); // 1¸í Á¢¼Ó  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
-	
-	if (FALSE == mClientNetwork->Start(L"192.168.120.9", 7777)) {
+	std::string Wifi_Ipv4 = GetLocalIPv4Address();
+	std::wstring wifi_Ipv4_wstr = StrToWstr(Wifi_Ipv4);
+
+//#define USE_LOOP_BACK_ADDR
+#ifdef USE_LOOP_BACK_ADDR
+	wifi_Ipv4_wstr = L"127.0.0.1";
+#endif
+
+	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
+	if (FALSE == mClientNetwork->Start(wifi_Ipv4_wstr, 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
 	LOG_MGR->Cout("[SUCCESS] CLIENT NETWORK SERVICE START \n");
-
 }
 
 void ClientNetworkManager::Launch(int ThreadNum)
@@ -534,4 +541,14 @@ long long ClientNetworkManager::GetCurrentTimeMilliseconds()
 	auto now = std::chrono::system_clock::now();
 	auto duration = now.time_since_epoch();
 	return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+}
+
+
+std::string		ClientNetworkManager::WstrToStr(const std::wstring& source)
+{
+	return std::string().assign(source.begin(), source.end());
+}
+std::wstring	ClientNetworkManager::StrToWstr(const std::string& source)
+{
+	return std::wstring().assign(source.begin(), source.end());
 }

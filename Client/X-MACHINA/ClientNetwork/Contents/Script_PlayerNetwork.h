@@ -7,7 +7,7 @@ class AnimatorController;
 
 namespace PlayerNetworkInfo
 {
-	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 2.f; // 1s에 16번 간격으로 CPkt_Transform 전송
+	constexpr float SendInterval_CPkt_Trnasform      = 1.f / 5.f; // 1s에 16번 간격으로 CPkt_Transform 전송
 	constexpr float sendInterval_CPkt_NetworkLatency = 1.f / 10.f; // 1s에 10번 간격으로 CPkt_NetworkLatency 전송
 
 }

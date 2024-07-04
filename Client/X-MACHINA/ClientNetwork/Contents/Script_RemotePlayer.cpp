@@ -24,6 +24,7 @@ void Script_RemotePlayer::LateUpdate()
 	Vec3& curpos = mObject->GetPosition();
 	Vec3& TarPos = mCurrExtraPolated_Data.TargetPos;
 
+
 //#define BEZIER_CURVE_DR
 #ifdef BEZIER_CURVE_DR
 
@@ -32,7 +33,7 @@ void Script_RemotePlayer::LateUpdate()
 	///		BEZIER CURVE with Dead Reckoning 
 	/// ------------------------------------------+
 
-	mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
+	mBezierTime += DeltaTime();
 
 	if (mBezierTime >= 1.f)
 		mBezierTime = 1.f;
@@ -43,24 +44,63 @@ void Script_RemotePlayer::LateUpdate()
 	return;
 #else
 
+#define LERP_DR
+#ifdef LERP_DR
+
+	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
+	mObject->SetPosition(newPosition);
+	return;
+
+
+	mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
+
+	if (mBezierTime >= 1.f)
+		mBezierTime = 1.f;
+
+	//Vec3 point = Bezier_Curve_3(curpos, TarPos, mBezierTime);
+	Vec3 point = lerp(curpos, TarPos, mBezierTime);
+	mObject->SetPosition(point);
+
+	return;
+
+#endif
 
 
 	switch (mCurrExtraPolated_Data.MoveState)
 	{
 	case ExtData::MOVESTATE::Start:
 	{
+		LOG_MGR->Cout_Vec3("curpos", curpos);
+		LOG_MGR->Cout_Vec3("TarPos", TarPos);
+
 		curpos      += mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
 		mObject->SetPosition(curpos);
 	}
 	break;
 	case ExtData::MOVESTATE::Progress:
 	{
+		LOG_MGR->Cout_Vec3("curpos", curpos);
+		LOG_MGR->Cout_Vec3("TarPos", TarPos);
+
 		curpos += mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
 		mObject->SetPosition(curpos);
 	}
 	break;
 	case ExtData::MOVESTATE::End:
 	{
+
+		// Target Pos 를 향해 움직인다.
+		
+		Vec3 Direction = TarPos - curpos; Direction.Normalize();
+
+		curpos += Direction * mCurrExtraPolated_Data.Velocity * DeltaTime();
+
+		if ((TarPos - curpos).Length() < mCurrExtraPolated_Data.Velocity * DeltaTime()) {
+			curpos = TarPos;
+		}
+		mObject->SetPosition(curpos);
+		break;
+
 		//break;
 		//LOG_MGR->Cout("REMOTE MOVE END : \n");
 
@@ -150,6 +190,26 @@ Vec3 Script_RemotePlayer::lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam)
 	return Vec3((1.0f - PosLerpParam) * CurrPos.x + PosLerpParam * TargetPos.x,
 		(1.0f - PosLerpParam) * CurrPos.y + PosLerpParam * TargetPos.y,
 		(1.0f - PosLerpParam) * CurrPos.z + PosLerpParam * TargetPos.z);
+}
+
+Vec3 Script_RemotePlayer::lerp(Vec3 CurrPos, Vec3 TargetPos, float Deltatime, float speed)
+{
+	float distanceToMove = speed * Deltatime;
+	float totalDistance = (TargetPos - CurrPos).Length();
+
+	float PosLerpParam = 0.f;
+	if (totalDistance > 0.f) {
+		PosLerpParam = distanceToMove / totalDistance;
+	}
+
+	// clamp
+	if (PosLerpParam > 1.f)PosLerpParam = 1.f;
+
+
+
+	return Vec3((1.0f - PosLerpParam) * CurrPos.x + PosLerpParam * TargetPos.x,
+				(1.0f - PosLerpParam) * CurrPos.y + PosLerpParam * TargetPos.y,
+				(1.0f - PosLerpParam) * CurrPos.z + PosLerpParam * TargetPos.z);
 }
 
 Vec3 Script_RemotePlayer::quadraticInterpolation(const Vec3& p0, const Vec3& p1, const Vec3& p2, float t)

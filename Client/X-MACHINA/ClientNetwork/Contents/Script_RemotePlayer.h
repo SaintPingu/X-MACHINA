@@ -81,6 +81,7 @@ public:
 	Vec3 GetDirection(Vec3 dir);
 	Vec3 CalculateDirection(float yAngleRadian);
 	Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
+	Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float Deltatime, float speed);
 	Vec3 quadraticInterpolation(const Vec3& p0, const Vec3& p1, const Vec3& p2, float t);
 	float GetYAngleFromQuaternion(const Vec4& rotationQuaternion);
 
@@ -102,6 +103,13 @@ public:
 		Vec3 point = (uu * p0) + (2.0f * u * t * p1) + (tt * p2);
 
 		return point;
+	}
+
+	float Distance(const Vec3& v1, const Vec3& v2) {
+		return sqrt((v1.x - v2.x) * (v1.x - v2.x) +
+					(v1.y - v2.y) * (v1.y - v2.y) +
+					(v1.z - v2.z) * (v1.z - v2.z));
+
 	}
 };
 

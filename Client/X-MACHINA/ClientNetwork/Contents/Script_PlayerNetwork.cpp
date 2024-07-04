@@ -108,6 +108,8 @@ void Script_PlayerNetwork::DoInput()
 				/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
 			CLIENT_NETWORK->Send(packet);
 			bSendPacket = true;
+			LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
+
 		}
 
 		/// +--------------------------------------------------------------------------------------------------------------------
@@ -133,6 +135,7 @@ void Script_PlayerNetwork::DoInput()
 					/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
 				CLIENT_NETWORK->Send(packet);
 				bSendPacket = true;
+				LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
 
 			}
 		}
@@ -165,6 +168,9 @@ void Script_PlayerNetwork::DoInput()
 			/* 움직임 상태 초기화 */
 			mMoveDir_Key_Pressed = MoveDir;
 			mMoveDir_Key_Tap = MoveDir;
+
+			LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
+
 		}
 
 	}
@@ -194,7 +200,7 @@ void Script_PlayerNetwork::DoInput()
 
 		float		Vel      = 5.f; // GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
 		Vec3		Pos      = GameFramework::I->GetPlayer()->GetPosition();
-		//Vec3		MoveDir  = //Pos - mPrevPos; MoveDir.Normalize();
+		//Vec3		MoveDir  = Pos - mPrevPos; MoveDir.Normalize();
 		float		y_rot    = GetYRotation();
 		Vec3		Rot      = Vec3(0.f, y_rot, 0.f);
 		Vec3		SpineDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();

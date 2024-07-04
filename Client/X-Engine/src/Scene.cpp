@@ -31,15 +31,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region C/Dtor
 namespace {
-	constexpr int kGridWidthCount = 20;						// all grid count = n*n
-	constexpr Vec3 kBorderPos = Vec3(256, 200, 256);		// center of border
-	constexpr Vec3 kBorderExtents = Vec3(1500, 500, 1500);		// extents of border
+	constexpr int kGridXCount     = 20;
+	constexpr int kGridZCount     = 10;
+	constexpr Vec3 kBorderPos     = Vec3(500, 20, 250);		// center of border
+	constexpr Vec3 kBorderExtents = Vec3(1000, 500, 500);		// extents of border
 }
 
 Scene::Scene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
-	mGridWidth(static_cast<int>(mMapBorder.Extents.x / kGridWidthCount)),
+	mGridXLength(static_cast<int>(mMapBorder.Extents.x / kGridXCount)),
+	mGridZLength(static_cast<int>(mMapBorder.Extents.z / kGridZCount)),
 	mLight(std::make_shared<Light>())
 {
 
@@ -259,30 +261,33 @@ void Scene::BuildGrid()
 	constexpr float kMaxHeight = 300.f;	// for 3D grid
 
 	// recalculate scene grid size
-	const int adjusted = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridWidth);
-	mMapBorder.Extents = Vec3((float)adjusted, mMapBorder.Extents.y, (float)adjusted);
+	const int adjustedX = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridXLength);
+	const int adjustedZ = Math::GetNearestMultiple((int)mMapBorder.Extents.z, mGridZLength);
+	mMapBorder.Extents = Vec3((float)adjustedX, mMapBorder.Extents.y, (float)adjustedZ);
 
 	// set grid start pos
 	mGridStartPoint = mMapBorder.Center.x - mMapBorder.Extents.x / 2;
 
 	// set grid count
-	mGridCols = adjusted / mGridWidth;
-	const int gridCount = mGridCols * mGridCols;
+	mGridXCount = adjustedX / mGridXLength;
+	mGridZCount = adjustedZ / mGridZLength;
+	const int gridCount = mGridXCount * mGridZCount;
 	mGrids.resize(gridCount);
 
 	// set grid bounds
-	const float gridExtent = (float)mGridWidth / 2.0f;
-	for (int y = 0; y < mGridCols; ++y) {
-		for (int x = 0; x < mGridCols; ++x) {
-			float gridX = (mGridWidth * x) + ((float)mGridWidth / 2) + mGridStartPoint;
-			float gridZ = (mGridWidth * y) + ((float)mGridWidth / 2) + mGridStartPoint;
+	const float gridExtentX = (float)mGridXLength / 2.0f;
+	const float gridExtentZ = (float)mGridZLength / 2.0f;
+	for (int z = 0; z < mGridZCount; ++z) {
+		for (int x = 0; x < mGridXCount; ++x) {
+			float gridX = (mGridXLength * x) + ((float)mGridXLength / 2) + mGridStartPoint;
+			float gridZ = (mGridZLength * z) + ((float)mGridZLength / 2) + mGridStartPoint;
 
 			BoundingBox bb{};
 			bb.Center = Vec3(gridX, kMaxHeight, gridZ);
-			bb.Extents = Vec3(gridExtent, kMaxHeight, gridExtent);
+			bb.Extents = Vec3(gridExtentX, kMaxHeight, gridExtentZ);
 
-			int index = (y * mGridCols) + x;
-			mGrids[index] = std::make_shared<Grid>(index, mGridWidth, bb);
+			int index = (z * mGridXCount) + x;
+			mGrids[index] = std::make_shared<Grid>(index, mGridXLength, mGridZLength, bb);
 		}
 	}
 }
@@ -769,14 +774,14 @@ void Scene::RenderObjectBounds()
 //#define DRAW_SCENE_GRID_3D
 void Scene::RenderGridBounds()
 {
-	for (const auto& grid : mGrids) {
+	for (const auto& grid : mSurroundGrids) {
 #ifdef DRAW_SCENE_GRID_3D
 		MeshRenderer::Render(grid->GetBB());
 #else
 		constexpr float kGirdHeight = 0.5f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
-		MeshRenderer::RenderPlane(pos, (float)mGridWidth, (float)mGridWidth);
+		MeshRenderer::RenderPlane(pos, (float)mGridXLength, (float)mGridZLength);
 #endif
 	}
 }
@@ -888,7 +893,7 @@ void Scene::AnimateObjects()
 void Scene::UpdateRenderedObjects()
 {
 	if (mRenderedObjects.empty()) {
-		for (const auto& grid : mSurroundGrids) {
+		for (const auto& grid : mGrids) {
 			if (grid->Empty()) {
 				continue;
 			}
@@ -958,10 +963,10 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 	pos.x -= mGridStartPoint;
 	pos.z -= mGridStartPoint;
 
-	const int gridX = static_cast<int>(pos.x / mGridWidth);
-	const int gridZ = static_cast<int>(pos.z / mGridWidth);
+	const int gridX = static_cast<int>(pos.x / mGridXLength);
+	const int gridZ = static_cast<int>(pos.z / mGridZLength);
 
-	return gridZ * mGridCols + gridX;
+	return gridZ * mGridXCount + gridX;
 }
 
 Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
@@ -977,7 +982,7 @@ Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
 {
 	// Ÿ���� ���� �ε����κ��� ���� �������� ���
 	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
-	const float posZ = index.Z * Grid::mkTileWidth + mGridStartPoint;
+	const float posZ = index.Z * Grid::mkTileHeight + mGridStartPoint;
 
 	return Vec3{ posX, 0, posZ };
 }
@@ -990,25 +995,25 @@ Tile Scene::GetTileFromPos(const Vec3& pos) const
 Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 {
 	// Ÿ���� ���� �ε����κ��� Ÿ���� ���� ��ȯ
-	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
-	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridXLength);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridZLength);
 
-	const int tileX = index.X % Grid::mTileRows;
-	const int tileZ = index.Z % Grid::mTileCols;
+	const int tileX = index.X % Grid::mTileCols;
+	const int tileZ = index.Z % Grid::mTileRows;
 
-	return mGrids[gridZ * mGridCols + gridX]->GetTileFromUniqueIndex(Pos{tileZ, tileX});
+	return mGrids[gridZ * mGridXCount + gridX]->GetTileFromUniqueIndex(Pos{tileZ, tileX});
 }
 
 void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 {
 	// Ÿ���� ���� �ε����κ��� Ÿ���� ���� ��ȯ
-	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridWidth);
-	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridWidth);
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridXLength);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridZLength);
 
-	const int tileX = index.X % Grid::mTileRows;
-	const int tileZ = index.Z % Grid::mTileCols;
+	const int tileX = index.X % Grid::mTileCols;
+	const int tileZ = index.Z % Grid::mTileRows;
 
-	mGrids[gridZ * mGridCols + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
+	mGrids[gridZ * mGridXCount + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
 }
 
 
@@ -1162,8 +1167,8 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 	std::vector<sptr<Grid>> result;
 	result.reserve(9);
 
-	const int gridX = gridIndex % mGridCols;
-	const int gridZ = gridIndex / mGridCols;
+	const int gridX = gridIndex % mGridXCount;
+	const int gridZ = gridIndex / mGridXCount;
 
 	for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
 		for (int offsetX = -1; offsetX <= 1; ++offsetX) {
@@ -1171,8 +1176,8 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 			const int neighborZ = gridZ + offsetZ;
 
 			// �ε����� ��ü �׸��� ���� ���� �ִ��� Ȯ��
-			if (neighborX >= 0 && neighborX < mGridCols && neighborZ >= 0 && neighborZ < mGridCols) {
-				const int neighborIndex = neighborZ * mGridCols + neighborX;
+			if (neighborX >= 0 && neighborX < mGridXCount && neighborZ >= 0 && neighborZ < mGridZCount) {
+				const int neighborIndex = (neighborZ * mGridXCount) + neighborX;
 
 				if (neighborIndex == gridIndex && !includeSelf) {
 					continue;
@@ -1182,6 +1187,7 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 			}
 		}
 	}
+	assert(!result.empty());
 
 	return result;
 }

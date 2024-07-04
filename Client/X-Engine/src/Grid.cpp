@@ -179,14 +179,14 @@ void CollisionManager::ProcessCollision(GridObject* objectA, GridObject* objectB
 }
 
 
-Grid::Grid(int index, int width, const BoundingBox& bb)
+Grid::Grid(int index, int width, int height, const BoundingBox& bb)
 	:
 	mIndex(index),
 	mBB(bb)
 {
-	mTileRows = static_cast<int>(width / mkTileHeight);
+	mTileRows = static_cast<int>(height / mkTileHeight);
 	mTileCols = static_cast<int>(width / mkTileWidth);
-	mTiles = std::vector<std::vector<Tile>>(mTileCols, std::vector<Tile>(mTileRows, Tile::None));
+	mTiles = std::vector<std::vector<Tile>>(mTileRows, std::vector<Tile>(mTileCols, Tile::None));
 
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Building);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::DissolveBuilding);
@@ -258,6 +258,10 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 
 			for (int dir = 0; dir < 4; ++dir) {
 				Pos nextPosT = curNode + gkFront[dir];
+				if (nextPosT.X < 0 || nextPosT.Z < 0) {
+					continue;
+				}
+
 				Vec3 nextPosW = Scene::I->GetTilePosFromUniqueIndex(nextPosT);
 				nextPosW.y = pos.y;
 

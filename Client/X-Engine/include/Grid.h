@@ -66,7 +66,7 @@ public:
 	static int mTileCols;
 
 public:
-	Grid(int index, int width, const BoundingBox& bb);
+	Grid(int index, int width, int height, const BoundingBox& bb);
 	virtual ~Grid() = default;
 
 	int GetIndex() const { return mIndex; }

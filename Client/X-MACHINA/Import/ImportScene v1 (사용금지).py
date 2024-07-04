@@ -7,6 +7,7 @@ import time
 
 unity_path : str = ""
 UNITY_PATHES = 'UnityPathes.txt'
+EXPORT_PATH = 'UnityPathes.txt'
 
 def get_items_in_folder(folder_path):
     items = []
@@ -59,7 +60,7 @@ def start_import():
 with open(UNITY_PATHES, 'r') as file:
     for line in file:
         unity_path = line.strip()
-        unity_path += '\\Export\\'
+        unity_path += EXPORT_PATH
         if(os.path.exists(unity_path)):
             break
         unity_path = ""

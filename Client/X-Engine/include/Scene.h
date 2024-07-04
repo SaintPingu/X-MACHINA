@@ -81,8 +81,10 @@ private:
 	std::vector<sptr<Grid>>	mSurroundGrids{};		// around player grids
 
 	float					mGridStartPoint{};		// leftmost coord of the entire grid
-	int						mGridWidth{};			// length of x for one grid
-	int						mGridCols{};			// number of columns in the grid
+	int						mGridXLength{};			// length of x for one grid
+	int						mGridZLength{};			// length of z for one grid
+	int						mGridXCount{};			// number of columns(x) in the grid
+	int						mGridZCount{};			// number of rows(z)    in the grid
 
 	/* Others */
 	bool mIsRenderBounds = false;

@@ -423,8 +423,18 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	}
 	else {
 		//data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
+		if (data.MoveState == ExtData::MOVESTATE::Start) {
+
+			data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
+			data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
+
+		}
+		else if (data.MoveState == ExtData::MOVESTATE::Progress) {
+
+			data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
+			data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
+
+		}
 	}
 
 	//LOG_MGR->Cout_Vec3("Packet Pos : ", Packetpos);

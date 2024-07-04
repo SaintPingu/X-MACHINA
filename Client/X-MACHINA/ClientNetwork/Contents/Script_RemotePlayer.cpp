@@ -24,7 +24,6 @@ void Script_RemotePlayer::LateUpdate()
 	Vec3& curpos = mObject->GetPosition();
 	Vec3& TarPos = mCurrExtraPolated_Data.TargetPos;
 
-
 //#define BEZIER_CURVE_DR
 #ifdef BEZIER_CURVE_DR
 
@@ -49,18 +48,6 @@ void Script_RemotePlayer::LateUpdate()
 
 	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
 	mObject->SetPosition(newPosition);
-	return;
-
-
-	mBezierTime += DeltaTime();//  *BEZIER_WEIGHT_ADJUSTMENT;
-
-	if (mBezierTime >= 1.f)
-		mBezierTime = 1.f;
-
-	//Vec3 point = Bezier_Curve_3(curpos, TarPos, mBezierTime);
-	Vec3 point = lerp(curpos, TarPos, mBezierTime);
-	mObject->SetPosition(point);
-
 	return;
 
 #endif
@@ -203,7 +190,8 @@ Vec3 Script_RemotePlayer::lerp(Vec3 CurrPos, Vec3 TargetPos, float Deltatime, fl
 	}
 
 	// clamp
-	if (PosLerpParam > 1.f)PosLerpParam = 1.f;
+	if (PosLerpParam > 1.f)
+		PosLerpParam = 1.f;
 
 
 

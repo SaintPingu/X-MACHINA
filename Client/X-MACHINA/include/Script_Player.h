@@ -170,6 +170,13 @@ private:
 	Vec3 mPrevDirVec{};
 	Vec3 mSlideVec{};
 
+	// For Network
+	Vec3 mPrevPos{};
+	Vec3 mCurrPos{};
+public:
+	Vec3 GetPrevPos() { return mPrevPos; }
+	Vec3 GetcurrPos() { return mCurrPos; }
+
 public:
 	PlayerMotion GetPrevState() const  { return PlayerMotion::GetState(mPrevMovement); }
 	PlayerMotion GetPrevMotion() const { return PlayerMotion::GetMotion(mPrevMovement); }

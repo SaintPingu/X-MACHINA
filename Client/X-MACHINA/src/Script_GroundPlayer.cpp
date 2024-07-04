@@ -234,6 +234,15 @@ void Script_GroundPlayer::ProcessInput()
 
 void Script_GroundPlayer::Move(Dir dir)
 {
+	if (mCurrPos.Length() == 0)
+	{
+		mCurrPos = mObject->GetPosition();
+		mPrevPos = mObject->GetPosition();
+
+	}
+
+	mPrevPos = mObject->GetPosition();
+
 	if (dir == Dir::None) {
 		return;
 	}
@@ -248,6 +257,9 @@ void Script_GroundPlayer::Move(Dir dir)
 	else {
 		mObject->Translate(dirVec * mMovementSpeed * DeltaTime());
 	}
+
+	mCurrPos = mObject->GetPosition();
+
 }
 
 void Script_GroundPlayer::RotateTo(Dir dir)

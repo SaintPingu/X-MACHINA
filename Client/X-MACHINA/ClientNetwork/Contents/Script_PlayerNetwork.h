@@ -38,6 +38,7 @@ private:
 	Vec3 mMoveDir_Key_Tap{};
 	Vec3 mMoveDir_Key_Pressed{};
 
+	bool msendMovePacket_Pressed = false;
 public:
 	virtual void Awake() override;
 	virtual void LateUpdate() override;

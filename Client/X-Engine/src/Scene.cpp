@@ -535,6 +535,12 @@ void Scene::RenderUI()
 	RenderBounds(mRenderedObjects);
 }
 
+void Scene::RenderText(const ComPtr<ID2D1DeviceContext2>& device)
+{
+
+
+}
+
 void Scene::RenderTerrain(RenderType type)
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);

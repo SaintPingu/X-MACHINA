@@ -179,6 +179,7 @@ public:
 	void RenderBloom();
 	void RenderPostProcessing(int offScreenIndex);
 	void RenderUI();
+	void RenderText(const ComPtr<struct ID2D1DeviceContext2>& device);
 
 private:
 	// 카메라에 보이는 grid만 렌더링한다.

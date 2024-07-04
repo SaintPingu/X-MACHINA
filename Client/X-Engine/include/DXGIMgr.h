@@ -44,10 +44,24 @@ private:
 	bool		mIsMsaa4xEnabled = false;
 	UINT		mMsaa4xQualityLevels{};
 
-	// device
+	// d3d12 device
 	ComPtr<IDXGIFactory4>				mFactory{};
 	ComPtr<IDXGISwapChain3>				mSwapChain{};
 	ComPtr<ID3D12Device>				mDevice{};
+
+	// d3d11 device
+	ComPtr<ID2D1Factory3>					mD2DFactory{};
+	ComPtr<ID3D11DeviceContext>				mD3D11DeviceContext{};
+	ComPtr<ID3D11On12Device>				mD3D11On12Device{};
+	ComPtr<ID2D1DeviceContext2>				mD2DDeviceContext{};
+	ComPtr<ID2D1Device2>					mD2DDevice{};
+	ComPtr<IDWriteFactory>					mDWriteFactory{};
+	std::array<ComPtr<ID3D11Resource>, 2>	mWrappedBackBuffers;
+	std::array<ComPtr<ID2D1Bitmap1>, 2>		mBitmapRenderTargets;
+
+	// text render
+	ComPtr<ID2D1SolidColorBrush>			mTextBrush;
+	ComPtr<IDWriteTextFormat>				mTextFormat;
 
 	// command
 	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
@@ -181,22 +195,28 @@ private:
 	void PostPassRenderBegin();
 
 	// close command
+	void RenderText();
 	void RenderEnd();
 
 	// device
 	void CreateFactory();
 	void CreateDevice();
+	void CreateD2DDevice();
+	void CreateD3D11On12Device();
+	void CreateText();
 	void SetMSAA();
 	void CreateFence();
 	void SetIncrementSize();
 
 	void CreateDirect3DDevice();
+	void CreateDirect2DDevice();
 	void CreateCmdQueueAndList();
 
 	void CreateSwapChain();
 	void CreateGraphicsRootSignature();
 	void CreateComputeRootSignature();
 	void CreateDescriptorHeaps(int cbvCount, int srvCount, int uavCount, int skyBoxSrvCount, int dsvCount);
+	void CreateD2DRTV();
 	void CreateDSV();
 	void CreateMRTs();
 	void CreateFrameResources();

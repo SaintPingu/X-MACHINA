@@ -88,8 +88,7 @@ void Script_PlayerNetwork::DoInput()
 
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
 	{
-		//TestMoveDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetcurrPos() - GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetPrevPos();
-		//TestMoveDir.Normalize();
+
 
 		mMoveDir_Key_Pressed = GetMoveDirection_Key_Pressed();
 		//mMoveDir_Key_Pressed = TestMoveDir;
@@ -98,10 +97,14 @@ void Script_PlayerNetwork::DoInput()
 		/// +--------------------------------------------------------------------------------------------------------------------
 		///	♣ 이동방향이 바뀌었다면 즉시 패킷을 보낸다. 
 		/// _____________________________________________________________________________________________________________________
+		
+
 		if (mMoveDir_Curr != mMoveDir_Key_Pressed) {
-			msendMovePacket_Pressed = true; 
 			//mMoveDir_Curr = mMoveDir_Key_Pressed;
 
+			TestMoveDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetcurrPos() - GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetPrevPos();
+			TestMoveDir.Normalize();
+			mMoveDir_Curr = TestMoveDir;
 			LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
 
 			mMoveTimePoint_latest = std::chrono::steady_clock::now(); // 현재 시간
@@ -129,6 +132,9 @@ void Script_PlayerNetwork::DoInput()
 			auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
 			if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMoveTimePoint_latest).count() >= PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000)
 			{
+				TestMoveDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetcurrPos() - GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetPrevPos();
+				TestMoveDir.Normalize();
+				mMoveDir_Curr = TestMoveDir;
 				LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
 
 				mMoveTimePoint_latest = currentTime;
@@ -151,6 +157,7 @@ void Script_PlayerNetwork::DoInput()
 		//mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	}
+	mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	/// +--------------------------------------------------
 	///	>> ▶▶▶▶▶ KEY AWAY  
@@ -160,13 +167,14 @@ void Script_PlayerNetwork::DoInput()
 		if (bSendPacket == false) {
 			Vec3 MoveDir = Vec3(0.f, 0.f, 0.f);
 			LOG_MGR->Cout_Vec3("KEY_AWAY : MoveDirection", MoveDir);
+			mMovementSpeed = 0.f;
 
 			/* 즉시 패킷을 보낸다. */
 			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 			auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
 				/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
 				/* MOVESATE  */ PLAYER_MOVE_STATE::End,
-				/* MOVEDIR   */ MoveDir,
+				/* MOVEDIR   */ mMoveDir_Curr,
 				/* MOVESPEED */ mMovementSpeed,
 				/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
 				/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
@@ -185,7 +193,6 @@ void Script_PlayerNetwork::DoInput()
 
 	}
 
-	mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	return;
 #endif

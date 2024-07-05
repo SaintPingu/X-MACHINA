@@ -264,6 +264,7 @@
     <ClCompile Include="src\Ssao.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\TestCube.cpp" />
+    <ClCompile Include="src\TextMgr.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
@@ -330,6 +331,7 @@
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Terrain.h" />
     <ClInclude Include="include\TestCube.h" />
+    <ClInclude Include="include\TextMgr.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\TLS.h" />

@@ -2,6 +2,8 @@
 
 #pragma region Define
 #define DEVICE DXGIMgr::I->GetDevice()
+#define DWRITE DXGIMgr::I->GetDWrite()
+#define DEVICE_CONTEXT DXGIMgr::I->GetDeviceContext()
 #define CMD_LIST DXGIMgr::I->GetCmdList()
 #define FRAME_RESOURCE_MGR DXGIMgr::I->GetFrameResourceMgr()
 #define CURR_FRAME_INDEX DXGIMgr::I->GetFrameResourceMgr()->GetCurrFrameResourceIndex()
@@ -44,33 +46,37 @@ private:
 	bool		mIsMsaa4xEnabled = false;
 	UINT		mMsaa4xQualityLevels{};
 
+	// swap chain
+	static constexpr UINT				mSwapChainBuffCnt = 2;
+	UINT								mCurrBackBufferIdx{};
+
 	// d3d12 device
 	ComPtr<IDXGIFactory4>				mFactory{};
 	ComPtr<IDXGISwapChain3>				mSwapChain{};
 	ComPtr<ID3D12Device>				mDevice{};
 
 	// d3d11 device
-	ComPtr<ID2D1Factory3>					mD2DFactory{};
-	ComPtr<ID3D11DeviceContext>				mD3D11DeviceContext{};
-	ComPtr<ID3D11On12Device>				mD3D11On12Device{};
-	ComPtr<ID2D1DeviceContext2>				mD2DDeviceContext{};
-	ComPtr<ID2D1Device2>					mD2DDevice{};
-	ComPtr<IDWriteFactory>					mDWriteFactory{};
-	std::array<ComPtr<ID3D11Resource>, 2>	mWrappedBackBuffers;
-	std::array<ComPtr<ID2D1Bitmap1>, 2>		mBitmapRenderTargets;
+	ComPtr<ID3D11On12Device>			mD3D11On12Device{};
+	ComPtr<ID3D11DeviceContext>			mD3D11DeviceContext{};
+
+	// d2d device
+	ComPtr<ID2D1Factory3>				mD2DFactory{};
+	ComPtr<IDWriteFactory>				mDWriteFactory{};
+	ComPtr<ID2D1Device2>				mD2DDevice{};
+	ComPtr<ID2D1DeviceContext2>			mD2DDeviceContext{};
+
+	// wrapped buffer
+	std::array<ComPtr<ID3D11Resource>, mSwapChainBuffCnt>	mWrappedBackBuffers;
+	std::array<ComPtr<ID2D1Bitmap1>, mSwapChainBuffCnt>		mBitmapRenderTargets;
 
 	// text render
-	ComPtr<ID2D1SolidColorBrush>			mTextBrush;
-	ComPtr<IDWriteTextFormat>				mTextFormat;
+	ComPtr<ID2D1SolidColorBrush>		mTextBrush;
+	ComPtr<IDWriteTextFormat>			mTextFormat;
 
 	// command
 	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
 	ComPtr<ID3D12CommandQueue>			mCmdQueue{};
 	ComPtr<ID3D12GraphicsCommandList>	mCmdList{};
-
-	// swap chain
-	static constexpr UINT				mSwapChainBuffCnt = 2;
-	UINT								mCurrBackBufferIdx{};
 
 	// frameResource
 	uptr<FrameResourceMgr>				mFrameResourceMgr;
@@ -124,7 +130,10 @@ public:
 	HWND GetHwnd() const									{ return mWindow.Hwnd; }
 	short GetWindowWidth() const							{ return mWindow.Width; }
 	short GetWindowHeight() const							{ return mWindow.Height; }
+	D2D1_SIZE_F GetBitMapSize() const						{ return mBitmapRenderTargets[mCurrBackBufferIdx]->GetSize(); }
 	RComPtr<ID3D12Device> GetDevice() const					{ return mDevice; }
+	RComPtr<IDWriteFactory> GetDWrite() const				{ return mDWriteFactory; }
+	RComPtr<ID2D1DeviceContext2> GetDeviceContext() const	{ return mD2DDeviceContext; }
 	RComPtr<ID3D12GraphicsCommandList> GetCmdList() const	{ return mCmdList; }
 	UINT GetCbvSrvUavDescriptorIncSize() const				{ return mCbvSrvUavDescriptorIncSize; }
 	UINT GetRtvDescriptorIncSize() const					{ return mRtvDescriptorIncSize; }

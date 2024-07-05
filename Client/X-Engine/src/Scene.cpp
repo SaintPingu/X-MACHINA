@@ -24,6 +24,7 @@
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
 #include "AbilityMgr.h"
+#include "TextMgr.h"
 #pragma endregion
 
 #include "TestCube.h"
@@ -238,6 +239,9 @@ void Scene::BuildObjects()
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
+
+	sptr<TextBox> testText = std::make_shared<TextBox>()->Init(20.f, DXGIMgr::I->GetBitMapSize().width, DXGIMgr::I->GetBitMapSize().height);
+	testText->WriteText("æ»≥Á«œººø‰.");
 }
 
 void Scene::ReleaseObjects()
@@ -535,10 +539,9 @@ void Scene::RenderUI()
 	RenderBounds(mRenderedObjects);
 }
 
-void Scene::RenderText(const ComPtr<ID2D1DeviceContext2>& device)
+void Scene::RenderText(RComPtr<ID2D1DeviceContext2> device)
 {
-
-
+	TextMgr::I->Render(device);
 }
 
 void Scene::RenderTerrain(RenderType type)

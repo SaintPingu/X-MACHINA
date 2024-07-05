@@ -240,24 +240,57 @@ void Scene::BuildObjects()
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
 
-	TextOption t;
-	t.Rect = DXGIMgr::I->GetBitMapRect();
-	t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-	t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
+	// Hello
+	{
+		TextOption t;
+		t.FontSize = 40.f;
+		t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
 
-	sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-	testText->WriteText("¾È³çÇÏ¼¼¿ä");
-	testText->SetScale(2.f, 2.f);
-	testText->SetPosition(0.f, 500.f);
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("¾È³çÇÏ¼¼¿ä");
+		testText->SetPosition(0.f, 500.f);
+	}
 
-	t.Font = "ISOCPEUR";
-	t.FontWeight = DWRITE_FONT_WEIGHT_ULTRA_BOLD;
-	t.FontStyle = DWRITE_FONT_STYLE_NORMAL;
-	sptr<TextBox> testText2 = std::make_shared<TextBox>()->Init(t);
-	testText2->WriteText("X-MACHINA TEST");
-	testText2->SetScale(2.f, 2.f);
-	testText2->SetPosition(0.f, -500.f);
-	testText2->SetColor(D2D1::ColorF::Orange);
+	// Game Title
+	{
+		TextOption t;
+		t.Font = "ISOCPEUR";
+		t.FontSize = 70.f;
+		t.FontWeight = DWRITE_FONT_WEIGHT_ULTRA_BOLD;
+		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
+
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("X-MACHINA TEST");
+		testText->SetColor(D2D1::ColorF::Orange);
+	}
+
+	// ChatBox Title
+	{
+		TextOption t;
+		t.FontSize = 20.f;
+		t.FontWeight = DWRITE_FONT_WEIGHT_LIGHT;
+		t.HAlignment = DWRITE_TEXT_ALIGNMENT_LEADING;
+		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_FAR;
+		t.BoxExtent = Vec2{ 300.f, 150.f };
+
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("AAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEEEEEEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
+		testText->SetPosition(-725.f, 300.f);
+	}
+
+	// ChatBox
+	{
+		TextOption t;
+		t.FontSize = 30.f;
+		t.FontWeight = DWRITE_FONT_WEIGHT_HEAVY;
+		t.HAlignment = DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
+		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
+		t.BoxExtent = Vec2{300.f, 150.f};
+
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("CHATTING");
+		testText->SetPosition(-725.f, 250.f);
+	}
 }
 
 void Scene::ReleaseObjects()

@@ -1,15 +1,15 @@
 #pragma once
 
 struct TextOption {
-	float						Size = 20.f;
 	std::string					Font = "Verdana";
-	D2D1::ColorF				Color = D2D1::ColorF::White;
-	D2D1_RECT_F					Rect = { 100.f, 100.f };
+	float						FontSize = 20.f;
+	D2D1::ColorF				FontColor = D2D1::ColorF::White;
 	DWRITE_FONT_WEIGHT			FontWeight = DWRITE_FONT_WEIGHT_NORMAL;
 	DWRITE_FONT_STYLE			FontStyle = DWRITE_FONT_STYLE_NORMAL;
 	DWRITE_FONT_STRETCH			FontStretch = DWRITE_FONT_STRETCH_NORMAL;
 	DWRITE_TEXT_ALIGNMENT		HAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-	DWRITE_PARAGRAPH_ALIGNMENT	VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
+	DWRITE_PARAGRAPH_ALIGNMENT	VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+	Vec2						BoxExtent = Vec2::Zero;
 };
 
 class TextBox : public std::enable_shared_from_this<TextBox> {

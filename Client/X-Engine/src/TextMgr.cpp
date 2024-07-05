@@ -7,14 +7,19 @@ sptr<TextBox> TextBox::Init(const TextOption& option)
 {
 	mOption = option;
 
-	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(option.Color), &mTextBrush));
+	if (mOption.BoxExtent == Vec2::Zero) {
+		const auto& window = DXGIMgr::I->GetWindow();
+		mOption.BoxExtent = { (float)window.Width, (float)window.Height };
+	}
+
+	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(option.FontColor), &mTextBrush));
 	THROW_IF_FAILED(DWRITE->CreateTextFormat(
 		AnsiToWString(option.Font).c_str(),
 		nullptr,
 		option.FontWeight,
 		option.FontStyle,
 		option.FontStretch,
-		option.Size,
+		option.FontSize,
 		L"en-us",
 		&mTextFormat)
 	);
@@ -88,13 +93,25 @@ void TextBox::Render(RComPtr<ID2D1DeviceContext2> device) const
 {
 	device->SetTransform(mMtxFinal);
 
+	const auto& window = DXGIMgr::I->GetWindow();
+	D2D1_RECT_F rect = {
+		window.Width / 2.f - mOption.BoxExtent.x / 2.f,
+		window.Height / 2.f - mOption.BoxExtent.y / 2.f,
+		window.Width / 2.f + mOption.BoxExtent.x / 2.f,
+		window.Height / 2.f + mOption.BoxExtent.y / 2.f,
+	};
+
+	device->PushAxisAlignedClip(rect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+
 	device->DrawText(
 		mText.c_str(),
 		static_cast<UINT>(mText.length()),
 		mTextFormat.Get(),
-		&mOption.Rect,
+		&rect,
 		mTextBrush.Get()
 	);
+	
+	device->PopAxisAlignedClip();
 }
 
 void TextBox::Destroy()
@@ -104,8 +121,8 @@ void TextBox::Destroy()
 
 D2D1_POINT_2F TextBox::GetTextCenter() const
 {
-	const float width = mOption.Rect.left / 2.f;
-	const float height = mOption.Rect.top / 2.f;
+	const float width = mOption.BoxExtent.x / 2.f;
+	const float height = mOption.BoxExtent.y / 2.f;
 
 	const Vec2 center = Vec2{ width, height } - GetPosition();
 

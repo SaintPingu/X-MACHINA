@@ -131,6 +131,7 @@ public:
 	short GetWindowWidth() const							{ return mWindow.Width; }
 	short GetWindowHeight() const							{ return mWindow.Height; }
 	D2D1_SIZE_F GetBitMapSize() const						{ return mBitmapRenderTargets[mCurrBackBufferIdx]->GetSize(); }
+	D2D1_RECT_F GetBitMapRect() const						{ return D2D1_RECT_F{ GetBitMapSize().width, GetBitMapSize().height }; }
 	RComPtr<ID3D12Device> GetDevice() const					{ return mDevice; }
 	RComPtr<IDWriteFactory> GetDWrite() const				{ return mDWriteFactory; }
 	RComPtr<ID2D1DeviceContext2> GetDeviceContext() const	{ return mD2DDeviceContext; }

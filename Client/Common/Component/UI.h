@@ -32,8 +32,6 @@ protected:
 	sptr<UITexture> mUITexture{};
 	sptr<Shader>	mShader{};
 
-	ObjectConstants mObjectCB{};
-
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
 	UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr);

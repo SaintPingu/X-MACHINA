@@ -40,6 +40,7 @@ public:
 
 public:	
 	void WriteText(const std::string& text);
+	void WriteText(const std::wstring& text);
 	void AddAlpha(float alpha);
 
 public:

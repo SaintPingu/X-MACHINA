@@ -144,8 +144,10 @@ LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LP
 	case WM_MOUSEMOVE:
 		ProcessMouseMsg(hWnd, message, wParam, lParam);
 		break;
+	case WM_CHAR:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_IME_COMPOSITION:
 		ProcessKeyboardMsg(hWnd, message, wParam, lParam);
 		break;
 

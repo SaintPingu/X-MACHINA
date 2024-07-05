@@ -185,7 +185,8 @@ struct ObjectConstants {
 
 	int		UseRefract{};
 	int		DynamicEnvironmentMapIndex = -1;
-	Vec2	Padding{};
+	float	AlphaIntensity = 1.f;
+	float	Padding{};
 };
 
 struct MinimapConstants {

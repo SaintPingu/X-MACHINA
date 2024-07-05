@@ -263,34 +263,6 @@ void Scene::BuildObjects()
 		testText->WriteText("X-MACHINA TEST");
 		testText->SetColor(D2D1::ColorF::Orange);
 	}
-
-	// ChatBox Title
-	{
-		TextOption t;
-		t.FontSize = 20.f;
-		t.FontWeight = DWRITE_FONT_WEIGHT_LIGHT;
-		t.HAlignment = DWRITE_TEXT_ALIGNMENT_LEADING;
-		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_FAR;
-		t.BoxExtent = Vec2{ 300.f, 150.f };
-
-		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("AAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEEEEEEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
-		testText->SetPosition(-725.f, 300.f);
-	}
-
-	// ChatBox
-	{
-		TextOption t;
-		t.FontSize = 30.f;
-		t.FontWeight = DWRITE_FONT_WEIGHT_HEAVY;
-		t.HAlignment = DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
-		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
-		t.BoxExtent = Vec2{300.f, 150.f};
-
-		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("CHATTING");
-		testText->SetPosition(-725.f, 250.f);
-	}
 }
 
 void Scene::ReleaseObjects()

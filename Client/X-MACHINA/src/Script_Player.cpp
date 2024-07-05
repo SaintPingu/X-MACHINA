@@ -10,6 +10,7 @@
 #include "Object.h"
 
 #include "SliderBarUI.h"
+#include "ChatBoxUI.h"
 
 namespace {
 	BoundingBox border = { Vec3(256, 100, 256), Vec3(240, 1100, 240) };
@@ -37,6 +38,7 @@ void Script_Player::Start()
 	mTarget = mObject->GetObj<GameObject>();
 
 	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -850.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
+	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, 300.f }, Vec2{300.f, 150.f});
 }
 
 void Script_Player::Update()
@@ -50,6 +52,13 @@ void Script_Player::Update()
 	}
 
 	mHpBarUI->Update(GetCrntHp());
+}
+
+void Script_Player::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	if (mChatBoxUI) {
+		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
+	}
 }
 
 void Script_Player::Rotate(float pitch, float yaw, float roll)

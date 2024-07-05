@@ -74,6 +74,11 @@ void TextBox::WriteText(const std::string& text)
 	mText = AnsiToWString(text);
 }
 
+void TextBox::WriteText(const std::wstring& text)
+{
+	mText = text;
+}
+
 void TextBox::AddAlpha(float alpha)
 {
 	float originAlpha = mTextBrush->GetOpacity();
@@ -110,7 +115,7 @@ void TextBox::Render(RComPtr<ID2D1DeviceContext2> device) const
 		&rect,
 		mTextBrush.Get()
 	);
-	
+
 	device->PopAxisAlignedClip();
 }
 

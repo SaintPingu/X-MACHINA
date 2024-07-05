@@ -120,7 +120,8 @@ struct ObjectInfo {
     
     uint    UseRefract;
 	int		DynamicEnvironmentMapIndex;
-    float2  Padding;
+    float   AlphaIntensity;
+    float   Padding;
 };
 
 struct PassInfo {

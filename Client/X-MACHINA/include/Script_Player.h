@@ -17,6 +17,7 @@ class Script_AimController;
 class Script_MainCamera;
 class UI;
 class SliderBarUI;
+class ChatBoxUI;
 #pragma endregion
 
 
@@ -44,6 +45,7 @@ protected:
 
 	int				mScore{};
 	sptr<SliderBarUI> mHpBarUI{};
+	sptr<ChatBoxUI> mChatBoxUI{};
 
 public:
 	PlayerType GetPlayerType() const { return mPlayerType; }
@@ -59,7 +61,7 @@ public:
 public:
 	virtual void ProcessInput() {}
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
+	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 	virtual void Rotate(float pitch, float yaw, float roll);
 

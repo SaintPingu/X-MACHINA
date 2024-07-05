@@ -97,6 +97,9 @@
     <Filter Include="소스 파일\Shader\PS\Forward\DynamicEnviromentMapping">
       <UniqueIdentifier>{fa68a7bf-3232-4cf1-be38-ec4f1db3d2da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common\UI">
+      <UniqueIdentifier>{8cc250fd-ba09-45ab-9348-dfe6cea1abeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -272,6 +275,12 @@
     </ClCompile>
     <ClCompile Include="src\TextMgr.cpp">
       <Filter>소스 파일\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SliderBarUI.cpp">
+      <Filter>소스 파일\Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ChatBoxUI.cpp">
+      <Filter>소스 파일\Component\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -469,6 +478,12 @@
     </ClInclude>
     <ClInclude Include="include\TextMgr.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SliderBarUI.h">
+      <Filter>Common\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ChatBoxUI.h">
+      <Filter>Common\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -68,52 +68,52 @@ bool Script_ShootingPlayer::Reload()
 	return false;
 }
 
-void Script_ShootingPlayer::SetWeapon(int weaponIdx)
+void Script_ShootingPlayer::SetWeapon(int weaponNum)
 {
 	if (IsInGunChangeMotion()) {
 		return;
 	}
 
-	if (weaponIdx == 0) {
+	if (weaponNum == 0) {
 		if (mWeapon) {
 			PutbackWeapon();
 		}
 		return;
 	}
 
-	if (mWeapons.size() <= weaponIdx - 1) {
+	if (mWeapons.size() <= weaponNum - 1) {
 		return;
 	}
-	if (mWeapons[weaponIdx - 1] == nullptr) {
+	if (mWeapons[weaponNum - 1] == nullptr) {
 		return;
 	}
 
 	// 이미 무기를 들고 있다면 putback 후 draw한다.
 	if (mWeapon) {
-		if (mWeapon == mWeapons[weaponIdx - 1]) {
+		if (mWeapon == mWeapons[weaponNum - 1]) {
 			return;
 		}
 		else {
 			PutbackWeapon();
 		}
 
-		mNextWeaponIdx = weaponIdx;
+		mNextWeaponNum = weaponNum;
 	}
 	else {
-		DrawWeaponStart(weaponIdx, false);
+		DrawWeaponStart(weaponNum, false);
 	}
 }
 
-void Script_ShootingPlayer::DrawWeaponStart(int weaponIdx, bool isDrawImmed)
+void Script_ShootingPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 {
 	mIsInDraw = true;
-	mNextWeaponIdx = weaponIdx;
+	mNextWeaponNum = weaponNum;
 }
 
 void Script_ShootingPlayer::DrawWeapon()
 {
-	mCrntWeaponIdx = mNextWeaponIdx;
-	mWeapon = mWeapons[mNextWeaponIdx - 1];
+	mCrntWeaponNum = mNextWeaponNum;
+	mWeapon = mWeapons[mNextWeaponNum - 1];
 	if (mWeapon) {
 		mWeapon->SetActive(true);
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
@@ -123,13 +123,13 @@ void Script_ShootingPlayer::DrawWeapon()
 
 void Script_ShootingPlayer::DrawWeaponEnd()
 {
-	mNextWeaponIdx = -1;
+	mNextWeaponNum = -1;
 	mIsInDraw = false;
 }
 
 void Script_ShootingPlayer::PutbackWeapon()
 {
-	mNextWeaponIdx = -1;
+	mNextWeaponNum = -1;
 	mIsInPutback = true;
 
 	if (mWeaponScript) {
@@ -148,10 +148,10 @@ void Script_ShootingPlayer::PutbackWeaponEnd()
 		mMuzzle = nullptr;
 	}
 
-	if (mNextWeaponIdx != -1) {
+	if (mNextWeaponNum != -1) {
 		// putback이 끝난 후 바로 draw
-		DrawWeaponStart(mNextWeaponIdx, true);
+		DrawWeaponStart(mNextWeaponNum, true);
 	}
 
-	mCrntWeaponIdx = 0;
+	mCrntWeaponNum = 0;
 }

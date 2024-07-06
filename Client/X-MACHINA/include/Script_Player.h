@@ -20,6 +20,7 @@ class Script_MainCamera;
 
 #pragma region EnumClass
 enum class WeaponName {
+	None,
 	H_Lock,
 	DBMS,
 	Stuart,
@@ -75,8 +76,8 @@ class Script_ShootingPlayer abstract : public Script_Player {
 	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
 
 private:
-	int mCrntWeaponIdx{};
-	int mNextWeaponIdx{};
+	int mCrntWeaponNum{};
+	int mNextWeaponNum{};
 	bool mIsInDraw{};
 	bool mIsInPutback{};
 
@@ -97,12 +98,12 @@ public:
 	virtual void BulletFired() {}
 
 protected:
-	int GetCrntWeaponIdx() const { return mCrntWeaponIdx; }
-	int GetNextWeaponIdx() const { return mNextWeaponIdx; }
+	int GetCrntWeaponNum() const { return mCrntWeaponNum; }
+	int GetNextWeaponNum() const { return mNextWeaponNum; }
 
-	virtual void SetWeapon(int weaponIdx);
+	virtual void SetWeapon(int weaponNum);
 
-	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) abstract;
+	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) abstract;
 	virtual void DrawWeapon();
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;
@@ -200,7 +201,7 @@ public:
 	void AquireWeapon(WeaponName weaponName);
 
 private:
-	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
+	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) override;
 	virtual void DrawWeaponCallback();
 	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
@@ -244,7 +245,7 @@ private:
 	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
 	void ComputeSlideVector(Object& other);
 
-	void SwitchWeapon(int index, rsptr<GameObject> weapon);
+	void SwitchWeapon(int num, rsptr<GameObject> weapon);
 };
 
 #pragma endregion

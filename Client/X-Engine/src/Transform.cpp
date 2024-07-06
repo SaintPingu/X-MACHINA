@@ -515,6 +515,10 @@ void Transform::BeforeUpdateTransform()
 
 void Transform::UpdateShaderVars(const ObjectConstants& objectCB, const int cnt) const
 {
+	if (mObjCBIndices.size() <= cnt) {
+		return;
+	}
+
 	// 실제 사용 횟수를 저장한다.
 	if (mObjCBCount <= cnt) {
 		mObjCBCount = cnt + 1;

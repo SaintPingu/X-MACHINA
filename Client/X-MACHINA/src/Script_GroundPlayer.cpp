@@ -44,6 +44,7 @@ const float Script_GroundPlayer::mkSprintSpeed    = 8.f;
 const float Script_GroundPlayer::mkStartRotAngle = 40.f;
 
 namespace {
+	constexpr int kPistolNum = 1;
 	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
 }
 #pragma endregion
@@ -80,6 +81,8 @@ void Script_GroundPlayer::Awake()
 
 	mWeapons.resize(3);
 	AquireWeapon(WeaponName::H_Lock);
+	AquireWeapon(WeaponName::SkyLine);
+	AquireWeapon(WeaponName::Burnout);
 }
 
 void Script_GroundPlayer::Start()
@@ -327,11 +330,22 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		case '1':
 		case '2':
 		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
 			SetWeapon(static_cast<int>(wParam - '0'));
+			break;
+		case VK_NUMPAD1:
+			AquireWeapon(WeaponName::H_Lock);
+			break;
+		case VK_NUMPAD2:
+			AquireWeapon(WeaponName::SkyLine);
+			break;
+		case VK_NUMPAD3:
+			AquireWeapon(WeaponName::DBMS);
+			break;
+		case VK_NUMPAD4:
+			AquireWeapon(WeaponName::Burnout);
+			break;
+		case VK_NUMPAD5:
+			AquireWeapon(WeaponName::PipeLine);
 			break;
 
 		default:
@@ -411,8 +425,6 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	static const std::unordered_map<WeaponType, std::string> kDefaultWeapons{
 		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
 		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
-		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
-		{WeaponType::GatlinGun, "SM_SciFiLaserGatlinGun" },
 		{WeaponType::ShotGun, "SM_SciFiShotgun" },
 		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
 		{WeaponType::Sniper, "Sniper" },
@@ -421,8 +433,6 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
 		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
 		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
-		{WeaponType::LightingGun, "RefPosLightningGun_Action" },
-		{WeaponType::GatlinGun, "RefPosLaserGatlinGun_Action" },
 		{WeaponType::ShotGun, "RefPosShotgun_Action" },
 		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
 		{WeaponType::Sniper, "RefPosSniper_Action" },
@@ -432,8 +442,6 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	static const std::unordered_map<WeaponType, std::string> kReloadMotions{
 		{WeaponType::HandedGun, "Reload2HandedGun" },
 		{WeaponType::AssaultRifle, "ReloadAssaultRifle" },
-		{WeaponType::LightingGun, "ReloadOverheatBeamGun" },
-		{WeaponType::GatlinGun, "ReloadOverheatGatlinGun" },
 		{WeaponType::ShotGun, "ReloadShotgun" },
 		{WeaponType::MissileLauncher, "ReloadMissileLauncher" },
 		{WeaponType::Sniper, "ReloadAssaultRifle" },
@@ -442,8 +450,6 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	static const std::unordered_map<WeaponType, std::string> kDrawMotions{
 		{WeaponType::HandedGun, "Draw2HandedGun" },
 		{WeaponType::AssaultRifle, "DrawAssaultRifle" },
-		{WeaponType::LightingGun, "DrawBeamGun" },
-		{WeaponType::GatlinGun, "DrawGatlinGun" },
 		{WeaponType::ShotGun, "DrawShotgun" },
 		{WeaponType::MissileLauncher, "DrawMissileLauncher" },
 		{WeaponType::Sniper, "DrawAssaultRifle" },
@@ -452,8 +458,6 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	static const std::unordered_map<WeaponType, std::string> kPutbackMotions{
 		{WeaponType::HandedGun, "PutBack2HandedGun" },
 		{WeaponType::AssaultRifle, "PutBackAssaultRifle" },
-		{WeaponType::LightingGun, "PutBackBeamGun" },
-		{WeaponType::GatlinGun, "PutBackGatlinGun" },
 		{WeaponType::ShotGun, "PutBackShotgun" },
 		{WeaponType::MissileLauncher, "PutBackMissileLauncher" },
 		{WeaponType::Sniper, "PutBackAssaultRifle" },
@@ -532,37 +536,55 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	drawMotion->AddEndCallback(drawEndCallback);
 	putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
 
-	int weaponIdx{};
+	int weaponNum{};
 	switch (weaponType) {
 	case WeaponType::HandedGun:
-		weaponIdx = 0;
+		weaponNum = 0;
 		break;
 	case WeaponType::ShotGun:
 	case WeaponType::AssaultRifle:
-		weaponIdx = 1;
+		weaponNum = 1;
 		break;
 	case WeaponType::MissileLauncher:
 	case WeaponType::Sniper:
-		weaponIdx = 2;
+		weaponNum = 2;
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	SwitchWeapon(weaponIdx, weapon);
+	SwitchWeapon(weaponNum, weapon);
 }
 
-void Script_GroundPlayer::DrawWeaponStart(int weaponIdx, bool isDrawImmed)
+void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 {
-	base::DrawWeaponStart(weaponIdx, isDrawImmed);
+	base::DrawWeaponStart(weaponNum, isDrawImmed);
+
+	int weaponIdx{};
+	switch (mWeapons[weaponNum - 1]->GetComponent<Script_Weapon>()->GetWeaponType()) {
+	case WeaponType::HandedGun:
+		weaponIdx = 1;
+		break;
+	case WeaponType::AssaultRifle:
+		weaponIdx = 2;
+		break;
+	case WeaponType::ShotGun:
+		weaponIdx = 5;
+		break;
+	case WeaponType::MissileLauncher:
+		weaponIdx = 6;
+		break;
+	case WeaponType::Sniper:
+		weaponIdx = 7;
+		break;
+	}
 
 	mController->SetValue("Weapon", weaponIdx);
 
 	// synchronize animation frame
 	// pistol's animation is different. so can't synchronize with others
-	constexpr int kPistolIndex = 1;
-	if (isDrawImmed && weaponIdx != kPistolIndex && GetCrntWeaponIdx() != kPistolIndex) {
+	if (isDrawImmed && weaponNum != kPistolNum && GetCrntWeaponNum() != kPistolNum) {
 		mController->SetValue("Draw", true, true);
 		auto& motion = mController->GetCrntMotion("Body");
 		motion->SetLength(motion->GetClip()->GetFrameTime(kDrawFrame));
@@ -578,7 +600,7 @@ void Script_GroundPlayer::DrawWeaponCallback()
 {
 	base::DrawWeapon();
 
-	auto& motion            = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
+	auto& motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
 	SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
 }
 
@@ -617,7 +639,7 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 	base::PutbackWeaponEnd();
 
 	// 다음 무기가 없다면 조준 상태를 종료한다.
-	if (GetNextWeaponIdx() == -1 && mIsAim) {
+	if (GetNextWeaponNum() == -1 && mIsAim) {
 		OffAim();
 	}
 	mController->SetValue("PutBack", false);
@@ -1210,11 +1232,14 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	}
 }
 
-void Script_GroundPlayer::SwitchWeapon(int index, rsptr<GameObject> weapon)
+void Script_GroundPlayer::SwitchWeapon(int num, rsptr<GameObject> weapon)
 {
-	if (mWeapons[index]) {
-		mWeapons[index]->Destroy();
+	if (mWeapons[num]) {
+		mWeapons[num]->Destroy();
+		mWeapons[num] = weapon;
+		SetWeapon(GetCrntWeaponNum());
 	}
-
-	mWeapons[index] = weapon;
+	else {
+		mWeapons[num] = weapon;
+	}
 }

@@ -18,8 +18,6 @@ class ParticleSystem;
 enum class WeaponType {
 	HandedGun,
 	AssaultRifle,
-	LightingGun,
-	GatlinGun,
 	ShotGun,
 	MissileLauncher,
 	Sniper,

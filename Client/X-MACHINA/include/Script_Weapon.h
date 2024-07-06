@@ -18,13 +18,12 @@ class ParticleSystem;
 enum class WeaponType {
 	HandedGun,
 	AssaultRifle,
-	LightingGun,
-	GatlinGun,
 	ShotGun,
 	MissileLauncher,
 	Sniper,
 	_count
 };
+
 constexpr size_t gkWeaponTypeCnt = static_cast<size_t>(WeaponType::_count);
 
 class Script_Weapon abstract : public Component {

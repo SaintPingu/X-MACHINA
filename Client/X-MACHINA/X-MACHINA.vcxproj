@@ -230,6 +230,7 @@
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h" />
     <ClInclude Include="include\XLManager.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
+    <ClInclude Include="include\Script_Item.h" />
     <ClInclude Include="include\MinimapAbility.h" />
     <ClInclude Include="include\Script_AdvancedCombatDroid_5.h" />
     <ClInclude Include="include\Script_Onyscidus.h" />
@@ -299,6 +300,7 @@
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp" />
     <ClCompile Include="src\XLManger.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />
+    <ClCompile Include="src\Script_Item.cpp" />
     <ClCompile Include="src\MinimapAbility.cpp" />
     <ClCompile Include="src\Script_AdvancedCombatDroid_5.cpp" />
     <ClCompile Include="src\Script_Onyscidus.cpp" />

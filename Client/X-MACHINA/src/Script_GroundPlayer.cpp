@@ -45,6 +45,7 @@ const float Script_GroundPlayer::mkSprintSpeed    = 8.f;
 const float Script_GroundPlayer::mkStartRotAngle = 40.f;
 
 namespace {
+	constexpr int kPistolNum = 1;
 	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
 }
 #pragma endregion
@@ -82,13 +83,17 @@ void Script_GroundPlayer::Awake()
 	mController->SetPlayer();
 
 	SetMaxHP(1000.f);
+	
+	mWeapons.resize(3);
+	AquireWeapon(WeaponName::H_Lock);
+	AquireWeapon(WeaponName::SkyLine);
+	AquireWeapon(WeaponName::Burnout);
 }
 
 void Script_GroundPlayer::Start()
 {
 	base::Start();
 
-	mPlayerType = PlayerType::Human;
 	mRotationSpeed = 360.f;
 
 	constexpr Vec3 kSpawnPoint = Vec3(25, 0, 260);
@@ -117,19 +122,19 @@ void Script_GroundPlayer::LateUpdate()
 
 void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
-	if (mIsAim) {										// ¿¡ÀÓ »óÅÂ¶ó¸é, ÇÃ·¹ÀÌ¾îÀÇ look¹æÇâ¿¡ µû¶ó ´Ù¸¥ ´Ù¸®(Legs) ¾Ö´Ï¸ÞÀÌ¼ÇÀ» Àç»ýÇÑ´Ù.
+	if (mIsAim) {										// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¶ï¿½ï¿½, ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ lookï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½Ù¸ï¿½(Legs) ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 
 		const float rotAngleAbs = fabs(rotAngle);
-		// ÀÌµ¿ »óÅÂ //
+		// ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ //
 		if (!Math::IsZero(v) || !Math::IsZero(h)) {
 			const Vec3 movementDir = Transform::GetWorldDirection(dir);
 
 			const float lookAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vector3::Forward, Vector3::Up);
 			Vec3 rotatedMovementDir = Vector3::Normalized(Vector3::Rotate(movementDir, Vector3::Up, lookAngle));
 
-			// v, h°ª Àç°è»ê, dirÀÇ Å©±â°¡ Ç×»ó Á¤»ç°¢Çü º¯±îÁö ´êµµ·Ï ÇÑ´Ù.
-			// BlendTreeÀÇ °¢ Á¡Àº Á¤»ç°¢ÇüÀÇ º¯¿¡ À§Ä¡ÇØ ÀÖ±â ¶§¹®ÀÌ´Ù.
-			// ¾Æ·¡ °è»êÀ» ÇÏÁö ¾ÊÀ¸¸é ºÎÁ¤È®ÇÑ v, h°ªÀÌ ±¸ÇØÁø´Ù. (Á¶±Ý ºÎÀÚ¿¬½º·¯¿ò)
+			// v, hï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, dirï¿½ï¿½ Å©ï¿½â°¡ ï¿½×»ï¿½ ï¿½ï¿½ï¿½ç°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½êµµï¿½ï¿½ ï¿½Ñ´ï¿½.
+			// BlendTreeï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ç°¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½.
+			// ï¿½Æ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È®ï¿½ï¿½ v, hï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 			{
 				float dirAngle = Vector3::SignedAngle(Vector3::Forward, rotatedMovementDir, Vector3::Up);
 
@@ -150,21 +155,21 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 				}
 			}
 		}
-		// Á¤Áö »óÅÂ¿¡¼­ È¸Àü //
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ //
 		else if (rotAngleAbs > 10.f) {
 			mController->SetValue("Walk", true);
 
-			// È¸Àü ºÎÈ£¿¡ µû¶ó h°ªÀ» ¼³Á¤ÇÑ´Ù.
+			// È¸ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ hï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 			v = Math::Sign(rotAngle) > 0 ? 0.5f : -0.5f;
 			h = Math::Sign(rotAngle) > 0 ? -1.f : 1.f;
 		}
-		// Á¤Áö »óÅÂ //
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ //
 		else {
 			mController->SetValue("Walk", false);
 		}
 	}
 	else {
-		if (!Math::IsZero(v) || !Math::IsZero(h)) {		// ¿¡ÀÓ »óÅÂ°¡ ¾Æ´Ï¸é ¹«Á¶°Ç ¾ÕÀ¸·Î ÀÌµ¿ÇÑ´Ù.
+		if (!Math::IsZero(v) || !Math::IsZero(h)) {		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Ñ´ï¿½.
 			v = 1;
 		}
 		else {
@@ -182,7 +187,7 @@ void Script_GroundPlayer::ProcessInput()
 {
 	base::ProcessInput();
 
-	// Å° ÀÔ·Â¿¡ µû¸¥ ¹æÇâ ¼³Á¤ //
+	// Å° ï¿½Ô·Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ //
 	Dir dir{};
 	float v{}, h{};
 	if (KEY_PRESSED('W')) { v += 1; }
@@ -329,11 +334,22 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		case '1':
 		case '2':
 		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
 			SetWeapon(static_cast<int>(wParam - '0'));
+			break;
+		case VK_NUMPAD1:
+			AquireWeapon(WeaponName::H_Lock);
+			break;
+		case VK_NUMPAD2:
+			AquireWeapon(WeaponName::SkyLine);
+			break;
+		case VK_NUMPAD3:
+			AquireWeapon(WeaponName::DBMS);
+			break;
+		case VK_NUMPAD4:
+			AquireWeapon(WeaponName::Burnout);
+			break;
+		case VK_NUMPAD5:
+			AquireWeapon(WeaponName::PipeLine);
 			break;
 
 		default:
@@ -400,152 +416,179 @@ void Script_GroundPlayer::BulletFired()
 
 
 
-void Script_GroundPlayer::InitWeapons()
+void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 {
-	const std::unordered_map<WeaponType, std::string> defaultWeapons{
+	static const std::unordered_map<WeaponName, WeaponType> kWeaponTypes{
+		{WeaponName::H_Lock, WeaponType::HandedGun },
+		{WeaponName::DBMS, WeaponType::ShotGun },
+		{WeaponName::SkyLine, WeaponType::AssaultRifle },
+		{WeaponName::Burnout, WeaponType::MissileLauncher },
+		{WeaponName::PipeLine, WeaponType::Sniper },
+	};
+
+	static const std::unordered_map<WeaponType, std::string> kDefaultWeapons{
 		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
 		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
-		{WeaponType::LightingGun, "SM_SciFiLightingGun" },
-		{WeaponType::GatlinGun, "SM_SciFiLaserGatlinGun" },
 		{WeaponType::ShotGun, "SM_SciFiShotgun" },
 		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
 		{WeaponType::Sniper, "Sniper" },
 	};
 
-	const std::unordered_map<WeaponType, std::string> defaultTransforms{
+	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
 		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
 		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
-		{WeaponType::LightingGun, "RefPosLightningGun_Action" },
-		{WeaponType::GatlinGun, "RefPosLaserGatlinGun_Action" },
 		{WeaponType::ShotGun, "RefPosShotgun_Action" },
 		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
 		{WeaponType::Sniper, "RefPosSniper_Action" },
 	};
 
 
-	const std::unordered_map<WeaponType, std::string> reloadMotions{
+	static const std::unordered_map<WeaponType, std::string> kReloadMotions{
 		{WeaponType::HandedGun, "Reload2HandedGun" },
 		{WeaponType::AssaultRifle, "ReloadAssaultRifle" },
-		{WeaponType::LightingGun, "ReloadOverheatBeamGun" },
-		{WeaponType::GatlinGun, "ReloadOverheatGatlinGun" },
 		{WeaponType::ShotGun, "ReloadShotgun" },
 		{WeaponType::MissileLauncher, "ReloadMissileLauncher" },
 		{WeaponType::Sniper, "ReloadAssaultRifle" },
 	};
 
-	const std::unordered_map<WeaponType, std::string> drawMotions{
+	static const std::unordered_map<WeaponType, std::string> kDrawMotions{
 		{WeaponType::HandedGun, "Draw2HandedGun" },
 		{WeaponType::AssaultRifle, "DrawAssaultRifle" },
-		{WeaponType::LightingGun, "DrawBeamGun" },
-		{WeaponType::GatlinGun, "DrawGatlinGun" },
 		{WeaponType::ShotGun, "DrawShotgun" },
 		{WeaponType::MissileLauncher, "DrawMissileLauncher" },
 		{WeaponType::Sniper, "DrawAssaultRifle" },
 	};
 
-	const std::unordered_map<WeaponType, std::string> putbackMotions{
+	static const std::unordered_map<WeaponType, std::string> kPutbackMotions{
 		{WeaponType::HandedGun, "PutBack2HandedGun" },
 		{WeaponType::AssaultRifle, "PutBackAssaultRifle" },
-		{WeaponType::LightingGun, "PutBackBeamGun" },
-		{WeaponType::GatlinGun, "PutBackGatlinGun" },
 		{WeaponType::ShotGun, "PutBackShotgun" },
 		{WeaponType::MissileLauncher, "PutBackMissileLauncher" },
 		{WeaponType::Sniper, "PutBackAssaultRifle" },
 	};
 
-	std::function<void()> reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
-	std::function<void()> reloadStopCallback   = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
-	std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
-	std::function<void()> drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
-	std::function<void()> drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
-	std::function<void()> putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
+	// ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Ý¹ï¿½ ï¿½Ô¼ï¿½ //
+	static const std::function<void()> reloadCallback       = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
+	static const std::function<void()> reloadStopCallback   = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
+	static const std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
+	static const std::function<void()> drawCallback         = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
+	static const std::function<void()> drawEndCallback      = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
+	static const std::function<void()> putbackCallback      = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
-	mWeapons.resize(gkWeaponTypeCnt, nullptr);
-	for (size_t i = 0; i < gkWeaponTypeCnt; ++i) {
-		// weapon Å¸ÀÔ¿¡ µû¸¥ °´Ã¼ »ý¼º //
-		auto& weapon = mWeapons[i];
-		WeaponType weaponType = static_cast<WeaponType>(i);
-		weapon = Scene::I->Instantiate(defaultWeapons.at(weaponType), ObjectTag::Dynamic, ObjectLayer::Default, false);
-		if (!weapon) {
-			continue;
+	assert(kWeaponTypes.contains(weaponName));
+	WeaponType weaponType = kWeaponTypes.at(weaponName);
+
+	sptr<GameObject> weapon = Scene::I->Instantiate(kDefaultWeapons.at(weaponType), ObjectTag::Dynamic, ObjectLayer::Default, false);
+
+	// ï¿½ï¿½Å©ï¿½ï¿½Æ® ï¿½ß°ï¿½ //
+	switch (weaponName) {
+	case WeaponName::H_Lock:
+		weapon->AddComponent<Script_Weapon_Pistol>();
+		break;
+	case WeaponName::DBMS:
+		weapon->AddComponent<Script_Weapon_DBMS>();
+		break;
+	case WeaponName::SkyLine:
+		weapon->AddComponent<Script_Weapon_Skyline>();
+		break;
+	case WeaponName::Burnout:
+		weapon->AddComponent<Script_Weapon_Burnout>();
+		break;
+	case WeaponName::PipeLine:
+		weapon->AddComponent<Script_Weapon_PipeLine>();
+		// bolt action sniper ï¿½Ê±ï¿½È­
+		{
+			static const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
+			auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+
+			// callback
+			boltActionMotion->AddEndCallback(boltActionCallback);
+			boltActionMotion->AddChangeCallback(boltActionCallback);
+
+			// motion speed
+			constexpr float decTime = 0.1f; // [decTime]ï¿½ï¿½ ï¿½ï¿½Å­ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+			const float fireDelay = weapon->GetComponent<Script_Weapon>()->GetFireDelay();
+			SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 		}
-
-		// weaponType¿¡ µû¸¥ ½ºÅ©¸³Æ® Ãß°¡ //
-		switch (weaponType) {
-		case WeaponType::HandedGun:
-		case WeaponType::LightingGun:
-		case WeaponType::GatlinGun:
-			weapon->AddComponent<Script_Weapon_Pistol>();
-			break;
-		case WeaponType::AssaultRifle:
-			weapon->AddComponent<Script_Weapon_Skyline>();
-			break;
-		case WeaponType::ShotGun:
-			weapon->AddComponent<Script_Weapon_DBMS>();
-			break;
-		case WeaponType::Sniper:
-			weapon->AddComponent<Script_Weapon_PipeLine>();
-			break;
-		case WeaponType::MissileLauncher:
-			weapon->AddComponent<Script_Weapon_Burnout>();
-			break;
-		default:
-			assert(0);
-			break;
-		}
-
-		// ½ºÅ©¸³Æ® ¼³Á¤ //
-		weapon->GetComponent<Script_Weapon>()->SetOwner(this);
-
-		// transform ¼³Á¤ //
-		Transform* transform = mObject->FindFrame(defaultTransforms.at(weaponType));
-		if (!transform) {
-			continue;
-		}
-		transform->SetChild(weapon);
-
-		// setting callbacks //
-		constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
-
-		auto& realodMotion  = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(reloadMotions.at(weaponType), "Body");
-		auto& drawMotion    = mController->FindMotionByName(drawMotions.at(weaponType), "Body");
-		auto& putbackMotion = mController->FindMotionByName(putbackMotions.at(weaponType), "Body");
-
-		// add callbacks
-		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
-		realodMotion->AddStopCallback(reloadStopCallback);
-		realodMotion->AddChangeCallback(reloadChangeCallback);
-		drawMotion->AddCallback(drawCallback, kDrawFrame);
-		drawMotion->AddEndCallback(drawEndCallback);
-		putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
+		break;
+	default:
+		assert(0);
+		break;
 	}
 
-	// bolt action sniper ÃÊ±âÈ­
-	{
-		std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
-		auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+	// ï¿½ï¿½Å©ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ //
+	weapon->GetComponent<Script_Weapon>()->SetOwner(this);
 
-		// callback
-		boltActionMotion->AddEndCallback(boltActionCallback);
-		boltActionMotion->AddChangeCallback(boltActionCallback);
+	// transform ï¿½ï¿½ï¿½ï¿½ //
+	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
+	assert(transform);
 
-		// motion speed
-		constexpr float decTime = 0.1f; // [decTime]ÃÊ ¸¸Å­ ¾Ö´Ï¸ÞÀÌ¼ÇÀ» ´õ »¡¸® Àç»ýÇÑ´Ù.
-		const float fireDelay = mWeapons[static_cast<int>(WeaponType::Sniper)]->GetComponent<Script_Weapon>()->GetFireDelay();
-		SetMotionSpeed(boltActionMotion, fireDelay - decTime);
+	transform->SetChild(weapon);
+
+	// setting callbacks //
+	constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
+
+	auto& realodMotion = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
+	auto& drawMotion = mController->FindMotionByName(kDrawMotions.at(weaponType), "Body");
+	auto& putbackMotion = mController->FindMotionByName(kPutbackMotions.at(weaponType), "Body");
+
+	// add callbacks
+	realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
+	realodMotion->AddStopCallback(reloadStopCallback);
+	realodMotion->AddChangeCallback(reloadChangeCallback);
+	drawMotion->AddCallback(drawCallback, kDrawFrame);
+	drawMotion->AddEndCallback(drawEndCallback);
+	putbackMotion->AddCallback(putbackCallback, kPutbackFrame);
+
+	int weaponNum{};
+	switch (weaponType) {
+	case WeaponType::HandedGun:
+		weaponNum = 0;
+		break;
+	case WeaponType::ShotGun:
+	case WeaponType::AssaultRifle:
+		weaponNum = 1;
+		break;
+	case WeaponType::MissileLauncher:
+	case WeaponType::Sniper:
+		weaponNum = 2;
+		break;
+	default:
+		assert(0);
+		break;
 	}
+
+	SwitchWeapon(weaponNum, weapon);
 }
 
-void Script_GroundPlayer::DrawWeaponStart(int weaponIdx, bool isDrawImmed)
+void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 {
-	base::DrawWeaponStart(weaponIdx, isDrawImmed);
+	base::DrawWeaponStart(weaponNum, isDrawImmed);
+
+	int weaponIdx{};
+	switch (mWeapons[weaponNum - 1]->GetComponent<Script_Weapon>()->GetWeaponType()) {
+	case WeaponType::HandedGun:
+		weaponIdx = 1;
+		break;
+	case WeaponType::AssaultRifle:
+		weaponIdx = 2;
+		break;
+	case WeaponType::ShotGun:
+		weaponIdx = 5;
+		break;
+	case WeaponType::MissileLauncher:
+		weaponIdx = 6;
+		break;
+	case WeaponType::Sniper:
+		weaponIdx = 7;
+		break;
+	}
 
 	mController->SetValue("Weapon", weaponIdx);
 
 	// synchronize animation frame
 	// pistol's animation is different. so can't synchronize with others
-	constexpr int kPistolIndex = 1;
-	if (isDrawImmed && weaponIdx != kPistolIndex && GetCrntWeaponIdx() != kPistolIndex) {
+	if (isDrawImmed && weaponNum != kPistolNum && GetCrntWeaponNum() != kPistolNum) {
 		mController->SetValue("Draw", true, true);
 		auto& motion = mController->GetCrntMotion("Body");
 		motion->SetLength(motion->GetClip()->GetFrameTime(kDrawFrame));
@@ -561,7 +604,7 @@ void Script_GroundPlayer::DrawWeaponCallback()
 {
 	base::DrawWeapon();
 
-	auto& motion            = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
+	auto& motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
 	SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
 }
 
@@ -599,8 +642,8 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 
 	base::PutbackWeaponEnd();
 
-	// ´ÙÀ½ ¹«±â°¡ ¾ø´Ù¸é Á¶ÁØ »óÅÂ¸¦ Á¾·áÇÑ´Ù.
-	if (GetNextWeaponIdx() == -1 && mIsAim) {
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â°¡ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+	if (GetNextWeaponNum() == -1 && mIsAim) {
 		OffAim();
 	}
 	mController->SetValue("PutBack", false);
@@ -609,41 +652,41 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
-	constexpr float kParamSpeed         = 6.f;		// ÆÄ¶ó¹ÌÅÍ ÀüÈ¯ ¼Óµµ
-	constexpr float kOppositeExtraSpeed = 8.f;		// ¹Ý´ëÆí ÀÌµ¿ ½Ã Ãß°¡ ÀÌµ¿ ÀüÈ¯ ¼Óµµ
+	constexpr float kParamSpeed         = 6.f;		// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½Óµï¿½
+	constexpr float kOppositeExtraSpeed = 8.f;		// ï¿½Ý´ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½È¯ ï¿½Óµï¿½
 
-	int sign = Math::Sign(val);						// sign : ÆÄ¶ó¹ÌÅÍ ÀÌµ¿ ¹æÇâ = ÇöÀç ÀÔ·Â°ªÀÇ ºÎÈ£
-	if (Math::IsZero(val)) {						//		  ÀÔ·ÂÀÌ ¾ø´Ù¸é ÇöÀç ÆÄ¶ó¹ÌÅÍÀÇ ¹Ý´ë ºÎÈ£
+	int sign = Math::Sign(val);						// sign : ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ = ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·Â°ï¿½ï¿½ï¿½ ï¿½ï¿½È£
+	if (Math::IsZero(val)) {						//		  ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ý´ï¿½ ï¿½ï¿½È£
 		if (Math::IsZero(param)) {
 			return;
 		}
 		sign = -Math::Sign(param);
 	}
 	float before = param;
-	param += (kParamSpeed * sign) * DeltaTime();	// ÆÄ¶ó¹ÌÅÍ°ª Áõ°¨
+	param += (kParamSpeed * sign) * DeltaTime();	// ï¿½Ä¶ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	if (!Math::IsZero(val)) {
-		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// ¹Ý´ëÆí ÀÌµ¿ ½Ã
-			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// Ãß°¡ ÀüÈ¯ ¼Óµµ Àû¿ë
+		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// ï¿½Ý´ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½
+			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// ï¿½ß°ï¿½ ï¿½ï¿½È¯ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
 		}
-		else if (fabs(param) >= fabs(before)) {						// Á¤¹æÇâ ÀÌµ¿ ½Ã
-			param = std::clamp(param, -fabs(val), fabs(val));		// paramÀÌ valÀ» ³ÑÁö ¸øÇÏµµ·Ï ÇÑ´Ù.
+		else if (fabs(param) >= fabs(before)) {						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½
+			param = std::clamp(param, -fabs(val), fabs(val));		// paramï¿½ï¿½ valï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 
-			// Áõ°¨ÆøÀÌ ³·°í && 0¿¡ °¡±î¿î °æ¿ì ÇØ´ç ÆÄ¶ó¹ÌÅÍ´Â ¹«½ÃÇÑ´Ù.
-			if (fabs(fabs(param) - fabs(before)) < 0.001f && fabs(param) < 0.1f) {								// 0¿¡ ±ÙÁ¢ÇÏ¸é 0À¸·Î ¼³Á¤
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ && 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Í´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+			if (fabs(fabs(param) - fabs(before)) < 0.001f && fabs(param) < 0.1f) {								// 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				param = 0.f;
 			}
 		}
 	}
 
-	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 »çÀÌ·Î °íÁ¤
+	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½
 }
 
 
 
 void Script_GroundPlayer::UpdateMovement(Dir dir)
 {
-	// ÇöÀç Ä³¸¯ÅÍÀÇ ¿òÁ÷ÀÓ »óÅÂ¸¦ Å° ÀÔ·Â¿¡ µû¶ó ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ Å° ï¿½Ô·Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	PlayerMotion crntMovement = PlayerMotion::None;
 	// Stand / Sit
 	if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= PlayerMotion::Sit; }
@@ -677,26 +720,26 @@ void Script_GroundPlayer::UpdateMovement(Dir dir)
 
 float Script_GroundPlayer::GetAngleMuzzleToAim(const Vec3& aimWorldPos) const
 {
-	// È¸ÀüÃà
+	// È¸ï¿½ï¿½ï¿½ï¿½
 	const Vec3 offsetPos = mSpineBone->GetPosition().xz();
 
-	// ÃÑ±¸ À§Ä¡&¹æÇâ
+	// ï¿½Ñ±ï¿½ ï¿½ï¿½Ä¡&ï¿½ï¿½ï¿½ï¿½
 	const Vec3 muzzlePos = mMuzzle->GetPosition().xz();
 	const Vec3 muzzleLook = mMuzzle->GetLook().xz();
 
-	// È¸ÀüÃà¿¡¼­ Á¶ÁØÁ¡À¸·Î ÇâÇÏ´Â º¤ÅÍ
+	// È¸ï¿½ï¿½ï¿½à¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	const Vec3 offsetToAim = aimWorldPos - offsetPos;
 
-	// ÃÑ±¸¿¡¼­ ÅºÂøÁ¡À¸·Î ÇâÇÏ´Â º¤ÅÍÀÇ ±æÀÌ ±Ù»ç°ª
+	// ï¿½Ñ±ï¿½ï¿½ï¿½ï¿½ï¿½ Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù»ç°ª
 	const float approxLength = (offsetToAim.Length() - (muzzlePos - offsetPos).Length());
 
-	// ÅºÂøÁ¡À¸·Î ÇâÇÏ´Â º¤ÅÍ
+	// Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	const Vec3 muzzleToBullet = muzzlePos + (muzzleLook * approxLength);
 
-	// È¸ÀüÃà¿¡¼­ ÅºÂøÁ¡À¸·Î ÇâÇÏ´Â º¤ÅÍ
+	// È¸ï¿½ï¿½ï¿½à¿¡ï¿½ï¿½ Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	const Vec3 offsetToBullet = muzzleToBullet - offsetPos;
 
-	// (È¸ÀüÃà-ÅºÂøÁ¡) -> (È¸ÀüÃà-Á¶ÁØÁ¡)À¸·Î ÇâÇÏ´Â °¢µµ
+	// (È¸ï¿½ï¿½ï¿½ï¿½-Åºï¿½ï¿½ï¿½ï¿½) -> (È¸ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	return Vector3::SignedAngle(offsetToBullet, offsetToAim, Vector3::Up);
 }
 
@@ -707,7 +750,7 @@ float Script_GroundPlayer::GetAngleSpineToAim(const Vec3& aimWorldPos) const
 
 Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
 {
-	// aim¿¡¼­ ¹ß»çµÈ ±¤¼±¿¡¼­ ÃÑ±¸ÀÇ y°ª°ú ÀÏÄ¡ÇÏ´Â ÁöÁ¡À» Ã£´Â´Ù.
+	// aimï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ±ï¿½ï¿½ï¿½ yï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½Â´ï¿½.
 	const Vec3 ray = MAIN_CAMERA->ScreenToWorldRay(aimScreenPos);
 	const Vec3 camPos = MAIN_CAMERA->GetPosition();
 	return Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y).xz();
@@ -755,7 +798,7 @@ void Script_GroundPlayer::Rotate(float angle) const
 	const int sign = Math::Sign(angle);
 	const float angleAbs = fabs(angle);
 
-	// [kMaxAngle] °¢µµ ÀÌÇÏ¸é º¸°£
+	// [kMaxAngle] ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	float rotationSpeed{};
 	if (angleAbs > kMaxAngle) {
 		rotationSpeed = mRotationSpeed;
@@ -791,9 +834,9 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		::IncreaseDelta(mAimingDeltaTime, kAimingSpeed);
 
 		const Vec3 aimWorldPos = GetAimWorldPos(aimScreenPos);
-		// ÀçÀåÀü ÁßÀÌ¶ó¸é, ÃÑ±¸°¡ ¾Æ´Ñ Ã´ÃßÀÇ ¹æÇâ¿¡ µû¶ó È¸Àü°¢À» ±¸ÇÑ´Ù.
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½, ï¿½Ñ±ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ Ã´ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.
 		if (IsReloading()) {
-			// ÇöÀç °¢µµ¸¦ À¯ÁöÇÏ¸ç [mReloadingDeltaTime]ÀÌ 1ÀÌ µÉ ¶§ ±îÁö ¼­¼­È÷ È¸ÀüÇÑ´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ [mReloadingDeltaTime]ï¿½ï¿½ 1ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½Ñ´ï¿½.
 			if (::IncreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
 
 				mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle);
@@ -805,7 +848,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 				mCrntSpineAngle = GetAngleSpineToAim(aimWorldPos) * mAimingDeltaTime;
 			}
 		}
-		// ÀçÀåÀü ÁßÀÌ¾ú´Ù¸é ÇöÀç °¢µµ¸¦ À¯ÁöÇÏ¸ç ¸ñÇ¥ ÁöÁ¡±îÁö ¼­¼­È÷ È¸ÀüÇÑ´Ù.
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½Ñ´ï¿½.
 		else {
 			if (::DecreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
 
@@ -836,11 +879,11 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 			}
 		}
 			
-		// »óÇÏ¸¦ È¸ÀüÇÏ¿© ÃÑ±¸ÀÇ yaw È¸ÀüÀ» Á¦°ÅÇÑ´Ù.
+		// ï¿½ï¿½ï¿½Ï¸ï¿½ È¸ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½Ñ±ï¿½ï¿½ï¿½ yaw È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		if (!mWeaponScript->IsReloading() && mController->IsEndTransition("Body")) {
 			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
 			if (fabs(yawAngle) > 0.1f) {
-				// [maxAngle]µµ ÀÌ»óÀÏ ¶§ ÃÖ´ë ¼Óµµ
+				// [maxAngle]ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Óµï¿½
 				constexpr float alignSpeed = 100.f;
 				constexpr float maxAngle   = 3.f;
 				const float ratio          = std::clamp(fabs(yawAngle) / maxAngle, 0.f, 1.f);
@@ -850,7 +893,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 			}
 		}
 
-		// ¹Ýµ¿ Àû¿ë
+		// ï¿½Ýµï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (mCurRecoil > 0.f) {
 			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
 		}
@@ -876,7 +919,7 @@ void Script_GroundPlayer::OffAim()
 	mController->SetValue("Aim", false);
 	mIsAim = false;
 
-	// ¿¡ÀÓ µµÁß È¸Àü»óÅÂ¿´´Ù¸é ÀÌ¸¦ Ãë¼ÒÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½Â¿ï¿½ï¿½Ù¸ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (mIsInBodyRotation) {
 		mIsInBodyRotation = false;
 
@@ -907,8 +950,8 @@ void Script_GroundPlayer::StopReload()
 
 void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState)
 {
-	// ÀÌÀü ¿òÁ÷ÀÓ »óÅÂ¿Í ´Ù¸¥ °æ¿ì¸¸ °ªÀ» ¾÷µ¥ÀÌÆ® ÇÑ´Ù.
-	// ÀÌÀü »óÅÂ¸¦ Ãë¼ÒÇÏ°í ÇöÀç »óÅÂ·Î ÀüÈ¯ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ì¸¸ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ñ´ï¿½.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 	if (!(crntState & prevState)) {
 		switch (prevState) {
 		case PlayerMotion::None:
@@ -963,7 +1006,7 @@ void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMoti
 
 void Script_GroundPlayer::SetMotion(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState, PlayerMotion& crntMotion)
 {
-	// ÀÌÀü »óÅÂÀÇ ¸ð¼ÇÀ» Ãë¼ÒÇÏ°í ÇöÀç »óÅÂÀÇ ¸ð¼ÇÀ¸·Î ÀüÈ¯ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
 		switch (prevMotion) {
 		case PlayerMotion::None:
@@ -1045,8 +1088,8 @@ void Script_GroundPlayer::ChangeReloadCallback()
 	const auto& motion = mController->GetCrntMotion("Body");
 	float ratio = motion->GetLength() / motion->GetMaxLength();
 
-	// ¸®·Îµå µµÁß ¸ð¼Ç º¯°æ ½Ã 80%ÀÌ»ó ÁøÇàµÇ¾ú´Ù¸é ÀåÀü ¿Ï·á Ã³¸®
-	// ¾ÆÁ÷ ÀçÀåÀü »óÅÂÀÎ °æ¿ì¸¸ Àû¿ë
+	// ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 80%ï¿½Ì»ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½ Ã³ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¸¸ ï¿½ï¿½ï¿½ï¿½
 	constexpr float kAllowRatio = 0.8f;
 	if (ratio > kAllowRatio && IsReloading()) {
 		EndReload();
@@ -1084,13 +1127,13 @@ void Script_GroundPlayer::RecoverRecoil()
 
 void Script_GroundPlayer::MoveCamera(Dir dir)
 {
-	// Á¶ÁØ »óÅÂÀÌ¸é, ¸¶¿ì½ºÀÇ À§Ä¡°¡ °æ°è¿¡ °¡±î¿öÁú ¼ö·Ï [offset_t]¸¦ Å©°Ô ¼³Á¤ÇÑ´Ù. (ÃÖ´ë 1)
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½, ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½è¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ [offset_t]ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. (ï¿½Ö´ï¿½ 1)
 	if (mIsAim) {
 		const Vec2 mousePos = mAimController->GetAimPos();
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
 		const Vec2 ndcAbs   = Vec2(fabs(ndc.x), fabs(ndc.y));
 
-		constexpr float offsetMaxRatio = 0.8f; // ÃÖ´ë [n]% ±îÁö¸¸ Àû¿ë (½ºÅ©¸° ³¡¿¡¼­ [n - 100]% ÁöÁ¡±îÁö¸¸ ÃÖ´ë offset Àû¿ë)
+		constexpr float offsetMaxRatio = 0.8f; // ï¿½Ö´ï¿½ [n]% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ [n - 100]% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ offset ï¿½ï¿½ï¿½ï¿½)
 		float maxOffset_t = (std::max)(ndcAbs.x, ndcAbs.y);
 		if (maxOffset_t > offsetMaxRatio) {
 			maxOffset_t = offsetMaxRatio;
@@ -1099,7 +1142,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 
 		mCamera->Move(mousePos, ndcAbs, maxOffset_t);
 	}
-	// ÀÌµ¿ »óÅÂÀÌ¸é, ¹æÇâ¿¡ µû¶ó offsetÀ» ÃÖ´ë [maxOffset_t]%¸¸ Àû¿ëÇÑ´Ù
+	// ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½, ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½ offsetï¿½ï¿½ ï¿½Ö´ï¿½ [maxOffset_t]%ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½
 	else if(dir != Dir::None) {
 		constexpr float maxOffset_t = 0.6f;
 		const Vec3 dirVec = Transform::GetWorldDirection(dir);
@@ -1119,21 +1162,21 @@ void Script_GroundPlayer::SetMotionSpeed(rsptr<AnimatorMotion> motion, float tim
 }
 void Script_GroundPlayer::ComputeSlideVector(Object& other)
 {
-	//// ÀÌÀü Ãæµ¹Ã¼¿Í ÀÌÀü ½½¶óÀÌµù º¤ÅÍ¸¦ ÀúÀå
+	//// ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	//static Object* prevOther = nullptr;
 	//static Vec3 prevSlideVec{};
 
-	// Çã¸® ÂÊºÎÅÍ ÀÌµ¿ ¹æÇâÀ» ÇâÇÏ´Â ±¤¼±
+	// ï¿½ã¸® ï¿½Êºï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, Vector3::Normalized(mDirVec) };
 
-	//// ÀÌÀü Ãæµ¹Ã¼°¡ ÇöÀç Ãæµ¹Ã¼¿Í ´Ù¸¥ °æ¿ì
+	//// ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹Ã¼ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½
 	//if (prevOther != nullptr) {
 	//	if (prevOther->GetID() != other.GetID()) {
-	//		// ±¤¼±À¸·ÎºÎÅÍ µÎ Ãæµ¹Ã¼ÀÇ °Å¸®¸¦ °è»ê
+	//		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½æµ¹Ã¼ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	//		float crntDist = Vec3::Distance(ray.Position, other.GetPosition());
 	//		float prevDist = Vec3::Distance(ray.Position, prevOther->GetPosition());
 
-	//		// ÇöÀç Ãæµ¹Ã¼±îÁöÀÇ °Å¸®°¡ ´õ ±æ °æ¿ì ÀÌÀü ½½¶óÀÌµù º¤ÅÍ¸¦ »ç¿ë
+	//		// ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½
 	//		if (crntDist > prevDist) {
 	//			mSlideVec = prevSlideVec;
 	//			return;
@@ -1144,7 +1187,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	float dist{};
 	float minDist{ 999.f };
 
-	// ÃÖ¼Ò °Å¸®°¡ ÀÛÀ» °æ¿ì¿¡¸¸ ½ÇÇà
+	// ï¿½Ö¼ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	sptr<Collider> box{};
 	for (const auto& collider : other.GetComponent<ObjectCollider>()->GetColliders()) {
 		if (collider->GetType() != Collider::Type::Box) {
@@ -1162,15 +1205,15 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	if (box) {
 		const auto& obb = reinterpret_cast<BoxCollider*>(box.get())->mBox;
 
-		// OBBÀÇ ¿ùµå º¯È¯ Çà·Ä
+		// OBBï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ï¿½
 		Matrix worldToOBB = Matrix::CreateFromQuaternion(obb.Orientation);
 
-		// ±¤¼±À» OBBÀÇ ·ÎÄÃ ÁÂÇ¥°è·Î º¯È¯
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ OBBï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 		ray.Position -= obb.Center;
 		ray.Position = Vec3::Transform(ray.Position, worldToOBB.Invert());
 		ray.Direction = Vec3::Transform(ray.Direction, worldToOBB.Invert());
 
-		// ±¤¼±ÀÇ ÇöÀç À§Ä¡¿¡ µû¶ó OBBÀÇ ³ë¸» º¤ÅÍ ÀúÀå
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ OBBï¿½ï¿½ ï¿½ë¸» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		Vec3 collisionNormal;
 		if (ray.Position.x >= obb.Extents.x)
 			collisionNormal = Vector3::Right;
@@ -1181,7 +1224,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 		else if (ray.Position.z <= 0.f)
 			collisionNormal = Vector3::Backward;
 
-		// ½½¶óÀÌµù º¤ÅÍ¸¦ ±¸ÇÏ¿© ´Ù½Ã ¿ùµå ÁÂÇ¥°è·Î º¯È¯
+		// ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 		float rdn = ray.Direction.Dot(collisionNormal);
 		if (rdn < 0.f) {
 			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * rdn);
@@ -1190,5 +1233,17 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 
 		//prevOther = &other;
 		//prevSlideVec = mSlideVec;
+	}
+}
+
+void Script_GroundPlayer::SwitchWeapon(int num, rsptr<GameObject> weapon)
+{
+	if (mWeapons[num]) {
+		mWeapons[num]->Destroy();
+		mWeapons[num] = weapon;
+		SetWeapon(GetCrntWeaponNum());
+	}
+	else {
+		mWeapons[num] = weapon;
 	}
 }

@@ -85,6 +85,9 @@
     <Filter Include="Script\UI">
       <UniqueIdentifier>{716b808f-3529-4b17-905b-ff86120d3dc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Item">
+      <UniqueIdentifier>{f4849f9b-fda9-48ef-89fb-d2fdffb31391}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -331,6 +334,9 @@
     <ClInclude Include="include\Script_AfterImageObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Item.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -530,6 +536,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_AfterImageObject.cpp">
       <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Item.cpp">
+      <Filter>Script\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

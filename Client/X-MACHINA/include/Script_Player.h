@@ -21,12 +21,17 @@ class SliderBarUI;
 
 
 #pragma region EnumClass
-// 플레이어 객체 타입
-enum class PlayerType {
-	Unspecified = 0,
-	Tank,
-	Airplane,
-	Human
+enum class WeaponName {
+	None,
+	H_Lock,
+	DBMS,
+	Stuart,
+	SkyLine,
+	Descriptor,
+	T_12,
+	PipeLine,
+	Burnout,
+	Direct_Drain
 };
 #pragma endregion
 
@@ -38,7 +43,6 @@ class Script_Player abstract : public Script_LiveObject {
 protected:
 	Script_MainCamera* mCamera{};
 
-	PlayerType		mPlayerType{};
 	GameObject*		mTarget{};		// self GameObject
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
@@ -46,8 +50,6 @@ protected:
 	sptr<SliderBarUI> mHpBarUI{};
 
 public:
-	PlayerType GetPlayerType() const { return mPlayerType; }
-
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -79,8 +81,8 @@ class Script_ShootingPlayer abstract : public Script_Player {
 	COMPONENT_ABSTRACT(Script_ShootingPlayer, Script_Player)
 
 private:
-	int mCrntWeaponIdx{};
-	int mNextWeaponIdx{};
+	int mCrntWeaponNum{};
+	int mNextWeaponNum{};
 	bool mIsInDraw{};
 	bool mIsInPutback{};
 
@@ -89,9 +91,6 @@ protected:
 	sptr<Script_Weapon> mWeaponScript{};
 	std::vector<sptr<GameObject>> mWeapons{};
 	Transform* mMuzzle{};
-
-public:
-	virtual void Start() { base::Start();  InitWeapons(); }
 
 public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
@@ -104,14 +103,12 @@ public:
 	virtual void BulletFired() {}
 
 protected:
-	int GetCrntWeaponIdx() const { return mCrntWeaponIdx; }
-	int GetNextWeaponIdx() const { return mNextWeaponIdx; }
+	int GetCrntWeaponNum() const { return mCrntWeaponNum; }
+	int GetNextWeaponNum() const { return mNextWeaponNum; }
 
-	virtual void InitWeapons() abstract;
+	virtual void SetWeapon(int weaponNum);
 
-	virtual void SetWeapon(int weaponIdx);
-
-	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) abstract;
+	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) abstract;
 	virtual void DrawWeapon();
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;
@@ -203,13 +200,13 @@ public:
 
 	virtual void BulletFired() override;
 
-
 	float GetMovementSpeed() const { return mMovementSpeed; }
 	float GetRotationSpeed() const { return mRotationSpeed; }
 
+	void AquireWeapon(WeaponName weaponName);
+
 private:
-	void InitWeapons();
-	virtual void DrawWeaponStart(int weaponIdx, bool isDrawImmed) override;
+	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) override;
 	virtual void DrawWeaponCallback();
 	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
@@ -252,6 +249,8 @@ private:
 	// [time] 내에 [motion]이 끝나도록 [motion]의 속도를 변경한다.
 	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
 	void ComputeSlideVector(Object& other);
+
+	void SwitchWeapon(int num, rsptr<GameObject> weapon);
 };
 
 

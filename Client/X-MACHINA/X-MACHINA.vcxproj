@@ -295,6 +295,7 @@
     <ClCompile Include="src\MindControlAbility.cpp" />
     <ClCompile Include="src\PheroAbilityInterface.cpp" />
     <ClCompile Include="src\Script_AfterImageObject.cpp" />
+    <ClCompile Include="src\Script_Item_WeaponCrate.cpp" />
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp" />

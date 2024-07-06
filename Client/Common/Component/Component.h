@@ -150,6 +150,8 @@ public:
 	bool IsAwake() const				{ return mIsAwake; }
 	bool IsStart() const				{ return mIsStart; }
 	bool IsActive() const				{ return mIsEnable; }
+
+	const std::unordered_set<const Object*>& GetCollisionObjects() { return mCollisionObjects; }
 #pragma endregion
 
 #pragma region Setter

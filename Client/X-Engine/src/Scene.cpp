@@ -325,7 +325,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 	int sameObjectCount{};			// get one unique model from same object
 	sptr<MasterModel> model{};
 	sptr<ObjectPool> objectPool{};
-
+	
 	bool isInstancing{};
 	ObjectTag tag{};
 	ObjectLayer layer{};

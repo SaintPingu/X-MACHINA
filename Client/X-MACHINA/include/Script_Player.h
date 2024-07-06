@@ -251,6 +251,8 @@ private:
 	void ComputeSlideVector(Object& other);
 
 	void SwitchWeapon(int num, rsptr<GameObject> weapon);
+
+	void Interact();
 };
 
 

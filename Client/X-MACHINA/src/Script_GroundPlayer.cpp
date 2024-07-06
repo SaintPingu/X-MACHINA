@@ -351,6 +351,9 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		case VK_NUMPAD5:
 			AquireWeapon(WeaponName::PipeLine);
 			break;
+		case 'E':
+			Interact();
+			break;
 
 		default:
 			break;
@@ -1233,6 +1236,17 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 
 		//prevOther = &other;
 		//prevSlideVec = mSlideVec;
+	}
+}
+
+void Script_GroundPlayer::Interact()
+{
+	for (auto other : mObject->GetCollisionObjects()) {
+		switch (other->GetTag()) {
+		case ObjectTag::Crate:
+
+			break;
+		}
 	}
 }
 

@@ -186,7 +186,7 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_F9:
 			Scene::I->ToggleFullScreen();
 			break;
-		case 192:	// '`'
+		case 192:
 			::SetFocus(NULL);
 			break;
 

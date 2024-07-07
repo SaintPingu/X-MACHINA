@@ -59,7 +59,7 @@ public:
 	virtual void Update() override;
 
 public:
-	virtual void ProcessInput() {}
+	virtual bool ProcessInput();
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
@@ -187,7 +187,7 @@ public:
 
 public:
 	void UpdateParams(Dir dir, float v, float h, float rotAngle);
-	virtual void ProcessInput() override;
+	virtual bool ProcessInput() override;
 
 	// direction 방향으로 이동한다.
 	virtual void Move(Dir dir);

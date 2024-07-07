@@ -178,9 +178,11 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 }
 
 
-void Script_GroundPlayer::ProcessInput()
+bool Script_GroundPlayer::ProcessInput()
 {
-	base::ProcessInput();
+	if (!base::ProcessInput()) {
+		return false;
+	}
 
 	// 키 입력에 따른 방향 설정 //
 	Dir dir{};
@@ -218,6 +220,8 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('O')) mCamera->ZoomOut();
 	if (KEY_PRESSED('P')) mCamera->ZoomIn();
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
+
+	return true;
 }
 
 

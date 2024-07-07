@@ -47,27 +47,59 @@ void ChatBoxUI::SetPosition(const Vec2& position)
 	mChat->SetPosition(position.x, position.y);
 }
 
+void ChatBoxUI::ToggleChatBox()
+{
+	if (!mIsActive) {
+		mIsActive = true;
+		mBackground->mObjectCB.AlphaIntensity = 0.5f;
+	}
+	else {
+		if (mIsEditing) {
+			if (!mTextBuffer.empty()) {
+				if (mTextBuffer.back() == '\n') {
+					mIsEditing = false;
+				}
+				else {
+					mTextBuffer += L'\n';
+					return;
+				}
+			}
+		}
+
+		mIsActive = false;
+		mBackground->mObjectCB.AlphaIntensity = 0.2f;
+	}
+}
+
 void ChatBoxUI::AddChat(std::string chat)
 {
 	mTextBuffer += AnsiToWString('\n' + chat);
 }
 
+void ChatBoxUI::ClearChat()
+{
+	mTexts.clear();
+	mTextBuffer.clear();
+	mImeCompositionString.clear();
+}
+
 void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	HIMC hIMC = ImmGetContext(DXGIMgr::I->GetHwnd());
+	mIsEditing = true;
 
+	HIMC hIMC = ImmGetContext(DXGIMgr::I->GetHwnd());
+	
 	switch (messageID) {
 	case WM_KEYDOWN:
 	{
 		if (wParam == VK_BACK && !mTextBuffer.empty()) {
-			mTextBuffer.pop_back();
-		}
-		else if (wParam == VK_RETURN) {
-			mTextBuffer += L'\n';
+			if (mTextBuffer.back() != '\n') {
+				mTextBuffer.pop_back();
+			}
 		}
 	}
 	break;
-	case WM_CHAR:
+	case WM_CHAR: // english
 	{
 		if ((wParam < 0x20 || wParam > 0x7E)) {
 			break;
@@ -77,7 +109,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
-	case WM_IME_COMPOSITION:
+	case WM_IME_COMPOSITION: // korean
 	{
 		if (lParam & GCS_COMPSTR) {
 			DWORD dwSize = ImmGetCompositionStringW(hIMC, GCS_COMPSTR, nullptr, 0);

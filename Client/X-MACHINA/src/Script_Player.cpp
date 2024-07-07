@@ -54,9 +54,30 @@ void Script_Player::Update()
 	mHpBarUI->Update(GetCrntHp());
 }
 
+bool Script_Player::ProcessInput()
+{
+	if (mChatBoxUI->IsActive()) {
+		return false;
+	}
+
+	return true;
+}
+
 void Script_Player::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	if (mChatBoxUI) {
+	if (!mChatBoxUI) {
+		return;
+	}
+
+	switch (messageID) {
+	case WM_KEYDOWN:
+		if (wParam == VK_RETURN) {
+			mChatBoxUI->ToggleChatBox();
+			return;
+		}
+	}
+
+	if (mChatBoxUI->IsActive()) {
 		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
 	}
 }

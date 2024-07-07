@@ -413,7 +413,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	data.MoveDir                  = moveDir;
 	data.MoveState                = mState;
 
-	LOG_MGR->Cout(data.PingTime, " ms ping \n");
+	//LOG_MGR->Cout(data.PingTime, " ms ping \n");
 	SPtr_ServerSession serversession = std::static_pointer_cast<ServerSession>(session);
 
 	if (mState == ExtData::MOVESTATE::End) {
@@ -439,7 +439,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 
 	//LOG_MGR->Cout_Vec3("Packet Pos : ", Packetpos);
 	//LOG_MGR->Cout_Vec3("Target Pos : ", data.TargetPos);
-	LOG_MGR->Cout_Vec3(" MOVE DIR ", moveDir);
+	//LOG_MGR->Cout_Vec3(" MOVE DIR ", moveDir);
 
 	data.TargetRot = rot;
 	data.Velocity  = vel;

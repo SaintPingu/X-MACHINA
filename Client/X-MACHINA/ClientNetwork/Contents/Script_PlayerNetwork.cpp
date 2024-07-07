@@ -100,9 +100,9 @@ void Script_PlayerNetwork::DoInput()
 		/// _____________________________________________________________________________________________________________________
 		if (mMoveDir_Curr != mMoveDir_Key_Pressed) {
 			msendMovePacket_Pressed = true; 
-			//mMoveDir_Curr = mMoveDir_Key_Pressed;
+			mMoveDir_Curr = mMoveDir_Key_Pressed;
 
-			LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
+			//LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
 
 			mMoveTimePoint_latest = std::chrono::steady_clock::now(); // 현재 시간
 			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
@@ -117,7 +117,7 @@ void Script_PlayerNetwork::DoInput()
 				/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
 			CLIENT_NETWORK->Send(packet);
 			bSendPacket = true;
-			LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
+			//LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
 
 		}
 
@@ -129,7 +129,7 @@ void Script_PlayerNetwork::DoInput()
 			auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
 			if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMoveTimePoint_latest).count() >= PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000)
 			{
-				LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
+				//LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
 
 				mMoveTimePoint_latest = currentTime;
 				const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
@@ -144,7 +144,7 @@ void Script_PlayerNetwork::DoInput()
 					/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
 				CLIENT_NETWORK->Send(packet);
 				bSendPacket = true;
-				LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
+				//LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
 
 			}
 		}
@@ -159,7 +159,7 @@ void Script_PlayerNetwork::DoInput()
 	{
 		if (bSendPacket == false) {
 			Vec3 MoveDir = Vec3(0.f, 0.f, 0.f);
-			LOG_MGR->Cout_Vec3("KEY_AWAY : MoveDirection", MoveDir);
+			//LOG_MGR->Cout_Vec3("KEY_AWAY : MoveDirection", MoveDir);
 
 			/* 즉시 패킷을 보낸다. */
 			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
@@ -178,7 +178,7 @@ void Script_PlayerNetwork::DoInput()
 			mMoveDir_Key_Pressed = MoveDir;
 			mMoveDir_Key_Tap = MoveDir;
 
-			LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
+			//LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
 
 		}
 		

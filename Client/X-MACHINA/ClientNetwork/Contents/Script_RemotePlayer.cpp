@@ -57,8 +57,8 @@ void Script_RemotePlayer::LateUpdate()
 	{
 	case ExtData::MOVESTATE::Start:
 	{
-		LOG_MGR->Cout_Vec3("curpos", curpos);
-		LOG_MGR->Cout_Vec3("TarPos", TarPos);
+		//LOG_MGR->Cout_Vec3("curpos", curpos);
+		//LOG_MGR->Cout_Vec3("TarPos", TarPos);
 
 		curpos      += mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
 		mObject->SetPosition(curpos);
@@ -66,8 +66,8 @@ void Script_RemotePlayer::LateUpdate()
 	break;
 	case ExtData::MOVESTATE::Progress:
 	{
-		LOG_MGR->Cout_Vec3("curpos", curpos);
-		LOG_MGR->Cout_Vec3("TarPos", TarPos);
+		//LOG_MGR->Cout_Vec3("curpos", curpos);
+		//LOG_MGR->Cout_Vec3("TarPos", TarPos);
 
 		curpos += mCurrExtraPolated_Data.MoveDir * mCurrExtraPolated_Data.Velocity * DeltaTime();
 		mObject->SetPosition(curpos);

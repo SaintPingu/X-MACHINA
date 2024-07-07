@@ -49,6 +49,7 @@ protected:
 
 public:
 	PlayerType GetPlayerType() const { return mPlayerType; }
+	bool IsActiveChatBox() const;
 
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);

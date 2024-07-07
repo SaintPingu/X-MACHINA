@@ -74,6 +74,19 @@ void TextBox::SetColor(D2D1::ColorF color)
 	mTextBrush->SetColor(color);
 }
 
+void TextBox::SetAlpha(float alpha)
+{
+	float newAlpha = alpha;
+	if (alpha > 1.f) {
+		newAlpha = 1.f;
+	}
+	else if (alpha < 0.f) {
+		newAlpha = 0.f;
+	}
+
+	mTextBrush->SetOpacity(alpha);
+}
+
 void TextBox::WriteText(const std::string& text)
 {
 	mText = AnsiToWString(text);

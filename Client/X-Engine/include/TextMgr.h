@@ -32,12 +32,14 @@ public:
 
 public:
 	Vec2 GetPosition() const;
+	float GetAlpha() const { return mTextBrush->GetOpacity(); }
 
 public:
 	void SetPosition(float x, float y);
 	void SetRotation(float angle);
 	void SetScale(float x, float y);
 	void SetColor(D2D1::ColorF color = D2D1::ColorF(D2D1::ColorF::White));
+	void SetAlpha(float alpha);
 
 public:	
 	void WriteText(const std::string& text);

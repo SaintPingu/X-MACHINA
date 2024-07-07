@@ -3,12 +3,15 @@
 
 #include "TextMgr.h"
 #include "DXGIMgr.h"
+#include "Timer.h"
 
 #include "Component/UI.h"
 #include "Component/Transform.h"
 
 
-ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent)
+ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string& chatName)
+	: 
+	mChatName(AnsiToWString(chatName))
 {
 	// ChatTitle
 	{
@@ -51,16 +54,23 @@ void ChatBoxUI::ToggleChatBox()
 {
 	if (!mIsActive) {
 		mIsActive = true;
+		mChat->SetAlpha(1.f);
 		mBackground->mObjectCB.AlphaIntensity = 0.5f;
 	}
 	else {
 		if (mIsEditing) {
-			if (!mTextBuffer.empty()) {
-				if (mTextBuffer.back() == '\n') {
+			if (!mTotalText.empty()) {
+				if (mTotalText.back() == '\n') {
 					mIsEditing = false;
 				}
 				else {
-					mTextBuffer += L'\n';
+					if (ChatCommand()) {
+						return;
+					}
+					mTotalText.insert(mLastChatIdx, L'[' + mChatName + L"] ");
+					mCurrChatCnt++;
+					mTotalText += L'\n';
+					
 					mEditingText.clear();
 					return;
 				}
@@ -72,20 +82,54 @@ void ChatBoxUI::ToggleChatBox()
 	}
 }
 
-void ChatBoxUI::AddChat(std::string chat)
+void ChatBoxUI::Update()
 {
-	std::string res = chat + '\n';
+	if (!mIsActive) {
+		mChat->AddAlpha(-0.5f * DeltaTime());
 
-	size_t lastChatIdx = mTextBuffer.size() - mEditingText.size();
-
-	mTextBuffer.insert(lastChatIdx, AnsiToWString(res));
-	mChat->WriteText(mTextBuffer);
+		if (mChat->GetAlpha() <= 0.f) {
+			if (mCurrChatCnt > mMaxClearChat) {
+				ClearChat(false);
+			}
+		}
+	}
 }
 
-void ChatBoxUI::ClearChat()
+void ChatBoxUI::AddChat(const std::string& chat, const std::string& name)
 {
-	mTextBuffer.clear();
-	mImeCompositionString.clear();
+	std::string res = '[' + name + "] " + chat + '\n';
+	mTotalText.insert(mLastChatIdx, AnsiToWString(res));
+	mCurrChatCnt++;
+
+	mChat->WriteText(mTotalText);
+
+	mChat->SetAlpha(1.f);
+}
+
+void ChatBoxUI::ClearChat(bool isAllClear)
+{
+	if (!isAllClear) {
+		mLastChatIdx = 0;
+		mTotalText = mEditingText;
+	}
+	else {
+		mLastChatIdx = 0;
+		mEditingText.clear();
+		mTotalText.clear();
+	}
+
+	mCurrChatCnt = 0;
+	mChat->WriteText(mEditingText);
+}
+
+bool ChatBoxUI::ChatCommand()
+{
+	if (mEditingText == L"/clear") {
+		ClearChat(true);
+		return true;
+	}
+
+	return false;
 }
 
 void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -97,9 +141,9 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	switch (messageID) {
 	case WM_KEYDOWN:
 	{
-		if (wParam == VK_BACK && !mTextBuffer.empty()) {
-			if (mTextBuffer.back() != '\n') {
-				mTextBuffer.pop_back();
+		if (wParam == VK_BACK && !mTotalText.empty()) {
+			if (mTotalText.back() != '\n') {
+				mTotalText.pop_back();
 				mEditingText.pop_back();
 			}
 		}
@@ -111,7 +155,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		else {
-			mTextBuffer += static_cast<wchar_t>(wParam);
+			mTotalText += static_cast<wchar_t>(wParam);
 			mEditingText += static_cast<wchar_t>(wParam);
 		}
 	}
@@ -128,7 +172,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			DWORD dwSize = ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, nullptr, 0);
 			std::wstring resultStr(dwSize / sizeof(wchar_t), 0);
 			ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, &resultStr[0], dwSize);
-			mTextBuffer += resultStr;
+			mTotalText += resultStr;
 			mEditingText += resultStr;
 			mImeCompositionString.clear();
 		}
@@ -139,5 +183,6 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	mChat->WriteText(mTextBuffer + mImeCompositionString);
+	mLastChatIdx = mTotalText.size() - mEditingText.size();
+	mChat->WriteText(mTotalText + mImeCompositionString);
 }

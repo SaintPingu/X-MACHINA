@@ -181,6 +181,7 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 bool Script_GroundPlayer::ProcessInput()
 {
 	if (!base::ProcessInput()) {
+		// TODO : 플레이어 모든 애니메이션 정지
 		return false;
 	}
 

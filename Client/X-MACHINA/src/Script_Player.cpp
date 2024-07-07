@@ -18,6 +18,11 @@ namespace {
 
 
 
+bool Script_Player::IsActiveChatBox() const
+{
+	return mChatBoxUI->IsActive();
+}
+
 void Script_Player::SetSpawn(const Vec3& pos)
 {
 	mObject->SetPosition(pos);
@@ -38,9 +43,10 @@ void Script_Player::Start()
 	mTarget = mObject->GetObj<GameObject>();
 
 	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -850.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
-	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, 300.f }, Vec2{300.f, 150.f});
+	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, 300.f }, Vec2{300.f, 150.f}, "Name");
 }
 
+#include "Timer.h"
 void Script_Player::Update()
 {
 	base::Update();
@@ -52,6 +58,7 @@ void Script_Player::Update()
 	}
 
 	mHpBarUI->Update(GetCrntHp());
+	mChatBoxUI->Update();
 }
 
 bool Script_Player::ProcessInput()

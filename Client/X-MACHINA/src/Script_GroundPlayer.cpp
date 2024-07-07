@@ -1244,7 +1244,7 @@ void Script_GroundPlayer::Interact()
 	for (auto other : mObject->GetCollisionObjects()) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
-
+			int a = 5;
 			break;
 		}
 	}

@@ -88,8 +88,7 @@ void Script_PlayerNetwork::DoInput()
 
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
 	{
-		//TestMoveDir = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetcurrPos() - GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetPrevPos();
-		//TestMoveDir.Normalize();
+
 
 		mMoveDir_Key_Pressed = GetMoveDirection_Key_Pressed();
 		//mMoveDir_Key_Pressed = TestMoveDir;
@@ -98,6 +97,8 @@ void Script_PlayerNetwork::DoInput()
 		/// +--------------------------------------------------------------------------------------------------------------------
 		///	♣ 이동방향이 바뀌었다면 즉시 패킷을 보낸다. 
 		/// _____________________________________________________________________________________________________________________
+		
+
 		if (mMoveDir_Curr != mMoveDir_Key_Pressed) {
 			msendMovePacket_Pressed = true; 
 			mMoveDir_Curr = mMoveDir_Key_Pressed;
@@ -151,6 +152,7 @@ void Script_PlayerNetwork::DoInput()
 		//mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	}
+	mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	/// +--------------------------------------------------
 	///	>> ▶▶▶▶▶ KEY AWAY  
@@ -166,7 +168,7 @@ void Script_PlayerNetwork::DoInput()
 			auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
 				/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
 				/* MOVESATE  */ PLAYER_MOVE_STATE::End,
-				/* MOVEDIR   */ MoveDir,
+				/* MOVEDIR   */ mMoveDir_Curr,
 				/* MOVESPEED */ mMovementSpeed,
 				/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
 				/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
@@ -185,7 +187,6 @@ void Script_PlayerNetwork::DoInput()
 
 	}
 
-	mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	return;
 #endif

@@ -61,6 +61,7 @@ void ChatBoxUI::ToggleChatBox()
 				}
 				else {
 					mTextBuffer += L'\n';
+					mEditingText.clear();
 					return;
 				}
 			}
@@ -73,12 +74,16 @@ void ChatBoxUI::ToggleChatBox()
 
 void ChatBoxUI::AddChat(std::string chat)
 {
-	mTextBuffer += AnsiToWString('\n' + chat);
+	std::string res = chat + '\n';
+
+	size_t lastChatIdx = mTextBuffer.size() - mEditingText.size();
+
+	mTextBuffer.insert(lastChatIdx, AnsiToWString(res));
+	mChat->WriteText(mTextBuffer);
 }
 
 void ChatBoxUI::ClearChat()
 {
-	mTexts.clear();
 	mTextBuffer.clear();
 	mImeCompositionString.clear();
 }
@@ -95,6 +100,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		if (wParam == VK_BACK && !mTextBuffer.empty()) {
 			if (mTextBuffer.back() != '\n') {
 				mTextBuffer.pop_back();
+				mEditingText.pop_back();
 			}
 		}
 	}
@@ -106,6 +112,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		}
 		else {
 			mTextBuffer += static_cast<wchar_t>(wParam);
+			mEditingText += static_cast<wchar_t>(wParam);
 		}
 	}
 	break;
@@ -122,6 +129,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			std::wstring resultStr(dwSize / sizeof(wchar_t), 0);
 			ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, &resultStr[0], dwSize);
 			mTextBuffer += resultStr;
+			mEditingText += resultStr;
 			mImeCompositionString.clear();
 		}
 		ImmReleaseContext(DXGIMgr::I->GetHwnd(), hIMC);

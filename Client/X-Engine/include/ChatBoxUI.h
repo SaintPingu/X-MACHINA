@@ -11,10 +11,9 @@ private:
 	sptr<TextBox>	mChatTitle{};
 	sptr<TextBox>	mChat{};
 	
-	std::deque<std::wstring>	mTexts;
-	std::wstring				mTextBuffer;
-	std::wstring				mImeCompositionString = L"";
-
+	std::wstring	mTextBuffer{};
+	std::wstring	mImeCompositionString = L"";
+	std::wstring	mEditingText{};
 
 public:
 	ChatBoxUI(const Vec2& position, const Vec2& extent);

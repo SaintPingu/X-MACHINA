@@ -8,10 +8,6 @@
 #include "Component/Transform.h"
 
 
-
-
-
-
 ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent)
 {
 	// ChatTitle
@@ -51,58 +47,57 @@ void ChatBoxUI::SetPosition(const Vec2& position)
 	mChat->SetPosition(position.x, position.y);
 }
 
+void ChatBoxUI::AddChat(std::string chat)
+{
+	mTextBuffer += AnsiToWString('\n' + chat);
+}
+
 void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	HIMC hIMC = ImmGetContext(DXGIMgr::I->GetHwnd());
 
 	switch (messageID) {
+	case WM_KEYDOWN:
+	{
+		if (wParam == VK_BACK && !mTextBuffer.empty()) {
+			mTextBuffer.pop_back();
+		}
+		else if (wParam == VK_RETURN) {
+			mTextBuffer += L'\n';
+		}
+	}
+	break;
+	case WM_CHAR:
+	{
+		if ((wParam < 0x20 || wParam > 0x7E)) {
+			break;
+		}
+		else {
+			mTextBuffer += static_cast<wchar_t>(wParam);
+		}
+	}
+	break;
 	case WM_IME_COMPOSITION:
 	{
 		if (lParam & GCS_COMPSTR) {
 			DWORD dwSize = ImmGetCompositionStringW(hIMC, GCS_COMPSTR, nullptr, 0);
 			std::wstring compStr(dwSize / sizeof(wchar_t), 0);
 			ImmGetCompositionStringW(hIMC, GCS_COMPSTR, &compStr[0], dwSize);
-			if (mImeActive) {
-				mTextBuffer.pop_back();
-			}
-			mTextBuffer += compStr;
 			mImeCompositionString = compStr;
-			mImeActive = true;
 		}
-		if (lParam & GCS_RESULTSTR) {
+		else if (lParam & GCS_RESULTSTR) {
 			DWORD dwSize = ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, nullptr, 0);
 			std::wstring resultStr(dwSize / sizeof(wchar_t), 0);
 			ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, &resultStr[0], dwSize);
-			mTextBuffer.pop_back();
 			mTextBuffer += resultStr;
 			mImeCompositionString.clear();
-			mImeActive = false;
 		}
 		ImmReleaseContext(DXGIMgr::I->GetHwnd(), hIMC);
 		break;
 	}
-	case WM_CHAR:
-	{
-		if (wParam == VK_BACK && !mTextBuffer.empty()) {
-			mTextBuffer.pop_back();
-		}
-		else if (!mImeActive) {
-			if (wParam == VK_RETURN) {
-				mTextBuffer += L'\n';
-			}
-			else if ((wParam < 0x20 || wParam > 0x7E)) {
-				break;
-			}
-			else {
-				mTextBuffer += static_cast<wchar_t>(wParam);
-			}
-		}
-	}
-	break;
-
 	default:
 		break;
 	}
-	
-	mChat->WriteText(mTextBuffer);
+
+	mChat->WriteText(mTextBuffer + mImeCompositionString);
 }

@@ -69,10 +69,6 @@ private:
 	std::array<ComPtr<ID3D11Resource>, mSwapChainBuffCnt>	mWrappedBackBuffers;
 	std::array<ComPtr<ID2D1Bitmap1>, mSwapChainBuffCnt>		mBitmapRenderTargets;
 
-	// text render
-	ComPtr<ID2D1SolidColorBrush>		mTextBrush;
-	ComPtr<IDWriteTextFormat>			mTextFormat;
-
 	// command
 	ComPtr<ID3D12CommandAllocator>		mCmdAllocator{};
 	ComPtr<ID3D12CommandQueue>			mCmdQueue{};
@@ -213,7 +209,6 @@ private:
 	void CreateDevice();
 	void CreateD2DDevice();
 	void CreateD3D11On12Device();
-	void CreateText();
 	void SetMSAA();
 	void CreateFence();
 	void SetIncrementSize();

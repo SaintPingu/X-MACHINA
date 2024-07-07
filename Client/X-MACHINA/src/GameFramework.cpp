@@ -150,7 +150,6 @@ LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LP
 	case WM_IME_COMPOSITION:
 		ProcessKeyboardMsg(hWnd, message, wParam, lParam);
 		break;
-
 	default:
 		break;
 	}
@@ -269,6 +268,7 @@ LRESULT GameFramework::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_IME_COMPOSITION:
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);

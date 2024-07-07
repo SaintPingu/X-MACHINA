@@ -12,24 +12,29 @@ sptr<TextBox> TextBox::Init(const TextOption& option)
 		mOption.BoxExtent = { (float)window.Width, (float)window.Height };
 	}
 
-	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(option.FontColor), &mTextBrush));
-	THROW_IF_FAILED(DWRITE->CreateTextFormat(
-		AnsiToWString(option.Font).c_str(),
-		nullptr,
-		option.FontWeight,
-		option.FontStyle,
-		option.FontStretch,
-		option.FontSize,
-		L"en-us",
-		&mTextFormat)
-	);
-
-	THROW_IF_FAILED(mTextFormat->SetTextAlignment(option.HAlignment));
-	THROW_IF_FAILED(mTextFormat->SetParagraphAlignment(option.VAlignment));
+	CreateBrush();
 
 	TextMgr::I->AddTextBox(shared_from_this());
 
 	return shared_from_this();
+}
+
+void TextBox::CreateBrush()
+{
+	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(mOption.FontColor), &mTextBrush));
+	THROW_IF_FAILED(DWRITE->CreateTextFormat(
+		AnsiToWString(mOption.Font).c_str(),
+		nullptr,
+		mOption.FontWeight,
+		mOption.FontStyle,
+		mOption.FontStretch,
+		mOption.FontSize,
+		L"en-us",
+		&mTextFormat)
+	);
+
+	THROW_IF_FAILED(mTextFormat->SetTextAlignment(mOption.HAlignment));
+	THROW_IF_FAILED(mTextFormat->SetParagraphAlignment(mOption.VAlignment));
 }
 
 Vec2 TextBox::GetPosition() const
@@ -119,6 +124,12 @@ void TextBox::Render(RComPtr<ID2D1DeviceContext2> device) const
 	device->PopAxisAlignedClip();
 }
 
+void TextBox::Reset()
+{
+	mTextBrush.Reset();
+	mTextFormat.Reset();
+}
+
 void TextBox::Destroy()
 {
 	TextMgr::I->RemoveTextBox(shared_from_this());
@@ -138,5 +149,19 @@ void TextMgr::Render(RComPtr<ID2D1DeviceContext2> device)
 {
 	for (const auto& textBox : mTextBoxes) {
 		textBox->Render(device);
+	}
+}
+
+void TextMgr::Reset()
+{
+	for (const auto& textBox : mTextBoxes) {
+		textBox->Reset();
+	}
+}
+
+void TextMgr::CreateBrush()
+{
+	for (const auto& textBox : mTextBoxes) {
+		textBox->CreateBrush();
 	}
 }

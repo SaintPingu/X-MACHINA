@@ -28,6 +28,7 @@ private:
 
 public:
 	sptr<TextBox> Init(const TextOption& option = TextOption{});
+	void CreateBrush();
 
 public:
 	Vec2 GetPosition() const;
@@ -45,6 +46,7 @@ public:
 
 public:
 	void Render(RComPtr<struct ID2D1DeviceContext2> device) const;
+	void Reset();
 	void Destroy();
 
 private:
@@ -63,5 +65,7 @@ public:
 	void RemoveTextBox(rsptr<TextBox> textBox) { mTextBoxes.erase(textBox); }
 
 	void Render(RComPtr<struct ID2D1DeviceContext2> device);
+	void Reset();
+	void CreateBrush();
 };
 

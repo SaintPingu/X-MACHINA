@@ -24,6 +24,7 @@
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
 #include "AbilityMgr.h"
+#include "ScriptExporter.h"
 #pragma endregion
 
 #include "TestCube.h"
@@ -366,24 +367,38 @@ void Scene::LoadGameObjects(std::ifstream& file)
 			}
 		}
 
-		if (isInstancing) {
-			// �ν��Ͻ� ��ü�� ������ ��ü�� �޾ƿ´�.
-			object = objectPool->Get(false);
+		if (sameObjectCount > 0) {
+			if (isInstancing) {
+				// �ν��Ͻ� ��ü�� ������ ��ü�� �޾ƿ´�.
+				object = objectPool->Get(false);
+			}
+			else {
+				object = std::make_shared<GridObject>();
+				object->SetModel(model);
+				InitObjectByTag(tag, object);
+			}
+			object->SetLayer(layer);
+
+			// transform
+			{
+				FileIO::ReadString(file, token);	// <Transform>:
+
+				Matrix transform;
+				FileIO::ReadVal(file, transform);
+				object->SetWorldTransform(transform);
+
+				FileIO::ReadString(file, token);	// </Transform>: or <ScriptExporter>:
+				if (Hash(token) == Hash("<ScriptExporter>:"))
+				{
+					mScriptObjects.push_back(object);
+					auto scritpExorter = object->AddComponent<ScriptExporter>(false);
+					scritpExorter->Load(file);
+					FileIO::ReadString(file, token); // </Transform>:
+				}
+
+				--sameObjectCount;
+			}
 		}
-		else {
-			object = std::make_shared<GridObject>();
-			object->SetModel(model);
-			InitObjectByTag(tag, object);
-		}
-
-
-		object->SetLayer(layer);
-
-		Matrix transform;
-		FileIO::ReadVal(file, transform);
-		object->SetWorldTransform(transform);
-
-		--sameObjectCount;
 	}
 }
 
@@ -1219,6 +1234,15 @@ std::vector<sptr<GridObject>> Scene::FindObjectsByName(const std::string& name)
 	ProcessAllObjects(FindObjects);
 
 	return result;
+}
+
+void Scene::ProcessInitScriptOjbects(std::function<void(sptr<GameObject>)> processFunc)
+{
+	for (const auto& object : mScriptObjects) {
+		processFunc(object);
+	}
+
+	mScriptObjects.clear();
 }
 
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)

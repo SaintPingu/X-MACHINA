@@ -22,6 +22,7 @@ private:											\
 
 #pragma region ClassForwardDecl
 class Object;
+class ScriptExporter;
 #pragma endregion
 
 
@@ -292,5 +293,11 @@ private:
 
 	// (component)의 복사본을 반환한다.
 	sptr<Component> GetCopyComponent(rsptr<Component> component);
+};
+
+
+class SceneScript abstract {
+public:
+	virtual void LoadData(rsptr<ScriptExporter> exporter) abstract;
 };
 #pragma endregion

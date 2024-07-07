@@ -29,7 +29,10 @@ public:
 	rsptr<Script_MainCamera> GetCamera() const { return mMainCamera; }
 
 private:
-	void InitObjectScripts();
+	void InitSceneObjectScripts();
+	void InitCustomObjectScripts();
+
+	void ProcessSceneObjectScript(sptr<GameObject> object);
 };
 
 #pragma endregion

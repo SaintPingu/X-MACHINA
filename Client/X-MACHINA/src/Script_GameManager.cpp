@@ -5,6 +5,7 @@
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
 #include "Script_MainCamera.h"
+#include "Script_Item.h"
 #include "Component/ParticleSystem.h"
 #include "Component/Camera.h"
 
@@ -12,6 +13,7 @@
 
 #include "Scene.h"
 #include "Object.h"
+#include "ScriptExporter.h"
 
 
 
@@ -19,6 +21,29 @@ void Script_GameManager::Awake()
 {
 	base::Awake();
 
+	InitSceneObjectScripts();
+	InitCustomObjectScripts();
+}
+
+void Script_GameManager::Start()
+{
+	base::Start();
+
+	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
+}
+
+void Script_GameManager::Update()
+{
+	base::Update();
+}
+
+void Script_GameManager::InitSceneObjectScripts()
+{
+	Scene::I->ProcessInitScriptOjbects(std::bind(&Script_GameManager::ProcessSceneObjectScript, this, std::placeholders::_1));
+}
+
+void Script_GameManager::InitCustomObjectScripts()
+{
 	{
 		sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
 		auto& script = enemy->AddComponent<Script_Ursacetus>();
@@ -74,19 +99,20 @@ void Script_GameManager::Awake()
 	}
 }
 
-void Script_GameManager::Start()
+void Script_GameManager::ProcessSceneObjectScript(sptr<GameObject> object)
 {
-	base::Start();
+	const auto& exporter = object->GetComponent<ScriptExporter>();
+	if (!exporter) {
+		return;
+	}
 
-	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
-}
-
-void Script_GameManager::Update()
-{
-	base::Update();
-}
-
-void Script_GameManager::InitObjectScripts()
-{
-
+	switch (Hash(exporter->GetName())) {
+	case Hash("WeaponCrate"):
+	case Hash("WeaponCrate2"):
+		object->AddComponent<Script_Item_WeaponCrate>()->LoadData(exporter);
+		break;
+	default:
+		assert(0);
+		break;
+	}
 }

@@ -12,6 +12,7 @@
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_AbilityHolder.h"
+#include "Script_Item.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -1246,7 +1247,7 @@ void Script_GroundPlayer::Interact()
 	for (auto other : mObject->GetCollisionObjects()) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
-			int a = 5;
+			other->GetComponent<Script_Item_WeaponCrate>()->Interact();
 			break;
 		}
 	}

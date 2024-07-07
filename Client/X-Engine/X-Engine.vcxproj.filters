@@ -270,6 +270,9 @@
     <ClCompile Include="src\Bloom.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
+    <ClCompile Include="src\ScriptExporter.cpp">
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DDSTextureLoader12.h">
@@ -462,6 +465,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="include\Bloom.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScriptExporter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

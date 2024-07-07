@@ -173,8 +173,14 @@ void CollisionManager::CheckCollisionObjects(std::unordered_set<GridObject*> obj
 void CollisionManager::ProcessCollision(GridObject* objectA, GridObject* objectB)
 {
 	if (ObjectCollider::Intersects(*objectA, *objectB)) {
-		objectA->OnCollisionStay(*objectB);
-		objectB->OnCollisionStay(*objectA);
+		if (!objectA->IsCollided(objectB)) {
+			objectA->OnCollisionEnter(*objectB);
+			objectB->OnCollisionEnter(*objectA);
+		}
+	}
+	else if (objectA->IsCollided(objectB)) {
+		objectA->OnCollisionExit(*objectB);
+		objectB->OnCollisionExit(*objectA);
 	}
 }
 
@@ -193,6 +199,7 @@ Grid::Grid(int index, int width, int height, const BoundingBox& bb)
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Enemy);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Building);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::DissolveBuilding);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Crate);
 }
 
 Tile Grid::GetTileFromUniqueIndex(const Pos& tPos) const

@@ -236,7 +236,6 @@ void Object::Start()
 void Object::Update()
 {
 	Transform::BeforeUpdateTransform();
-	mCollisionObjects.clear();
 	ProcessComponents([](rsptr<Component> component) {
 		if (component->IsActive()) {
 			component->UpdateFunc();
@@ -284,19 +283,39 @@ void Object::Release()
 		});
 }
 
-void Object::OnCollisionStay(Object& other)
+void Object::OnCollisionEnter(Object& other)
 {
-	// 한 프레임 내에 중복 호출된 경우 무시한다.
+	// 이미 호출된 경우 무시한다.
 	if (mCollisionObjects.count(&other)) {
 		return;
 	}
-
 	mCollisionObjects.insert(&other);
 	ProcessComponents([&other](sptr<Component> component) {
-		component->OnCollisionStay(other);
+		component->OnCollisionEnter(other);
 		});
 }
 
+void Object::OnCollisionStay()
+{
+	for (auto& object : mCollisionObjects) {
+		ProcessComponents([&object](sptr<Component> component) {
+			component->OnCollisionStay(*object);
+			});
+	}
+}
+
+void Object::OnCollisionExit(Object& other)
+{
+	// 객체가 없는 경우 무시한다.
+	if (!mCollisionObjects.count(&other)) {
+		return;
+	}
+
+	mCollisionObjects.erase(&other);
+	ProcessComponents([&other](sptr<Component> component) {
+		component->OnCollisionExit(other);
+		});
+}
 
 void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
 	std::vector<sptr<Component>> components = mComponents;

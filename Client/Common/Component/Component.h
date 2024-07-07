@@ -99,8 +99,12 @@ protected:
 	// 동적 리소스를 해제한다.
 	virtual void Release() {}
 
-	// 객체(other)와 충돌 시 호출된다.
+	// 객체(other)와 충돌 시 한 번 호출된다.
+	virtual void OnCollisionEnter(Object& other) {}
+	// 충돌 중인 객체(other)에 대해 매 프레임 호출된다.
 	virtual void OnCollisionStay(Object& other) {}
+	// 객체(other)와 충돌 종료 시 한 번 호출된다.
+	virtual void OnCollisionExit(Object& other) {}
 
 private:
 	void FirstUpdate();
@@ -132,7 +136,7 @@ private:
 
 private:
 	std::vector<sptr<Component>> mComponents{};
-	std::unordered_set<const Object*> mCollisionObjects{};	// 한 프레임에서 충돌한 오브젝트 집합
+	std::unordered_set<Object*> mCollisionObjects{};	// 한 프레임에서 충돌한 오브젝트 집합
 
 public:
 #pragma region C/Dtor
@@ -151,7 +155,7 @@ public:
 	bool IsStart() const				{ return mIsStart; }
 	bool IsActive() const				{ return mIsEnable; }
 
-	const std::unordered_set<const Object*>& GetCollisionObjects() { return mCollisionObjects; }
+	const std::unordered_set<Object*>& GetCollisionObjects() { return mCollisionObjects; }
 #pragma endregion
 
 #pragma region Setter
@@ -260,6 +264,11 @@ public:
 		}
 	}
 
+	// 충돌한 객체(other) 모두에 대해 모든 component의 OnCollisioStay 함수를 매 프레임 호출한다.
+	virtual void OnCollisionStay();
+
+	bool IsCollided(Object* other) const { return mCollisionObjects.count(other); }
+
 protected:
 	// Awake -> OnEnable -> Start -> Update -> Animate -> LateUpdate
 	virtual void Awake() override;
@@ -272,8 +281,10 @@ protected:
 	virtual void OnDestroy();
 	virtual void Release();
 
-	// 객체(other)와 충돌 시 호출된다.
-	virtual void OnCollisionStay(Object& other);
+	// 객체(other)와 충돌 시 한 번 호출된다.
+	virtual void OnCollisionEnter(Object& other);
+	// 객체(other)와 충돌 종료 시 한 번 호출된다.
+	virtual void OnCollisionExit(Object& other);
 
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.

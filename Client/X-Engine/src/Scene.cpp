@@ -360,6 +360,10 @@ void Scene::LoadGameObjects(std::ifstream& file)
 					object->SetTag(tag);
 					});
 			}
+
+			if (tag == ObjectTag::Unspecified) {
+				std::cout << "[WARNING] Untagged Object : " << model->GetName() << std::endl;
+			}
 		}
 
 		if (isInstancing) {
@@ -819,7 +823,7 @@ void Scene::Update()
 {
 	UpdateRenderedObjects();
 	
-	CheckCollisions();
+	ProcessCollisions();
 	mGameManager->Update();
 	UpdateObjects();
 	mGameManager->LateUpdate();
@@ -837,11 +841,17 @@ void Scene::Update()
 
 }
 
-void Scene::CheckCollisions()
+void Scene::ProcessCollisions()
 {
 	for (const auto& grid : mSurroundGrids) {
 		grid->CheckCollisions();
 	}
+
+	ProcessActiveObjects([this](sptr<Object> object) {
+		if (object->IsActive()) {
+			object->OnCollisionStay();
+		}
+		});
 }
 
 void Scene::CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type) const
@@ -1278,6 +1288,9 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 
 	case Hash("Dynamic"):
 		return ObjectTag::Dynamic;
+
+	case Hash("Crate"):
+		return ObjectTag::Crate;
 
 	default:
 		//assert(0);

@@ -119,6 +119,21 @@ void Script_GroundPlayer::LateUpdate()
 	RotateMuzzleToAim();
 }
 
+void Script_GroundPlayer::OnCollisionStay(Object& other)
+{
+	base::OnCollisionStay(other);
+
+	switch (other.GetTag())
+	{
+	case ObjectTag::Building:
+	case ObjectTag::DissolveBuilding:
+		ComputeSlideVector(other);
+		break;
+	default:
+		break;
+	}
+}
+
 
 void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
@@ -289,19 +304,6 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 	}
 }
 
-
-void Script_GroundPlayer::OnCollisionStay(Object& other)
-{
-	switch (other.GetTag())
-	{
-	case ObjectTag::Building:
-	case ObjectTag::DissolveBuilding:
-		ComputeSlideVector(other);
-		break;
-	default:
-		break;
-	}
-}
 
 void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {

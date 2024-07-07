@@ -218,7 +218,7 @@ public:
 	void Update();
 
 private:
-	void CheckCollisions();
+	void ProcessCollisions();
 
 	// update all objects
 	void UpdateObjects();

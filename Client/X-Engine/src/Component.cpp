@@ -208,6 +208,15 @@ void Object::OnDisable()
 	assert(mIsEnable);
 	mIsEnable = false;
 
+	if (!mCollisionObjects.empty()) {
+		const auto collisionObjects = mCollisionObjects;
+		for (auto object : collisionObjects) {
+			object->OnCollisionExit(*this);
+			OnCollisionExit(*object);
+		}
+		mCollisionObjects.clear();
+	}
+
 	ProcessComponents([](rsptr<Component> component) {
 		component->SetActive(false);
 		});
@@ -297,10 +306,13 @@ void Object::OnCollisionEnter(Object& other)
 
 void Object::OnCollisionStay()
 {
-	for (auto& object : mCollisionObjects) {
-		ProcessComponents([&object](sptr<Component> component) {
-			component->OnCollisionStay(*object);
-			});
+	if (!mCollisionObjects.empty()) {
+		auto collisionObjects = mCollisionObjects;
+		for (auto& object : collisionObjects) {
+			ProcessComponents([&object](sptr<Component> component) {
+				component->OnCollisionStay(*object);
+				});
+		}
 	}
 }
 

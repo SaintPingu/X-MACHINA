@@ -16,9 +16,10 @@ struct AnimMoveData
 struct ExtData
 {
 	enum class MOVESTATE {
-		Start   = 0, 
-		Progress= 1,
-		End     = 2,
+		Start    = 0,
+		Progress = 1,
+		End      = 2,
+		Default  = 3,
 		NONE,
 	};	
 	long long		PingTime     = {}; // 다음 Transform 패킷이 오기까지 걸리는 시간 ( 추측 - ( SPkt_Transform Recv Interval + Remote Client Latency + My Latency )

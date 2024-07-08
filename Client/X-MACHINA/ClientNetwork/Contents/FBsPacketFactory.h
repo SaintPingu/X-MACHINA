@@ -22,9 +22,10 @@
 
 namespace PLAYER_MOVE_STATE
 {
-	constexpr int32_t Start = 0;
+	constexpr int32_t Start    = 0;
 	constexpr int32_t Progress = 1;
-	constexpr int32_t End = 2;
+	constexpr int32_t End      = 2;
+	constexpr int32_t Default  = 3; // 키 입력이 아예 없을 때는 Default 
 }
 
 #define FBS_FACTORY FBsPacketFactory::GetInst()

@@ -17,6 +17,8 @@ class Script_PlayerNetwork : public Script_Network{
 
 private:
 	std::chrono::steady_clock::time_point mMoveTimePoint_latest = {};
+	std::chrono::steady_clock::time_point mDefaultTimePoint_latest = {};
+
 	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
 
 	Vec3			mPrevPos;
@@ -69,7 +71,7 @@ private:
 
 
 public:
-	void Send_CPkt_Transform_Player(int32_t moveState);
+	void Send_CPkt_Transform_Player(int32_t moveState, Vec3 moveDir, float speed);
 
 };
 

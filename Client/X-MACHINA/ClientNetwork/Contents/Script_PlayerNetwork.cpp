@@ -44,82 +44,33 @@ void Script_PlayerNetwork::DoInput()
 {
 #define TEST_1
 #ifdef TEST_1
-
-
-	/// ◆ 움직임 방향, 움직임 속도 中 하나라도 0이라면 움직이지 않을 것이다! 
-
-
-	/// +--------------------------------------------------
-	///	>> ▶▶▶▶▶ KEY TAP  
-	/// --------------------------------------------------+
-
-	//if (KEY_TAP('W') || KEY_TAP('A') || KEY_TAP('S') || KEY_TAP('D'))
-	//{
-	//	mMovementSpeed = mkRunSpeed;
-	//	/* 움직임 방향 */
-	//	mMoveDir_Key_Tap = GetMoveDirection_Key_Tap();
-	//	mMoveDir_Curr = mMoveDir_Key_Tap;
-	//	LOG_MGR->Cout_Vec3("KEY_TAP : MoveDirection", mMoveDir_Curr);
-
-	//	/* 움직임 속도 */
-
-	//	/* - 즉시 패킷을 보낸다. */
-	//	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-	//	auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
-	//		/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
-	//		/* MOVESATE  */ PLAYER_MOVE_STATE::Start,
-	//		/* MOVEDIR   */ mMoveDir_Curr,
-	//		/* MOVESPEED */ mMovementSpeed,
-	//		/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
-	//		/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
-	//		/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
-	//		/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
-	//	CLIENT_NETWORK->Send(packet);
-
-
-	//}
+	
 	/// +--------------------------------------------------
 	///	>> ▶▶▶▶▶ KEY PRESSED
 	/// --------------------------------------------------+
 	
 	bool bSendPacket = false;
-	Vec3 TestMoveDir;
-
+	bool bKeyEvent = false;
 
 	if (KEY_PRESSED('W') || KEY_PRESSED('A') || KEY_PRESSED('S') || KEY_PRESSED('D'))
 	{
-
+		bKeyEvent = true;
 
 		mMoveDir_Key_Pressed = GetMoveDirection_Key_Pressed();
-		//mMoveDir_Key_Pressed = TestMoveDir;
-
-		mMovementSpeed = mkRunSpeed;
+		mMovementSpeed       = mkRunSpeed;
 		/// +--------------------------------------------------------------------------------------------------------------------
 		///	♣ 이동방향이 바뀌었다면 즉시 패킷을 보낸다. 
 		/// _____________________________________________________________________________________________________________________
 		
 
 		if (mMoveDir_Curr != mMoveDir_Key_Pressed) {
+
 			msendMovePacket_Pressed = true; 
-			mMoveDir_Curr = mMoveDir_Key_Pressed;
+			mMoveDir_Curr           = mMoveDir_Key_Pressed;
+			mMoveTimePoint_latest   = std::chrono::steady_clock::now(); // 현재 시간
 
-			//LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
-
-			mMoveTimePoint_latest = std::chrono::steady_clock::now(); // 현재 시간
-			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-			auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
-				/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
-				/* MOVESATE  */ PLAYER_MOVE_STATE::Start,
-				/* MOVEDIR   */ mMoveDir_Curr,
-				/* MOVESPEED */ mMovementSpeed,
-				/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
-				/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
-				/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
-				/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
-			CLIENT_NETWORK->Send(packet);
+			Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Start, mMoveDir_Curr, mMovementSpeed);
 			bSendPacket = true;
-			//LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
-
 		}
 
 		/// +--------------------------------------------------------------------------------------------------------------------
@@ -130,22 +81,10 @@ void Script_PlayerNetwork::DoInput()
 			auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
 			if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMoveTimePoint_latest).count() >= PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000)
 			{
-				//LOG_MGR->Cout_Vec3("KEY_PRESSED : MoveDirection", mMoveDir_Curr);
 
 				mMoveTimePoint_latest = currentTime;
-				const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-				auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
-					/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
-					/* MOVESATE  */ PLAYER_MOVE_STATE::Progress,
-					/* MOVEDIR   */ mMoveDir_Curr,
-					/* MOVESPEED */ mMovementSpeed,
-					/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
-					/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
-					/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
-					/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
-				CLIENT_NETWORK->Send(packet);
+				Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Progress, mMoveDir_Curr, mMovementSpeed);
 				bSendPacket = true;
-				//LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
 
 			}
 		}
@@ -159,34 +98,32 @@ void Script_PlayerNetwork::DoInput()
 	/// --------------------------------------------------+
 	if (KEY_AWAY('W') || KEY_AWAY('A') || KEY_AWAY('S') || KEY_AWAY('D'))
 	{
+		bKeyEvent = true;
+		
 		if (bSendPacket == false) {
-			Vec3 MoveDir = Vec3(0.f, 0.f, 0.f);
-			//LOG_MGR->Cout_Vec3("KEY_AWAY : MoveDirection", MoveDir);
+			Vec3 MoveDir   = Vec3(0.f, 0.f, 0.f);
+			mMovementSpeed = 0.f;
 
 			/* 즉시 패킷을 보낸다. */
-			const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-			auto packet = FBS_FACTORY->CPkt_Player_Transform(/* POSITION  */ GameFramework::I->GetPlayer()->GetPosition(),
-				/* ROTATION  */ Vec3(0.f, GetYRotation(), 0.f),
-				/* MOVESATE  */ PLAYER_MOVE_STATE::End,
-				/* MOVEDIR   */ mMoveDir_Curr,
-				/* MOVESPEED */ mMovementSpeed,
-				/* LOOK      */ GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook(),
-				/* LATENCY   */ FBS_FACTORY->CurrLatency.load(),
-				/* ANIM _H   */ controller->GetParam("Horizontal")->val.f,
-				/* ANiM _F   */ controller->GetParam("Vertical")->val.f);
-			CLIENT_NETWORK->Send(packet);
+			Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::End, mMoveDir_Curr, mMovementSpeed);
 
 			/* 움직임 상태 초기화 */
 			mMoveDir_Key_Pressed = MoveDir;
-			mMoveDir_Key_Tap = MoveDir;
-
-			//LOG_MGR->Cout_Vec3("POSITION", GameFramework::I->GetPlayer()->GetPosition());
+			mMoveDir_Key_Tap     = MoveDir;
 
 		}
-		
-
 	}
 
+	if (!bKeyEvent) {
+
+		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mDefaultTimePoint_latest).count() >= 0.5f * 1000) {
+			/* 아무 입력키를 누르고 있지 않을 때 1초에 2번씩 패킷을 보내자. */
+			Send_CPkt_Transform_Player(PLAYER_MOVE_STATE::Default, Vec3(0.f, 0.f, 0.f), 0.05F);
+			mDefaultTimePoint_latest = currentTime;
+		}
+
+	}
 
 	return;
 #endif
@@ -434,21 +371,19 @@ void Script_PlayerNetwork::ClientCallBack_ChangeAnimation()
 	CLIENT_NETWORK->Send(pkt);
 }
 
-void Script_PlayerNetwork::Send_CPkt_Transform_Player(int32_t moveState)
+void Script_PlayerNetwork::Send_CPkt_Transform_Player(int32_t moveState, Vec3 moveDir, float speed)
 {
-	float		Vel          = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMovementSpeed();
 	Vec3		Pos          = GameFramework::I->GetPlayer()->GetPosition();
-	Vec3		MoveDir      = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetMoveDir();// Pos - mPrevPos; MoveDir.Normalize();
 	float		y_rot		 = GetYRotation();
 	Vec3		Rot			 = Vec3(0.f, y_rot, 0.f);
 	Vec3		SpineDir     = GameFramework::I->GetPlayer()->GetComponent<Script_GroundPlayer>()->GetSpineBone()->GetLook();
 	long long	latency      = FBS_FACTORY->CurrLatency.load();
 
-	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-	float					animparam_h = controller->GetParam("Horizontal")->val.f;
-	float					animparam_v = controller->GetParam("Vertical")->val.f;
+	const auto& controller  = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+	float		animparam_h = controller->GetParam("Horizontal")->val.f;
+	float		animparam_v = controller->GetParam("Vertical")->val.f;
 
-	auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, moveState, MoveDir, Vel, SpineDir, latency, animparam_h, animparam_v);
+	auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, moveState, moveDir, speed, SpineDir, latency, animparam_h, animparam_v);
 	CLIENT_NETWORK->Send(pkt);
 }
 

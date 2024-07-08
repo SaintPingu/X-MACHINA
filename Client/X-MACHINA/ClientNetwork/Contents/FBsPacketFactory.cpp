@@ -396,7 +396,8 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	if (movestate == PLAYER_MOVE_STATE::Start)			mState = ExtData::MOVESTATE::Start;
 	else if (movestate == PLAYER_MOVE_STATE::Progress)	mState = ExtData::MOVESTATE::Progress;
 	else if (movestate == PLAYER_MOVE_STATE::End)		mState = ExtData::MOVESTATE::End;
-
+	else if (movestate == PLAYER_MOVE_STATE::Default)	mState = ExtData::MOVESTATE::Default;
+ 
 
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
 	CLIENT_NETWORK->RegisterEvent(Move_EventData);
@@ -421,20 +422,15 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 		data.TargetPos.z = Packetpos.z;
 
 	}
+	else if (data.MoveState == ExtData::MOVESTATE::Default) {
+		data.TargetPos.x = Packetpos.x;
+		data.TargetPos.z = Packetpos.z;
+	}
 	else {
 		//data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
-		if (data.MoveState == ExtData::MOVESTATE::Start) {
+		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
+		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
 
-			data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
-			data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
-
-		}
-		else if (data.MoveState == ExtData::MOVESTATE::Progress) {
-
-			data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
-			data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
-
-		}
 	}
 
 	//LOG_MGR->Cout_Vec3("Packet Pos : ", Packetpos);

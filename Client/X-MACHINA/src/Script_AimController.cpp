@@ -10,7 +10,7 @@ void Script_AimController::Awake()
 {
 	base::Awake();
 
-	mUI = Canvas::I->CreateUI(0, "Aim", Vec2(0, 0), 30, 30);
+	mUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
 
 	RESOLUTION resolution = GameFramework::I->GetWindowResolution();
 	mMaxPos.x = resolution.Width - 10.f;

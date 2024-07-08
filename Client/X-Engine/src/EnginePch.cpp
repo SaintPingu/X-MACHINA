@@ -162,7 +162,7 @@ namespace D3DUtil {
 #ifdef RENDER_FOR_SERVER
 		maxsize = 256;
 #endif
-		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(DEVICE.Get(), fileName.c_str(), maxsize, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_MIP_RESERVE, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
+		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(DEVICE.Get(), fileName.c_str(), maxsize, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
 		AssertHResult(hResult);
 
 		D3D12_HEAP_PROPERTIES heapProperties{};

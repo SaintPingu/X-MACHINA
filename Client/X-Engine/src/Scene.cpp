@@ -259,7 +259,7 @@ void Scene::BuildObjects()
 		t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
 
 		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("¾È³çÇÏ¼¼¿ä");
+		testText->WriteText("ì•ˆë…•í•˜ì„¸ìš”.");
 		testText->SetPosition(0.f, 500.f);
 	}
 

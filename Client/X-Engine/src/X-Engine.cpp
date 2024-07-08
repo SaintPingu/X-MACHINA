@@ -59,11 +59,23 @@ void Engine::Update()
 	InputMgr::I->Update();
 
 	// rendering
-#ifdef RENDER_FOR_SERVER
-	//DXGIMgr::I->RenderForServer();
-	DXGIMgr::I->RenderForServerWithTerrain();
-#else
+#ifndef RENDER_FOR_SERVER
+
 	DXGIMgr::I->Render();
+
+#else
+
+#ifdef RENDER_FOR_SERVER_WITH_TEXTURE
+
+	DXGIMgr::I->RenderForServerWithTexture();
+
+#else
+
+	DXGIMgr::I->RenderForServerWithTerrain();
+	//DXGIMgr::I->RenderForServer();
+
+#endif
+	
 #endif
 
 	// update title with fps

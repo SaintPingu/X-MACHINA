@@ -70,7 +70,7 @@ HeightMapImage::HeightMapImage(const std::string& fileName)
 
 	FileIO::ReadVal(file, mWidth);
 	FileIO::ReadVal(file, mLength);
-
+	 
 	FileIO::ReadRange(file, mHeightMapPixels, mWidth * mLength);
 }
 
@@ -201,12 +201,6 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 			mTerrains[index]->AddComponent<SphereCollider>()->mBS = bs;
 		}
 	}
-
-#ifdef RENDER_FOR_SERVER
-#ifndef RENDER_FOR_SERVER_WITH_TERRAIN
-	return;
-#endif
-#endif
 
 	InitMaterials();
 	SetTextures();

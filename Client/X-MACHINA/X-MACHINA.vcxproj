@@ -215,6 +215,7 @@
     <ClInclude Include="..\Common\Singleton.h" />
     <ClInclude Include="ClientNetwork\Contents\ClientNetworkManager.h" />
     <ClInclude Include="ClientNetwork\Contents\FBsPacketFactory.h" />
+    <ClInclude Include="ClientNetwork\Contents\GameMonster.h" />
     <ClInclude Include="ClientNetwork\Contents\GamePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\NetworkEvents.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_Network.h" />
@@ -282,6 +283,7 @@
   <ItemGroup>
     <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp" />
     <ClCompile Include="ClientNetwork\Contents\FBsPacketFactory.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\GameMonster.cpp" />
     <ClCompile Include="ClientNetwork\Contents\GamePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\NetworkEvents.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp" />

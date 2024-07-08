@@ -181,10 +181,21 @@ public:
 #pragma region EngineOptions
 
 // 서버 렌더링용
-//#define RENDER_FOR_SERVER
+#define RENDER_FOR_SERVER
+
 #ifdef RENDER_FOR_SERVER
-#define RENDER_FOR_SERVER_WITH_TERRAIN
+
+#define RENDER_FOR_SERVER_WITH_TEXTURE
+#ifdef RENDER_FOR_SERVER_WITH_TEXTURE
+#define RENDER_TEXTURE
 #endif
+
+#else
+#define RENDER_TEXTURE
+
+#endif
+
+
 
 #pragma endregion
 

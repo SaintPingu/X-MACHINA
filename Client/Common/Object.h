@@ -74,8 +74,6 @@ private:
 	std::unordered_set<int> mGridIndices{};			// 인접 Grid indices (충돌됨)
 	ObjectCollider*			mCollider{};			// my ObjectCollider component (for chaching)
 
-	bool mIsDrawBounding = false;					// collision bounds를 그리는가?
-
 public:
 	GridObject();
 	virtual ~GridObject() = default;
@@ -100,8 +98,6 @@ public:
 
 	// 내가 위치한 grid indices를 모두 제거한다.
 	void ClearGridIndices() { mGridIndices.clear(); }
-	// collision bounds 렌더링 토글
-	void ToggleDrawBoundings() { mIsDrawBounding = !mIsDrawBounding; }
 
 protected:
 	virtual void Awake() override;

@@ -67,17 +67,11 @@
     <Filter Include="ClientNetwork\Network">
       <UniqueIdentifier>{6072e41a-5823-46bc-ae16-5dbfde238b28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ClientNetwork\NetworkScript">
-      <UniqueIdentifier>{9f81564c-0791-487c-9d95-7ff6ee555843}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ClientNetwork\bat">
       <UniqueIdentifier>{0797efe0-dbc5-42df-88d2-70252c436d6c}</UniqueIdentifier>
     </Filter>
     <Filter Include="ClientNetwork\Contents">
       <UniqueIdentifier>{1bfc329a-7d00-4276-bd6c-b06c3b293aaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ClientNetwork\Packet">
-      <UniqueIdentifier>{ac4feb10-a732-4dde-8d5a-3474b17ab9e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Script\Interface">
       <UniqueIdentifier>{57ce70e4-f4e8-4c7a-90b7-75aa7646f50a}</UniqueIdentifier>
@@ -87,6 +81,15 @@
     </Filter>
     <Filter Include="Script\Item">
       <UniqueIdentifier>{f4849f9b-fda9-48ef-89fb-d2fdffb31391}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkEvent">
+      <UniqueIdentifier>{35078ffd-1004-4829-a297-36fea56515da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\Packet">
+      <UniqueIdentifier>{ac4feb10-a732-4dde-8d5a-3474b17ab9e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript">
+      <UniqueIdentifier>{9f81564c-0791-487c-9d95-7ff6ee555843}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -251,16 +254,10 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\Script_Network.h">
-      <Filter>ClientNetwork\NetworkScript</Filter>
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h">
-      <Filter>ClientNetwork\NetworkScript</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientNetwork\Contents\ClientNetworkManager.h">
-      <Filter>ClientNetwork\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientNetwork\Contents\NetworkEvents.h">
-      <Filter>ClientNetwork\Network</Filter>
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h">
       <Filter>ClientNetwork\Network</Filter>
@@ -269,10 +266,10 @@
       <Filter>ClientNetwork\Contents</Filter>
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\FBsPacketFactory.h">
-      <Filter>ClientNetwork\Packet</Filter>
+      <Filter>ClientNetwork\Network\Packet</Filter>
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h">
-      <Filter>ClientNetwork\NetworkScript</Filter>
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_Missile.h">
       <Filter>헤더 파일</Filter>
@@ -333,6 +330,15 @@
     </ClInclude>
     <ClInclude Include="include\Script_Item.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\NetworkEvents.h">
+      <Filter>ClientNetwork\Network\NetworkEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\ClientNetworkManager.h">
+      <Filter>ClientNetwork\Network\NetworkEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\GameMonster.h">
+      <Filter>ClientNetwork\Contents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -451,16 +457,10 @@
       <Filter>Script\Weapon</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp">
-      <Filter>ClientNetwork\NetworkScript</Filter>
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp">
-      <Filter>ClientNetwork\NetworkScript</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp">
-      <Filter>ClientNetwork\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientNetwork\Contents\NetworkEvents.cpp">
-      <Filter>ClientNetwork\Network</Filter>
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp">
       <Filter>ClientNetwork\Network</Filter>
@@ -469,10 +469,10 @@
       <Filter>ClientNetwork\Contents</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\FBsPacketFactory.cpp">
-      <Filter>ClientNetwork\Packet</Filter>
+      <Filter>ClientNetwork\Network\Packet</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp">
-      <Filter>ClientNetwork\NetworkScript</Filter>
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Missile.cpp">
       <Filter>Script\Object</Filter>
@@ -536,6 +536,15 @@
     </ClCompile>
     <ClCompile Include="src\Script_Item_WeaponCrate.cpp">
       <Filter>Script\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\NetworkEvents.cpp">
+      <Filter>ClientNetwork\Network\NetworkEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp">
+      <Filter>ClientNetwork\Network\NetworkEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\GameMonster.cpp">
+      <Filter>ClientNetwork\Contents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,9 @@
 #include "ClientNetworkManager.h"
 
 #include "Script_GroundObject.h"
+#include "Script_Ursacetus.h"
+#include "Script_Onyscidus.h"
+#include "Script_AdvancedCombatDroid_5.h"
 
 #include "Object.h"
 #include "Scene.h"
@@ -82,24 +85,25 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	/// +------------------------
 	///	  NETWORK SERVICE START  
 	/// ------------------------+
-	std::ifstream serverIPFile{ "ServerIP.txt" };
-	std::string serverIP;
-	std::cout << "Get Server IP\n";
-	serverIPFile >> serverIP;
-	mServerIP.assign(serverIP.begin(), serverIP.end());
-	LOG_MGR->WCout(L"SERVER IP :: " , mServerIP, L"\n");
-
 	LOG_MGR->Cout("[ING...] ( PLEASE WAIT ) ServerNetwork INIT \n");
 	mClientNetwork = Memory::Make_Shared<ClientNetwork>();
 	mClientNetwork->SetMaxSessionCnt(1); // 1명 접속  
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
-	if (FALSE == mClientNetwork->Start(mServerIP, 7777)) {
+	std::string Wifi_Ipv4 = GetLocalIPv4Address();
+	std::wstring wifi_Ipv4_wstr = StrToWstr(Wifi_Ipv4);
+
+//#define USE_LOOP_BACK_ADDR
+#ifdef USE_LOOP_BACK_ADDR
+	wifi_Ipv4_wstr = L"127.0.0.1";
+#endif
+
+	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
+	if (FALSE == mClientNetwork->Start(L"172.30.1.96", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
 	LOG_MGR->Cout("[SUCCESS] CLIENT NETWORK SERVICE START \n");
-
 }
 
 void ClientNetworkManager::Launch(int ThreadNum)
@@ -137,99 +141,74 @@ void ClientNetworkManager::ProcessEvents()
 		
 		switch (EventData->type)
 		{
-		case NetworkEvent::Game::Enum::Add_RemotePlayer:
+			/// +---------------------------------------------------------------------------
+			/// >> ▶▶▶▶▶ PROCESS EVENT REMOTE PLAYER 
+			/// ---------------------------------------------------------------------------+
+		case NetworkEvent::Game::RemotePlayerType::Add:
 		{
-
-			NetworkEvent::Game::Add_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Add_RemotePlayer*>(EventData.get());
-
-			sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
-			remotePlayer->SetName(data->RemoteP_Name);
-			remotePlayer->SetID(static_cast<UINT32>(data->RemoteP_ID));
-
-			remotePlayer->AddComponent<Script_RemotePlayer>();
-			remotePlayer->AddComponent<Script_GroundObject>();
-			
-			remotePlayer->SetPosition(data->RemoteP_Pos.x, data->RemoteP_Pos.y, data->RemoteP_Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
-			LOG_MGR->Cout("ID : ", data->RemoteP_ID, " POS : ", data->RemoteP_Pos.x, " ", data->RemoteP_Pos.y, " ", data->RemoteP_Pos.z, '\n');
-
-			//Vec4 rot   = remotePlayer->GetRotation();
-			//Vec3 euler = Quaternion::ToEuler(rot);
-			//euler.y    = data->RemoteP_Rot.y;
-			//remotePlayer->SetLocalRotation(Quaternion::ToQuaternion(euler));
-
-
-			mRemotePlayers[static_cast<UINT32>(data->RemoteP_ID)] = remotePlayer;
-			//std::cout << "Process Event : AddAnotherPlayer - " << remotePlayer << std::endl;
-		}
-
-		break;
-		case NetworkEvent::Game::Enum::Move_RemotePlayer:
-		{
-
-			NetworkEvent::Game::Move_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Move_RemotePlayer*>(EventData.get());
-			if (mRemotePlayers.count(data->RemoteP_ID)) {
-				rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
-				player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->RemoteP_Pos);
-				//player->SetPosition(data->RemoteP_Pos);
-			}
-			else {
-				LOG_MGR->Cout("Player - ", data->RemoteP_ID, "Not Existed\n");
-			}
-		}
-
-		break;
-		case NetworkEvent::Game::Enum::Remove_RemotePlayer:
-		{
-			std::cout << "RemoveOtherPlayer \n";
-
-			NetworkEvent::Game::Remove_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Remove_RemotePlayer*>(EventData.get());
-			mRemotePlayers.unsafe_erase(data->RemoteP_ID);
+			NetworkEvent::Game::Event_RemotePlayer::Add* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Add*>(EventData.get());
+			ProcessEvent_RemotePlayer_Add(data);
 		}
 		break;
-
-		case NetworkEvent::Game::Enum::Extrapolate_RemotePlayer:
+		case NetworkEvent::Game::RemotePlayerType::Move:
 		{
-			NetworkEvent::Game::Extrapolate_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::Extrapolate_RemotePlayer*>(EventData.get());
-			if (!mRemotePlayers.count(data->RemoteP_ID)) {
-				return;
-			}
 
-			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
-
-			ExtData ExtrapolatedData                    = {};
-			ExtrapolatedData.PingTime                   = data->PingTime;
-			ExtrapolatedData.TargetPos                  = data->ExtPos;
-			ExtrapolatedData.TargetRot                  = data->ExtRot;
-			ExtrapolatedData.MoveDir                    = data->ExtMoveDir;
-			ExtrapolatedData.MoveState		            = data->RemoteP_MoveState;
-			ExtrapolatedData.Velocity                   = data->RemoteVelocity;
-			ExtrapolatedData.Animdata.AnimParam_h       = data->animparam_h;
-			ExtrapolatedData.Animdata.AnimParam_v       = data->animparam_v;
-
-			player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
+			NetworkEvent::Game::Event_RemotePlayer::Move* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Move*>(EventData.get());
+			ProcessEvent_RemotePlayer_Move(data);
 		}
 		break;
-
-		case NetworkEvent::Game::Enum::ChangeAnim_RemotePlayer:
+		case NetworkEvent::Game::RemotePlayerType::Remove:
 		{
-			NetworkEvent::Game::ChangeAnimation_RemotePlayer* data = reinterpret_cast<NetworkEvent::Game::ChangeAnimation_RemotePlayer*>(EventData.get());
-			if (!mRemotePlayers.count(data->RemoteP_ID)) {
-				return;
-			}
-
-			int RemotePlayer_ID = data->RemoteP_ID;
-			int upperIndex      = data->animation_upper_index;
-			int lowerIndex      = data->animation_lower_index;
-			float paramV        = data->animation_param_v;
-			float paramH        = data->animation_param_h;
-
-			rsptr<GridObject> player = mRemotePlayers[data->RemoteP_ID];
-			player->GetAnimator()->GetController()->SetAnimation(upperIndex, lowerIndex, paramV, paramH);
-
+			NetworkEvent::Game::Event_RemotePlayer::Remove* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Remove*>(EventData.get());
+			ProcessEvent_RemotePlayer_Remove(data);
+		}
+		break;
+		case NetworkEvent::Game::RemotePlayerType::Extrapolate:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Extrapolate*>(EventData.get());
+			ProcessEvent_RemotePlayer_Extrapolate(data);
+		}
+		break;
+		case NetworkEvent::Game::RemotePlayerType::UpdateAnimation:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation*>(EventData.get());
+			ProcessEvent_RemotePlayer_UpdateAnimation(data);
+		}
+		break;
+		/// +---------------------------------------------------------------------------
+		/// >> ▶▶▶▶▶ PROCESS EVENT MONSTER  
+		/// ---------------------------------------------------------------------------+
+		case NetworkEvent::Game::MonsterType::Add:
+		{
+			NetworkEvent::Game::Event_Monster::Add* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Add*>(EventData.get());
+			ProcessEvent_Monster_Add(data);
+		}
+		break;
+		case NetworkEvent::Game::MonsterType::Remove:
+		{
+			NetworkEvent::Game::Event_Monster::Remove* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Remove*>(EventData.get());
+			ProcessEvent_Monster_Remove(data);
+		}
+		break;
+		case NetworkEvent::Game::MonsterType::Move:
+		{
+			NetworkEvent::Game::Event_Monster::Move* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Move*>(EventData.get());
+			ProcessEvent_Monster_Move(data);
+		}
+		break;
+		case NetworkEvent::Game::MonsterType::UpdateHP:
+		{
+			NetworkEvent::Game::Event_Monster::UpdateHP* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateHP*>(EventData.get());
+			ProcessEvent_Monster_UpdateHP(data);
+		}
+		break;
+		case NetworkEvent::Game::MonsterType::UpdateState:
+		{
+			NetworkEvent::Game::Event_Monster::UpdateState* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateState*>(EventData.get());
+			ProcessEvent_Monster_UpdateState(data);
 		}
 		break;
 		}
-
 	}
 }
 
@@ -245,83 +224,122 @@ void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Game::EventData> dat
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
 }
 
+std::string ClientNetworkManager::GetLocalIPv4Address()
+{
+	std::string ipAddress;
+
+	// 초기화
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+	// 네트워크 인터페이스 정보 가져오기
+	ULONG bufferSize = 0;
+	if (GetAdaptersAddresses(AF_INET, 0, nullptr, nullptr, &bufferSize) == ERROR_BUFFER_OVERFLOW) {
+		std::vector<char> buffer(bufferSize);
+		PIP_ADAPTER_ADDRESSES addressesBuffer = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&buffer[0]);
+
+		if (GetAdaptersAddresses(AF_INET, 0, nullptr, addressesBuffer, &bufferSize) == NO_ERROR) {
+			for (PIP_ADAPTER_ADDRESSES adapter = addressesBuffer; adapter != nullptr; adapter = adapter->Next) {
+				if (adapter->IfType == IF_TYPE_IEEE80211 && adapter->OperStatus == IfOperStatusUp) {
+					IP_ADAPTER_UNICAST_ADDRESS* unicast = adapter->FirstUnicastAddress;
+					if (unicast != nullptr) {
+						sockaddr_in* addr = reinterpret_cast<sockaddr_in*>(unicast->Address.lpSockaddr);
+						char ipBuffer[INET_ADDRSTRLEN];
+						inet_ntop(AF_INET, &(addr->sin_addr), ipBuffer, INET_ADDRSTRLEN);
+						ipAddress = ipBuffer;
+						break; // 첫 번째 IP만 필요하므로 루프 종료
+					}
+				}
+			}
+		}
+	}
+
+	WSACleanup();
+	return ipAddress;
+}
+
+
 
 long long ClientNetworkManager::GetTimeStamp()
 {
 	return duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
+
+
 void ClientNetworkManager::Send(SPtr_PacketSendBuf pkt)
 {
 	mClientNetwork->Broadcast(pkt);
 }
 
-sptr<NetworkEvent::Game::Add_RemotePlayer> ClientNetworkManager::CreateEvent_Add_RemotePlayer(GamePlayerInfo info)
+/// +---------------------------------------------------------------------------
+/// >> ▶▶▶▶▶ CREATE EVENT 
+/// ---------------------------------------------------------------------------+
+sptr<NetworkEvent::Game::Event_RemotePlayer::Add> ClientNetworkManager::CreateEvent_Add_RemotePlayer(GamePlayerInfo info)
 {
-	sptr<NetworkEvent::Game::Add_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Add_RemotePlayer>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Add>();
 	
-	Event->type				= NetworkEvent::Game::Enum::Add_RemotePlayer;
+	Event->type				= NetworkEvent::Game::RemotePlayerType::Add;
 
-	Event->RemoteP_ID        = info.Id;
-	Event->RemoteP_Name      = info.Name;
-	Event->RemoteP_Pos       = info.Pos;
-	Event->RemoteP_Rot       = info.Rot;
-	Event->RemoteP_Scale     = info.Sca;
-	Event->RemoteP_SpineLook = info.SDir;
+	Event->Id        = info.Id;
+	Event->Name      = info.Name;
+	Event->Pos       = info.Pos;
+	Event->Rot       = info.Rot;
+	Event->SpineLook = info.SDir;
 
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Remove_RemotePlayer> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(int32_t remID)
+sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(uint32_t remID)
 {
-	sptr<NetworkEvent::Game::Remove_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Remove_RemotePlayer>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Remove>();
 	
-	Event->type = NetworkEvent::Game::Enum::Remove_RemotePlayer;
+	Event->type = NetworkEvent::Game::RemotePlayerType::Remove;
 
-	Event->RemoteP_ID = remID;
-
-	return Event;
-}
-
-sptr<NetworkEvent::Game::Move_RemotePlayer> ClientNetworkManager::CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate )
-{
-	sptr<NetworkEvent::Game::Move_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Move_RemotePlayer>();
-
-	Event->type = NetworkEvent::Game::Enum::Move_RemotePlayer;
-
-	Event->RemoteP_ID        = remID;
-	Event->RemoteP_Pos       = remotePos;
-	Event->RemoteP_MoveState = movestate;
+	Event->Id = remID;
 
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> ClientNetworkManager::CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata)
+sptr<NetworkEvent::Game::Event_RemotePlayer::Move> ClientNetworkManager::CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate )
 {
-	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::Extrapolate_RemotePlayer>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Move>();
 
-	Event->type = NetworkEvent::Game::Enum::Extrapolate_RemotePlayer;
+	Event->type = NetworkEvent::Game::RemotePlayerType::Move;
 
-	Event->RemoteP_ID        = remID;
+	Event->Id        = remID;
+	Event->Pos       = remotePos;
+	Event->MoveState = movestate;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> ClientNetworkManager::CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata)
+{
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>();
+
+	Event->type = NetworkEvent::Game::RemotePlayerType::Extrapolate;
+
+	Event->Id                = remID;
 	Event->PingTime          = extdata.PingTime;
 	Event->ExtPos            = extdata.TargetPos;
 	Event->ExtRot            = extdata.TargetRot;
 	Event->ExtMoveDir        = extdata.MoveDir;
-	Event->RemoteP_MoveState = extdata.MoveState;
-	Event->RemoteVelocity    = extdata.Velocity;
+	Event->MoveState         = extdata.MoveState;
+	Event->Velocity          = extdata.Velocity;
 	Event->animparam_h       = extdata.Animdata.AnimParam_h;
 	Event->animparam_v       = extdata.Animdata.AnimParam_v;
 
 	return Event;
 }
 
-sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> ClientNetworkManager::CreateEvent_UpdateAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
 {
-	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> Event = std::make_shared<NetworkEvent::Game::ChangeAnimation_RemotePlayer>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>();
 
-	Event->type = NetworkEvent::Game::Enum::ChangeAnim_RemotePlayer;
+	Event->type = NetworkEvent::Game::RemotePlayerType::UpdateAnimation;
 	
-	Event->RemoteP_ID            = remID;
+	Event->Id            = remID;
 	Event->animation_upper_index = static_cast<int32_t>(anim_upper_idx);
 	Event->animation_lower_index = static_cast<int32_t>(anim_lower_idx);
 	Event->animation_param_h     = anim_param_h;
@@ -330,9 +348,207 @@ sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer> ClientNetworkManager::Cre
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos)
+{
+	sptr<NetworkEvent::Game::Event_Monster::Add> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Add>();
+
+	Event->type = NetworkEvent::Game::MonsterType::Add;
+	Event->NewMonsterInfos = infos;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Monster::Remove> ClientNetworkManager::CreateEvent_Remove_Monster(std::vector<uint32_t> Ids)
+{
+	sptr<NetworkEvent::Game::Event_Monster::Remove> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Remove>();
+	Event->type = NetworkEvent::Game::MonsterType::Remove;
+	Event->IDs = Ids;
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Monster::Move> ClientNetworkManager::CreateEvent_Move_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos)
+{
+	sptr<NetworkEvent::Game::Event_Monster::Move> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Move>();
+	Event->type = NetworkEvent::Game::MonsterType::Move;
+	Event->Mons = infos;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Monster::UpdateHP> ClientNetworkManager::CreateEvent_UpdateHP_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterHP> infos)
+{
+	sptr<NetworkEvent::Game::Event_Monster::UpdateHP> Event = std::make_shared<NetworkEvent::Game::Event_Monster::UpdateHP>();
+	Event->type = NetworkEvent::Game::MonsterType::UpdateHP;
+	Event->Mons = infos;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos)
+{
+	sptr<NetworkEvent::Game::Event_Monster::UpdateState> Event = std::make_shared<NetworkEvent::Game::Event_Monster::UpdateState>();
+	Event->type = NetworkEvent::Game::MonsterType::UpdateState;
+	Event->Mons = infos;
+
+	return Event;
+}
+
+
+
+/// +---------------------------------------------------------------------------
+/// >> ▶▶▶▶▶ PROCESS EVENT 
+/// ---------------------------------------------------------------------------+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data )
+{
+	sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
+	remotePlayer->SetName(data->Name);
+	remotePlayer->SetID(static_cast<UINT32>(data->Id));
+
+	remotePlayer->AddComponent<Script_RemotePlayer>();
+	remotePlayer->AddComponent<Script_GroundObject>();
+
+	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
+	LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
+
+	//Vec4 rot   = remotePlayer->GetRotation();
+	//Vec3 euler = Quaternion::ToEuler(rot);
+	//euler.y    = data->RemoteP_Rot.y;
+	//remotePlayer->SetLocalRotation(Quaternion::ToQuaternion(euler));
+
+
+	mRemotePlayers[static_cast<UINT32>(data->Id)] = remotePlayer;
+	std::cout << "Process Event : Add_RemotePlayer - " << remotePlayer << std::endl;
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data)
+{
+	std::cout << "RemoveOtherPlayer \n";
+	mRemotePlayers.unsafe_erase(data->Id);
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Event_RemotePlayer::Move* data)
+{
+	if (mRemotePlayers.count(data->Id)) {
+		rsptr<GridObject> player = mRemotePlayers[data->Id];
+		player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->Pos);
+		//player->SetPosition(data->RemoteP_Pos);
+	}
+	else {
+		LOG_MGR->Cout("Player - ", data->Id, "Not Existed\n");
+	}
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data)
+{
+	if (!mRemotePlayers.count(data->Id)) {
+		return;
+	}
+
+	rsptr<GridObject> player = mRemotePlayers[data->Id];
+
+	ExtData ExtrapolatedData              = {};
+	ExtrapolatedData.PingTime             = data->PingTime;
+	ExtrapolatedData.TargetPos            = data->ExtPos;
+	ExtrapolatedData.TargetRot            = data->ExtRot;
+	ExtrapolatedData.MoveDir              = data->ExtMoveDir;
+	ExtrapolatedData.MoveState            = data->MoveState;
+	ExtrapolatedData.Velocity             = data->Velocity;
+	ExtrapolatedData.Animdata.AnimParam_h = data->animparam_h;
+	ExtrapolatedData.Animdata.AnimParam_v = data->animparam_v;
+
+	player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
+
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data)
+{
+	if (!mRemotePlayers.count(data->Id)) {
+		return;
+	}
+	rsptr<GridObject> player = mRemotePlayers[data->Id];
+	player->GetAnimator()->GetController()->SetAnimation(data->animation_upper_index, data->animation_lower_index, data->animation_param_v, data->animation_param_h);
+
+}
+
+void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
+{
+	std::vector<GameMonsterInfo> monInfos = data->NewMonsterInfos;
+
+	for (int i = 0; i < monInfos.size(); ++i) {
+		// Monster 생성! 
+		std::string monsterName{};
+		switch (monInfos[i].Type) {
+		case MonsterType::AdvancedCombatDroid_5:
+			monsterName = "AdvancedCombatDroid_5";
+			break;
+		case MonsterType::Onyscidus:
+			monsterName = "Onyscidus";
+			break;
+		case MonsterType::Ursacetus:
+			monsterName = "Ursacetus";
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		sptr<GridObject> monster = Scene::I->Instantiate(monsterName, ObjectTag::Enemy);
+		monster->SetID(monInfos[i].Id);
+		monster->SetName(monsterName);
+		monster->SetPosition(monInfos[i].Pos);
+		monster->SetLocalRotation(monInfos[i].Rot);
+
+		switch (monInfos[i].Type) {
+		case MonsterType::AdvancedCombatDroid_5:
+			monster->AddComponent<Script_AdvancedCombatDroid_5>();
+			break;
+		case MonsterType::Onyscidus:
+			monster->AddComponent<Script_Onyscidus>();
+			break;
+		case MonsterType::Ursacetus:
+			monster->AddComponent<Script_Ursacetus>();
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
+	}
+	
+
+}
+void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event_Monster::Remove* data)
+{
+
+}
+
+void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data)
+{
+
+}
+void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data)
+{
+
+}
+void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data)
+{
+
+}
+
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()
 {
 	auto now = std::chrono::system_clock::now();
 	auto duration = now.time_since_epoch();
 	return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+}
+
+
+std::string		ClientNetworkManager::WstrToStr(const std::wstring& source)
+{
+	return std::string().assign(source.begin(), source.end());
+}
+std::wstring	ClientNetworkManager::StrToWstr(const std::string& source)
+{
+	return std::wstring().assign(source.begin(), source.end());
 }

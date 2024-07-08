@@ -5,10 +5,49 @@
 
 namespace FBProtocol;
 
-enum OBJECTTYPE : byte {
+enum OBJECT_TYPE : ubyte {
   NONE,
   PLAYER,
   MONSTER,
   STRUCTURE
 }
 
+
+// +------------------------
+//		 WEAPON TYPE 
+// ------------------------+
+enum WEAPON_TYPE : ubyte {
+	H_LOOK,
+	DBMS,
+	STUART,
+	DESCRIPTOR,
+	T_12,
+	PIPELINE,
+	BURNOUT,
+	DIRECT_DRAIN
+}
+
+
+// +------------------------
+//    PLAYER MOTION STATE
+// ------------------------+
+enum PLAYER_MOTION_STATE_TYPE : ubyte {
+	NONE,
+	STAND,
+	SIT,
+	WALK,
+	RUN,
+	SPRINT
+}
+
+// +------------------------
+//      MONSTER STATE 
+// ------------------------+
+enum MONSTER_STATE_TYPE : ubyte {
+	ATTACK,
+	HIT,
+	MOVE,
+	SPAWN,
+	PATROL,
+	DEAD
+}

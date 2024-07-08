@@ -78,6 +78,7 @@ void GameObject::AttachToGround()
 #pragma region GridObject
 GridObject::GridObject()
 {
+
 }
 
 void GridObject::Awake()
@@ -88,7 +89,7 @@ void GridObject::Awake()
 	const auto& collider = GetComponent<ObjectCollider>();
 	if (collider) {
 		mCollider = collider.get();
-	}	
+	}
 }
 
 void GridObject::Update()
@@ -135,7 +136,7 @@ void GridObject::RenderBounds()
 		color = Vec4(1, 1, 1, 1);
 		break;
 	}
-	if (mIsDrawBounding && mCollider) {
+	if (mCollider) {
 		GetComponent<ObjectCollider>()->Render(color);
 	}
 }

@@ -15,26 +15,26 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
 
 namespace FBProtocol {
 
-enum OBJECTTYPE : int8_t {
-  OBJECTTYPE_NONE = 0,
-  OBJECTTYPE_PLAYER = 1,
-  OBJECTTYPE_MONSTER = 2,
-  OBJECTTYPE_STRUCTURE = 3,
-  OBJECTTYPE_MIN = OBJECTTYPE_NONE,
-  OBJECTTYPE_MAX = OBJECTTYPE_STRUCTURE
+enum OBJECT_TYPE : uint8_t {
+  OBJECT_TYPE_NONE = 0,
+  OBJECT_TYPE_PLAYER = 1,
+  OBJECT_TYPE_MONSTER = 2,
+  OBJECT_TYPE_STRUCTURE = 3,
+  OBJECT_TYPE_MIN = OBJECT_TYPE_NONE,
+  OBJECT_TYPE_MAX = OBJECT_TYPE_STRUCTURE
 };
 
-inline const OBJECTTYPE (&EnumValuesOBJECTTYPE())[4] {
-  static const OBJECTTYPE values[] = {
-    OBJECTTYPE_NONE,
-    OBJECTTYPE_PLAYER,
-    OBJECTTYPE_MONSTER,
-    OBJECTTYPE_STRUCTURE
+inline const OBJECT_TYPE (&EnumValuesOBJECT_TYPE())[4] {
+  static const OBJECT_TYPE values[] = {
+    OBJECT_TYPE_NONE,
+    OBJECT_TYPE_PLAYER,
+    OBJECT_TYPE_MONSTER,
+    OBJECT_TYPE_STRUCTURE
   };
   return values;
 }
 
-inline const char * const *EnumNamesOBJECTTYPE() {
+inline const char * const *EnumNamesOBJECT_TYPE() {
   static const char * const names[5] = {
     "NONE",
     "PLAYER",
@@ -45,10 +45,142 @@ inline const char * const *EnumNamesOBJECTTYPE() {
   return names;
 }
 
-inline const char *EnumNameOBJECTTYPE(OBJECTTYPE e) {
-  if (::flatbuffers::IsOutRange(e, OBJECTTYPE_NONE, OBJECTTYPE_STRUCTURE)) return "";
+inline const char *EnumNameOBJECT_TYPE(OBJECT_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, OBJECT_TYPE_NONE, OBJECT_TYPE_STRUCTURE)) return "";
   const size_t index = static_cast<size_t>(e);
-  return EnumNamesOBJECTTYPE()[index];
+  return EnumNamesOBJECT_TYPE()[index];
+}
+
+enum WEAPON_TYPE : uint8_t {
+  WEAPON_TYPE_H_LOOK = 0,
+  WEAPON_TYPE_DBMS = 1,
+  WEAPON_TYPE_STUART = 2,
+  WEAPON_TYPE_DESCRIPTOR = 3,
+  WEAPON_TYPE_T_12 = 4,
+  WEAPON_TYPE_PIPELINE = 5,
+  WEAPON_TYPE_BURNOUT = 6,
+  WEAPON_TYPE_DIRECT_DRAIN = 7,
+  WEAPON_TYPE_MIN = WEAPON_TYPE_H_LOOK,
+  WEAPON_TYPE_MAX = WEAPON_TYPE_DIRECT_DRAIN
+};
+
+inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[8] {
+  static const WEAPON_TYPE values[] = {
+    WEAPON_TYPE_H_LOOK,
+    WEAPON_TYPE_DBMS,
+    WEAPON_TYPE_STUART,
+    WEAPON_TYPE_DESCRIPTOR,
+    WEAPON_TYPE_T_12,
+    WEAPON_TYPE_PIPELINE,
+    WEAPON_TYPE_BURNOUT,
+    WEAPON_TYPE_DIRECT_DRAIN
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesWEAPON_TYPE() {
+  static const char * const names[9] = {
+    "H_LOOK",
+    "DBMS",
+    "STUART",
+    "DESCRIPTOR",
+    "T_12",
+    "PIPELINE",
+    "BURNOUT",
+    "DIRECT_DRAIN",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameWEAPON_TYPE(WEAPON_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, WEAPON_TYPE_H_LOOK, WEAPON_TYPE_DIRECT_DRAIN)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesWEAPON_TYPE()[index];
+}
+
+enum PLAYER_MOTION_STATE_TYPE : uint8_t {
+  PLAYER_MOTION_STATE_TYPE_NONE = 0,
+  PLAYER_MOTION_STATE_TYPE_STAND = 1,
+  PLAYER_MOTION_STATE_TYPE_SIT = 2,
+  PLAYER_MOTION_STATE_TYPE_WALK = 3,
+  PLAYER_MOTION_STATE_TYPE_RUN = 4,
+  PLAYER_MOTION_STATE_TYPE_SPRINT = 5,
+  PLAYER_MOTION_STATE_TYPE_MIN = PLAYER_MOTION_STATE_TYPE_NONE,
+  PLAYER_MOTION_STATE_TYPE_MAX = PLAYER_MOTION_STATE_TYPE_SPRINT
+};
+
+inline const PLAYER_MOTION_STATE_TYPE (&EnumValuesPLAYER_MOTION_STATE_TYPE())[6] {
+  static const PLAYER_MOTION_STATE_TYPE values[] = {
+    PLAYER_MOTION_STATE_TYPE_NONE,
+    PLAYER_MOTION_STATE_TYPE_STAND,
+    PLAYER_MOTION_STATE_TYPE_SIT,
+    PLAYER_MOTION_STATE_TYPE_WALK,
+    PLAYER_MOTION_STATE_TYPE_RUN,
+    PLAYER_MOTION_STATE_TYPE_SPRINT
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesPLAYER_MOTION_STATE_TYPE() {
+  static const char * const names[7] = {
+    "NONE",
+    "STAND",
+    "SIT",
+    "WALK",
+    "RUN",
+    "SPRINT",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNamePLAYER_MOTION_STATE_TYPE(PLAYER_MOTION_STATE_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, PLAYER_MOTION_STATE_TYPE_NONE, PLAYER_MOTION_STATE_TYPE_SPRINT)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesPLAYER_MOTION_STATE_TYPE()[index];
+}
+
+enum MONSTER_STATE_TYPE : uint8_t {
+  MONSTER_STATE_TYPE_ATTACK = 0,
+  MONSTER_STATE_TYPE_HIT = 1,
+  MONSTER_STATE_TYPE_MOVE = 2,
+  MONSTER_STATE_TYPE_SPAWN = 3,
+  MONSTER_STATE_TYPE_PATROL = 4,
+  MONSTER_STATE_TYPE_DEAD = 5,
+  MONSTER_STATE_TYPE_MIN = MONSTER_STATE_TYPE_ATTACK,
+  MONSTER_STATE_TYPE_MAX = MONSTER_STATE_TYPE_DEAD
+};
+
+inline const MONSTER_STATE_TYPE (&EnumValuesMONSTER_STATE_TYPE())[6] {
+  static const MONSTER_STATE_TYPE values[] = {
+    MONSTER_STATE_TYPE_ATTACK,
+    MONSTER_STATE_TYPE_HIT,
+    MONSTER_STATE_TYPE_MOVE,
+    MONSTER_STATE_TYPE_SPAWN,
+    MONSTER_STATE_TYPE_PATROL,
+    MONSTER_STATE_TYPE_DEAD
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMONSTER_STATE_TYPE() {
+  static const char * const names[7] = {
+    "ATTACK",
+    "HIT",
+    "MOVE",
+    "SPAWN",
+    "PATROL",
+    "DEAD",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMONSTER_STATE_TYPE(MONSTER_STATE_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, MONSTER_STATE_TYPE_ATTACK, MONSTER_STATE_TYPE_DEAD)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMONSTER_STATE_TYPE()[index];
 }
 
 }  // namespace FBProtocol

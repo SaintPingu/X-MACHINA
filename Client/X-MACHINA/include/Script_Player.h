@@ -168,7 +168,15 @@ private:
 	float mMaxRecoil{20.f};
 
 	Vec3 mDirVec{};
+	Vec3 mPrevDirVec{};
 	Vec3 mSlideVec{};
+
+	// For Network
+	Vec3 mPrevPos{};
+	Vec3 mCurrPos{};
+public:
+	Vec3 GetPrevPos() { return mPrevPos; }
+	Vec3 GetcurrPos() { return mCurrPos; }
 
 public:
 	PlayerMotion GetPrevState() const  { return PlayerMotion::GetState(mPrevMovement); }
@@ -209,6 +217,8 @@ public:
 
 	void AquireWeapon(WeaponName weaponName);
 
+	Vec3  GetMoveDir()			   { return mDirVec; }
+	Vec3  GetPrevMoveDir()		   { return mPrevDirVec; }
 private:
 	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) override;
 	virtual void DrawWeaponCallback();
@@ -223,6 +233,7 @@ private:
 	float GetAngleSpineToAim(const Vec3& aimWorldPos) const;
 	Vec3 GetAimWorldPos(const Vec2& aimScreenPos) const;
 	void RotateToAim(Dir dir, float& rotAngle);
+
 
 
 

@@ -232,7 +232,7 @@ public:
 	// get objects[out] that collide with [collider] (expensive call cost)
 	void CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type = CollisionType::All) const;
 	float CheckCollisionsRay(int gridIndex, const Ray& ray) const;
-	void ToggleDrawBoundings();
+	void ToggleDrawBoundings() { mIsRenderBounds = !mIsRenderBounds; }
 	void ToggleFilterOptions();
 	void SetFilterOptions(DWORD option);
 

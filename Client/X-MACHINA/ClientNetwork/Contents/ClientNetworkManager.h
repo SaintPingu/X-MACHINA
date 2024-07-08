@@ -1,23 +1,24 @@
-#pragma once
+ï»¿#pragma once
 
 /// +-------------------------------------------------
 ///				 Client Network Manager 
 /// __________________________________________________
-///		         Å¬¶óÀÌ¾ðÆ® ³×Æ®¿öÅ© ¸Å´ÏÀú
+///		         í´ë¼ì´ì–¸íŠ¸ ë„¤íŠ¸ì›Œí¬ ë§¤ë‹ˆì €
 /// 
-/// ±â´É : ¼­¹ö¿ÍÀÇ Åë½Å ¹× ¼ö½Å¹ÞÀº ÆÐÅ¶À» Ã³¸®ÇÏ´Â ¿ªÇÒ 
-///        LockÀº ÃÖ´ëÇÑ ¿©±â¼­¸¸ °É °ÍÀ» ÁöÇâÇÑ´Ù.  
-/// (LockÀÌ Áß±¸³­¹æ ÀÖÀ¸¸é ³ªÁß¿¡ ¹ö±×¿øÀÎÀ» Ã£±â ±²ÀåÈ÷ Èûµé´Ù.)
+/// ê¸°ëŠ¥ : ì„œë²„ì™€ì˜ í†µì‹  ë° ìˆ˜ì‹ ë°›ì€ íŒ¨í‚·ì„ ì²˜ë¦¬í•˜ëŠ” ì—­í•  
+///        Lockì€ ìµœëŒ€í•œ ì—¬ê¸°ì„œë§Œ ê±¸ ê²ƒì„ ì§€í–¥í•œë‹¤.  
+/// (Lockì´ ì¤‘êµ¬ë‚œë°© ìžˆìœ¼ë©´ ë‚˜ì¤‘ì— ë²„ê·¸ì›ì¸ì„ ì°¾ê¸° êµ‰ìž¥ížˆ íž˜ë“¤ë‹¤.)
 /// 
 /// [ Front Events Queue ] -------> Process Events  ( GameLoop(main) Thread )
-///		¡è
+///		â†‘
 ///    LOCK -- ( Change )
-///		¡é
+///		â†“
 /// [ Back  Events Queue ] <------  Register Events ( Worker(Server) Threads)
 /// -------------------------------------------------+
 #undef max
 #include "ClientNetwork/Contents/NetworkEvents.h"
 #include "ClientNetwork/Contents/GamePlayer.h"
+#include "ClientNetwork/Contents/GameMonster.h"
 #include "ClientNetwork/Contents/Script_RemotePlayer.h"
 #include "Scene.h"
 #include "InputMgr.h"
@@ -35,11 +36,11 @@ class ClientNetworkManager
 	DECLARE_SINGLETON(ClientNetworkManager);
 
 private:
-	Lock::SRWLock		mSRWLock{};
+	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
-	std::wstring		mServerIP		= L"127.0.0.1";
 
-	Concurrency::concurrent_unordered_map<UINT32, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */
+
+	Concurrency::concurrent_unordered_map<uint32_t, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
 	std::atomic_int	    mBackSceneEventIndex = 1;	// BACK SCENE EVENT QUEUE INDEX 
@@ -58,6 +59,7 @@ public:
 	void ProcessEvents();
 	void SwapEventsQueue(); 
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
+	std::string GetLocalIPv4Address();
 
 
 public:
@@ -65,15 +67,46 @@ public:
 	void Send(SPtr_PacketSendBuf pkt);
 
 public:
-	sptr<NetworkEvent::Game::Add_RemotePlayer>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
-	sptr<NetworkEvent::Game::Remove_RemotePlayer>				CreateEvent_Remove_RemotePlayer(int32_t remID);
-	sptr<NetworkEvent::Game::Move_RemotePlayer>					CreateEvent_Move_RemotePlayer(int32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
-	sptr<NetworkEvent::Game::Extrapolate_RemotePlayer>			CreateEvent_Extrapolate_RemotePlayer(int32_t remID, ExtData extdata);
-	sptr<NetworkEvent::Game::ChangeAnimation_RemotePlayer>		CreateEvent_ChangeAnimation_RemotePlayer(int32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
+	/// +---------------------------------------------------------------------------
+	/// >> â–¶â–¶â–¶â–¶â–¶ CREATE EVENT 
+	/// ---------------------------------------------------------------------------+
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove>				CreateEvent_Remove_RemotePlayer(uint32_t remID);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Move>					CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>			CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>		CreateEvent_UpdateAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
+	
+	sptr<NetworkEvent::Game::Event_Monster::Add>						CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos);
+	sptr<NetworkEvent::Game::Event_Monster::Remove>						CreateEvent_Remove_Monster(std::vector<uint32_t> Ids);
+	sptr<NetworkEvent::Game::Event_Monster::Move>						CreateEvent_Move_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos);
+	sptr<NetworkEvent::Game::Event_Monster::UpdateHP>					CreateEvent_UpdateHP_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterHP> infos);
+	sptr<NetworkEvent::Game::Event_Monster::UpdateState>				CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos);
+
+	
+	
+	/// +---------------------------------------------------------------------------
+	/// >> â–¶â–¶â–¶â–¶â–¶ PROCESS EVENT 
+	/// ---------------------------------------------------------------------------+
+	/// REMOTE PLAYER 
+	void ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data);
+	void ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data);
+	void ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Event_RemotePlayer::Move* data);
+	void ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data);
+	void ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data);
+
+	/// MONSTER 
+	void ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data);
+	void ProcessEvent_Monster_Remove(NetworkEvent::Game::Event_Monster::Remove* data);
+	void ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data);
+	void ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data);
+	void ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data);
+
 
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();
 
+	std::string		WstrToStr(const std::wstring& source);
+	std::wstring	StrToWstr(const std::string& source);
 
 };
 

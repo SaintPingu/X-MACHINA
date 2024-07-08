@@ -45,7 +45,11 @@ Scene::Scene()
 	mGridZLength(static_cast<int>(mMapBorder.Extents.z / kGridZCount)),
 	mLight(std::make_shared<Light>())
 {
-
+#ifdef RENDER_FOR_SERVER
+#ifndef RENDER_FOR_SERVER_WITH_TEXTURE
+	mIsRenderBounds = true;
+#endif
+#endif
 }
 
 void Scene::Release()
@@ -102,7 +106,7 @@ void Scene::ReleaseUploadBuffers()
 void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
-#ifndef RENDER_FOR_SERVER
+#ifdef RENDER_TEXTURE
 	UpdateShadowPassCB();
 	UpdateSsaoCB();
 #endif
@@ -141,10 +145,14 @@ void Scene::UpdateMainPassCB()
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
 	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
-#ifndef RENDER_FOR_SERVER
+
+#ifdef RENDER_TEXTURE
+
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
+
 #endif
+
 	passCB.LightCount = mLight->GetLightCount();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
@@ -1044,16 +1052,6 @@ void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 	const int tileZ = index.Z % Grid::mTileRows;
 
 	mGrids[gridZ * mGridXCount + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
-}
-
-
-void Scene::ToggleDrawBoundings()
-{
-	mIsRenderBounds = !mIsRenderBounds;
-
-	ProcessAllObjects([](sptr<GridObject> object) {
-		object->ToggleDrawBoundings();
-		});
 }
 
 void Scene::ToggleFilterOptions()

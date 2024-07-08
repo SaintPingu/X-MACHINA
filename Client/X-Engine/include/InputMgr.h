@@ -81,8 +81,8 @@ public:
 	Vec2 GetMousePos() const			{ return mMousePos; }
 	Vec2 GetMouseDir() const			{ return mMouseDir; }
 	Vec2 GetMouseDelta() const			{ return Vec2(mMousePos.x - mClientCenter.x, mClientCenter.y - mMousePos.y); }
-public:
 
+public:
 	// »ç¿ëÇÒ Å°µéÀ» ¼³Á¤ÇÑ´Ù.
 	void Init();
 	void InitFocus();
@@ -102,5 +102,14 @@ private:
 
 	void ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	void ProcessKoreanKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+public:
+	// ´ÜÀÏ ÇÑ±Û ¹®ÀÚÀÇ ¸¶Áö¸· ÀÚ¼Ò(ÃÊ¼º->Áß¼º->Á¾¼º)¸¦ ¹ÝÈ¯ÇÑ´Ù.
+	static wchar_t GetLastHangul(wchar_t hangul);
+	// ÇÑ±Û ¹®ÀÚÀÇ À½Àý('°¡'~'ÆR') ¿©ºÎ¸¦ ¹ÝÈ¯ÇÑ´Ù.
+	static bool IsSyllable(wchar_t hangul);
+	// ÇÑ±Û ÀÚ¼Ò¸¦ Å°º¸µå¿¡ ´ëÀÀÇÏ´Â ¾ËÆÄºªÀ¸·Î ¹ÝÈ¯ÇÑ´Ù. ('¤±' -> 'A')
+	static char GetAlphabetFromHangul(wchar_t hangul);
 };
 #pragma endregion

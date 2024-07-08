@@ -612,6 +612,9 @@ namespace {
 		sptr<AnimatorState> LoadAnimatorState(std::ifstream& file, AnimatorMotionInfo& motionInfo)
 		{
 			sptr<const AnimationClip> clip = ReadAnimationClip(file);
+			if (!clip) {
+				throw std::runtime_error("[Error] Couldn't read animation clip");
+			}
 
 			return std::make_shared<AnimatorState>(motionInfo, clip);
 		}
@@ -752,6 +755,11 @@ namespace FileIO {
 				case Hash("<Hierarchy>:"):
 					model = ::LoadFrameHierarchy(file, animationInfo);
 					break;
+
+				case Hash("<ScriptExporter>:"):
+					Scene::I->LoadScriptExporter(file, model);
+					break;
+
 				case Hash("</Hierarchy>"):
 					isEOF = true;
 					break;

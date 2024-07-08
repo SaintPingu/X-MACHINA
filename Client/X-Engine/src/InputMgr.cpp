@@ -15,6 +15,8 @@ InputMgr::InputMgr()
 
 void InputMgr::Init()
 {
+	std::wcout.imbue(std::locale("korean"));
+
 	// »ç¿ëÇÒ Å°µé ¸ñ·Ïss
 	constexpr int kKeyList[] =
 	{
@@ -120,6 +122,10 @@ void InputMgr::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		ProcessKeyboardMsg(hWnd, msg, wParam, lParam);
 		break;
 
+	// ÇÑ±Û ÀÔ·Â Ã³¸®
+	case WM_IME_COMPOSITION:
+		ProcessKoreanKeyboardMsg(hWnd, msg, wParam, lParam);
+		break;
 	default:
 		break;
 	}
@@ -187,4 +193,89 @@ void InputMgr::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			mAwayKeys.push(&mKeys[key]);
 		}
 	}
+}
+
+void InputMgr::ProcessKoreanKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	HIMC hIMC = ImmGetContext(hWnd);
+
+	// ÇÑ±Û Á¶ÇÕ ÀÔ·Â »óÅÂ('¤¡', '°í', '°ú')
+	if (lParam & GCS_COMPSTR) {
+		LONG len = ImmGetCompositionString(hIMC, GCS_COMPSTR, NULL, 0);	// get string length
+		if (len > 0) {
+			wchar_t input{};
+			ImmGetCompositionString(hIMC, GCS_COMPSTR, &input, len);	// get string
+			wchar_t ch = GetLastHangul(input);
+			char key = GetAlphabetFromHangul(ch);
+			SendMessage(hWnd, WM_KEYDOWN, static_cast<WPARAM>(key), 0);	// WM_KEYUPÀº ÇÑ±Û ÀÔ·Â »óÅÂ¿©µµ ÇÑ±ÛÀÌ ¾Æ´Ñ ¾ËÆÄºª key¸¦ ³Ñ°Ü¹Þ´Â´Ù. -> Ã³¸® ºÒÇÊ¿ä
+		}
+	}
+
+	ImmReleaseContext(hWnd, hIMC);
+}
+
+wchar_t InputMgr::GetLastHangul(wchar_t hangul)
+{
+	// Áß¼º
+	constexpr wchar_t* jungsung = L"¤¿¤À¤Á¤Â¤Ã¤Ä¤Å¤Æ¤Ç¤È¤É¤Ê¤Ë¤Ì¤Í¤Î¤Ï¤Ð¤Ñ¤Ò¤Ó";
+
+	// Á¾¼º
+	constexpr wchar_t* jongsung = L" ¤¡¤¢¤£¤¤¤¥¤¦¤§¤©¤ª¤«¤¬¤­¤®¤¯¤°¤±¤²¤´¤µ¤¶¤·¤¸¤º¤»¤¼¤½¤¾";
+
+	wchar_t result{};
+	
+	if (IsSyllable(hangul)) {
+		const wchar_t syllable = (hangul - L'°¡');
+
+		int index = syllable % 28;			// Á¾¼º
+		if (index > 0) {
+			result = jongsung[index];
+		}
+		else {
+			index = (syllable / 28) % 21;	// Áß¼º
+			result = jungsung[index];
+		}
+	}
+	else {
+		result = hangul;					// ÃÊ¼º
+	}
+
+	// Á¶ÇÕµÈ ÀÚ¼ÒÀÎ °æ¿ì ¸¶Áö¸· ÀÚ¼Ò¸¦ ÃßÃâ
+	static const std::unordered_map<wchar_t, wchar_t> jamoSeperateMap = {
+		{L'¤¢', L'¤¡'}, {L'¤£', L'¤µ'}, {L'¤¥', L'¤¸'}, {L'¤¦', L'¤¾'}, {L'¤ª', L'¤¡'},
+		{L'¤«', L'¤±'}, {L'¤¬', L'¤²'}, {L'¤­', L'¤µ'}, {L'¤®', L'¤¼'}, {L'¤°', L'¤¾'},
+		{L'¤´', L'¤µ'}, {L'¤¶', L'¤µ'},
+		{L'¤È', L'¤¿'}, {L'¤É', L'¤À'}, {L'¤Ê', L'¤Ó'}, {L'¤Í', L'¤Ã'}, {L'¤Î', L'¤Ä'},
+		{L'¤Ï', L'¤Ó'}, {L'¤Ò', L'¤Ó'},
+	};
+
+	if (jamoSeperateMap.contains(result)) {
+		result = jamoSeperateMap.at(result);
+	}
+
+	return result;
+}
+
+bool InputMgr::IsSyllable(wchar_t hangul)
+{
+	return (hangul >= L'°¡') && (hangul <= L'ÆR');
+}
+
+char InputMgr::GetAlphabetFromHangul(wchar_t hangul)
+{
+	static const std::unordered_map<wchar_t, char> koreanToAlphabetMap = {
+		{L'¤¡', 'R'}, {L'¤¢', 'R'}, {L'¤¤', 'S'}, {L'¤§', 'E'}, {L'¤¨', 'E'},
+		{L'¤©', 'F'}, {L'¤±', 'A'}, {L'¤²', 'Q'}, {L'¤³', 'Q'}, {L'¤µ', 'T'},
+		{L'¤¶', 'T'}, {L'¤·', 'D'}, {L'¤¸', 'W'}, {L'¤¹', 'W'}, {L'¤º', 'C'},
+		{L'¤»', 'Z'}, {L'¤¼', 'X'}, {L'¤½', 'V'}, {L'¤¾', 'G'}, {L'¤¿', 'K'},
+		{L'¤Á', 'I'}, {L'¤Ã', 'J'}, {L'¤Å', 'U'}, {L'¤Ç', 'H'}, {L'¤Ë', 'Y'},
+		{L'¤Ì', 'N'}, {L'¤Ð', 'B'}, {L'¤Ñ', 'M'}, {L'¤Ó', 'L'}, {L'¤Ä', 'P'},
+		{L'¤Æ', 'P'}, {L'¤À', 'O'}, {L'¤Â', 'O'}
+	};
+
+	if (!koreanToAlphabetMap.contains(hangul)) {
+		return '\0';
+	}
+
+	return koreanToAlphabetMap.at(hangul);
 }

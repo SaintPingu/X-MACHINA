@@ -1,7 +1,7 @@
 #include "EnginePch.h"
 #include "Component/Component.h"
 #include "Component/Collider.h"
-
+#include "ScriptExporter.h"
 
 
 UINT32 Object::sID = 0;
@@ -208,6 +208,15 @@ void Object::OnDisable()
 	assert(mIsEnable);
 	mIsEnable = false;
 
+	if (!mCollisionObjects.empty()) {
+		const auto collisionObjects = mCollisionObjects;
+		for (auto object : collisionObjects) {
+			object->OnCollisionExit(*this);
+			OnCollisionExit(*object);
+		}
+		mCollisionObjects.clear();
+	}
+
 	ProcessComponents([](rsptr<Component> component) {
 		component->SetActive(false);
 		});
@@ -236,7 +245,6 @@ void Object::Start()
 void Object::Update()
 {
 	Transform::BeforeUpdateTransform();
-	mCollisionObjects.clear();
 	ProcessComponents([](rsptr<Component> component) {
 		if (component->IsActive()) {
 			component->UpdateFunc();
@@ -284,19 +292,42 @@ void Object::Release()
 		});
 }
 
-void Object::OnCollisionStay(Object& other)
+void Object::OnCollisionEnter(Object& other)
 {
-	// 한 프레임 내에 중복 호출된 경우 무시한다.
+	// 이미 호출된 경우 무시한다.
 	if (mCollisionObjects.count(&other)) {
 		return;
 	}
-
 	mCollisionObjects.insert(&other);
 	ProcessComponents([&other](sptr<Component> component) {
-		component->OnCollisionStay(other);
+		component->OnCollisionEnter(other);
 		});
 }
 
+void Object::OnCollisionStay()
+{
+	if (!mCollisionObjects.empty()) {
+		auto collisionObjects = mCollisionObjects;
+		for (auto& object : collisionObjects) {
+			ProcessComponents([&object](sptr<Component> component) {
+				component->OnCollisionStay(*object);
+				});
+		}
+	}
+}
+
+void Object::OnCollisionExit(Object& other)
+{
+	// 객체가 없는 경우 무시한다.
+	if (!mCollisionObjects.count(&other)) {
+		return;
+	}
+
+	mCollisionObjects.erase(&other);
+	ProcessComponents([&other](sptr<Component> component) {
+		component->OnCollisionExit(other);
+		});
+}
 
 void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
 	std::vector<sptr<Component>> components = mComponents;
@@ -330,6 +361,9 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 	}
 	else if (id == typeid(SphereCollider)) {
 		result = CopyComponent<SphereCollider>(component, this);
+	}
+	else if (id == typeid(ScriptExporter)) {
+		result = CopyComponent<ScriptExporter>(component, this);
 	}
 
 	return result;

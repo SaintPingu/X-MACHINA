@@ -30,14 +30,14 @@ namespace FileIO {
 	}
 
 	// T의 size만큼 file의 내용을 읽어 out으로 반환한다.
-	template<class T>
+	template<typename T, typename = std::enable_if_t<!std::is_same<T, std::string>::value>>
 	inline void ReadVal(std::ifstream& file, T& out)
 	{
 		file.read(reinterpret_cast<char*>(&out), sizeof(T));
 	}
 
 	// T의 size만큼 file의 내용을 읽어 반환한다.
-	template<class T>
+	template<typename T, typename = std::enable_if_t<!std::is_same<T, std::string>::value>>
 	inline T ReadVal(std::ifstream& file)
 	{
 		T val;

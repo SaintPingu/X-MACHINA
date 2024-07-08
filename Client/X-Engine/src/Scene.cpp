@@ -1,4 +1,4 @@
-﻿#pragma region Include
+�?#pragma region Include
 #include "EnginePch.h"
 #include "Scene.h"
 #include "DXGIMgr.h"
@@ -25,6 +25,7 @@
 #include "Component/ParticleSystem.h"
 #include "AbilityMgr.h"
 #include "TextMgr.h"
+#include "ScriptExporter.h"
 #pragma endregion
 
 #include "TestCube.h"
@@ -259,7 +260,7 @@ void Scene::BuildObjects()
 		t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
 
 		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("안녕하세요.");
+		testText->WriteText("?��?��?��?��?��.");
 		testText->SetPosition(0.f, 500.f);
 	}
 
@@ -370,7 +371,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 			FileIO::ReadString(file, token); //"<Tag>:"
 			FileIO::ReadString(file, token);
 			tag = GetTagByString(token);
-
+			
 			int layerNum{};
 			FileIO::ReadString(file, token); //"<Layer>:"
 			FileIO::ReadVal(file, layerNum);
@@ -393,27 +394,53 @@ void Scene::LoadGameObjects(std::ifstream& file)
 					object->SetTag(tag);
 					});
 			}
+
+			if (tag == ObjectTag::Unspecified) {
+				std::cout << "[WARNING] Untagged Object : " << model->GetName() << std::endl;
+			}
 		}
 
-		if (isInstancing) {
-			// �ν��Ͻ� ��ü�� ������ ��ü�� �޾ƿ´�.
-			object = objectPool->Get(false);
+		if (sameObjectCount > 0) {
+			if (isInstancing) {
+				// �ν��Ͻ� ��ü�� ������ ��ü�� �޾ƿ´�.
+				object = objectPool->Get(false);
+			}
+			else {
+				object = std::make_shared<GridObject>();
+				object->SetModel(model);
+				InitObjectByTag(tag, object);
+			}
+			object->SetLayer(layer);
+
+			// transform
+			{
+				FileIO::ReadString(file, token);	// <Transform>:
+
+				Matrix transform;
+				FileIO::ReadVal(file, transform);
+				object->SetWorldTransform(transform);
+
+				FileIO::ReadString(file, token);	// </Transform>: or <ScriptExporter>:
+				if (Hash(token) == Hash("<ScriptExporter>:"))
+				{
+					LoadScriptExporter(file, object);
+					FileIO::ReadString(file); // </Transform>:
+				}
+
+				--sameObjectCount;
+			}
+
+			if (object->GetComponent<ScriptExporter>()) {
+				mScriptObjects.push_back(object);
+			}
 		}
-		else {
-			object = std::make_shared<GridObject>();
-			object->SetModel(model);
-			InitObjectByTag(tag, object);
-		}
-
-
-		object->SetLayer(layer);
-
-		Matrix transform;
-		FileIO::ReadVal(file, transform);
-		object->SetWorldTransform(transform);
-
-		--sameObjectCount;
 	}
+}
+
+void Scene::LoadScriptExporter(std::ifstream& file, rsptr<Object> object)
+{
+	auto scritpExorter = object->AddComponent<ScriptExporter>(false);
+	scritpExorter->Load(file);
 }
 
 void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
@@ -423,6 +450,7 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 
 	switch (type) {
 	case ObjectType::Dynamic:
+	case ObjectType::DynamicMove:
 		mDynamicObjects.push_back(object);
 		break;
 	case ObjectType::Env:
@@ -535,7 +563,7 @@ void Scene::RenderLights()
 
 void Scene::RenderFinal()
 {
-	// �������� ����� diffuse�� specular�� �����Ͽ� ���� ������ �������Ѵ�.
+	// �������� �����? diffuse�� specular�� �����Ͽ� ���� ������ �������Ѵ�.
 	RESOURCE<Shader>("Final")->Set();
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
@@ -559,7 +587,7 @@ void Scene::RenderBloom()
 
 void Scene::RenderPostProcessing(int offScreenIndex)
 {
-	// ����Ʈ ���μ��̿� �ʿ��� ��� ���� �� ����
+	// ����Ʈ ���μ��̿� �ʿ��� ���? ���� �� ����
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	FRAME_RESOURCE_MGR->CopyData(passConstants);
@@ -626,7 +654,7 @@ void Scene::RenderTransparentObjects()
 void Scene::RenderDissolveObjects()
 {
 	RESOURCE<Shader>("Dissolve")->Set();
-	// [destroyTime]�� ��� �� ��ü ����
+	// [destroyTime]�� ���? �� ��ü ����
 	constexpr float destroyTime = 1.f;
 	std::set<sptr<GridObject>> destroyedObjects{};
 	for (auto& it = mDissolveObjects.begin(); it != mDissolveObjects.end(); ++it) {
@@ -780,13 +808,13 @@ bool Scene::RenderBounds()
 	RESOURCE<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 
-	//// ���� ����Ʈ�� �ʷϻ����� ���
+	//// ���� ����Ʈ�� �ʷϻ����� ���?
 	//for (auto& path : mOpenList) {
 	//	path.y = GetTerrainHeight(path.x, path.z);
 	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
 	//}
 
-	//// Ŭ����� ����Ʈ�� ���������� ���
+	//// Ŭ�����? ����Ʈ�� ���������� ���?
 	//for (auto& path : mClosedList) {
 	//	path.y = GetTerrainHeight(path.x, path.z);
 	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
@@ -857,7 +885,7 @@ void Scene::Update()
 {
 	UpdateRenderedObjects();
 	
-	CheckCollisions();
+	ProcessCollisions();
 	mGameManager->Update();
 	UpdateObjects();
 	mGameManager->LateUpdate();
@@ -875,11 +903,17 @@ void Scene::Update()
 
 }
 
-void Scene::CheckCollisions()
+void Scene::ProcessCollisions()
 {
 	for (const auto& grid : mSurroundGrids) {
 		grid->CheckCollisions();
 	}
+
+	ProcessActiveObjects([this](sptr<Object> object) {
+		if (object->IsActive()) {
+			object->OnCollisionStay();
+		}
+		});
 }
 
 void Scene::CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObject*>& out, CollisionType type) const
@@ -1009,7 +1043,7 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 {
-	// ���� ���������κ��� Ÿ���� ���� �ε����� ���
+	// ���� ���������κ��� Ÿ���� ���� �ε����� ���?
 	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
 	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
 
@@ -1018,7 +1052,7 @@ Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 
 Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
 {
-	// Ÿ���� ���� �ε����κ��� ���� �������� ���
+	// Ÿ���� ���� �ε����κ��� ���� �������� ���?
 	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
 	const float posZ = index.Z * Grid::mkTileHeight + mGridStartPoint;
 
@@ -1087,7 +1121,7 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 	}
 
 
-	// ObjectCollider�� Ȱ��ȭ�� ���
+	// ObjectCollider�� Ȱ��ȭ�� ���?
 	// 1ĭ �̳��� "���� �׸���(8��)�� �浹�˻�"
 	const auto& collider = object->GetCollider();
 	if (collider && collider->IsActive()) {
@@ -1131,7 +1165,7 @@ void Scene::UpdateSurroundGrids()
 	const Vec3 cameraPos = MAIN_CAMERA->GetPosition();
 	const int currGridIndex = GetGridIndexFromPos(cameraPos);
 
-	// �׸��� �ε����� ����� ��쿡�� �ֺ� �׸��带 ������Ʈ
+	// �׸��� �ε����� �����? ��쿡��? �ֺ� �׸��带 ������Ʈ
 	static int prevGridIndex;
 	if (prevGridIndex != currGridIndex) {
 		mSurroundGrids.clear();
@@ -1239,6 +1273,15 @@ std::vector<sptr<GridObject>> Scene::FindObjectsByName(const std::string& name)
 	return result;
 }
 
+void Scene::ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFunc)
+{
+	for (const auto& object : mScriptObjects) {
+		processFunc(object);
+	}
+
+	mScriptObjects.clear();
+}
+
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	for (auto& object : mDynamicObjects) {
@@ -1306,6 +1349,9 @@ ObjectTag Scene::GetTagByString(const std::string& tag)
 
 	case Hash("Dynamic"):
 		return ObjectTag::Dynamic;
+
+	case Hash("Crate"):
+		return ObjectTag::Crate;
 
 	default:
 		//assert(0);

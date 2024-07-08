@@ -117,6 +117,7 @@ public:
 	MasterModel();
 	virtual ~MasterModel() = default;
 
+	rsptr<Model> GetModel() const { return mModel; }
 	const Transform* GetTransform() const	{ return mModel.get(); }
 	const std::string& GetName() const		{ return mModel->GetName(); }
 	rsptr<MergedMesh> GetMesh() const		{ return mMesh; }

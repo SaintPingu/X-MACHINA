@@ -12,6 +12,7 @@
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_AbilityHolder.h"
+#include "Script_Item.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -117,6 +118,21 @@ void Script_GroundPlayer::LateUpdate()
 	base::LateUpdate();
 
 	RotateMuzzleToAim();
+}
+
+void Script_GroundPlayer::OnCollisionStay(Object& other)
+{
+	base::OnCollisionStay(other);
+
+	switch (other.GetTag())
+	{
+	case ObjectTag::Building:
+	case ObjectTag::DissolveBuilding:
+		ComputeSlideVector(other);
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -315,19 +331,6 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 	}
 }
 
-
-void Script_GroundPlayer::OnCollisionStay(Object& other)
-{
-	switch (other.GetTag())
-	{
-	case ObjectTag::Building:
-	case ObjectTag::DissolveBuilding:
-		ComputeSlideVector(other);
-		break;
-	default:
-		break;
-	}
-}
 
 void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
@@ -1270,7 +1273,7 @@ void Script_GroundPlayer::Interact()
 	for (auto other : mObject->GetCollisionObjects()) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
-
+			other->GetComponent<Script_Item_WeaponCrate>()->Interact();
 			break;
 		}
 	}

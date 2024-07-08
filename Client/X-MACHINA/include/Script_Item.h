@@ -8,13 +8,23 @@ class Script_Item abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Item, Component)
 
 public:
-	virtual void InteractItem() abstract;
+	virtual void Interact() abstract;
 };
 
 
-class Script_Item_Weapon : public Script_Item {
-	COMPONENT_ABSTRACT(Script_Item_Weapon, Script_Item)
+class Script_Item_WeaponCrate : public Script_Item , SceneScript {
+	COMPONENT_ABSTRACT(Script_Item_WeaponCrate, Script_Item)
 
 public:
-	virtual void InteractItem() override;
+	std::string type;
+	int count;
+	float hp;
+	bool can_open;
+
+public:
+	virtual void Awake() override;
+
+public:
+	virtual void LoadData(rsptr<ScriptExporter> exporter) override;
+	virtual void Interact() override;
 };

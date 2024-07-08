@@ -1,0 +1,1 @@
+2024-07-05 : xlnt 엑셀 라이브러리 dll 오류시 X-MACHINA 속성 페이지 > 구성 속성 > 디버깅 > 환경에 PATH=$(SolutionDir)X-MACHINA\bin;%PATH% 입력

@@ -278,7 +278,6 @@
     <ClInclude Include="include\TaskPathPlanningToSpawn.h" />
     <ClInclude Include="include\Wait.h" />
     <ClInclude Include="include\X-MACHINA.h" />
-    <ClInclude Include="SliderBarUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClientNetwork\Contents\ClientNetworkManager.cpp" />
@@ -289,7 +288,6 @@
     <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
-    <ClCompile Include="SliderBarUI.cpp" />
     <ClCompile Include="src\CheckMindDetectionRange.cpp" />
     <ClCompile Include="src\CloakingAbility.cpp" />
     <ClCompile Include="src\MindControlAbility.cpp" />

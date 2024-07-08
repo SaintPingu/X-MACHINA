@@ -144,11 +144,12 @@ LRESULT GameFramework::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LP
 	case WM_MOUSEMOVE:
 		ProcessMouseMsg(hWnd, message, wParam, lParam);
 		break;
+	case WM_CHAR:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_IME_COMPOSITION:
 		ProcessKeyboardMsg(hWnd, message, wParam, lParam);
 		break;
-
 	default:
 		break;
 	}
@@ -185,7 +186,7 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_F9:
 			Scene::I->ToggleFullScreen();
 			break;
-		case 192:	// '`'
+		case 192:
 			::SetFocus(NULL);
 			break;
 
@@ -267,6 +268,7 @@ LRESULT GameFramework::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_IME_COMPOSITION:
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);

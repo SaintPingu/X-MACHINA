@@ -28,6 +28,8 @@ void Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARA
 
 void Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	base::ProcessKeyboardMsg(messageID, wParam, lParam);
+
 	switch (messageID) {
 	case WM_KEYDOWN:
 	{

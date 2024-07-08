@@ -24,6 +24,7 @@
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
 #include "AbilityMgr.h"
+#include "TextMgr.h"
 #pragma endregion
 
 #include "TestCube.h"
@@ -242,6 +243,30 @@ void Scene::BuildObjects()
 
 	// skybox
 	mSkyBox = std::make_shared<SkyBox>();
+
+	// Hello
+	{
+		TextOption t;
+		t.FontSize = 40.f;
+		t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
+
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("¾È³çÇÏ¼¼¿ä");
+		testText->SetPosition(0.f, 500.f);
+	}
+
+	// Game Title
+	{
+		TextOption t;
+		t.Font = "ISOCPEUR";
+		t.FontSize = 70.f;
+		t.FontWeight = DWRITE_FONT_WEIGHT_ULTRA_BOLD;
+		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
+
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("X-MACHINA TEST");
+		testText->SetColor(D2D1::ColorF::Orange);
+	}
 }
 
 void Scene::ReleaseObjects()
@@ -547,6 +572,11 @@ void Scene::RenderDeferredForServer()
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(0));
 
 	Scene::I->UpdateRenderedObjects();
+}
+
+void Scene::RenderText(RComPtr<ID2D1DeviceContext2> device)
+{
+	TextMgr::I->Render(device);
 }
 
 void Scene::RenderTerrain(RenderType type)

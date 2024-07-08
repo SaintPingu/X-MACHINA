@@ -6,7 +6,7 @@
 
 #include "AbilityMgr.h"
 #include "Scene.h"
-
+#include "Script_Player.h"
 
 #pragma region Default
 void Script_AbilityHolder::SetAbility(int key, sptr<Ability> ability)
@@ -25,17 +25,20 @@ void Script_AbilityHolder::Start()
 {
 	base::Start();
 
+	mPlayer = mObject->GetComponent<Script_Player>();
 	mAbility->SetObject(mObject);
 	mAbility->Start();
-
 	mAbility->SetTerminateCallback(std::bind_back(&Script_AbilityHolder::Terminate, this));
-
 }
 
 void Script_AbilityHolder::Update()
 {
 	if (!mAbility)
 		return;
+
+	if (mPlayer->IsActiveChatBox()) {
+		return;
+	}
 
 	switch (mState)
 	{
@@ -85,6 +88,10 @@ void Script_ToggleAbilityHolder::Update()
 {
 	if (!mAbility)
 		return;
+
+	if (mPlayer->IsActiveChatBox()) {
+		return;
+	}
 
 	switch (mState)
 	{

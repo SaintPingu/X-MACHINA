@@ -183,9 +183,12 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 }
 
 
-void Script_GroundPlayer::ProcessInput()
+bool Script_GroundPlayer::ProcessInput()
 {
-	base::ProcessInput();
+	if (!base::ProcessInput()) {
+		// TODO : ÇÃ·¹ÀÌ¾î ¸ğµç ¾Ö´Ï¸ŞÀÌ¼Ç Á¤Áö
+		return false;
+	}
 
 	// Å° ï¿½Ô·Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ //
 	Dir dir{};
@@ -223,6 +226,8 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('O')) mCamera->ZoomOut();
 	if (KEY_PRESSED('P')) mCamera->ZoomIn();
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
+
+	return true;
 }
 
 

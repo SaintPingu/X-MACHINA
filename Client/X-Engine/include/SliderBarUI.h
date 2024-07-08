@@ -23,7 +23,8 @@ public:
 		const std::string& fillTexture,
 		const Vec2& pos,
 		const Vec2& size,
-		float maxValue);
+		float maxValue
+	);
 
 public:
 	// 값이 감소되기 전 무조건 해당 함수를 호출해줘야 한다. 

@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #pragma once
 
 /* orders of class functions */
@@ -62,8 +64,11 @@ public:
 /*---------------------------------------*/
 #pragma region Pragma
 #pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma endregion
 
@@ -109,13 +114,18 @@ public:
 #include <stack>
 
 /* DirectX */
+#include <d3d11.h>
 #include <d3d12.h>
+#include <d3dx12.h>
 #include <dxgidebug.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <D3d12SDKLayers.h>
-#include <d3dx12.h>
-
+#include <d3d11on12.h>
+#include <d2d1.h>
+#include <d2d1_1.h>
+#include <d2d1_3.h>
+#include <dwrite.h>
 
 #include <boost/serialization/nvp.hpp>
 

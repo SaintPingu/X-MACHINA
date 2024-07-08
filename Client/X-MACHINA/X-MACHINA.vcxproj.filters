@@ -313,9 +313,6 @@
     <ClInclude Include="include\PheroAbilityInterface.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SliderBarUI.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\MindControlAbility.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -515,9 +512,6 @@
     </ClCompile>
     <ClCompile Include="src\PheroAbilityInterface.cpp">
       <Filter>Script\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="SliderBarUI.cpp">
-      <Filter>Script\UI</Filter>
     </ClCompile>
     <ClCompile Include="src\MindControlAbility.cpp">
       <Filter>Script\Abilities</Filter>

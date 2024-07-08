@@ -9,6 +9,7 @@
 #pragma region ClassForwardDecl
 class Shader;
 class Ability;
+class Script_Player;
 #pragma endregion
 
 
@@ -26,6 +27,8 @@ class Script_AbilityHolder : public Component {
 	COMPONENT(Script_AbilityHolder, Component)
 
 protected:
+	sptr<Script_Player> mPlayer{};
+
 	sptr<Ability>	mAbility{};
 	float			mCooldownTime{};
 	float			mActiveTime{};

@@ -17,6 +17,7 @@ class Script_AimController;
 class Script_MainCamera;
 class UI;
 class SliderBarUI;
+class ChatBoxUI;
 #pragma endregion
 
 
@@ -48,8 +49,11 @@ protected:
 
 	int				mScore{};
 	sptr<SliderBarUI> mHpBarUI{};
+	sptr<ChatBoxUI> mChatBoxUI{};
 
 public:
+	bool IsActiveChatBox() const;
+
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -59,9 +63,9 @@ public:
 	virtual void Update() override;
 
 public:
-	virtual void ProcessInput() {}
+	virtual bool ProcessInput();
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
+	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 	virtual void Rotate(float pitch, float yaw, float roll);
 
@@ -182,7 +186,7 @@ public:
 
 public:
 	void UpdateParams(Dir dir, float v, float h, float rotAngle);
-	virtual void ProcessInput() override;
+	virtual bool ProcessInput() override;
 
 	// direction 방향으로 이동한다.
 	virtual void Move(Dir dir);

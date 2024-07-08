@@ -1,7 +1,7 @@
 #include "EnginePch.h"
 #include "Component/Component.h"
 #include "Component/Collider.h"
-
+#include "ScriptExporter.h"
 
 
 UINT32 Object::sID = 0;
@@ -361,6 +361,9 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 	}
 	else if (id == typeid(SphereCollider)) {
 		result = CopyComponent<SphereCollider>(component, this);
+	}
+	else if (id == typeid(ScriptExporter)) {
+		result = CopyComponent<ScriptExporter>(component, this);
 	}
 
 	return result;

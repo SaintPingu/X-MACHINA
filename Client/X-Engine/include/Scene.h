@@ -62,7 +62,7 @@ private:
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
 	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
-	std::vector<sptr<GameObject>>	mScriptObjects{};			// Unity Scene에서 스크립트를 가지고 있는 객체들
+	std::vector<sptr<Object>>		mScriptObjects{};			// Unity Scene에서 스크립트를 가지고 있는 객체들
 	std::set<size_t>				mDestroyObjects{};
 
 	std::set<sptr<GridObject>>		mDissolveObjects{};
@@ -144,6 +144,9 @@ private:
 public:
 	void BuildObjects();
 	void ReleaseObjects();
+
+	// ScriptExporter 정보를 로드한다.
+	void LoadScriptExporter(std::ifstream& file, rsptr<Object> object);
 
 private:
 	/* Object */
@@ -259,7 +262,7 @@ public:
 	std::vector<sptr<GridObject>> FindObjectsByName(const std::string& name);
 
 	// Unity Scene 스크립트 보유 객체에 대해 각각 Script를 Add 및 초기화 하도록 한다.
-	void ProcessInitScriptOjbects(std::function<void(sptr<GameObject>)> processFunc);
+	void ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFunc);
 
 private:
 	// do [processFunc] for activated objects

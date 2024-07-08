@@ -44,62 +44,10 @@ void Script_GameManager::InitSceneObjectScripts()
 
 void Script_GameManager::InitCustomObjectScripts()
 {
-	{
-		sptr<GridObject> enemy = Scene::I->Instantiate("Ursacetus", ObjectTag::Enemy);
-		auto& script = enemy->AddComponent<Script_Ursacetus>();
-
-		enemy->SetPosition(160, 0, 280);
-	}
-
-	{
-		std::vector<Vec3> positions{
-			Vec3(90, 0, 250),
-			Vec3(90, 0, 264),
-			Vec3(73, 0, 274),
-			Vec3(55, 0, 289),
-			Vec3(75, 0, 228),
-			Vec3(112, 0, 226),
-			Vec3(104, 0, 221),
-			Vec3(111, 0, 241),
-			Vec3(109, 0, 253),
-			Vec3(144, 0, 227),
-			Vec3(153, 0, 223),
-			Vec3(148, 0, 260),
-			Vec3(131, 0, 260),
-			Vec3(86, 0, 293),
-		};
-
-		for (const auto& pos : positions) {
-			sptr<GridObject> enemy = Scene::I->Instantiate("Onyscidus", ObjectTag::Enemy);
-			auto& script = enemy->AddComponent<Script_Onyscidus>();
-
-			enemy->SetPosition(pos);
-			enemy->Rotate(0, static_cast<float>(rand() % 360), 0);
-		}
-	}
-
-	{
-		std::vector<Vec3> positions{
-			Vec3(70, 0, 247),
-			Vec3(65, 0, 241),
-			Vec3(58, 0, 232),
-			Vec3(70, 0, 298),
-			Vec3(110, 0, 273),
-			Vec3(90, 0, 229),
-			Vec3(145, 0, 243),
-		};
-
-		for (const auto& pos : positions) {
-			sptr<GridObject> enemy = Scene::I->Instantiate("AdvancedCombatDroid_5", ObjectTag::Enemy);
-			auto& script = enemy->AddComponent<Script_AdvancedCombatDroid_5>();
-
-			enemy->SetPosition(pos);
-			enemy->Rotate(0, static_cast<float>(rand() % 360), 0);
-		}
-	}
+	// hard coding
 }
 
-void Script_GameManager::ProcessSceneObjectScript(sptr<GameObject> object)
+void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
 {
 	const auto& exporter = object->GetComponent<ScriptExporter>();
 	if (!exporter) {
@@ -111,6 +59,16 @@ void Script_GameManager::ProcessSceneObjectScript(sptr<GameObject> object)
 	case Hash("WeaponCrate2"):
 		object->AddComponent<Script_Item_WeaponCrate>()->LoadData(exporter);
 		break;
+	case Hash("AdvancedCombatDroid"):
+		object->AddComponent<Script_AdvancedCombatDroid_5>();
+		break;
+	case Hash("Onyscidus"):
+		object->AddComponent<Script_Onyscidus>();
+		break;
+	case Hash("Ursacetus"):
+		object->AddComponent<Script_Ursacetus>();
+		break;
+
 	default:
 		assert(0);
 		break;

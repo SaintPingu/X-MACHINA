@@ -338,7 +338,7 @@ void Scene::LoadGameObjects(std::ifstream& file)
 			FileIO::ReadString(file, token); //"<Tag>:"
 			FileIO::ReadString(file, token);
 			tag = GetTagByString(token);
-
+			
 			int layerNum{};
 			FileIO::ReadString(file, token); //"<Layer>:"
 			FileIO::ReadVal(file, layerNum);
@@ -390,16 +390,24 @@ void Scene::LoadGameObjects(std::ifstream& file)
 				FileIO::ReadString(file, token);	// </Transform>: or <ScriptExporter>:
 				if (Hash(token) == Hash("<ScriptExporter>:"))
 				{
-					mScriptObjects.push_back(object);
-					auto scritpExorter = object->AddComponent<ScriptExporter>(false);
-					scritpExorter->Load(file);
-					FileIO::ReadString(file, token); // </Transform>:
+					LoadScriptExporter(file, object);
+					FileIO::ReadString(file); // </Transform>:
 				}
 
 				--sameObjectCount;
 			}
+
+			if (object->GetComponent<ScriptExporter>()) {
+				mScriptObjects.push_back(object);
+			}
 		}
 	}
+}
+
+void Scene::LoadScriptExporter(std::ifstream& file, rsptr<Object> object)
+{
+	auto scritpExorter = object->AddComponent<ScriptExporter>(false);
+	scritpExorter->Load(file);
 }
 
 void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
@@ -409,6 +417,7 @@ void Scene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 
 	switch (type) {
 	case ObjectType::Dynamic:
+	case ObjectType::DynamicMove:
 		mDynamicObjects.push_back(object);
 		break;
 	case ObjectType::Env:
@@ -1236,7 +1245,7 @@ std::vector<sptr<GridObject>> Scene::FindObjectsByName(const std::string& name)
 	return result;
 }
 
-void Scene::ProcessInitScriptOjbects(std::function<void(sptr<GameObject>)> processFunc)
+void Scene::ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFunc)
 {
 	for (const auto& object : mScriptObjects) {
 		processFunc(object);

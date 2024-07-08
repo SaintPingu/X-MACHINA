@@ -30,6 +30,9 @@ struct ScriptParameter {
 class ScriptExporter : public Component {
 	COMPONENT(ScriptExporter, Component)
 
+public:
+	ScriptExporter& ScriptExporter::operator=(const ScriptExporter& other);
+
 private:
 	std::string mName{};
 	std::unordered_map<std::string, ScriptParameter> mData{};

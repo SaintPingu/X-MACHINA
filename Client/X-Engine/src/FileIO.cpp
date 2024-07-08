@@ -752,6 +752,11 @@ namespace FileIO {
 				case Hash("<Hierarchy>:"):
 					model = ::LoadFrameHierarchy(file, animationInfo);
 					break;
+
+				case Hash("<ScriptExporter>:"):
+					Scene::I->LoadScriptExporter(file, model);
+					break;
+
 				case Hash("</Hierarchy>"):
 					isEOF = true;
 					break;

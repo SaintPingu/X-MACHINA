@@ -3,6 +3,23 @@
 #include "ScriptExporter.h"
 #include "FileIO.h"
 
+
+
+ScriptExporter& ScriptExporter::operator=(const ScriptExporter& other)
+{
+	if (this == &other) {
+		return *this;
+	}
+
+	mName = other.mName;
+	for (const auto& data : other.mData) {
+		mData.insert(data);
+	}
+
+	return *this;
+}
+
+
 void ScriptExporter::Load(std::ifstream& file)
 {
 	std::string token{};

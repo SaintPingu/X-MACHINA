@@ -71,6 +71,9 @@ void GameFramework::Release()
 
 int GameFramework::GameLoop()
 {
+	InitPlayer(0);
+	mGameManager = GAME_MGR->AddComponent<Script_GameManager>();
+
 	static HACCEL hAccelTable = LoadAccelerators(mhInst, MAKEINTRESOURCE(IDC_XMACHINA));
 	static MSG msg{};
 
@@ -332,12 +335,7 @@ void GameFramework::ConnectToServer()
 	while (!mIsLogin) {
 		CLIENT_NETWORK->ProcessEvents();
 	}
-#else
-	InitPlayer(0);
-
 #endif
-
-	mGameManager = GAME_MGR->AddComponent<Script_GameManager>();
 }
 
 

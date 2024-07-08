@@ -5,6 +5,7 @@
 
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
+#include "ScriptExporter.h"
 
 void Script_AdvancedCombatDroid_5::Awake()
 {

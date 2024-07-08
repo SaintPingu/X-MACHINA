@@ -32,7 +32,7 @@ private:
 	void InitSceneObjectScripts();
 	void InitCustomObjectScripts();
 
-	void ProcessSceneObjectScript(sptr<GameObject> object);
+	void ProcessSceneObjectScript(sptr<Object> object);
 };
 
 #pragma endregion

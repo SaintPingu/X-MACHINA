@@ -70,7 +70,7 @@ void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
 		break;
 
 	default:
-		assert(0);
+		throw std::runtime_error("[Error] Couldn't import script");
 		break;
 	}
 }

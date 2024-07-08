@@ -122,6 +122,7 @@ inline sptr<T> ResourceMgr::Get(const std::string& key)
 		return std::static_pointer_cast<T>(findIt->second);
 	}
 
+	std::cout << "[WARNING] Couldn't get resource : " << key << std::endl;
 	return nullptr;
 }
 

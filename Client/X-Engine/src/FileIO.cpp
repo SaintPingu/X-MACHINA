@@ -612,6 +612,9 @@ namespace {
 		sptr<AnimatorState> LoadAnimatorState(std::ifstream& file, AnimatorMotionInfo& motionInfo)
 		{
 			sptr<const AnimationClip> clip = ReadAnimationClip(file);
+			if (!clip) {
+				throw std::runtime_error("[Error] Couldn't read animation clip");
+			}
 
 			return std::make_shared<AnimatorState>(motionInfo, clip);
 		}

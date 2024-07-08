@@ -365,19 +365,16 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		case '3':
 			SetWeapon(static_cast<int>(wParam - '0'));
 			break;
-		case VK_NUMPAD1:
-			AquireWeapon(WeaponName::H_Lock);
-			break;
-		case VK_NUMPAD2:
+		case '6':
 			AquireWeapon(WeaponName::SkyLine);
 			break;
-		case VK_NUMPAD3:
+		case '7':
 			AquireWeapon(WeaponName::DBMS);
 			break;
-		case VK_NUMPAD4:
+		case '8':
 			AquireWeapon(WeaponName::Burnout);
 			break;
-		case VK_NUMPAD5:
+		case '9':
 			AquireWeapon(WeaponName::PipeLine);
 			break;
 		case 'E':

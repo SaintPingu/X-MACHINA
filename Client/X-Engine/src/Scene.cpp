@@ -1,4 +1,3 @@
-�?#pragma region Include
 #include "EnginePch.h"
 #include "Scene.h"
 #include "DXGIMgr.h"
@@ -26,7 +25,6 @@
 #include "AbilityMgr.h"
 #include "TextMgr.h"
 #include "ScriptExporter.h"
-#pragma endregion
 
 #include "TestCube.h"
 
@@ -261,7 +259,7 @@ void Scene::BuildObjects()
 		t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
 
 		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("?��?��?��?��?��.");
+		testText->WriteText("�ȳ��ϼ���.");
 		testText->SetPosition(0.f, 500.f);
 	}
 
@@ -403,7 +401,6 @@ void Scene::LoadGameObjects(std::ifstream& file)
 
 		if (sameObjectCount > 0) {
 			if (isInstancing) {
-				// �ν��Ͻ� ��ü�� ������ ��ü�� �޾ƿ´�.
 				object = objectPool->Get(false);
 			}
 			else {
@@ -564,7 +561,6 @@ void Scene::RenderLights()
 
 void Scene::RenderFinal()
 {
-	// �������� �����? diffuse�� specular�� �����Ͽ� ���� ������ �������Ѵ�.
 	RESOURCE<Shader>("Final")->Set();
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
@@ -588,7 +584,6 @@ void Scene::RenderBloom()
 
 void Scene::RenderPostProcessing(int offScreenIndex, int outlineIndex)
 {
-	// ����Ʈ ���μ��̿� �ʿ��� ���? ���� �� ����
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
 	passConstants.OutlineIndex = outlineIndex;
@@ -810,13 +805,11 @@ bool Scene::RenderBounds()
 	RESOURCE<Shader>("Wire")->Set();
 	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
 
-	//// ���� ����Ʈ�� �ʷϻ����� ���?
 	//for (auto& path : mOpenList) {
 	//	path.y = GetTerrainHeight(path.x, path.z);
 	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
 	//}
 
-	//// Ŭ�����? ����Ʈ�� ���������� ���?
 	//for (auto& path : mClosedList) {
 	//	path.y = GetTerrainHeight(path.x, path.z);
 	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
@@ -932,7 +925,6 @@ void Scene::CheckCollisionCollider(rsptr<Collider> collider, std::vector<GridObj
 
 float Scene::CheckCollisionsRay(int gridIndex, const Ray& ray) const
 {
-	// �����¿�, �밢�� �׸��嵵 üũ �ʿ�
 	return mGrids[gridIndex]->CheckCollisionsRay(ray);
 }
 
@@ -944,8 +936,6 @@ void Scene::UpdateObjects()
 		}
 		});
 
-	// TODO : �ɷ��� ������ ������Ʈ�� �ִϸ��̼��ϵ��� �ߴµ� 
-	// ���Ŀ� �����̰� �ν��Ͻ� ��ü�� ���Խ��Ѿ� ��
 	AnimateObjects();
 
 	ProcessActiveObjects([this](sptr<Object> object) {
@@ -1045,7 +1035,6 @@ int Scene::GetGridIndexFromPos(Vec3 pos) const
 
 Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 {
-	// ���� ���������κ��� Ÿ���� ���� �ε����� ���?
 	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
 	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
 
@@ -1054,7 +1043,6 @@ Pos Scene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 
 Vec3 Scene::GetTilePosFromUniqueIndex(const Pos& index) const
 {
-	// Ÿ���� ���� �ε����κ��� ���� �������� ���?
 	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
 	const float posZ = index.Z * Grid::mkTileHeight + mGridStartPoint;
 
@@ -1068,7 +1056,6 @@ Tile Scene::GetTileFromPos(const Vec3& pos) const
 
 Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 {
-	// Ÿ���� ���� �ε����κ��� Ÿ���� ���� ��ȯ
 	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridXLength);
 	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridZLength);
 
@@ -1080,7 +1067,6 @@ Tile Scene::GetTileFromUniqueIndex(const Pos& index) const
 
 void Scene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 {
-	// Ÿ���� ���� �ε����κ��� Ÿ���� ���� ��ȯ
 	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridXLength);
 	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridZLength);
 
@@ -1122,15 +1108,11 @@ void Scene::UpdateObjectGrid(GridObject* object, bool isCheckAdj)
 		RemoveObjectFromGrid(object);
 	}
 
-
-	// ObjectCollider�� Ȱ��ȭ�� ���?
-	// 1ĭ �̳��� "���� �׸���(8��)�� �浹�˻�"
 	const auto& collider = object->GetCollider();
 	if (collider && collider->IsActive()) {
 		std::unordered_set<int> gridIndices{ gridIndex };
 		const auto& objectBS = collider->GetBS();
 
-		// BoundingSphere�� Grid ���ο� ������ ���ԵǸ� "���� �׸��� �浹�˻�" X
 		if (isCheckAdj && mGrids[gridIndex]->GetBB().Contains(objectBS) != ContainmentType::CONTAINS) {
 
 			for (const auto& neighborGrid : GetNeighborGrids(gridIndex)) {
@@ -1167,7 +1149,6 @@ void Scene::UpdateSurroundGrids()
 	const Vec3 cameraPos = MAIN_CAMERA->GetPosition();
 	const int currGridIndex = GetGridIndexFromPos(cameraPos);
 
-	// �׸��� �ε����� �����? ��쿡��? �ֺ� �׸��带 ������Ʈ
 	static int prevGridIndex;
 	if (prevGridIndex != currGridIndex) {
 		mSurroundGrids.clear();
@@ -1239,7 +1220,6 @@ std::vector<sptr<Grid>> Scene::GetNeighborGrids(int gridIndex, bool includeSelf)
 			const int neighborX = gridX + offsetX;
 			const int neighborZ = gridZ + offsetZ;
 
-			// �ε����� ��ü �׸��� ���� ���� �ִ��� Ȯ��
 			if (neighborX >= 0 && neighborX < mGridXCount && neighborZ >= 0 && neighborZ < mGridZCount) {
 				const int neighborIndex = (neighborZ * mGridXCount) + neighborX;
 

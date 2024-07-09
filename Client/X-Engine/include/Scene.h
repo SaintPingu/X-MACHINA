@@ -186,7 +186,6 @@ public:
 	void RenderPostProcessing(int offScreenIndex, int outlineIndex);
 	void RenderUI();
 	void RenderDeferredForServer();
-	void CullingRenderObjects();
 	void RenderText(RComPtr<struct ID2D1DeviceContext2> device);
 
 private:

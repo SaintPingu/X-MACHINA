@@ -119,9 +119,9 @@ struct ObjectInfo {
     float3  MindRimColor;
     
     uint    UseRefract;
+    uint    UseOutline;
 	int		DynamicEnvironmentMapIndex;
     float   AlphaIntensity;
-    float   Padding;
 };
 
 struct PassInfo {
@@ -171,11 +171,13 @@ struct PassInfo {
     
     int         RT0O_OffScreenIndex;
     int         BloomIndex;
+    int         RT6G_OutlineIndex;
 };
 
 struct PostPassInfo {
     int         RT0_OffScreenIndex;
-    float3      Padding;
+    int         OutlineIndex;
+    float2      Padding;
 };
 
 struct ColliderInfo {

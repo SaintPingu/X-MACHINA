@@ -145,6 +145,7 @@ void Scene::UpdateMainPassCB()
 	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
 	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
+	passCB.RT6G_OutlineIndex = RESOURCE<Texture>("OutlineTarget")->GetSrvIdx();
 	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
 
 #ifdef RENDER_TEXTURE
@@ -585,11 +586,12 @@ void Scene::RenderBloom()
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
 }
 
-void Scene::RenderPostProcessing(int offScreenIndex)
+void Scene::RenderPostProcessing(int offScreenIndex, int outlineIndex)
 {
 	// ����Ʈ ���μ��̿� �ʿ��� ���? ���� �� ����
 	PostPassConstants passConstants;
 	passConstants.RT0_OffScreenIndex = offScreenIndex;
+	passConstants.OutlineIndex = outlineIndex;
 	FRAME_RESOURCE_MGR->CopyData(passConstants);
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::PostPass), FRAME_RESOURCE_MGR->GetPostPassCBGpuAddr());
 

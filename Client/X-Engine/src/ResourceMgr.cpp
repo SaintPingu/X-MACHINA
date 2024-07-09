@@ -1372,6 +1372,24 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("LUT", shader);
 	}
 #pragma endregion
+#pragma region Sobel
+	{
+		ShaderInfo info{
+			ShaderType::Compute,
+		};
+
+		ShaderPath path = {
+			 "",
+			 "",
+			 "",
+			 "CShader_Sobel.cso"
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("Sobel", shader);
+	}
+#pragma endregion
 #pragma region ComputeParticle
 	{
 		ShaderInfo info{

@@ -19,8 +19,7 @@ BlurFilter::BlurFilter(UINT width, UINT height, DXGI_FORMAT format)
 
 void BlurFilter::Create()
 {
-	CreateResources();
-	CreateDescriptors();
+	CreateResource();
 }
 
 void BlurFilter::OnResize(UINT width, UINT height)
@@ -29,8 +28,7 @@ void BlurFilter::OnResize(UINT width, UINT height)
 		mWidth = width;
 		mHeight = height;
 
-		CreateResources();
-		CreateDescriptors();
+		CreateResource();
 	}
 }
 
@@ -80,17 +78,14 @@ UINT BlurFilter::Execute(rsptr<Texture> input, int blurCount)
 	return input->GetSrvIdx();
 }
 
-void BlurFilter::CreateDescriptors()
-{
-	DXGIMgr::I->CreateShaderResourceView(mOutput.get());
-	DXGIMgr::I->CreateUnorderedAccessView(mOutput.get());
-}
-
-void BlurFilter::CreateResources()
+void BlurFilter::CreateResource()
 {
 	mOutput = std::make_shared<Texture>();
 	mOutput->Create(mWidth, mHeight,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON);
+
+	DXGIMgr::I->CreateShaderResourceView(mOutput.get());
+	DXGIMgr::I->CreateUnorderedAccessView(mOutput.get());
 }

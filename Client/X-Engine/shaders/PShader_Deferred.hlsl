@@ -16,6 +16,7 @@ struct PSOutput_MRT {
     float4 Emissive           : SV_TARGET3;
     float2 MetallicSmoothness : SV_TARGET4;
     float1 Occlusion          : SV_TARGET5;
+    float1 Outline            : SV_TARGET6;
 };
 
 PSOutput_MRT PSDeferred(VSOutput_Standard pin)
@@ -79,6 +80,12 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         diffuse = GammaDecoding(gSkyBoxMaps[gObjectCB.DynamicEnvironmentMapIndex].Sample(gsamLinearWrap, r));
     }
     
+    float outline = 0.f;
+    if (gObjectCB.UseOutline == TRUE)
+    {
+        outline = 1.f;
+    }
+    
     // lit color
     PSOutput_MRT pout;
     pout.Position = float4(pin.PosW, 0.f);
@@ -87,6 +94,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     pout.Emissive = emissiveMapSample;
     pout.MetallicSmoothness = float2(metallic, roughness);
     pout.Occlusion = occlusion;
+    pout.Outline = outline;
     
     return pout;
 }

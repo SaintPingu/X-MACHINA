@@ -41,6 +41,7 @@ void Script_Player::Start()
 	base::Start();
 
 	mTarget = mObject->GetObj<GameObject>();
+	mObject->mObjectCB.UseOutline = true;
 
 	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -850.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
 	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, 300.f }, Vec2{300.f, 150.f}, "Name");

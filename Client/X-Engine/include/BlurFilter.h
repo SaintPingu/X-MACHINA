@@ -1,8 +1,10 @@
 #pragma once
 
+
 #pragma region ClassForwardDecl
 class Texture;
 #pragma endregion
+
 
 #pragma region Class
 class BlurFilter : private UnCopyable {
@@ -36,7 +38,6 @@ public:
 	UINT Execute(rsptr<Texture> input, int blurCount);
 
 private:
-	void CreateDescriptors();
-	void CreateResources();
+	void CreateResource();
 };
 #pragma endregion

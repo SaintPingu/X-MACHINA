@@ -16,6 +16,7 @@ class MultipleRenderTarget;
 class Texture;
 class BlurFilter;
 class LUTFilter;
+class SobelFilter;
 class Ssao;
 class Bloom;
 class DescriptorHeap;
@@ -102,6 +103,7 @@ private:
 	DWORD								mFilterOption{};
 	uptr<BlurFilter>					mBlurFilter;
 	uptr<LUTFilter>						mLUTFilter;
+	uptr<SobelFilter>					mSobelFilter;
 	uptr<Bloom>							mBloom;
 
 	// SSAO

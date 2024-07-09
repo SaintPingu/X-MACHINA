@@ -77,11 +77,13 @@ struct PassConstants {
 
     int     RT0O_OffScreenIndex          = -1;
     int     BloomIndex                   = -1;
+    int     RT6G_OutlineIndex            = -1;
 };
 
 struct PostPassConstants {
     int     RT0_OffScreenIndex = -1;
-    Vec3    Padding;
+    int     OutlineIndex = -1;
+    Vec2    Padding;
 };
 
 struct SkinnedConstants {

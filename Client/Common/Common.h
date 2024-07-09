@@ -74,6 +74,7 @@ class FilterOption : public DwordOverloader<FilterOption> {
 	static const DWORD Shadow			= 0x020;
 	static const DWORD Custom			= 0x040;
 	static const DWORD Bloom			= 0x080;
+	static const DWORD Sobel			= 0x100;
 };
 
 // rendering layer
@@ -185,9 +186,9 @@ struct ObjectConstants {
 	Vec3	MindRimColor{ 0.5f, 0.f, 0.5f};
 
 	int		UseRefract{};
+	int		UseOutline{};
 	int		DynamicEnvironmentMapIndex = -1;
 	float	AlphaIntensity = 1.f;
-	float	Padding{};
 };
 
 struct MinimapConstants {

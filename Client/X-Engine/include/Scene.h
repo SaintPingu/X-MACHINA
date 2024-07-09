@@ -183,7 +183,7 @@ public:
 	void RenderFinal();
 	void RenderForward();
 	void RenderBloom();
-	void RenderPostProcessing(int offScreenIndex);
+	void RenderPostProcessing(int offScreenIndex, int outlineIndex);
 	void RenderUI();
 	void RenderDeferredForServer();
 	void CullingRenderObjects();

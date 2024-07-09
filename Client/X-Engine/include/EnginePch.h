@@ -271,6 +271,7 @@ enum class GBuffer : UINT8 {
 	Emissive,
 	MetallicSmoothness,
 	Occlusion,
+	Outline,
 
 	_count
 };

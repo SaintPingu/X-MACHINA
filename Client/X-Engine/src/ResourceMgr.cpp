@@ -640,6 +640,7 @@ void ResourceMgr::LoadShaders()
 	{
 		ShaderInfo info = {
 			ShaderType::Deferred,
+			RasterizerType::Cull_None,
 		};
 
 		ShaderPath path = {

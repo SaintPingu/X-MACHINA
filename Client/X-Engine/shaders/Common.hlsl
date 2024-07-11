@@ -68,7 +68,7 @@ struct MaterialInfo {
     float   Metallic;
     float   Roughness;
     uint    OcclusionMask;
-    uint    Padding;
+    uint    AlphaTest;
     
     int DiffuseMap0Index;
     int DiffuseMap1Index;

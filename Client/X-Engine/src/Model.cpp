@@ -18,7 +18,8 @@ MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 	DiffuseAlbedo(materialInfo.DiffuseAlbedo),
 	Metallic(materialInfo.Metallic),
 	Roughness(materialInfo.Roughness),
-	OcclusionMask(materialInfo.OcclusionMask)
+	OcclusionMask(materialInfo.OcclusionMask),
+	AlphaTest(materialInfo.AlphaTest)
 {
 }
 #pragma endregion
@@ -33,6 +34,7 @@ void Material::UpdateShaderVars()
 		materialData.Metallic = mMaterialColors->Metallic;
 		materialData.Roughness = mMaterialColors->Roughness;
 		materialData.OcclusionMask = mMaterialColors->OcclusionMask;
+		materialData.AlphaTest = mMaterialColors->AlphaTest;
 	}
 
 	for (UINT8 i = 0; i < TextureMapCount; ++i) {

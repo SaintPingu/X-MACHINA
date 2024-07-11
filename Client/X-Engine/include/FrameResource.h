@@ -112,7 +112,7 @@ struct MaterialData {
     float   Metallic{};
     float   Roughness{};
     UINT    OcclusionMask{};
-    UINT    Padding{};
+    UINT    AlphaTest{};
 
     std::array<int, TextureMapCount> MapIndices;
 

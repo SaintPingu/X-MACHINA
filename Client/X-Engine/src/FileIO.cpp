@@ -340,6 +340,10 @@ namespace {
 					FileIO::ReadVal(file, matInfo->OcclusionMask);
 					break;
 
+				case Hash("<AlphaTest>"):
+					matInfo->AlphaTest = true;
+					break;
+
 				case Hash("</Materials>"):
 				{
 					if (matInfo) {

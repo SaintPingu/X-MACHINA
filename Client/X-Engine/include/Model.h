@@ -27,6 +27,7 @@ struct MaterialLoadInfo {
 	float	Metallic{};
 	float	Roughness{};
 	bool	OcclusionMask{};
+	bool	AlphaTest{};
 };
 
 // materialÀÇ »ö»ó
@@ -43,6 +44,7 @@ public:
 	float	Metallic{};
 	float	Roughness{};
 	bool	OcclusionMask{};
+	bool	AlphaTest{};
 };
 #pragma endregion
 

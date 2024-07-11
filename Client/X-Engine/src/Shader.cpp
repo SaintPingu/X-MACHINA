@@ -206,6 +206,7 @@ D3D12_RASTERIZER_DESC Shader::CreateRasterizerState()
 		rasterizerDesc.DepthBias = 10000;
 		rasterizerDesc.DepthBiasClamp = 0.f;
 		rasterizerDesc.SlopeScaledDepthBias = 1.f;
+		rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 		break;
 	default:
 		break;

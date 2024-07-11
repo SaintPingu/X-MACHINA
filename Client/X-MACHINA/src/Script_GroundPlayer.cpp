@@ -87,8 +87,6 @@ void Script_GroundPlayer::Awake()
 	
 	mWeapons.resize(3);
 	AquireWeapon(WeaponName::H_Lock);
-	AquireWeapon(WeaponName::SkyLine);
-	AquireWeapon(WeaponName::Burnout);
 }
 
 void Script_GroundPlayer::Start()
@@ -447,6 +445,10 @@ void Script_GroundPlayer::BulletFired()
 
 void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 {
+	if (weaponName == WeaponName::None) {
+		return;
+	}
+
 	static const std::unordered_map<WeaponName, WeaponType> kWeaponTypes{
 		{WeaponName::H_Lock, WeaponType::HandedGun },
 		{WeaponName::DBMS, WeaponType::ShotGun },
@@ -1267,10 +1269,17 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 
 void Script_GroundPlayer::Interact()
 {
-	for (auto other : mObject->GetCollisionObjects()) {
+	const auto collisionObjects = mObject->GetCollisionObjects();
+	for (auto other : collisionObjects) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
-			other->GetComponent<Script_Item_WeaponCrate>()->Interact();
+		{
+			WeaponName weaponName = other->GetComponent<Script_Item_WeaponCrate>()->Interact();
+			AquireWeapon(weaponName);
+		}
+
+		break;
+		default:
 			break;
 		}
 	}

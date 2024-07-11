@@ -14,16 +14,6 @@ class Script_GroundPlayer;
 class ParticleSystem;
 #pragma endregion
 
-
-enum class WeaponType {
-	HandedGun,
-	AssaultRifle,
-	ShotGun,
-	MissileLauncher,
-	Sniper,
-	_count
-};
-
 constexpr size_t gkWeaponTypeCnt = static_cast<size_t>(WeaponType::_count);
 
 class Script_Weapon abstract : public Component {

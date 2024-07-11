@@ -4,27 +4,24 @@
 #include "Component/Component.h"
 #pragma endregion
 
-class Script_Item abstract : public Component {
-	COMPONENT_ABSTRACT(Script_Item, Component)
+class GameObject;
+
+
+class Script_Item_WeaponCrate : public Component , SceneScript {
+	COMPONENT_ABSTRACT(Script_Item_WeaponCrate, Component)
 
 public:
-	virtual void Interact() abstract;
-};
+	WeaponName mWeaponName;
+	Transform* mCap{};
 
-
-class Script_Item_WeaponCrate : public Script_Item , SceneScript {
-	COMPONENT_ABSTRACT(Script_Item_WeaponCrate, Script_Item)
-
-public:
-	std::string type;
-	int count;
-	float hp;
-	bool can_open;
+	float mCapPitch{};
+	bool mIsOpend{};
 
 public:
 	virtual void Awake() override;
+	virtual void Animate() override;
 
 public:
 	virtual void LoadData(rsptr<ScriptExporter> exporter) override;
-	virtual void Interact() override;
+	virtual WeaponName Interact();
 };

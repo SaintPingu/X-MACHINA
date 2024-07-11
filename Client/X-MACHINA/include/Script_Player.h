@@ -21,22 +21,6 @@ class ChatBoxUI;
 #pragma endregion
 
 
-#pragma region EnumClass
-enum class WeaponName {
-	None,
-	H_Lock,
-	DBMS,
-	Stuart,
-	SkyLine,
-	Descriptor,
-	T_12,
-	PipeLine,
-	Burnout,
-	Direct_Drain
-};
-#pragma endregion
-
-
 #pragma region Class
 class Script_Player abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Player, Script_LiveObject)

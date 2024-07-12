@@ -770,24 +770,11 @@ void Scene::RenderInstanceObjects(RenderType type)
 
 void Scene::RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects, RenderType type)
 {
-	if (type == RenderType::Shadow) {
-		for (auto it = objects.begin(); it != objects.end();) {
-			if ((*it)->GetUseShadow()) {
-				(*it)->Render();
-			}
+	for (const auto& object : objects) {
+		if (type == RenderType::Shadow && !object->GetUseShadow())
+			continue;
 
-			if (!MAIN_CAMERA->GetFrustum().Intersects((*it)->GetCollider()->GetBS())) {
-				it = objects.erase(it);
-			}
-			else {
-				++it;
-			}
-		}
-	}
-	else {
-		for (const auto& object : objects) {
-			object->Render();
-		}
+		object->Render();
 	}
 }
 

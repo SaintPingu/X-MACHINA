@@ -12,4 +12,14 @@ struct VSInput_Shadow
 
 void PSShadow(VSInput_Shadow pin)
 {
+    MaterialInfo matInfo    = gMaterialBuffer[gObjectCB.MatIndex];
+    float4 diffuse          = matInfo.Diffuse;
+    int diffuseMapIndex     = matInfo.DiffuseMap0Index;
+    
+    // sampling diffuseMap
+    if (diffuseMapIndex != NONE) 
+         diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
+
+    if (matInfo.AlphaTest == TRUE)
+        clip(diffuse.a - 0.1f);
 }

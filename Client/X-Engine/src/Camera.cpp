@@ -130,8 +130,8 @@ void Camera::CalculateFrustumPlanes()
 	
 	// shadow camera frustum
 	std::memcpy(&mFrustumWorldShadow, &mFrustumWorld, sizeof(mFrustumWorld));
-	mFrustumWorldShadow.Origin.y += mOffset.y * 2;
-	mFrustumWorldShadow.Origin.z += mOffset.z * 2;
+	mFrustumWorldShadow.Origin.y += mOffset.y * 4;
+	mFrustumWorldShadow.Origin.z += mOffset.z * 4;
 }
 #pragma endregion
 

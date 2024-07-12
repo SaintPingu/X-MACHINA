@@ -97,7 +97,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(300, 0, 180);
+	constexpr Vec3 kSpawnPoint = Vec3(20, 0, 230);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);

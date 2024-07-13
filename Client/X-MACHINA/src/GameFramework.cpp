@@ -106,7 +106,7 @@ int GameFramework::GameLoop()
 
 void GameFramework::Update()
 {
-	Timer::I->Tick(0.f);
+	Timer::I->Tick(60.f);
 
 #ifdef SERVER_COMMUNICATION
 	CLIENT_NETWORK->ProcessEvents();

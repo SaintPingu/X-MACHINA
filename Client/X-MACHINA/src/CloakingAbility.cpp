@@ -15,7 +15,7 @@
 CloakingAbility::CloakingAbility()
 	:
 	Ability("Cloaking", 3.f),
-	PheroAbilityInterface(0.f)
+	PheroAbilityInterface(30.f)
 {
 }
 

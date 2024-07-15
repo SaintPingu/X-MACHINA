@@ -27,6 +27,9 @@ struct Vector4Builder;
 struct Transform;
 struct TransformBuilder;
 
+struct Position_Vec2;
+struct Position_Vec2Builder;
+
 struct Vector2 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef Vector2Builder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -260,6 +263,57 @@ inline ::flatbuffers::Offset<Transform> CreateTransform(
   TransformBuilder builder_(_fbb);
   builder_.add_rotation(rotation);
   builder_.add_position(position);
+  return builder_.Finish();
+}
+
+struct Position_Vec2 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef Position_Vec2Builder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Z = 6
+  };
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  float z() const {
+    return GetField<float>(VT_Z, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Z, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct Position_Vec2Builder {
+  typedef Position_Vec2 Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(float x) {
+    fbb_.AddElement<float>(Position_Vec2::VT_X, x, 0.0f);
+  }
+  void add_z(float z) {
+    fbb_.AddElement<float>(Position_Vec2::VT_Z, z, 0.0f);
+  }
+  explicit Position_Vec2Builder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Position_Vec2> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Position_Vec2>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Position_Vec2> CreatePosition_Vec2(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float x = 0.0f,
+    float z = 0.0f) {
+  Position_Vec2Builder builder_(_fbb);
+  builder_.add_z(z);
+  builder_.add_x(x);
   return builder_.Finish();
 }
 

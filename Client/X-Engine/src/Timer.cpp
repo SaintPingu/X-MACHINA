@@ -8,8 +8,6 @@ float DeltaTime()
 }
 
 
-
-
 Timer::Timer()
 {
 	__int64	perfFreq{};
@@ -21,14 +19,17 @@ Timer::Timer()
 	Reset();
 }
 
+
 float Timer::GetTotalTime() const
 {
-	if (mIsStopped) {
+	if (mIsStopped) 
+	{
 		return static_cast<float>(((mStopPerfCnt - mPausedPerfCnt) - mBasePerfCnt) * mTimeScale);
 	}
 
 	return static_cast<float>(((mCurrPerfCnt - mPausedPerfCnt) - mBasePerfCnt) * mTimeScale);
 }
+
 
 const WCHAR* Timer::GetFrameRate() const
 {

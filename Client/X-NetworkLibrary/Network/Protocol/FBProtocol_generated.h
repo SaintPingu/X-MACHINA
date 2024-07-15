@@ -55,6 +55,12 @@ struct CPkt_RemovePlayerBuilder;
 struct SPkt_RemovePlayer;
 struct SPkt_RemovePlayerBuilder;
 
+struct CPkt_PlayerOnSkill;
+struct CPkt_PlayerOnSkillBuilder;
+
+struct SPkt_PlayerOnSkill;
+struct SPkt_PlayerOnSkillBuilder;
+
 struct CPkt_Player_Transform;
 struct CPkt_Player_TransformBuilder;
 
@@ -79,6 +85,12 @@ struct CPkt_NewMonsterBuilder;
 struct SPkt_NewMonster;
 struct SPkt_NewMonsterBuilder;
 
+struct CPkt_DeadMonster;
+struct CPkt_DeadMonsterBuilder;
+
+struct SPkt_DeadMonster;
+struct SPkt_DeadMonsterBuilder;
+
 struct CPkt_RemoveMonster;
 struct CPkt_RemoveMonsterBuilder;
 
@@ -102,6 +114,12 @@ struct CPkt_Monster_StateBuilder;
 
 struct SPkt_Monster_State;
 struct SPkt_Monster_StateBuilder;
+
+struct CPkt_GetPhero;
+struct CPkt_GetPheroBuilder;
+
+struct SPkt_GetPhero;
+struct SPkt_GetPheroBuilder;
 
 struct CPkt_Bullet_OnShoot;
 struct CPkt_Bullet_OnShootBuilder;
@@ -634,6 +652,108 @@ inline ::flatbuffers::Offset<SPkt_RemovePlayer> CreateSPkt_RemovePlayer(
     uint32_t player_id = 0) {
   SPkt_RemovePlayerBuilder builder_(_fbb);
   builder_.add_player_id(player_id);
+  return builder_.Finish();
+}
+
+struct CPkt_PlayerOnSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_PlayerOnSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SKILL_TYPE = 4
+  };
+  FBProtocol::PLAYER_SKILL_TYPE skill_type() const {
+    return static_cast<FBProtocol::PLAYER_SKILL_TYPE>(GetField<uint8_t>(VT_SKILL_TYPE, 0));
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_SKILL_TYPE, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_PlayerOnSkillBuilder {
+  typedef CPkt_PlayerOnSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_skill_type(FBProtocol::PLAYER_SKILL_TYPE skill_type) {
+    fbb_.AddElement<uint8_t>(CPkt_PlayerOnSkill::VT_SKILL_TYPE, static_cast<uint8_t>(skill_type), 0);
+  }
+  explicit CPkt_PlayerOnSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_PlayerOnSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_PlayerOnSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_PlayerOnSkill> CreateCPkt_PlayerOnSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    FBProtocol::PLAYER_SKILL_TYPE skill_type = FBProtocol::PLAYER_SKILL_TYPE_IMPOSSIBLE) {
+  CPkt_PlayerOnSkillBuilder builder_(_fbb);
+  builder_.add_skill_type(skill_type);
+  return builder_.Finish();
+}
+
+struct SPkt_PlayerOnSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_PlayerOnSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYER_ID = 4,
+    VT_SKILL_TYPE = 6,
+    VT_PHERO_AMOUNT = 8
+  };
+  uint32_t player_id() const {
+    return GetField<uint32_t>(VT_PLAYER_ID, 0);
+  }
+  FBProtocol::PLAYER_SKILL_TYPE skill_type() const {
+    return static_cast<FBProtocol::PLAYER_SKILL_TYPE>(GetField<uint8_t>(VT_SKILL_TYPE, 0));
+  }
+  float phero_amount() const {
+    return GetField<float>(VT_PHERO_AMOUNT, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_PLAYER_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_SKILL_TYPE, 1) &&
+           VerifyField<float>(verifier, VT_PHERO_AMOUNT, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_PlayerOnSkillBuilder {
+  typedef SPkt_PlayerOnSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_player_id(uint32_t player_id) {
+    fbb_.AddElement<uint32_t>(SPkt_PlayerOnSkill::VT_PLAYER_ID, player_id, 0);
+  }
+  void add_skill_type(FBProtocol::PLAYER_SKILL_TYPE skill_type) {
+    fbb_.AddElement<uint8_t>(SPkt_PlayerOnSkill::VT_SKILL_TYPE, static_cast<uint8_t>(skill_type), 0);
+  }
+  void add_phero_amount(float phero_amount) {
+    fbb_.AddElement<float>(SPkt_PlayerOnSkill::VT_PHERO_AMOUNT, phero_amount, 0.0f);
+  }
+  explicit SPkt_PlayerOnSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_PlayerOnSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_PlayerOnSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_PlayerOnSkill> CreateSPkt_PlayerOnSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t player_id = 0,
+    FBProtocol::PLAYER_SKILL_TYPE skill_type = FBProtocol::PLAYER_SKILL_TYPE_IMPOSSIBLE,
+    float phero_amount = 0.0f) {
+  SPkt_PlayerOnSkillBuilder builder_(_fbb);
+  builder_.add_phero_amount(phero_amount);
+  builder_.add_player_id(player_id);
+  builder_.add_skill_type(skill_type);
   return builder_.Finish();
 }
 
@@ -1203,6 +1323,87 @@ inline ::flatbuffers::Offset<SPkt_NewMonster> CreateSPkt_NewMonsterDirect(
       new_monsters__);
 }
 
+struct CPkt_DeadMonster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_DeadMonsterBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_DeadMonsterBuilder {
+  typedef CPkt_DeadMonster Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit CPkt_DeadMonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_DeadMonster> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_DeadMonster>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_DeadMonster> CreateCPkt_DeadMonster(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  CPkt_DeadMonsterBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+struct SPkt_DeadMonster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_DeadMonsterBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_DEAD_POINT = 6
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  const FBProtocol::Position_Vec2 *dead_point() const {
+    return GetPointer<const FBProtocol::Position_Vec2 *>(VT_DEAD_POINT);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyOffset(verifier, VT_DEAD_POINT) &&
+           verifier.VerifyTable(dead_point()) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_DeadMonsterBuilder {
+  typedef SPkt_DeadMonster Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(SPkt_DeadMonster::VT_ID, id, 0);
+  }
+  void add_dead_point(::flatbuffers::Offset<FBProtocol::Position_Vec2> dead_point) {
+    fbb_.AddOffset(SPkt_DeadMonster::VT_DEAD_POINT, dead_point);
+  }
+  explicit SPkt_DeadMonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_DeadMonster> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_DeadMonster>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_DeadMonster> CreateSPkt_DeadMonster(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> dead_point = 0) {
+  SPkt_DeadMonsterBuilder builder_(_fbb);
+  builder_.add_dead_point(dead_point);
+  builder_.add_id(id);
+  return builder_.Finish();
+}
+
 struct CPkt_RemoveMonster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_RemoveMonsterBuilder Builder;
   bool Verify(::flatbuffers::Verifier &verifier) const {
@@ -1511,6 +1712,89 @@ inline ::flatbuffers::Offset<SPkt_Monster_State> CreateSPkt_Monster_State(
   SPkt_Monster_StateBuilder builder_(_fbb);
   builder_.add_monster_id(monster_id);
   builder_.add_state(state);
+  return builder_.Finish();
+}
+
+/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+///	¢º¢º¢º¢º¢º	PHERO 
+/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+struct CPkt_GetPhero FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_GetPheroBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_GetPheroBuilder {
+  typedef CPkt_GetPhero Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit CPkt_GetPheroBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_GetPhero> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_GetPhero>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_GetPhero> CreateCPkt_GetPhero(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  CPkt_GetPheroBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+struct SPkt_GetPhero FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_GetPheroBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PHERO_ID = 4,
+    VT_PLAYER_ID = 6
+  };
+  uint32_t phero_id() const {
+    return GetField<uint32_t>(VT_PHERO_ID, 0);
+  }
+  uint32_t player_id() const {
+    return GetField<uint32_t>(VT_PLAYER_ID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_PHERO_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_PLAYER_ID, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_GetPheroBuilder {
+  typedef SPkt_GetPhero Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_phero_id(uint32_t phero_id) {
+    fbb_.AddElement<uint32_t>(SPkt_GetPhero::VT_PHERO_ID, phero_id, 0);
+  }
+  void add_player_id(uint32_t player_id) {
+    fbb_.AddElement<uint32_t>(SPkt_GetPhero::VT_PLAYER_ID, player_id, 0);
+  }
+  explicit SPkt_GetPheroBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_GetPhero> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_GetPhero>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_GetPhero> CreateSPkt_GetPhero(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t phero_id = 0,
+    uint32_t player_id = 0) {
+  SPkt_GetPheroBuilder builder_(_fbb);
+  builder_.add_player_id(player_id);
+  builder_.add_phero_id(phero_id);
   return builder_.Finish();
 }
 

@@ -106,7 +106,13 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Player_Animation(session, *packet);
 	}
 	break;
-
+	case FBsProtocolID::CPkt_Player_Weapon:
+	{
+		const FBProtocol::SPkt_Player_Weapon* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Player_Weapon>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Player_Weapon(session, *packet);
+	}
+	break;
 
 	/// ________________________________________________________________________________
 	/// Monster 
@@ -116,7 +122,7 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 	{
 		const FBProtocol::SPkt_NewMonster* packet = flatbuffers::GetRoot<FBProtocol::SPkt_NewMonster>(DataPtr);
 		if (!packet) return false;
-		Process_SPkt_Monster_New(session, *packet);
+		Process_SPkt_NewMonster(session, *packet);
 	}
 	break;
 
@@ -141,6 +147,22 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Monster_State(session, *packet);
 	}
 	break;
+	/// ________________________________________________________________________________
+	/// Phero 
+	/// ________________________________________________________________________________ 
+	case FBsProtocolID::SPkt_GetPhero:
+	{
+		const FBProtocol::SPkt_GetPhero* packet = flatbuffers::GetRoot<FBProtocol::SPkt_GetPhero>(DataPtr);
+		if (!packet) return false;
+		
+		Process_SPkt_GetPhero(session, *packet);
+	}
+	break;
+
+	/// ________________________________________________________________________________
+	/// Bullet 
+	/// ________________________________________________________________________________ 
+
 	case FBsProtocolID::SPkt_Bullet_OnShoot:
 	{
 		const FBProtocol::SPkt_Bullet_OnShoot* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Bullet_OnShoot>(DataPtr);
@@ -217,10 +239,10 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 {
 
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_EnterGame
-	/// {
-	/// 	success: bool;			// 1 byte
-	/// }
+	/// > table SPkt_EnterGame
+	/// > {
+	/// > 	success: bool;			// 1 byte
+	/// > }
 
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 
@@ -230,11 +252,9 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
 	GameFramework::I->InitPlayer(static_cast<int>(MyInfo.Id)); /* INIT PLAYER */
 
-
+	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 	LOG_MGR->SetColor(TextColor::BrightGreen);
-	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
 	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
-	LOG_MGR->Cout("♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠♠\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
 	/// ________________________________________________________________________________
@@ -248,14 +268,15 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 
 		if (RemoteInfo.Id == MyInfo.Id) continue;
 		LOG_MGR->SetColor(TextColor::BrightGreen);
-		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		LOG_MGR->Cout("[REMOTE] NAME : ", RemoteInfo.Name, " ", " SESSION ID : ", RemoteInfo.Id, '\n');
-		LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		LOG_MGR->SetColor(TextColor::Default);
 
 		sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(RemoteInfo);
 		CLIENT_NETWORK->RegisterEvent(EventData);
 	}
+	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+
+
 	return true;
 }
 
@@ -263,25 +284,28 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 bool FBsPacketFactory::Process_SPkt_Chat(SPtr_Session session, const FBProtocol::SPkt_Chat& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Chat
-	/// {
-	/// 	player_id: uint;		// uint64
-	/// 	message: string;	// 가변 크기
-	/// }
+	/// > table SPkt_Chat
+	/// > {
+	/// > 	player_id: uint;		// uint64
+	/// > 	message: string;	// 가변 크기
+	/// > }
 
-	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○	
+
+	std::string message = pkt.message()->c_str();
+
 	std::cout << "SPkt CHAT [" << session->GetID() << "] - SESSION : " << session.get() << " DATA : " <<
-		pkt.message()->c_str() << std::endl;
+		message.c_str() << std::endl;
 	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const FBProtocol::SPkt_NetworkLatency& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_NetworkLatency
-	/// {
-	/// 	timestamp: long;	// 8 bytes
-	/// }
+	/// > table SPkt_NetworkLatency
+	/// > {
+	/// > 	timestamp: long;	// 8 bytes
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	// 패킷으로부터 long long으로 시간을 받음
 	long long timestamp = pkt.timestamp();
@@ -315,10 +339,10 @@ bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const F
 bool FBsPacketFactory::Process_SPkt_NewPlayer(SPtr_Session session, const FBProtocol::SPkt_NewPlayer& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_NewPlayer
-	/// {
-	/// 	newplayer: Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
-	/// }
+	/// > table SPkt_NewPlayer
+	/// > {
+	/// > 	newplayer: Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	GamePlayerInfo NewPInfo = GetPlayerInfo(pkt.newplayer());
 
@@ -337,11 +361,10 @@ bool FBsPacketFactory::Process_SPkt_NewPlayer(SPtr_Session session, const FBProt
 bool FBsPacketFactory::Process_SPkt_RemovePlayer(SPtr_Session session, const FBProtocol::SPkt_RemovePlayer& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_RemovePlayer
-	/// {
-	/// 	player_id: uint; // 4 bytes // 삭제할 플레이어의 아이디 
-	/// }
-
+	/// > table SPkt_RemovePlayer
+	/// > {
+	/// > 	player_id: uint; // 4 bytes // 삭제할 플레이어의 아이디 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	int32_t removeID = pkt.player_id();
 
@@ -360,37 +383,37 @@ bool FBsPacketFactory::Process_SPkt_RemovePlayer(SPtr_Session session, const FBP
 bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const FBProtocol::SPkt_Player_Transform& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Player_Transform
-	/// {
-	/// 	player_id: uint;						// 8 bytes				// uint64
-	/// 
-	/// 	move_state: PLAYER_MOTION_STATE_TYPE;	// 1 byte
-	/// 
-	/// 	latency: long;							// 8 bytes
-	/// 	velocity: float;						// 4 bytes
-	/// 	movedir: Vector3;						// 12 bytes (3 * 4 bytes)
-	/// 	trans: Transform;						// 24 bytes (Vector3 * 2)
-	/// 
-	/// 
-	/// 	spine_look: Vector3;					// 12 bytes (3 * 4 bytes)
-	/// 	animparam_h: float;						// 4 bytes
-	/// 	animparam_v: float;						// 4 bytes
-	/// 
-	/// }
+	/// > table SPkt_Player_Transform
+	/// > {
+	/// > 	player_id: uint;						// 8 bytes				// uint64
+	/// > 
+	/// > 	move_state: PLAYER_MOTION_STATE_TYPE;	// 1 byte
+	/// > 
+	/// > 	latency: long;							// 8 bytes
+	/// > 	velocity: float;						// 4 bytes
+	/// > 	movedir: Vector3;						// 12 bytes (3 * 4 bytes)
+	/// > 	trans: Transform;						// 24 bytes (Vector3 * 2)
+	/// > 
+	/// > 
+	/// > 	spine_look: Vector3;					// 12 bytes (3 * 4 bytes)
+	/// > 	animparam_h: float;						// 4 bytes
+	/// > 	animparam_v: float;						// 4 bytes
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	long long latency = pkt.latency();
-	uint32_t id       = pkt.player_id();
+	uint32_t  player_id   = pkt.player_id();
 
-
-	float	vel       = pkt.velocity();
-	Vec3	moveDir   = GetVector3(pkt.movedir());
-	Vec3	Packetpos = GetVector3(pkt.trans()->position());
-	Vec3	rot       = GetVector3(pkt.trans()->rotation());
-	int32_t movestate = pkt.move_state();
-	Vec3	SDir      = GetVector3(pkt.spine_look());
-
-	float   animparam_h = pkt.animparam_h();
-	float   animparam_v = pkt.animparam_v();
+	int32_t   movestate     = pkt.move_state();
+					      
+	long long latency     = pkt.latency();
+	float	  velocity      = pkt.velocity();
+	Vec3	  movedir       = GetVector3(pkt.movedir());
+	Vec3	  Packetpos     = GetVector3(pkt.trans()->position());
+	Vec3	  rot           = GetVector3(pkt.trans()->rotation());
+			  
+	Vec3	  spine_look    = GetVector3(pkt.spine_look());
+	float     animparam_h   = pkt.animparam_h();
+	float     animparam_v   = pkt.animparam_v();
 
 	ExtData::MOVESTATE mState;
 	if (movestate == PLAYER_MOVE_STATE::Start)			mState = ExtData::MOVESTATE::Start;
@@ -399,7 +422,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	else if (movestate == PLAYER_MOVE_STATE::Default)	mState = ExtData::MOVESTATE::Default;
  
 
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(id, Packetpos, mState);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Move_EventData = CLIENT_NETWORK->CreateEvent_Move_RemotePlayer(player_id, Packetpos, mState);
 	CLIENT_NETWORK->RegisterEvent(Move_EventData);
 
 	/// +---------------------------
@@ -411,7 +434,7 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	ExtData data                  = {};
 	/* [Get Next Packet Duration] = (PKt Interval) + (Remote Cl Latency) + (My Latency) */
 	data.PingTime                 = static_cast<long long>((PlayerNetworkInfo::SendInterval_CPkt_Trnasform * 1000) + (latency / 1000.0) + (CurrLatency.load() / 1000.0));
-	data.MoveDir                  = moveDir;
+	data.MoveDir                  = movedir;
 	data.MoveState                = mState;
 
 	//LOG_MGR->Cout(data.PingTime, " ms ping \n");
@@ -428,8 +451,8 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	}
 	else {
 		//data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * vel * ((data.PingTime) / 1000.0));
+		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0));
+		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0));
 
 	}
 
@@ -438,12 +461,12 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	//LOG_MGR->Cout_Vec3(" MOVE DIR ", moveDir);
 
 	data.TargetRot = rot;
-	data.Velocity  = vel;
+	data.Velocity  = velocity;
 
 	data.Animdata.AnimParam_h = animparam_h;
 	data.Animdata.AnimParam_v = animparam_v;
 
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Extrapolate_RemotePlayer(id, data);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Extrapolate_RemotePlayer(player_id, data);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 
 
@@ -453,22 +476,22 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 bool FBsPacketFactory::Process_SPkt_Player_Animation(SPtr_Session session, const FBProtocol::SPkt_Player_Animation& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Player_Animation
-	/// {
-	/// 	player_id: uint;	// 8 bytes
-	/// 
-	/// 	animation_upper_index: int;		// 4 bytes
-	/// 	animation_lower_index: int;		// 4 bytes
-	/// 	animation_param_h: float;	// 4 bytes
-	/// 	animation_param_v: float;	// 4 bytes
-	/// }
-
+	/// > table SPkt_Player_Animation
+	/// > {
+	/// > 	player_id: uint;	// 8 bytes
+	/// > 
+	/// > 	animation_upper_index: int;		// 4 bytes
+	/// > 	animation_lower_index: int;		// 4 bytes
+	/// > 	animation_param_h: float;	// 4 bytes
+	/// > 	animation_param_v: float;	// 4 bytes
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	uint32_t ObjectID = pkt.player_id();
-	int32_t animation_upper_idx = pkt.animation_upper_index();
-	int32_t animation_lower_idx = pkt.animation_lower_index();
-	float animation_param_h = pkt.animation_param_h();
-	float animation_param_v = pkt.animation_param_v();
+	uint32_t ObjectID            = pkt.player_id();
+
+	int32_t  animation_upper_idx = pkt.animation_upper_index();
+	int32_t  animation_lower_idx = pkt.animation_lower_index();
+	float    animation_param_h   = pkt.animation_param_h();
+	float    animation_param_v   = pkt.animation_param_v();
 
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> EventData = CLIENT_NETWORK->CreateEvent_UpdateAnimation_RemotePlayer(ObjectID
 		, animation_upper_idx
@@ -489,7 +512,15 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 	/// 	weapon_type: WEAPON_TYPE;	// 1 byte
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	uint32_t				player_id   = pkt.player_id();
+	FBProtocol::WEAPON_TYPE weapon_type = pkt.weapon_type();
+
 	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const FBProtocol::SPkt_PlayerOnSkill& pkt)
+{
+	return false;
 }
 
 
@@ -497,7 +528,9 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 ///	◈ PROCESS [ MONSTER ] Server PACKET ◈
 /// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------★
 
-bool FBsPacketFactory::Process_SPkt_Monster_New(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt)
+
+
+bool FBsPacketFactory::Process_SPkt_NewMonster(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt)
 {
 	std::cout << "PROCESS MONSTER NEW \n";
 	auto monsters = pkt.new_monsters();
@@ -515,14 +548,14 @@ bool FBsPacketFactory::Process_SPkt_Monster_New(SPtr_Session session, const FBPr
 	return true;
 }
 
-bool FBsPacketFactory::Process_SPkt_Monster_Remove(SPtr_Session session, const FBProtocol::SPkt_RemoveMonster& pkt)
+bool FBsPacketFactory::Process_SPkt_RemoveMonster(SPtr_Session session, const FBProtocol::SPkt_RemoveMonster& pkt)
 {
 	auto monster_id = pkt.monster_id();
-	 
+
 	// TODO : 여러개를 한번에 하는 걸로 바꾸기
 	std::vector<uint32_t> remInfos;
 	remInfos.push_back(monster_id);
-	
+
 	sptr<NetworkEvent::Game::Event_Monster::Remove> Ext_EventData = CLIENT_NETWORK->CreateEvent_Remove_Monster(remInfos);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 	return true;
@@ -537,6 +570,11 @@ bool FBsPacketFactory::Process_SPkt_Monster_Transform(SPtr_Session session, cons
 	/// 	trans: Transform;				// 24 bytes (Vector3 * 2)
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	uint32_t monster_id = pkt.monster_id();
+	Vec3	 Position   = GetVector3(pkt.trans()->position());
+	Vec3	 Rotation   = GetVector3(pkt.trans()->rotation());
+
+	
 	return true;
 }
 
@@ -549,18 +587,51 @@ bool FBsPacketFactory::Process_SPkt_Monster_HP(SPtr_Session session, const FBPro
 	/// 	hp: float;		// 4 bytes
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	uint32_t monster_id    = pkt.monster_id();
+	float	 monster_hp    = pkt.hp();
+
+
+
 	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FBProtocol::SPkt_Monster_State& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Monster_State
-	/// {
-	/// 	monster_id: ulong;					// 4 bytes
-	/// 	state: MONSTER_STATE_TYPE;	// 1 byte
-	/// 
-	/// }
+	/// > table SPkt_Monster_State
+	/// > {
+	/// > 	monster_id: ulong;					// 4 bytes
+	/// > 	state: MONSTER_STATE_TYPE;	// 1 byte
+	/// > 
+	/// > }
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	
+	uint32_t						monster_id = pkt.monster_id();
+	FBProtocol::MONSTER_STATE_TYPE	state_type = pkt.state();
+
+
+	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_DeadMonster(SPtr_Session session, const FBProtocol::SPkt_DeadMonster& pkt)
+{
+	return true;
+}
+
+
+/// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+///	◈ PROCESS [ PHERO ] Server PACKET ◈
+/// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------★
+
+bool FBsPacketFactory::Process_SPkt_GetPhero(SPtr_Session session, const FBProtocol::SPkt_GetPhero& pkt)
+{
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	/// > table SPkt_GetPhero
+	/// > {
+	/// > 	phero_id: uint;
+	/// > 	player_id: uint;
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	return true;
 }
@@ -572,15 +643,14 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnShoot& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Bullet_OnShoot
-	/// {
-	/// 	player_id: uint; // 4 bytes - 어떤 플레이어가 
-	/// 	gun_id: int; // 4 bytes - 어떤 총이고 
-	/// 	bullet_id: int; // 4 bytes - 어떤 총알을 쐈는가
-	/// 
-	/// 	ray: Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
-	/// }
-
+	/// > table SPkt_Bullet_OnShoot
+	/// > {
+	/// > 	player_id	: uint;			// 4 bytes - 어떤 플레이어가 
+	/// > 	gun_id		: int;			// 4 bytes - 어떤 총이고 
+	/// > 	bullet_id	: int;			// 4 bytes - 어떤 총알을 쐈는가
+	/// > 
+	/// > 	ray			: Vector3;		// 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	return true;
 }
@@ -588,12 +658,12 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Bullet_OnCollision
-	/// {
-	/// 	player_id: int; // 4 bytes - 어떤 플레이어가 
-	/// 	gun_id: int;	// 4 bytes - 어떤 총이고 
-	/// 	bullet_id: int; // 4 bytes - 어떤 총알이 충돌했는가?
-	/// }
+	/// > table SPkt_Bullet_OnCollision
+	/// > {
+	/// > 	player_id	: int;  // 4 bytes - 어떤 플레이어가 
+	/// > 	gun_id		: int;	// 4 bytes - 어떤 총이고 
+	/// > 	bullet_id	: int;  // 4 bytes - 어떤 총알이 충돌했는가?
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	return true;
 }
@@ -612,10 +682,10 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, con
 SPtr_SendPktBuf FBsPacketFactory::CPkt_LogIn()
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_LogIn
-	/// {
-	/// 
-	/// }
+	/// > table CPkt_LogIn
+	/// > {
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder;
 
@@ -624,19 +694,16 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_LogIn()
 	builder.Finish(ServerPacket);
 
 	/* Create SendBuffer */
-	const uint8_t* bufferPointer = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-
-	return SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_LogIn);
+	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_LogIn);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Chat(UINT32 sessionID, std::string msg)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_Chat
-	/// {
-	/// 	message: string;	// 가변 크기
-	/// }
+	/// > table CPkt_Chat
+	/// > {
+	/// > 	message : string;	// 가변 크기
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder;
 
@@ -644,21 +711,17 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Chat(UINT32 sessionID, std::string msg)
 	auto ServerPacket = FBProtocol::CreateCPkt_Chat(builder, msgOffset);
 
 	builder.Finish(ServerPacket);
-
-	const uint8_t* bufferPtr = builder.GetBufferPointer();
-	const uint16_t serializedDataSize = static_cast<uint16_t>(builder.GetSize());
-
-	return SENDBUF_FACTORY->CreatePacket(bufferPtr, serializedDataSize, FBsProtocolID::CPkt_Chat);
+	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Chat);
 }
 
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_NetworkLatency(long long timestamp)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_NetworkLatency
-	/// {
-	/// 	timestamp: long;	// 8 bytes
-	/// }
+	/// > table CPkt_NetworkLatency
+	/// > {
+	/// > 	timestamp: long;	// 8 bytes
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder;
 
@@ -666,29 +729,23 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_NetworkLatency(long long timestamp)
 
 	builder.Finish(ServerPacket);
 
-	const uint8_t* bufferPtr = builder.GetBufferPointer();
-	const uint16_t serializedDataSize = static_cast<uint16_t>(builder.GetSize());
-
-	return SENDBUF_FACTORY->CreatePacket(bufferPtr, serializedDataSize, FBsProtocolID::CPkt_NetworkLatency);
+	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_NetworkLatency);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_EnterGame
-	/// {
-	/// 	player_id: uint;	// 8 bytes
-	/// }
+	/// > table CPkt_EnterGame
+	/// > {
+	/// > 	player_id: uint;	// 8 bytes
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder;
 
 	auto enterGamePkt = FBProtocol::CreateCPkt_EnterGame(builder, player_id);
 	builder.Finish(enterGamePkt);
 
-	const uint8_t* bufferPointer = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-
-	return SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_EnterGame);
+	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_EnterGame);
 
 }
 
@@ -699,19 +756,16 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
 SPtr_SendPktBuf FBsPacketFactory::CPkt_NewPlayer()
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_NewPlayer
-	/// {
-	/// 
-	/// }
+	/// > table CPkt_NewPlayer
+	/// > {
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder{};
 
 	auto ServerPacket = FBProtocol::CreateCPkt_NewPlayer(builder);
 	builder.Finish(ServerPacket);
-
-	const uint8_t* bufferPointer = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_NewPlayer);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_NewPlayer);
 
 	return sendBuffer;
 }
@@ -719,10 +773,10 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_NewPlayer()
 SPtr_SendPktBuf FBsPacketFactory::CPkt_RemovePlayer(uint32_t removeSessionID)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_RemovePlayer
-	/// {
-	/// 
-	/// }
+	/// > table CPkt_RemovePlayer
+	/// > {
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder{};
 
@@ -730,9 +784,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_RemovePlayer(uint32_t removeSessionID)
 	auto ServerPacket = FBProtocol::CreateCPkt_RemovePlayer(builder);
 	builder.Finish(ServerPacket);
 
-	const uint8_t* bufferPointer      = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-	SPtr_SendPktBuf sendBuffer        = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_RemovePlayer);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_RemovePlayer);
 
 	return sendBuffer;
 }
@@ -741,62 +793,55 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_RemovePlayer(uint32_t removeSessionID)
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_Player_Transform
-	/// {
-	/// 	move_state: PLAYER_MOTION_STATE_TYPE; // 1 byte
-	/// 
-	/// 	latency: long;						// 8 bytes
-	/// 	velocity: float;					// 4 bytes
-	/// 	movedir: Vector3;					// 12 bytes (3 * 4 bytes)
-	/// 	trans: Transform;				// 24 bytes (Vector3 * 2)
-	/// 
-	/// 	spine_look: Vector3;					// 12 bytes (3 * 4 bytes)
-	/// 	animparam_h: float;					// 4 bytes
-	/// 	animparam_v: float;					// 4 bytes
-	/// }
+	/// > table CPkt_Player_Transform
+	/// > {
+	/// > 	move_state: PLAYER_MOTION_STATE_TYPE; // 1 byte
+	/// > 
+	/// > 	latency: long;						  // 8 bytes
+	/// > 	velocity: float;					  // 4 bytes
+	/// > 	movedir: Vector3;					  // 12 bytes (3 * 4 bytes)
+	/// > 	trans: Transform;				      // 24 bytes (Vector3 * 2)
+	/// > 										  
+	/// > 	spine_look: Vector3;				  // 12 bytes (3 * 4 bytes)
+	/// > 	animparam_h: float;					  // 4 bytes
+	/// > 	animparam_v: float;					  // 4 bytes
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder{};
 
-	auto moveDir = FBProtocol::CreateVector3(builder, movedir.x, movedir.y, movedir.z);
-	auto position = FBProtocol::CreateVector3(builder, Pos.x, Pos.y, Pos.z);
-	auto rotation = FBProtocol::CreateVector3(builder, Rot.x, Rot.y, Rot.z);
-	auto transform = FBProtocol::CreateTransform(builder, position, rotation);
-	auto Spine_LookDir = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
+	auto moveDir       = FBProtocol::CreateVector3(builder, movedir.x, movedir.y, movedir.z);
+	auto position      = FBProtocol::CreateVector3(builder, Pos.x, Pos.y, Pos.z);
+	auto rotation      = FBProtocol::CreateVector3(builder, Rot.x, Rot.y, Rot.z);
+	auto transform     = FBProtocol::CreateTransform(builder, position, rotation);
+	auto spine_look    = FBProtocol::CreateVector3(builder, SpineLookDir.x, SpineLookDir.y, SpineLookDir.z);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Player_Transform(builder, static_cast<FBProtocol::PLAYER_MOTION_STATE_TYPE>(movestate), latency, velocity, moveDir, transform, Spine_LookDir, animparam_h, animparam_v);
+	auto ServerPacket = FBProtocol::CreateCPkt_Player_Transform(builder, static_cast<FBProtocol::PLAYER_MOTION_STATE_TYPE>(movestate), latency, velocity, moveDir, transform, spine_look, animparam_h, animparam_v);
 	builder.Finish(ServerPacket);
-
-
-	const uint8_t* bufferPointer = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_Player_Transform);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Player_Transform);
 	return sendBuffer;
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_Player_Animation
-	/// {
-	/// 	animation_upper_index: int;		// 4 bytes
-	/// 	animation_lower_index: int;		// 4 bytes
-	/// 	animation_param_h: float;	// 4 bytes
-	/// 	animation_param_v: float;	// 4 bytes
-	/// }
+	/// > table CPkt_Player_Animation
+	/// > {
+	/// > 	animation_upper_index	: int;		// 4 bytes
+	/// > 	animation_lower_index	: int;		// 4 bytes
+	/// > 	animation_param_h		: float;	// 4 bytes
+	/// > 	animation_param_v		: float;	// 4 bytes
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder{};
 
-	int32_t animation_upper_index = static_cast<int32_t>(anim_upper_idx);
-	int32_t animation_lower_index = static_cast<int32_t>(anim_lower_idx);
-	float animation_param_h = static_cast<float>(anim_param_h);
-	float animation_param_v = static_cast<float>(anim_param_v);
+	int32_t animation_upper_index   = static_cast<int32_t>(anim_upper_idx);
+	int32_t animation_lower_index   = static_cast<int32_t>(anim_lower_idx);
+	float   animation_param_h       = static_cast<float>(anim_param_h);
+	float   animation_param_v       = static_cast<float>(anim_param_v);
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Player_Animation(builder, animation_upper_index, animation_lower_index, animation_param_h, animation_param_v);
 	builder.Finish(ServerPacket);
-
-	const uint8_t* bufferPointer = builder.GetBufferPointer();
-	const uint16_t SerializeddataSize = static_cast<uint16_t>(builder.GetSize());;
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(bufferPointer, SerializeddataSize, FBsProtocolID::CPkt_Player_Animation);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Player_Animation);
 	return sendBuffer;
 
 }
@@ -804,11 +849,22 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Animation(int anim_upper_idx, int 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_Player_Weapon
-	/// {
-	/// 	weapon_type: WEAPON_TYPE;	// 1 byte
-	/// }
+	/// > table CPkt_Player_Weapon
+	/// > {
+	/// > 	weapon_type: WEAPON_TYPE;	// 1 byte
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	flatbuffers::FlatBufferBuilder builder{};
+
+	FBProtocol::CreateCPkt_Player_Weapon(builder, weaponType);
+
+
+
+	return SPtr_SendPktBuf();
+}
+
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount)
+{
 	return SPtr_SendPktBuf();
 }
 
@@ -816,26 +872,26 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE wea
 ///	◈ SEND [ MONSTER ] PACKET ◈
 /// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------★
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_NewMonster()
+SPtr_SendPktBuf FBsPacketFactory::CPkt_NewMonster(uint32_t monster_id, FBProtocol::MONSTER_TYPE montser_type)
 {
-	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table SPkt_Monster_State
-	/// {
-	/// 	monster_id: int;					// 4 bytes
-	/// 	state: MONSTER_STATE_TYPE;	// 1 byte
-	/// 
-	/// }
-	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	///  ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	/// > table CPkt_NewMonster
+	/// > {
+	/// > 
+	/// > }
+	///  ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	
+
 	return SPtr_SendPktBuf();
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_RemoveMonster(uint32_t monsterID)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_NewMonster
-	/// {
-	/// 
-	/// }
+	/// > table CPkt_NewMonster
+	/// > {
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	return SPtr_SendPktBuf();
 }
@@ -843,10 +899,10 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_RemoveMonster(uint32_t monsterID)
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_Transform(uint32_t monsterID, Vec3 Pos, Vec3 Rot)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	/// table CPkt_Monster_Transform
-	/// {
-	/// 
-	/// }
+	/// > table CPkt_Monster_Transform
+	/// > {
+	/// > 
+	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	return SPtr_SendPktBuf();
 }
@@ -873,10 +929,31 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_State(uint32_t monsterID, FBProto
 	return SPtr_SendPktBuf();
 }
 
+SPtr_SendPktBuf FBsPacketFactory::CPkt_DeadMonster(uint32_t monsterID, Vec2 deadPoint)
+{
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	/// > table CPkt_DeadMonster
+	/// > {
+	/// > 
+	/// > }
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	return SPtr_SendPktBuf();
+}
 
 /// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ///	◈ SEND [ BULLET ] PACKET ◈
 /// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------★
+
+SPtr_SendPktBuf FBsPacketFactory::CPkt_GetPhero(uint32_t phero_id, uint32_t player_id)
+{	
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	/// table CPkt_Bullet_OnShoot
+	/// {
+	/// 
+	/// }
+	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	return SPtr_SendPktBuf();
+}
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(uint32_t playerID, uint32_t gunID, uint32_t bulletID, Vec3 ray)
 {
@@ -931,14 +1008,8 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 	info.Id = monster->id();
 	info.Type = static_cast<MonsterType>(monster->type());
 
-	const FBProtocol::Vector3* pos = monster->trans()->position();
-	info.Pos = Vec3(pos->x(), pos->y(), pos->z());
-
-	const FBProtocol::Vector3* Rot = monster->trans()->rotation();
-	info.Rot = Vec3(Rot->x(), Rot->y(), Rot->z());
-
-	const FBProtocol::Vector3* SDir = monster->spine_look();
-	info.SDir = Vec3(SDir->x(), SDir->y(), SDir->z());
+	Vec3 monster_pos = GetPosition_Vec2(monster->pos());
+	monster->pheros();
 
 	return info;
 }
@@ -955,6 +1026,12 @@ Vec4 FBsPacketFactory::GetVector4(const FBProtocol::Vector4* vec4)
 	Vec4 Vector4 = Vec4(vec4->x(), vec4->y(), vec4->z(), vec4->w());
 
 	return Vector4;
+}
+
+Vec3 FBsPacketFactory::GetPosition_Vec2(const FBProtocol::Position_Vec2* vec2)
+{
+	Vec3 Position_xz = Vec3(vec2->x(), 0.f, vec2->z());
+	return Position_xz;
 }
 
 

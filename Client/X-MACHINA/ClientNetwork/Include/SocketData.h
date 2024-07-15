@@ -46,6 +46,9 @@ public:
 	bool SetLinger(UINT16 onoff, UINT16 linger);
 	bool SetReuseAddress(bool flag);
 	bool SetUpdateAcceptSocket(SOCKET listenSocket);
+	bool SetNagleAlgorithmOpt(int TCP_NoDelay); // 1 : Nagle Off/ 0 : Nagle On 
+
+
 
 	/// +------------------------
 	///		   NET ADDRESS

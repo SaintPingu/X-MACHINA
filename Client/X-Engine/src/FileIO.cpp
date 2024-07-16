@@ -280,6 +280,9 @@ namespace {
 					material = result[matIndex];
 				}
 				break;
+				case Hash("<EmissionColor>:"):
+					FileIO::ReadVal(file, matInfo->Emission);
+					break;
 				case Hash("<AlbedoColor>:"):
 					FileIO::ReadVal(file, matInfo->DiffuseAlbedo);
 					break;

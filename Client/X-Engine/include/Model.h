@@ -24,6 +24,7 @@ class ObjectPool;
 // file에서 읽은 material 정보를 담는 구조체
 struct MaterialLoadInfo {
 	Vec4	DiffuseAlbedo = Vec4::One;
+	Vec3	Emission{Vector3::Zero};
 	float	Metallic{};
 	float	Roughness{};
 	bool	OcclusionMask{};
@@ -41,6 +42,7 @@ public:
 
 public:
 	Vec4    DiffuseAlbedo = Vec4::One;
+	Vec3	Emission{ Vector3::Zero };
 	float	Metallic{};
 	float	Roughness{};
 	bool	OcclusionMask{};

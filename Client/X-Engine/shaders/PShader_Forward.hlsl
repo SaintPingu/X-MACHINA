@@ -20,6 +20,7 @@ PSOutput PSForward(VSOutput_Standard pin)
     // material info
     MaterialInfo matInfo  = gMaterialBuffer[gObjectCB.MatIndex];
     float4 diffuse        = matInfo.Diffuse;
+    float3 emission       = matInfo.Emission;
     float metallic        = matInfo.Metallic;
     float roughness       = matInfo.Roughness;
     float occlusion       = 1.f;
@@ -48,11 +49,12 @@ PSOutput PSForward(VSOutput_Standard pin)
     }
     
     // sampling emissiveMap
-    float4 emissive = (float4)0;
-    if (metallicMapIndex != -1)
+    float4 emissiveMapSample = (float4)0;
+    if (emissiveMapIndex != -1)
     {
-        emissive = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
+        emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
+    emissiveMapSample.xyz += emission;
     
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;
@@ -99,7 +101,7 @@ PSOutput PSForward(VSOutput_Standard pin)
     // litColor
     float4 litDiffuse = GammaEncoding(float4(lightColor.Diffuse, 1.f));
     float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) /*+ float4(reflection, 1.f)*/;
-    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissive;
+    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissiveMapSample;
     
     float4 litColor = litAmbient + litDiffuse + litSpecular + hitRimLight + mindRimLight;
     

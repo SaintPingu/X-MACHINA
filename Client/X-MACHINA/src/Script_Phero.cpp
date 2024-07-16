@@ -87,7 +87,7 @@ bool Script_Phero::IntersectTerrain()
 	const Vec3& pos = mObject->GetPosition();
 	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
 
-	constexpr float kAdjHeight = 0.5f;
+	constexpr float kAdjHeight = 1.f;
 
 	if (pos.y <= terrainHeight + kAdjHeight) {
 		mSpreadDest = pos;

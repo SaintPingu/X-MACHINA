@@ -109,6 +109,8 @@ struct SsaoConstants {
 
 struct MaterialData {
     Vec4    DiffuseAlbedo{};
+    Vec3    Emission{};
+    UINT    Padding{};
     float   Metallic{};
     float   Roughness{};
     UINT    OcclusionMask{};

@@ -24,6 +24,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     // material info
     MaterialInfo matInfo    = gMaterialBuffer[gObjectCB.MatIndex];
     float4 diffuse          = matInfo.Diffuse;
+    float3 emission         = matInfo.Emission;
     float metallic          = matInfo.Metallic;
     float roughness         = matInfo.Roughness;
     float occlusion         = 1.f;
@@ -48,10 +49,12 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         bumpedNormalW = NormalSampleToWorldSpace(gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV).rgb, pin.NormalW, pin.TangentW);
     
     // sampling emissiveMap
-    float4 emissiveMapSample = (float4)0;
+    float4 emissiveMapSample = (float4)(0.f, 0.f, 0.f, 0.f);
     if (emissiveMapIndex != NONE) 
         emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
 
+    emissiveMapSample.xyz += emission;
+    
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;
     if (metallicMapIndex != NONE)

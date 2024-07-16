@@ -16,6 +16,7 @@
 MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)
 	:
 	DiffuseAlbedo(materialInfo.DiffuseAlbedo),
+	Emission(materialInfo.Emission),
 	Metallic(materialInfo.Metallic),
 	Roughness(materialInfo.Roughness),
 	OcclusionMask(materialInfo.OcclusionMask),
@@ -31,6 +32,7 @@ void Material::UpdateShaderVars()
 	MaterialData materialData;
 	if (mMaterialColors) {
 		materialData.DiffuseAlbedo = mMaterialColors->DiffuseAlbedo;
+		materialData.Emission = mMaterialColors->Emission;
 		materialData.Metallic = mMaterialColors->Metallic;
 		materialData.Roughness = mMaterialColors->Roughness;
 		materialData.OcclusionMask = mMaterialColors->OcclusionMask;

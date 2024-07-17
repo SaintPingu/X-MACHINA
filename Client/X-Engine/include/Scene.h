@@ -67,7 +67,6 @@ private:
 
 	std::set<sptr<GridObject>>		mDissolveObjects{};
 	std::set<GridObject*>			mRenderedObjects{};
-	std::set<GridObject*>			mTransparentObjects{};
 	std::set<GridObject*>			mSkinMeshObjects{};
 	std::set<GridObject*>			mGridObjects{};
 	
@@ -203,7 +202,6 @@ private:
 	void RenderAfterSkinImage();
 
 	// render [transparentObjects]
-	void RenderTransparentObjects();
 	void RenderDissolveObjects();
 	void RenderSkyBox(RenderType type);
 	void RenderParticles();

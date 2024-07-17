@@ -38,7 +38,6 @@ public:
 	GameObject() = default;
 	virtual ~GameObject() = default;
 
-	bool IsTransparent() const										{ return GetLayer() == ObjectLayer::Transparent; }
 	bool IsSkinMesh() const											{ return mIsSkinMesh; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 	// 최상위(대표) 텍스쳐를 반환한다.

@@ -18,7 +18,7 @@ class Script_MainCamera : public Component {
 
 private:
 	static constexpr float mkMaxZoomIn  = 0.25f;
-	static constexpr float mkMaxZoomOut = 2.f;
+	static constexpr float mkMaxZoomOut = 10.f;
 
 	sptr<GameObject>	mTarget{};
 	Vec3				mMainOffset{};

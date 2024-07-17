@@ -479,7 +479,6 @@ void Scene::ClearRenderedObjects()
 {
 	mRenderedObjects.clear();
 	mSkinMeshObjects.clear();
-	mTransparentObjects.clear();
 	mGridObjects.clear();
 	mObjectsByShader.clear();
 }
@@ -567,7 +566,6 @@ void Scene::RenderFinal()
 
 void Scene::RenderForward()
 {
-	RenderTransparentObjects(); 
 	RenderDissolveObjects();
 	RenderAfterSkinImage();
 	RenderSkyBox(RenderType::Forward);
@@ -636,14 +634,6 @@ void Scene::RenderAfterSkinImage()
 	RESOURCE<Shader>("AfterSkinImage")->Set();
 
 	for (auto& object : mObjectsByShader[ObjectTag::AfterSkinImage]) {
-		object->Render();
-	}
-}
-
-void Scene::RenderTransparentObjects()
-{
-	RESOURCE<Shader>("Transparent")->Set();
-	for (auto& object : mTransparentObjects) {
 		object->Render();
 	}
 }
@@ -968,10 +958,6 @@ void Scene::UpdateRenderedObjects()
 
 			if (!object->IsActive()) {
 				disabledObjects.insert(object);
-				continue;
-			}
-			if (object->IsTransparent()) {
-				mTransparentObjects.insert(object);
 				continue;
 			}
 

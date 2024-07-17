@@ -52,8 +52,8 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float4 emissiveMapSample = (float4)(0.f, 0.f, 0.f, 0.f);
     if (emissiveMapIndex != NONE) 
         emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
-
-    emissiveMapSample.xyz += emission;
+    else
+        emissiveMapSample.xyz += emission;
     
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;

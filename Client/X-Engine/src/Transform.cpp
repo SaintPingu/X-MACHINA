@@ -178,7 +178,11 @@ sptr<Transform> Transform::DetachParent(bool isKeepLocalTransform)
 	}
 
 	sptr<Transform> crnt = mParent->mChild;
+	if (!crnt) {
+		return nullptr;
+	}
 	Transform* prev      = crnt.get();
+
 	if (crnt.get() == this) {		// parent's child is this
 		mParent->SetChild(nullptr);
 	}
@@ -186,6 +190,9 @@ sptr<Transform> Transform::DetachParent(bool isKeepLocalTransform)
 		while (crnt.get() != this) {
 			prev = crnt.get();
 			crnt = crnt->mSibling;
+			if (!crnt) {
+				return nullptr;
+			}
 		}
 
 		// crnt == this

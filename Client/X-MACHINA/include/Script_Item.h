@@ -52,15 +52,15 @@ public:
 
 
 
-class Script_Item_CrateItem : public Script_Item {
-	COMPONENT_ABSTRACT(Script_Item_CrateItem, Script_Item)
+class Script_Item_Weapon : public Script_Item {
+	COMPONENT_ABSTRACT(Script_Item_Weapon, Script_Item)
 
 private:
 	sptr<Rigidbody> mRigid{};
 	Vec3 mDir{};
 	WeaponName mWeaponName;
 
-	bool mOpened{ false };
+	bool mDroped{ false };
 
 	int mSign{ 1 };
 	float mDeltaTime{};
@@ -77,4 +77,5 @@ public:
 
 public:
 	virtual void StartOpen();
+	virtual void StartDrop();
 };

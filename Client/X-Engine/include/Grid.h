@@ -38,6 +38,8 @@ public:
 	bool RemoveObject(GridObject* object);
 	bool IsContainTagInPairs(ObjectTag tag);
 
+	void UpdateTag(GridObject* object, ObjectTag beforeTag);
+
 public:
 	void CheckCollisions();
 	float CheckCollisionsRay(const Ray& ray) const;
@@ -88,6 +90,8 @@ public:
 
 	// remove [object] from gird
 	void RemoveObject(GridObject* object);
+
+	void UpdateTag(GridObject* object, ObjectTag beforeTag);
 
 	bool Intersects(GridObject* object);
 

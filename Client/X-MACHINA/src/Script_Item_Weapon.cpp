@@ -10,20 +10,20 @@
 
 
 
-void Script_Item_CrateItem::Awake()
+void Script_Item_Weapon::Awake()
 {
 	mRigid = mObject->AddComponent<Rigidbody>();
 	mMaxFloatingSpeed = 0.25f;
 }
 
-void Script_Item_CrateItem::Animate()
+void Script_Item_Weapon::Animate()
 {
-	if (!mOpened) {
+	if (!mDroped) {
 		return;
 	}
 
 	float floatingSpeed = mMaxFloatingSpeed * sin(mDeltaTime * XM_PI);
-		
+
 	mObject->SetPositionY(mObject->GetPosition().y + (floatingSpeed * mSign * DeltaTime()));
 
 	mDeltaTime += DeltaTime();
@@ -34,13 +34,19 @@ void Script_Item_CrateItem::Animate()
 }
 
 
-void Script_Item_CrateItem::StartOpen()
+void Script_Item_Weapon::StartOpen()
 {
-	mOpened = true;
+	mDroped = true;
 	mRigid->AddForce(Vector3::Up * 1.5f, ForceMode::Impulse);
 }
 
-void Script_Item_CrateItem::Interact(Object* user)
+void Script_Item_Weapon::StartDrop()
+{
+	mObject->SetPositionY(0.5f);
+	mDroped = true;
+}
+
+void Script_Item_Weapon::Interact(Object* user)
 {
 	auto player = user->GetComponent<Script_GroundPlayer>();
 	player->AquireWeapon(mWeaponName);

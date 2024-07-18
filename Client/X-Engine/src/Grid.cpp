@@ -85,6 +85,15 @@ bool CollisionManager::IsContainTagInPairs(ObjectTag tag)
 	return false;
 }
 
+void CollisionManager::UpdateTag(GridObject* object, ObjectTag beforeTag)
+{
+	if (mObjects[beforeTag].contains(object)) {
+		mObjects[beforeTag].erase(object);
+	}
+
+	AddObject(object);
+}
+
 void CollisionManager::CheckCollisions()
 {
 	for (Pair pair : mPairs) {
@@ -310,6 +319,15 @@ bool Grid::Intersects(GridObject* object)
 		return true;
 	}
 	return mBB.Intersects(objCollider->GetBS());
+}
+
+void Grid::UpdateTag(GridObject* object, ObjectTag beforeTag)
+{
+	if (!mObjects.count(object)) {
+		return;
+	}
+
+	mCollisionMgr.UpdateTag(object, beforeTag);
 }
 
 void Grid::CheckCollisions()

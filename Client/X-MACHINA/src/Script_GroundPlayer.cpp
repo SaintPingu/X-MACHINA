@@ -378,6 +378,9 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 		case 'E':
 			Interact();
 			break;
+		case 'G':
+			DropWeapon(GetCrntWeaponNum() - 1);
+			break;
 
 		default:
 			break;
@@ -457,14 +460,6 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 		{WeaponName::PipeLine, WeaponType::Sniper },
 	};
 
-	static const std::unordered_map<WeaponType, std::string> kDefaultWeapons{
-		{WeaponType::HandedGun, "SM_SciFiLaserGun" },
-		{WeaponType::AssaultRifle, "SM_SciFiAssaultRifle_01" },
-		{WeaponType::ShotGun, "SM_SciFiShotgun" },
-		{WeaponType::MissileLauncher, "SM_SciFiMissileLauncher" },
-		{WeaponType::Sniper, "Sniper" },
-	};
-
 	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
 		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
 		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
@@ -509,7 +504,7 @@ void Script_GroundPlayer::AquireWeapon(WeaponName weaponName)
 	assert(kWeaponTypes.contains(weaponName));
 	WeaponType weaponType = kWeaponTypes.at(weaponName);
 
-	sptr<GameObject> weapon = Scene::I->Instantiate(kDefaultWeapons.at(weaponType), ObjectTag::Dynamic, ObjectLayer::Default, false);
+	sptr<GameObject> weapon = Scene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
 
 	// ��ũ��Ʈ �߰� //
 	switch (weaponName) {
@@ -680,6 +675,14 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 	mController->SetValue("PutBack", false);
 }
 
+
+void Script_GroundPlayer::DropWeapon(int weaponNum)
+{
+	base::DropWeapon(weaponNum);
+
+	OffAim();
+	mController->SetValue("Weapon", 0);
+}
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
@@ -1285,7 +1288,7 @@ void Script_GroundPlayer::Interact()
 void Script_GroundPlayer::SwitchWeapon(int num, rsptr<GameObject> weapon)
 {
 	if (mWeapons[num]) {
-		mWeapons[num]->Destroy();
+		DropWeapon(num);
 		mWeapons[num] = weapon;
 		SetWeapon(GetCrntWeaponNum());
 	}

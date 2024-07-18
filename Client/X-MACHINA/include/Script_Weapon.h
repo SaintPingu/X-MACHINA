@@ -59,6 +59,7 @@ public:
 
 public:
 	virtual WeaponType GetWeaponType() const abstract;
+	virtual WeaponName GetWeaponName() const abstract;
 	Transform* GetMuzzle() const { return mMuzzle; }
 	float GetReloadTime() const { return mMaxReloadTime; }
 	float GetFireDelay() const { return mMaxFireDelay; }

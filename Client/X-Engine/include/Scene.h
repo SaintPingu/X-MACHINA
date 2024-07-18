@@ -265,6 +265,8 @@ public:
 	// Unity Scene 스크립트 보유 객체에 대해 각각 Script를 Add 및 초기화 하도록 한다.
 	void ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFunc);
 
+	void UpdateTag(GridObject* object, ObjectTag beforeTag);
+
 private:
 	// do [processFunc] for activated objects
 	void ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc);

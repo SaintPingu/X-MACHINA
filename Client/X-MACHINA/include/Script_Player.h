@@ -101,6 +101,8 @@ protected:
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;
 	virtual void PutbackWeaponEnd();
+	virtual void DropWeapon(int weaponNum);
+
 
 	virtual void StartFire();
 	virtual void StopFire();
@@ -209,6 +211,7 @@ private:
 	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
 	virtual void PutbackWeaponEndCallback();
+	virtual void DropWeapon(int weaponNum) override;
 	void UpdateParam(float val, float& param);
 
 	void UpdateMovement(Dir dir);

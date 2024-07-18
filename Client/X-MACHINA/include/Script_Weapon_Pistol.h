@@ -15,6 +15,7 @@ private:
 
 public:
 	virtual WeaponType GetWeaponType() const override { return WeaponType::HandedGun; }
+	virtual WeaponName GetWeaponName() const { return WeaponName::H_Lock; }
 
 public:
 	virtual void Awake() override;

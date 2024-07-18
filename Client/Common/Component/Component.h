@@ -160,7 +160,7 @@ public:
 #pragma endregion
 
 #pragma region Setter
-	void SetTag(ObjectTag tag);
+	virtual void SetTag(ObjectTag tag);
 	void SetName(const std::string& name)	{ mName = name; }
 	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
 	void SetID(UINT32 sessionID)			{ mID = sessionID; }

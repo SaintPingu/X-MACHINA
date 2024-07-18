@@ -11,6 +11,7 @@ class Script_Weapon_MissileLauncher abstract : public Script_BulletWeapon {
 
 public:
 	virtual WeaponType GetWeaponType() const override { return WeaponType::MissileLauncher; }
+	virtual WeaponName GetWeaponName() const abstract;
 
 public:
 	virtual void Awake() override;
@@ -36,6 +37,9 @@ private:
 	static constexpr float mkRPM             = 0.1f;
 
 	std::vector<Transform*> mMuzzles{};		// 총구 여러개를 가진다.
+
+public:
+	virtual WeaponName GetWeaponName() const { return WeaponName::Burnout; }
 
 protected:
 	virtual float GetBulletSpeed() override { return mkBulletSpeed; }

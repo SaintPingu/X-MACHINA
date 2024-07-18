@@ -45,7 +45,7 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 	std::string weaponModelName = Script_Weapon::GetWeaponModelName(mWeaponName);
 	mWeapon = Scene::I->Instantiate(weaponModelName, ObjectTag::Item, ObjectLayer::Default, false);
 	mWeapon->SetWorldTransform(mObject->GetWorldTransform());
-	mWeapon->AddComponent<Script_Item_CrateItem>()->SetWeaponName(mWeaponName);
+	mWeapon->AddComponent<Script_Item_Weapon>()->SetWeaponName(mWeaponName);
 
 }
 
@@ -58,6 +58,6 @@ void Script_Item_WeaponCrate::Interact(Object* user)
 
 	if (mWeapon) {
 		mWeapon->SetActive(true);
-		mWeapon->GetComponent<Script_Item_CrateItem>()->StartOpen();
+		mWeapon->GetComponent<Script_Item_Weapon>()->StartOpen();
 	}
 }

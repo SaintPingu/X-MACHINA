@@ -23,8 +23,6 @@ void Script_Enemy::Awake()
 
 	SetEnemyStat(mObject->GetName());
 	SetMaxHP(mEnemyMgr->mStat.MaxHp);
-
-	mObject->mObjectCB.UseOutline = true;
 }
 
 void Script_Enemy::Update()

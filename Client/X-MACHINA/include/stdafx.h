@@ -267,8 +267,46 @@ enum class BulletPSType : UINT8 {
 	_count
 };
 enum { BulletPSTypeCount = static_cast<UINT8>(BulletPSType::_count) };
+
+enum class WeaponType {
+	HandedGun,
+	AssaultRifle,
+	ShotGun,
+	MissileLauncher,
+	Sniper,
+	_count
+};
+
+enum class WeaponName {
+	None,
+	
+	// HandedGun
+	H_Lock,
+
+	// Shotgun
+	DBMS,
+
+	// AssaultRifle
+	SkyLine,
+
+	// MissileLaunchere
+	Burnout,
+
+	// Sniper
+	PipeLine,
+};
 #pragma endregion
 
+
+#pragma region Variable
+static const std::unordered_map<unsigned int, WeaponName> gkWeaponNameMap{
+	{ Hash("H_Lock"), WeaponName::H_Lock },
+	{ Hash("DBMS"), WeaponName::DBMS },
+	{ Hash("SkyLine"), WeaponName::SkyLine },
+	{ Hash("Burnout"), WeaponName::Burnout },
+	{ Hash("PipeLine"), WeaponName::PipeLine },
+};
+#pragma endregion
 
 
 #pragma region Class

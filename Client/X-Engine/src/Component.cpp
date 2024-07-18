@@ -8,22 +8,19 @@ UINT32 Object::sID = 0;
 
 namespace {
 
-	constexpr DWORD gkDynamicObjects {
-		ObjectTag::Unspecified		|
-		ObjectTag::Player			|
-		ObjectTag::Bullet			|
-		ObjectTag::Enemy			|
-		ObjectTag::Dynamic			|
-		ObjectTag::AfterSkinImage	|
-		ObjectTag::Crate
-	};
-
 	constexpr DWORD gkDynamicMoveObjects {
 		ObjectTag::Unspecified		|
 		ObjectTag::Player			|
 		ObjectTag::Bullet			|
 		ObjectTag::Enemy			|
+		ObjectTag::Crate			|
+		ObjectTag::Item				|
 		ObjectTag::Dynamic
+	};
+
+	constexpr DWORD gkDynamicObjects{
+		gkDynamicMoveObjects |
+		ObjectTag::AfterSkinImage
 	};
 
 	constexpr DWORD gkEnvObjects {

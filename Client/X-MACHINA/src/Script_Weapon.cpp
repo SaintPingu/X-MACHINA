@@ -164,6 +164,20 @@ void Script_Weapon::Fire()
 		CheckReload();
 	}
 }
+std::string Script_Weapon::GetWeaponModelName(WeaponName weaponName)
+{
+	static const std::unordered_map<WeaponName, std::string> kWeaponMaps{
+		{WeaponName::H_Lock, "SM_SciFiLaserGun" },
+		{WeaponName::SkyLine, "SM_SciFiAssaultRifle_01" },
+		{WeaponName::DBMS, "SM_SciFiShotgun" },
+		{WeaponName::Burnout, "SM_SciFiMissileLauncher" },
+		{WeaponName::PipeLine, "Sniper" },
+	};
+
+	assert(kWeaponMaps.count(weaponName));
+
+	return kWeaponMaps.at(weaponName);
+}
 #pragma endregion
 
 

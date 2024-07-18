@@ -2,6 +2,7 @@
 #include "Script_Player.h"
 
 #include "Script_Weapon.h"
+#include "Script_Item.h"
 
 #include "Object.h"
 
@@ -156,4 +157,32 @@ void Script_ShootingPlayer::PutbackWeaponEnd()
 	}
 
 	mCrntWeaponNum = 0;
+}
+
+void Script_ShootingPlayer::DropWeapon(int weaponNum)
+{
+	if (weaponNum < 0) {
+		return;
+	}
+
+	auto& weapon = mWeapons[weaponNum];
+	if (weapon) {
+		weapon->DetachParent(false);
+		weapon->SetLocalRotation(Quat::Identity);
+		weapon->SetTag(ObjectTag::Item);
+
+		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
+		weaponItem->SetWeaponName(weapon->GetComponent<Script_Weapon>()->GetWeaponName());
+		weaponItem->StartDrop();
+
+		if (weapon == mWeapon) {
+			mWeapon = nullptr;
+			mWeaponScript = nullptr;
+			mMuzzle = nullptr;
+		}
+		weapon = nullptr;
+
+		mIsInDraw = false;
+		mIsInPutback = false;
+	}
 }

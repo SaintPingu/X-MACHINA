@@ -1237,6 +1237,13 @@ void Scene::ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFu
 	mScriptObjects.clear();
 }
 
+void Scene::UpdateTag(GridObject* object, ObjectTag beforeTag)
+{
+	for (int gridIndex : object->GetGridIndices()) {
+		mGrids[gridIndex]->UpdateTag(object, beforeTag);
+	}
+}
+
 void Scene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
 {
 	for (auto& object : mDynamicObjects) {

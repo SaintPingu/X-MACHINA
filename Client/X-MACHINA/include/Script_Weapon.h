@@ -14,16 +14,6 @@ class Script_GroundPlayer;
 class ParticleSystem;
 #pragma endregion
 
-
-enum class WeaponType {
-	HandedGun,
-	AssaultRifle,
-	ShotGun,
-	MissileLauncher,
-	Sniper,
-	_count
-};
-
 constexpr size_t gkWeaponTypeCnt = static_cast<size_t>(WeaponType::_count);
 
 class Script_Weapon abstract : public Component {
@@ -69,6 +59,7 @@ public:
 
 public:
 	virtual WeaponType GetWeaponType() const abstract;
+	virtual WeaponName GetWeaponName() const abstract;
 	Transform* GetMuzzle() const { return mMuzzle; }
 	float GetReloadTime() const { return mMaxReloadTime; }
 	float GetFireDelay() const { return mMaxFireDelay; }
@@ -109,6 +100,9 @@ private:
 	virtual void InitValues() abstract;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
 	virtual void SetParticleSystemNames() abstract;
+
+public:
+	static std::string GetWeaponModelName(WeaponName weaponName);
 };
 
 

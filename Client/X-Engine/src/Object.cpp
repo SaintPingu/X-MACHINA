@@ -81,6 +81,15 @@ GridObject::GridObject()
 
 }
 
+void GridObject::SetTag(ObjectTag tag)
+{
+	ObjectTag beforeTag = GetTag();
+
+	base::SetTag(tag);
+
+	Scene::I->UpdateTag(this, beforeTag);
+}
+
 void GridObject::Awake()
 {
 	AddComponent<ObjectCollider>();

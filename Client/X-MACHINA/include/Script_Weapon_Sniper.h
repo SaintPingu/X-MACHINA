@@ -13,6 +13,7 @@ protected:
 
 public:
 	virtual WeaponType GetWeaponType() const override { return WeaponType::Sniper; }
+	virtual WeaponName GetWeaponName() const abstract;
 
 public:
 	virtual void Awake() override;
@@ -27,6 +28,9 @@ class Script_Weapon_PipeLine : public Script_Weapon_Sniper {
 private:
 	static constexpr float mkBulletDamage    = 78.3f;
 	static constexpr float mkRPM             = 55.f;
+
+public:
+	virtual WeaponName GetWeaponName() const { return WeaponName::PipeLine; }
 
 protected:
 	virtual float GetBulletSpeed() override { return mkBulletSpeed; }

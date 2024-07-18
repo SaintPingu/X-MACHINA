@@ -98,6 +98,9 @@ public:
 	// 내가 위치한 grid indices를 모두 제거한다.
 	void ClearGridIndices() { mGridIndices.clear(); }
 
+public:
+	virtual void SetTag(ObjectTag tag) override;
+
 protected:
 	virtual void Awake() override;
 	virtual void Update() override;

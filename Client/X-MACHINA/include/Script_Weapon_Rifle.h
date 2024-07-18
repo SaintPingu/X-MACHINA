@@ -18,6 +18,7 @@ protected:
 
 public:
 	virtual WeaponType GetWeaponType() const override { return WeaponType::AssaultRifle; }
+	virtual WeaponName GetWeaponName() const abstract;
 
 public:
 	virtual void Awake() override;
@@ -37,6 +38,9 @@ private:
 	static constexpr float mkBulletSpeed = 50.f;
 	static constexpr float mkBulletDamage = 5.4f;
 	static constexpr float mkRPM          = 850.f;
+
+public:
+	virtual WeaponName GetWeaponName() const { return WeaponName::SkyLine; }
 
 protected:
 	virtual float GetBulletSpeed() override { return mkBulletSpeed; }

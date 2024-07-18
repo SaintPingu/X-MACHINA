@@ -14,6 +14,7 @@ void Script_Item_Weapon::Awake()
 {
 	mRigid = mObject->AddComponent<Rigidbody>();
 	mMaxFloatingSpeed = 0.25f;
+	mObject->mObjectCB.UseOutline = true;
 }
 
 void Script_Item_Weapon::Animate()

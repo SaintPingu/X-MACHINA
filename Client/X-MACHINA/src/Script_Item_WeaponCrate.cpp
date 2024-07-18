@@ -38,7 +38,7 @@ void Script_Item_WeaponCrate::Animate()
 void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 {
 	std::string weaponName;
-	exporter->GetData("WeaponName", weaponName);
+	exporter->GetData("Name", weaponName);
 	mWeaponName = gkWeaponNameMap.at(Hash(weaponName));
 
 	// create weapon from name
@@ -46,7 +46,6 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 	mWeapon = Scene::I->Instantiate(weaponModelName, ObjectTag::Item, ObjectLayer::Default, false);
 	mWeapon->SetWorldTransform(mObject->GetWorldTransform());
 	mWeapon->AddComponent<Script_Item_Weapon>()->SetWeaponName(mWeaponName);
-
 }
 
 void Script_Item_WeaponCrate::Interact(Object* user)

@@ -40,7 +40,7 @@
 #pragma region Variable
 const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
 const float Script_GroundPlayer::mkStandWalkSpeed = 2.2f;
-const float Script_GroundPlayer::mkRunSpeed       = 16.f;
+const float Script_GroundPlayer::mkRunSpeed       = 5.f;
 const float Script_GroundPlayer::mkSprintSpeed    = 8.f;
 
 const float Script_GroundPlayer::mkStartRotAngle = 40.f;
@@ -95,7 +95,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(150, 0, 220);
+	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -1140,10 +1140,12 @@ void Script_GroundPlayer::BoltActionCallback()
 	if (mController) {
 		mController->SetValue("BoltAction", false);
 
-		mWeapon->DetachParent();
-		Transform* rightHand = mObject->FindFrame("RefPosSniper_Action");
-		rightHand->SetChild(mWeapon);
-		mWeapon->SetLocalTransform(Matrix::Identity);
+		if (mWeapon) {
+			mWeapon->DetachParent();
+			Transform* rightHand = mObject->FindFrame("RefPosSniper_Action");
+			rightHand->SetChild(mWeapon);
+			mWeapon->SetLocalTransform(Matrix::Identity);
+		}
 	}
 }
 

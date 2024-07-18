@@ -546,6 +546,9 @@
     <ClCompile Include="ClientNetwork\Contents\GameMonster.cpp">
       <Filter>ClientNetwork\Contents</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_Item_CrateItem.cpp">
+      <Filter>Script\Item</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

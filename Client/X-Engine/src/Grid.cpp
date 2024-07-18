@@ -200,6 +200,7 @@ Grid::Grid(int index, int width, int height, const BoundingBox& bb)
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Building);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::DissolveBuilding);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Crate);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Item);
 }
 
 Tile Grid::GetTileFromUniqueIndex(const Pos& tPos) const

@@ -99,6 +99,9 @@ private:
 	virtual void InitValues() abstract;
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const abstract;
 	virtual void SetParticleSystemNames() abstract;
+
+public:
+	static std::string GetWeaponModelName(WeaponName weaponName);
 };
 
 

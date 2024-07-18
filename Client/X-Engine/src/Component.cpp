@@ -14,6 +14,7 @@ namespace {
 		ObjectTag::Bullet			|
 		ObjectTag::Enemy			|
 		ObjectTag::Crate			|
+		ObjectTag::Item				|
 		ObjectTag::Dynamic
 	};
 

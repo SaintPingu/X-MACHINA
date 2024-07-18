@@ -1273,12 +1273,9 @@ void Script_GroundPlayer::Interact()
 	for (auto other : collisionObjects) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
-		{
-			WeaponName weaponName = other->GetComponent<Script_Item_WeaponCrate>()->Interact();
-			AquireWeapon(weaponName);
-		}
-
-		break;
+		case ObjectTag::Item:
+			other->GetComponent<Script_Item>()->Interact(mObject);
+			break;
 		default:
 			break;
 		}

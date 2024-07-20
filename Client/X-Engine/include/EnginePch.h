@@ -185,19 +185,18 @@ public:
 
 #ifdef RENDER_FOR_SERVER
 
-#define RENDER_FOR_SERVER_WITH_TEXTURE
-#ifdef RENDER_FOR_SERVER_WITH_TEXTURE
-#define RENDER_TEXTURE
-#endif
+	#define RENDER_FOR_SERVER_WITH_TEXTURE
+	#ifdef RENDER_FOR_SERVER_WITH_TEXTURE
+		#define RENDER_TEXTURE
+	#endif
 
 #else
-#define RENDER_TEXTURE
+	#define RENDER_TEXTURE
 
 #endif
 
-
-
 #pragma endregion
+
 
 #pragma endregion
 

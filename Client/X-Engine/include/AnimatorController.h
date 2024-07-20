@@ -38,7 +38,6 @@ class AnimatorController : public Resource {
 
 private:
 	bool mIsPlayer{};
-	bool mIsCheckTransition{};
 	Animations::ParamMap mParameters{};
 
 	std::vector<sptr<AnimatorLayer>> mLayers;
@@ -120,10 +119,7 @@ public:
 			return;
 		}
 
-		if (!isChangeImmed) {
-			mIsCheckTransition = true;
-		}
-		else {
+		if(isChangeImmed) {
 			CheckTransition(isChangeImmed);
 		}
 	}
@@ -142,12 +138,12 @@ public:
 	sptr<AnimatorMotion> GetLastMotion(const std::string& layerName = "Base Layer") const;
 
 	bool IsEndTransition(const std::string& layerName) const;
-	void UpdateTransition();
 	void SetAnimationSendCallback(const std::function<void()>& callback) { mSendCallback = callback; }
+
+	void CheckTransition(bool isChangeImmed = false) const;
 
 private:
 	void InitLayers();
-	void CheckTransition(bool isChangeImmed = false) const;
 
 	sptr<AnimatorLayer> FindLayerByName(const std::string& layerName) const;
 };	

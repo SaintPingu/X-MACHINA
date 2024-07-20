@@ -71,7 +71,7 @@ bool Script_ShootingPlayer::Reload()
 	return false;
 }
 
-void Script_ShootingPlayer::SetWeapon(int weaponNum)
+void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 {
 	if (IsInGunChangeMotion()) {
 		return;
@@ -84,16 +84,18 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		return;
 	}
 
-	if (mWeapons.size() <= weaponNum - 1) {
+	const int weaponIdx = weaponNum - 1;
+
+	if (mWeapons.size() <= weaponIdx) {
 		return;
 	}
-	if (mWeapons[weaponNum - 1] == nullptr) {
+	if (mWeapons[weaponIdx] == nullptr) {
 		return;
 	}
 
 	// 이미 무기를 들고 있다면 putback 후 draw한다.
 	if (mWeapon) {
-		if (mWeapon == mWeapons[weaponNum - 1]) {
+		if (mWeapon == mWeapons[weaponIdx]) {
 			return;
 		}
 		else {
@@ -109,6 +111,10 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 
 void Script_ShootingPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 {
+	if (weaponNum <= 0) {
+		return;
+	}
+
 	mIsInDraw = true;
 	mNextWeaponNum = weaponNum;
 }
@@ -127,7 +133,7 @@ void Script_ShootingPlayer::DrawWeapon()
 void Script_ShootingPlayer::DrawWeaponEnd()
 {
 	mNextWeaponNum = -1;
-	mIsInDraw = false;
+		mIsInDraw = false;
 }
 
 void Script_ShootingPlayer::PutbackWeapon()
@@ -159,13 +165,13 @@ void Script_ShootingPlayer::PutbackWeaponEnd()
 	mCrntWeaponNum = 0;
 }
 
-void Script_ShootingPlayer::DropWeapon(int weaponNum)
+void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 {
-	if (weaponNum < 0) {
+	if (weaponIdx < 0) {
 		return;
 	}
 
-	auto& weapon = mWeapons[weaponNum];
+	auto& weapon = mWeapons[weaponIdx];
 	if (weapon) {
 		weapon->DetachParent(false);
 		weapon->SetLocalRotation(Quat::Identity);
@@ -174,11 +180,13 @@ void Script_ShootingPlayer::DropWeapon(int weaponNum)
 		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
 		weaponItem->SetWeaponName(weapon->GetComponent<Script_Weapon>()->GetWeaponName());
 		weaponItem->StartDrop();
+		weapon->SetActive(true);
 
 		if (weapon == mWeapon) {
 			mWeapon = nullptr;
 			mWeaponScript = nullptr;
 			mMuzzle = nullptr;
+			mCrntWeaponNum = 0;
 		}
 		weapon = nullptr;
 

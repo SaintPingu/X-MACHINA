@@ -48,10 +48,10 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 	mWeapon->AddComponent<Script_Item_Weapon>()->SetWeaponName(mWeaponName);
 }
 
-void Script_Item_WeaponCrate::Interact(Object* user)
+bool Script_Item_WeaponCrate::Interact(Object* user)
 {
 	if (mIsOpend) {
-		return;
+		return false;
 	}
 	mIsOpend = true;
 
@@ -59,4 +59,6 @@ void Script_Item_WeaponCrate::Interact(Object* user)
 		mWeapon->SetActive(true);
 		mWeapon->GetComponent<Script_Item_Weapon>()->StartOpen();
 	}
+
+	return true;
 }

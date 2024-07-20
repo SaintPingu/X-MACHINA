@@ -56,16 +56,10 @@ void AnimatorController::Start()
 
 void AnimatorController::Animate()
 {
-	if (mIsCheckTransition) {
-		UpdateTransition();
-	}
+	CheckTransition();
 
 	for (auto& layer : mLayers) {
 		layer->Animate();
-	}
-
-	if (mIsCheckTransition) {
-		UpdateTransition();
 	}
 }
 
@@ -143,12 +137,6 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 	if (mIsPlayer && isSend) {
 		mSendCallback();
 	}
-}
-
-void AnimatorController::UpdateTransition()
-{
-	CheckTransition();
-	mIsCheckTransition = false;
 }
 
 void AnimatorController::InitLayers()

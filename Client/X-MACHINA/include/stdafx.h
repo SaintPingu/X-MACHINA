@@ -294,6 +294,8 @@ enum class WeaponName {
 
 	// Sniper
 	PipeLine,
+
+	_count,
 };
 #pragma endregion
 

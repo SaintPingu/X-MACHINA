@@ -285,7 +285,7 @@ void Terrain::InitMaterials()
 
 void Terrain::SetTextures()
 {
-	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("Seamless_asphalt_v1"));
+	mMaterial->SetTexture(TextureMap::DiffuseMap0, RESOURCE<Texture>("Asphalt"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap1, RESOURCE<Texture>("CobbleStone"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap2, RESOURCE<Texture>("Sand"));
 	mMaterial->SetTexture(TextureMap::DiffuseMap3, RESOURCE<Texture>("Terrain_splatmap"));

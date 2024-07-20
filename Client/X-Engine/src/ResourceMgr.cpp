@@ -548,27 +548,31 @@ sptr<ModelObjectMesh> ResourceMgr::LoadPointMesh()
 
 void ResourceMgr::LoadTextures()
 {
-	std::cout << "Load textures...\n";
+	std::cout << "Load textures...";
 
 	FileIO::ModelIO::LoadTextures("Import/Textures/Model/");
 	FileIO::ModelIO::LoadTextures("Import/Textures/UI/");
 	FileIO::ModelIO::LoadTextures("Import/Textures/Terrain/");
 	FileIO::ModelIO::LoadTextures("Import/Textures/Skybox/", D3DResource::TextureCube);
+
+	std::cout << "OK\n";
 }
 
 
 void ResourceMgr::LoadTexturesForServer()
 {
-	std::cout << "Load textures...\n";
+	std::cout << "Load textures...";
 
 	FileIO::ModelIO::LoadTextures("Import/Textures/UI/");
 	FileIO::ModelIO::LoadTextures("Import/Textures/Terrain/");
 	FileIO::ModelIO::LoadTextures("Import/Textures/Skybox/", D3DResource::TextureCube);
+
+	std::cout << "OK\n";
 }
 
 void ResourceMgr::LoadModels()
 {
-	std::cout << "Load models...\n";
+	std::cout << "Load models...";
 
 	const std::string rootFolder = "Import/Meshes/";
 
@@ -583,11 +587,13 @@ void ResourceMgr::LoadModels()
 		}
 		ResourceMgr::I->Add(modelName, model);
 	}
+
+	std::cout << "OK\n";
 }
 
 void ResourceMgr::LoadShaders()
 {
-	std::cout << "Load shaders...\n";
+	std::cout << "Load shaders...";
 
 // DeferredShader
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1409,11 +1415,13 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("ComputeParticle", shader);
 	}
 #pragma endregion
+
+	std::cout << "OK\n";
 }
 
 void ResourceMgr::LoadAnimationClips()
 {
-	std::cout << "Load animation clips...\n";
+	std::cout << "Load animation clips...";
 
 	const std::string rootFolder = "Import/AnimationClips/";
 	for (const auto& clipFolder : std::filesystem::directory_iterator(rootFolder)) {
@@ -1428,6 +1436,8 @@ void ResourceMgr::LoadAnimationClips()
 			ResourceMgr::I->Add<AnimationClip>(clipName, clip);
 		}
 	}
+
+	std::cout << "OK\n";
 }
 
 void ResourceMgr::LoadAnimatorControllers()

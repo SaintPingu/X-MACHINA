@@ -212,7 +212,7 @@ void AnimatorStateMachine::PushState(rsptr<AnimatorMotion> motion) const
 void AnimatorStateMachine::PushState(const std::string& motionName) const
 {
 	PushState(mStates.at(motionName));
-	mLayer->GetController()->UpdateTransition();
+	mLayer->GetController()->CheckTransition();
 }
 
 void AnimatorStateMachine::Init(const AnimatorController* controller, AnimatorLayer* layer)

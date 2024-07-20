@@ -91,17 +91,18 @@ public:
 	virtual void BulletFired() {}
 
 protected:
+	int GetCrntWeaponIdx() const { return mCrntWeaponNum - 1; }
 	int GetCrntWeaponNum() const { return mCrntWeaponNum; }
 	int GetNextWeaponNum() const { return mNextWeaponNum; }
 
-	virtual void SetWeapon(int weaponNum);
+	virtual void DrawWeapon(int weaponNum);
 
 	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) abstract;
 	virtual void DrawWeapon();
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;
 	virtual void PutbackWeaponEnd();
-	virtual void DropWeapon(int weaponNum);
+	virtual void DropWeapon(int weaponIdx);
 
 
 	virtual void StartFire();
@@ -153,9 +154,13 @@ private:
 	float mCurRecoil{};
 	float mMaxRecoil{20.f};
 
+	// sliding vector //
 	Vec3 mDirVec{};
 	Vec3 mPrevDirVec{};
 	Vec3 mSlideVec{};
+
+	// others
+	bool mIsInteracted{};
 
 	// For Network
 	Vec3 mPrevPos{};
@@ -190,6 +195,7 @@ public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
+	void InitWeaponAnimations();
 	// called by weapon //
 	void StartReload();
 	void BoltAction();
@@ -201,7 +207,8 @@ public:
 	float GetMovementSpeed() const { return mMovementSpeed; }
 	float GetRotationSpeed() const { return mRotationSpeed; }
 
-	void AquireWeapon(WeaponName weaponName);
+	void AquireNewWeapon(WeaponName weaponName);
+	void TakeWeapon(rsptr<Script_Weapon> weapon);
 
 	Vec3  GetMoveDir()			   { return mDirVec; }
 	Vec3  GetPrevMoveDir()		   { return mPrevDirVec; }
@@ -211,7 +218,7 @@ private:
 	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
 	virtual void PutbackWeaponEndCallback();
-	virtual void DropWeapon(int weaponNum) override;
+	virtual void DropWeapon(int weaponIdx) override;
 	void UpdateParam(float val, float& param);
 
 	void UpdateMovement(Dir dir);
@@ -252,7 +259,7 @@ private:
 	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
 	void ComputeSlideVector(Object& other);
 
-	void SwitchWeapon(int num, rsptr<GameObject> weapon);
+	void SwitchWeapon(int weaponIdx, rsptr<GameObject> weapon);
 
 	void Interact();
 };

@@ -47,10 +47,12 @@ void Script_Item_Weapon::StartDrop()
 	mDroped = true;
 }
 
-void Script_Item_Weapon::Interact(Object* user)
+bool Script_Item_Weapon::Interact(Object* user)
 {
 	auto player = user->GetComponent<Script_GroundPlayer>();
-	player->AquireWeapon(mWeaponName);
+	player->AquireNewWeapon(mWeaponName);
 
 	mObject->Destroy();
+
+	return true;
 }

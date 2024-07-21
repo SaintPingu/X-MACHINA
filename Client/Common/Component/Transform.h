@@ -5,7 +5,7 @@
 // it's used to store and manipulate the position, rotation of the object.
 // every Transform can have a parent, child and sibling
 // transform can access to self Object
-class Transform {
+class Transform : public std::enable_shared_from_this<Transform> {
 private:
 	int mIndex{};
 	Matrix mWorldTransform{};	// transform of     affected by a parent (world)
@@ -54,6 +54,7 @@ public:
 #pragma endregion
 
 #pragma region Getter
+	rsptr<Transform> GetShared() { return shared_from_this(); }
 	/* Position */
 	// gets the position in world space 
 	Vec3 GetPosition()      const	{ return Vec3(mWorldTransform._41, mWorldTransform._42, mWorldTransform._43); }
@@ -214,6 +215,9 @@ public:
 
 	void DoAllTransforms(const std::function<void(Transform*)>& processFunc);
 	void DoAllChilds(const std::function<void(Transform*)>& processFunc);
+
+	// set identity local transform
+	void ResetLocalTransform();
 
 	// returns self Object
 	template<class T>

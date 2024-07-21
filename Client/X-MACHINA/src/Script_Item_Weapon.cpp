@@ -2,6 +2,7 @@
 #include "Script_Item.h"
 
 #include "Script_Player.h"
+#include "Script_Weapon.h"
 
 #include "Component/Rigidbody.h"
 
@@ -49,10 +50,20 @@ void Script_Item_Weapon::StartDrop()
 
 bool Script_Item_Weapon::Interact(Object* user)
 {
-	auto player = user->GetComponent<Script_GroundPlayer>();
-	player->AquireNewWeapon(mWeaponName);
+	const auto& player = user->GetComponent<Script_GroundPlayer>();
+	const auto& weapon = mObject->GetComponent<Script_Weapon>();
 
-	mObject->Destroy();
+	if (weapon) {
+		player->TakeWeapon(weapon);
+		mObject->RemoveComponent<Script_Item_Weapon>();
+		mObject->SetTag(ObjectTag::Unspecified);
+		mObject->SetActive(false);
+		mObject->mObjectCB.UseOutline = false;
+	}
+	else {
+		std::cout << "[ERROR] weapon item has no script\n";
+		mObject->Destroy();
+	}
 
 	return true;
 }

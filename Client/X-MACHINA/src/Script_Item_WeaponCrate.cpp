@@ -2,6 +2,11 @@
 #include "Script_Item.h"
 
 #include "Script_Weapon.h"
+#include "Script_Weapon_Pistol.h"
+#include "Script_Weapon_Rifle.h"
+#include "Script_Weapon_Shotgun.h"
+#include "Script_Weapon_Sniper.h"
+#include "Script_Weapon_MissileLauncher.h"
 
 #include "ScriptExporter.h"
 #include "Scene.h"
@@ -45,7 +50,28 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 	std::string weaponModelName = Script_Weapon::GetWeaponModelName(mWeaponName);
 	mWeapon = Scene::I->Instantiate(weaponModelName, ObjectTag::Item, ObjectLayer::Default, false);
 	mWeapon->SetWorldTransform(mObject->GetWorldTransform());
-	mWeapon->AddComponent<Script_Item_Weapon>()->SetWeaponName(mWeaponName);
+	mWeapon->AddComponent<Script_Item_Weapon>();
+	
+	switch(mWeaponName) {
+	case WeaponName::H_Lock:
+		mWeapon->AddComponent<Script_Weapon_Pistol>();
+		break;
+	case WeaponName::SkyLine:
+		mWeapon->AddComponent<Script_Weapon_Skyline>();
+		break;
+	case WeaponName::DBMS:
+		mWeapon->AddComponent<Script_Weapon_DBMS>();
+		break;
+	case WeaponName::Burnout:
+		mWeapon->AddComponent<Script_Weapon_Burnout>();
+		break;
+	case WeaponName::PipeLine:
+		mWeapon->AddComponent<Script_Weapon_PipeLine>();
+		break;
+	default:
+		assert(0);
+		break;
+	}
 }
 
 bool Script_Item_WeaponCrate::Interact(Object* user)

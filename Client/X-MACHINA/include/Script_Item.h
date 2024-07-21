@@ -58,7 +58,6 @@ class Script_Item_Weapon : public Script_Item {
 private:
 	sptr<Rigidbody> mRigid{};
 	Vec3 mDir{};
-	WeaponName mWeaponName;
 
 	bool mDroped{ false };
 
@@ -73,7 +72,6 @@ public:
 public:
 	virtual bool Interact(Object* user) override;
 	virtual ItemType GetItemType() override { return ItemType::Weapon; }
-	void SetWeaponName(WeaponName weaponName) { mWeaponName = weaponName; }
 
 public:
 	virtual void StartOpen();

@@ -50,13 +50,20 @@ namespace {
 	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
 
 	static const std::unordered_map<WeaponName, WeaponType> kWeaponTypes{
-	{WeaponName::H_Lock, WeaponType::HandedGun },
-	{WeaponName::DBMS, WeaponType::ShotGun },
-	{WeaponName::SkyLine, WeaponType::AssaultRifle },
-	{WeaponName::Burnout, WeaponType::MissileLauncher },
-	{WeaponName::PipeLine, WeaponType::Sniper },
+		{WeaponName::H_Lock, WeaponType::HandedGun },
+		{WeaponName::DBMS, WeaponType::ShotGun },
+		{WeaponName::SkyLine, WeaponType::AssaultRifle },
+		{WeaponName::Burnout, WeaponType::MissileLauncher },
+		{WeaponName::PipeLine, WeaponType::Sniper },
 	};
 
+	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
+		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
+		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
+		{WeaponType::ShotGun, "RefPosShotgun_Action" },
+		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+		{WeaponType::Sniper, "RefPosSniper_Action" },
+	};
 }
 #pragma endregion
 
@@ -416,8 +423,6 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 
 void Script_GroundPlayer::InitWeaponAnimations()
 {
-
-
 	static const std::unordered_map<WeaponType, std::string> kReloadMotions{
 		{WeaponType::HandedGun, "Reload2HandedGun" },
 		{WeaponType::AssaultRifle, "ReloadAssaultRifle" },
@@ -512,7 +517,9 @@ void Script_GroundPlayer::BoltAction()
 
 void Script_GroundPlayer::EndReload()
 {
-	mWeaponScript->EndReload();
+	if (mWeaponScript) {
+		mWeaponScript->EndReload();
+	}
 
 	if (mController) {
 		mController->SetValue("Reload", false);
@@ -532,37 +539,8 @@ void Script_GroundPlayer::BulletFired()
 
 void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 {
-	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
-	{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
-	{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
-	{WeaponType::ShotGun, "RefPosShotgun_Action" },
-	{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
-	{WeaponType::Sniper, "RefPosSniper_Action" },
-	};
-
 	if (weaponName == WeaponName::None) {
 		return;
-	}
-
-	assert(kWeaponTypes.contains(weaponName));
-	WeaponType weaponType = kWeaponTypes.at(weaponName);
-
-	int weaponIdx{};
-	switch (weaponType) {
-	case WeaponType::HandedGun:
-		weaponIdx = 0;
-		break;
-	case WeaponType::ShotGun:
-	case WeaponType::AssaultRifle:
-		weaponIdx = 1;
-		break;
-	case WeaponType::MissileLauncher:
-	case WeaponType::Sniper:
-		weaponIdx = 2;
-		break;
-	default:
-		assert(0);
-		break;
 	}
 
 	sptr<GameObject> weapon = Scene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
@@ -583,14 +561,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		break;
 	case WeaponName::PipeLine:
 		weapon->AddComponent<Script_Weapon_PipeLine>();
-		{
-			auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
-
-			// motion speed
-			constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�?.
-			const float fireDelay = weapon->GetComponent<Script_Weapon>()->GetFireDelay();
-			SetMotionSpeed(boltActionMotion, fireDelay - decTime);
-		}
+		ResetBoltActionMotionSpeed(weapon->GetComponent<Script_Weapon>());
 		break;
 	default:
 		assert(0);
@@ -600,16 +571,20 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 	// ��ũ��Ʈ ���� //
 	weapon->GetComponent<Script_Weapon>()->SetOwner(this);
 
-	SwitchWeapon(weaponIdx, weapon);
-
-	// transform ���� //
-	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
-	assert(transform);
-	transform->SetChild(weapon);
+	SwitchWeapon(weapon);
+	SetWeaponChild(weapon);
 }
 
 void Script_GroundPlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 {
+	rsptr<GameObject> gameObject = weapon->GetObj()->GetObj<GameObject>()->GetShared();
+	SwitchWeapon(gameObject);
+	SetWeaponChild(gameObject);
+	gameObject->GetComponent<Script_Weapon>()->SetOwner(this);
+
+	if (weapon->GetWeaponType() == WeaponType::Sniper) {
+		ResetBoltActionMotionSpeed(weapon);
+	}
 }
 
 void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
@@ -715,8 +690,8 @@ void Script_GroundPlayer::DropWeapon(int weaponIdx)
 
 	OffAim();
 
-	if (weaponIdx == GetCrntWeaponIdx()) {
-		mController->SetValue("Weapon", 0);
+	if (mWeapon == nullptr) {
+		ResetWeaponAnimation();
 	}
 }
 
@@ -750,6 +725,16 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ���̷� ����
+}
+
+void Script_GroundPlayer::ResetWeaponAnimation()
+{
+	mController->SetValue("Weapon", 0);
+	mController->SetValue("PutBack", false);
+	mController->SetValue("Aim", false);
+	mController->SetValue("Reload", false);
+	mController->SetValue("BoltAction", false);
+	mController->SetValue("Draw", false);
 }
 
 
@@ -1325,8 +1310,24 @@ void Script_GroundPlayer::Interact()
 	}
 }
 
-void Script_GroundPlayer::SwitchWeapon(int weaponIdx, rsptr<GameObject> weapon)
+void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon)
 {
+	if (weapon->GetWeaponType() != WeaponType::Sniper) {
+		return;
+	}
+
+	auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+
+	// motion speed
+	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�?.
+	const float fireDelay = weapon->GetFireDelay();
+	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
+}
+
+void Script_GroundPlayer::SwitchWeapon(rsptr<GameObject> weapon)
+{
+	int weaponIdx = Script_Weapon::GetWeaponIdx(weapon->GetComponent<Script_Weapon>(true)->GetWeaponType());
+
 	// drop & switch weapons //
 	int crntWeaponIdx = GetCrntWeaponIdx();
 	if (mWeapons[weaponIdx]) {
@@ -1337,4 +1338,16 @@ void Script_GroundPlayer::SwitchWeapon(int weaponIdx, rsptr<GameObject> weapon)
 	if (crntWeaponIdx == weaponIdx || !mWeapon) {
 		DrawWeapon(weaponIdx + 1);
 	}
+}
+
+void Script_GroundPlayer::SetWeaponChild(rsptr<GameObject> weapon)
+{
+	const auto& weaponScript = weapon->GetComponent<Script_Weapon>(true);
+
+	// transform ���� //
+	WeaponType weaponType = weaponScript->GetWeaponType();
+
+	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType), true);
+	transform->SetChild(weapon);
+	weapon->ResetLocalTransform();
 }

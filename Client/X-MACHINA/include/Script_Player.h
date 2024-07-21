@@ -220,6 +220,7 @@ private:
 	virtual void PutbackWeaponEndCallback();
 	virtual void DropWeapon(int weaponIdx) override;
 	void UpdateParam(float val, float& param);
+	void ResetWeaponAnimation();
 
 	void UpdateMovement(Dir dir);
 
@@ -259,9 +260,12 @@ private:
 	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
 	void ComputeSlideVector(Object& other);
 
-	void SwitchWeapon(int weaponIdx, rsptr<GameObject> weapon);
+	void SwitchWeapon(rsptr<GameObject> weapon);
+	void SetWeaponChild(rsptr<GameObject> weapon);
 
 	void Interact();
+
+	void ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);
 };
 
 

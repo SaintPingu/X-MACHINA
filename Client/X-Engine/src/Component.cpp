@@ -127,7 +127,7 @@ void Object::CopyComponents(const Object& src)
 	}
 }
 
-Transform* Object::FindFrame(const std::string& frameName)
+Transform* Object::FindFrame(const std::string& frameName, bool assertNull)
 {
 	if (GetName() == frameName) {
 		return this;
@@ -143,6 +143,10 @@ Transform* Object::FindFrame(const std::string& frameName)
 		if (transform = mChild->GetObj<Object>()->FindFrame(frameName)) {
 			return transform;
 		}
+	}
+
+	if (assertNull) {
+		assert(0);
 	}
 
 	return nullptr;

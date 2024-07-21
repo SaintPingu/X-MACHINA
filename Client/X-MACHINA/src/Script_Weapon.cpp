@@ -42,7 +42,7 @@ void Script_Weapon::Start()
 
 void Script_Weapon::Update()
 {
-	if (mOwner->IsInDraw() || mOwner->IsInPutBack() || mIsReload || mCurBulletCnt <= 0) {
+	if (!mOwner || (mOwner->IsInDraw() || mOwner->IsInPutBack() || mIsReload || mCurBulletCnt <= 0)) {
 		return;
 	}
 
@@ -56,6 +56,10 @@ void Script_Weapon::Update()
 
 void Script_Weapon::FireBullet()
 {
+	if (!mOwner) {
+		return;
+	}
+
 	--mCurBulletCnt;
 	ParticleManager::I->Play("WFX_Muzzle_Flash", mMuzzle);
 	ParticleManager::I->Play("WFX_Muzzle_Smoke", mMuzzle);
@@ -177,6 +181,27 @@ std::string Script_Weapon::GetWeaponModelName(WeaponName weaponName)
 	assert(kWeaponMaps.count(weaponName));
 
 	return kWeaponMaps.at(weaponName);
+}
+int Script_Weapon::GetWeaponIdx(WeaponType weaponType)
+{
+	switch (weaponType) {
+	case WeaponType::HandedGun:
+		return 0;
+		break;
+	case WeaponType::ShotGun:
+	case WeaponType::AssaultRifle:
+		return 1;
+		break;
+	case WeaponType::MissileLauncher:
+	case WeaponType::Sniper:
+		return 2;
+		break;
+	default:
+		break;
+	}
+
+	assert(0);
+	return 0;
 }
 #pragma endregion
 

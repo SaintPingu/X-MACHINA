@@ -38,6 +38,7 @@ public:
 	GameObject() = default;
 	virtual ~GameObject() = default;
 
+	sptr<GameObject> GetShared() { return std::static_pointer_cast<GameObject>(shared_from_this()); }
 	bool IsSkinMesh() const											{ return mIsSkinMesh; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 	// 최상위(대표) 텍스쳐를 반환한다.
@@ -77,6 +78,7 @@ public:
 	GridObject();
 	virtual ~GridObject() = default;
 
+	sptr<GridObject> GetShared() { return std::static_pointer_cast<GridObject>(shared_from_this()); }
 	int GetGridIndex() const								{ return mCurrGridIndex; }
 	ObjectCollider* GetCollider() const						{ return mCollider; }
 	const std::unordered_set<int>& GetGridIndices() const	{ return mGridIndices; }
@@ -129,6 +131,7 @@ public:
 	InstObject(ObjectPool* pool, int id);
 	virtual ~InstObject() = default;
 
+	sptr<InstObject> GetShared() { return std::static_pointer_cast<InstObject>(shared_from_this()); }
 	int GetPoolID() { return mPoolID; }
 
 public:

@@ -178,7 +178,6 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 		weapon->SetTag(ObjectTag::Item);
 
 		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
-		weaponItem->SetWeaponName(weapon->GetComponent<Script_Weapon>()->GetWeaponName());
 		weaponItem->StartDrop();
 		weapon->SetActive(true);
 

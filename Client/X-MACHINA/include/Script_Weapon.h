@@ -103,6 +103,7 @@ private:
 
 public:
 	static std::string GetWeaponModelName(WeaponName weaponName);
+	static int GetWeaponIdx(WeaponType weaponType);
 };
 
 

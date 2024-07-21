@@ -53,6 +53,7 @@ public:
 	bool IsAwake() const { return mIsAwake; }
 	bool IsStart() const { return mIsStart; }
 	bool IsActive() const { return mIsActive; }
+	Object* GetObj() { return mObject; }
 
 	void SetActive(bool isActive);
 
@@ -146,6 +147,8 @@ public:
 #pragma endregion
 
 #pragma region Getter
+	sptr<Object> GetShared() { return std::static_pointer_cast<Object>(shared_from_this()); }
+
 	const std::string& GetName() const	{ return mName; }
 	ObjectTag GetTag() const			{ return mTag; }
 	ObjectLayer GetLayer() const		{ return mLayer; }
@@ -171,13 +174,17 @@ public:
 #pragma region Component
 	// 최상위 T component를 반환한다.
 	template<class T>
-	sptr<T> GetComponent() const
+	sptr<T> GetComponent(bool assertNull = false) const
 	{
 		for (const auto& component : mComponents) {
 			auto result = std::dynamic_pointer_cast<T>(component);
 			if (result) {
 				return result;
 			}
+		}
+
+		if (assertNull) {
+			assert(0);
 		}
 
 		return nullptr;
@@ -254,7 +261,7 @@ public:
 #pragma endregion
 
 	// [frameName]의 Transform을 계층 구조에서 찾아 반환한다 (없으면 nullptr)
-	Transform* FindFrame(const std::string& frameName);
+	Transform* FindFrame(const std::string& frameName, bool assertNull = false);
 
 	void SetActive(bool isActive);
 

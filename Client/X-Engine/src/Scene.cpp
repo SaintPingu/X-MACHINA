@@ -49,6 +49,7 @@ Scene::Scene()
 	mIsRenderBounds = true;
 #endif
 #endif
+	mGameManager = std::make_shared<Object>();
 }
 
 void Scene::Release()
@@ -238,9 +239,10 @@ void Scene::UpdateMaterialBuffer()
 #pragma region Build
 void Scene::BuildObjects()
 {
+	std::cout << "Load Battle Scene...";
+
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
-	mGameManager   = std::make_shared<Object>();
 
 	// build settings
 	BuildTerrain();
@@ -274,6 +276,8 @@ void Scene::BuildObjects()
 		testText->WriteText("X-MACHINA TEST");
 		testText->SetColor(D2D1::ColorF::Orange);
 	}
+
+	std::cout << "OK\n";
 }
 
 void Scene::ReleaseObjects()

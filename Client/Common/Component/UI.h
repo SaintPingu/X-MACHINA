@@ -28,13 +28,14 @@ struct UITexture {
 // 2D object (not entity)
 class UI : public Transform {
 protected:
+	std::string		mName{};
 	bool			mIsActive = true;
 	sptr<UITexture> mUITexture{};
 	sptr<Shader>	mShader{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr);
+	UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr, const std::string& name = "");
 	virtual ~UI() = default;
 
 public:
@@ -47,6 +48,7 @@ public:
 	float GetHeight() const { return mUITexture->Height; }
 	void SetWidth(float width) { mUITexture->Width = width; }
 	void SetHeight(float height) { mUITexture->Height = height; }
+	const std::string& GetName() const { return mName; }
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec2& pos);
@@ -135,7 +137,8 @@ public:
 	void Update();
 	void Render() const;
 
-	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
+	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect", const std::string& name = "");
 	sptr<SliderUI> CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
+	void RemoveUI(Layer layer, const std::string& name);
 };
 #pragma endregion

@@ -31,6 +31,11 @@ enum class DrawOption {
 	Main = 0,
 	Debug,
 };
+
+enum class SceneRenderType {
+	Lobby,
+	Battle
+};
 #pragma endregion
 
 #pragma region Class
@@ -117,6 +122,9 @@ private:
 	// MRT
 	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount> mMRTs{};
 
+	// Scene
+	void (DXGIMgr::* mRenderFunc)();
+
 protected:
 #pragma region C/Dtor
 	DXGIMgr();
@@ -192,17 +200,20 @@ public:
 	void Update();
 
 	// render scene
-	void Render();
-	void RenderLobby();
-
-	void RenderForServer();
-	void RenderForServerWithTerrain();
-	void RenderForServerWithTexture();
+	void Render() { (this->*mRenderFunc)(); }
+	void SwitchScene(SceneRenderType renderSceneType);
 
 	// full screen on/off
 	void ToggleFullScreen();
 
 private:
+	// render
+	void RenderBattle();
+	void RenderLobby();
+	void RenderForServer();
+	void RenderForServerWithTerrain();
+	void RenderForServerWithTexture();
+
 	// reset command 
 	void MainPassRenderBegin();
 	void PostPassRenderBegin();

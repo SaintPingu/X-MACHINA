@@ -21,6 +21,8 @@ void Script_GameManager::Awake()
 {
 	base::Awake();
 
+	GameFramework::I->InitPlayer(0);
+
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
 }

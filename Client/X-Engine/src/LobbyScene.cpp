@@ -2,6 +2,9 @@
 #include "LobbyScene.h"
 
 #include "X-Engine.h"
+#include "Scene.h"
+#include "InputMgr.h"
+
 #include "Component/UI.h"
 
 void LobbyScene::Init()
@@ -13,6 +16,11 @@ void LobbyScene::Init()
 void LobbyScene::Update()
 {
 	Canvas::I->Update();
+
+	if (KEY_TAP('S')) {
+		Engine::I->LoadScene(SceneType::Battle);
+		Canvas::I->RemoveUI(0, "Title");
+	}
 }
 
 void LobbyScene::Render()

@@ -18,7 +18,7 @@ Engine::Engine()
 	:
 	mTitle(L"LabProject")
 {
-
+	mUpdateFunc = &Engine::UpdateLobby;
 }
 
 
@@ -29,7 +29,6 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd)
 	WindowInfo windowInfo{ hWnd, Engine::I->GetWindowWidth(), Engine::I->GetWindowHeight() };
 	DXGIMgr::I->Init(hInstance, windowInfo);
 
-	//BuildObjects();
 	LobbyScene::I->Init();
 
 #pragma region Imgui - 장재문 - 
@@ -54,8 +53,7 @@ void Engine::Update()
 	DXGIMgr::I->Update();
 
 	// update scene
-	//Scene::I->Update();
-	LobbyScene::I->Update();
+	(this->*mUpdateFunc)();
 
 	// update input
 	InputMgr::I->Update();
@@ -63,8 +61,7 @@ void Engine::Update()
 	// rendering
 #ifndef RENDER_FOR_SERVER
 
-	//DXGIMgr::I->Render();
-	DXGIMgr::I->RenderLobby();
+	DXGIMgr::I->Render();
 
 #else
 
@@ -143,9 +140,39 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return false;
 }
 
-void Engine::BuildObjects()
+void Engine::LoadScene(SceneType sceneType)
 {
-	Scene::I->Start();
+	SceneRenderType renderType;
+
+	switch (sceneType) {
+	case SceneType::Lobby:
+		renderType = SceneRenderType::Lobby;
+		mUpdateFunc = &Engine::UpdateLobby;
+		break;
+	case SceneType::Battle:
+		renderType = SceneRenderType::Battle;
+		mUpdateFunc = &Engine::UpdateBattle;
+
+		Scene::I->BuildObjects();
+		Scene::I->Start();
+		//Scene::I->ReleaseUploadBuffers();
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	DXGIMgr::I->SwitchScene(renderType);
+}
+
+void Engine::UpdateLobby()
+{
+	LobbyScene::I->Update();
+}
+
+void Engine::UpdateBattle()
+{
+	Scene::I->Update();
 }
 
 void Engine::WindowFocusOn()

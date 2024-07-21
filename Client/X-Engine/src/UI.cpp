@@ -24,7 +24,7 @@ UITexture::UITexture(const std::string& imageName, float width, float height)
 
 
 #pragma region UI
-UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader)
+UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader, const std::string& name)
 	:
 	Transform(this),
 	mShader(shader)
@@ -35,6 +35,11 @@ UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rspt
 	// ������Ʈ ��� ���� ��� �÷��״� ���� ������ �� �ִ�.
 	SetUseObjCB(true);
 	SetPosition(pos);
+
+	mName = name;
+	if (mName == "") {
+		mName = textureName;
+	}
 }
 
 void UI::ChangeUITexture(rsptr<UITexture> newUITexture)
@@ -227,12 +232,12 @@ void Canvas::Render() const
 	}
 }
 
-sptr<UI> Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
+sptr<UI> Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader, const std::string& name)
 {
 	if (layer > (mkLayerCnt - 1))
 		return nullptr;
 
-	sptr<UI> ui = std::make_shared<UI>(texture, pos, width, height, RESOURCE<Shader>(shader));
+	sptr<UI> ui = std::make_shared<UI>(texture, pos, width, height, RESOURCE<Shader>(shader), name);
 	mUIs[layer].insert(ui);
 	return ui;
 }
@@ -245,5 +250,14 @@ sptr<SliderUI> Canvas::CreateSliderUI(Layer layer, const std::string& texture, c
 	sptr<SliderUI> ui = std::make_shared<SliderUI>(texture, pos, width, height, RESOURCE<Shader>(shader));
 	mUIs[layer].insert(ui);
 	return ui;
+}
+void Canvas::RemoveUI(Layer layer, const std::string& name)
+{
+	for (auto& ui : mUIs[layer]) {
+		if (ui->GetName() == name) {
+			mUIs[layer].erase(ui);
+			return;
+		}
+	}
 }
 #pragma endregion

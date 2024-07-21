@@ -1,6 +1,9 @@
 ﻿#pragma once
 
-class GridObject;
+enum class SceneType {
+	Lobby,
+	Battle
+};
 
 class Engine : public Singleton<Engine> {
 	friend Singleton;
@@ -10,6 +13,8 @@ private:
 	short mWindowHeight{ 1080 };
 	bool mIsWindowFocused{ true };
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열
+
+	void (Engine::* mUpdateFunc)();
 
 public:
 	Engine();
@@ -27,8 +32,11 @@ public:
 
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+	void LoadScene(SceneType sceneType);
+
 private:
-	void BuildObjects();
+	void UpdateLobby();
+	void UpdateBattle();
 
 	void WindowFocusOn();
 	void WindowFocusOff();

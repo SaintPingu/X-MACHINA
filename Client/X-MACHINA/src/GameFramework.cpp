@@ -48,16 +48,18 @@ GameFramework::~GameFramework()
 {
 }
 
-void GameFramework::Init(HINSTANCE hInstance, short width, short height)
+void GameFramework::Init(HINSTANCE hInstance)
 {
 	/* mhWnd 초기화 */
+	const short width = Engine::I->GetWindowWidth();
+	const short height = Engine::I->GetWindowHeight();
 	mhInst = hInstance;
 	mResolution.Width = width;
 	mResolution.Height = height;
 	CreateGameClientWindow();
 
 	// Init //
-	Engine::I->Init(hInstance, mhWnd, static_cast<short>(width), static_cast<short>(height));
+	Engine::I->Init(hInstance, mhWnd);
 
 	XLManager::I->LoadTables();
 }
@@ -71,8 +73,8 @@ void GameFramework::Release()
 
 int GameFramework::GameLoop()
 {
-	InitPlayer(0);
-	mGameManager = GAME_MGR->AddComponent<Script_GameManager>();
+	//InitPlayer(0);
+	//	mGameManager = GAME_MGR->AddComponent<Script_GameManager>();
 
 	static HACCEL hAccelTable = LoadAccelerators(mhInst, MAKEINTRESOURCE(IDC_XMACHINA));
 	static MSG msg{};

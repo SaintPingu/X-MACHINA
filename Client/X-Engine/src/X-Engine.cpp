@@ -6,6 +6,7 @@
 
 #include "Timer.h"
 #include "Scene.h"
+#include "LobbyScene.h"
 #include "Object.h"
 
 #pragma region  - 장재문 -
@@ -21,14 +22,15 @@ Engine::Engine()
 }
 
 
-void Engine::Init(HINSTANCE hInstance, HWND hWnd, short width, short height)
+void Engine::Init(HINSTANCE hInstance, HWND hWnd)
 {
 	InputMgr::I->Init();
 
-	WindowInfo windowInfo{ hWnd, width, height };
+	WindowInfo windowInfo{ hWnd, Engine::I->GetWindowWidth(), Engine::I->GetWindowHeight() };
 	DXGIMgr::I->Init(hInstance, windowInfo);
 
-	BuildObjects();
+	//BuildObjects();
+	LobbyScene::I->Init();
 
 #pragma region Imgui - 장재문 - 
 	ImGuiMgr::I->Init();
@@ -52,7 +54,8 @@ void Engine::Update()
 	DXGIMgr::I->Update();
 
 	// update scene
-	Scene::I->Update();
+	//Scene::I->Update();
+	LobbyScene::I->Update();
 
 	// update input
 	InputMgr::I->Update();
@@ -60,7 +63,8 @@ void Engine::Update()
 	// rendering
 #ifndef RENDER_FOR_SERVER
 
-	DXGIMgr::I->Render();
+	//DXGIMgr::I->Render();
+	DXGIMgr::I->RenderLobby();
 
 #else
 

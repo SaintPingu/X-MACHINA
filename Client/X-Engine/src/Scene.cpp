@@ -61,7 +61,9 @@ void Scene::Release()
 		object->Destroy();
 		});
 
-	mGameManager->OnDestroy();
+	if (mGameManager) {
+		mGameManager->OnDestroy();
+	}
 }
 #pragma endregion
 
@@ -236,9 +238,6 @@ void Scene::UpdateMaterialBuffer()
 #pragma region Build
 void Scene::BuildObjects()
 {
-	// load canvas (UI)
-	Canvas::I->Init();
-
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
 	mGameManager   = std::make_shared<Object>();

@@ -42,7 +42,7 @@ public:
 	rsptr<Script_GameManager> GetGameManager() const { return mGameManager; }
 
 public:
-	void Init(HINSTANCE hInstance, short width, short height);
+	void Init(HINSTANCE hInstance);
 	LRESULT ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

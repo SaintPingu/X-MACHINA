@@ -131,7 +131,6 @@ public:
 
 public:
 	void Init();
-	void BuildUIs();
 
 	void Update();
 	void Render() const;

@@ -193,6 +193,7 @@ public:
 
 	// render scene
 	void Render();
+	void RenderLobby();
 
 	void RenderForServer();
 	void RenderForServerWithTerrain();

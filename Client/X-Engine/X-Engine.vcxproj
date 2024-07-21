@@ -241,6 +241,7 @@
     <ClCompile Include="src\Grid.cpp" />
     <ClCompile Include="src\InputMgr.cpp" />
     <ClCompile Include="src\Light.cpp" />
+    <ClCompile Include="src\LobbyScene.cpp" />
     <ClCompile Include="src\LUTFilter.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\MeshRenderer.cpp" />
@@ -320,6 +321,7 @@
     <ClInclude Include="include\HumanBone.h" />
     <ClInclude Include="include\InputMgr.h" />
     <ClInclude Include="include\Light.h" />
+    <ClInclude Include="include\LobbyScene.h" />
     <ClInclude Include="include\LUTFilter.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\MeshRenderer.h" />

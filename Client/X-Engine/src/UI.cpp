@@ -40,7 +40,7 @@ UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rspt
 void UI::ChangeUITexture(rsptr<UITexture> newUITexture)
 {
 	mUITexture = newUITexture;
-}
+} 
 
 void UI::UpdateShaderVars()
 {
@@ -205,13 +205,6 @@ void Canvas::Init()
 {
 	mWidth = DXGIMgr::I->GetWindowWidth();
 	mHeight = DXGIMgr::I->GetWindowHeight();
-
-	BuildUIs();
-}
-
-void Canvas::BuildUIs()
-{
-	//mFont = std::make_shared<MyFont>(Vec2(-600, 900), 100.f, 100.f);
 }
 
 void Canvas::Update()

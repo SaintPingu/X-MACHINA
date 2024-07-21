@@ -6,7 +6,7 @@
 
 class GameObject;
 class Rigidbody;
-
+class UI;
 
 enum class ItemType {
 	None,
@@ -19,9 +19,22 @@ enum class ItemType {
 class Script_Item abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Item, Component)
 
+private:
+	sptr<UI> mUI{};
+	bool mCanInteract{};
+
+public:
+	virtual void Awake() override;
+	virtual void Update() override;
+	virtual void OnCollisionEnter(Object& other) override;
+	virtual void OnCollisionExit(Object& other) override;
+
 public:
 	virtual bool Interact(Object* user) abstract;
 	virtual ItemType GetItemType() abstract;
+
+protected:
+	virtual void DisableInteract();
 };
 
 
@@ -41,13 +54,16 @@ public:
 public:
 	virtual void Awake() override;
 	virtual void Animate() override;
+	virtual void OnCollisionEnter(Object& other) override;
 
 public:
 	virtual bool Interact(Object* user) override;
 	virtual ItemType GetItemType() override { return ItemType::WeaponCrate; }
 
-public:
 	virtual void LoadData(rsptr<ScriptExporter> exporter) override;
+
+protected:
+	virtual void DisableInteract();
 };
 
 

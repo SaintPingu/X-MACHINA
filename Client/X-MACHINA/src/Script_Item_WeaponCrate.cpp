@@ -23,6 +23,8 @@ void Script_Item_WeaponCrate::Awake()
 
 void Script_Item_WeaponCrate::Animate()
 {
+	base::Animate();
+
 	if (!mIsOpend) {
 		return;
 	}
@@ -38,6 +40,15 @@ void Script_Item_WeaponCrate::Animate()
 
 	mCapPitch += openAmount;
 	mCap->Rotate(Vector3::Down, openAmount);
+}
+
+void Script_Item_WeaponCrate::OnCollisionEnter(Object& other)
+{
+	if (mIsOpend) {
+		return;
+	}
+
+	base::OnCollisionEnter(other);
 }
 
 void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
@@ -74,12 +85,19 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 	}
 }
 
+void Script_Item_WeaponCrate::DisableInteract()
+{
+	base::DisableInteract();
+
+	mIsOpend = true;
+}
+
 bool Script_Item_WeaponCrate::Interact(Object* user)
 {
 	if (mIsOpend) {
 		return false;
 	}
-	mIsOpend = true;
+	DisableInteract();
 
 	if (mWeapon) {
 		mWeapon->SetActive(true);

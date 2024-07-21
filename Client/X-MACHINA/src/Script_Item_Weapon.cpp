@@ -13,6 +13,8 @@
 
 void Script_Item_Weapon::Awake()
 {
+	base::Awake();
+
 	mRigid = mObject->AddComponent<Rigidbody>();
 	mMaxFloatingSpeed = 0.25f;
 	mObject->mObjectCB.UseOutline = true;
@@ -20,6 +22,8 @@ void Script_Item_Weapon::Awake()
 
 void Script_Item_Weapon::Animate()
 {
+	base::Animate();
+
 	if (!mDroped) {
 		return;
 	}
@@ -59,6 +63,7 @@ bool Script_Item_Weapon::Interact(Object* user)
 		mObject->SetTag(ObjectTag::Unspecified);
 		mObject->SetActive(false);
 		mObject->mObjectCB.UseOutline = false;
+		DisableInteract();
 	}
 	else {
 		std::cout << "[ERROR] weapon item has no script\n";

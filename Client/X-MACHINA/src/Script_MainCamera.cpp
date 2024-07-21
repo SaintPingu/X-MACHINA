@@ -48,14 +48,16 @@ void Script_MainCamera::Update()
 {
 	Shake();
 
-	Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y) + mShakeOffset;
-	offset *= mZoomAmount;
-	mObject->SetPosition(mTarget->GetPosition() + offset);
+	if (mTarget) {
+		Vec3 offset = mMainOffset + Vec3(mExtraOffset.x, 0.f, mExtraOffset.y) + mShakeOffset;
+		offset *= mZoomAmount;
+		mObject->SetPosition(mTarget->GetPosition() + offset);
 
-	Matrix noLagViewMtx = Matrix::CreateLookAt(mTarget->GetPosition() + offset, mTarget->GetPosition(), mTarget->GetUp());
-	MAIN_CAMERA->SetNoLagViewMtx(noLagViewMtx);
+		Matrix noLagViewMtx = Matrix::CreateLookAt(mTarget->GetPosition() + offset, mTarget->GetPosition(), mTarget->GetUp());
+		MAIN_CAMERA->SetNoLagViewMtx(noLagViewMtx);
 
-	RecoverExtraOffset();
+		RecoverExtraOffset();
+	}
 }
 
 void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)

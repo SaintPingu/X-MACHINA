@@ -21,6 +21,7 @@ void Script_GameManager::Awake()
 {
 	base::Awake();
 
+	MainCamera::I->AddComponent<Script_MainCamera>();
 	GameFramework::I->InitPlayer(0);
 
 	InitSceneObjectScripts();

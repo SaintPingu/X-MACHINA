@@ -27,6 +27,8 @@ Light::Light()
 
 	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
 	mSceneBounds.Radius = sqrt(gkSceneBoundsRad * gkSceneBoundsRad + gkSceneBoundsRad * gkSceneBoundsRad);
+
+	SetSunlight();
 }
 
 Light::~Light()
@@ -52,12 +54,13 @@ void Light::BuildLights(std::ifstream& file)
 	LoadLightObjects(file);
 	LoadLightModels();
 
-	SetSunlight();
 	BuildLights();
 }
 
 void Light::BuildLights()
 {
+	SetSunlight();
+
 	// TODO : 현재는 로드 라이트를 라이트에 복사하지만, 로드 부분을 수정하여 라이트에 바로 데이터를 채워줄 예정이다.
 	for (int i = 0; i < mLoadLights->Lights.size(); ++i) {
 		const auto& loadLight = mLoadLights->Lights[i];

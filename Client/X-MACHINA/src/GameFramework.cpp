@@ -323,8 +323,6 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 void GameFramework::ConnectToServer()
 {
-	MainCamera::I->AddComponent<Script_MainCamera>();
-
 #ifdef SERVER_COMMUNICATION
 	// Communication //
 	//std::cout << "IP : ";

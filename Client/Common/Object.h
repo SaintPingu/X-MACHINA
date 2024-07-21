@@ -22,6 +22,7 @@ class ObjectCollider;
 class Animator;
 class GameObject : public Object {
 	using base = Object;
+	friend class LobbyScene;
 	friend class BattleScene;
 	friend class RenderedAbility;
 	friend class DynamicEnvironmentMappingManager;
@@ -52,9 +53,11 @@ public:
 	sptr<Animator> GetAnimator() const { return mAnimator; }
 	bool GetUseShadow() const { return mUseShadow; }
 
+public:
+	virtual void Render();
+
 protected:
 	virtual void Animate() override;
-	virtual void Render();
 
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.

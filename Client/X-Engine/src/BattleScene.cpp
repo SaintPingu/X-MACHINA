@@ -41,8 +41,7 @@ BattleScene::BattleScene()
 	:
 	mMapBorder(kBorderPos, kBorderExtents),
 	mGridXLength(static_cast<int>(mMapBorder.Extents.x / kGridXCount)),
-	mGridZLength(static_cast<int>(mMapBorder.Extents.z / kGridZCount)),
-	mLight(std::make_shared<Light>())
+	mGridZLength(static_cast<int>(mMapBorder.Extents.z / kGridZCount))
 {
 #ifdef RENDER_FOR_SERVER
 #ifndef RENDER_FOR_SERVER_WITH_TEXTURE
@@ -54,10 +53,6 @@ BattleScene::BattleScene()
 
 void BattleScene::Release()
 {
-	FRAME_RESOURCE_MGR->WaitForGpuComplete();
-
-	ReleaseObjects();
-
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Destroy();
 		});
@@ -100,118 +95,6 @@ std::vector<sptr<GameObject>> BattleScene::GetAllObjects() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region DirectX
-void BattleScene::ReleaseUploadBuffers()
-{
-	MeshRenderer::ReleaseUploadBuffers();
-}
-
-void BattleScene::UpdateShaderVars()
-{
-	UpdateMainPassCB();
-#ifdef RENDER_TEXTURE
-	UpdateShadowPassCB();
-	UpdateSsaoCB();
-#endif
-	UpdateMaterialBuffer();
-}
-
-void BattleScene::UpdateMainPassCB()
-{
-	Matrix proj = MAIN_CAMERA->GetProjMtx();
-	PassConstants passCB;
-	passCB.MtxView = MAIN_CAMERA->GetViewMtx().Transpose();
-	passCB.MtxProj = MAIN_CAMERA->GetProjMtx().Transpose();
-	passCB.MtxInvProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
-	passCB.MtxShadow = mLight->GetShadowMtx().Transpose();
-	passCB.MtxNoLagView = MAIN_CAMERA->GetNoLagViewtx().Transpose();
-	passCB.CameraPos = MAIN_CAMERA->GetPosition();
-	passCB.CameraRight = MAIN_CAMERA->GetRight();
-	passCB.CameraUp = MAIN_CAMERA->GetUp();
-	passCB.DeltaTime = DeltaTime();
-	passCB.TotalTime = Timer::I->GetTotalTime();
-	passCB.FrameBufferWidth = DXGIMgr::I->GetWindowWidth();
-	passCB.FrameBufferHeight = DXGIMgr::I->GetWindowHeight();
-	passCB.SkyBoxIndex = mSkyBox->GetTexture()->GetSrvIdx();
-	passCB.DefaultDsIndex = RESOURCE<Texture>("DefaultDepthStencil")->GetSrvIdx();
-	passCB.ShadowDsIndex = RESOURCE<Texture>("ShadowDepthStencil")->GetSrvIdx();
-	passCB.CustomDsIndex = RESOURCE<Texture>("CustomDepthStencil")->GetSrvIdx();
-	passCB.RT0G_PositionIndex = RESOURCE<Texture>("PositionTarget")->GetSrvIdx();
-	passCB.RT1G_NormalIndex = RESOURCE<Texture>("NormalTarget")->GetSrvIdx();
-	passCB.RT2G_DiffuseIndex = RESOURCE<Texture>("DiffuseTarget")->GetSrvIdx();
-	passCB.RT3G_EmissiveIndex = RESOURCE<Texture>("EmissiveTarget")->GetSrvIdx();
-	passCB.RT4G_MetallicSmoothnessIndex = RESOURCE<Texture>("MetallicSmoothnessTarget")->GetSrvIdx();
-	passCB.RT5G_OcclusionIndex = RESOURCE<Texture>("OcclusionTarget")->GetSrvIdx();
-	passCB.RT0L_DiffuseIndex = RESOURCE<Texture>("DiffuseAlbedoTarget")->GetSrvIdx();
-	passCB.RT1L_SpecularIndex = RESOURCE<Texture>("SpecularAlbedoTarget")->GetSrvIdx();
-	passCB.RT2L_AmbientIndex = RESOURCE<Texture>("AmbientTarget")->GetSrvIdx();
-	passCB.RT0S_SsaoIndex = RESOURCE<Texture>("SSAOTarget_0")->GetSrvIdx();
-	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
-	passCB.RT6G_OutlineIndex = RESOURCE<Texture>("OutlineTarget")->GetSrvIdx();
-	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
-
-#ifdef RENDER_TEXTURE
-
-	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
-	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
-
-#endif
-
-	passCB.LightCount = mLight->GetLightCount();
-	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
-	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
-	passCB.ShadowIntensity = 0.0f;
-	passCB.FogColor = Colors::Gray;
-	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
-
-	FRAME_RESOURCE_MGR->CopyData(0, passCB);
-}
-
-void BattleScene::UpdateShadowPassCB()
-{
-	PassConstants passCB;
-	passCB.MtxView = mLight->GetLightViewMtx().Transpose();
-	passCB.MtxProj = mLight->GetLightProjMtx().Transpose();
-	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
-
-	FRAME_RESOURCE_MGR->CopyData(1, passCB);
-}
-
-void BattleScene::UpdateSsaoCB()
-{
-	SsaoConstants ssaoCB;
-
-	Matrix mtxProj = MAIN_CAMERA->GetProjMtx();
-	Matrix mtxTex = {
-		0.5f, 0.0f, 0.0f, 0.0f,
-		0.0f, -0.5f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f };
-
-	ssaoCB.MtxInvProj = MAIN_CAMERA->GetProjMtx().Invert().Transpose();
-	ssaoCB.MtxProjTex = (mtxProj * mtxTex).Transpose();
-	DXGIMgr::I->GetSsao()->GetOffsetVectors(ssaoCB.OffsetVectors);
-
-	// for Blur 
-	auto blurWeights = Filter::CalcGaussWeights(2.5f);
-	ssaoCB.BlurWeights[0] = Vec4(&blurWeights[0]);
-	ssaoCB.BlurWeights[1] = Vec4(&blurWeights[4]);
-	ssaoCB.BlurWeights[2] = Vec4(&blurWeights[8]);
-
-	auto ssaoTarget = RESOURCE<Texture>("SSAOTarget_0");
-	ssaoCB.InvRenderTargetSize = Vec2{ 1.f / ssaoTarget->GetWidth(), 1.f / ssaoTarget->GetHeight() };
-
-	// coordinates given in view space.
-	ssaoCB.OcclusionRadius = 0.5f;
-	ssaoCB.OcclusionFadeStart = 0.2f;
-	ssaoCB.OcclusionFadeEnd = 1.0f;
-	ssaoCB.SurfaceEpsilon = 0.05f;
-	ssaoCB.AccessContrast = 12;
-
-	ssaoCB.RandomVectorIndex = RESOURCE<Texture>("RandomVector")->GetSrvIdx();
-
-	FRAME_RESOURCE_MGR->CopyData(ssaoCB);
-}
-
 void BattleScene::UpdateAbilityCB(int& idx, const AbilityConstants& value)
 {
 	FRAME_RESOURCE_MGR->CopyData(idx, value);
@@ -221,14 +104,6 @@ void BattleScene::SetAbilityCB(int idx) const
 {
 	CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Ability), FRAME_RESOURCE_MGR->GetAbilityCBGpuAddr(idx));
 }
-
-void BattleScene::UpdateMaterialBuffer()
-{
-	ResourceMgr::I->ProcessFunc<MasterModel>(
-		[](sptr<MasterModel> model) {
-			model->GetMesh()->UpdateMaterialBuffer();
-		});
-}
 #pragma endregion
 
 
@@ -237,8 +112,9 @@ void BattleScene::UpdateMaterialBuffer()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region Build
-void BattleScene::BuildObjects()
+void BattleScene::Build()
 {
+	Scene::Build();
 	std::cout << "Load Battle Scene...";
 
 	// load models
@@ -246,12 +122,6 @@ void BattleScene::BuildObjects()
 
 	// build settings
 	BuildTerrain();
-
-	// build static meshes
-	MeshRenderer::BuildMeshes();
-
-	// skybox
-	mSkyBox = std::make_shared<SkyBox>();
 
 	// Hello
 	{
@@ -278,11 +148,8 @@ void BattleScene::BuildObjects()
 	}
 
 	std::cout << "OK\n";
-}
 
-void BattleScene::ReleaseObjects()
-{
-	MeshRenderer::Release();
+	Start();
 }
 
 void BattleScene::BuildTerrain()
@@ -515,13 +382,6 @@ void BattleScene::RenderDeferred()
 }
 
 
-void BattleScene::RenderLights()
-{
-	if (mLight) {
-		mLight->Render();
-	}
-}
-
 void BattleScene::RenderCustomDepth()
 {
 	if (!DXGIMgr::I->GetFilterOption(FilterOption::Custom))
@@ -546,11 +406,6 @@ void BattleScene::RenderUI()
 {
 	Canvas::I->Render();
 	RenderBounds();
-}
-
-void BattleScene::RenderText(RComPtr<ID2D1DeviceContext2> device)
-{
-	TextMgr::I->Render(device);
 }
 
 void BattleScene::ApplyDynamicContext()
@@ -805,7 +660,6 @@ void BattleScene::Start()
 {
 	/* Awake */
 	mTerrain->Awake();
-	MainCamera::I->Awake();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});
@@ -814,7 +668,6 @@ void BattleScene::Start()
 
 	/* Enable */
 	mTerrain->SetActive(true);
-	MainCamera::I->SetActive(true);
 	ProcessAllObjects([](sptr<Object> object) {
 		object->SetActive(true);
 		});

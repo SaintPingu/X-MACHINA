@@ -61,10 +61,10 @@ public:
 	// 조명의 볼륨 메쉬를 렌더링한다.
 	void Render();
 
-private:
-
 	// 조명을 Sunlight로 설정한다.
 	void SetSunlight();
+
+private:
 
 	// 조명 모델 폴더에서 조명 모델들을 불러온다.
 	void LoadLightModels();

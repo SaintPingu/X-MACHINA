@@ -182,8 +182,6 @@ public:
 	virtual void Render(const GameObject* object) const;
 	// render instanced objects from [objectPool]
 	virtual void Render(const ObjectPool* objectPool) const;
-	// render sprite [object]
-	virtual void RenderSprite(const GameObject* object) const;
 
 	bool HasMesh(UINT index) const { return mFrameMeshInfo[index].VertexCnt > 0; }
 

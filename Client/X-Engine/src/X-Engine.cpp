@@ -8,6 +8,7 @@
 #include "BattleScene.h"
 #include "LobbyScene.h"
 #include "Object.h"
+#include "FrameResource.h"
 
 #pragma region  - 장재문 -
 #include "../Imgui/ImguiCode/imgui.h"
@@ -42,6 +43,8 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd)
 
 void Engine::Release()
 {
+	FRAME_RESOURCE_MGR->WaitForGpuComplete();
+
 	BattleScene::I->Release();
 	DXGIMgr::I->Release();
 }
@@ -131,8 +134,7 @@ void Engine::LoadScene(SceneType sceneType)
 	case SceneType::Battle:
 		mUpdateFunc = &Engine::UpdateBattle;
 
-		BattleScene::I->BuildObjects();
-		BattleScene::I->Start();
+		BattleScene::I->Build();
 
 		//Scene::I->ReleaseUploadBuffers();
 		break;

@@ -4,31 +4,18 @@
 #include "X-Engine.h"
 #include "BattleScene.h"
 #include "Object.h"
+#include "Model.h"
+#include "Light.h"
+#include "SkyBox.h"
 #include "InputMgr.h"
 #include "TextMgr.h"
+#include "ResourceMgr.h"
 #include "DXGIMgr.h"
+#include "Shader.h"
 
+#include "Component/Camera.h"
 #include "Component/UI.h"
 
-void LobbyScene::Init()
-{
-	// title
-	Canvas::I->CreateUI(0, "Title", Vec2::Zero, Engine::I->GetWindowWidth(), Engine::I->GetWindowHeight());
-
-	//sptr<GameObject> cursor = std::make_shared<GameObject>();
-	//const auto& cursorUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
-	//cursor->AddComponent<Script_AimController>()->SetUI(cursorUI);
-}
-
-void LobbyScene::Update()
-{
-	Canvas::I->Update();
-
-	if (KEY_TAP('S')) {
-		Engine::I->LoadScene(SceneType::Battle);
-		Canvas::I->RemoveUI(0, "Title");
-	}
-}
 
 void LobbyScene::RenderBegin()
 {
@@ -36,15 +23,21 @@ void LobbyScene::RenderBegin()
 
 void LobbyScene::RenderShadow()
 {
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	RESOURCE<Shader>("Shadow_SkinMesh")->Set();
+	//RESOURCE<Shader>("Shadow_Global")->Set();
+
+	for (const auto& object : mObjects) {
+		object->Render();
+	}
 }
 
 void LobbyScene::RenderDeferred()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
 
-void LobbyScene::RenderLights()
-{
+	RenderObjects();
 }
 
 void LobbyScene::RenderCustomDepth()
@@ -53,6 +46,8 @@ void LobbyScene::RenderCustomDepth()
 
 void LobbyScene::RenderForward()
 {
+	RESOURCE<Shader>("SkyBox")->Set();
+	mSkyBox->Render();
 }
 
 
@@ -61,11 +56,76 @@ void LobbyScene::RenderUI()
 	Canvas::I->Render();
 }
 
-void LobbyScene::RenderText(RComPtr<ID2D1DeviceContext2> device)
-{
-	TextMgr::I->Render(device);
-}
-
 void LobbyScene::ApplyDynamicContext()
 {
+}
+
+void LobbyScene::Update()
+{
+	//ParticleManager::I->Update();
+	UpdateObjects();
+
+	MainCamera::I->Update();
+	MAIN_CAMERA->UpdateViewMtx();
+	mLight->Update();
+	Canvas::I->Update();
+
+	if (KEY_TAP('S')) {
+		Engine::I->LoadScene(SceneType::Battle);
+		Canvas::I->RemoveUI(0, "Title");
+	}
+
+	UpdateShaderVars();
+}
+
+void LobbyScene::Build()
+{
+	Scene::Build();
+	std::cout << "Load Lobby Scene...";
+	
+	const auto& model = RESOURCE<MasterModel>("EliteTrooper");
+
+	sptr<GameObject> instance = std::make_shared<GameObject>();
+	instance->SetPosition(Vector3::Zero);
+	instance->SetModel(model);
+	mObjects.push_back(instance);
+
+	std::cout << "OK\n";
+
+	Start();
+	Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 800, 600);
+}
+
+void LobbyScene::Start()
+{
+	MainCamera::I->SetActive(true);
+	MainCamera::I->SetPosition(Vec3(2, 2, 2));
+	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
+	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
+	mLight->BuildLights();
+}
+
+void LobbyScene::UpdateObjects()
+{
+	for (const auto& object : mObjects) {
+		object->Update();
+	}
+
+	for (const auto& object : mObjects) {
+		object->Animate();
+	}
+
+	for (const auto& object : mObjects) {
+		object->LateUpdate();
+	}
+}
+
+void LobbyScene::RenderObjects()
+{
+	RESOURCE<Shader>("SkinMesh")->Set();
+	//RESOURCE<Shader>("Global")->Set();
+
+	for (const auto& object : mObjects) {
+		object->Render();
+	}
 }

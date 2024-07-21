@@ -41,15 +41,6 @@ void GameObject::SetModel(const std::string& modelName)
 	SetModel(RESOURCE<MasterModel>(modelName));
 }
 
-void GameObject::Animate()
-{
-	base::Animate();
-
-	if (mAnimator) {
-		mAnimator->Animate();
-	}
-}
-
 void GameObject::Render()
 {
 	if (mAnimator) {
@@ -57,6 +48,15 @@ void GameObject::Render()
 	}
 	if (mMasterModel) {
 		mMasterModel->Render(this);
+	}
+}
+
+void GameObject::Animate()
+{
+	base::Animate();
+
+	if (mAnimator) {
+		mAnimator->Animate();
 	}
 }
 

@@ -16,6 +16,7 @@
 #include "SobelFilter.h"
 #include "Ssao.h"
 #include "Bloom.h"
+#include "MeshRenderer.h"
 
 #include "InputMgr.h"
 #include "TextMgr.h"
@@ -929,9 +930,14 @@ void DXGIMgr::MoveToNextFrame()
 
 void DXGIMgr::BuildScene()
 {
+	mCrntScene->Build();
+	MeshRenderer::BuildMeshes();
+
 	mCmdList->Close();
 	ID3D12CommandList* cmdsLists[] = { mCmdList.Get() };
 	mCmdQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	WaitForGpuComplete();
+
+	MeshRenderer::ReleaseUploadBuffers();
 }

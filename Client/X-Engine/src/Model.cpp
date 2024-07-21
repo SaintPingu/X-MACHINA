@@ -155,6 +155,11 @@ void MasterModel::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>
 	mMesh->MergeMesh(mesh, materials);
 }
 
+void MasterModel::Render(const GameObject* object) const
+{
+	mMesh->Render(object);
+}
+
 void MasterModel::Render(const ObjectPool* objectPool) const
 {
 	mMesh->Render(objectPool);
@@ -163,15 +168,4 @@ void MasterModel::Render(const ObjectPool* objectPool) const
 void MasterModel::CopyModelHierarchy(GameObject* object) const
 {
 	mModel->CopyModelHierarchy(object);
-}
-
-
-void MasterModel::RenderObject(const GameObject* object) const
-{
-	mMesh->Render(object);
-}
-
-void MasterModel::RenderSprite(const GameObject* object) const
-{
-	mMesh->RenderSprite(object);
 }

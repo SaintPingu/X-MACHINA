@@ -713,25 +713,6 @@ void MergedMesh::Render(const ObjectPool* objectPool) const
 }
 
 
-void MergedMesh::RenderSprite(const GameObject* object) const
-{
-	//constexpr int kRootIndex{ 0 };
-	//if (!HasMesh(kRootIndex)) {	// 스프라이트는 루트의 메쉬를 사용해 렌더링한다.
-	//	return;
-	//}
-
-	//CMD_LIST->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
-	//CMD_LIST->IASetIndexBuffer(&mIndexBufferView);
-
-	//constexpr UINT kTransformIndex{ 0 };
-	//const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[kTransformIndex];
-
-	//object->GetComponent<Script_Sprite>()->UpdateSpriteVariable(modelMeshInfo.Materials.front()->mMatIndex);
-
-	//constexpr UINT kIndexCnt{ 6 };
-	//CMD_LIST->DrawIndexedInstanced(kIndexCnt, 1, 0, 0, 0);
-}
-
 // sub meshes는 한 정점 버퍼에 대한 여러개의 indices만을 가진다.
 // -> 각 indices의 내용과 그 개수를 저장해 사용하도록 한다.
 void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelMeshInfo)

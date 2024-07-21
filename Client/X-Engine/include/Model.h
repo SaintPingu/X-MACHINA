@@ -127,9 +127,6 @@ public:
 	rsptr<MergedMesh> GetMesh() const		{ return mMesh; }
 	rsptr<Texture> GetTexture() const;
 
-	// 모델을 스프라이트로 설정한다.
-	void SetSprite() { RenderFunc = std::bind(&MasterModel::RenderSprite, this, std::placeholders::_1); }
-
 	sptr<const AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }
 	void SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo);
 
@@ -143,21 +140,12 @@ public:
 	void MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>& materials) const;
 
 	// render single [object]
-	void Render(const GameObject* object) const { RenderFunc(object); }
+	void Render(const GameObject* object) const;
 	// render instancing objects from [objectPool]
 	void Render(const ObjectPool* objectPool = nullptr) const;
 
 	// Model의 trasnform 계층구조를 [object]에 복사한다.
 	// call Model::CopyModelHierarchy()
 	void CopyModelHierarchy(GameObject* object) const;
-
-private:
-	std::function<void(const GameObject*)> RenderFunc{ std::bind(&MasterModel::RenderObject, this, std::placeholders::_1) };	// 렌더링 함수
-
-	// render [object]
-	void RenderObject(const GameObject* object) const;
-
-	// render sprite [object]
-	void RenderSprite(const GameObject* object) const;
 };
 #pragma endregion

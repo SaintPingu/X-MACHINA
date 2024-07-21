@@ -27,18 +27,6 @@ class MasterModel;
 class ObjectTag;
 #pragma endregion
 
-
-#pragma region EnumClass
-enum class RenderType : UINT8 {
-	Shadow,
-	Forward,
-	Deferred,
-	CustomDepth,
-	DynamicEnvironmentMapping,
-};
-#pragma endregion
-
-
 #pragma region Class
 class BattleScene : public Singleton<BattleScene>, public Scene {
 	friend Singleton;
@@ -50,12 +38,6 @@ public:
 	};
 
 private:
-	/* Light */
-	sptr<Light> mLight{};
-
-	/* SkyBox */
-	sptr<SkyBox> mSkyBox{};
-
 	/* Object */
 	sptr<Object>					mGameManager{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
@@ -128,22 +110,13 @@ public:
 
 #pragma region DirectX
 public:
-	void ReleaseUploadBuffers();
 	void UpdateAbilityCB(int& idx, const AbilityConstants& value);
 	void SetAbilityCB(int idx) const;
-
-private:
-	void UpdateShaderVars();
-	void UpdateMainPassCB();
-	void UpdateShadowPassCB();
-	void UpdateSsaoCB();
-	void UpdateMaterialBuffer();
 #pragma endregion
 
 #pragma region Build
 public:
-	void BuildObjects();
-	void ReleaseObjects();
+	virtual void Build() override;
 
 	// ScriptExporter 정보를 로드한다.
 	void LoadScriptExporter(std::ifstream& file, rsptr<Object> object);
@@ -176,11 +149,9 @@ public:
 	virtual void RenderBegin() override;
 	virtual void RenderShadow() override;
 	virtual void RenderDeferred() override;
-	virtual void RenderLights() override;
 	virtual void RenderCustomDepth() override;
 	virtual void RenderForward() override;
 	virtual void RenderUI() override;
-	virtual void RenderText(RComPtr<struct ID2D1DeviceContext2> device) override;
 	virtual void ApplyDynamicContext() override;
 	void RenderDynamicEnvironmentMappingObjects();
 

@@ -582,9 +582,6 @@ void ResourceMgr::LoadModels()
 		const std::string modelName = FileIO::RemoveExtension(fileName);
 
 		model = FileIO::ModelIO::LoadGeometryFromFile(rootFolder + fileName);
-		if (fileName.substr(0, 6) == "sprite") {
-			model->SetSprite();
-		}
 		ResourceMgr::I->Add(modelName, model);
 	}
 

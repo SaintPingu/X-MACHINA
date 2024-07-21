@@ -6,6 +6,7 @@
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
 
+
 void Script_Arack::Awake()
 {
 	base::Awake();

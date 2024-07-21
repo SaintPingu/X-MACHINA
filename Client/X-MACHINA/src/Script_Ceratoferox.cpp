@@ -5,7 +5,7 @@
 
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
-#include "ScriptExporter.h"
+
 
 void Script_Ceratoferox::Awake()
 {

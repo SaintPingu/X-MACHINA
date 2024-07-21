@@ -32,7 +32,6 @@ struct EnemyStat : public XLData {
 	std::string AttackAnimName{};
 	std::string GetHitAnimName{};
 	std::string DeathAnimName{};
-	std::string IdleAnimName{};
 };
 
 struct EnemyStatTable : public XLTable {
@@ -54,7 +53,6 @@ struct EnemyStatTable : public XLTable {
 		stat->AttackAnimName = row[11].value<std::string>();
 		stat->GetHitAnimName = row[12].value<std::string>();
 		stat->DeathAnimName = row[13].value<std::string>();
-		stat->IdleAnimName = row[14].value<std::string>();
 		return stat;
 	}
 };

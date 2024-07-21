@@ -6,6 +6,9 @@
 #include "Script_AdvancedCombatDroid_5.h"
 #include "Script_Arack.h"
 #include "Script_Ceratoferox.h"
+#include "Script_Anglerox.h"
+#include "Script_MiningMech.h"
+#include "Script_Aranobot.h"
 
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
@@ -76,6 +79,15 @@ void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
 		break;
 	case Hash("Ceratoferox"):
 		object->AddComponent<Script_Ceratoferox>();
+		break;
+	case Hash("Anglerox"):
+		object->AddComponent<Script_Anglerox>();
+		break;
+	case Hash("MiningMech"):
+		object->AddComponent<Script_MiningMech>();
+		break;
+	case Hash("Aranobot"):
+		object->AddComponent<Script_Aranobot>();
 		break;
 	default:
 		throw std::runtime_error("[Error] Couldn't import script");

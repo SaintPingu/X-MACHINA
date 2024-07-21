@@ -39,7 +39,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     if (diffuseMapIndex != NONE) 
          diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));
 
-    if (matInfo.AlphaTest == TRUE)
+    //if (matInfo.AlphaTest == TRUE)
         clip(diffuse.a - 0.1f);
         
     // sampling normalMap

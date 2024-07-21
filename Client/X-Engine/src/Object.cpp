@@ -4,7 +4,7 @@
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 #include "Model.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Component/Collider.h"
 #include "ObjectPool.h"
 #include "MultipleRenderTarget.h"
@@ -64,7 +64,7 @@ void GameObject::Render()
 void GameObject::AttachToGround()
 {
 	Vec3 pos = GetPosition();
-	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
+	const float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
 	pos.y = terrainHeight;
 
 	SetPosition(pos);
@@ -87,7 +87,7 @@ void GridObject::SetTag(ObjectTag tag)
 
 	base::SetTag(tag);
 
-	Scene::I->UpdateTag(this, beforeTag);
+	BattleScene::I->UpdateTag(this, beforeTag);
 }
 
 void GridObject::Awake()
@@ -121,14 +121,14 @@ void GridObject::OnDisable()
 {
 	base::OnDisable();
 
-	Scene::I->RemoveObjectFromGrid(this);
+	BattleScene::I->RemoveObjectFromGrid(this);
 }
 
 void GridObject::OnDestroy()
 {
 	base::OnDestroy();
 	
-	Scene::I->RemoveDynamicObject(this);
+	BattleScene::I->RemoveDynamicObject(this);
 }
 
 void GridObject::RenderBounds()
@@ -152,7 +152,7 @@ void GridObject::RenderBounds()
 
 void GridObject::UpdateGrid()
 {
-	Scene::I->UpdateObjectGrid(this);
+	BattleScene::I->UpdateObjectGrid(this);
 }
 
 
@@ -214,7 +214,7 @@ void InstObject::PushRender()
 #pragma region InstBulletObject
 void InstBulletObject::UpdateGrid()
 {
-	Scene::I->UpdateObjectGrid(this, false);
+	BattleScene::I->UpdateObjectGrid(this, false);
 }
 #pragma endregion
 
@@ -317,7 +317,7 @@ void DynamicEnvironmentMappingManager::Render(const std::set<GridObject*>& objec
 
 			CMD_LIST->SetGraphicsRootConstantBufferView(DXGIMgr::I->GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(2 + i));
 
-			Scene::I->RenderDynamicEnvironmentMappingObjects();
+			BattleScene::I->RenderDynamicEnvironmentMappingObjects();
 
 			mrt->WaitTargetToResource(i);
 		}

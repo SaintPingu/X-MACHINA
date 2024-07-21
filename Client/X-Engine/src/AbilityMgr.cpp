@@ -5,14 +5,14 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Object.h"
-#include "Scene.h"
+#include "BattleScene.h"
 
 void RenderedAbility::UpdateAbilityCB(float activeTime)
 {
 	mAbilityCB.ActiveTime = mActiveTime;
 	mAbilityCB.AccTime = mActiveTime - activeTime;
 
-	Scene::I->UpdateAbilityCB(mAbilityCBIdx, mAbilityCB);
+	BattleScene::I->UpdateAbilityCB(mAbilityCBIdx, mAbilityCB);
 }
 
 void RenderedAbility::Update(float activeTime)
@@ -53,7 +53,7 @@ void AbilityMgr::Render()
 			if (abilityCBIdx == -1)
 				continue;
 
-			Scene::I->SetAbilityCB(abilityCBIdx);
+			BattleScene::I->SetAbilityCB(abilityCBIdx);
 			ability->Render();
 		}
 	}

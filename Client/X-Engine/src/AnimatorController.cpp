@@ -5,7 +5,7 @@
 #include "AnimatorMotion.h"
 #include "AnimatorLayer.h"
 #include "AnimationClip.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Timer.h"
 
 AnimatorController::AnimatorController(const Animations::ParamMap& parameters, std::vector<sptr<AnimatorLayer>> layers)

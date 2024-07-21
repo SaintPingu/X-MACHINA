@@ -1,10 +1,5 @@
 ﻿#pragma once
 
-enum class SceneType {
-	Lobby,
-	Battle
-};
-
 class Engine : public Singleton<Engine> {
 	friend Singleton;
 
@@ -32,7 +27,7 @@ public:
 
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	void LoadScene(SceneType sceneType);
+	void LoadScene(enum class SceneType sceneType);
 
 private:
 	void UpdateLobby();

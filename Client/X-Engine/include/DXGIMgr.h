@@ -23,6 +23,7 @@ class DescriptorHeap;
 class GraphicsRootSignature;
 class ComputeRootSignature;
 class ParticleRenderer;
+class Scene;
 struct PassConstants;
 #pragma endregion
 
@@ -30,11 +31,6 @@ struct PassConstants;
 enum class DrawOption {
 	Main = 0,
 	Debug,
-};
-
-enum class SceneRenderType {
-	Lobby,
-	Battle
 };
 #pragma endregion
 
@@ -123,7 +119,7 @@ private:
 	std::array<sptr<MultipleRenderTarget>, MRTGroupTypeCount> mMRTs{};
 
 	// Scene
-	void (DXGIMgr::* mRenderFunc)();
+	Scene* mCrntScene{};
 
 protected:
 #pragma region C/Dtor
@@ -200,19 +196,24 @@ public:
 	void Update();
 
 	// render scene
-	void Render() { (this->*mRenderFunc)(); }
-	void SwitchScene(SceneRenderType renderSceneType);
+	void RenderScene();
 
 	// full screen on/off
 	void ToggleFullScreen();
+	void SwitchScene(enum class SceneType sceneType);
 
 private:
 	// render
-	void RenderBattle();
-	void RenderLobby();
-	void RenderForServer();
-	void RenderForServerWithTerrain();
-	void RenderForServerWithTexture();
+	void RenderShadow();
+	void RenderEnvironmentMapping();
+	void RenderDeferred();
+	void RenderSSAO();
+	void RenderLights();
+	void RenderCustomDepth();
+	void RenderOffScreen();
+	void RenderBloom();
+	void RenderPostProcessing();
+	void RenderUI();
 
 	// reset command 
 	void MainPassRenderBegin();

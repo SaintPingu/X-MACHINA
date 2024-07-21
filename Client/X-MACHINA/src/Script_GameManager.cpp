@@ -11,7 +11,7 @@
 
 #include "GameFramework.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
 
@@ -41,7 +41,7 @@ void Script_GameManager::Update()
 
 void Script_GameManager::InitSceneObjectScripts()
 {
-	Scene::I->ProcessInitScriptOjbects(std::bind(&Script_GameManager::ProcessSceneObjectScript, this, std::placeholders::_1));
+	BattleScene::I->ProcessInitScriptOjbects(std::bind(&Script_GameManager::ProcessSceneObjectScript, this, std::placeholders::_1));
 }
 
 void Script_GameManager::InitCustomObjectScripts()

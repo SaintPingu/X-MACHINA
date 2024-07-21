@@ -6,7 +6,7 @@
 
 #include "Object.h"
 #include "Timer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
@@ -135,7 +135,7 @@ void Script_Bullet::Reset()
 bool Script_Bullet::IntersectTerrain()
 {
 	const Vec3 pos = mObject->GetPosition();
-	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
+	const float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
 
 	if (pos.y <= terrainHeight) {
 		return true;

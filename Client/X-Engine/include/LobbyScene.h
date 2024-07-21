@@ -1,15 +1,31 @@
 #pragma once
 
-class UI;
+#include "Scene.h"
 
-class LobbyScene : public Singleton<LobbyScene> {
+class UI;
+class GameObject;
+
+class LobbyScene : public Singleton<LobbyScene>, public Scene {
 	friend Singleton;
 
 public:
-	std::vector<sptr<UI>> mUIs{};
+	sptr<UI> mCursor{};
+	std::vector<sptr<GameObject>> mObjects{};
 
 public:
 	void Init();
 	void Update();
-	void Render();
+
+public:
+	virtual void RenderBegin() override;
+
+	virtual void RenderShadow() override;
+	virtual void RenderDeferred() override;
+	virtual void RenderLights() override;
+	virtual void RenderCustomDepth() override;
+	virtual void RenderForward() override;
+	virtual void RenderUI() override;
+	virtual void RenderText(RComPtr<ID2D1DeviceContext2> device) override;
+
+	virtual void ApplyDynamicContext() override;
 };

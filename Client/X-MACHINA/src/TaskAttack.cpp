@@ -5,7 +5,7 @@
 #include "Script_LiveObject.h"
 
 #include "Timer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 
 #include "AnimatorMotion.h"

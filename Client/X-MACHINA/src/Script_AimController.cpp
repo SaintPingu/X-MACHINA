@@ -10,8 +10,6 @@ void Script_AimController::Awake()
 {
 	base::Awake();
 
-	mUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
-
 	RESOLUTION resolution = GameFramework::I->GetWindowResolution();
 	mMaxPos.x = resolution.Width - 10.f;
 	mMaxPos.y = resolution.Height - 30.f;
@@ -27,7 +25,9 @@ void Script_AimController::Update()
 	mMousePos.x = std::clamp(mMousePos.x, -mMaxPos.x, mMaxPos.x);
 	mMousePos.y = std::clamp(mMousePos.y, -mMaxPos.y, mMaxPos.y);
 
-	mUI->SetPosition(mMousePos);
+	if (mUI) {
+		mUI->SetPosition(mMousePos);
+	}
 }
 
 Vec2 Script_AimController::GetScreenAimPos() const
@@ -44,10 +44,13 @@ Vec2 Script_AimController::GetScreenAimPos() const
 
 rsptr<UITexture> Script_AimController::GetUITexture() 
 {
+	assert(mUI);
 	return mUI->GetUITexture();
 }
 
 void Script_AimController::ChangeAimUITexture(rsptr<UITexture> newUITexture)
 {
-	mUI->ChangeUITexture(newUITexture);
+	if (mUI) {
+		mUI->ChangeUITexture(newUITexture);
+	}
 }

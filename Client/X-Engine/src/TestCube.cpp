@@ -1,7 +1,7 @@
 #include "EnginePch.h"
 #include "TestCube.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 
 #include "ResourceMgr.h"
 #include "Texture.h"
@@ -11,7 +11,7 @@
 
 TestCube::TestCube(Vec2 pos)
 {
-	SetPosition(Vec3(pos.x, Scene::I->GetTerrainHeight(pos.x, pos.y) + mSize / 2.f, pos.y));
+	SetPosition(Vec3(pos.x, BattleScene::I->GetTerrainHeight(pos.x, pos.y) + mSize / 2.f, pos.y));
 
 	mMesh = std::make_unique<ModelObjectMesh>();
 	mMesh->CreateSphere(mSize, 64, 64);

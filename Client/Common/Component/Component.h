@@ -117,7 +117,7 @@ private:
 
 
 class Object : public Transform {
-	friend class Scene;
+	friend class BattleScene;
 	friend class Grid;
 	friend class CollisionManager;
 	friend class DynamicEnvironmentMappingManager;

@@ -46,7 +46,7 @@ public:
 
 // 전체 Terrain 관리
 class Terrain : public Transform {
-	friend class Scene;
+	friend class BattleScene;
 	friend class TerrainBlock;
 
 private:

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MinimapAbility.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "GameFramework.h"
 
 #include "Mesh.h"
@@ -37,7 +37,7 @@ void MinimapAbility::Activate()
 	mUI->SetActive(true);
 
 	base::Activate();
-	Scene::I->SetFilterOptions(FilterOption::Blur);
+	BattleScene::I->SetFilterOptions(FilterOption::Blur);
 }
 
 void MinimapAbility::DeActivate()
@@ -45,7 +45,7 @@ void MinimapAbility::DeActivate()
 	mUI->SetActive(false);
 
 	base::DeActivate();
-	Scene::I->SetFilterOptions(FilterOption::Blur);
+	BattleScene::I->SetFilterOptions(FilterOption::Blur);
 }
 
 void MinimapAbility::Render()

@@ -7,7 +7,7 @@
 #include "Script_AdvancedCombatDroid_5.h"
 
 #include "Object.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Animator.h"
 #include "AnimatorController.h"
 
@@ -400,7 +400,7 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::Creat
 /// ---------------------------------------------------------------------------+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data )
 {
-	sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
+	sptr<GridObject> remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 	remotePlayer->SetName(data->Name);
 	remotePlayer->SetID(static_cast<UINT32>(data->Id));
 
@@ -492,7 +492,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			break;
 		}
 
-		sptr<GridObject> monster = Scene::I->Instantiate(monsterName, ObjectTag::Enemy);
+		sptr<GridObject> monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
 		monster->SetID(monInfos[i].Id);
 		monster->SetName(monsterName);
 		monster->SetPosition(monInfos[i].Pos);

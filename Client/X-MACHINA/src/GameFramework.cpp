@@ -7,7 +7,7 @@
 #include "InputMgr.h"
 #include "Imgui/ImGuiMgr.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Timer.h"
 #include "Object.h"
 #include "Animator.h"
@@ -179,16 +179,16 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 			Timer::I->Start();
 			break;
 		case VK_F5:
-			Scene::I->ToggleDrawBoundings();
+			BattleScene::I->ToggleDrawBoundings();
 			break;
 		case VK_F6:
 			ImGuiMgr::I->ToggleImGui();
 			break;
 		case VK_F8:
-			Scene::I->ToggleFilterOptions();
+			BattleScene::I->ToggleFilterOptions();
 			break;
 		case VK_F9:
-			Scene::I->ToggleFullScreen();
+			BattleScene::I->ToggleFullScreen();
 			break;
 		case 192:
 			::SetFocus(NULL);
@@ -345,7 +345,7 @@ void GameFramework::ConnectToServer()
 
 void GameFramework::InitPlayer(int sessionID)
 {
-	mPlayer = Scene::I->Instantiate("EliteTrooper", ObjectTag::Player);
+	mPlayer = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
 	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_PheroPlayer>();
 

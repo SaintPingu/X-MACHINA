@@ -4,7 +4,7 @@
 #include "Script_EnemyManager.h"
 
 #include "Timer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "AnimatorController.h"
 #include "MeshRenderer.h"
@@ -39,7 +39,7 @@ BT::NodeState TaskMoveToTarget::Evaluate()
 	// 해당 광선에 맞은 다른 Static 오브젝트의 거리가 타겟까지의 거리보다 가까운 경우 벽에 막혀있는 경우이다.
 	if (mGridTarget) {
 		for (const auto& gridIndex : mGridTarget->GetGridIndices()) {
-			if (Scene::I->CheckCollisionsRay(gridIndex, r) < toTarget.Length()) {
+			if (BattleScene::I->CheckCollisionsRay(gridIndex, r) < toTarget.Length()) {
 				return BT::NodeState::Failure;
 			}
 		}

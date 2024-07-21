@@ -2,7 +2,7 @@
 #include "FileIO.h"
 #include "DXGIMgr.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Light.h"
@@ -764,7 +764,7 @@ namespace FileIO {
 					break;
 
 				case Hash("<ScriptExporter>:"):
-					Scene::I->LoadScriptExporter(file, model);
+					BattleScene::I->LoadScriptExporter(file, model);
 					break;
 
 				case Hash("</Hierarchy>"):

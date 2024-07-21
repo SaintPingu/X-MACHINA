@@ -3,7 +3,7 @@
 #include "DXGIMgr.h"
 
 #include "Timer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 
 #include "../Imgui/ImGuiMgr.h"
 

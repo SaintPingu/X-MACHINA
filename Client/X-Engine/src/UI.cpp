@@ -1,7 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "Component/UI.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "ResourceMgr.h"
 #include "Shader.h"
 #include "Texture.h"

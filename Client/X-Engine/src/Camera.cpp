@@ -4,7 +4,7 @@
 
 #include "Object.h"
 #include "Component/Collider.h"
-#include "Scene.h"
+#include "BattleScene.h"
 
 
 

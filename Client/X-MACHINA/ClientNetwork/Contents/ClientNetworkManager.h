@@ -20,7 +20,7 @@
 #include "ClientNetwork/Contents/GamePlayer.h"
 #include "ClientNetwork/Contents/GameMonster.h"
 #include "ClientNetwork/Contents/Script_RemotePlayer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "InputMgr.h"
 
 

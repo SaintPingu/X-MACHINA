@@ -3,7 +3,7 @@
 
 #include "Script_Missile.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "ObjectPool.h"
 
@@ -16,7 +16,7 @@ void Script_Weapon_MissileLauncher::Awake()
 
 void Script_Weapon_MissileLauncher::CreateBulletPool()
 {
-	mBulletPool = Scene::I->CreateObjectPool("SM_Missile", mBulletCntPerMag * mBulletCntPerShot, std::bind(&Script_Weapon_MissileLauncher::BulletInitFunc, this, std::placeholders::_1));
+	mBulletPool = BattleScene::I->CreateObjectPool("SM_Missile", mBulletCntPerMag * mBulletCntPerShot, std::bind(&Script_Weapon_MissileLauncher::BulletInitFunc, this, std::placeholders::_1));
 }
 
 

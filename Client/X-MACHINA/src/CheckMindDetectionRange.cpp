@@ -6,7 +6,7 @@
 
 #include "GameFramework.h"
 #include "Timer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "AnimatorController.h"
 
@@ -47,7 +47,7 @@ bool CheckMindDetectionRange::SetTargetNearestEnemy()
 
 	bool isSetTarget = false;
 	float minDistance = FLT_MAX;
-	const std::vector<sptr<Grid>>& grids = Scene::I->GetNeighborGrids(Scene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
+	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
 	for (const auto& grid : grids) {
 		for (const auto& object : grid->GetObjectsFromTag(ObjectTag::Enemy)) {
 			// 해당 오브젝트가 자신이면 넘어감

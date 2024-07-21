@@ -212,6 +212,12 @@ enum class CameraMode {
 	Third = 0,
 };
 
+enum class SceneType {
+	Lobby,
+	Battle
+};
+
+
 // [ root parameter index alias ]
 // usage:
 // index = Scene::I->GetGraphicsRootParamIndex(RootParam);

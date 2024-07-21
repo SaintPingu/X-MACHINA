@@ -4,7 +4,7 @@
 #include "Object.h"
 #include "Timer.h"
 #include "Component/Camera.h"
-#include "Scene.h"
+#include "BattleScene.h"
 
 #include "GameFramework.h"
 

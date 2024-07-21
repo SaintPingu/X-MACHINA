@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CloakingAbility.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "Timer.h"
 #include "Animator.h"

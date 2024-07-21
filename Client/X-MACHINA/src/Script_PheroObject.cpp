@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Script_PheroObject.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "ObjectPool.h"
 #include "Object.h"
 #include "XLManager.h"
@@ -59,7 +59,7 @@ void Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount)
 		return;
 	}
 
-	auto& pheroPool = Scene::I->CreateObjectPool("Level1Phero", pheroCount, [&](rsptr<InstObject> object) {
+	auto& pheroPool = BattleScene::I->CreateObjectPool("Level1Phero", pheroCount, [&](rsptr<InstObject> object) {
 		object->SetTag(ObjectTag::Dynamic);
 		});
 

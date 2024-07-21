@@ -3,7 +3,7 @@
 #include "DXGIMgr.h"
 
 #include "ResourceMgr.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "DescriptorHeap.h"
 #include "Shader.h"
 #include "Texture.h"

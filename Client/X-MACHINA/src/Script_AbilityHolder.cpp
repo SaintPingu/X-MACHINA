@@ -5,7 +5,7 @@
 #include "Timer.h"
 
 #include "AbilityMgr.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Script_Player.h"
 
 #pragma region Default

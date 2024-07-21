@@ -22,7 +22,7 @@ class ObjectCollider;
 class Animator;
 class GameObject : public Object {
 	using base = Object;
-	friend class Scene;
+	friend class BattleScene;
 	friend class RenderedAbility;
 	friend class DynamicEnvironmentMappingManager;
 

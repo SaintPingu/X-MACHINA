@@ -7,7 +7,7 @@
 
 #include "ImGuiMgr.h"
 #include "DXGIMgr.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "Component/ParticleSystem.h"
 #include <iostream>
@@ -133,7 +133,7 @@ void ImGuiHierachy::Execute(GameObject* selectedObject)
 		mSelectedObject = selectedObject;
 
     size_t entityID = -1;
-    for (const auto& object : Scene::I->GetAllObjects()) {
+    for (const auto& object : BattleScene::I->GetAllObjects()) {
         DrawNode(object.get(), entityID);
     }
 

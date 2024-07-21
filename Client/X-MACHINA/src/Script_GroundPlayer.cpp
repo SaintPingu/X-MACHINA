@@ -18,7 +18,7 @@
 #include "Component/Camera.h"
 #include "Component/Collider.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "ObjectPool.h"
 #include "InputMgr.h"
@@ -91,7 +91,9 @@ void Script_GroundPlayer::Awake()
 
 	// values //
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
+	const auto& aimUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
 	mAimController = mObject->AddComponent<Script_AimController>();
+	mAimController->SetUI(aimUI);
 	SetMaxHP(1000.f);
 
 	// animations //
@@ -261,7 +263,7 @@ bool Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
 
 	if (KEY_PRESSED('Q')) {
-		sptr<GridObject> remotePlayer = Scene::I->Instantiate("EliteTrooper");
+		sptr<GridObject> remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 		remotePlayer->SetName("TEST");
 
 		remotePlayer->AddComponent<Script_GroundObject>();
@@ -543,7 +545,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		return;
 	}
 
-	sptr<GameObject> weapon = Scene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
+	sptr<GameObject> weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
 
 	// ��ũ��Ʈ �߰� //
 	switch (weaponName) {

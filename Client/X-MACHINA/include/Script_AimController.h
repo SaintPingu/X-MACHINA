@@ -33,6 +33,7 @@ public:
 	rsptr<UITexture> GetUITexture();
 
 public:
+	void SetUI(rsptr<UI> ui) { mUI = ui; }
 	void ChangeAimUITexture(rsptr<UITexture> newUITexture);
 };
 #pragma endregion

@@ -1,7 +1,7 @@
 #include "EnginePch.h"
 #include "Grid.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "Component/Collider.h"
 
@@ -259,8 +259,8 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 
 		// 오브젝트의 타일 기준 인덱스 계산
 		Vec3 pos = collider->GetCenter();
-		Pos index = Scene::I->GetTileUniqueIndexFromPos(pos);
-		Scene::I->SetTileFromUniqueIndex(index, tile);
+		Pos index = BattleScene::I->GetTileUniqueIndexFromPos(pos);
+		BattleScene::I->SetTileFromUniqueIndex(index, tile);
 		q.push(index);
 
 		// q가 빌 때까지 BFS를 돌며 현재 타일이 오브젝트와 충돌 했다면 해당 타일을 업데이트
@@ -279,13 +279,13 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 					continue;
 				}
 
-				Vec3 nextPosW = Scene::I->GetTilePosFromUniqueIndex(nextPosT);
+				Vec3 nextPosW = BattleScene::I->GetTilePosFromUniqueIndex(nextPosT);
 				nextPosW.y = pos.y;
 
 				BoundingBox bb{ nextPosW, Vec3{mkTileWidth, mkTileWidth, mkTileHeight} };
 
 				if (collider->Intersects(bb)) {
-					Scene::I->SetTileFromUniqueIndex(nextPosT, tile);
+					BattleScene::I->SetTileFromUniqueIndex(nextPosT, tile);
 					q.push(nextPosT);
 				}
 			}

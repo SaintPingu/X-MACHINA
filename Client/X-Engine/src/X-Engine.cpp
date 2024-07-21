@@ -5,7 +5,7 @@
 #include "InputMgr.h"
 
 #include "Timer.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "LobbyScene.h"
 #include "Object.h"
 
@@ -42,7 +42,7 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd)
 
 void Engine::Release()
 {
-	Scene::I->Release();
+	BattleScene::I->Release();
 	DXGIMgr::I->Release();
 }
 
@@ -58,25 +58,7 @@ void Engine::Update()
 	// update input
 	InputMgr::I->Update();
 
-	// rendering
-#ifndef RENDER_FOR_SERVER
-
-	DXGIMgr::I->Render();
-
-#else
-
-#ifdef RENDER_FOR_SERVER_WITH_TEXTURE
-
-	DXGIMgr::I->RenderForServerWithTexture();
-
-#else
-
-	DXGIMgr::I->RenderForServerWithTerrain();
-	//DXGIMgr::I->RenderForServer();
-
-#endif
-	
-#endif
+	DXGIMgr::I->RenderScene();
 
 	// update title with fps
 	std::wstring title = mTitle + L" | FPS : " + Timer::I->GetFrameRate();
@@ -142,19 +124,16 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Engine::LoadScene(SceneType sceneType)
 {
-	SceneRenderType renderType;
-
 	switch (sceneType) {
 	case SceneType::Lobby:
-		renderType = SceneRenderType::Lobby;
 		mUpdateFunc = &Engine::UpdateLobby;
 		break;
 	case SceneType::Battle:
-		renderType = SceneRenderType::Battle;
 		mUpdateFunc = &Engine::UpdateBattle;
 
-		Scene::I->BuildObjects();
-		Scene::I->Start();
+		BattleScene::I->BuildObjects();
+		BattleScene::I->Start();
+
 		//Scene::I->ReleaseUploadBuffers();
 		break;
 	default:
@@ -162,7 +141,7 @@ void Engine::LoadScene(SceneType sceneType)
 		break;
 	}
 
-	DXGIMgr::I->SwitchScene(renderType);
+	DXGIMgr::I->SwitchScene(sceneType);
 }
 
 void Engine::UpdateLobby()
@@ -172,7 +151,7 @@ void Engine::UpdateLobby()
 
 void Engine::UpdateBattle()
 {
-	Scene::I->Update();
+	BattleScene::I->Update();
 }
 
 void Engine::WindowFocusOn()

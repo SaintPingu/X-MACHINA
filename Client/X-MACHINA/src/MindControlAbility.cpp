@@ -4,7 +4,7 @@
 #include "Object.h"
 #include "GameFramework.h"
 #include "Grid.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "InputMgr.h"
 #include "ResourceMgr.h"
 #include "Texture.h"
@@ -121,7 +121,7 @@ Object* MindControlAbility::PickingObject(const Vec2& screenPos)
 	Object* pickedObject = nullptr;
 	
 	// 주변 그리드 내 모든 적 객체
-	const std::vector<sptr<Grid>>& grids = Scene::I->GetNeighborGrids(Scene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
+	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
 	for (const auto& grid : grids) {
 		for (const auto& object : grid->GetObjectsFromTag(ObjectTag::Enemy)) {
 			Ray ray(Vec3{ 0.f, 0.f, 0.f }, Vec3{ viewX, viewY, 1.f });

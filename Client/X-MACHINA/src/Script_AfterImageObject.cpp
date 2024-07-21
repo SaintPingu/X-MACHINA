@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Script_AfterImageObject.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "Timer.h"
 #include "Animator.h"
@@ -34,7 +34,7 @@ void Script_AfterImageObject::Awake()
 
 	mAfterImageObjects.resize(mkMaxCreateCnt);
 	for (auto& object : mAfterImageObjects) {
-		sptr<GameObject> gameObject = std::dynamic_pointer_cast<GameObject>(Scene::I->Instantiate("EliteTrooper", ObjectTag::AfterSkinImage));
+		sptr<GameObject> gameObject = std::dynamic_pointer_cast<GameObject>(BattleScene::I->Instantiate("EliteTrooper", ObjectTag::AfterSkinImage));
 		if (gameObject) {
 			object = gameObject;
 		}

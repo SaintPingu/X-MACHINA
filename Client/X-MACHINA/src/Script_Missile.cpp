@@ -10,7 +10,7 @@
 #include "Component/Collider.h"
 
 #include "Object.h"
-#include "Scene.h"
+#include "BattleScene.h"
 
 
 void Script_Missile::Init()
@@ -27,7 +27,7 @@ void Script_Missile::Explode()
 	}
 
 	std::vector<GridObject*> collisionObjects{};
-	Scene::I->CheckCollisionCollider(mExplosionCollider, collisionObjects, CollisionType::Dynamic);
+	BattleScene::I->CheckCollisionCollider(mExplosionCollider, collisionObjects, CollisionType::Dynamic);
 	for (const auto& object : collisionObjects) {
 		if (object == mObject) {
 			continue;

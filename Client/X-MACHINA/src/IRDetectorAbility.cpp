@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "IRDetectorAbility.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "GameFramework.h"
 
 #include "Mesh.h"
@@ -25,11 +25,11 @@ IRDetectorAbility::IRDetectorAbility()
 void IRDetectorAbility::Activate()
 {
 	base::Activate();
-	Scene::I->SetFilterOptions(FilterOption::Custom);
+	BattleScene::I->SetFilterOptions(FilterOption::Custom);
 }
 
 void IRDetectorAbility::DeActivate()
 {
 	base::DeActivate();
-	Scene::I->SetFilterOptions(FilterOption::Custom);
+	BattleScene::I->SetFilterOptions(FilterOption::Custom);
 }

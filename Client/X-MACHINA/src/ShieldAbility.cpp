@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ShieldAbility.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "GameFramework.h"
 
 #include "Mesh.h"

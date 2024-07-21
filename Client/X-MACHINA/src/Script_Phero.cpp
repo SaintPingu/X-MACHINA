@@ -5,7 +5,7 @@
 #include "Timer.h"
 #include "Object.h"
 #include "Component/Rigidbody.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "GameFramework.h"
 #include "XLManager.h"
 
@@ -85,7 +85,7 @@ bool Script_Phero::IntersectTerrain()
 	}
 
 	const Vec3& pos = mObject->GetPosition();
-	const float terrainHeight = Scene::I->GetTerrainHeight(pos.x, pos.z);
+	const float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
 
 	constexpr float kAdjHeight = 1.f;
 

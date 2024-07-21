@@ -9,7 +9,7 @@
 #include "Script_Weapon_MissileLauncher.h"
 
 #include "ScriptExporter.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Timer.h"
 #include "Object.h"
 
@@ -59,7 +59,7 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 
 	// create weapon from name
 	std::string weaponModelName = Script_Weapon::GetWeaponModelName(mWeaponName);
-	mWeapon = Scene::I->Instantiate(weaponModelName, ObjectTag::Item, ObjectLayer::Default, false);
+	mWeapon = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Item, ObjectLayer::Default, false);
 	mWeapon->SetWorldTransform(mObject->GetWorldTransform());
 	mWeapon->AddComponent<Script_Item_Weapon>();
 	
@@ -88,8 +88,6 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 void Script_Item_WeaponCrate::DisableInteract()
 {
 	base::DisableInteract();
-
-	mIsOpend = true;
 }
 
 bool Script_Item_WeaponCrate::Interact(Object* user)
@@ -97,6 +95,7 @@ bool Script_Item_WeaponCrate::Interact(Object* user)
 	if (mIsOpend) {
 		return false;
 	}
+	mIsOpend = true;
 	DisableInteract();
 
 	if (mWeapon) {

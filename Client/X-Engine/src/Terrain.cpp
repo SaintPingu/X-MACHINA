@@ -2,7 +2,7 @@
 #include "Terrain.h"
 #include "FrameResource.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "ResourceMgr.h"
 #include "Model.h"
 #include "Shader.h"
@@ -247,7 +247,7 @@ void Terrain::SetActive(bool isActive)
 void Terrain::UpdateGrid()
 {
 	for (auto& terrain : mTerrains) {
-		Scene::I->UpdateObjectGrid(terrain.get());
+		BattleScene::I->UpdateObjectGrid(terrain.get());
 	}
 }
 

@@ -4,7 +4,7 @@
 
 #include "AnimatorController.h"
 #include "AnimationClip.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Mesh.h"
 #include "Timer.h"
 #include "Component/Transform.h"

@@ -254,6 +254,7 @@
     <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Rigidbody.cpp" />
     <ClCompile Include="src\RootSignature.cpp" />
+    <ClCompile Include="src\BattleScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\ScriptExporter.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -331,6 +332,7 @@
     <ClInclude Include="include\ResourceMgr.h" />
     <ClInclude Include="include\Resources.h" />
     <ClInclude Include="include\RootSignature.h" />
+    <ClInclude Include="include\BattleScene.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\ScriptExporter.h" />
     <ClInclude Include="include\Shader.h" />

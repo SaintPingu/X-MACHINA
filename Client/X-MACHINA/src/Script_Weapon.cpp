@@ -8,7 +8,7 @@
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
 
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 #include "ObjectPool.h"
 #include "Timer.h"
@@ -266,7 +266,7 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 
 void Script_BulletWeapon::CreateBulletPool()
 {
-	mBulletPool = Scene::I->CreateObjectPool("bullet", mBulletCntPerMag * mBulletCntPerShot, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
+	mBulletPool = BattleScene::I->CreateObjectPool("bullet", mBulletCntPerMag * mBulletCntPerShot, std::bind(&Script_BulletWeapon::BulletInitFunc, this, std::placeholders::_1));
 }
 
 #pragma endregion

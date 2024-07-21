@@ -340,6 +340,12 @@
     <ClInclude Include="ClientNetwork\Contents\GameMonster.h">
       <Filter>ClientNetwork\Contents</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Arack.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ceratoferox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -548,6 +554,12 @@
     </ClCompile>
     <ClCompile Include="src\Script_Item_Weapon.cpp">
       <Filter>Script\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Arack.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ceratoferox.cpp">
+      <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

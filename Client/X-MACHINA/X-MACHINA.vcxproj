@@ -227,6 +227,8 @@
     <ClInclude Include="include\MindControlAbility.h" />
     <ClInclude Include="include\PheroAbilityInterface.h" />
     <ClInclude Include="include\Script_AfterImageObject.h" />
+    <ClInclude Include="include\Script_Arack.h" />
+    <ClInclude Include="include\Script_Ceratoferox.h" />
     <ClInclude Include="include\Script_MindControlledEnemyBT.h" />
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h" />
     <ClInclude Include="include\XLManager.h" />
@@ -295,6 +297,8 @@
     <ClCompile Include="src\MindControlAbility.cpp" />
     <ClCompile Include="src\PheroAbilityInterface.cpp" />
     <ClCompile Include="src\Script_AfterImageObject.cpp" />
+    <ClCompile Include="src\Script_Arack.cpp" />
+    <ClCompile Include="src\Script_Ceratoferox.cpp" />
     <ClCompile Include="src\Script_Item_Weapon.cpp" />
     <ClCompile Include="src\Script_Item_WeaponCrate.cpp" />
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp" />

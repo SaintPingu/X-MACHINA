@@ -4,6 +4,9 @@
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
+#include "Script_Arack.h"
+#include "Script_Ceratoferox.h"
+
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
 #include "Component/ParticleSystem.h"
@@ -68,7 +71,12 @@ void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
 	case Hash("Ursacetus"):
 		object->AddComponent<Script_Ursacetus>();
 		break;
-
+	case Hash("Arack"):
+		object->AddComponent<Script_Arack>();
+		break;
+	case Hash("Ceratoferox"):
+		object->AddComponent<Script_Ceratoferox>();
+		break;
 	default:
 		throw std::runtime_error("[Error] Couldn't import script");
 		break;

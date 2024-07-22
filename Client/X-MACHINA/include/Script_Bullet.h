@@ -42,7 +42,7 @@ public:
 public:
 	virtual void Update() override;
 
-	virtual void OnCollisionStay(Object& other) override;
+	virtual void OnCollisionEnter(Object& other) override;
 
 public:
 	virtual void Init();

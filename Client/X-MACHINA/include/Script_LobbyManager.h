@@ -6,13 +6,17 @@
 #pragma endregion
 
 class UI;
+class UITexture;
+class Script_AimController;
 
 #pragma region Class
 class Script_LobbyManager : public Component {
 	COMPONENT(Script_LobbyManager, Component)
 
 private:
-	UI* mCursor{};
+	sptr<Script_AimController> mAimController{};
+	UI* mCursorNormal{};
+	UI* mCursorClick{};
 
 public:
 	virtual void Awake() override;

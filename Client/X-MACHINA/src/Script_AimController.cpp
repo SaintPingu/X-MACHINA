@@ -42,15 +42,15 @@ Vec2 Script_AimController::GetScreenAimPos() const
 	return screenPos;
 }
 
-rsptr<UITexture> Script_AimController::GetUITexture() 
+UITexture* Script_AimController::GetUITexture() 
 {
 	assert(mUI);
 	return mUI->GetUITexture();
 }
 
-void Script_AimController::ChangeAimUITexture(rsptr<UITexture> newUITexture)
+void Script_AimController::ChangeAimUITexture(UITexture* newUITexture)
 {
 	if (mUI) {
-		mUI->ChangeUITexture(newUITexture);
+		mUI->ChangeUITexture(newUITexture->shared_from_this());
 	}
 }

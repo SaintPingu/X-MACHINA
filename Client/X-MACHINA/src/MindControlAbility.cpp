@@ -79,7 +79,7 @@ void MindControlAbility::Activate()
 	}
 
 	mPrevUITexture = mAimController->GetUITexture();
-	mAimController->ChangeAimUITexture(mMindControlAimUITexture);
+	mAimController->ChangeAimUITexture(mMindControlAimUITexture.get());
 }
 
 void MindControlAbility::DeActivate()

@@ -29,8 +29,12 @@ void Script_LobbyManager::Start()
 	const auto& ui = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 800, 600);
 	ui->AddClickCallback(std::bind(&Script_LobbyManager::Test, this));
 
-	mCursor = Canvas::I->CreateUI(0, "Cursor", Vec2::Zero, 60, 60);
-	LobbyScene::I->GetManager()->AddComponent<Script_AimController>()->SetUI(mCursor);
+	mCursorNormal = Canvas::I->CreateUI(4, "Cursor_Normal", Vec2::Zero, 60, 60);
+	mCursorClick = Canvas::I->CreateUI(4, "Cursor_Click", Vec2::Zero, 60, 60);
+	mCursorClick->SetActive(false);
+
+	mAimController = LobbyScene::I->GetManager()->AddComponent<Script_AimController>();
+	mAimController->SetUI(mCursorNormal);
 
 	LobbyScene::I->Instantiate("EliteTrooper");
 }
@@ -42,9 +46,22 @@ void Script_LobbyManager::Update()
 	if (KEY_TAP('Q')) {
 		Engine::I->LoadScene(SceneType::Battle);
 	}
+
 	if (KEY_TAP(VK_LBUTTON)) {
-		Canvas::I->CheckClick(Vec2(mCursor->GetPosition()));
+		Vec2 pos = mAimController->GetAimPos();
+		Canvas::I->CheckClick(pos);
+
+		mCursorNormal->SetActive(false);
+		mCursorClick->SetActive(true);
+		mAimController->SetUI(mCursorClick);
 ;	}
+	else if (KEY_AWAY(VK_LBUTTON)) {
+		Vec2 pos = mAimController->GetAimPos();
+
+		mCursorNormal->SetActive(true);
+		mCursorClick->SetActive(false);
+		mAimController->SetUI(mCursorNormal);
+	}
 }
 
 void Script_LobbyManager::Reset()

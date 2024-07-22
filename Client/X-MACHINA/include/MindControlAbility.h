@@ -33,7 +33,7 @@ private:
 	Object* mPickedTarget{};
 	sptr<Script_AimController> mAimController{};
 
-	sptr<UITexture> mPrevUITexture{};
+	UITexture* mPrevUITexture{};
 	sptr<UITexture> mMindControlAimUITexture{};
 
 public:

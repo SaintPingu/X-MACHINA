@@ -14,7 +14,7 @@ class ModelObjectMesh;
 
 
 #pragma region Struct
-struct UITexture {
+struct UITexture : public std::enable_shared_from_this<UITexture> {
 	sptr<Texture>	UIImage{};
 	float			Width{};
 	float			Height{};
@@ -45,8 +45,8 @@ public:
 	virtual void Update() {}
 	virtual void Render();
 
-	rsptr<UITexture> GetUITexture() const { return mUITexture; }
-	rsptr<Texture> GetTexture() const { return mUITexture->UIImage; }
+	UITexture* GetUITexture() const { return mUITexture.get(); }
+	Texture* GetTexture() const { return mUITexture->UIImage.get(); }
 	float GetWidth() const { return mUITexture->Width; }
 	float GetHeight() const { return mUITexture->Height; }
 	void SetWidth(float width) { mUITexture->Width = width; }

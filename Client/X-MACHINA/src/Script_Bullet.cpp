@@ -33,7 +33,7 @@ void Script_Bullet::Update()
 
 }
 
-void Script_Bullet::OnCollisionStay(Object& other)
+void Script_Bullet::OnCollisionEnter(Object& other)
 {
 	if (mCurrLifeTime <= FLT_EPSILON) {
 		return;

@@ -30,10 +30,10 @@ public:
 	Vec2 GetAimPos() const { return mMousePos; }
 	Vec2 GetScreenAimPos() const;
 	
-	rsptr<UITexture> GetUITexture();
+	UITexture* GetUITexture();
 
 public:
 	void SetUI(UI* ui) { mUI = ui; }
-	void ChangeAimUITexture(rsptr<UITexture> newUITexture);
+	void ChangeAimUITexture(UITexture* newUITexture);
 };
 #pragma endregion

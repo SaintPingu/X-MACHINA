@@ -26,12 +26,15 @@ struct UITexture {
 
 #pragma region Class
 // 2D object (not entity)
-class UI : public Transform {
+class UI : public Object {
+	using base = Object;
+
 protected:
 	std::string		mName{};
 	bool			mIsActive = true;
 	sptr<UITexture> mUITexture{};
 	sptr<Shader>	mShader{};
+	std::function<void()> mClickCallback{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
@@ -58,8 +61,10 @@ public:
 
 public:
 	void ChangeUITexture(rsptr<UITexture> newUITexture);
-	bool CheckInteract(const Vec2& mousePos);
-	virtual void Interact();
+	bool CheckClick(const Vec2& mousePos);
+	virtual void OnClick();
+
+	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
 
 protected:
 	virtual void UpdateShaderVars();
@@ -140,10 +145,10 @@ public:
 	void Render() const;
 	void Clear();
 
-	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "", const std::string& name = "");
-	sptr<SliderUI> CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "");
+	UI* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "", const std::string& name = "");
+	SliderUI* CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "");
 	void RemoveUI(Layer layer, const std::string& name);
 
-	void Interact(const Vec2& mousePos);
+	void CheckClick(const Vec2& mousePos);
 };
 #pragma endregion

@@ -9,8 +9,8 @@ class MinimapAbility : public RenderedAbility {
 	using base = RenderedAbility;
 
 private:
-	sptr<UI> mUI{};
-	sptr<UI> mPlayerUI{};
+	UI* mUI{};
+	UI* mPlayerUI{};
 
 public:
 	MinimapAbility();

@@ -12,9 +12,9 @@ private:
 	float mDisplayFillValue{};
 	float mDisplayEaseValue{};
 
-	sptr<SliderUI> mFillBarUI;
-	sptr<SliderUI> mEaseBarUI;
-	sptr<UI> mBackgroundBarUI;
+	SliderUI* mFillBarUI;
+	SliderUI* mEaseBarUI;
+	UI* mBackgroundBarUI;
 
 public:
 	SliderBarUI(

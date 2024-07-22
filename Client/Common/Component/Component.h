@@ -110,6 +110,8 @@ protected:
 
 	virtual void Reset();
 
+	virtual void OnClick() {};
+
 private:
 	void FirstUpdate();
 };
@@ -292,6 +294,7 @@ protected:
 	virtual void LateUpdate();
 	virtual void OnDestroy();
 	virtual void Release();
+	virtual void OnClick();
 
 	// 객체(other)와 충돌 시 한 번 호출된다.
 	virtual void OnCollisionEnter(Object& other);

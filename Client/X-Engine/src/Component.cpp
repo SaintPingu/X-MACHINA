@@ -302,6 +302,14 @@ void Object::Release()
 		});
 }
 
+void Object::OnClick()
+{
+	ProcessComponents([](rsptr<Component> component) {
+		component->OnClick();
+		});
+}
+
+
 void Object::OnCollisionEnter(Object& other)
 {
 	// 이미 호출된 경우 무시한다.

@@ -8,7 +8,7 @@ private:
 	bool			mIsActive{};
 	bool			mIsEditing{};
 
-	sptr<UI>		mBackground{};
+	UI*				mBackground{};
 	sptr<TextBox>	mChatTitle{};
 	sptr<TextBox>	mChat{};
 	

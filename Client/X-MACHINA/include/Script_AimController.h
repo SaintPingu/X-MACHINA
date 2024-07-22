@@ -14,7 +14,7 @@ class Script_AimController : public Component {
 	COMPONENT(Script_AimController, Component)
 
 private:
-	sptr<UI> mUI{};
+	UI* mUI{};
 	Vec2 mMousePos{};
 
 	Vec2 mMaxPos{};
@@ -33,7 +33,7 @@ public:
 	rsptr<UITexture> GetUITexture();
 
 public:
-	void SetUI(rsptr<UI> ui) { mUI = ui; }
+	void SetUI(UI* ui) { mUI = ui; }
 	void ChangeAimUITexture(rsptr<UITexture> newUITexture);
 };
 #pragma endregion

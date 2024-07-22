@@ -14,6 +14,7 @@
 #include "SkyBox.h"
 #include "Ssao.h"
 
+#include "Component/UI.h"
 #include "Component/Camera.h"
 
 
@@ -35,6 +36,18 @@ void Scene::Release()
 	if (mManager) {
 		mManager->ResetComponents();
 	}
+}
+
+void Scene::RenderLights()
+{
+	if (mLight) {
+		mLight->Render();
+	}
+}
+
+void Scene::RenderUI()
+{
+	Canvas::I->Render();
 }
 
 void Scene::RenderText(RComPtr<struct ID2D1DeviceContext2> device)
@@ -156,11 +169,4 @@ void Scene::UpdateMaterialBuffer()
 		[](sptr<MasterModel> model) {
 			model->GetMesh()->UpdateMaterialBuffer();
 		});
-}
-
-void Scene::RenderLights()
-{
-	if (mLight) {
-		mLight->Render();
-	}
 }

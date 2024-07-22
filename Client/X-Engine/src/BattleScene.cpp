@@ -423,7 +423,8 @@ void BattleScene::RenderForward()
 
 void BattleScene::RenderUI()
 {
-	Canvas::I->Render();
+	Scene::RenderUI();
+
 	RenderBounds();
 }
 

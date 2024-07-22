@@ -20,7 +20,7 @@ class Script_Item abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Item, Component)
 
 private:
-	sptr<UI> mUI{};
+	UI* mUI{};
 	bool mCanInteract{};
 
 public:

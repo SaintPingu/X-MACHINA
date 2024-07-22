@@ -38,7 +38,7 @@ public:
 	virtual void RenderLights();
 	virtual void RenderCustomDepth() abstract;
 	virtual void RenderForward() abstract;
-	virtual void RenderUI() abstract;
+	virtual void RenderUI();
 	virtual void RenderText(RComPtr<struct ID2D1DeviceContext2> device);
 
 	virtual void ApplyDynamicContext() abstract;

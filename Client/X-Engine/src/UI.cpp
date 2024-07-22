@@ -9,6 +9,7 @@
 #include "FileIO.h"
 
 #include "DXGIMgr.h"
+#include "InputMgr.h"
 #include "FrameResource.h"
 #include "MultipleRenderTarget.h"
 
@@ -26,7 +27,7 @@ UITexture::UITexture(const std::string& imageName, float width, float height)
 #pragma region UI
 UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader, const std::string& name)
 	:
-	Transform(this),
+	Object(),
 	mShader(shader)
 {
 	mUITexture = std::make_shared<UITexture>(textureName, width, height);
@@ -46,36 +47,40 @@ void UI::ChangeUITexture(rsptr<UITexture> newUITexture)
 {
 	mUITexture = newUITexture;
 }
-bool UI::CheckInteract(const Vec2& mousePos)
+bool UI::CheckClick(const Vec2& mousePos)
 {
 	Vec2 pos = GetPosition();
 	float width = mUITexture->Width;
 	float height = mUITexture->Height;
 
-	float left = pos.x - (width / 2);
-	float right = pos.x + (width / 2);
-	float up = pos.y + (height / 2);
-	float down = pos.y - (height / 2);
+	float left = pos.x - width;
+	float right = pos.x + width;
+	float up = pos.y + height;
+	float down = pos.y - height;
 
-	if (pos.x < left) {
+	if (mousePos.x < left) {
 		return false;
 	}
-	if (pos.x > right) {
+	if (mousePos.x > right) {
 		return false;
 	}
-	if (pos.y < down) {
+	if (mousePos.y < down) {
 		return false;
 	}
-	if (pos.y > up) {
+	if (mousePos.y > up) {
 		return false;
 	}
 
 	return true;
 }
 
-void UI::Interact()
+void UI::OnClick()
 {
+	base::OnClick();
 
+	if (mClickCallback) {
+		mClickCallback();
+	}
 }
 
 
@@ -271,25 +276,26 @@ void Canvas::Clear()
 	}
 }
 
-sptr<UI> Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader, const std::string& name)
+UI* Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader, const std::string& name)
 {
 	if (layer > (mkLayerCnt - 1))
 		return nullptr;
 
 	sptr<UI> ui = std::make_shared<UI>(texture, pos, width, height, RESOURCE<Shader>(shader), name);
 	mUIs[layer].insert(ui);
-	return ui;
+	return ui.get();
 }
 
-sptr<SliderUI> Canvas::CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
+SliderUI* Canvas::CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
 {
 	if (layer > (mkLayerCnt - 1))
 		return nullptr;
 
 	sptr<SliderUI> ui = std::make_shared<SliderUI>(texture, pos, width, height, RESOURCE<Shader>(shader));
 	mUIs[layer].insert(ui);
-	return ui;
+	return ui.get();
 }
+
 void Canvas::RemoveUI(Layer layer, const std::string& name)
 {
 	for (auto& ui : mUIs[layer]) {
@@ -299,12 +305,13 @@ void Canvas::RemoveUI(Layer layer, const std::string& name)
 		}
 	}
 }
-void Canvas::Interact(const Vec2& mousePos)
+
+void Canvas::CheckClick(const Vec2& mousePos)
 {
 	for (auto& layer : mUIs) {
 		for (auto& ui : layer) {
-			if (ui->CheckInteract(mousePos)) {
-				ui->Interact();
+			if (ui->CheckClick(mousePos)) {
+				ui->OnClick();
 			}
 		}
 	}

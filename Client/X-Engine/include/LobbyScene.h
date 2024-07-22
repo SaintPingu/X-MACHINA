@@ -9,7 +9,6 @@ class LobbyScene : public Singleton<LobbyScene>, public Scene {
 	friend Singleton;
 
 public:
-	sptr<UI> mCursor{};
 	std::vector<sptr<GameObject>> mObjects{};
 
 public:
@@ -19,7 +18,6 @@ public:
 	virtual void RenderDeferred() override;
 	virtual void RenderCustomDepth() override;
 	virtual void RenderForward() override;
-	virtual void RenderUI() override;
 
 	virtual void ApplyDynamicContext() override;
 
@@ -34,6 +32,4 @@ private:
 	void Start();
 	void UpdateObjects();
 	void RenderObjects();
-
-	void Test();
 };

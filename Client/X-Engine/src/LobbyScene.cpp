@@ -47,12 +47,6 @@ void LobbyScene::RenderForward()
 	mSkyBox->Render();
 }
 
-
-void LobbyScene::RenderUI()
-{
-	Canvas::I->Render();
-}
-
 void LobbyScene::ApplyDynamicContext()
 {
 }
@@ -78,7 +72,6 @@ void LobbyScene::Build()
 	std::cout << "Load Lobby Scene...";
 
 	Start();
-	Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 800, 600);
 	std::cout << "OK\n";
 }
 

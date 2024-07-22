@@ -15,7 +15,6 @@
 
 namespace {
 	constexpr int	gkSunLightIdx = 0;
-	constexpr float gkSceneBoundsRad = 30.f;
 }
 
 Light::Light()
@@ -24,9 +23,6 @@ Light::Light()
 	mLoadLights(std::make_shared<SceneLoadLight>())
 {
 	mLightModelNames = {};
-
-	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
-	mSceneBounds.Radius = sqrt(gkSceneBoundsRad * gkSceneBoundsRad + gkSceneBoundsRad * gkSceneBoundsRad);
 
 	SetSunlight();
 }
@@ -55,6 +51,12 @@ void Light::BuildLights(std::ifstream& file)
 	LoadLightModels();
 
 	BuildLights();
+}
+
+void Light::SetSceneBounds(float boundRadius)
+{
+	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
+	mSceneBounds.Radius = sqrt(boundRadius * boundRadius + boundRadius * boundRadius);
 }
 
 void Light::BuildLights()

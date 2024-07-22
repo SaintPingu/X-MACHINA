@@ -25,7 +25,10 @@ Scene::Scene()
 
 void Scene::Build()
 {
+	constexpr float kDefaultSceneBoundRadius = 30.f;
+
 	mLight = std::make_shared<Light>();
+	mLight->SetSceneBounds(kDefaultSceneBoundRadius);
 	mSkyBox = std::make_shared<SkyBox>();
 }
 

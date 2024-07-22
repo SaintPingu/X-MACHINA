@@ -52,6 +52,7 @@ public:
 	// 새로운 조명 모델을 삽입한다.
 	void InsertLightModel(const std::string& name, const LightLoadInfo* light) { mLightModels.insert(std::make_pair(name, light)); }
 
+	void SetSceneBounds(float boundRadius);
 	void BuildLights(std::ifstream& file);
 	void BuildLights();
 

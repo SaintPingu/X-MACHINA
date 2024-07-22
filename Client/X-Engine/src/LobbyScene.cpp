@@ -70,6 +70,7 @@ void LobbyScene::Build()
 {
 	Scene::Build();
 	std::cout << "Load Lobby Scene...";
+	mLight->SetSceneBounds(10.f);
 
 	Start();
 	std::cout << "OK\n";

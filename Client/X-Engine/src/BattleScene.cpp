@@ -105,7 +105,6 @@ void BattleScene::Build()
 	Scene::Build();
 	std::cout << "Load Battle Scene...";
 
-
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
 

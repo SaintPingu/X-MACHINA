@@ -108,6 +108,13 @@ void ObjectPool::Render()
 	EndRender();
 }
 
+void ObjectPool::PushRenderAllObjects()
+{
+	for (const auto& object : mObjectPool) {
+		object->PushFunc(mCurrBuffIdx++, mInstanceBuffers[CURR_FRAME_INDEX].get());
+	}
+}
+
 void ObjectPool::DoActiveObjects(std::function<void(rsptr<InstObject>)> func)
 {
 	if (mIsStatic) {

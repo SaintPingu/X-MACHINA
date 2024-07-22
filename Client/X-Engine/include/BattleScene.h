@@ -123,7 +123,7 @@ private:
 
 	/* Load */
 	// 씬 파일에서 모든 객체와 조명의 정보를 불러온다.
-	void LoadSceneObjects(const std::string& fileName);
+	void LoadSceneObjects();
 	// 씬 파일에서 모든 객체의 정보를 불러온다. - call from Scene::LoadSceneObjects()
 	void LoadGameObjects(std::ifstream& file);
 

@@ -4,12 +4,17 @@
 
 class UI;
 class GameObject;
+class ObjectPool;
+class MasterModel;
+class InstObject;
 
 class LobbyScene : public Singleton<LobbyScene>, public Scene {
 	friend Singleton;
 
 public:
-	std::vector<sptr<GameObject>> mObjects{};
+	std::vector<sptr<GameObject>> mMeshObjects{};
+	std::vector<sptr<GameObject>> mSkinMeshObjects{};
+	std::vector<sptr<ObjectPool>> mObjectPools{};
 
 public:
 	virtual void RenderBegin() override;
@@ -27,9 +32,17 @@ public:
 
 	GameObject* Instantiate(const std::string& modelName, const Vec3& pos = Vector3::Zero);
 
-private:
 
+private:
 	void Start();
 	void UpdateObjects();
 	void RenderObjects();
+
+	void LoadSceneObjects();
+	void LoadGameObjects(std::ifstream& file);
+
+	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
+
+	void ProcessAllObjects(std::function<void(sptr<GameObject>)> processFunc);
+	void ProcessActiveObjects(std::function<void(sptr<GameObject>)> processFunc);
 };

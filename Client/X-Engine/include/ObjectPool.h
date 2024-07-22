@@ -41,6 +41,8 @@ public:
 	int GetInstanceCnt() const										{ return mCurrBuffIdx; }
 	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
 
+	void SetStatic() { mIsStatic = true; }
+
 public:
 	// 풀링 객체를 생성 및 초기화한다. 모든 객체들에 대해 [objectInitFunc]을 실행한다.
 	template<typename T, typename = std::enable_if_t<std::is_base_of_v<InstObject, T>>>
@@ -78,6 +80,7 @@ public:
 	// 렌더링할 객체를 추가한다.
 	void PushRender(const InstObject* object);
 	void Render();
+	void PushRenderAllObjects();
 
 	// 활성화된(Get) 객체들에 대해 [func]을 실행한다.
 	void DoActiveObjects(std::function<void(rsptr<InstObject>)> func);

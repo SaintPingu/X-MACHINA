@@ -106,7 +106,7 @@ void BattleScene::Build()
 	std::cout << "Load Battle Scene...";
 
 	// load models
-	LoadSceneObjects("Import/Scene.bin");
+	LoadSceneObjects();
 
 	// build settings
 	BuildTerrain();
@@ -223,9 +223,10 @@ void BattleScene::UpdateGridInfo()
 }
 
 
-void BattleScene::LoadSceneObjects(const std::string& fileName)
+void BattleScene::LoadSceneObjects()
 {
-	std::ifstream file = FileIO::OpenBinFile(fileName);
+	const std::string kFileName = "Import/Scene.bin";
+	std::ifstream file = FileIO::OpenBinFile(kFileName);
 
 	mLight->BuildLights(file);
 	LoadGameObjects(file);

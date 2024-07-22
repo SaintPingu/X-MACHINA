@@ -18,7 +18,7 @@ void Script_LobbyManager::Awake()
 {
 	base::Awake();
 
-	MainCamera::I->SetPosition(Vec3(1, 2, 2));
+	MainCamera::I->SetPosition(Vec3(10, 5, 3));
 	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
 }
@@ -27,7 +27,7 @@ void Script_LobbyManager::Start()
 {
 	base::Start();
 
-	const auto& ui = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 800, 600);
+	const auto& ui = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 200, 100);
 	ui->AddClickCallback(std::bind(&Script_LobbyManager::ChangeToBattleScene, this));
 
 	mCursorNormal = Canvas::I->CreateUI(4, "Cursor_Normal", Vec2::Zero, 60, 60);

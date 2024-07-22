@@ -121,7 +121,6 @@ GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& po
 void LobbyScene::Start()
 {
 	mLight->BuildLights();
-	MainCamera::I->Awake();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});

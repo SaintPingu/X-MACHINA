@@ -2,7 +2,6 @@
 #include "Script_Player.h"
 
 #include "Script_Bullet.h"
-#include "Script_GroundObject.h"
 #include "Script_AimController.h"
 #include "Script_MainCamera.h"
 #include "Script_Weapon.h"
@@ -82,7 +81,6 @@ void Script_GroundPlayer::Awake()
 	base::Awake();
 
 	// add scripts //
-	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('U', std::make_shared<MindControlAbility>());
@@ -270,15 +268,6 @@ bool Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('O')) mCamera->ZoomOut();
 	if (KEY_PRESSED('P')) mCamera->ZoomIn();
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
-
-	if (KEY_PRESSED('Q')) {
-		GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
-		remotePlayer->SetName("TEST");
-
-		remotePlayer->AddComponent<Script_GroundObject>();
-
-		remotePlayer->SetPosition(mObject->GetPosition());
-	}
 
 	return true;
 }

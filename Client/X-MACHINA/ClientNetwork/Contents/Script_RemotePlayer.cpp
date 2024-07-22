@@ -7,7 +7,6 @@
 #include "AnimatorController.h"
 #include "ClientNetwork/Include/LogManager.h"
 
-#include "Script_GroundObject.h"
 void Script_RemotePlayer::Awake()
 {
 	base::Awake();

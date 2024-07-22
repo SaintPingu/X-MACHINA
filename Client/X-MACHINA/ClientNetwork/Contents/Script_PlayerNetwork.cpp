@@ -12,7 +12,6 @@
 #include "Object.h"
 
 #include "InputMgr.h"
-#include "Script_GroundObject.h"
 #include "Script_Player.h"
 
 

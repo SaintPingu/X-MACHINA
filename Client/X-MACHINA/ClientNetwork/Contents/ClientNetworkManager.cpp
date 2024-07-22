@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ClientNetworkManager.h"
 
-#include "Script_GroundObject.h"
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
@@ -410,12 +409,11 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 	GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 	remotePlayer->SetName(data->Name);
 	remotePlayer->SetID(static_cast<UINT32>(data->Id));
-
-	remotePlayer->AddComponent<Script_RemotePlayer>();
-	remotePlayer->AddComponent<Script_GroundObject>();
-
 	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
 	LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
+
+	remotePlayer->AddComponent<Script_RemotePlayer>();
+
 
 	//Vec4 rot   = remotePlayer->GetRotation();
 	//Vec3 euler = Quaternion::ToEuler(rot);

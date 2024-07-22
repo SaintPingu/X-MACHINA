@@ -10,6 +10,7 @@ class Script_GroundObject : public Component {
 	COMPONENT(Script_GroundObject, Component)
 
 public:
+	virtual void Start() override;
 	virtual void LateUpdate() override;
 };
 

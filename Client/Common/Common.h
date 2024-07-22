@@ -422,6 +422,10 @@ namespace Vector3 {
 			angle = -angle;
 		}
 
+		if (isnan(angle)) {
+			angle = 0.f;
+		}
+
 		return XMConvertToDegrees(angle);
 	}
 

@@ -99,6 +99,39 @@ inline const char *EnumNameWEAPON_TYPE(WEAPON_TYPE e) {
   return EnumNamesWEAPON_TYPE()[index];
 }
 
+enum MONSTER_TYPE : uint8_t {
+  MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5 = 0,
+  MONSTER_TYPE_ONYSCIDUS = 1,
+  MONSTER_TYPE_URSACETUS = 2,
+  MONSTER_TYPE_MIN = MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
+  MONSTER_TYPE_MAX = MONSTER_TYPE_URSACETUS
+};
+
+inline const MONSTER_TYPE (&EnumValuesMONSTER_TYPE())[3] {
+  static const MONSTER_TYPE values[] = {
+    MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
+    MONSTER_TYPE_ONYSCIDUS,
+    MONSTER_TYPE_URSACETUS
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMONSTER_TYPE() {
+  static const char * const names[4] = {
+    "ADVANCED_COMBAT_DROIR_5",
+    "ONYSCIDUS",
+    "URSACETUS",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMONSTER_TYPE(MONSTER_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5, MONSTER_TYPE_URSACETUS)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMONSTER_TYPE()[index];
+}
+
 enum PLAYER_MOTION_STATE_TYPE : uint8_t {
   PLAYER_MOTION_STATE_TYPE_NONE = 0,
   PLAYER_MOTION_STATE_TYPE_STAND = 1,
@@ -181,6 +214,45 @@ inline const char *EnumNameMONSTER_STATE_TYPE(MONSTER_STATE_TYPE e) {
   if (::flatbuffers::IsOutRange(e, MONSTER_STATE_TYPE_ATTACK, MONSTER_STATE_TYPE_DEAD)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMONSTER_STATE_TYPE()[index];
+}
+
+enum PLAYER_SKILL_TYPE : uint8_t {
+  PLAYER_SKILL_TYPE_IMPOSSIBLE = 0,
+  PLAYER_SKILL_TYPE_CLOACKING = 1,
+  PLAYER_SKILL_TYPE_IR_DETECTOR = 2,
+  PLAYER_SKILL_TYPE_MIND_CONTROL = 3,
+  PLAYER_SKILL_TYPE_SHIELD = 4,
+  PLAYER_SKILL_TYPE_MIN = PLAYER_SKILL_TYPE_IMPOSSIBLE,
+  PLAYER_SKILL_TYPE_MAX = PLAYER_SKILL_TYPE_SHIELD
+};
+
+inline const PLAYER_SKILL_TYPE (&EnumValuesPLAYER_SKILL_TYPE())[5] {
+  static const PLAYER_SKILL_TYPE values[] = {
+    PLAYER_SKILL_TYPE_IMPOSSIBLE,
+    PLAYER_SKILL_TYPE_CLOACKING,
+    PLAYER_SKILL_TYPE_IR_DETECTOR,
+    PLAYER_SKILL_TYPE_MIND_CONTROL,
+    PLAYER_SKILL_TYPE_SHIELD
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesPLAYER_SKILL_TYPE() {
+  static const char * const names[6] = {
+    "IMPOSSIBLE",
+    "CLOACKING",
+    "IR_DETECTOR",
+    "MIND_CONTROL",
+    "SHIELD",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNamePLAYER_SKILL_TYPE(PLAYER_SKILL_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, PLAYER_SKILL_TYPE_IMPOSSIBLE, PLAYER_SKILL_TYPE_SHIELD)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesPLAYER_SKILL_TYPE()[index];
 }
 
 }  // namespace FBProtocol

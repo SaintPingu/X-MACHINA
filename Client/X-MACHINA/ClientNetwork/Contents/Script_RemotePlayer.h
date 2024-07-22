@@ -22,6 +22,7 @@ struct ExtData
 		Default  = 3,
 		NONE,
 	};	
+
 	long long		PingTime     = {}; // 다음 Transform 패킷이 오기까지 걸리는 시간 ( 추측 - ( SPkt_Transform Recv Interval + Remote Client Latency + My Latency )
 	MOVESTATE	MoveState = MOVESTATE::NONE;
 	float		Velocity  = {};

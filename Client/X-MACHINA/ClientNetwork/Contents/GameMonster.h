@@ -20,6 +20,8 @@ struct GameMonsterInfo {
 	Vec3 Pos = {}; // Position
 	Vec4 Rot = {}; // Rotation 
 	Vec3 SDir = {}; // Spine Look Direction 
+
+
 };
 class GameMonster
 {

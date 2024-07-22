@@ -27,3 +27,8 @@ table Transform {
   position: Vector3;
   rotation: Vector3;
 }
+
+table Position_Vec2 {
+	x : float;
+	z : float;
+}

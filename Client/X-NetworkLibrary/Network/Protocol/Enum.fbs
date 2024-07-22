@@ -27,6 +27,15 @@ enum WEAPON_TYPE : ubyte {
 	DIRECT_DRAIN
 }
 
+// +------------------------
+//		 WEAPON TYPE 
+// ------------------------+
+enum MONSTER_TYPE : ubyte {
+	ADVANCED_COMBAT_DROIR_5,
+	ONYSCIDUS,
+	URSACETUS
+}
+
 
 // +------------------------
 //    PLAYER MOTION STATE
@@ -50,4 +59,18 @@ enum MONSTER_STATE_TYPE : ubyte {
 	SPAWN,
 	PATROL,
 	DEAD
+}
+
+// +------------------------
+//      SKILL TYPE
+// ------------------------+
+enum PLAYER_SKILL_TYPE : ubyte {
+	// X : Denied 
+	IMPOSSIBLE,
+	
+	// O : permit
+	CLOACKING,	
+	IR_DETECTOR,
+	MIND_CONTROL,
+	SHIELD,
 }

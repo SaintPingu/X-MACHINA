@@ -112,6 +112,24 @@ table SPkt_RemovePlayer
 
 
 // +------------------------
+//		PLAYER SKILL 
+// ------------------------+
+table CPkt_PlayerOnSkill
+{
+	skill_type : PLAYER_SKILL_TYPE;
+
+}
+
+table SPkt_PlayerOnSkill
+{
+	player_id	 : uint; // 4 bytes // 삭제할 플레이어의 아이디 
+	skill_type	 : PLAYER_SKILL_TYPE;
+	phero_amount : float;
+
+}
+
+
+// +------------------------
 //	   PLAYER TRANSFORM
 // ------------------------+
 table CPkt_Player_Transform
@@ -204,6 +222,21 @@ table SPkt_NewMonster
 }
 
 // +------------------------
+//	   Dead MONSTER   
+// ------------------------+
+table CPkt_DeadMonster
+{
+
+}
+
+table SPkt_DeadMonster
+{
+	id			 : uint;
+	dead_point : Position_Vec2;
+}
+
+
+// +------------------------
 //	   REMOVE MONSTER   
 // ------------------------+
 table CPkt_RemoveMonster
@@ -259,6 +292,21 @@ table SPkt_Monster_State
 	monster_id	: uint;					// 4 bytes
 	state		: MONSTER_STATE_TYPE;	// 1 byte
 	
+}
+
+/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+///	▶▶▶▶▶	PHERO 
+/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+table CPkt_GetPhero
+{
+
+}
+
+table SPkt_GetPhero
+{
+	phero_id  : uint;
+	player_id : uint;
+
 }
 
 

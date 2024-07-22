@@ -17,7 +17,7 @@ class CheckDeath : public BT::ActionNode {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
 	sptr<Script_LiveObject> mLiveObject;
-	float mAccTime{};
+	float mAccTime{}; 
 	float mRemoveTime{};
 
 public:

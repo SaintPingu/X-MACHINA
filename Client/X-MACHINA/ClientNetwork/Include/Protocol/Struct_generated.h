@@ -21,6 +21,9 @@ namespace FBProtocol {
 struct Player;
 struct PlayerBuilder;
 
+struct Phero;
+struct PheroBuilder;
+
 struct Monster;
 struct MonsterBuilder;
 
@@ -125,14 +128,65 @@ inline ::flatbuffers::Offset<Player> CreatePlayerDirect(
       spine_look);
 }
 
+struct Phero FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PheroBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_OFFSET_DIST = 6
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  const FBProtocol::Position_Vec2 *offset_dist() const {
+    return GetPointer<const FBProtocol::Position_Vec2 *>(VT_OFFSET_DIST);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyOffset(verifier, VT_OFFSET_DIST) &&
+           verifier.VerifyTable(offset_dist()) &&
+           verifier.EndTable();
+  }
+};
+
+struct PheroBuilder {
+  typedef Phero Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Phero::VT_ID, id, 0);
+  }
+  void add_offset_dist(::flatbuffers::Offset<FBProtocol::Position_Vec2> offset_dist) {
+    fbb_.AddOffset(Phero::VT_OFFSET_DIST, offset_dist);
+  }
+  explicit PheroBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Phero> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Phero>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Phero> CreatePhero(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> offset_dist = 0) {
+  PheroBuilder builder_(_fbb);
+  builder_.add_offset_dist(offset_dist);
+  builder_.add_id(id);
+  return builder_.Finish();
+}
+
 struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MonsterBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_TYPE = 6,
-    VT_HP = 8,
-    VT_TRANS = 10,
-    VT_SPINE_LOOK = 12
+    VT_POS = 8,
+    VT_PHEROS = 10
   };
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
@@ -140,24 +194,21 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint8_t type() const {
     return GetField<uint8_t>(VT_TYPE, 0);
   }
-  float hp() const {
-    return GetField<float>(VT_HP, 0.0f);
+  const FBProtocol::Position_Vec2 *pos() const {
+    return GetPointer<const FBProtocol::Position_Vec2 *>(VT_POS);
   }
-  const FBProtocol::Transform *trans() const {
-    return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
-  }
-  const FBProtocol::Vector3 *spine_look() const {
-    return GetPointer<const FBProtocol::Vector3 *>(VT_SPINE_LOOK);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Phero>> *pheros() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Phero>> *>(VT_PHEROS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
-           VerifyField<float>(verifier, VT_HP, 4) &&
-           VerifyOffset(verifier, VT_TRANS) &&
-           verifier.VerifyTable(trans()) &&
-           VerifyOffset(verifier, VT_SPINE_LOOK) &&
-           verifier.VerifyTable(spine_look()) &&
+           VerifyOffset(verifier, VT_POS) &&
+           verifier.VerifyTable(pos()) &&
+           VerifyOffset(verifier, VT_PHEROS) &&
+           verifier.VerifyVector(pheros()) &&
+           verifier.VerifyVectorOfTables(pheros()) &&
            verifier.EndTable();
   }
 };
@@ -172,14 +223,11 @@ struct MonsterBuilder {
   void add_type(uint8_t type) {
     fbb_.AddElement<uint8_t>(Monster::VT_TYPE, type, 0);
   }
-  void add_hp(float hp) {
-    fbb_.AddElement<float>(Monster::VT_HP, hp, 0.0f);
+  void add_pos(::flatbuffers::Offset<FBProtocol::Position_Vec2> pos) {
+    fbb_.AddOffset(Monster::VT_POS, pos);
   }
-  void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
-    fbb_.AddOffset(Monster::VT_TRANS, trans);
-  }
-  void add_spine_look(::flatbuffers::Offset<FBProtocol::Vector3> spine_look) {
-    fbb_.AddOffset(Monster::VT_SPINE_LOOK, spine_look);
+  void add_pheros(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Phero>>> pheros) {
+    fbb_.AddOffset(Monster::VT_PHEROS, pheros);
   }
   explicit MonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -196,16 +244,29 @@ inline ::flatbuffers::Offset<Monster> CreateMonster(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     uint8_t type = 0,
-    float hp = 0.0f,
-    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0,
-    ::flatbuffers::Offset<FBProtocol::Vector3> spine_look = 0) {
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Phero>>> pheros = 0) {
   MonsterBuilder builder_(_fbb);
-  builder_.add_spine_look(spine_look);
-  builder_.add_trans(trans);
-  builder_.add_hp(hp);
+  builder_.add_pheros(pheros);
+  builder_.add_pos(pos);
   builder_.add_id(id);
   builder_.add_type(type);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Monster> CreateMonsterDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint8_t type = 0,
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos = 0,
+    const std::vector<::flatbuffers::Offset<FBProtocol::Phero>> *pheros = nullptr) {
+  auto pheros__ = pheros ? _fbb.CreateVector<::flatbuffers::Offset<FBProtocol::Phero>>(*pheros) : 0;
+  return FBProtocol::CreateMonster(
+      _fbb,
+      id,
+      type,
+      pos,
+      pheros__);
 }
 
 }  // namespace FBProtocol

@@ -9,7 +9,7 @@ include "Transform.fbs";
 namespace FBProtocol;
 
 // +------------------------
-//	    PLAYER STRUCT  
+//	    Player STRUCT  
 // ------------------------+
 table Player {
   id			: uint;
@@ -20,12 +20,22 @@ table Player {
 }
 
 // +------------------------
-//	    MONSTER STRUCT 
+//	    Phero STRUCT  
+// ------------------------+
+table Phero {
+	id			: uint;
+	offset_dist : Position_Vec2;
+}
+
+
+// +------------------------
+//	    Monster STRUCT 
 // ------------------------+
 table Monster{
 	id			:  uint; 
 	type		:  ubyte; // UINT8
-	hp			:  float;
-	trans		:  Transform;
-	spine_look	:  Vector3;
+	pos			:  Position_Vec2;
+
+	pheros		: [Phero];
+	
 }

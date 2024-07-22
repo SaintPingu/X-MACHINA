@@ -108,10 +108,7 @@ public:
 	std::string CharToString(char* c);
 	std::string WstringToString(const WCHAR* wc);
 
-public:
-	void Cout_Vec3(char* vec3Name, const Vec3& vec3) {
-		std::cout << "[" << vec3Name << "] : " << vec3.x << " " << vec3.y << " " << vec3.z << "\n";
-	}
+
 };
 
 template<typename ...Args>

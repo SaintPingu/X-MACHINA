@@ -24,47 +24,59 @@ namespace FBsProtocolID
     /// +-----------------------------------------------------------------------
     ///  PLAYER PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_NewPlayer = 0;
-    constexpr UINT16 SPkt_NewPlayer = 1;
+    constexpr UINT16 CPkt_NewPlayer = 1;
+    constexpr UINT16 SPkt_NewPlayer = 2;
 
-    constexpr UINT16 CPkt_RemovePlayer = 2;
-    constexpr UINT16 SPkt_RemovePlayer = 3;
+    constexpr UINT16 CPkt_RemovePlayer = 3;
+    constexpr UINT16 SPkt_RemovePlayer = 4;
 
-    constexpr UINT16 CPkt_Player_Transform = 4;
-    constexpr UINT16 SPkt_Player_Transform = 5;
+    constexpr UINT16 CPkt_PlayerOnSkill = 5;
+    constexpr UINT16 SPkt_PlayerOnSkill = 6;
 
-    constexpr UINT16 CPkt_Player_Animation = 6;
-    constexpr UINT16 SPkt_Player_Animation = 7;
+    constexpr UINT16 CPkt_Player_Transform = 7;
+    constexpr UINT16 SPkt_Player_Transform = 8;
 
-    constexpr UINT16 CPkt_Player_Weapon = 8;
-    constexpr UINT16 SPkt_PlayerWeapon = 9;
+    constexpr UINT16 CPkt_Player_Animation = 9;
+    constexpr UINT16 SPkt_Player_Animation = 10;
+
+    constexpr UINT16 CPkt_Player_Weapon = 11;
+    constexpr UINT16 SPkt_Player_Weapon = 12;
 
     /// +-----------------------------------------------------------------------
     ///  MONSTER PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_NewMonster = 10;
-    constexpr UINT16 SPkt_NewMonster = 11;
+    constexpr UINT16 CPkt_NewMonster = 13;
+    constexpr UINT16 SPkt_NewMonster = 14;
 
-    constexpr UINT16 CPkt_RemoveMonster = 12;
-    constexpr UINT16 SPkt_RemoveMonster = 13;
+    constexpr UINT16 CPkt_DeadMonster = 15;
+    constexpr UINT16 SPkt_DeadMonster = 16;
 
-    constexpr UINT16 CPkt_Monster_Transform = 14;
-    constexpr UINT16 SPkt_Monster_Transform = 15;
+    constexpr UINT16 CPkt_RemoveMonster = 17;
+    constexpr UINT16 SPkt_RemoveMonster = 18;
 
-    constexpr UINT16 CPkt_Monster_HP = 16;
-    constexpr UINT16 SPkt_Monster_HP = 17;
+    constexpr UINT16 CPkt_Monster_Transform = 19;
+    constexpr UINT16 SPkt_Monster_Transform = 20;
 
-    constexpr UINT16 CPkt_Monster_State = 18;
-    constexpr UINT16 SPkt_Monster_State = 19;
+    constexpr UINT16 CPkt_Monster_HP = 21;
+    constexpr UINT16 SPkt_Monster_HP = 22;
+
+    constexpr UINT16 CPkt_Monster_State = 23;
+    constexpr UINT16 SPkt_Monster_State = 24;
+
+    /// +-----------------------------------------------------------------------
+///  PHERO PACKET HEADER PROTOCOL TYPE
+/// -----------------------------------------------------------------------+
+    constexpr UINT16 CPkt_GetPhero = 25;
+    constexpr UINT16 SPkt_GetPhero = 26;
 
     /// +-----------------------------------------------------------------------
     ///  BULLET PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_Bullet_OnShoot = 20;
-    constexpr UINT16 SPkt_Bullet_OnShoot = 21;
+    constexpr UINT16 CPkt_Bullet_OnShoot = 27;
+    constexpr UINT16 SPkt_Bullet_OnShoot = 28;
 
-    constexpr UINT16 CPkt_Bullet_OnCollision = 22;
-    constexpr UINT16 SPkt_Bullet_OnCollision = 23;
+    constexpr UINT16 CPkt_Bullet_OnCollision = 29;
+    constexpr UINT16 SPkt_Bullet_OnCollision = 30;
 };
 #else 
 /* CONNECT WITH X-MACHINA */
@@ -91,43 +103,55 @@ namespace FBsProtocolID
     constexpr UINT16 CPkt_RemovePlayer          = 1010;
     constexpr UINT16 SPkt_RemovePlayer          = 1011;
 
-    constexpr UINT16 CPkt_Player_Transform      = 1012;
-    constexpr UINT16 SPkt_Player_Transform      = 1013;
+    constexpr UINT16 CPkt_PlayerOnSkill         = 1012;
+    constexpr UINT16 SPkt_PlayerOnSkill         = 1013;
 
-    constexpr UINT16 CPkt_Player_Animation      = 1014;
-    constexpr UINT16 SPkt_Player_Animation      = 1015;
+    constexpr UINT16 CPkt_Player_Transform      = 1014;
+    constexpr UINT16 SPkt_Player_Transform      = 1015;
 
-    constexpr UINT16 CPkt_Player_Weapon         = 1016;
-    constexpr UINT16 SPkt_PlayerWeapon          = 1017;
+    constexpr UINT16 CPkt_Player_Animation      = 1016;
+    constexpr UINT16 SPkt_Player_Animation      = 1017;
+
+    constexpr UINT16 CPkt_Player_Weapon         = 1018;
+    constexpr UINT16 SPkt_Player_Weapon         = 1019;
 
     /// +-----------------------------------------------------------------------
     ///  MONSTER PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_NewMonster            = 1018;
-    constexpr UINT16 SPkt_NewMonster            = 1019;
+    constexpr UINT16 CPkt_NewMonster            = 1020;
+    constexpr UINT16 SPkt_NewMonster            = 1021;
 
-    constexpr UINT16 CPkt_RemoveMonster         = 1020;
-    constexpr UINT16 SPkt_RemoveMonster         = 1021;
+    constexpr UINT16 CPkt_DeadMonster           = 1022;
+    constexpr UINT16 SPkt_DeadMonster           = 1023;
 
-    constexpr UINT16 CPkt_Monster_Transform     = 1022;
-    constexpr UINT16 SPkt_Monster_Transform     = 1023;
+    constexpr UINT16 CPkt_RemoveMonster         = 1024;
+    constexpr UINT16 SPkt_RemoveMonster         = 1025;
 
-    constexpr UINT16 CPkt_Monster_HP            = 1024;
-    constexpr UINT16 SPkt_Monster_HP            = 1025;
+    constexpr UINT16 CPkt_Monster_Transform     = 1026;
+    constexpr UINT16 SPkt_Monster_Transform     = 1027;
 
-    constexpr UINT16 CPkt_Monster_State         = 1026;
-    constexpr UINT16 SPkt_Monster_State         = 1027;
+    constexpr UINT16 CPkt_Monster_HP            = 1028;
+    constexpr UINT16 SPkt_Monster_HP            = 1029;
+
+    constexpr UINT16 CPkt_Monster_State         = 1030;
+    constexpr UINT16 SPkt_Monster_State         = 1031;
+
+    /// +-----------------------------------------------------------------------
+    ///  PHERO PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+    constexpr UINT16 CPkt_GetPhero              = 1032;
+    constexpr UINT16 SPkt_GetPhero              = 1033;
 
     /// +-----------------------------------------------------------------------
     ///  BULLET PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_Bullet_OnShoot        = 1028;
-    constexpr UINT16 SPkt_Bullet_OnShoot        = 1029;
+    constexpr UINT16 CPkt_Bullet_OnShoot        = 1034;
+    constexpr UINT16 SPkt_Bullet_OnShoot        = 1035;
 
-    constexpr UINT16 CPkt_Bullet_OnCollision    = 1030;
-    constexpr UINT16 SPkt_Bullet_OnCollision    = 1031;
-
+    constexpr UINT16 CPkt_Bullet_OnCollision    = 1036;
+    constexpr UINT16 SPkt_Bullet_OnCollision    = 1037;
 };
+
 
 #endif
 

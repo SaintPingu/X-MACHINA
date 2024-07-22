@@ -32,6 +32,9 @@ void SocketData::Init(std::wstring ip, UINT16 port)
 
 	/* Socket */
 	CreateSocket();
+	int NalgeOff_Flag = 1; // Nagle Off;
+	SetNagleAlgorithmOpt(NalgeOff_Flag);
+
 }
 
 SOCKET SocketData::CreateSocket()
@@ -98,6 +101,12 @@ bool SocketData::SetReuseAddress(bool flag)
 bool SocketData::SetUpdateAcceptSocket(SOCKET listenSocket)
 {
 	return SetSockOpt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
+}
+
+bool SocketData::SetNagleAlgorithmOpt(int TCP_NoDelay)
+{
+	::setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&TCP_NoDelay, sizeof(int));
+	return false;
 }
 
 std::wstring SocketData::GetIpAddress()

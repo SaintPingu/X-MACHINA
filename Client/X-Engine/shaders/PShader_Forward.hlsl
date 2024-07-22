@@ -54,7 +54,10 @@ PSOutput PSForward(VSOutput_Standard pin)
     {
         emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     }
-    emissiveMapSample.xyz += emission;
+    else
+    {
+        emissiveMapSample.xyz = emission;
+    }
     
     // sampling metallicMap
     float4 metallicMapSample = (float4)0;
@@ -101,29 +104,17 @@ PSOutput PSForward(VSOutput_Standard pin)
     // litColor
     float4 litDiffuse = GammaEncoding(float4(lightColor.Diffuse, 1.f));
     float4 litSpecular = GammaEncoding(float4(lightColor.Specular, 1.f)) /*+ float4(reflection, 1.f)*/;
-    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f)) + emissiveMapSample;
+    float4 litAmbient = GammaEncoding(diffuse * gPassCB.GlobalAmbient * float4(ambientAcess.xxx, 1.f));
     
     float4 litColor = litAmbient + litDiffuse + litSpecular + hitRimLight + mindRimLight;
     
     // temp
     float3 dissolveColor = float3(5.f, 1.f, 0.f);
     float4 dissolve = Dissolve(dissolveColor, gTextureMaps[gPassCB.LiveObjectDissolveIndex].Sample(gsamAnisotropicWrap, pin.UV * 2.f).x, gObjectCB.DeathElapsed);
-    
-
+    dissolve.xyz += emissiveMapSample.xyz;
     
     litColor.a = dissolve.a;
     litColor.rgb += dissolve.rgb;
-    
-    if (gObjectCB.UseRefract == TRUE)
-    {
-        float3 toCameraW = normalize(gPassCB.CameraPos - pin.PosW);
-
-        // TODO : 텍스처 인덱스 하드코딩 변경
-        float3 r = refract(-toCameraW, pin.NormalW, 0.95f);
-        //float3 r = reflect(-toCameraW, pin.NormalW);
-        litColor = GammaDecoding(gSkyBoxMaps[3].Sample(gsamLinearWrap, r));
-        litColor.a = 0.6f;
-    }
     
     PSOutput pout = (PSOutput)0;
     pout.Result = litColor;

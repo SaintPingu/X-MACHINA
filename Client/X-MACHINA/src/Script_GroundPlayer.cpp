@@ -114,7 +114,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230);
+	constexpr Vec3 kSpawnPoint = Vec3(448, 0, 230);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -1275,26 +1275,30 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	if (box) {
 		const auto& obb = reinterpret_cast<BoxCollider*>(box.get())->mBox;
 
-		// OBB�� ���� ��ȯ ���?
 		Matrix worldToOBB = Matrix::CreateFromQuaternion(obb.Orientation);
 
-		// ������ OBB�� ���� ��ǥ���? ��ȯ
 		ray.Position -= obb.Center;
 		ray.Position = Vec3::Transform(ray.Position, worldToOBB.Invert());
 		ray.Direction = Vec3::Transform(ray.Direction, worldToOBB.Invert());
 
-		// ������ ���� ��ġ�� ���� OBB�� �븻 ���� ����
 		Vec3 collisionNormal;
-		if (ray.Position.x >= obb.Extents.x)
-			collisionNormal = Vector3::Right;
-		else if (ray.Position.x <= -obb.Extents.x)
-			collisionNormal = Vector3::Left;
-		else if (ray.Position.z >= 0.f)
-			collisionNormal = Vector3::Forward;
-		else if (ray.Position.z <= 0.f)
-			collisionNormal = Vector3::Backward;
+		if (ray.Position.z <= obb.Extents.z && ray.Position.z >= -obb.Extents.z) {
+			if (ray.Position.x >= 0.f) {
+				collisionNormal = Vector3::Right;
+			}
+			else {
+				collisionNormal = Vector3::Left;
+			}
+		}
+		else {
+			if (ray.Position.z >= 0.f) {
+				collisionNormal = Vector3::Forward;
+			}
+			else {
+				collisionNormal = Vector3::Backward;
+			}
+		}
 
-		// �����̵� ���͸� ���Ͽ� �ٽ� ���� ��ǥ���? ��ȯ
 		float rdn = ray.Direction.Dot(collisionNormal);
 		if (rdn < 0.f) {
 			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * rdn);

@@ -340,6 +340,30 @@
     <ClInclude Include="ClientNetwork\Contents\GameMonster.h">
       <Filter>ClientNetwork\Contents</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_Arack.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ceratoferox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Anglerox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_MiningMech.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Aranobot.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Gobbler.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Rapax.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_LightBipedMech.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -548,6 +572,30 @@
     </ClCompile>
     <ClCompile Include="src\Script_Item_Weapon.cpp">
       <Filter>Script\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Arack.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ceratoferox.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Anglerox.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_MiningMech.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Aranobot.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_LightBipedMech.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Script_Rapax.cpp">
+      <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Gobbler.cpp">
+      <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

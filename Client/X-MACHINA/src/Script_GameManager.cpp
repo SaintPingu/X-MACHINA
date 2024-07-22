@@ -4,6 +4,15 @@
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
+#include "Script_Arack.h"
+#include "Script_Ceratoferox.h"
+#include "Script_Anglerox.h"
+#include "Script_MiningMech.h"
+#include "Script_Aranobot.h"
+#include "Script_Gobbler.h"
+#include "Script_Rapax.h"
+#include "Script_LightBipedMech.h"
+
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
 #include "Component/ParticleSystem.h"
@@ -86,7 +95,30 @@ void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
 	case Hash("Ursacetus"):
 		object->AddComponent<Script_Ursacetus>();
 		break;
-
+	case Hash("Arack"):
+		object->AddComponent<Script_Arack>();
+		break;
+	case Hash("Ceratoferox"):
+		object->AddComponent<Script_Ceratoferox>();
+		break;
+	case Hash("Anglerox"):
+		object->AddComponent<Script_Anglerox>();
+		break;
+	case Hash("MiningMech"):
+		object->AddComponent<Script_MiningMech>();
+		break;
+	case Hash("Aranobot"):
+		object->AddComponent<Script_Aranobot>();
+		break;
+	case Hash("Gobbler"):
+		object->AddComponent<Script_Gobbler>();
+		break;
+	case Hash("Rapax"):
+		object->AddComponent<Script_Rapax>();
+		break;
+	case Hash("LightBipedMech"):
+		object->AddComponent<Script_LightBipedMech>();
+		break;
 	default:
 		throw std::runtime_error("[Error] Couldn't import script");
 		break;

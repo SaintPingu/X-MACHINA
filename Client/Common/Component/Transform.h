@@ -54,7 +54,7 @@ public:
 #pragma endregion
 
 #pragma region Getter
-	rsptr<Transform> GetShared() { return shared_from_this(); }
+	sptr<Transform> GetShared() { return shared_from_this(); }
 	/* Position */
 	// gets the position in world space 
 	Vec3 GetPosition()      const	{ return Vec3(mWorldTransform._41, mWorldTransform._42, mWorldTransform._43); }

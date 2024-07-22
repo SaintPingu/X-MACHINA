@@ -11,9 +11,10 @@
 class Script_LightBipedMech : public Script_Enemy {
 	COMPONENT(Script_LightBipedMech, Script_Enemy)
 
-	sptr<Transform> mWeapon{};
+	Transform* mWeapon{};
 public:
 	virtual void Awake() override;
+	virtual void OnDestroy() override;
 };
 #pragma endregion
 

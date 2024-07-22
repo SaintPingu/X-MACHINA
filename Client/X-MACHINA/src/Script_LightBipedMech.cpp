@@ -5,7 +5,7 @@
 
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
-#include "Scene.h"
+#include "BattleScene.h"
 #include "Object.h"
 
 
@@ -15,9 +15,9 @@ void Script_LightBipedMech::Awake()
 
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_LightBipedMech::AttackCallback, this), 20);
 
-	mWeapon = Scene::I->Instantiate("SM_Phaser");
+	mWeapon = BattleScene::I->Instantiate("SM_Phaser");
 	Transform* weaponPos = mObject->FindFrame("RefPos_Weapon");
-	weaponPos->SetChild(mWeapon);
+	weaponPos->SetChild(mWeapon->GetShared());
 	mWeapon->Rotate(Vector3::Right, 90);
 }
 

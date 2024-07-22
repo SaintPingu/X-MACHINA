@@ -9,6 +9,9 @@
 #include "Script_Anglerox.h"
 #include "Script_MiningMech.h"
 #include "Script_Aranobot.h"
+#include "Script_Gobbler.h"
+#include "Script_Rapax.h"
+#include "Script_LightBipedMech.h"
 
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
@@ -88,6 +91,15 @@ void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
 		break;
 	case Hash("Aranobot"):
 		object->AddComponent<Script_Aranobot>();
+		break;
+	case Hash("Gobbler"):
+		object->AddComponent<Script_Gobbler>();
+		break;
+	case Hash("Rapax"):
+		object->AddComponent<Script_Rapax>();
+		break;
+	case Hash("LightBipedMech"):
+		object->AddComponent<Script_LightBipedMech>();
 		break;
 	default:
 		throw std::runtime_error("[Error] Couldn't import script");

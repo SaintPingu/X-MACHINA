@@ -45,7 +45,39 @@ UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rspt
 void UI::ChangeUITexture(rsptr<UITexture> newUITexture)
 {
 	mUITexture = newUITexture;
-} 
+}
+bool UI::CheckInteract(const Vec2& mousePos)
+{
+	Vec2 pos = GetPosition();
+	float width = mUITexture->Width;
+	float height = mUITexture->Height;
+
+	float left = pos.x - (width / 2);
+	float right = pos.x + (width / 2);
+	float up = pos.y + (height / 2);
+	float down = pos.y - (height / 2);
+
+	if (pos.x < left) {
+		return false;
+	}
+	if (pos.x > right) {
+		return false;
+	}
+	if (pos.y < down) {
+		return false;
+	}
+	if (pos.y > up) {
+		return false;
+	}
+
+	return true;
+}
+
+void UI::Interact()
+{
+
+}
+
 
 void UI::UpdateShaderVars()
 {
@@ -264,6 +296,16 @@ void Canvas::RemoveUI(Layer layer, const std::string& name)
 		if (ui->GetName() == name) {
 			mUIs[layer].erase(ui);
 			return;
+		}
+	}
+}
+void Canvas::Interact(const Vec2& mousePos)
+{
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			if (ui->CheckInteract(mousePos)) {
+				ui->Interact();
+			}
 		}
 	}
 }

@@ -14,8 +14,8 @@ class Script_MainCamera;
 
 
 #pragma region Class
-class Script_GameManager : public Component {
-	COMPONENT(Script_GameManager, Component)
+class Script_BattleManager : public Component {
+	COMPONENT(Script_BattleManager, Component)
 
 private:
 	sptr<Script_MainCamera> mMainCamera{};

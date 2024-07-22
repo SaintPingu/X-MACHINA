@@ -1,6 +1,7 @@
 #pragma once
 class Light;
 class SkyBox;
+class Object;
 
 enum class RenderType : UINT8 {
 	Shadow,
@@ -16,7 +17,8 @@ enum class SceneType {
 };
 
 class Scene abstract {
-public:
+protected:
+	sptr<Object> mManager{};
 	sptr<Light> mLight{};
 	sptr<SkyBox> mSkyBox{};
 
@@ -47,4 +49,6 @@ public:
 	virtual void UpdateSsaoCB();
 	virtual void UpdateMaterialBuffer();
 
+public:
+	Object* GetManager() const { return mManager.get(); }
 };

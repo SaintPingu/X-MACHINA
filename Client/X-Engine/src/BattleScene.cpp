@@ -48,7 +48,6 @@ BattleScene::BattleScene()
 	mIsRenderBounds = true;
 #endif
 #endif
-	mGameManager = std::make_shared<Object>();
 }
 #pragma endregion
 
@@ -149,10 +148,6 @@ void BattleScene::Release()
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Destroy();
 		});
-
-	if (mGameManager) {
-		mGameManager->ResetComponents();
-	}
 
 	mEnvironments.clear();
 	mStaticObjects.clear();
@@ -691,7 +686,7 @@ void BattleScene::Start()
 		});
 
 	std::cout << "Awake...";
-	mGameManager->Awake();
+	mManager->Awake();
 
 
 	/* Enable */
@@ -700,7 +695,7 @@ void BattleScene::Start()
 	ProcessAllObjects([](sptr<Object> object) {
 		object->SetActive(true);
 		});
-	mGameManager->SetActive(true);
+	mManager->SetActive(true);
 	std::cout << "ActivateObjects...";
 
 	std::cout << "UpdatedGrid...";
@@ -727,7 +722,7 @@ void BattleScene::Update()
 
 	PopObjectBuffer();
 
-	mGameManager->Update();
+	mManager->Update();
 }
 
 void BattleScene::ProcessCollisions()

@@ -7,11 +7,6 @@
 #pragma endregion
 
 
-#pragma region Define
-#define GAME_MGR BattleScene::I->GetGameManager()
-#pragma endregion
-
-
 #pragma region ClassForwardDecl
 class Camera;
 class Object;
@@ -39,7 +34,6 @@ public:
 
 private:
 	/* Object */
-	sptr<Object>					mGameManager{};
 	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
@@ -87,7 +81,6 @@ public:
 	float GetTerrainHeight(float x, float z) const;
 	std::vector<sptr<GameObject>> GetAllObjects() const;
 	std::set<GridObject*> GetRenderedObjects() const { return mRenderedObjects; }
-	rsptr<Object> GetGameManager() const { return mGameManager; }
 
 	rsptr<Grid> GetGridFromPos(const Vec3& pos);
 	int GetGridIndexFromPos(Vec3 pos) const;

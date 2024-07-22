@@ -58,6 +58,8 @@ public:
 
 public:
 	void ChangeUITexture(rsptr<UITexture> newUITexture);
+	bool CheckInteract(const Vec2& mousePos);
+	virtual void Interact();
 
 protected:
 	virtual void UpdateShaderVars();
@@ -141,5 +143,7 @@ public:
 	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "", const std::string& name = "");
 	sptr<SliderUI> CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "");
 	void RemoveUI(Layer layer, const std::string& name);
+
+	void Interact(const Vec2& mousePos);
 };
 #pragma endregion

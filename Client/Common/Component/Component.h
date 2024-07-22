@@ -119,6 +119,7 @@ private:
 
 
 class Object : public Transform {
+	friend class Scene;
 	friend class LobbyScene;
 	friend class BattleScene;
 	friend class Grid;

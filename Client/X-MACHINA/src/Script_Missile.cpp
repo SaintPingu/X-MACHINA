@@ -1,13 +1,11 @@
 #include "stdafx.h"
 #include "Script_Missile.h"
 
-#include "GameFramework.h"
-
 #include "Script_LiveObject.h"
-#include "Script_GameManager.h"
 #include "Script_MainCamera.h"
 
 #include "Component/Collider.h"
+#include "Component/Camera.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -38,7 +36,7 @@ void Script_Missile::Explode()
 		}
 	}
 
-	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001f);
+	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(1.f, 0.001f);
 
 	base::Explode();
 

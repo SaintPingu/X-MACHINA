@@ -7,6 +7,7 @@
 #include "InputMgr.h"
 #include "Imgui/ImGuiMgr.h"
 
+#include "LobbyScene.h"
 #include "BattleScene.h"
 #include "Timer.h"
 #include "Object.h"
@@ -21,7 +22,8 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Player.h"
-#include "Script_GameManager.h"
+#include "Script_BattleManager.h"
+#include "Script_LobbyManager.h"
 
 
 #include "InputMgr.h"
@@ -73,7 +75,8 @@ void GameFramework::Release()
 
 int GameFramework::GameLoop()
 {
-	mGameManager = GAME_MGR->AddComponent<Script_GameManager>();
+	BattleScene::I->GetManager()->AddComponent<Script_BattleManager>();
+	LobbyScene::I->GetManager()->AddComponent<Script_LobbyManager>();
 
 	static HACCEL hAccelTable = LoadAccelerators(mhInst, MAKEINTRESOURCE(IDC_XMACHINA));
 	static MSG msg{};

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Script_GameManager.h"
+#include "Script_BattleManager.h"
 
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
@@ -28,7 +28,7 @@
 
 
 
-void Script_GameManager::Awake()
+void Script_BattleManager::Awake()
 {
 	base::Awake();
 
@@ -39,14 +39,14 @@ void Script_GameManager::Awake()
 	InitCustomObjectScripts();
 }
 
-void Script_GameManager::Start()
+void Script_BattleManager::Start()
 {
 	base::Start();
 
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
 }
 
-void Script_GameManager::Update()
+void Script_BattleManager::Update()
 {
 	base::Update();
 
@@ -55,7 +55,7 @@ void Script_GameManager::Update()
 	}
 }
 
-void Script_GameManager::Reset()
+void Script_BattleManager::Reset()
 {
 	base::Reset();
 
@@ -64,17 +64,17 @@ void Script_GameManager::Reset()
 	GameFramework::I->ResetPlayer();
 }
 
-void Script_GameManager::InitSceneObjectScripts()
+void Script_BattleManager::InitSceneObjectScripts()
 {
-	BattleScene::I->ProcessInitScriptOjbects(std::bind(&Script_GameManager::ProcessSceneObjectScript, this, std::placeholders::_1));
+	BattleScene::I->ProcessInitScriptOjbects(std::bind(&Script_BattleManager::ProcessSceneObjectScript, this, std::placeholders::_1));
 }
 
-void Script_GameManager::InitCustomObjectScripts()
+void Script_BattleManager::InitCustomObjectScripts()
 {
 	// hard coding
 }
 
-void Script_GameManager::ProcessSceneObjectScript(sptr<Object> object)
+void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 {
 	const auto& exporter = object->GetComponent<ScriptExporter>();
 	if (!exporter) {

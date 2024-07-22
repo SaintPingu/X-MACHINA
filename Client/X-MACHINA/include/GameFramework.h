@@ -6,7 +6,7 @@
 
 class GridObject;
 class Script_Player;
-class Script_GameManager;
+class Script_BattleManager;
 class Session;
 class ClientSession;
 
@@ -26,8 +26,6 @@ private:
 	GridObject* mPlayer{};
 	volatile bool mIsLogin{};
 
-	sptr<Script_GameManager> mGameManager{};
-
 private:
 	RESOLUTION			mResolution{};				// ÇØ»óµµ	
 	static HINSTANCE	mhInst;
@@ -39,7 +37,6 @@ public:
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
 	GridObject* GetPlayer() const { return mPlayer; }
-	rsptr<Script_GameManager> GetGameManager() const { return mGameManager; }
 
 public:
 	void Init(HINSTANCE hInstance);

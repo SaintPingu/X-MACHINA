@@ -27,6 +27,8 @@ public:
 	virtual void Build() override;
 	virtual void Release() override;
 
+	GameObject* Instantiate(const std::string& modelName, const Vec3& pos = Vector3::Zero);
+
 private:
 
 	void Start();

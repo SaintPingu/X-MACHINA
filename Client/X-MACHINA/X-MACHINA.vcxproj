@@ -233,6 +233,7 @@
     <ClInclude Include="include\Script_Ceratoferox.h" />
     <ClInclude Include="include\Script_Gobbler.h" />
     <ClInclude Include="include\Script_LightBipedMech.h" />
+    <ClInclude Include="include\Script_LobbyManager.h" />
     <ClInclude Include="include\Script_MindControlledEnemyBT.h" />
     <ClInclude Include="include\Script_MiningMech.h" />
     <ClInclude Include="include\Script_Rapax.h" />
@@ -261,7 +262,7 @@
     <ClInclude Include="include\Script_Missile.h" />
     <ClInclude Include="include\Script_Enemy.h" />
     <ClInclude Include="include\Script_EnemyManager.h" />
-    <ClInclude Include="include\Script_GameManager.h" />
+    <ClInclude Include="include\Script_BattleManager.h" />
     <ClInclude Include="include\Script_GroundObject.h" />
     <ClInclude Include="include\Script_LiveObject.h" />
     <ClInclude Include="include\Script_MainCamera.h" />
@@ -312,6 +313,7 @@
     <ClCompile Include="src\Script_Item_Weapon.cpp" />
     <ClCompile Include="src\Script_Item_WeaponCrate.cpp" />
     <ClCompile Include="src\Script_LightBipedMech.cpp" />
+    <ClCompile Include="src\Script_LobbyManager.cpp" />
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp" />
     <ClCompile Include="src\Script_MiningMech.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
@@ -338,7 +340,7 @@
     <ClCompile Include="src\Script_Missile.cpp" />
     <ClCompile Include="src\Script_Enemy.cpp" />
     <ClCompile Include="src\Script_EnemyManager.cpp" />
-    <ClCompile Include="src\Script_GameManager.cpp" />
+    <ClCompile Include="src\Script_BattleManager.cpp" />
     <ClCompile Include="src\Script_GroundObject.cpp" />
     <ClCompile Include="src\Script_GroundPlayer.cpp" />
     <ClCompile Include="src\Script_LiveObject.cpp" />

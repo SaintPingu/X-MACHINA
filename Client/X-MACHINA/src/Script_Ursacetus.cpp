@@ -2,14 +2,13 @@
 #include "Script_Ursacetus.h"
 
 #include "Script_EnemyManager.h"
-#include "Script_GameManager.h"
 #include "Script_MainCamera.h"
 #include "Script_PheroObject.h"
 
-#include "GameFramework.h"
-
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
+
+#include "Component/Camera.h"
 
 void Script_Ursacetus::Awake()
 {
@@ -22,5 +21,5 @@ void Script_Ursacetus::AttackCallback()
 {
 	base::AttackCallback();
 
-	GameFramework::I->GetGameManager()->GetCamera()->StartShake(1.f, 0.001f);
+	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(1.f, 0.001f);
 }

@@ -7,6 +7,7 @@
 #include "ResourceMgr.h"
 #include "FrameResource.h"
 #include "Model.h"
+#include "Object.h"
 #include "TextMgr.h"
 #include "Mesh.h"
 #include "Texture.h"
@@ -18,7 +19,7 @@
 
 Scene::Scene()
 {
-
+	mManager = std::make_shared<Object>();
 }
 
 void Scene::Build()
@@ -31,6 +32,9 @@ void Scene::Release()
 {
 	mLight = nullptr;
 	mSkyBox = nullptr;
+	if (mManager) {
+		mManager->ResetComponents();
+	}
 }
 
 void Scene::RenderText(RComPtr<struct ID2D1DeviceContext2> device)

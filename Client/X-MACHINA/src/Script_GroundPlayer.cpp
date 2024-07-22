@@ -459,17 +459,17 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	};
 
 	// �ִϸ��̼� �ݹ� �Լ� //
-	static const std::function<void()> reloadCallback = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
-	static const std::function<void()> reloadStopCallback = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
-	static const std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
-	static const std::function<void()> drawCallback = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
-	static const std::function<void()> drawEndCallback = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
-	static const std::function<void()> putbackCallback = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
+	const std::function<void()> reloadCallback = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
+	const std::function<void()> reloadStopCallback = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
+	const std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
+	const std::function<void()> drawCallback = std::bind(&Script_GroundPlayer::DrawWeaponCallback, this);
+	const std::function<void()> drawEndCallback = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
+	const std::function<void()> putbackCallback = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
 
 	// bolt action sniper �ʱ�ȭ
 	{
-		static const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
+		const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
 		const auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 		// callback

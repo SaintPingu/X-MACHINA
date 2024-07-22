@@ -148,6 +148,7 @@ public:
 	UI* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "", const std::string& name = "");
 	SliderUI* CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "");
 	void RemoveUI(Layer layer, const std::string& name);
+	void RemoveUI(Layer layer, UI* ui);
 
 	void CheckClick(const Vec2& mousePos);
 };

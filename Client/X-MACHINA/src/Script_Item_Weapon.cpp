@@ -59,11 +59,10 @@ bool Script_Item_Weapon::Interact(Object* user)
 
 	if (weapon) {
 		player->TakeWeapon(weapon);
-		mObject->RemoveComponent<Script_Item_Weapon>();
 		mObject->SetTag(ObjectTag::Unspecified);
 		mObject->SetActive(false);
 		mObject->mObjectCB.UseOutline = false;
-		DisableInteract();
+		mObject->RemoveComponent<Script_Item_Weapon>();
 	}
 	else {
 		std::cout << "[ERROR] weapon item has no script\n";

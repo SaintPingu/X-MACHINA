@@ -26,6 +26,7 @@ private:
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
+	virtual void OnDestroy() override;
 	virtual void OnCollisionEnter(Object& other) override;
 	virtual void OnCollisionExit(Object& other) override;
 

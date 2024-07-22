@@ -36,6 +36,7 @@ void LobbyScene::RenderShadow()
 
 	RESOURCE<Shader>("Shadow_ObjectInst")->Set();
 	for (auto& buffer : mObjectPools) {
+		buffer->PushRenderAllObjects();
 		buffer->Render();
 	}
 }
@@ -80,7 +81,7 @@ void LobbyScene::Build()
 {
 	Scene::Build();
 	std::cout << "Load Lobby Scene...";
-	mLight->SetSceneBounds(10.f);
+	mLight->SetSceneBounds(15.f);
 
 	LoadSceneObjects();
 

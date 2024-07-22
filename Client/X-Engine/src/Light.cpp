@@ -45,6 +45,16 @@ const LightLoadInfo* Light::GetLightModel(const std::string& modelName) const
 	return mLightModels.at(modelName);
 }
 
+LightInfo* Light::GetLight(int index) const
+{
+	return &mLights->Lights[index];
+}
+
+UINT Light::GetLightCount() const
+{
+	return static_cast<UINT>(mLights->Lights.size());
+}
+
 void Light::BuildLights(std::ifstream& file)
 {
 	LoadLightObjects(file);
@@ -55,6 +65,7 @@ void Light::BuildLights(std::ifstream& file)
 
 void Light::SetSceneBounds(float boundRadius)
 {
+	mSceneBoundsRadius = boundRadius;
 	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
 	mSceneBounds.Radius = sqrt(boundRadius * boundRadius + boundRadius * boundRadius);
 }

@@ -579,15 +579,6 @@ void Transform::DoAllChilds(const std::function<void(Transform*)>& processFunc)
 	}
 }
 
-void Transform::ResetLocalTransform()
-{
-	mLocalTransform = Matrix::Identity;
-	mRight = Vector3::Right;
-	mUp = Vector3::Up;
-	mLook = Vector3::Forward;
-	mPosition = Vector3::Zero;
-}
-
 void Transform::MergeTransform(std::vector<const Transform*>& out, const Transform* transform)
 {
 	out.emplace_back(transform);

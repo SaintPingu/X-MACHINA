@@ -5,6 +5,7 @@
 
 #include "X-Engine.h"
 #include "InputMgr.h"
+#include "Timer.h"
 #include "Scene.h"
 #include "LobbyScene.h"
 #include "GameFramework.h"
@@ -18,7 +19,8 @@ void Script_LobbyManager::Awake()
 {
 	base::Awake();
 
-	MainCamera::I->SetPosition(Vec3(10, 5, 3));
+	//MainCamera::I->SetPosition(Vec3(5, 3, 2));
+	MAIN_CAMERA->SetOffset(Vec3(5, 3, 2));
 	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
 }
@@ -47,6 +49,15 @@ void Script_LobbyManager::Update()
 	if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
 	}
+
+	//if (KEY_PRESSED('O')) {
+	//	float sceneBoundRadius = LobbyScene::I->GetLight()->GetSceneBoundRadius();
+	//	LobbyScene::I->GetLight()->SetSceneBounds(sceneBoundRadius + DeltaTime());
+	//}
+	//if (KEY_PRESSED('P')) {
+	//	float sceneBoundRadius = LobbyScene::I->GetLight()->GetSceneBoundRadius();
+	//	LobbyScene::I->GetLight()->SetSceneBounds(sceneBoundRadius - DeltaTime());
+	//}
 
 	if (KEY_TAP(VK_LBUTTON)) {
 		Vec2 pos = mAimController->GetAimNDCPos();

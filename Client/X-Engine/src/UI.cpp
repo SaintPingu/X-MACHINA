@@ -306,6 +306,16 @@ void Canvas::RemoveUI(Layer layer, const std::string& name)
 	}
 }
 
+void Canvas::RemoveUI(Layer layer, UI* targetUI)
+{
+	for (auto& ui : mUIs[layer]) {
+		if (ui.get() == targetUI) {
+			mUIs[layer].erase(ui);
+			return;
+		}
+	}
+}
+
 void Canvas::CheckClick(const Vec2& mousePos)
 {
 	for (auto& layer : mUIs) {

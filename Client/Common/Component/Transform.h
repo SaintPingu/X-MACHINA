@@ -218,9 +218,6 @@ public:
 	void DoAllTransforms(const std::function<void(Transform*)>& processFunc);
 	void DoAllChilds(const std::function<void(Transform*)>& processFunc);
 
-	// set identity local transform
-	void ResetLocalTransform();
-
 	// returns self Object
 	template<class T>
 	T* GetObj() { return static_cast<T*>(mObject); }

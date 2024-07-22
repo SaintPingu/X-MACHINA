@@ -26,6 +26,9 @@ public:
 	Scene();
 
 public:
+	Light* GetLight() const { return mLight.get(); }
+
+public:
 	virtual void Init() {}
 	virtual void Update() {}
 

@@ -25,6 +25,13 @@ void Script_Item::Update()
 	}
 }
 
+void Script_Item::OnDestroy()
+{
+	base::OnDestroy();
+
+	Canvas::I->RemoveUI(3, mUI);
+}
+
 void Script_Item::OnCollisionEnter(Object& other)
 {
 	base::OnCollisionEnter(other);

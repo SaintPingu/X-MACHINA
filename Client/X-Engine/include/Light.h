@@ -3,6 +3,10 @@
 #pragma region ClassForwardDecl
 class ModelObjectMesh;
 class GameObject;
+struct SceneLight;
+struct SceneLoadLight;
+struct LightLoadInfo;
+struct LightInfo;
 #pragma endregion
 
 
@@ -23,6 +27,7 @@ private:
 	sptr<SceneLoadLight>	mLoadLights{};		// all load lights in scene
 	size_t					mCurrLightCnt{};	// count of allocated light in scene
 	
+	float					mSceneBoundsRadius{};
 	BoundingSphere			mSceneBounds{};		// 시야 입체 빛은 해당 입체 부분에만 적용된다.
 	Matrix					mMtxLightView{};
 	Matrix					mMtxLightProj{};
@@ -39,10 +44,10 @@ public:
 	const LightLoadInfo* GetLightModel(const std::string& modelName) const;
 
 	// [index]에 따른 LightInfo를 반환한다.
-	LightInfo* GetLight(int index) const { return &mLights->Lights[index]; }
+	LightInfo* GetLight(int index) const;
 	// 전체 조명을 반환한다.
 	rsptr<SceneLight> GetSceneLights() const { return mLights; }
-	UINT GetLightCount() const { return static_cast<UINT>(mLights->Lights.size()); }
+	UINT GetLightCount() const;
 
 	const Matrix& GetLightViewMtx() const { return mMtxLightView; }
 	const Matrix& GetLightProjMtx() const { return mMtxLightProj; }
@@ -52,6 +57,7 @@ public:
 	// 새로운 조명 모델을 삽입한다.
 	void InsertLightModel(const std::string& name, const LightLoadInfo* light) { mLightModels.insert(std::make_pair(name, light)); }
 
+	float GetSceneBoundRadius() const { return mSceneBoundsRadius; }
 	void SetSceneBounds(float boundRadius);
 	void BuildLights(std::ifstream& file);
 	void BuildLights();

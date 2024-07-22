@@ -1355,5 +1355,5 @@ void Script_GroundPlayer::SetWeaponChild(GameObject* weapon)
 
 	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType), true);
 	transform->SetChild(weapon->GetShared());
-	weapon->ResetLocalTransform();
+	weapon->SetLocalTransform(Matrix::Identity);
 }

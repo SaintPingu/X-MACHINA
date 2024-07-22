@@ -58,8 +58,10 @@ public:
 
 //private:
 public:
-	void ConnectToServer();
+	void ConnectServer() const;
+	void DisconnectServer();
 
-	void InitPlayer(int sessionID);
+	void InitPlayer();
+	void Login(int sessionID);
 	void ResetPlayer();
 };

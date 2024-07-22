@@ -33,7 +33,8 @@ void Script_BattleManager::Awake()
 	base::Awake();
 
 	MainCamera::I->AddComponent<Script_MainCamera>();
-	GameFramework::I->InitPlayer(0);
+	GameFramework::I->InitPlayer();
+	GameFramework::I->ConnectServer();
 
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
@@ -59,6 +60,7 @@ void Script_BattleManager::Reset()
 {
 	base::Reset();
 
+	GameFramework::I->DisconnectServer();
 	MainCamera::I->RemoveComponent<Script_MainCamera>();
 	mMainCamera = nullptr;
 	GameFramework::I->ResetPlayer();

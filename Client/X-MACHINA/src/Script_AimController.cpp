@@ -30,6 +30,11 @@ void Script_AimController::Update()
 	}
 }
 
+Vec2 Script_AimController::GetAimNDCPos() const
+{
+	return Vec2(mMousePos.x / Canvas::I->GetWidth(), mMousePos.y / Canvas::I->GetHeight());
+}
+
 Vec2 Script_AimController::GetScreenAimPos() const
 {
 	float windowWidth = static_cast<float>(GameFramework::I->GetWindowResolution().Width);

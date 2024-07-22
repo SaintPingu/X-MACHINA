@@ -7,6 +7,7 @@
 #include "InputMgr.h"
 #include "Scene.h"
 #include "LobbyScene.h"
+#include "GameFramework.h"
 
 #include "Component/Camera.h"
 #include "Component/UI.h"
@@ -27,7 +28,7 @@ void Script_LobbyManager::Start()
 	base::Start();
 
 	const auto& ui = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 800, 600);
-	ui->AddClickCallback(std::bind(&Script_LobbyManager::Test, this));
+	ui->AddClickCallback(std::bind(&Script_LobbyManager::ChangeToBattleScene, this));
 
 	mCursorNormal = Canvas::I->CreateUI(4, "Cursor_Normal", Vec2::Zero, 60, 60);
 	mCursorClick = Canvas::I->CreateUI(4, "Cursor_Click", Vec2::Zero, 60, 60);
@@ -44,11 +45,11 @@ void Script_LobbyManager::Update()
 	base::Update();
 
 	if (KEY_TAP('Q')) {
-		Engine::I->LoadScene(SceneType::Battle);
+		ChangeToBattleScene();
 	}
 
 	if (KEY_TAP(VK_LBUTTON)) {
-		Vec2 pos = mAimController->GetAimPos();
+		Vec2 pos = mAimController->GetAimNDCPos();
 		Canvas::I->CheckClick(pos);
 
 		mCursorNormal->SetActive(false);
@@ -56,7 +57,7 @@ void Script_LobbyManager::Update()
 		mAimController->SetUI(mCursorClick);
 ;	}
 	else if (KEY_AWAY(VK_LBUTTON)) {
-		Vec2 pos = mAimController->GetAimPos();
+		Vec2 pos = mAimController->GetAimNDCPos();
 
 		mCursorNormal->SetActive(true);
 		mCursorClick->SetActive(false);
@@ -71,7 +72,7 @@ void Script_LobbyManager::Reset()
 	mObject->RemoveComponent<Script_AimController>();
 }
 
-void Script_LobbyManager::Test()
+void Script_LobbyManager::ChangeToBattleScene()
 {
-	std::cout << "click\n";
+	Engine::I->LoadScene(SceneType::Battle);
 }

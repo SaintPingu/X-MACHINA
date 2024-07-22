@@ -711,6 +711,7 @@ void BattleScene::Update()
 	ProcessCollisions();
 	UpdateObjects();
 	ParticleManager::I->Update();
+	mManager->Update();
 
 	MainCamera::I->Update();
 	MAIN_CAMERA->UpdateViewMtx();
@@ -721,8 +722,6 @@ void BattleScene::Update()
 	UpdateShaderVars();
 
 	PopObjectBuffer();
-
-	mManager->Update();
 }
 
 void BattleScene::ProcessCollisions()

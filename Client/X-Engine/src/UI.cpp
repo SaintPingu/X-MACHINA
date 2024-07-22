@@ -312,6 +312,7 @@ void Canvas::CheckClick(const Vec2& mousePos)
 		for (auto& ui : layer) {
 			if (ui->CheckClick(mousePos)) {
 				ui->OnClick();
+				return;
 			}
 		}
 	}

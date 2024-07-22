@@ -48,6 +48,7 @@ void Script_RemotePlayer::LateUpdate()
 	
 	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
 	mObject->SetPosition(newPosition);
+	mObject->RotateToDir(mCurrExtraPolated_Data.MoveDir);
 
 	return;
 

@@ -159,6 +159,8 @@ public:
 	void Rotate(const Vec3& axis, float angle);
 	// (local) rotates by [quaternion]
 	void Rotate(const Vec4 quaternion);
+	// (local) rotates to dir
+	void RotateToDir(const Vec3& dir);
 	// (global) rotates by [axis] and [angle]
 	void RotateGlobal(const Vec3& axis, float angle);
 	// (global) rotates by [eulerAngles]

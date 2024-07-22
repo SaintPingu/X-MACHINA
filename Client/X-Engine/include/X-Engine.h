@@ -12,6 +12,8 @@ private:
 	bool mIsWindowFocused{ true };
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열
 
+	bool mIsChangeScene{};
+	int mNextSceneType{};
 	Scene* mCrntScene{};
 
 public:
@@ -33,6 +35,7 @@ public:
 	void LoadScene(SceneType sceneType);
 
 private:
+	void LoadScene();
 	void WindowFocusOn();
 	void WindowFocusOff();
 };

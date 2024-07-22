@@ -99,7 +99,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"172.30.1.96", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.17", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -115,16 +115,23 @@ void ClientNetworkManager::Launch(int ThreadNum)
 	LOG_MGR->Cout("--------------------------------------+\n");
 	LOG_MGR->SetColor(TextColor::Default);
 
+	mIsRunning = true;
 	for (int i = 1; i <= ThreadNum; ++i) {
 		std::string ThreadName = "Network Thread_" + std::to_string(i);
 		THREAD_MGR->RunThread(ThreadName, [&]() {
-			while (true) {
+			while (mIsRunning) {
 				mClientNetwork->Dispatch_CompletedTasks_FromIOCP(0);
 			}
 			});
 	}
 
 	/* JoinÀº GameFramework¿¡¼­ ... */
+}
+
+void ClientNetworkManager::Stop()
+{
+	mIsRunning = false;
+	THREAD_MGR->JoinAllThreads();
 }
 
 void ClientNetworkManager::ProcessEvents()

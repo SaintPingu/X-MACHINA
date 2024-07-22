@@ -36,6 +36,7 @@ class ClientNetworkManager
 	DECLARE_SINGLETON(ClientNetworkManager);
 
 private:
+	bool mIsRunning{};
 	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
 
@@ -55,6 +56,7 @@ public:
 public:
 	void Init(std::wstring ip, UINT32 port);
 	void Launch(int ThreadNum);
+	void Stop();
 
 	void ProcessEvents();
 	void SwapEventsQueue(); 

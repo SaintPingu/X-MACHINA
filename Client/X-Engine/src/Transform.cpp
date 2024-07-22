@@ -1,4 +1,5 @@
 #include "Transform.h"
+#include "Transform.h"
 #include "EnginePch.h"
 
 #include "Component/Transform.h"
@@ -291,6 +292,16 @@ void Transform::Rotate(const Vec4 quaternion)
 	SetLocalTransform(mLocalTransform);
 }
 
+void Transform::RotateToDir(const Vec3& dir)
+{
+	Vec3 from = GetLook().xz();
+	Vec3 to = dir.xz();
+
+	float angle = Vector3::SignedAngle(from, to, Vector3::Up);
+
+	RotateGlobal(Vector3::Up, angle);
+}
+
 void Transform::RotateGlobal(const Vec3& axis, float angle)
 {
 	//// <Algorithm>
@@ -407,22 +418,6 @@ void Transform::LookToWorld2(const Vec3& lookTo, const Vec3& look, const Vec3& u
 
 	RotateGlobal(up, angle);
 }
-
-
-// <º¸·ù-¹Îµ¿Çö>
-//Quat originLocalRotation = GetLocalRotation();
-//SetLocalRotation(Quat::Identity);
-//Quat worldRotation = GetRotation();
-//Quat localRotation = Quaternion::Inverse(worldRotation);
-//
-//Quat angle1 = Quaternion::LookRotation(lookTo, up);
-//Quat angle2 = Quaternion::LookRotation(GetUp(), up);
-//
-//localRotation = angle1 * localRotation;
-//localRotation = Quaternion::Inverse(angle2) * localRotation;
-//localRotation = worldRotation * localRotation;
-//localRotation = originLocalRotation * localRotation;
-//SetLocalRotation(localRotation);
 
 ///////////////////////////* Transform *///////////////////////////
 void Transform::SetWorldTransform(const Matrix& transform)

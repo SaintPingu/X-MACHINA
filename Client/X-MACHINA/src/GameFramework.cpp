@@ -100,6 +100,8 @@ int GameFramework::GameLoop()
 		}
 	}
 
+	DisconnectServer();
+
 	Engine::I->Release();
 	::DestroyWindow(mhWnd);
 	::UnregisterClass(L"X-MACHINA", mhInst);
@@ -124,14 +126,8 @@ void GameFramework::Update()
 
 void GameFramework::Launch()
 {
-	ConnectToServer();
-
 	/* main Thread */
 	GameLoop();
-
-#ifdef SERVER_COMMUNICATION
-	THREAD_MGR->JoinAllThreads();
-#endif
 }
 
 
@@ -324,7 +320,7 @@ INT_PTR GameFramework::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 }
 
 
-void GameFramework::ConnectToServer()
+void GameFramework::ConnectServer() const
 {
 #ifdef SERVER_COMMUNICATION
 	// Communication //
@@ -342,9 +338,18 @@ void GameFramework::ConnectToServer()
 #endif
 }
 
+void GameFramework::DisconnectServer()
+{
+#ifdef SERVER_COMMUNICATION
+	CLIENT_NETWORK->Stop();
+
+	mIsLogin = false;
+#endif
+}
 
 
-void GameFramework::InitPlayer(int sessionID)
+
+void GameFramework::InitPlayer()
 {
 	mPlayer = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
 	mPlayer->ResetCollider();
@@ -353,7 +358,12 @@ void GameFramework::InitPlayer(int sessionID)
 #ifdef SERVER_COMMUNICATION
 	auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
 #endif
+}
 
+void GameFramework::Login(int sessionID)
+{
+	assert(mPlayer);
+	mPlayer->SetID(sessionID);
 	mIsLogin = true;
 }
 

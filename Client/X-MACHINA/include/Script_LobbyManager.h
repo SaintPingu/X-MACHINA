@@ -6,7 +6,7 @@
 #pragma endregion
 
 class UI;
-class UITexture;
+struct UITexture;
 class Script_AimController;
 
 #pragma region Class
@@ -25,7 +25,7 @@ public:
 	virtual void Reset() override;
 
 public:
-	void Test();
+	void ChangeToBattleScene();
 };
 
 #pragma endregion

@@ -12,6 +12,7 @@
 #include "ClientNetwork/Contents/ServerSession.h"
 
 
+#include "Object.h"
 #include "ServerSession.h"
 #include "NetworkEvents.h"
 #include "ClientNetworkManager.h"
@@ -228,7 +229,7 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 	/// My Player Info 
 	/// ________________________________________________________________________________ 
 	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
-	GameFramework::I->InitPlayer(static_cast<int>(MyInfo.Id)); /* INIT PLAYER */
+	GameFramework::I->Login(static_cast<int>(MyInfo.Id));
 
 
 	LOG_MGR->SetColor(TextColor::BrightGreen);

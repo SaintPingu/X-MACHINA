@@ -64,6 +64,10 @@ void Engine::Update()
 
 	InputMgr::I->Update();
 
+	if (mIsChangeScene) {
+		LoadScene();
+	}
+
 	DXGIMgr::I->RenderScene();
 
 	// update title with fps
@@ -130,6 +134,15 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Engine::LoadScene(SceneType sceneType)
 {
+	mIsChangeScene = true;
+
+	mNextSceneType = static_cast<int>(sceneType);
+}
+
+void Engine::LoadScene()
+{
+	mIsChangeScene = false;
+
 	FRAME_RESOURCE_MGR->WaitForGpuComplete();
 
 	mCrntScene->Release();
@@ -137,6 +150,7 @@ void Engine::LoadScene(SceneType sceneType)
 	TextMgr::I->Reset();
 	ParticleManager::I->Clear();
 
+	SceneType sceneType = static_cast<SceneType>(mNextSceneType);
 	switch (sceneType) {
 	case SceneType::Lobby:
 		mCrntScene = LobbyScene::I.get();

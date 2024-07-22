@@ -28,6 +28,7 @@ public:
 public:
 	Vec2 GetAimDirection() const { return Vector2::Normalized(mMousePos); }
 	Vec2 GetAimPos() const { return mMousePos; }
+	Vec2 GetAimNDCPos() const;
 	Vec2 GetScreenAimPos() const;
 	
 	UITexture* GetUITexture();

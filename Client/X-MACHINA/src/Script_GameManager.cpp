@@ -14,6 +14,8 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "InputMgr.h"
+#include "X-Engine.h"
 
 
 
@@ -38,6 +40,19 @@ void Script_GameManager::Start()
 void Script_GameManager::Update()
 {
 	base::Update();
+
+	if (KEY_TAP('Q')) {
+		Engine::I->LoadScene(SceneType::Lobby);
+	}
+}
+
+void Script_GameManager::Reset()
+{
+	base::Reset();
+
+	MainCamera::I->RemoveComponent<Script_MainCamera>();
+	mMainCamera = nullptr;
+	GameFramework::I->ResetPlayer();
 }
 
 void Script_GameManager::InitSceneObjectScripts()

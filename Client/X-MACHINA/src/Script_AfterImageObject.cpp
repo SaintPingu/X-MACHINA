@@ -34,7 +34,7 @@ void Script_AfterImageObject::Awake()
 
 	mAfterImageObjects.resize(mkMaxCreateCnt);
 	for (auto& object : mAfterImageObjects) {
-		sptr<GameObject> gameObject = std::dynamic_pointer_cast<GameObject>(BattleScene::I->Instantiate("EliteTrooper", ObjectTag::AfterSkinImage));
+		GameObject* gameObject = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::AfterSkinImage);
 		if (gameObject) {
 			object = gameObject;
 		}

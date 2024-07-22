@@ -170,6 +170,7 @@ void TextMgr::Reset()
 	for (const auto& textBox : mTextBoxes) {
 		textBox->Reset();
 	}
+	mTextBoxes.clear();
 }
 
 void TextMgr::CreateBrush()

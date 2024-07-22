@@ -23,7 +23,7 @@ private:
 	float mReturnSpeed{};
 	std::stack<Vec3>* mPath;
 
-	sptr<AnimatorMotion> mWalkMotion{};
+	AnimatorMotion* mWalkMotion{};
 	const AnimatorParameter* mReturnParam{};
 
 public:

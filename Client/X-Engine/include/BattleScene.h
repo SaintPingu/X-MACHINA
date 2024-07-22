@@ -80,10 +80,6 @@ private:
 	BattleScene();
 	virtual ~BattleScene() = default;
 
-public:
-	void Release();
-
-private:
 #pragma endregion
 
 public:
@@ -117,6 +113,7 @@ public:
 #pragma region Build
 public:
 	virtual void Build() override;
+	virtual void Release() override;
 
 	// ScriptExporter 정보를 로드한다.
 	void LoadScriptExporter(std::ifstream& file, rsptr<Object> object);
@@ -216,7 +213,7 @@ public:
 	void UpdateSurroundGrids();
 
 	// create new game object from model
-	sptr<GridObject> Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, ObjectLayer layer = ObjectLayer::Default, bool enable = true);
+	GridObject* Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, ObjectLayer layer = ObjectLayer::Default, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
 	void RemoveDynamicObject(GridObject* object);

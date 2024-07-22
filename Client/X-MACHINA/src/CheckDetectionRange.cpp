@@ -22,7 +22,7 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 BT::NodeState CheckDetectionRange::Evaluate()
 {
 	if (!mEnemyMgr->mTarget) {
-		mEnemyMgr->mTarget = mTarget.get();
+		mEnemyMgr->mTarget = mTarget;
 	}
 
 	const auto& abilitys = mEnemyMgr->mTarget->GetComponents<Script_AbilityHolder>();

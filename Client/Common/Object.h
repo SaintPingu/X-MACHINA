@@ -50,7 +50,7 @@ public:
 	void SetUseShadow(bool useShadow) { mUseShadow = useShadow; }
 
 public:
-	sptr<Animator> GetAnimator() const { return mAnimator; }
+	Animator* GetAnimator() const { return mAnimator.get(); }
 	bool GetUseShadow() const { return mUseShadow; }
 
 public:

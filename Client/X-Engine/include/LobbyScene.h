@@ -24,10 +24,14 @@ public:
 	virtual void ApplyDynamicContext() override;
 
 	void Update();
+	virtual void Build() override;
+	virtual void Release() override;
 
 private:
-	virtual void Build() override;
+
 	void Start();
 	void UpdateObjects();
 	void RenderObjects();
+
+	void Test();
 };

@@ -87,6 +87,15 @@ void Component::SetActive(bool isActive)
 	}
 }
 
+void Component::Reset()
+{
+	mIsAwake = false;
+	mIsStart = false;
+	mIsActive = false;
+
+	UpdateFunc = std::bind(&Component::FirstUpdate, this);
+}
+
 void Component::FirstUpdate()
 {
 	if (!mIsAwake) {
@@ -370,3 +379,15 @@ sptr<Component> Object::GetCopyComponent(rsptr<Component> component)
 	return result;
 }
 #pragma endregion
+
+void Object::ResetComponents()
+{
+	mIsAwake = false;
+	mIsStart = false;
+	mIsEnable = false;
+	mIsDestroyed = false;
+
+	ProcessComponents([](sptr<Component> component) {
+		component->Reset();
+		});
+}

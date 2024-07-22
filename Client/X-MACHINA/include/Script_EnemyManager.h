@@ -76,7 +76,7 @@ public:
 	Object* mPathTarget{};
 
 	std::stack<Vec3> mPath{};
-	sptr<AnimatorController> mController{};
+	AnimatorController* mController{};
 
 public:
 	void Awake() override;

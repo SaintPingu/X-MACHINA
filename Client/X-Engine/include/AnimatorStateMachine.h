@@ -31,35 +31,36 @@ private:
 	AnimatorLayer* mLayer{};
 	AnimatorStateMachine* mParent{};
 
-	std::vector<sptr<const AnimatorTransition>> mEntryTransitions{};
+	std::vector<AnimatorTransition> mEntryTransitions{};
 
 	Animations::StateMap mStates{};
 	Animations::StateMachineMap mStateMachines{};
 
 public:
-	AnimatorStateMachine(const std::string& name, const std::vector<sptr<const AnimatorTransition>>& entryTransitions);
+	AnimatorStateMachine(const std::string& name, const std::vector<AnimatorTransition>& entryTransitions);
 	AnimatorStateMachine(const AnimatorStateMachine& other);
 	virtual ~AnimatorStateMachine() = default;
 
 public:
 	std::string GetName() const { return mName; }
-	sptr<AnimatorMotion> GetState(const std::string& name) const;
-	sptr<AnimatorStateMachine> GetStateMachine(const std::string& name) const;
+	AnimatorMotion* GetState(const std::string& name) const;
+	AnimatorStateMachine* GetStateMachine(const std::string& name) const;
 	const AnimatorLayer* GetLayer() const { return mLayer; }
 
 	void SetParent(AnimatorStateMachine* parent) { mParent = parent; }
-	void PushState(rsptr<AnimatorMotion> motion) const;
+	void PushState(AnimatorMotion* motion) const;
 	void PushState(const std::string& motionName) const;
 
 public:
 	void Init(const AnimatorController* controller, AnimatorLayer* layer);
+	void Release();
 
 	void AddState(rsptr<AnimatorMotion> state);
 	void AddStateMachine(rsptr<AnimatorStateMachine> stateMachine);
 
-	sptr<AnimatorMotion> Entry() const;
-	sptr<AnimatorMotion> CheckTransition(const AnimatorController* controller) const;
-	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName) const;
+	AnimatorMotion* Entry() const;
+	AnimatorMotion* CheckTransition(const AnimatorController* controller) const;
+	AnimatorMotion* FindMotionByName(const std::string& motionName) const;
 
 	void AddStates(int& index, std::unordered_map<int, std::string>& motionMapInt, std::unordered_map<std::string, int>& motionMapString);
 };

@@ -71,6 +71,17 @@ bool Script_ShootingPlayer::Reload()
 	return false;
 }
 
+void Script_ShootingPlayer::SetWeapon(int weaponNum)
+{
+	mCrntWeaponNum = weaponNum;
+	mWeapon = mWeapons[weaponNum - 1];
+	if (mWeapon) {
+		mWeapon->SetActive(true);
+		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
+		mMuzzle = mWeaponScript->GetMuzzle();
+	}
+}
+
 void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 {
 	if (IsInGunChangeMotion()) {
@@ -121,24 +132,28 @@ void Script_ShootingPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 
 void Script_ShootingPlayer::DrawWeapon()
 {
-	mCrntWeaponNum = mNextWeaponNum;
-	mWeapon = mWeapons[mNextWeaponNum - 1];
-	if (mWeapon) {
-		mWeapon->SetActive(true);
-		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
-		mMuzzle = mWeaponScript->GetMuzzle();
+	if (mNextWeaponNum <= 0 || mNextWeaponNum > mWeapons.size()) {
+		mCrntWeaponNum = 0;
+		DrawWeaponEnd();
+		ResetWeaponAnimation();
+		return;
 	}
+
+	SetWeapon(mNextWeaponNum);
 }
 
 void Script_ShootingPlayer::DrawWeaponEnd()
 {
-	mNextWeaponNum = -1;
-		mIsInDraw = false;
+	if (mCrntWeaponNum != mNextWeaponNum) {
+		SetWeapon(mNextWeaponNum);
+	}
+	ResetNextWeaponNum();
+	mIsInDraw = false;
 }
 
 void Script_ShootingPlayer::PutbackWeapon()
 {
-	mNextWeaponNum = -1;
+	ResetNextWeaponNum();
 	mIsInPutback = true;
 
 	if (mWeaponScript) {
@@ -157,7 +172,7 @@ void Script_ShootingPlayer::PutbackWeaponEnd()
 		mMuzzle = nullptr;
 	}
 
-	if (mNextWeaponNum != -1) {
+	if (mNextWeaponNum != 0) {
 		// putback이 끝난 후 바로 draw
 		DrawWeaponStart(mNextWeaponNum, true);
 	}

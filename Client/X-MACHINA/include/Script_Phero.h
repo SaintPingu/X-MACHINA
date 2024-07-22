@@ -49,7 +49,7 @@ class Script_Phero : public Component {
 private:
 	PheroState mState = PheroState::None;
 	sptr<Rigidbody> mRigid{};
-	sptr<Object> mTarget{};
+	Object* mTarget{};
 
 	PheroStat mStat{};
 	

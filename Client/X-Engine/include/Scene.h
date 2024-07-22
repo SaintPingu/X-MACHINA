@@ -10,6 +10,11 @@ enum class RenderType : UINT8 {
 	DynamicEnvironmentMapping,
 };
 
+enum class SceneType {
+	Lobby,
+	Battle
+};
+
 class Scene abstract {
 public:
 	sptr<Light> mLight{};
@@ -20,8 +25,10 @@ public:
 
 public:
 	virtual void Init() {}
+	virtual void Update() {}
 
 	virtual void Build();
+	virtual void Release();
 	virtual void RenderBegin() abstract;
 
 	virtual void RenderShadow() abstract;

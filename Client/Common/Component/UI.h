@@ -136,9 +136,10 @@ public:
 
 	void Update();
 	void Render() const;
+	void Clear();
 
-	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect", const std::string& name = "");
-	sptr<SliderUI> CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "Rect");
+	sptr<UI> CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "", const std::string& name = "");
+	sptr<SliderUI> CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "");
 	void RemoveUI(Layer layer, const std::string& name);
 };
 #pragma endregion

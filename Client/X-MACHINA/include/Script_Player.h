@@ -75,9 +75,9 @@ private:
 	bool mIsInPutback{};
 
 protected:
-	sptr<GameObject> mWeapon{};
+	GameObject* mWeapon{};
 	sptr<Script_Weapon> mWeaponScript{};
-	std::vector<sptr<GameObject>> mWeapons{};
+	std::vector<GameObject*> mWeapons{};
 	Transform* mMuzzle{};
 
 public:
@@ -103,11 +103,16 @@ protected:
 	virtual void PutbackWeapon() abstract;
 	virtual void PutbackWeaponEnd();
 	virtual void DropWeapon(int weaponIdx);
+	virtual void ResetWeaponAnimation() {}
 
 
 	virtual void StartFire();
 	virtual void StopFire();
 	virtual bool Reload();
+
+private:
+	void SetWeapon(int weaponNum);
+	void ResetNextWeaponNum() { mNextWeaponNum = 0; }
 };
 
 
@@ -128,10 +133,10 @@ private:
 
 	// animator //
 	float mParamV{}, mParamH{};
-	sptr<Animator> mAnimator{};
-	sptr<AnimatorController> mController{};
+	Animator* mAnimator{};
+	AnimatorController* mController{};
 
-	std::unordered_map<int, sptr<AnimatorMotion>> mReloadMotions;
+	std::unordered_map<int, AnimatorMotion*> mReloadMotions;
 
 	// movement //
 	PlayerMotion mPrevMovement{};
@@ -180,6 +185,7 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 	virtual void LateUpdate() override;
+	virtual void OnDestroy() override;
 
 	virtual void OnCollisionStay(Object& other) override;
 
@@ -220,7 +226,7 @@ private:
 	virtual void PutbackWeaponEndCallback();
 	virtual void DropWeapon(int weaponIdx) override;
 	void UpdateParam(float val, float& param);
-	void ResetWeaponAnimation();
+	virtual void ResetWeaponAnimation() override;
 
 	void UpdateMovement(Dir dir);
 
@@ -257,11 +263,11 @@ private:
 	void MoveCamera(Dir dir);
 
 	// [time] 내에 [motion]이 끝나도록 [motion]의 속도를 변경한다.
-	void SetMotionSpeed(rsptr<AnimatorMotion> motion, float time);
+	void SetMotionSpeed(AnimatorMotion* motion, float time);
 	void ComputeSlideVector(Object& other);
 
-	void SwitchWeapon(rsptr<GameObject> weapon);
-	void SetWeaponChild(rsptr<GameObject> weapon);
+	void SwitchWeapon(GameObject* weapon);
+	void SetWeaponChild(GameObject* weapon);
 
 	void Interact();
 

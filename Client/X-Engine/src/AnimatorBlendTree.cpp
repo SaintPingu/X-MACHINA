@@ -32,7 +32,7 @@ Matrix ChildMotion::GetSRT(int boneIndex) const
 
 BlendTree::BlendTree(const AnimatorMotionInfo& info, std::vector<sptr<ChildMotion>> motions)
 	:
-	AnimatorMotion(AnimatorMotionInfo{ info.Name, motions.front()->GetClip()->mLength, info.Speed, info.StateMachine, info.Transitions }),
+	AnimatorMotion(AnimatorMotionInfo{ info.Name, motions.front()->GetClip()->mLength, info.Speed }),
 	mMotions(motions)
 {
 

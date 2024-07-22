@@ -3,12 +3,17 @@
 
 #include "DXGIMgr.h"
 #include "InputMgr.h"
+#include "ResourceMgr.h"
+#include "TextMgr.h"
 
 #include "Timer.h"
 #include "BattleScene.h"
 #include "LobbyScene.h"
 #include "Object.h"
 #include "FrameResource.h"
+
+#include "Component/UI.h"
+#include "Component/ParticleSystem.h"
 
 #pragma region  - 장재문 -
 #include "../Imgui/ImguiCode/imgui.h"
@@ -19,7 +24,6 @@ Engine::Engine()
 	:
 	mTitle(L"LabProject")
 {
-	mUpdateFunc = &Engine::UpdateLobby;
 }
 
 
@@ -30,7 +34,9 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd)
 	WindowInfo windowInfo{ hWnd, Engine::I->GetWindowWidth(), Engine::I->GetWindowHeight() };
 	DXGIMgr::I->Init(hInstance, windowInfo);
 
-	LobbyScene::I->Init();
+	ResourceMemoryLeakChecker::I->SetActive(true);
+	mCrntScene = LobbyScene::I.get();
+	mCrntScene->Init();
 
 #pragma region Imgui - 장재문 - 
 	ImGuiMgr::I->Init();
@@ -52,13 +58,10 @@ void Engine::Release()
 
 void Engine::Update()
 {
-	// update dxgi
 	DXGIMgr::I->Update();
 
-	// update scene
-	(this->*mUpdateFunc)();
+	mCrntScene->Update();
 
-	// update input
 	InputMgr::I->Update();
 
 	DXGIMgr::I->RenderScene();
@@ -127,33 +130,32 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Engine::LoadScene(SceneType sceneType)
 {
+	FRAME_RESOURCE_MGR->WaitForGpuComplete();
+
+	mCrntScene->Release();
+	Canvas::I->Clear();
+	TextMgr::I->Reset();
+	ParticleManager::I->Clear();
+
 	switch (sceneType) {
 	case SceneType::Lobby:
-		mUpdateFunc = &Engine::UpdateLobby;
+		mCrntScene = LobbyScene::I.get();
 		break;
 	case SceneType::Battle:
-		mUpdateFunc = &Engine::UpdateBattle;
-
-		BattleScene::I->Build();
-
-		//Scene::I->ReleaseUploadBuffers();
+		mCrntScene = BattleScene::I.get();
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
+	ResourceMemoryLeakChecker::I->Report();
+	mCrntScene->Build();
+
 	DXGIMgr::I->SwitchScene(sceneType);
-}
 
-void Engine::UpdateLobby()
-{
-	LobbyScene::I->Update();
-}
-
-void Engine::UpdateBattle()
-{
-	BattleScene::I->Update();
+	InputMgr::I->Update();
+	mCrntScene->Update();
 }
 
 void Engine::WindowFocusOn()

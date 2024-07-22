@@ -40,7 +40,7 @@ private:
 	SPtr_ClientNetwork  mClientNetwork{};
 
 
-	Concurrency::concurrent_unordered_map<uint32_t, sptr<GridObject>> mRemotePlayers{}; /* sessionID, RemotePlayer */
+	Concurrency::concurrent_unordered_map<uint32_t, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
 	std::atomic_int	    mBackSceneEventIndex = 1;	// BACK SCENE EVENT QUEUE INDEX 

@@ -280,6 +280,15 @@ ParticleSystem* ParticleSystemPool::Create(rsptr<ParticleSystemCPUData> pscd, Tr
 	return newPS->Play(pscd, target);
 }
 
+void ParticleSystemPool::Clear()
+{
+	for (auto& ps : mPSs) {
+		ps.Stop();
+		ps.mIsUse = false;
+		ps.mIsRunning = false;
+	}
+}
+
 void ParticleSystemPool::Update()
 {
 	for (auto& ps : mPSs) {
@@ -334,6 +343,13 @@ void ParticleManager::Init()
 	mShaders[static_cast<UINT8>(BlendType::Alpha_Blend)] = RESOURCE<Shader>("GraphicsParticle");
 	mShaders[static_cast<UINT8>(BlendType::Alpha_Stretched_Blend)] = RESOURCE<Shader>("GraphicsStretchedParticle");
 	mShaders[static_cast<UINT8>(BlendType::Scroll_Smoke)] = RESOURCE<Shader>("Scroll_Smoke");
+}
+
+void ParticleManager::Clear()
+{
+	for (auto& pool : mPSPools) {
+		pool->Clear();
+	}
 }
 
 ParticleSystem* ParticleManager::Play(const std::string& pscdName, Transform* target)

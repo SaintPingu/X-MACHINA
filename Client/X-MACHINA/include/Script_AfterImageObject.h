@@ -20,7 +20,7 @@ private:
 	float mAfterImageLifeTime{};
 	
 	UINT mCurrObjectIndex{};
-	std::deque<sptr<class GameObject>> mAfterImageObjects{};
+	std::deque<class GameObject*> mAfterImageObjects{};
 
 public:
 	void SetAfterImage(UINT createCnt, float lifeTime);

@@ -130,12 +130,13 @@ public:
 public:
 	void Start();
 	void Animate();
+	void Release();
 
 	void SyncAnimation() const;
 
-	sptr<AnimatorMotion> FindMotionByName(const std::string& motionName, const std::string& layerName = "Base Layer") const;
-	sptr<AnimatorMotion> GetCrntMotion(const std::string& layerName = "Base Layer") const;
-	sptr<AnimatorMotion> GetLastMotion(const std::string& layerName = "Base Layer") const;
+	AnimatorMotion* FindMotionByName(const std::string& motionName, const std::string& layerName = "Base Layer") const;
+	AnimatorMotion* GetCrntMotion(const std::string& layerName = "Base Layer") const;
+	AnimatorMotion* GetLastMotion(const std::string& layerName = "Base Layer") const;
 
 	bool IsEndTransition(const std::string& layerName) const;
 	void SetAnimationSendCallback(const std::function<void()>& callback) { mSendCallback = callback; }
@@ -145,5 +146,5 @@ public:
 private:
 	void InitLayers();
 
-	sptr<AnimatorLayer> FindLayerByName(const std::string& layerName) const;
+	AnimatorLayer* FindLayerByName(const std::string& layerName) const;
 };	

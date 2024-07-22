@@ -15,7 +15,7 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 	MAIN_CAMERA->SetOffset(mMainOffset);
 }
 
-void Script_MainCamera::SetCameraTarget(sptr<GameObject> target)
+void Script_MainCamera::SetCameraTarget(GameObject* target)
 {
 	if (target) {
 		mTarget = target;

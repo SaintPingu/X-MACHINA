@@ -161,7 +161,7 @@ std::string AnimatorTransition::CheckTransition(const AnimatorController* contro
 
 
 #pragma region AnimatorStateMachine
-AnimatorStateMachine::AnimatorStateMachine(const std::string& name, const std::vector<sptr<const AnimatorTransition>>& entryTransitions)
+AnimatorStateMachine::AnimatorStateMachine(const std::string& name, const std::vector<AnimatorTransition>& entryTransitions)
 	:
 	mName(name),
 	mEntryTransitions(entryTransitions)
@@ -187,31 +187,31 @@ AnimatorStateMachine::AnimatorStateMachine(const AnimatorStateMachine& other)
 	}
 }
 
-sptr<AnimatorMotion> AnimatorStateMachine::GetState(const std::string& name) const
+AnimatorMotion* AnimatorStateMachine::GetState(const std::string& name) const
 {
 	if (mStates.contains(name)) {
-		return mStates.at(name);
+		return mStates.at(name).get();
 	}
 
 	return nullptr;
 }
-sptr<AnimatorStateMachine> AnimatorStateMachine::GetStateMachine(const std::string& name) const
+AnimatorStateMachine* AnimatorStateMachine::GetStateMachine(const std::string& name) const
 {
 	if (mStateMachines.contains(name)) {
-		return mStateMachines.at(name);
+		return mStateMachines.at(name).get();
 	}
 
 	return nullptr;
 }
 
-void AnimatorStateMachine::PushState(rsptr<AnimatorMotion> motion) const
+void AnimatorStateMachine::PushState(AnimatorMotion* motion) const
 {
 	mLayer->PushState(motion);
 }
 
 void AnimatorStateMachine::PushState(const std::string& motionName) const
 {
-	PushState(mStates.at(motionName));
+	PushState(mStates.at(motionName).get());
 	mLayer->GetController()->CheckTransition();
 }
 
@@ -227,19 +227,35 @@ void AnimatorStateMachine::Init(const AnimatorController* controller, AnimatorLa
 	}
 }
 
+void AnimatorStateMachine::Release()
+{
+	for (const auto& state : mStates) {
+		const auto& motion = state.second;
+		motion->Release();
+	}
+
+	for (const auto& [name, stateMachine] : mStateMachines) {
+		stateMachine->Release();
+	}
+
+	mStates.clear();
+	mStateMachines.clear();
+	mEntryTransitions.clear();
+}
+
 void AnimatorStateMachine::AddState(rsptr<AnimatorMotion> state)
 {
 	mStates.insert(std::make_pair(state->GetName(), state));
 	state->Init(this);
 }
 
-sptr<AnimatorMotion> AnimatorStateMachine::Entry() const
+AnimatorMotion* AnimatorStateMachine::Entry() const
 {
-	if (mStates.contains(mEntryTransitions.front()->Destination)) {
-		return mStates.at(mEntryTransitions.front()->Destination);
+	if (mStates.contains(mEntryTransitions.front().Destination)) {
+		return mStates.at(mEntryTransitions.front().Destination).get();
 	}
-	else if (mStateMachines.contains(mEntryTransitions.front()->Destination)) {
-		return mStateMachines.at(mEntryTransitions.front()->Destination)->Entry();
+	else if (mStateMachines.contains(mEntryTransitions.front().Destination)) {
+		return mStateMachines.at(mEntryTransitions.front().Destination)->Entry();
 	}
 
 	throw std::runtime_error("There's no animator state machine's entry");
@@ -251,16 +267,16 @@ void AnimatorStateMachine::AddStateMachine(rsptr<AnimatorStateMachine> stateMach
 	stateMachine->SetParent(this);
 }
 
-sptr<AnimatorMotion> AnimatorStateMachine::CheckTransition(const AnimatorController* controller) const
+AnimatorMotion* AnimatorStateMachine::CheckTransition(const AnimatorController* controller) const
 {
 	for (const auto& transition : mEntryTransitions) {
-		std::string destination = transition->CheckTransition(controller);
+		std::string destination = transition.CheckTransition(controller);
 		if (destination != "") {
-			if (sptr<AnimatorMotion> state = GetState(destination)) {
+			if (AnimatorMotion* state = GetState(destination)) {
 				return state;
 			}
 
-			if (sptr<AnimatorStateMachine> subStateMachine = GetStateMachine(destination)) {
+			if (AnimatorStateMachine* subStateMachine = GetStateMachine(destination)) {
 				return subStateMachine->CheckTransition(controller);
 			}
 		}
@@ -269,17 +285,17 @@ sptr<AnimatorMotion> AnimatorStateMachine::CheckTransition(const AnimatorControl
 	return nullptr;
 }
 
-sptr<AnimatorMotion> AnimatorStateMachine::FindMotionByName(const std::string& motionName) const
+AnimatorMotion* AnimatorStateMachine::FindMotionByName(const std::string& motionName) const
 {
-	for (auto& state : mStates) {
-		auto& motion = state.second;
+	for (const auto& state : mStates) {
+		const auto& motion = state.second;
 		if (motion->GetName() == motionName) {
-			return motion;
+			return motion.get();
 		}
 	}
 
-	for (auto& stateMachine : mStateMachines) {
-		if (auto& motion = stateMachine.second->FindMotionByName(motionName)) {
+	for (const auto& stateMachine : mStateMachines) {
+		if (auto motion = stateMachine.second->FindMotionByName(motionName)) {
 			return motion;
 		}
 	}

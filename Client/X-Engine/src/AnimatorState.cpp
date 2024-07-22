@@ -5,7 +5,7 @@
 
 AnimatorState::AnimatorState(const AnimatorMotionInfo& info, rsptr<const AnimationClip> clip)
 	:
-	AnimatorMotion(AnimatorMotionInfo{ clip->mName, clip->mLength, info.Speed, info.StateMachine, info.Transitions }),
+	AnimatorMotion(AnimatorMotionInfo{ clip->mName, clip->mLength, info.Speed }),
 	AnimatorTrack(clip)
 {
 

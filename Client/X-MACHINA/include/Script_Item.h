@@ -49,7 +49,7 @@ public:
 	float mCapPitch{};
 	bool mIsOpend{};
 
-	sptr<GameObject> mWeapon{};
+	GameObject* mWeapon{};
 
 public:
 	virtual void Awake() override;

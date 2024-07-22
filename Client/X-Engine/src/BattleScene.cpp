@@ -50,17 +50,6 @@ BattleScene::BattleScene()
 #endif
 	mGameManager = std::make_shared<Object>();
 }
-
-void BattleScene::Release()
-{
-	ProcessAllObjects([](sptr<Object> object) {
-		object->Destroy();
-		});
-
-	if (mGameManager) {
-		mGameManager->OnDestroy();
-	}
-}
 #pragma endregion
 
 
@@ -117,6 +106,7 @@ void BattleScene::Build()
 	Scene::Build();
 	std::cout << "Load Battle Scene...";
 
+
 	// load models
 	LoadSceneObjects("Import/Scene.bin");
 
@@ -150,6 +140,40 @@ void BattleScene::Build()
 	std::cout << "OK\n";
 
 	Start();
+}
+
+void BattleScene::Release()
+{
+	Scene::Release();
+
+	ProcessAllObjects([](sptr<Object> object) {
+		object->Destroy();
+		});
+
+	if (mGameManager) {
+		mGameManager->ResetComponents();
+	}
+
+	mEnvironments.clear();
+	mStaticObjects.clear();
+	mDynamicObjects.clear();
+	mObjectPools.clear();
+	mDynamicObjectBuffer.clear();
+	mScriptObjects.clear();
+	mDestroyObjects.clear();
+	mDissolveObjects.clear();
+	mRenderedObjects.clear();
+	mSkinMeshObjects.clear();
+	mGridObjects.clear();
+	mObjectsByShader.clear();
+
+	mGrids.clear();
+	mSurroundGrids.clear();
+
+	mOpenList.clear();
+	mClosedList.clear();
+
+	mTerrain = nullptr;
 }
 
 void BattleScene::BuildTerrain()
@@ -658,22 +682,31 @@ void BattleScene::RenderGridBounds()
 #pragma region Update
 void BattleScene::Start()
 {
+	std::cout << "Start(Build) Battle Scene...";
+
 	/* Awake */
 	mTerrain->Awake();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});
 
+	std::cout << "Awake...";
 	mGameManager->Awake();
 
+
 	/* Enable */
+	std::cout << "ActiveTerrain...";
 	mTerrain->SetActive(true);
 	ProcessAllObjects([](sptr<Object> object) {
 		object->SetActive(true);
 		});
 	mGameManager->SetActive(true);
+	std::cout << "ActivateObjects...";
 
+	std::cout << "UpdatedGrid...";
 	UpdateGridInfo();
+
+	std::cout << "OK\n";
 }
 
 void BattleScene::Update()
@@ -681,9 +714,7 @@ void BattleScene::Update()
 	UpdateRenderedObjects();
 	
 	ProcessCollisions();
-	mGameManager->Update();
 	UpdateObjects();
-	mGameManager->LateUpdate();
 	ParticleManager::I->Update();
 
 	MainCamera::I->Update();
@@ -696,6 +727,7 @@ void BattleScene::Update()
 
 	PopObjectBuffer();
 
+	mGameManager->Update();
 }
 
 void BattleScene::ProcessCollisions()
@@ -953,7 +985,7 @@ void BattleScene::UpdateSurroundGrids()
 	}
 }
 
-sptr<GridObject> BattleScene::Instantiate(const std::string& modelName, ObjectTag tag, ObjectLayer layer, bool enable)
+GridObject* BattleScene::Instantiate(const std::string& modelName, ObjectTag tag, ObjectLayer layer, bool enable)
 {
 	const auto& model = RESOURCE<MasterModel>(modelName);
 	if (!model) {
@@ -970,7 +1002,7 @@ sptr<GridObject> BattleScene::Instantiate(const std::string& modelName, ObjectTa
 	}
 	mDynamicObjectBuffer.push_back(instance);
 
-	return instance;
+	return instance.get();
 }
 
 

@@ -232,6 +232,13 @@ void Canvas::Render() const
 	}
 }
 
+void Canvas::Clear()
+{
+	for (auto& layer : mUIs) {
+		layer.clear();
+	}
+}
+
 sptr<UI> Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader, const std::string& name)
 {
 	if (layer > (mkLayerCnt - 1))

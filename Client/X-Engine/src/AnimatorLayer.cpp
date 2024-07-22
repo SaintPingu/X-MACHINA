@@ -9,7 +9,7 @@
 
 
 #pragma region AnimatorLayer
-AnimatorLayer::AnimatorLayer(const std::string& name, sptr<AnimatorStateMachine> rootStateMachine, HumanBone boneMask)
+AnimatorLayer::AnimatorLayer(const std::string& name, rsptr<AnimatorStateMachine> rootStateMachine, HumanBone boneMask)
 	:
 	mName(name),
 	mRootStateMachine(rootStateMachine),
@@ -43,6 +43,12 @@ void AnimatorLayer::Init(AnimatorController* controller)
 	CheckTransition(controller);
 }
 
+void AnimatorLayer::Release()
+{
+	mRootStateMachine->Release();
+	mRootStateMachine = nullptr;
+}
+
 void AnimatorLayer::Animate()
 {
 	mCrntState->Animate();
@@ -57,7 +63,7 @@ void AnimatorLayer::Animate()
 		return;
 	}
 
-	sptr<AnimatorMotion> nextState = mNextStates.front();
+	AnimatorMotion* nextState = mNextStates.front();
 	for (auto& nextState : mNextStates) {
 		nextState->Animate();
 	}
@@ -111,7 +117,7 @@ void AnimatorLayer::Animate()
 }
 
 
-sptr<AnimatorMotion> AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
+AnimatorMotion* AnimatorLayer::CheckTransition(const AnimatorController* controller, bool isChangeImmed)
 {
 	const auto& nextState = mRootStateMachine->CheckTransition(controller);
 	if (!nextState) {
@@ -131,7 +137,7 @@ sptr<AnimatorMotion> AnimatorLayer::CheckTransition(const AnimatorController* co
 	return nullptr;
 }
 
-void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
+void AnimatorLayer::ChangeState(AnimatorMotion* state)
 {
 	if (!state) {
 		return;
@@ -157,7 +163,7 @@ void AnimatorLayer::ChangeState(rsptr<AnimatorMotion> state)
 	}
 }
 
-void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
+void AnimatorLayer::SyncAnimation(const AnimatorMotion* srcState)
 {
 	if (!mIsSyncSM || !mNextStates.empty() || !mCrntState->IsActiveSync()) {
 		return;
@@ -197,7 +203,7 @@ void AnimatorLayer::SyncAnimation(rsptr<const AnimatorMotion> srcState)
 	mCrntState->SetSpeed(speed);
 }
 
-sptr<AnimatorMotion> AnimatorLayer::FindMotionByName(const std::string& motionName) const
+AnimatorMotion* AnimatorLayer::FindMotionByName(const std::string& motionName) const
 {
 	return mRootStateMachine->FindMotionByName(motionName);
 }
@@ -214,9 +220,9 @@ void AnimatorLayer::SyncComplete()
 }
 #pragma endregion
 
-bool AnimatorLayer::PushState(rsptr<AnimatorMotion> nextState)
+bool AnimatorLayer::PushState(AnimatorMotion* nextState)
 {
-	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](sptr<AnimatorMotion> motion) { return motion == nextState; });
+	auto it = std::find_if(mNextStates.begin(), mNextStates.end(), [&](AnimatorMotion* motion) { return motion == nextState; });
 	if (it != mNextStates.end()) {
 		return false;
 	}

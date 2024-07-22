@@ -25,6 +25,7 @@ public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+	virtual void Reset() override;
 
 	rsptr<Script_MainCamera> GetCamera() const { return mMainCamera; }
 

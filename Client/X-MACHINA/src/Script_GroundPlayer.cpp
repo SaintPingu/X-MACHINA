@@ -139,6 +139,15 @@ void Script_GroundPlayer::LateUpdate()
 	RotateMuzzleToAim();
 }
 
+void Script_GroundPlayer::OnDestroy()
+{
+	base::OnDestroy();
+
+	if (mController) {
+		mController->Release();
+	}
+}
+
 void Script_GroundPlayer::OnCollisionStay(Object& other)
 {
 	base::OnCollisionStay(other);
@@ -263,7 +272,7 @@ bool Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
 
 	if (KEY_PRESSED('Q')) {
-		sptr<GridObject> remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
+		GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 		remotePlayer->SetName("TEST");
 
 		remotePlayer->AddComponent<Script_GroundObject>();
@@ -461,7 +470,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	// bolt action sniper �ʱ�ȭ
 	{
 		static const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
-		auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+		const auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 		// callback
 		boltActionMotion->AddEndCallback(boltActionCallback);
@@ -476,9 +485,9 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	for (int i = 0; i < static_cast<int>(WeaponName::_count) - 1; ++i) {
 		WeaponType weaponType = static_cast<WeaponType>(i);
 
-		auto& realodMotion = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
-		auto& drawMotion = mController->FindMotionByName(kDrawMotions.at(weaponType), "Body");
-		auto& putbackMotion = mController->FindMotionByName(kPutbackMotions.at(weaponType), "Body");
+		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
+		const auto& drawMotion = mController->FindMotionByName(kDrawMotions.at(weaponType), "Body");
+		const auto& putbackMotion = mController->FindMotionByName(kPutbackMotions.at(weaponType), "Body");
 
 		// add callbacks
 		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
@@ -513,7 +522,7 @@ void Script_GroundPlayer::BoltAction()
 
 		mWeapon->DetachParent(false);
 		Transform* leftHand = mObject->FindFrame("Humanoid_ L Hand");
-		leftHand->SetChild(mWeapon, false);
+		leftHand->SetChild(mWeapon->GetShared(), false);
 	}
 }
 
@@ -545,7 +554,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		return;
 	}
 
-	sptr<GameObject> weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
+	GameObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
 
 	// ��ũ��Ʈ �߰� //
 	switch (weaponName) {
@@ -579,7 +588,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 
 void Script_GroundPlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 {
-	rsptr<GameObject> gameObject = weapon->GetObj()->GetObj<GameObject>()->GetShared();
+	GameObject* gameObject = weapon->GetObj()->GetObj<GameObject>();
 	SwitchWeapon(gameObject);
 	SetWeaponChild(gameObject);
 	gameObject->GetComponent<Script_Weapon>()->SetOwner(this);
@@ -622,7 +631,7 @@ void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 	// pistol's animation is different. so can't synchronize with others
 	if (isDrawImmed && weaponNum != kPistolNum && GetCrntWeaponNum() != kPistolNum) {
 		mController->SetValue("Draw", true, true);
-		auto& motion = mController->GetCrntMotion("Body");
+		auto motion = mController->GetCrntMotion("Body");
 		motion->SetLength(motion->GetClip()->GetFrameTime(kDrawFrame));
 	}
 	else {
@@ -636,8 +645,10 @@ void Script_GroundPlayer::DrawWeaponCallback()
 {
 	base::DrawWeapon();
 
-	auto& motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
-	SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
+	if (mWeaponScript) {
+		auto motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
+		SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
+	}
 }
 
 void Script_GroundPlayer::DrawWeaponEndCallback()
@@ -1166,7 +1177,7 @@ void Script_GroundPlayer::BoltActionCallback()
 		if (mWeapon) {
 			mWeapon->DetachParent();
 			Transform* rightHand = mObject->FindFrame("RefPosSniper_Action");
-			rightHand->SetChild(mWeapon);
+			rightHand->SetChild(mWeapon->GetShared());
 			mWeapon->SetLocalTransform(Matrix::Identity);
 		}
 	}
@@ -1210,7 +1221,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 	}
 }
 
-void Script_GroundPlayer::SetMotionSpeed(rsptr<AnimatorMotion> motion, float time)
+void Script_GroundPlayer::SetMotionSpeed(AnimatorMotion* motion, float time)
 {
 	if (time <= 0.f) {
 		return;
@@ -1318,7 +1329,7 @@ void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon
 		return;
 	}
 
-	auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 	// motion speed
 	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�?.
@@ -1326,7 +1337,7 @@ void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon
 	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 }
 
-void Script_GroundPlayer::SwitchWeapon(rsptr<GameObject> weapon)
+void Script_GroundPlayer::SwitchWeapon(GameObject* weapon)
 {
 	int weaponIdx = Script_Weapon::GetWeaponIdx(weapon->GetComponent<Script_Weapon>(true)->GetWeaponType());
 
@@ -1342,7 +1353,7 @@ void Script_GroundPlayer::SwitchWeapon(rsptr<GameObject> weapon)
 	}
 }
 
-void Script_GroundPlayer::SetWeaponChild(rsptr<GameObject> weapon)
+void Script_GroundPlayer::SetWeaponChild(GameObject* weapon)
 {
 	const auto& weaponScript = weapon->GetComponent<Script_Weapon>(true);
 
@@ -1350,6 +1361,6 @@ void Script_GroundPlayer::SetWeaponChild(rsptr<GameObject> weapon)
 	WeaponType weaponType = weaponScript->GetWeaponType();
 
 	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType), true);
-	transform->SetChild(weapon);
+	transform->SetChild(weapon->GetShared());
 	weapon->ResetLocalTransform();
 }

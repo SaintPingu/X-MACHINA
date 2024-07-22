@@ -449,6 +449,7 @@ public:
 
 public:
 	ParticleSystem* Create(rsptr<ParticleSystemCPUData> pscd, Transform* target);
+	void Clear();
 	void Update();
 	void ComputePSs() const;
 	void RenderPSs() const;
@@ -473,6 +474,7 @@ public:
 
 public:
 	void Init();
+	void Clear();
 	ParticleSystem* Play(const std::string& pscdName, Transform* target);
 	void Update();
 	void Render() const;

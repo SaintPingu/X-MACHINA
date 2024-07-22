@@ -31,11 +31,6 @@ Animator::Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* ava
 	}
 }
 
-Animator::~Animator()
-{
-
-}
-
 void Animator::UpdateShaderVariables()
 {
 	for (size_t i = 0; i < mSkinMeshes.size(); ++i) {

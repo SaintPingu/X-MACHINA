@@ -22,8 +22,8 @@ class GameFramework : public Singleton<GameFramework> {
 	friend Singleton;
 
 private:
-	wptr<Script_Player> mPlayerScript{};
-	sptr<GridObject> mPlayer{};
+	sptr<Script_Player> mPlayerScript{};
+	GridObject* mPlayer{};
 	volatile bool mIsLogin{};
 
 	sptr<Script_GameManager> mGameManager{};
@@ -38,7 +38,7 @@ public:
 	~GameFramework();
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
-	rsptr<GridObject> GetPlayer() const { return mPlayer; }
+	GridObject* GetPlayer() const { return mPlayer; }
 	rsptr<Script_GameManager> GetGameManager() const { return mGameManager; }
 
 public:
@@ -64,4 +64,5 @@ public:
 	void ConnectToServer();
 
 	void InitPlayer(int sessionID);
+	void ResetPlayer();
 };

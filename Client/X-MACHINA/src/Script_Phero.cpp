@@ -111,7 +111,7 @@ void Script_Phero::FloatGently()
 
 bool Script_Phero::CheckPlayerRange()
 {
-	sptr<GridObject> target = GameFramework::I->GetPlayer();
+	GridObject* target = GameFramework::I->GetPlayer();
 	if (!target) {
 		return false;
 	}

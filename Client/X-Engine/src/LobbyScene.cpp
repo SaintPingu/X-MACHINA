@@ -12,6 +12,10 @@
 #include "ResourceMgr.h"
 #include "DXGIMgr.h"
 #include "Shader.h"
+#include "Animator.h"
+#include "AnimatorMotion.h"
+#include "AnimatorLayer.h"
+#include "AnimatorController.h"
 
 #include "Component/Camera.h"
 #include "Component/UI.h"
@@ -70,12 +74,11 @@ void LobbyScene::Update()
 	mLight->Update();
 	Canvas::I->Update();
 
-	if (KEY_TAP('S')) {
-		Engine::I->LoadScene(SceneType::Battle);
-		Canvas::I->RemoveUI(0, "Title");
-	}
-
 	UpdateShaderVars();
+
+	if (KEY_TAP('Q')) {
+		Engine::I->LoadScene(SceneType::Battle);
+	}
 }
 
 void LobbyScene::Build()
@@ -88,6 +91,8 @@ void LobbyScene::Build()
 	sptr<GameObject> instance = std::make_shared<GameObject>();
 	instance->SetPosition(Vector3::Zero);
 	instance->SetModel(model);
+	auto controller = instance->GetAnimator()->GetController();
+	controller->SetValue("Weapon", 2);
 	mObjects.push_back(instance);
 
 	std::cout << "OK\n";
@@ -96,10 +101,16 @@ void LobbyScene::Build()
 	Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 800, 600);
 }
 
+void LobbyScene::Release()
+{
+	Scene::Release();
+	mObjects.clear();
+}
+
 void LobbyScene::Start()
 {
 	MainCamera::I->SetActive(true);
-	MainCamera::I->SetPosition(Vec3(2, 2, 2));
+	MainCamera::I->SetPosition(Vec3(1, 2, 2));
 	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
 	mLight->BuildLights();

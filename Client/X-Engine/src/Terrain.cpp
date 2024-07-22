@@ -165,8 +165,8 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 	mWidth = mHeightMapImage->GetHeightMapWidth();
 	mLength = mHeightMapImage->GetHeightMapLength();
 
-	int blockWidth = (mWidth - 1) / 8 + 1;
-	int blockLength = (mLength - 1) / 8 + 1;
+	int blockWidth = (mWidth - 1) / 4 + 1;
+	int blockLength = (mLength - 1) / 4 + 1;
 
 	/*지형 객체는 격자 메쉬들의 배열로 만들 것이다. blockWidth, blockLength는 격자 메쉬 하나의 가로, 세로 크기이다. quadsPerBlock, quadsPerBlock은 격자 메쉬의 가로 방향과 세로 방향 사각형의 개수이다.*/
 	const int xQuadsPerBlock = blockWidth - 1;

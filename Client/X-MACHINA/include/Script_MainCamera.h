@@ -20,7 +20,7 @@ private:
 	static constexpr float mkMaxZoomIn  = 0.25f;
 	static constexpr float mkMaxZoomOut = 10.f;
 
-	sptr<GameObject>	mTarget{};
+	GameObject*			mTarget{};
 	Vec3				mMainOffset{};
 	Vec2				mExtraOffset{};
 	Vec2				mMaxOffset{};
@@ -34,7 +34,7 @@ private:
 
 public:
 	void SetCameraOffset(const Vec3& offset);
-	void SetCameraTarget(sptr<GameObject> target);
+	void SetCameraTarget(GameObject* target);
 
 public:
 	virtual void Awake() override;

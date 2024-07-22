@@ -17,15 +17,20 @@
 
 
 Scene::Scene()
-	:
-	mLight(std::make_shared<Light>())
 {
 
 }
 
 void Scene::Build()
 {
+	mLight = std::make_shared<Light>();
 	mSkyBox = std::make_shared<SkyBox>();
+}
+
+void Scene::Release()
+{
+	mLight = nullptr;
+	mSkyBox = nullptr;
 }
 
 void Scene::RenderText(RComPtr<struct ID2D1DeviceContext2> device)

@@ -108,6 +108,8 @@ protected:
 	// 객체(other)와 충돌 종료 시 한 번 호출된다.
 	virtual void OnCollisionExit(Object& other) {}
 
+	virtual void Reset();
+
 private:
 	void FirstUpdate();
 };
@@ -294,6 +296,8 @@ protected:
 	virtual void OnCollisionEnter(Object& other);
 	// 객체(other)와 충돌 종료 시 한 번 호출된다.
 	virtual void OnCollisionExit(Object& other);
+
+	void ResetComponents();
 
 private:
 	// 모든 component들에 대해 (processFunc) 함수를 실행한다.

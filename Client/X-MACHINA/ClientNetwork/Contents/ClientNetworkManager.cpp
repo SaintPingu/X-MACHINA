@@ -400,7 +400,7 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::Creat
 /// ---------------------------------------------------------------------------+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data )
 {
-	sptr<GridObject> remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
+	GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 	remotePlayer->SetName(data->Name);
 	remotePlayer->SetID(static_cast<UINT32>(data->Id));
 
@@ -429,7 +429,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Event_RemotePlayer::Move* data)
 {
 	if (mRemotePlayers.count(data->Id)) {
-		rsptr<GridObject> player = mRemotePlayers[data->Id];
+		GridObject* player = mRemotePlayers[data->Id];
 		player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->Pos);
 		//player->SetPosition(data->RemoteP_Pos);
 	}
@@ -444,7 +444,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::G
 		return;
 	}
 
-	rsptr<GridObject> player = mRemotePlayers[data->Id];
+	GridObject* player = mRemotePlayers[data->Id];
 
 	ExtData ExtrapolatedData              = {};
 	ExtrapolatedData.PingTime             = data->PingTime;
@@ -465,7 +465,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEven
 	if (!mRemotePlayers.count(data->Id)) {
 		return;
 	}
-	rsptr<GridObject> player = mRemotePlayers[data->Id];
+	GridObject* player = mRemotePlayers[data->Id];
 	player->GetAnimator()->GetController()->SetAnimation(data->animation_upper_index, data->animation_lower_index, data->animation_param_v, data->animation_param_h);
 
 }
@@ -492,7 +492,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			break;
 		}
 
-		sptr<GridObject> monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
+		GridObject* monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
 		monster->SetID(monInfos[i].Id);
 		monster->SetName(monsterName);
 		monster->SetPosition(monInfos[i].Pos);

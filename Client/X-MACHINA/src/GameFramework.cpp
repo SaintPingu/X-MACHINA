@@ -204,15 +204,15 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 		break;
 	}
 
-	if (const auto& playerScript = mPlayerScript.lock()) {
-		playerScript->ProcessKeyboardMsg(message, wParam, lParam);
+	if (mPlayerScript) {
+		mPlayerScript->ProcessKeyboardMsg(message, wParam, lParam);
 	}
 }
 
 void GameFramework::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (const auto& playerScript = mPlayerScript.lock()) {
-		playerScript->ProcessMouseMsg(message, wParam, lParam);
+	if (mPlayerScript) {
+		mPlayerScript->ProcessMouseMsg(message, wParam, lParam);
 	}
 }
 
@@ -352,4 +352,10 @@ void GameFramework::InitPlayer(int sessionID)
 #endif
 
 	mIsLogin = true;
+}
+
+void GameFramework::ResetPlayer()
+{
+	mPlayer = nullptr;
+	mPlayerScript = nullptr;
 }

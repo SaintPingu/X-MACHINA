@@ -114,6 +114,10 @@ inline bool ResourceMgr::Add(const std::string& key, sptr<T> resource)
 template<typename T>
 inline sptr<T> ResourceMgr::Get(const std::string& key)
 {
+	if (key == "") {
+		return nullptr;
+	}
+
 	ResourceType resourceType = GetResourceType<T>();
 	KeyResMap& keyResMap = mResources[static_cast<UINT8>(resourceType)];
 

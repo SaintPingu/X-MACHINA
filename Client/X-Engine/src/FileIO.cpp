@@ -518,15 +518,15 @@ namespace {
 	}
 
 	namespace { // Animation IO
-		sptr<const AnimatorTransition> LoadTransition(std::ifstream& file)
+		AnimatorTransition LoadTransition(std::ifstream& file)
 		{
-			sptr<AnimatorTransition> transition = std::make_shared<AnimatorTransition>();
+			AnimatorTransition transition;
 
-			FileIO::ReadString(file, transition->Destination);
+			FileIO::ReadString(file, transition.Destination);
 			int conditionSize = FileIO::ReadVal<int>(file);
-			transition->Conditions.resize(conditionSize);
+			transition.Conditions.resize(conditionSize);
 
-			for (auto& condition : transition->Conditions) {
+			for (auto& condition : transition.Conditions) {
 				FileIO::ReadString(file, condition.mode);
 				FileIO::ReadString(file, condition.paramName);
 
@@ -543,9 +543,9 @@ namespace {
 			return transition;
 		}
 
-		std::vector<sptr<const AnimatorTransition>> LoadTransitions(std::ifstream& file)
+		std::vector<AnimatorTransition> LoadTransitions(std::ifstream& file)
 		{
-			std::vector<sptr<const AnimatorTransition>> transitions{};
+			std::vector<AnimatorTransition> transitions{};
 
 			int transitionSize = FileIO::ReadVal<int>(file);
 			transitions.resize(transitionSize);
@@ -557,19 +557,16 @@ namespace {
 			return transitions;
 		}
 
-		std::vector<sptr<AnimatorMotionTransition>> LoadStateTransitions(std::ifstream& file)
+		std::vector<AnimatorMotionTransition> LoadStateTransitions(std::ifstream& file)
 		{
-			std::vector<sptr<AnimatorMotionTransition>> transitions{};
+			std::vector<AnimatorMotionTransition> transitions{};
 
 			int transitionSize = FileIO::ReadVal<int>(file);
 			transitions.resize(transitionSize);
 
 			for (int i = 0; i < transitionSize; ++i) {
-				sptr<AnimatorMotionTransition> stateTransition = std::make_shared<AnimatorMotionTransition>();
-				stateTransition->Base = LoadTransition(file);
-				FileIO::ReadVal(file, stateTransition->ExitTime);
-				
-				transitions[i] = stateTransition;
+				LoadTransition(file);
+				FileIO::ReadVal(file, transitions[i].ExitTime);
 			}
 
 			return transitions;
@@ -635,7 +632,7 @@ namespace {
 
 			// Entry //
 			FileIO::ReadString(file, token);	// <Entry>:
-			std::vector<sptr<const AnimatorTransition>> entryTransitions = LoadTransitions(file);
+			std::vector<AnimatorTransition> entryTransitions = LoadTransitions(file);
 
 			sptr<AnimatorStateMachine> stateMachine = std::make_shared<AnimatorStateMachine>(stateMachineName, entryTransitions);
 			//////////////////////////////////
@@ -646,14 +643,13 @@ namespace {
 			int stateSize = FileIO::ReadVal<int>(file);
 
 			AnimatorMotionInfo motionInfo{};
-			motionInfo.StateMachine = stateMachine;	// motions are in same statemachine
 
 			for (int i = 0; i < stateSize; ++i) {
 
 				sptr<AnimatorMotion> motion{};
 
 				FileIO::ReadVal<float>(file, motionInfo.Speed);
-				motionInfo.Transitions = LoadStateTransitions(file);
+				LoadStateTransitions(file);
 
 				std::string motionType = FileIO::ReadString(file);
 

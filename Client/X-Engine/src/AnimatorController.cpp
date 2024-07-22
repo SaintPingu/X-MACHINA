@@ -63,6 +63,14 @@ void AnimatorController::Animate()
 	}
 }
 
+void AnimatorController::Release()
+{
+	for (auto& layer : mLayers) {
+		layer->Release();
+	}
+	mLayers.clear();
+}
+
 Matrix AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 {
 	for (auto& layer : mLayers) {
@@ -92,7 +100,7 @@ void AnimatorController::SyncAnimation() const
 {
 	if (mLayers.size() >= 2) {
 		auto& srcLayer = mLayers.back();
-		rsptr<const AnimatorMotion> srcState = srcLayer->GetSyncState();
+		const AnimatorMotion* srcState = srcLayer->GetSyncState();
 
 		for (size_t i = 0; i < mLayers.size(); ++i) {
 			if (mLayers[i] == srcLayer) {
@@ -103,17 +111,17 @@ void AnimatorController::SyncAnimation() const
 	}
 }
 
-sptr<AnimatorMotion> AnimatorController::FindMotionByName(const std::string& motionName, const std::string& layerName) const
+AnimatorMotion* AnimatorController::FindMotionByName(const std::string& motionName, const std::string& layerName) const
 {
 	return FindLayerByName(layerName)->FindMotionByName(motionName);
 }
 
-sptr<AnimatorMotion> AnimatorController::GetCrntMotion(const std::string& layerName) const
+AnimatorMotion* AnimatorController::GetCrntMotion(const std::string& layerName) const
 {
 	return FindLayerByName(layerName)->GetCrntMotion();
 }
 
-sptr<AnimatorMotion> AnimatorController::GetLastMotion(const std::string& layerName) const
+AnimatorMotion* AnimatorController::GetLastMotion(const std::string& layerName) const
 {
 	return FindLayerByName(layerName)->GetLastMotion();
 }
@@ -128,7 +136,7 @@ void AnimatorController::CheckTransition(bool isChangeImmed) const
 	bool isSend = false;
 
 	for (auto& layer : mLayers) {
-		rsptr<AnimatorMotion> nextMotion = layer->CheckTransition(this, isChangeImmed);
+		auto nextMotion = layer->CheckTransition(this, isChangeImmed);
 		if (nextMotion && mSendCallback) {
 			isSend = true;
 		}
@@ -154,11 +162,11 @@ void AnimatorController::InitLayers()
 
 
 
-sptr<AnimatorLayer> AnimatorController::FindLayerByName(const std::string& layerName) const
+AnimatorLayer* AnimatorController::FindLayerByName(const std::string& layerName) const
 {
 	for (auto& layer : mLayers) {
 		if (layer->GetName() == layerName) {
-			return layer;
+			return layer.get();
 		}
 	}
 

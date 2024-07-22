@@ -6,8 +6,8 @@ class AnimatorController;
 class AnimationClip;
 class AnimatorStateMachine;
 
-struct AnimatorMotionTransition {
-	sptr<const AnimatorTransition> Base{};
+struct AnimatorMotionTransition {	// unused
+	const AnimatorTransition* Base{};
 	float ExitTime{};
 	bool InExit{};
 };
@@ -16,9 +16,6 @@ struct AnimatorMotionInfo {
 	std::string Name{};
 	float Length{};
 	float Speed{};
-
-	sptr<const AnimatorStateMachine> StateMachine;
-	std::vector<sptr<AnimatorMotionTransition>> Transitions{};
 };
 
 struct MotionCallback {
@@ -51,7 +48,6 @@ private:
 
 	std::string mName{};
 	const AnimatorStateMachine* mStateMachine{};
-	std::vector<sptr<AnimatorMotionTransition>> mTransitions{};
 
 	std::map<float, MotionCallback> mCallbacks;
 	sptr<MotionCallback> mCallbackStop;
@@ -60,9 +56,10 @@ private:
 public:
 	AnimatorMotion(const AnimatorMotionInfo& info);
 	AnimatorMotion(const AnimatorMotion& other);
-	virtual ~AnimatorMotion() = default;
 
 	void Init(const AnimatorStateMachine* stateMachine) { mStateMachine = stateMachine; }
+	void Release();
+
 	virtual int GetMaxFrameRate() const abstract;
 	virtual Matrix GetSRT(int boneIndex) const abstract;
 
@@ -89,7 +86,7 @@ public:
 	void Reverse(bool val) { mIsReverse = (val == true) ? -1 : 1; }
 
 	bool IsEndAnimation() const;
-	bool IsSameStateMachine(rsptr<const AnimatorMotion> other) const;
+	bool IsSameStateMachine(const AnimatorMotion* other) const;
 	bool IsReverse() const { return mIsReverse == -1 ? true : false; }
 
 	virtual bool Animate();

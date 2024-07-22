@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+class Scene;
+enum class SceneType;
+
 class Engine : public Singleton<Engine> {
 	friend Singleton;
 
@@ -9,7 +12,7 @@ private:
 	bool mIsWindowFocused{ true };
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열
 
-	void (Engine::* mUpdateFunc)();
+	Scene* mCrntScene{};
 
 public:
 	Engine();
@@ -27,12 +30,9 @@ public:
 
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	void LoadScene(enum class SceneType sceneType);
+	void LoadScene(SceneType sceneType);
 
 private:
-	void UpdateLobby();
-	void UpdateBattle();
-
 	void WindowFocusOn();
 	void WindowFocusOff();
 };

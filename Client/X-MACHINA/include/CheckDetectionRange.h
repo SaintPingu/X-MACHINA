@@ -15,7 +15,7 @@ class Script_EnemyManager;
 class CheckDetectionRange : public BT::Node {
 private:
 	sptr<Script_EnemyManager> mEnemyMgr;
-	sptr<Object> mTarget;
+	Object* mTarget;
 
 public:
 	CheckDetectionRange(Object* object);

@@ -14,10 +14,8 @@ AnimatorMotion::AnimatorMotion(const AnimatorMotionInfo& info)
 	mCrntSpeed(info.Speed),
 	mCrntLength(0),
 	mMaxLength(info.Length),
-	mWeight(1),
-	mTransitions(info.Transitions)
+	mWeight(1)
 {
-
 }
 
 AnimatorMotion::AnimatorMotion(const AnimatorMotion& other)
@@ -27,9 +25,15 @@ AnimatorMotion::AnimatorMotion(const AnimatorMotion& other)
 	mCrntSpeed(other.mCrntSpeed),
 	mCrntLength(other.mCrntLength),
 	mMaxLength(other.mMaxLength),
-	mWeight(other.mWeight),
-	mTransitions(other.mTransitions)
+	mWeight(other.mWeight)
 {
+}
+
+void AnimatorMotion::Release()
+{
+	mCallbacks.clear();
+	mCallbackStop = nullptr;
+	mCallbackChange = nullptr;
 }
 
 void AnimatorMotion::ResetLength()
@@ -61,10 +65,6 @@ void AnimatorMotion::Reset()
 	mIsReverse  = 1;
 
 	ResetCallbacks();
-
-	for (auto& transition : mTransitions) {
-		transition->InExit = false;
-	}
 }
 
 
@@ -73,7 +73,7 @@ bool AnimatorMotion::IsEndAnimation() const
 	return (mCrntLength >= mMaxLength) || (mCrntLength <= 0);
 }
 
-bool AnimatorMotion::IsSameStateMachine(rsptr<const AnimatorMotion> other) const
+bool AnimatorMotion::IsSameStateMachine(const AnimatorMotion* other) const
 {
 	return mStateMachine == other->mStateMachine;
 }
@@ -85,21 +85,12 @@ bool AnimatorMotion::Animate()
 	for (auto& [time, callback] : mCallbacks | std::ranges::views::reverse) {
 		if (mCrntLength >= time) {
 			if (!callback.Called) {
-				callback.Callback();
-				callback.Called = true;
+				if (callback.Callback) {
+					callback.Callback();
+					callback.Called = true;
+				}
 			}
 			break;
-		}
-	}
-
-	// change to other motion
-	for (auto& transition : mTransitions) {
-		if (mCrntLength >= transition->ExitTime && !transition->InExit) {
-			std::string destination = transition->Base->CheckTransition(mStateMachine->GetLayer()->GetController());
-			if (destination != "") {
-				mStateMachine->PushState(destination);
-				transition->InExit = true;
-			}
 		}
 	}
 

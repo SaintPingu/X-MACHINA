@@ -38,9 +38,11 @@ class AnimatorController : public Resource {
 
 private:
 	bool mIsPlayer{};
+	bool mIsRemotePlayer{};
 	Animations::ParamMap mParameters{};
 
 	std::vector<sptr<AnimatorLayer>> mLayers;
+	std::vector<AnimatorMotion*>	 mPrevMotions;
 	std::unordered_map<int, std::string> mMotionMapInt{};
 	std::unordered_map<std::string, int> mMotionMapString{};
 
@@ -58,7 +60,7 @@ public:
 	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
 	const AnimatorParameter* GetParamRef(const std::string& paramName) const { return &mParameters.at(paramName); }
 
-	int GetMotionIndex(const std::string& layerName);
+	int GetMotionIndex(int layerIdx);
 
 	template<class T, typename std::enable_if<is_valid_param_type<T>>::type* = nullptr>
 	T GetParamValue(const std::string & paramName) const
@@ -126,6 +128,7 @@ public:
 
 	void SetAnimation(int upperIndex, int lowerIndex, float v, float h);
 	void SetPlayer();
+	void SetRemotePlayer() { mIsRemotePlayer = true; }
 
 public:
 	void Start();
@@ -141,7 +144,7 @@ public:
 	bool IsEndTransition(const std::string& layerName) const;
 	void SetAnimationSendCallback(const std::function<void()>& callback) { mSendCallback = callback; }
 
-	void CheckTransition(bool isChangeImmed = false) const;
+	void CheckTransition(bool isChangeImmed = false);
 
 private:
 	void InitLayers();

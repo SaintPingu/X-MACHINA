@@ -58,6 +58,7 @@ public:
 	void SetPosition(const Vec3& pos);
 
 	void SetActive(bool val) { mIsActive = val; }
+	void SetColor(const Vec3& color);
 
 public:
 	void ChangeUITexture(rsptr<UITexture> newUITexture);

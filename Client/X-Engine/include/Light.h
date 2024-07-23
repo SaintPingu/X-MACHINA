@@ -70,6 +70,7 @@ public:
 
 	// 조명을 Sunlight로 설정한다.
 	void SetSunlight();
+	void SetSunlight2();
 
 private:
 

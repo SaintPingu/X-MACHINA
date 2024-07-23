@@ -132,6 +132,12 @@ void UI::SetPosition(const Vec3& pos)
 	SetPosition(pos.x, pos.y, pos.z);
 }
 
+void UI::SetColor(const Vec3& color)
+{
+	mObjectCB.UseOutline = true;
+	mObjectCB.HitRimColor = color;
+}
+
 #pragma endregion
 
 

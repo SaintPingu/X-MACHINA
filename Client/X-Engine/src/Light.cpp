@@ -60,6 +60,7 @@ void Light::BuildLights(std::ifstream& file)
 	LoadLightObjects(file);
 	LoadLightModels();
 
+	SetSunlight();
 	BuildLights();
 }
 
@@ -72,8 +73,6 @@ void Light::SetSceneBounds(float boundRadius)
 
 void Light::BuildLights()
 {
-	SetSunlight();
-
 	// TODO : 현재는 로드 라이트를 라이트에 복사하지만, 로드 부분을 수정하여 라이트에 바로 데이터를 채워줄 예정이다.
 	for (int i = 0; i < mLoadLights->Lights.size(); ++i) {
 		const auto& loadLight = mLoadLights->Lights[i];
@@ -191,6 +190,17 @@ void Light::SetSunlight()
 	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
 	light.Direction		 = Vec3(1, -2, -1);
 	light.IsEnable		 = true;
+}
+
+void Light::SetSunlight2()
+{
+	LightLoadInfo& light = mLoadLights->Lights[gkSunLightIdx];
+	light.Type = static_cast<int>(LightType::Directional);
+	light.Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.f);
+	light.Diffuse = Vec4(0.3f, 0.3f, 0.3f, 1.f);
+	light.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.f);
+	light.Direction = Vec3(-1, -2, -2);
+	light.IsEnable = true;
 }
 
 void Light::LoadLightModels()

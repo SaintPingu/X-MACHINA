@@ -10,7 +10,17 @@
 void Script_RemotePlayer::Awake()
 {
 	base::Awake();
+	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+}
 
+void Script_RemotePlayer::Update()
+{
+	base::Update();
+
+	if (mController) {
+		mController->SetValueOnly("Vertical", fabs(mParamV) > 0.1f ? mParamV : 0.f);
+		mController->SetValueOnly("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
+	}
 }
 
 void Script_RemotePlayer::LateUpdate()
@@ -45,9 +55,18 @@ void Script_RemotePlayer::LateUpdate()
 #define LERP_DR
 #ifdef LERP_DR
 	
+
+	Vec3 prevPos = mObject->GetPosition();
+
 	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
 	mObject->SetPosition(newPosition);
-	mObject->RotateToDir(mCurrExtraPolated_Data.MoveDir);
+	RotateTo(mCurrExtraPolated_Data.MoveDir);
+
+	Vec3 crntPos = mObject->GetPosition();
+
+	if ((prevPos - crntPos).Length() > 0.1f) {
+		UpdateParam(1, mParamV);
+	}
 
 	return;
 
@@ -222,35 +241,16 @@ float Script_RemotePlayer::GetYAngleFromQuaternion(const Vec4& rotationQuaternio
 	return yAngle;
 }
 
-void Script_RemotePlayer::RotateTo(const Vec3& Angle)
+void Script_RemotePlayer::RotateTo(const Vec3& dir)
 {
-	// °¢µµ°¡ À¯È¿ÇÑÁö È®ÀÎÇÏ°í À¯È¿ÇÏÁö ¾ÊÀ¸¸é Á¾·á
-	if (Angle.LengthSquared() < FLT_EPSILON) {
-		return;
+	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dir, Vector3::Up);
+	constexpr float smoothAngleBound = 10.f;
+	// smooth rotation if angle over [smoothAngleBound] degree
+	if (fabs(angle) > smoothAngleBound) {
+		mObject->Rotate(0, Math::Sign(angle) * mRotationSpeed * DeltaTime(), 0);
 	}
-
-	// ¹°Ã¼ÀÇ ÇöÀç ¹æÇâ º¤ÅÍ
-	Vec3 currentDir = mObject->GetLook().xz();
-	currentDir.Normalize();
-
-	// ¸ñÇ¥ ¹æÇâ º¤ÅÍ
-	Vec3 targetDir = Vector3::Forward; // ±âº»ÀûÀ¸·Î Àü¹æÀ» ÇâÇÏµµ·Ï ¼³Á¤
-
-	// °¢µµ¸¦ ¹æÇâ º¤ÅÍ·Î º¯È¯
-	targetDir = Vector3::Rotate(targetDir, Angle.y);
-
-	// ¹°Ã¼¸¦ È¸Àü½ÃÅ°´Â °¢µµ °è»ê
-	float rotationAngle = Vector3::SignedAngle(currentDir, targetDir, Vector3::Up);
-
-	// È¸Àü °¢µµ¿¡ µû¶ó ºÎµå·¯¿î È¸Àü ¶Ç´Â Áï½Ã È¸Àü
-	constexpr float smoothAngleBound = 10.f; // ºÎµå·¯¿î È¸ÀüÀ» À§ÇÑ ÀÓ°è°ª
-	if (fabs(rotationAngle) > smoothAngleBound) {
-		// ºÎµå·¯¿î È¸Àü
-		mObject->Rotate(0, Math::Sign(rotationAngle) * mRotationSpeed * DeltaTime(), 0);
-	}
-	else if (fabs(rotationAngle) > FLT_EPSILON) {
-		// Áï½Ã È¸Àü
-		mObject->Rotate(0, rotationAngle, 0);
+	else if (fabs(angle) > FLT_EPSILON) {
+		mObject->Rotate(0, angle, 0);
 	}
 }
 
@@ -292,4 +292,40 @@ void Script_RemotePlayer::SetExtrapolatedData(ExtData& extData)
 	mBezierTime = 0.f;
 	mPrevExtrapolated_Data = mCurrExtraPolated_Data;
 	mCurrExtraPolated_Data = extData;
+}
+
+void Script_RemotePlayer::UpdateParams()
+{
+}
+
+void Script_RemotePlayer::UpdateParam(float val, float& param)
+{
+	constexpr float kParamSpeed = 6.f;		// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿? ï¿½ï¿½È¯ ï¿½Óµï¿½
+	constexpr float kOppositeExtraSpeed = 8.f;		// ï¿½Ý´ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½È¯ ï¿½Óµï¿½
+
+	int sign = Math::Sign(val);						// sign : ï¿½Ä¶ï¿½ï¿½ï¿½ï¿? ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ = ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·Â°ï¿½ï¿½ï¿½ ï¿½ï¿½È£
+	if (Math::IsZero(val)) {						//		  ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿? ï¿½Ý´ï¿½ ï¿½ï¿½È£
+		if (Math::IsZero(param)) {
+			return;
+		}
+		sign = -Math::Sign(param);
+	}
+	float before = param;
+	param += (kParamSpeed * sign) * DeltaTime();	// ï¿½Ä¶ï¿½ï¿½ï¿½Í°ï¿? ï¿½ï¿½ï¿½ï¿½
+
+	if (!Math::IsZero(val)) {
+		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// ï¿½Ý´ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½
+			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// ï¿½ß°ï¿½ ï¿½ï¿½È¯ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
+		}
+		else if (fabs(param) >= fabs(before)) {						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½
+			param = std::clamp(param, -fabs(val), fabs(val));		// paramï¿½ï¿½ valï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
+
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ && 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿? ï¿½ï¿½ï¿? ï¿½Ø´ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Í´ï¿? ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+			if (fabs(fabs(param) - fabs(before)) < 0.001f && fabs(param) < 0.1f) {								// 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+				param = 0.f;
+			}
+		}
+	}
+
+	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½
 }

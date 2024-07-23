@@ -47,6 +47,11 @@ void AnimatorController::SetAnimation(int upperIndex, int lowerIndex, float v, f
 void AnimatorController::SetPlayer()
 {
 	mIsPlayer = true;
+
+	mPrevMotions.resize(mLayers.size());
+	for(int i=0;i<mLayers.size();++i){
+		mPrevMotions[i] = mLayers[i]->GetCrntMotion();
+	}
 }
 
 void AnimatorController::Start()
@@ -82,15 +87,12 @@ Matrix AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
 	return Matrix::Identity;
 }
 
-int AnimatorController::GetMotionIndex(const std::string& layerName)
+int AnimatorController::GetMotionIndex(int layerIdx)
 {
-	for (auto& layer : mLayers) {
-		if (layer->GetName() == layerName) {
-			const auto& motion = layer->GetLastMotion();
-			if (mMotionMapString.count(motion->GetName())) {
-				return mMotionMapString.at(motion->GetName());
-			}
-		}
+	const auto& motion = mPrevMotions[layerIdx];
+	if (mMotionMapString.count(motion->GetName())) {
+		std::cout << "SEND : " << motion->GetName() << std::endl;
+		return mMotionMapString.at(motion->GetName());
 	}
 
 	return -1;
@@ -131,14 +133,22 @@ bool AnimatorController::IsEndTransition(const std::string& layerName) const
 	return FindLayerByName(layerName)->IsEndTransition();
 }
 
-void AnimatorController::CheckTransition(bool isChangeImmed) const
+void AnimatorController::CheckTransition(bool isChangeImmed)
 {
-	bool isSend = false;
+	if (mIsRemotePlayer) {
+		return;
+	}
 
+	bool isSend = false;
+	int i{};
 	for (auto& layer : mLayers) {
 		auto nextMotion = layer->CheckTransition(this, isChangeImmed);
 		if (nextMotion && mSendCallback) {
-			isSend = true;
+			if (mPrevMotions[i] != nextMotion) {
+				mPrevMotions[i] = nextMotion;
+				isSend = true;
+			}
+			++i;
 		}
 	}
 

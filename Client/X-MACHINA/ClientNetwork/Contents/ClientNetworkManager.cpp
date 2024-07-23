@@ -98,7 +98,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.17", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -407,6 +407,7 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::Creat
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data )
 {
 	GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
+	remotePlayer->GetAnimator()->GetController()->SetRemotePlayer();
 	remotePlayer->SetName(data->Name);
 	remotePlayer->SetID(static_cast<UINT32>(data->Id));
 	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */

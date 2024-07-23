@@ -360,8 +360,8 @@ void Script_PlayerNetwork::ClientCallBack_ChangeAnimation()
 {
 	const auto& controller = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 
-	int anim_upper_idx = controller->GetMotionIndex("Body");
-	int anim_lower_idx = controller->GetMotionIndex("Legs");
+	int anim_upper_idx = controller->GetMotionIndex(0);
+	int anim_lower_idx = controller->GetMotionIndex(1);
 	float v = controller->GetParam("Vertical")->val.f;
 	float h = controller->GetParam("Horizontal")->val.f;
 

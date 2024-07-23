@@ -2,6 +2,7 @@
 
 #include "Script_Network.h"
 
+class AnimatorController;
 /* Extrapolation Data - 패킷을 통한 위치 예측을 위해 필요한 데이터 */
 
 constexpr float BEZIER_WEIGHT_ADJUSTMENT = 3.f; // 베지어 가중치 조절 
@@ -55,10 +56,15 @@ private:
 
 	double mBezierTime = 0.f;
 
-
 	float t = 0;
+	
+	AnimatorController* mController;
+	float mParamV{};
+	float mParamH{};
+
 public:
 	virtual void Awake() override;
+	virtual void Update() override;
 	virtual void LateUpdate() override;
 	virtual void UpdateData(const void* data) override;
 
@@ -90,7 +96,7 @@ public:
 
 public:
 
-	void RotateTo(const Vec3& Angle);
+	void RotateTo(const Vec3& dir);
 	Vec3 Bezier_Curve_3(Vec3 start, Vec3 Target, float t);
 	// 베지어 곡선을 계산하는 함수
 	Vec3 Script_RemotePlayer::Bezier_Curve(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float t);
@@ -113,5 +119,8 @@ public:
 					(v1.z - v2.z) * (v1.z - v2.z));
 
 	}
+
+	void UpdateParams();
+	void UpdateParam(float val, float& param);
 };
 

@@ -92,7 +92,7 @@ void Script_GroundPlayer::Awake()
 	const auto& aimUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
-	SetMaxHP(1000.f);
+	SetMaxHP(100000000.f);
 
 	// animations //
 	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();

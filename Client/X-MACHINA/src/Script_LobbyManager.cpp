@@ -44,9 +44,9 @@ void Script_LobbyManager::Update()
 {
 	base::Update();
 
-	if (KEY_TAP('Q')) {
+	//if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
-	}
+	//}
 
 	if (KEY_TAP(VK_LBUTTON)) {
 		Vec2 pos = mAimController->GetAimNDCPos();

@@ -4,6 +4,14 @@
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
+#include "Script_Anglerox.h"
+#include "Script_Arack.h"
+#include "Script_Aranobot.h"
+#include "Script_Ceratoferox.h"
+#include "Script_Gobbler.h"
+#include "Script_LightBipedMech.h"
+#include "Script_MiningMech.h"
+#include "Script_Rapax.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -512,15 +520,42 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 	for (int i = 0; i < monInfos.size(); ++i) {
 		// Monster »ý¼º! 
 		std::string monsterName{};
-		switch (monInfos[i].Type) {
-		case MonsterType::AdvancedCombatDroid_5:
-			monsterName = "AdvancedCombatDroid_5";
+		switch (monInfos[i].Type)
+		{
+		case MonsterType::Ursacetus:
+			monsterName = "Ursacetus";
 			break;
 		case MonsterType::Onyscidus:
 			monsterName = "Onyscidus";
 			break;
-		case MonsterType::Ursacetus:
-			monsterName = "Ursacetus";
+		case MonsterType::AdvancedCombatDroid_5:
+			monsterName = "AdvancedCombatDroid_5";
+			break;
+		case MonsterType::Anglerox:
+			monsterName = "Anglerox";
+			break;
+		case MonsterType::Arack:
+			monsterName = "Arack";
+			break;
+		case MonsterType::Ceratoferox:
+			monsterName = "Ceratoferox";
+			break;
+		case MonsterType::Gobbler:
+			monsterName = "Gobbler";
+			break;
+		case MonsterType::LightBipedMech:
+			monsterName = "LightBipedMech";
+			break;
+		case MonsterType::MiningMech:
+			monsterName = "MiningMech";
+			break;
+		case MonsterType::Rapax:
+			monsterName = "Rapax";
+			break;
+		case MonsterType::Aranobot:
+			monsterName = "Aranobot";
+			break;
+		case MonsterType::End:
 			break;
 		default:
 			assert(0);
@@ -542,6 +577,32 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			break;
 		case MonsterType::Ursacetus:
 			monster->AddComponent<Script_Ursacetus>();
+			break;
+		case MonsterType::Anglerox:
+			monster->AddComponent<Script_Anglerox>();
+			break;
+		case MonsterType::Arack:
+			monster->AddComponent<Script_Arack>();
+			break;
+		case MonsterType::Ceratoferox:
+			monster->AddComponent<Script_Ceratoferox>();
+			break;
+		case MonsterType::Gobbler:
+			monster->AddComponent<Script_Gobbler>();
+			break;
+		case MonsterType::LightBipedMech:
+			monster->AddComponent<Script_LightBipedMech>();
+			break;
+		case MonsterType::MiningMech:
+			monster->AddComponent<Script_MiningMech>();
+			break;
+		case MonsterType::Rapax:
+			monster->AddComponent<Script_Rapax>();
+			break;
+		case MonsterType::Aranobot:
+			monster->AddComponent<Script_Aranobot>();
+			break;
+		case MonsterType::End:
 			break;
 		default:
 			assert(0);

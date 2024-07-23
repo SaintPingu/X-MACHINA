@@ -92,7 +92,7 @@ void Script_GroundPlayer::Awake()
 	const auto& aimUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
-	SetMaxHP(100000000.f);
+	SetMaxHP(1000.f);
 
 	// animations //
 	mAnimator = mObject->GetObj<GameObject>()->GetAnimator();
@@ -112,7 +112,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(25, 0, 260);
+	constexpr Vec3 kSpawnPoint = Vec3(60, 0, 260);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);

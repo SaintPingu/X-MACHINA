@@ -56,9 +56,9 @@ void Script_LobbyManager::Update()
 {
 	base::Update();
 
-	if (KEY_TAP('Q')) {
+	//if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
-	}
+	//}
 
 	if (KEY_PRESSED('O')) {
 		float sceneBoundRadius = LobbyScene::I->GetLight()->GetSceneBoundRadius();

@@ -49,7 +49,7 @@ void Script_Bullet::OnCollisionEnter(Object& other)
 		Explode();
 		break;
 
-	case ObjectTag::Enemy:
+	case ObjectTag::Enemy:	
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
 		enemy->Hit(GetDamage());

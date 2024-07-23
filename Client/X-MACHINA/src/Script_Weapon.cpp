@@ -98,7 +98,7 @@ bool Script_Weapon::CheckReload()
 
 void Script_Weapon::EndReload()
 {
-	--mCurMag;
+	//--mCurMag;
 	mCurBulletCnt = mBulletCntPerMag;
 	mCurReloadTime = 0.f;
 	mCurFireDelay = mMaxFireDelay;

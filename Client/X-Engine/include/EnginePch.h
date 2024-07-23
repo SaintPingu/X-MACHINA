@@ -127,7 +127,10 @@ public:
 #include <d2d1_3.h>
 #include <dwrite.h>
 
+/* Library */
 #include <boost/serialization/nvp.hpp>
+//#include <fmod.hpp>
+
 
 /* Custom */
 #include "Common.h"
@@ -181,7 +184,7 @@ public:
 #pragma region EngineOptions
 
 // 서버 렌더링용
-#define RENDER_FOR_SERVER
+//#define RENDER_FOR_SERVER
 
 #ifdef RENDER_FOR_SERVER
 

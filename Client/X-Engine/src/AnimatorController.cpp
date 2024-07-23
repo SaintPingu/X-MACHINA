@@ -91,7 +91,6 @@ int AnimatorController::GetMotionIndex(int layerIdx)
 {
 	const auto& motion = mPrevMotions[layerIdx];
 	if (mMotionMapString.count(motion->GetName())) {
-		std::cout << "SEND : " << motion->GetName() << std::endl;
 		return mMotionMapString.at(motion->GetName());
 	}
 

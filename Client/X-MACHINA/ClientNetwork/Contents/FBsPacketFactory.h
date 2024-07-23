@@ -60,7 +60,7 @@ private:
 	static bool Process_SPkt_Player_Animation(SPtr_Session session, const FBProtocol::SPkt_Player_Animation& pkt);
 	static bool Process_SPkt_Player_Weapon(SPtr_Session session, const FBProtocol::SPkt_Player_Weapon& pkt);
 	static bool Process_SPkt_Player_OnSkill(SPtr_Session session, const FBProtocol::SPkt_PlayerOnSkill& pkt); // 추가
-
+	static bool Process_SPkt_Player_AimRotation(SPtr_Session session, const FBProtocol::SPkt_Player_AimRotation& pkt);
 	/* MONSTER */
 	static bool Process_SPkt_NewMonster(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt);
 	static bool Process_SPkt_RemoveMonster(SPtr_Session session, const FBProtocol::SPkt_RemoveMonster& pkt);
@@ -94,6 +94,7 @@ public:
 	SPtr_SendPktBuf CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType);
 	SPtr_SendPktBuf CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount); // 추가
+	SPtr_SendPktBuf CPkt_Player_AimRotation(float aim_rotation_y);
 
 	/* MONSTER */
 	SPtr_SendPktBuf CPkt_NewMonster(uint32_t monster_id, FBProtocol::MONSTER_TYPE montser_type);

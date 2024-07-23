@@ -98,7 +98,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.17", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -179,6 +179,12 @@ void ClientNetworkManager::ProcessEvents()
 		{
 			NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation*>(EventData.get());
 			ProcessEvent_RemotePlayer_UpdateAnimation(data);
+		}
+		break;
+		case NetworkEvent::Game::RemotePlayerType::AimRotation:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation*>(EventData.get());
+			ProcessEvent_RemotePlayer_AimRotation(data);
 		}
 		break;
 		/// +---------------------------------------------------------------------------
@@ -354,6 +360,18 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> ClientNetworkManag
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> ClientNetworkManager::CreateEvent_UpdateAimRotation_RemotePlayer(uint32_t remID, float aim_rotation_y)
+{
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation>();
+
+	Event->type = NetworkEvent::Game::RemotePlayerType::AimRotation;
+
+	Event->id = remID;
+	Event->aim_rotation_y = aim_rotation_y;
+
+	return Event;
+}
+
 sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos)
 {
 	sptr<NetworkEvent::Game::Event_Monster::Add> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Add>();
@@ -473,6 +491,17 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEven
 	}
 	GridObject* player = mRemotePlayers[data->Id];
 	player->GetAnimator()->GetController()->SetAnimation(data->animation_upper_index, data->animation_lower_index, data->animation_param_v, data->animation_param_h);
+
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_AimRotation(NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation* data)
+{
+	if (!mRemotePlayers.count(data->id)) {
+		return;
+	}
+	GridObject* player = mRemotePlayers[data->id];
+	player->GetComponent<Script_RemotePlayer>()->RotateTo(data->aim_rotation_y);
+	// TODO : Aim Rotation Y 
 
 }
 

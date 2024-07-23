@@ -41,6 +41,7 @@ class Script_RemotePlayer : public Script_Network
 	COMPONENT(Script_RemotePlayer, Script_Network)
 
 private:
+	Transform* mSpine{};
 	ExtData mCurrExtraPolated_Data = {};
 	ExtData mPrevExtrapolated_Data = {};
 
@@ -59,8 +60,14 @@ private:
 	float t = 0;
 	
 	AnimatorController* mController;
+	bool mInAim{};
 	float mParamV{};
 	float mParamH{};
+
+private:
+	float mAimRotation_Y      = {};
+	float mAimRotation_Y_prev = {};
+
 
 public:
 	virtual void Awake() override;
@@ -85,7 +92,10 @@ public:
 	
 	void SetPacketPos(Vec3 pos) { mPrevPacketPos = mCurrPacketPos;  mCurrPacketPos = pos; mBezierTime = 0.f;  }
 
+	void SetAimRotation_Y(float y)	{ mAimRotation_Y = y; }
+	float GetAimRotation_Y()		{ return mAimRotation_Y; }
 public:
+	float GetYAngle();
 	Vec3 GetDirection(Vec3 dir);
 	Vec3 CalculateDirection(float yAngleRadian);
 	Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
@@ -96,7 +106,8 @@ public:
 
 public:
 
-	void RotateTo(const Vec3& dir);
+	void RotateTo(float yAngle);
+	void RotateTo(const Vec3& dir, float speed);
 	Vec3 Bezier_Curve_3(Vec3 start, Vec3 Target, float t);
 	// 베지어 곡선을 계산하는 함수
 	Vec3 Script_RemotePlayer::Bezier_Curve(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float t);

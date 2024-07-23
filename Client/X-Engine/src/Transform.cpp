@@ -54,6 +54,11 @@ Vec3 Transform::GetWorldDirection(Dir dir)
 	return Vector3::Normalized(result);
 }
 
+float Transform::GetYAngle() const
+{
+	return Vector3::SignedAngle(Vector3::Forward, GetLook().xz(), Vector3::Up);
+}
+
 #pragma endregion
 
 #pragma region Setter

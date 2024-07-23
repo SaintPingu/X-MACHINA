@@ -107,13 +107,21 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Player_Animation(session, *packet);
 	}
 	break;
-	case FBsProtocolID::CPkt_Player_Weapon:
+	case FBsProtocolID::SPkt_Player_Weapon:
 	{
 		const FBProtocol::SPkt_Player_Weapon* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Player_Weapon>(DataPtr);
 		if (!packet) return false;
 		Process_SPkt_Player_Weapon(session, *packet);
 	}
 	break;
+	case FBsProtocolID::SPkt_Player_AimRotation:
+	{
+		const FBProtocol::SPkt_Player_AimRotation* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Player_AimRotation>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Player_AimRotation(session, *packet);
+	}
+	break;
+	
 
 	/// ________________________________________________________________________________
 	/// Monster 
@@ -524,6 +532,19 @@ bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const F
 	return false;
 }
 
+bool FBsPacketFactory::Process_SPkt_Player_AimRotation(SPtr_Session session, const FBProtocol::SPkt_Player_AimRotation& pkt)
+{
+	uint32_t player_id      = pkt.player_id();
+	float aim_rotation = pkt.aim_rotation();
+
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> EventData = CLIENT_NETWORK->CreateEvent_UpdateAimRotation_RemotePlayer(
+		player_id, aim_rotation);
+
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
+	return false;
+}
+
 
 /// ¡Ú---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ///	¢Â PROCESS [ MONSTER ] Server PACKET ¢Â
@@ -867,6 +888,16 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE wea
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount)
 {
 	return SPtr_SendPktBuf();
+}
+
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_AimRotation(float aim_rotation_y)
+{
+	flatbuffers::FlatBufferBuilder builder{};
+	
+	auto ServerPacket = FBProtocol::CreateCPkt_Player_AimRotation(builder, aim_rotation_y);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Player_AimRotation);
+	return sendBuffer;
 }
 
 /// ¡Ú---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

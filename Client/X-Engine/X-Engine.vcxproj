@@ -72,23 +72,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
     <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
     <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
     <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
     <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
     <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\</IncludePath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
     <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

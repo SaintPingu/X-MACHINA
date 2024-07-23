@@ -1,4 +1,4 @@
-#include "EnginePch.h"
+﻿#include "EnginePch.h"
 #include "LobbyScene.h"
 
 #include "BattleScene.h"
@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "SkyBox.h"
 #include "ResourceMgr.h"
+#include "TextMgr.h"
 #include "DXGIMgr.h"
 #include "Shader.h"
 #include "FileIO.h"

@@ -19,21 +19,22 @@ namespace NetworkEvent
 			constexpr UINT16 Move             = 3; // Remote 플레이어 이동 
 			constexpr UINT16 Extrapolate      = 4; // Remote 플레이어 위치 예측 
 			constexpr UINT16 UpdateAnimation  = 5; // Remote 플레이어 애니메이션 업데이트 
+			constexpr UINT16 AimRotation      = 6; // Remote 플레이어 마우스 커서에 의한 방향 전환 업데이트 
 		}
 
 		namespace MonsterType
 		{
-			constexpr UINT16 Add         = 6;
-			constexpr UINT16 Remove      = 7;
-			constexpr UINT16 Move        = 8;
-			constexpr UINT16 UpdateHP    = 9;
-			constexpr UINT16 UpdateState = 10;
+			constexpr UINT16 Add         = 7;
+			constexpr UINT16 Remove      = 8;
+			constexpr UINT16 Move        = 9;
+			constexpr UINT16 UpdateHP    = 10;
+			constexpr UINT16 UpdateState = 11;
 		}
 
 		namespace BulletType
 		{
-			constexpr UINT16 OnShoot	 = 11;
-			constexpr UINT16 OnCollision = 12;
+			constexpr UINT16 OnShoot	 = 12;
+			constexpr UINT16 OnCollision = 13;
 		}
 
 		/* EVENT DATA */
@@ -96,6 +97,11 @@ namespace NetworkEvent
 				int32_t		animation_lower_index = {};
 				float		animation_param_h = {};
 				float		animation_param_v = {};
+			};
+
+			struct UpdateAimRotation : public EventData {
+				uint32_t id             = {};
+				float	 aim_rotation_y = {};
 			};
 		}
 

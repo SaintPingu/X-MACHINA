@@ -78,6 +78,8 @@ public:
 	// [dir]에 따른 월드 공간 diretion 단위벡터를 반환한다.
 	static Vec3 GetWorldDirection(Dir dir);
 
+	float GetYAngle() const;
+
 	/* Transform */
 	const Matrix& GetWorldTransform() const { return mWorldTransform; }
 	const Matrix& GetLocalTransform() const { return mLocalTransform; }

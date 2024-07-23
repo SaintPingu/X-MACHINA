@@ -11,6 +11,7 @@ void Script_RemotePlayer::Awake()
 {
 	base::Awake();
 	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
+	mSpine = mObject->FindFrame("Humanoid_ Spine1");
 }
 
 void Script_RemotePlayer::Update()
@@ -32,6 +33,33 @@ void Script_RemotePlayer::LateUpdate()
 
 	Vec3& curpos = mObject->GetPosition();
 	Vec3& TarPos = mCurrExtraPolated_Data.TargetPos;
+#define LERP_DR
+#ifdef LERP_DR
+	/* MOVE */
+
+	Vec3 prevPos = mObject->GetPosition();
+
+	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
+	mObject->SetPosition(newPosition);
+
+	if (!mInAim) {
+		RotateTo(mCurrExtraPolated_Data.MoveDir, mRotationSpeed);
+	}
+
+	Vec3 crntPos = mObject->GetPosition();
+
+	if ((prevPos - crntPos).Length() > 0.1f) {
+		UpdateParam(1, mParamV);
+	}
+
+	
+#endif
+	/* AIM ROTATION */
+	mAimRotation_Y;
+	// TODO : Aim Rotate RemotePlayer 
+
+	return;
+
 
 //#define BEZIER_CURVE_DR
 #ifdef BEZIER_CURVE_DR
@@ -52,25 +80,7 @@ void Script_RemotePlayer::LateUpdate()
 	return;
 #else
 
-#define LERP_DR
-#ifdef LERP_DR
-	
 
-	Vec3 prevPos = mObject->GetPosition();
-
-	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
-	mObject->SetPosition(newPosition);
-	RotateTo(mCurrExtraPolated_Data.MoveDir);
-
-	Vec3 crntPos = mObject->GetPosition();
-
-	if ((prevPos - crntPos).Length() > 0.1f) {
-		UpdateParam(1, mParamV);
-	}
-
-	return;
-
-#endif
 
 
 	switch (mCurrExtraPolated_Data.MoveState)
@@ -173,6 +183,11 @@ Vec3 Script_RemotePlayer::Bezier_Curve(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float
 	return point;
 }
 
+float Script_RemotePlayer::GetYAngle()
+{
+	return mSpine->GetYAngle();
+}
+
 Vec3 Script_RemotePlayer::GetDirection(Vec3 dir)
 {
 	float length = std::sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
@@ -241,13 +256,25 @@ float Script_RemotePlayer::GetYAngleFromQuaternion(const Vec4& rotationQuaternio
 	return yAngle;
 }
 
-void Script_RemotePlayer::RotateTo(const Vec3& dir)
+void Script_RemotePlayer::RotateTo(float yAngle)
+{
+	if (yAngle < -10000) {
+		mInAim = false;
+		return;
+	}
+	mInAim = true;
+
+	Vec3 dir = Vector3::Rotate(Vector3::Forward, 0, yAngle, 0);
+	RotateTo(dir, 600);
+}
+
+void Script_RemotePlayer::RotateTo(const Vec3& dir, float speed)
 {
 	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dir, Vector3::Up);
 	constexpr float smoothAngleBound = 10.f;
 	// smooth rotation if angle over [smoothAngleBound] degree
 	if (fabs(angle) > smoothAngleBound) {
-		mObject->Rotate(0, Math::Sign(angle) * mRotationSpeed * DeltaTime(), 0);
+		mObject->Rotate(0, Math::Sign(angle) * speed * DeltaTime(), 0);
 	}
 	else if (fabs(angle) > FLT_EPSILON) {
 		mObject->Rotate(0, angle, 0);

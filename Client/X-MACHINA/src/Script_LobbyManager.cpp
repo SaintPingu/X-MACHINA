@@ -27,10 +27,6 @@ void Script_LobbyManager::Awake()
 	MainCamera::I->SetLocalRotation(Quaternion::ToQuaternion(Vec3(8.25f, -124.f, 0.f)));
 	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
-
-	const auto& background = Canvas::I->CreateUI(0, "Black", Vec2{ -1000.f, 0.f }, 600, 800);
-	background->mObjectCB.AlphaIntensity = 0.5f;
-	background->SetColor(Vec3(1, 1, 0));
 }
 
 void Script_LobbyManager::Start()

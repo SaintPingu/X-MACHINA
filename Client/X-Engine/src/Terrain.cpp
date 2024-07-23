@@ -210,7 +210,7 @@ Terrain::Terrain(const std::string& fileName) : Transform(this)
 
 float Terrain::GetHeight(float x, float z) const
 {
-	return mHeightMapImage->GetHeight(x, z);
+	return 0.f;
 }
 
 Vec3 Terrain::GetNormal(float x, float z) const
@@ -371,10 +371,7 @@ TerrainGridMesh::TerrainGridMesh(int xStart, int zStart, int width, int length, 
 
 float TerrainGridMesh::OnGetHeight(int x, int z, rsptr<HeightMapImage> heightMapImage)
 {
-	const std::vector<float>& heightMapPixels = heightMapImage->GetHeightMapPixels();
-	const int width = heightMapImage->GetHeightMapWidth();
-
-	return heightMapPixels[(size_t)x + ((size_t)z * width)];
+	return 0.f;
 }
 #pragma endregion
 

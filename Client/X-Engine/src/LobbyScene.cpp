@@ -85,9 +85,27 @@ void LobbyScene::Build()
 	mLight->SetSceneBounds(15.f);
 
 	LoadSceneObjects();
+	BuildText();
 
 	Start();
 	std::cout << "OK\n";
+}
+
+void LobbyScene::BuildText()
+{
+	// Game Title
+	{
+		TextOption t;
+		t.Font = "ISOCPEUR";
+		t.FontSize = 72.f;
+		t.FontWeight = DWRITE_FONT_WEIGHT_ULTRA_BOLD;
+		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+
+		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
+		testText->WriteText("PLAY");
+		testText->SetPosition(0, 0);
+		testText->SetColor(D2D1::ColorF::Black);
+	}
 }
 
 void LobbyScene::Release()

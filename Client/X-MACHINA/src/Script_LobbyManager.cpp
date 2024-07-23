@@ -5,6 +5,7 @@
 
 #include "X-Engine.h"
 #include "InputMgr.h"
+#include "TextMgr.h"
 #include "Timer.h"
 #include "Scene.h"
 #include "Light.h"
@@ -33,8 +34,11 @@ void Script_LobbyManager::Start()
 {
 	base::Start();
 
-	const auto& ui = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 200, 100);
-	ui->AddClickCallback(std::bind(&Script_LobbyManager::ChangeToBattleScene, this));
+	const auto& start = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 200, 100);
+	start->AddClickCallback(std::bind(&Script_LobbyManager::ChangeToBattleScene, this));
+
+	//const auto& menu = Canvas::I->CreateUI(0, "Menu", { 0, 1080 - 150 }, 1920, 150);
+	const auto& layout = Canvas::I->CreateUI(0, "Layout", { 0, 0 }, 1920, 1080);
 
 	mCursorNormal = Canvas::I->CreateUI(4, "Cursor_Normal", Vec2::Zero, 60, 60);
 	mCursorClick = Canvas::I->CreateUI(4, "Cursor_Click", Vec2::Zero, 60, 60);

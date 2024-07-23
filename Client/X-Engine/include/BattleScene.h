@@ -118,6 +118,7 @@ private:
 	/* Grid */
 	// generate grids
 	void BuildGrid();
+	void BuildText();
 	// update grid indices for all objects
 	void UpdateGridInfo();
 

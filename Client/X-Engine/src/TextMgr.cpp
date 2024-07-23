@@ -3,6 +3,16 @@
 
 #include "DXGIMgr.h"
 
+namespace {
+	D2D1_POINT_2F ConvertPoint(const Vec2& pos)
+	{
+		D2D1_POINT_2F result;
+		result.x = pos.x;
+		result.y = pos.y;
+		return result;
+	}
+}
+
 sptr<TextBox> TextBox::Init(const TextOption& option)
 {
 	mOption = option;

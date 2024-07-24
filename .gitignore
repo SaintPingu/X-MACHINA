@@ -33,6 +33,9 @@
 Client/.vs/
 Client/X-MACHINA/build/
 Client/X-Engine/x64/
+Client/X-MACHINA/lib/Debug/X-Engine.lib
+Client/X-MACHINA/lib/Release/X-Engine.lib
 
 Client/X-MACHINA/shaders/cso/
 *.pdb
+*.idb

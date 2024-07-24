@@ -810,7 +810,7 @@ float Script_GroundPlayer::GetAngleMuzzleToAim(const Vec3& aimWorldPos) const
 
 float Script_GroundPlayer::GetAngleSpineToAim(const Vec3& aimWorldPos) const
 {
-	return Vector3::SignedAngle(mSpineBone->GetUp().xz(), aimWorldPos.xz() - mSpineBone->GetPosition().xz(), Vector3::Up);;
+	return Vector3::SignedAngle(mSpineBone->GetUp().xz(), aimWorldPos.xz() - mSpineBone->GetPosition().xz(), Vector3::Up);
 }
 
 Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
@@ -889,7 +889,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		}
 
 		// angle could be too large if aim is so close
-		constexpr float kAimMinDistance = 300.f;
+		constexpr float kAimMinDistance = 100.f;
 		Vec2 aimScreenPos = InputMgr::I->GetMousePos();
 		if (aimScreenPos.Length() < kAimMinDistance) {
 			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;

@@ -35,7 +35,7 @@ UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 }
 
 
-bool UI::CheckClick() const
+void UI::UpdateHover()
 {
 	const Vec2 mousePos = InputMgr::I->GetMousePos();
 	const Vec2 pos = GetPosition();
@@ -48,19 +48,23 @@ bool UI::CheckClick() const
 	const float down = pos.y - height;
 
 	if (mousePos.x < left) {
-		return false;
+		mIsHover = false;
+		return;
 	}
 	if (mousePos.x > right) {
-		return false;
+		mIsHover = false;
+		return;
 	}
 	if (mousePos.y < down) {
-		return false;
+		mIsHover = false;
+		return;
 	}
 	if (mousePos.y > up) {
-		return false;
+		mIsHover = false;
+		return;
 	}
 
-	return true;
+	mIsHover = true;
 }
 
 void UI::OnClick()
@@ -80,6 +84,12 @@ void UI::UpdateShaderVars(rsptr<Texture> texture)
 
 	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), mObjectCB);
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
+}
+
+void UI::Update()
+{
+	base::Update();
+	UpdateHover();
 }
 
 void UI::Render()
@@ -165,6 +175,20 @@ Button::Button(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	UI(textureName, pos, scale)
 {
 	mCrntTexture = mTexture;
+}
+
+void Button::Update()
+{
+	base::Update();
+
+	if (mHighlightTexture) {
+		if (mIsHover) {
+			mCrntTexture = mHighlightTexture;
+		}
+		else {
+			mCrntTexture = mTexture;
+		}
+	}
 }
 
 void Button::Render()
@@ -263,7 +287,7 @@ void Canvas::CheckClick() const
 {
 	for (auto& layer : mUIs) {
 		for (auto& ui : layer) {
-			if (ui->CheckClick()) {
+			if (ui->IsHover()) {
 				ui->OnClick();
 				return;
 			}

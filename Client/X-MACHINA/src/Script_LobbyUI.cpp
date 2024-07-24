@@ -25,9 +25,13 @@ void Script_LobbyUI::Start()
 		constexpr float yGap = -55;
 				
 		const auto& playButton    = Canvas::I->CreateUI<Button>(1, "PlayButton", Vec2(x, y));
+		playButton->SetHighlightTexture("PlayHButton");
 		const auto& customButton  = Canvas::I->CreateUI<Button>(1, "CustomButton", Vec2(x, y + (yGap * 1)));
+		customButton->SetHighlightTexture("CustomHButton");
 		const auto& settingButton = Canvas::I->CreateUI<Button>(1, "SettingButton", Vec2(x, y + (yGap * 2)));
+		settingButton->SetHighlightTexture("SettingHButton");
 		const auto& quitButton    = Canvas::I->CreateUI<Button>(1, "QuitButton", Vec2(x, y + (yGap * 3)));
+		quitButton->SetHighlightTexture("QuitHButton");
 	}
 
 	mCursorNormal = Canvas::I->CreateUI<UI>(4, "Cursor_Normal", Vec2::Zero, Vec2(60, 60));

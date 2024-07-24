@@ -21,7 +21,8 @@ class UI : public Object {
 	using base = Object;
 
 protected:
-	bool		  mIsActive = true;
+	bool mIsActive = true;
+	bool mIsHover{};
 	sptr<Texture> mTexture{};
 	sptr<Shader>  mShader{};
 
@@ -35,11 +36,12 @@ public:
 	virtual ~UI() = default;
 
 public:
-	virtual void Update() {}
+	virtual void Update();
 	virtual void Render();
 
 	sptr<Texture> GetTexture() const { return mTexture; }
 	Vec2 GetScale() const;
+	bool IsHover() const { return mIsHover; }
 
 	void SetPosition(float x, float y);
 	void SetPosition(const Vec2& pos);
@@ -52,7 +54,7 @@ public:
 
 public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
-	bool CheckClick() const;
+	void UpdateHover();
 	virtual void OnClick();
 
 	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
@@ -95,6 +97,7 @@ public:
 	Button(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
 
 public:
+	virtual void Update() override;
 	virtual void Render() override;
 
 public:

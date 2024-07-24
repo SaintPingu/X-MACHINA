@@ -50,8 +50,8 @@ void InputMgr::Init()
 
 void InputMgr::InitFocus()
 {
-	POINT clientCenter = mClientCenter;
-	::ClientToScreen(DXGIMgr::I->GetHwnd(), &clientCenter);
+	SetCursorCenter();
+	mMousePos = Vec2::One;
 	::ShowCursor(FALSE);
 }
 
@@ -90,9 +90,6 @@ void InputMgr::Update()
 		mMousePos.x = std::clamp(mMousePos.x, -mMaxPos.x, mMaxPos.x);
 		mMousePos.y = std::clamp(mMousePos.y, -mMaxPos.y, mMaxPos.y);
 
-		mMouseDir.x = mousePos.x - mClientCenter.x;
-		mMouseDir.y = -(mousePos.y - mClientCenter.y);
-
 		SetCursorCenter();
 	}
 	else {
@@ -101,10 +98,11 @@ void InputMgr::Update()
 }
 
 
-void InputMgr::WindowFocusOn() const
+void InputMgr::WindowFocusOn()
 {
 	if (!ImGuiMgr::I->IsFocused()) {
 		SetCursorCenter();
+		mMousePos = Vec2::One;
 	}
 }
 
@@ -145,7 +143,7 @@ Vec2 InputMgr::GetMouseNDCPos() const
 	return Vec2(mMousePos.x / (Engine::I->GetWindowWidth() * 0.5f), mMousePos.y / (Engine::I->GetWindowHeight() * 0.5f));
 }
 
-void InputMgr::SetCursorCenter() const
+void InputMgr::SetCursorCenter()
 {
 	POINT clientCenter = mClientCenter;
 	::ClientToScreen(DXGIMgr::I->GetHwnd(), &clientCenter);

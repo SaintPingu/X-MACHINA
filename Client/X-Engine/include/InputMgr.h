@@ -71,7 +71,6 @@ private:
 	POINT mClientCenter{};
 	Vec2 mMousePos{};				// 현재 마우스 위치
 	Vec2 mMaxPos{};					// 마우스 최대 위치
-	Vec2 mMouseDir{};
 	float mMouseSensitivity{ 1.f };	// 마우스 감도
 
 private:
@@ -81,7 +80,7 @@ private:
 public:
 	KeyState GetKeyState(int key) const { return mKeys.at(key); }
 	const Vec2& GetMousePos() const		{ return mMousePos; }
-	const Vec2& GetMouseDir() const		{ return mMouseDir; }
+	Vec2 GetMouseDir() const			{ return Vector2::Normalized(mMousePos); }
 
 	Vec2 GetMouseNDCPos() const;
 
@@ -96,13 +95,13 @@ public:
 	// 각 키들의 정보(KeyInfo)를 업데이트한다.
 	void Update();
 
-	void WindowFocusOn() const;
+	void WindowFocusOn();
 	void WindowFocusOff();
 
 	void WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
-	void SetCursorCenter() const;
+	void SetCursorCenter();
 
 	void ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

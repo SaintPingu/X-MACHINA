@@ -3,6 +3,7 @@
 
 #include "Component/UI.h"
 
+#include "TextMgr.h"
 #include "InputMgr.h"
 #include "GameFramework.h"
 
@@ -13,6 +14,17 @@ void Script_AimController::Awake()
 	RESOLUTION resolution = GameFramework::I->GetWindowResolution();
 	mMaxPos.x = resolution.Width - 10.f;
 	mMaxPos.y = resolution.Height - 30.f;
+
+	{
+		TextOption textOption;
+		textOption.FontSize = 10.f;
+		textOption.FontColor = TextFontColor::Type::Red;
+		textOption.FontWeight = TextFontWeight::THIN;
+		textOption.VAlignment = TextParagraphAlign::Near;
+		textOption.HAlignment = TextAlignType::Trailing;
+
+		mPosText = TextMgr::I->CreateText("(1920, 1080)", Vec2(-10, -10), textOption);
+	}
 }
 
 void Script_AimController::Update()
@@ -28,6 +40,8 @@ void Script_AimController::Update()
 	if (mUI) {
 		mUI->SetPosition(mMousePos);
 	}
+
+	UpdatePosText();
 }
 
 Vec2 Script_AimController::GetAimNDCPos() const
@@ -58,4 +72,16 @@ void Script_AimController::ChangeAimUITexture(UITexture* newUITexture)
 	if (mUI) {
 		mUI->ChangeUITexture(newUITexture->shared_from_this());
 	}
+}
+
+void Script_AimController::UpdatePosText()
+{
+	if (!mPosText) {
+		return;
+	}
+
+	std::string x = std::to_string(static_cast<int>(mMousePos.x));
+	std::string y = std::to_string(static_cast<int>(mMousePos.y));
+
+	mPosText->SetText("(" + x + ", " + y + ")");
 }

@@ -48,7 +48,7 @@ bool Script_PheroPlayer::ReducePheroAmount(float pheroCost, bool checkOnly)
 	}
 
 	if (!checkOnly) {
-		mPheroBarUI->MustCallBeforeOnValueDecrease(mCurrPheroAmount);
+		mPheroBarUI->Decrease(mCurrPheroAmount);
 		mCurrPheroAmount = max(mCurrPheroAmount - pheroCost, 0.f);
 	}
 

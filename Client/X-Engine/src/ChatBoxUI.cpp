@@ -22,7 +22,7 @@ ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string
 		textOption.VAlignment = TextParagraphAlign::Near;
 		textOption.BoxExtent  = extent;
 
-		mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y - 50), textOption);
+		mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y + 100), textOption);
 	}
 
 	// ChatMain
@@ -37,7 +37,7 @@ ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string
 		mChat = TextMgr::I->CreateText("", position, textOption);
 	}
 
-	mBackground = Canvas::I->CreateUI(0, "Black", Vec2{ position.x * 2.f, position.y * -2.f }, extent.x, extent.y);
+	mBackground = Canvas::I->CreateUI(0, "Black", Vec2{ position.x, position.y }, extent.x, extent.y);
 	mBackground->mObjectCB.AlphaIntensity = 0.2f;
 }
 

@@ -6,6 +6,7 @@
 
 #pragma region ClassForwardDecl
 class UI;
+class TextBox;
 struct UITexture;
 #pragma endregion
 
@@ -15,8 +16,9 @@ class Script_AimController : public Component {
 
 private:
 	UI* mUI{};
-	Vec2 mMousePos{};
+	TextBox* mPosText{};
 
+	Vec2 mMousePos{};
 	Vec2 mMaxPos{};
 
 	float mouseSensitivity{ 2.f };
@@ -36,5 +38,8 @@ public:
 public:
 	void SetUI(UI* ui) { mUI = ui; }
 	void ChangeAimUITexture(UITexture* newUITexture);
+
+private:
+	void UpdatePosText();
 };
 #pragma endregion

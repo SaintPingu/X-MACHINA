@@ -43,7 +43,7 @@ void Script_Player::Start()
 	mTarget = mObject->GetObj<GameObject>();
 
 	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -850.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
-	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, 300.f }, Vec2{300.f, 150.f}, "Name");
+	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -1500.f, -400.f }, Vec2{300.f, 150.f}, "Name");
 }
 
 #include "Timer.h"
@@ -96,7 +96,7 @@ void Script_Player::Rotate(float pitch, float yaw, float roll)
 
 bool Script_Player::Hit(float damage, Object* instigator)
 {
-	mHpBarUI->MustCallBeforeOnValueDecrease(GetCrntHp());
+	mHpBarUI->Decrease(GetCrntHp());
 
 	bool res = base::Hit(damage, instigator);
 

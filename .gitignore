@@ -39,3 +39,4 @@ Client/X-MACHINA/lib/Release/X-Engine.lib
 Client/X-MACHINA/shaders/cso/
 *.pdb
 *.idb
+*.command

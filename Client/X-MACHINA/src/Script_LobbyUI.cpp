@@ -10,11 +10,10 @@
 
 void Script_LobbyUI::Start()
 {
-	const auto& start = Canvas::I->CreateUI(0, "Title", { -1100, 0 }, 200, 100);
+	const auto& start = Canvas::I->CreateUI(0, "StartButton", { -1600, -300 }, 200, 80);
 	start->AddClickCallback(std::bind(&Script_LobbyUI::ChangeToBattleScene, this));
 
-	//const auto& menu = Canvas::I->CreateUI(0, "Menu", { 0, 1080 - 150 }, 1920, 150);
-	const auto& layout = Canvas::I->CreateUI(0, "Layout", { 0, 0 }, 1920, 1080);
+	const auto& topPanel = Canvas::I->CreateUI(0, "TopPanel", { 0, 1080 - 150 }, 1920, 150);
 
 	mCursorNormal = Canvas::I->CreateUI(4, "Cursor_Normal", Vec2::Zero, 60, 60);
 	mCursorClick = Canvas::I->CreateUI(4, "Cursor_Click", Vec2::Zero, 60, 60);
@@ -25,6 +24,8 @@ void Script_LobbyUI::Start()
 		textOption.FontSize = 72.f;
 		textOption.FontColor = TextFontColor::Type::WhiteSmoke;
 		textOption.FontWeight = TextFontWeight::EXTRA_BOLD;
+		textOption.VAlignment = TextParagraphAlign::Near;
+		textOption.HAlignment = TextAlignType::Leading;
 
 		TextMgr::I->CreateText("PLAY", Vec2(0, -480), textOption);
 	}

@@ -211,11 +211,16 @@ enum class TextFontStretch {
     EXTRA_EXPANDED = 8,
     ULTRA_EXPANDED = 9
 };
-enum class TextAlignType {
-    Leading, Trailing, Center, Justified
+enum class TextAlignType {  // 좌/우 정렬
+    Leading,    // 왼쪽
+    Trailing,   // 오른쪽
+    Center,     // 가운데
+    Justified   // Leading + 각 줄에 텍스트 채우기 (텍스트 균등 배분)
 };
-enum class TextParagraphAlign {
-	Near, Far, Center
+enum class TextParagraphAlign { // 상/하 정렬
+	Near,       // 상단
+    Far,        // 하단
+    Center      // 가운데
 };
 
 struct TextOption {
@@ -281,8 +286,6 @@ public:
 	void CreateBrush();
 
 public:
-	Vec2 GetTextCenter() const;
-	Vec2 GetPosition() const;
     float GetAlpha() const;
 
 public:
@@ -299,8 +302,12 @@ public:
 
 public:
 	void Render(RComPtr<struct ID2D1DeviceContext2> device) const;
+    void Reset();
 
 private:
+    Vec2 GetTextCenter() const;
+    Vec2 GetPosition() const;
+
 	void SetFinalMatrix();
 };
 
@@ -320,7 +327,8 @@ public:
     void RemoveTextBox(TextBox* textBox);
 
 	void Render(RComPtr<struct ID2D1DeviceContext2> device);
-	void Clear();
+    void Reset();
+    void Clear();
 
 private:
 	void CreateBrush();

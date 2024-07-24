@@ -370,6 +370,9 @@
     <ClInclude Include="include\Script_LobbyUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_BattleUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -607,6 +610,9 @@
       <Filter>Script\Manager</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_LobbyUI.cpp">
+      <Filter>Script\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_BattleUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,6 +12,7 @@
 #include "Script_Gobbler.h"
 #include "Script_Rapax.h"
 #include "Script_LightBipedMech.h"
+#include "Script_BattleUI.h"
 
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
@@ -39,6 +40,8 @@ void Script_BattleManager::Awake()
 
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
+
+	mObject->AddComponent<Script_BattleUI>();
 }
 
 void Script_BattleManager::Start()
@@ -46,27 +49,6 @@ void Script_BattleManager::Start()
 	base::Start();
 
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
-
-	// Hello
-	{
-		TextOption textOption;
-		textOption.FontSize = 40.f;
-		textOption.FontStyle = TextFontStyle::Italic;
-
-		TextMgr::I->CreateText("HELLO", Vec2(0.f, 500.f), textOption);
-	}
-
-	// Game Title
-	{
-		TextOption textOption;
-		textOption.Font = "ISOCPEUR";
-		textOption.FontSize = 70.f;
-		textOption.FontWeight = TextFontWeight::BOLD;
-		textOption.VAlignment = TextParagraphAlign::Near;
-
-		TextBox* text = TextMgr::I->CreateText("X-MACHINA TEST", Vec2::Zero, textOption);
-		text->SetColor(TextFontColor::Type::Orange);
-	}
 }
 
 void Script_BattleManager::Update()
@@ -82,8 +64,10 @@ void Script_BattleManager::Reset()
 {
 	base::Reset();
 
-	GameFramework::I->DisconnectServer();
 	MainCamera::I->RemoveComponent<Script_MainCamera>();
+	mObject->RemoveComponent<Script_BattleUI>();
+
+	GameFramework::I->DisconnectServer();
 	mMainCamera = nullptr;
 	GameFramework::I->ResetPlayer();
 }

@@ -113,7 +113,7 @@ float TextBox::GetAlpha() const
 
 void TextBox::SetPosition(const Vec2& pos)
 {
-	CopyMatrix(mMtxTransition, D2D1::Matrix3x2F::Translation(pos.x, pos.y));
+	CopyMatrix(mMtxTransition, D2D1::Matrix3x2F::Translation(pos.x / 2.f, -pos.y / 2.f));
 
 	SetFinalMatrix();
 }
@@ -207,6 +207,12 @@ void TextBox::Render(RComPtr<ID2D1DeviceContext2> device) const
 	device->PopAxisAlignedClip();
 }
 
+void TextBox::Reset()
+{
+	mTextBrush.Reset();
+	mTextFormat.Reset();
+}
+
 TextBox* TextMgr::CreateText(const std::string& text, const Vec2& pos, const TextOption& option)
 {
 	sptr<TextBox> textBox = std::make_shared<TextBox>(option);
@@ -228,6 +234,13 @@ void TextMgr::Render(RComPtr<ID2D1DeviceContext2> device)
 {
 	for (const auto& textBox : mTextBoxes) {
 		textBox->Render(device);
+	}
+}
+
+void TextMgr::Reset()
+{
+	for (const auto& textBox : mTextBoxes) {
+		textBox->Reset();
 	}
 }
 

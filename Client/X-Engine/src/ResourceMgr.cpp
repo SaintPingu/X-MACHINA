@@ -1112,6 +1112,25 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("ShieldAbility", shader);
 	}
 #pragma endregion
+#pragma region Indicator
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_None,
+			DepthStencilType::Less_No_Write,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_Standard.cso",
+			 "PShader_CircleIndicator.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("CircleIndicator", shader);
+	}
+#pragma endregion
 #pragma region IRDetectorAbility
 	{
 		ShaderInfo info = {

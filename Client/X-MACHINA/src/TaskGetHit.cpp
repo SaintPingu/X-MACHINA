@@ -14,13 +14,20 @@ TaskGetHit::TaskGetHit(Object* object)
 	mLiveObject = object->GetComponent<Script_LiveObject>();
 	mPrevHp = mLiveObject->GetCrntHp();
 	mKnockBack = 0.05f;
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.GetHitAnimName)->AddEndCallback(std::bind(&TaskGetHit::GetHitEndCallback, this));
+
+	if (mEnemyMgr->mStat.GetHitAnimName != "None") {
+		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.GetHitAnimName)->AddEndCallback(std::bind(&TaskGetHit::GetHitEndCallback, this));
+	}
 }
 
 BT::NodeState TaskGetHit::Evaluate()
 {
 	if (!mEnemyMgr->mTarget) {
-			return BT::NodeState::Failure;
+		return BT::NodeState::Failure;
+	}
+
+	if (mEnemyMgr->mStat.GetHitAnimName == "None") {
+		return BT::NodeState::Failure;
 	}
 
 	const float crntHp = mLiveObject->GetCrntHp();

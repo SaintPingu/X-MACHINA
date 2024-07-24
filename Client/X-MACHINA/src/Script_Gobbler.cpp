@@ -11,6 +11,6 @@ void Script_Gobbler::Awake()
 {
 	base::Awake();
 
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_Gobbler::AttackCallback, this), 20);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Gobbler::AttackCallback, this), 20);
 }
 	

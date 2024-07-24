@@ -11,5 +11,5 @@ void Script_Ceratoferox::Awake()
 {
 	base::Awake();
 
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_Ceratoferox::AttackCallback, this), 34);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Ceratoferox::AttackCallback, this), 34);
 }

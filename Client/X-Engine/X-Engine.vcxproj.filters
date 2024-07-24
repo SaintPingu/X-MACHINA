@@ -673,6 +673,9 @@
     <FxCompile Include="shaders\CShader_Sobel.hlsl">
       <Filter>소스 파일\Shader\PostProcessing</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\PShader_CircleIndicator.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

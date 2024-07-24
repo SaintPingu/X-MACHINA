@@ -80,10 +80,12 @@ bool AnimatorMotion::IsSameStateMachine(const AnimatorMotion* other) const
 
 bool AnimatorMotion::Animate()
 {
-	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
+	if (mCallbackAnimate) {
+		mCallbackAnimate->Callback();
+	}
 
 	for (auto& [time, callback] : mCallbacks | std::ranges::views::reverse) {
-		if (mCrntLength >= time) {
+		if (mCrntLength > time) {
 			if (!callback.Called) {
 				if (callback.Callback) {
 					callback.Callback();
@@ -93,6 +95,9 @@ bool AnimatorMotion::Animate()
 			break;
 		}
 	}
+
+	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
+
 
 	if (IsEndAnimation()) {
 		ResetLength();
@@ -152,6 +157,16 @@ void AnimatorMotion::AddChangeCallback(const std::function<void()>& callback)
 void AnimatorMotion::DelChabgeCallback()
 {
 	mCallbackChange = nullptr;
+}
+
+void AnimatorMotion::AddAnimateCallback(const std::function<void()>& callback)
+{
+	mCallbackAnimate = std::make_shared<MotionCallback>(callback);
+}
+
+void AnimatorMotion::DelAnimateCallback()
+{
+	mCallbackAnimate = nullptr;
 }
 
 void AnimatorMotion::StopAnimation()

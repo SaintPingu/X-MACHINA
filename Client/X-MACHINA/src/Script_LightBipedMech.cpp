@@ -13,7 +13,7 @@ void Script_LightBipedMech::Awake()
 {
 	base::Awake();
 
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_LightBipedMech::AttackCallback, this), 20);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_LightBipedMech::AttackCallback, this), 20);
 
 	mWeapon = BattleScene::I->Instantiate("SM_Phaser");
 	Transform* weaponPos = mObject->FindFrame("RefPos_Weapon");

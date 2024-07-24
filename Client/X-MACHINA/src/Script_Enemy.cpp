@@ -6,6 +6,9 @@
 #include "Script_PheroObject.h"
 #include "Script_DefaultEnemyBT.h"
 
+#include "AnimatorMotion.h"
+#include "AnimatorController.h"
+
 #include "Timer.h"
 #include "Object.h"
 
@@ -23,6 +26,16 @@ void Script_Enemy::Awake()
 
 	SetEnemyStat(mObject->GetName());
 	SetMaxHP(mEnemyMgr->mStat.MaxHp);
+
+	if (mEnemyMgr->mStat.Attack1AnimName != "None") {
+		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddEndCallback(std::bind(&Script_Enemy::AttackEndCallback, this));
+	}
+	if (mEnemyMgr->mStat.Attack2AnimName != "None") {
+		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack2AnimName)->AddEndCallback(std::bind(&Script_Enemy::AttackEndCallback, this));
+	}
+	if (mEnemyMgr->mStat.Attack3AnimName != "None") {
+		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddEndCallback(std::bind(&Script_Enemy::AttackEndCallback, this));
+	}
 }
 
 void Script_Enemy::Update()
@@ -32,22 +45,10 @@ void Script_Enemy::Update()
 	mObject->mObjectCB.HitRimFactor = max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
 }
 
-void Script_Enemy::AttackCallback()
-{
-	if (!mEnemyMgr->mTarget) {
-		return;
-	}
-
-	if (Vec3::Distance(mEnemyMgr->mTarget->GetPosition(), mObject->GetPosition()) <= mEnemyMgr->mStat.AttackRange) {
-		auto liveObject = mEnemyMgr->mTarget->GetComponent<Script_LiveObject>();
-		if (liveObject) {
-			liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject);
-		}
-	}
-}
-
 void Script_Enemy::Attack()
 {
+	mEnemyMgr->RemoveAllAnimation();
+	mEnemyMgr->mController->SetValue("Attack", true);
 }
 
 void Script_Enemy::Death()
@@ -70,4 +71,24 @@ bool Script_Enemy::Hit(float damage, Object* instigator)
 void Script_Enemy::SetEnemyStat(const std::string& modelName)
 {
 	XLManager::I->Set(modelName, mEnemyMgr->mStat);
+}
+
+void Script_Enemy::AttackCallback()
+{
+	if (!mEnemyMgr->mTarget) {
+		return;
+	}
+
+	if (Vec3::Distance(mEnemyMgr->mTarget->GetPosition(), mObject->GetPosition()) <= mEnemyMgr->mStat.AttackRange) {
+		auto liveObject = mEnemyMgr->mTarget->GetComponent<Script_LiveObject>();
+		if (liveObject) {
+			liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject);
+		}
+	}
+}
+
+void Script_Enemy::AttackEndCallback()
+{
+	mEnemyMgr->mController->SetValue("Attack", false);
+	mEnemyMgr->mState = EnemyState::Idle;
 }

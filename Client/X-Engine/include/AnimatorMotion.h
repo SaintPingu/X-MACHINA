@@ -52,6 +52,7 @@ private:
 	std::map<float, MotionCallback> mCallbacks;
 	sptr<MotionCallback> mCallbackStop;
 	sptr<MotionCallback> mCallbackChange;
+	sptr<MotionCallback> mCallbackAnimate;
 
 public:
 	AnimatorMotion(const AnimatorMotionInfo& info);
@@ -103,6 +104,8 @@ public:
 	void DelStopCallback();
 	void AddChangeCallback(const std::function<void()>& callback);
 	void DelChabgeCallback();
+	void AddAnimateCallback(const std::function<void()>& callback);
+	void DelAnimateCallback();
 
 	void StopAnimation();
 	void CallbackChange();

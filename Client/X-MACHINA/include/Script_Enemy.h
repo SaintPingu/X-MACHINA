@@ -34,5 +34,6 @@ public:
 
 protected:
 	virtual void AttackCallback();
+	virtual void AttackEndCallback();
 };
 #pragma endregion

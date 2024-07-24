@@ -29,7 +29,9 @@ struct EnemyStat : public XLData {
 	float AttackRange{};
 	float AttackCoolTime{};
 	float MaxHp{};
-	std::string AttackAnimName{};
+	std::string Attack1AnimName{};
+	std::string Attack2AnimName{};
+	std::string Attack3AnimName{};
 	std::string GetHitAnimName{};
 	std::string DeathAnimName{};
 };
@@ -50,9 +52,11 @@ struct EnemyStatTable : public XLTable {
 		stat->AttackRange = row[8].value<float>();
 		stat->AttackCoolTime = row[9].value<float>();
 		stat->MaxHp = row[10].value<float>();
-		stat->AttackAnimName = row[11].value<std::string>();
-		stat->GetHitAnimName = row[12].value<std::string>();
-		stat->DeathAnimName = row[13].value<std::string>();
+		stat->Attack1AnimName = row[11].value<std::string>();
+		stat->Attack2AnimName = row[12].value<std::string>();
+		stat->Attack3AnimName = row[13].value<std::string>();
+		stat->GetHitAnimName = row[14].value<std::string>();
+		stat->DeathAnimName = row[15].value<std::string>();
 		return stat;
 	}
 };

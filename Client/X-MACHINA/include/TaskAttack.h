@@ -25,5 +25,6 @@ public:
 
 public:
 	virtual BT::NodeState Evaluate() override;
+
 };
 #pragma endregion

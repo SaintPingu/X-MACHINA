@@ -11,6 +11,6 @@ void Script_MiningMech::Awake()
 {
 	base::Awake();
 
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_MiningMech::AttackCallback, this), 10);
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.AttackAnimName)->AddCallback(std::bind(&Script_MiningMech::AttackCallback, this), 35);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_MiningMech::AttackCallback, this), 10);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_MiningMech::AttackCallback, this), 35);
 }

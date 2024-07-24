@@ -57,7 +57,6 @@ protected:
 public:
 	RenderedAbility(std::string abilityName, float cooldownTime = 0.f, float activeTime = 0.f) : Ability(abilityName, cooldownTime, activeTime) {}
 
-
 public:
 	int GetAbilityCBIdx() const { return mAbilityCBIdx; }
 	void UpdateAbilityCB(float activeTime = 0.f);

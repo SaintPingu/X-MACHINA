@@ -56,4 +56,17 @@ class Script_ToggleAbilityHolder : public Script_AbilityHolder {
 public:
 	virtual void Update() override;
 };
+
+class Script_TriggerAbilityHolder : public Script_AbilityHolder {
+	COMPONENT(Script_TriggerAbilityHolder, Script_AbilityHolder)
+
+private:
+	bool mIsOnTrigger{};
+
+public:
+	void OnTrigger(bool trigger) { mIsOnTrigger = trigger; }
+
+public:
+	virtual void Update() override;
+};
 #pragma endregion

@@ -223,6 +223,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\CheckMindDetectionRange.h" />
+    <ClInclude Include="include\CircleIndicator.h" />
     <ClInclude Include="include\CloakingAbility.h" />
     <ClInclude Include="include\MindControlAbility.h" />
     <ClInclude Include="include\PheroAbilityInterface.h" />
@@ -302,6 +303,7 @@
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="Script_Rapax.cpp" />
     <ClCompile Include="src\CheckMindDetectionRange.cpp" />
+    <ClCompile Include="src\CircleIndicator.cpp" />
     <ClCompile Include="src\CloakingAbility.cpp" />
     <ClCompile Include="src\MindControlAbility.cpp" />
     <ClCompile Include="src\PheroAbilityInterface.cpp" />

@@ -21,9 +21,6 @@ public:
 	virtual ~CheckAttackRange() = default;
 
 	virtual BT::NodeState Evaluate() override;
-
-public:
-	void AttackEndCallback();
 };
 #pragma endregion
 

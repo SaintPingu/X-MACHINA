@@ -70,23 +70,26 @@ bool Script_Player::ProcessInput()
 	return true;
 }
 
-void Script_Player::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_Player::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	if (!mChatBoxUI) {
-		return;
+		return true;
 	}
 
 	switch (messageID) {
 	case WM_KEYDOWN:
 		if (wParam == VK_RETURN) {
 			mChatBoxUI->ToggleChatBox();
-			return;
+			return false;
 		}
 	}
 
 	if (mChatBoxUI->IsActive()) {
 		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
+		return false;
 	}
+
+	return true;
 }
 
 void Script_Player::Rotate(float pitch, float yaw, float roll)
@@ -117,5 +120,4 @@ void Script_Player::Respawn()
 void Script_Player::AddScore(int score)
 {
 	mScore += score;
-	Canvas::I->SetScore(mScore);
 }

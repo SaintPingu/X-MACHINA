@@ -15,7 +15,7 @@ class ModelObjectMesh;
 
 #pragma region Struct
 struct UITexture : public std::enable_shared_from_this<UITexture> {
-	sptr<Texture>	UIImage{};
+	sptr<Texture>	Image{};
 	float			Width{};
 	float			Height{};
 
@@ -30,28 +30,26 @@ class UI : public Object {
 	using base = Object;
 
 protected:
-	std::string		mName{};
 	bool			mIsActive = true;
-	sptr<UITexture> mUITexture{};
+	sptr<UITexture> mTexture{};
 	sptr<Shader>	mShader{};
 	std::function<void()> mClickCallback{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader = nullptr, const std::string& name = "");
+	UI(const std::string& textureName, Vec2 pos, float width, float height);
 	virtual ~UI() = default;
 
 public:
 	virtual void Update() {}
 	virtual void Render();
 
-	UITexture* GetUITexture() const { return mUITexture.get(); }
-	Texture* GetTexture() const { return mUITexture->UIImage.get(); }
-	float GetWidth() const { return mUITexture->Width; }
-	float GetHeight() const { return mUITexture->Height; }
-	void SetWidth(float width) { mUITexture->Width = width; }
-	void SetHeight(float height) { mUITexture->Height = height; }
-	const std::string& GetName() const { return mName; }
+	UITexture* GetUITexture() const { return mTexture.get(); }
+	Texture* GetTexture() const { return mTexture->Image.get(); }
+	float GetWidth() const { return mTexture->Width; }
+	float GetHeight() const { return mTexture->Height; }
+	void SetWidth(float width) { mTexture->Width = width; }
+	void SetHeight(float height) { mTexture->Height = height; }
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec2& pos);
@@ -72,30 +70,6 @@ protected:
 };
 
 
-
-// for render font
-// comdef.h의 Font와 중복되어 이름 변경 Font -> MyFont
-class MyFont : public UI {
-private:
-	std::string mText{};	// "YOUR SCORE IS "
-	std::string mScore{};
-
-public:
-	// [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	MyFont(const Vec2& pos, float width, float height);
-	virtual ~MyFont() = default;
-
-	void SetText(const std::string& text) { mText = text; }
-	void SetScore(const std::string& score) { mScore = score; }
-
-public:
-	virtual void Render() override;
-
-private:
-	void UpdateShaderVars(char ch, int cnt) const;
-};
-
-
 class SliderUI : public UI {
 private:
 	float mMinValue = 0.f;
@@ -103,7 +77,7 @@ private:
 	float mValue{};			// 0~1 normalize value
 
 public:
-	SliderUI(const std::string& textureName, const Vec2& pos, float width, float height, rsptr<Shader> shader = nullptr);
+	SliderUI(const std::string& textureName, const Vec2& pos, float width, float height);
 	virtual ~SliderUI() = default;
 
 public:
@@ -116,15 +90,30 @@ protected:
 
 
 
+class Button : public UI {
+	using base = UI;
+
+private:
+	sptr<UITexture> mHighlightTexture{};
+	sptr<UITexture> mPressedTexture{};
+	sptr<UITexture> mDisabledTexture{};
+
+public:
+	Button(const std::string& textureName, Vec2 pos, float width, float height);
+};
+
+
 // Canvas 위에 UI를 그리도록 한다.
 class Canvas : public Singleton<Canvas> {
 	friend Singleton;
 	using Layer = int;
 
+	template <typename T>
+	static constexpr bool is_valid_ui_type = (std::is_same<T, UI>::value || std::is_same<T, SliderUI>::value || std::is_same<T, Button>::value);
+
 private:
 	static constexpr UINT8 mkLayerCnt = 5;
 	std::array<std::unordered_set<sptr<UI>>, mkLayerCnt> mUIs{}; // all UIs
-	sptr<MyFont> mFont{};
 
 	float mWidth{};
 	float mHeight{};
@@ -134,8 +123,6 @@ private:
 	virtual ~Canvas() = default;
 
 public:
-	void SetScore(int score);
-
 	float GetWidth() const { return mWidth; }
 	float GetHeight() const { return mHeight; }
 
@@ -146,9 +133,16 @@ public:
 	void Render() const;
 	void Clear();
 
-	UI* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "", const std::string& name = "");
-	SliderUI* CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader = "");
-	void RemoveUI(Layer layer, const std::string& name);
+	template<class T, typename std::enable_if<is_valid_ui_type<T>>::type* = nullptr>
+	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height)
+	{
+		if (layer > (mkLayerCnt - 1))
+			return nullptr;
+
+		sptr<T> ui = std::make_shared<T>(texture, pos, width, height);
+		mUIs[layer].insert(ui);
+		return ui.get();
+	}
 	void RemoveUI(Layer layer, UI* ui);
 
 	void CheckClick(const Vec2& mousePos);

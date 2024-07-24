@@ -17,7 +17,7 @@
 #pragma region UITexture
 UITexture::UITexture(const std::string& imageName, float width, float height)
 {
-	UIImage = RESOURCE<Texture>(imageName);
+	Image = RESOURCE<Texture>(imageName);
 	Width = width / Canvas::I->GetWidth();
 	Height = height / Canvas::I->GetHeight();
 }
@@ -25,33 +25,27 @@ UITexture::UITexture(const std::string& imageName, float width, float height)
 
 
 #pragma region UI
-UI::UI(const std::string& textureName, Vec2 pos, float width, float height, rsptr<Shader> shader, const std::string& name)
+UI::UI(const std::string& textureName, Vec2 pos, float width, float height)
 	:
-	Object(),
-	mShader(shader)
+	Object()
 {
-	mUITexture = std::make_shared<UITexture>(textureName, width, height);
+	mTexture = std::make_shared<UITexture>(textureName, width, height);
 	mObjectCB.SliderValue = 1.f;
 
 	// ������Ʈ ��� ���� ��� �÷��״� ���� ������ �� �ִ�.
 	SetUseObjCB(true);
 	SetPosition(pos);
-
-	mName = name;
-	if (mName == "") {
-		mName = textureName;
-	}
 }
 
 void UI::ChangeUITexture(rsptr<UITexture> newUITexture)
 {
-	mUITexture = newUITexture;
+	mTexture = newUITexture;
 }
 bool UI::CheckClick(const Vec2& mousePos)
 {
 	Vec2 pos = GetPosition();
-	float width = mUITexture->Width;
-	float height = mUITexture->Height;
+	float width = mTexture->Width;
+	float height = mTexture->Height;
 
 	float left = pos.x - width;
 	float right = pos.x + width;
@@ -86,8 +80,8 @@ void UI::OnClick()
 
 void UI::UpdateShaderVars()
 {
-	mObjectCB.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mUITexture->Width, mUITexture->Height, 1.f), _MATRIX(GetWorldTransform())));
-	mObjectCB.MatIndex = mUITexture->UIImage->GetSrvIdx();
+	mObjectCB.MtxWorld = XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mTexture->Width, mTexture->Height, 1.f), _MATRIX(GetWorldTransform())));
+	mObjectCB.MatIndex = mTexture->Image->GetSrvIdx();
 
 	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), mObjectCB);
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
@@ -99,7 +93,7 @@ void UI::Render()
 		return;
 	}
 
-	if (!mUITexture->UIImage) {
+	if (!mTexture->Image) {
 		return;
 	}
 
@@ -144,90 +138,11 @@ void UI::SetColor(const Vec3& color)
 
 
 
-#pragma region Font
-MyFont::MyFont(const Vec2& pos, float width, float height)
-	:
-	UI("Alphabet", pos, width, height)
-{
-}
-
-void MyFont::UpdateShaderVars(char ch, int cnt) const
-{
-	constexpr float kCols = 8.f;
-	constexpr float kRows = 5.f;
-
-	if (isalpha(ch)) {
-		ch -= 'A';
-	}
-	else if (isdigit(ch)) {
-		ch -= '0' - 26;
-	}
-	const float col = (float)(ch % int(kCols));
-	const float row = (float)(int(ch / kCols));
-
-	Matrix spriteMtx{};
-
-	spriteMtx._11 = 1.f / kCols;
-	spriteMtx._22 = 1.f / kRows;
-	spriteMtx._31 = col / kCols;
-	spriteMtx._32 = row / kRows;
-	
-	if (mObjCBCount <= cnt) {
-		mObjCBCount = cnt + 1;
-	}
-
-	// ��Ƽ������ ������� �ʴ� ��� MatIndex�� �ؽ�ó �ε����� �־��ش�.
-	ObjectConstants objectConstants;
-	objectConstants.MtxWorld	= XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(mUITexture->Width, mUITexture->Height, 1.f), _MATRIX(GetWorldTransform())));
-	objectConstants.MtxSprite	= spriteMtx.Transpose();
-	objectConstants.MatIndex	= mUITexture->UIImage->GetSrvIdx();
-
-	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices[cnt], objectConstants);
-	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices[cnt]));
-}
-
-void MyFont::Render()
-{
-	if (!mUITexture->UIImage) {
-		return;
-	}
-
-	Vec3 originPos = GetPosition();
-	Vec3 fontPos = GetPosition();
-
-	int cnt{ 0 };
-	for (char ch : mText) {
-		// ���������� �ʴ´ٸ� ���� ��Ʈ ����� set�� �ʿ䰡 ����.
-		if (ch != ' ') {
-			UpdateShaderVars(ch, cnt++);
-			RESOURCE<ModelObjectMesh>("Rect")->Render();
-		}
-
-		fontPos.x += 0.07f;
-		SetPosition(fontPos);
-	}
-	for (char ch : mScore) {
-		if (ch != ' ') {
-			UpdateShaderVars(ch, cnt++);
-			RESOURCE<ModelObjectMesh>("Rect")->Render();
-		}
-
-		fontPos.x += 0.07f;
-		SetPosition(fontPos);
-	}
-
-	SetPosition(originPos);
-}
-#pragma endregion
-
-
-
-
 
 #pragma region SliderUI
-SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, float width, float height, rsptr<Shader> shader)
+SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, float width, float height)
 	:
-	UI(textureName, pos, width, height, shader)
+	UI(textureName, pos, width, height)
 {
 }
 
@@ -244,11 +159,6 @@ void SliderUI::UpdateShaderVars()
 
 
 #pragma region Canvas
-void Canvas::SetScore(int score)
-{
-	mFont->SetScore(std::to_string(score));
-}
-
 void Canvas::Init()
 {
 	mWidth = DXGIMgr::I->GetWindowWidth();
@@ -282,36 +192,6 @@ void Canvas::Clear()
 	}
 }
 
-UI* Canvas::CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader, const std::string& name)
-{
-	if (layer > (mkLayerCnt - 1))
-		return nullptr;
-
-	sptr<UI> ui = std::make_shared<UI>(texture, pos, width, height, RESOURCE<Shader>(shader), name);
-	mUIs[layer].insert(ui);
-	return ui.get();
-}
-
-SliderUI* Canvas::CreateSliderUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height, const std::string& shader)
-{
-	if (layer > (mkLayerCnt - 1))
-		return nullptr;
-
-	sptr<SliderUI> ui = std::make_shared<SliderUI>(texture, pos, width, height, RESOURCE<Shader>(shader));
-	mUIs[layer].insert(ui);
-	return ui.get();
-}
-
-void Canvas::RemoveUI(Layer layer, const std::string& name)
-{
-	for (auto& ui : mUIs[layer]) {
-		if (ui->GetName() == name) {
-			mUIs[layer].erase(ui);
-			return;
-		}
-	}
-}
-
 void Canvas::RemoveUI(Layer layer, UI* targetUI)
 {
 	for (auto& ui : mUIs[layer]) {
@@ -334,3 +214,10 @@ void Canvas::CheckClick(const Vec2& mousePos)
 	}
 }
 #pragma endregion
+
+Button::Button(const std::string& textureName, Vec2 pos, float width, float height)
+	:
+	UI(textureName, pos, width, height)
+{
+
+}

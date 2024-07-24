@@ -11,7 +11,7 @@
 
 ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string& chatName)
 	: 
-	mChatName(AnsiToWString(chatName))
+	mChatName(StringToWstring(chatName))
 {
 	// ChatTitle
 	{
@@ -37,7 +37,7 @@ ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string
 		mChat = TextMgr::I->CreateText("", position, textOption);
 	}
 
-	mBackground = Canvas::I->CreateUI(0, "Black", Vec2{ position.x, position.y }, extent.x, extent.y);
+	mBackground = Canvas::I->CreateUI<UI>(0, "Black", Vec2{ position.x, position.y }, extent.x, extent.y);
 	mBackground->mObjectCB.AlphaIntensity = 0.2f;
 }
 
@@ -95,7 +95,7 @@ void ChatBoxUI::Update()
 void ChatBoxUI::AddChat(const std::string& chat, const std::string& name)
 {
 	std::string res = '[' + name + "] " + chat + '\n';
-	mTotalText.insert(mLastChatIdx, AnsiToWString(res));
+	mTotalText.insert(mLastChatIdx, StringToWstring(res));
 	mCurrChatCnt++;
 
 	mChat->SetText(mTotalText);

@@ -89,7 +89,7 @@ void Script_GroundPlayer::Awake()
 
 	// values //
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
-	const auto& aimUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
+	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2(0, 0), 30, 30);
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 	SetMaxHP(1000.f);
@@ -349,9 +349,11 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 }
 
 
-void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	base::ProcessMouseMsg(messageID, wParam, lParam);
+	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
+		return false;
+	}
 
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
@@ -365,11 +367,15 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 	default:
 		break;
 	}
+
+	return true;
 }
 
-void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	base::ProcessKeyboardMsg(messageID, wParam, lParam);
+	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
+		return false;
+	}
 
 	switch (messageID) {
 	case WM_KEYDOWN:
@@ -419,6 +425,8 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 	default:
 		break;
 	}
+
+	return true;
 }
 
 void Script_GroundPlayer::InitWeaponAnimations()

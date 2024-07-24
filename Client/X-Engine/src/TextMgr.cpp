@@ -77,7 +77,7 @@ void TextBox::CreateBrush()
 
 	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(option.FontColor), &mTextBrush));
 	THROW_IF_FAILED(DWRITE->CreateTextFormat(
-		AnsiToWString(option.Font).c_str(),
+		StringToWstring(option.Font).c_str(),
 		nullptr,
 		option.FontWeight,
 		option.FontStyle,
@@ -159,7 +159,7 @@ void TextBox::SetAlpha(float alpha)
 
 void TextBox::SetText(const std::string& text)
 {
-	mText = AnsiToWString(text);
+	mText = StringToWstring(text);
 }
 
 void TextBox::SetText(const std::wstring& text)

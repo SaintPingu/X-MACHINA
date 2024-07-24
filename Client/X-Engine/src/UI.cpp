@@ -35,9 +35,9 @@ UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 }
 
 
-void UI::UpdateHover()
+bool UI::CheckHover() const
 {
-	const Vec2 mousePos = InputMgr::I->GetMousePos();
+	const Vec2 mousePos = InputMgr::I->GetMouseNDCPos();
 	const Vec2 pos = GetPosition();
 	const float width = mScale.x;
 	const float height = mScale.y;
@@ -48,23 +48,19 @@ void UI::UpdateHover()
 	const float down = pos.y - height;
 
 	if (mousePos.x < left) {
-		mIsHover = false;
-		return;
+		return false;
 	}
 	if (mousePos.x > right) {
-		mIsHover = false;
-		return;
+		return false;
 	}
 	if (mousePos.y < down) {
-		mIsHover = false;
-		return;
+		return false;
 	}
 	if (mousePos.y > up) {
-		mIsHover = false;
-		return;
+		return false;
 	}
 
-	mIsHover = true;
+	return true;
 }
 
 void UI::OnClick()
@@ -84,12 +80,6 @@ void UI::UpdateShaderVars(rsptr<Texture> texture)
 
 	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices.front(), mObjectCB);
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::Object, FRAME_RESOURCE_MGR->GetObjCBGpuAddr(mObjCBIndices.front()));
-}
-
-void UI::Update()
-{
-	base::Update();
-	UpdateHover();
 }
 
 void UI::Render()
@@ -248,6 +238,8 @@ void Canvas::Init()
 
 void Canvas::Update()
 {
+	CheckHover();
+
 	for (auto& layer : mUIs) {
 		for (auto& ui : layer) {
 			ui->Update();
@@ -290,6 +282,27 @@ void Canvas::CheckClick() const
 			if (ui->IsHover()) {
 				ui->OnClick();
 				return;
+			}
+		}
+	}
+}
+
+void Canvas::CheckHover() const
+{
+	bool hovered = false;
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			if (ui->CheckHover()) {
+				if (!hovered) {
+					hovered = true;
+					ui->SetHover(true);
+				}
+				else {
+					ui->SetHover(false);
+				}
+			}
+			else {
+				ui->SetHover(false);
 			}
 		}
 	}

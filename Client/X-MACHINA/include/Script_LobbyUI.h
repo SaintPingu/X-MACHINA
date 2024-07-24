@@ -22,8 +22,9 @@ public:
 	virtual void Update() override;
 	virtual void OnDestroy() override;
 
-public:
-	void ChangeToBattleScene() const;
+private:
+	void PlayButton() const;
+	void QuitButton() const;
 };
 
 #pragma endregion

@@ -26,12 +26,14 @@ void Script_LobbyUI::Start()
 				
 		const auto& playButton    = Canvas::I->CreateUI<Button>(1, "PlayButton", Vec2(x, y));
 		playButton->SetHighlightTexture("PlayHButton");
+		playButton->AddClickCallback(std::bind(&Script_LobbyUI::PlayButton, this));
 		const auto& customButton  = Canvas::I->CreateUI<Button>(1, "CustomButton", Vec2(x, y + (yGap * 1)));
 		customButton->SetHighlightTexture("CustomHButton");
 		const auto& settingButton = Canvas::I->CreateUI<Button>(1, "SettingButton", Vec2(x, y + (yGap * 2)));
 		settingButton->SetHighlightTexture("SettingHButton");
 		const auto& quitButton    = Canvas::I->CreateUI<Button>(1, "QuitButton", Vec2(x, y + (yGap * 3)));
 		quitButton->SetHighlightTexture("QuitHButton");
+		quitButton->AddClickCallback(std::bind(&Script_LobbyUI::QuitButton, this));
 	}
 
 	mCursorNormal = Canvas::I->CreateUI<UI>(4, "Cursor_Normal", Vec2::Zero, Vec2(60, 60));
@@ -68,7 +70,12 @@ void Script_LobbyUI::OnDestroy()
 	mObject->RemoveComponent<Script_AimController>();
 }
 
-void Script_LobbyUI::ChangeToBattleScene() const
+void Script_LobbyUI::PlayButton() const
 {
-	//Script_LobbyManager::ChangeToBattleScene();
+	Script_LobbyManager::ChangeToBattleScene();
+}
+
+void Script_LobbyUI::QuitButton() const
+{
+	::PostQuitMessage(0);
 }

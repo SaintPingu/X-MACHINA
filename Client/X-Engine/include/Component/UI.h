@@ -36,7 +36,7 @@ public:
 	virtual ~UI() = default;
 
 public:
-	virtual void Update();
+	virtual void Update() { base::Update(); }
 	virtual void Render();
 
 	sptr<Texture> GetTexture() const { return mTexture; }
@@ -51,10 +51,11 @@ public:
 
 	void SetActive(bool val) { mIsActive = val; }
 	void SetColor(const Vec3& color);
+	void SetHover(bool val) { mIsHover = val; }
 
 public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
-	void UpdateHover();
+	bool CheckHover() const;
 	virtual void OnClick();
 
 	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
@@ -156,5 +157,6 @@ public:
 	void RemoveUI(Layer layer, UI* ui);
 
 	void CheckClick() const;
+	void CheckHover() const;
 };
 #pragma endregion

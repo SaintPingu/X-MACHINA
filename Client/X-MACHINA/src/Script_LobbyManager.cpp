@@ -44,6 +44,15 @@ void Script_LobbyManager::Start()
 	mCursorClick = Canvas::I->CreateUI(4, "Cursor_Click", Vec2::Zero, 60, 60);
 	mCursorClick->SetActive(false);
 
+	{
+		TextOption textOption;
+		textOption.FontSize = 72.f;
+		textOption.FontColor = TextFontColor::Type::WhiteSmoke;
+		textOption.FontWeight = TextFontWeight::EXTRA_BOLD;
+
+		TextMgr::I->CreateText("PLAY", Vec2(0, -480), textOption);
+	}
+
 	mAimController = LobbyScene::I->GetManager()->AddComponent<Script_AimController>();
 	mAimController->SetUI(mCursorNormal);
 
@@ -51,9 +60,7 @@ void Script_LobbyManager::Start()
 	trooper->SetPosition(7.4f, 0, 5.27f);
 	trooper->SetLocalRotation(Quaternion::ToQuaternion(Vec3(0.f, 53.41f, 0.f)));
 
-	Light* light = LobbyScene::I->GetLight();
-	light->SetSunlight2();
-	light->BuildLights();
+	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
 }
 
 void Script_LobbyManager::Update()
@@ -62,15 +69,6 @@ void Script_LobbyManager::Update()
 
 	if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
-	}
-
-	if (KEY_PRESSED('O')) {
-		float sceneBoundRadius = LobbyScene::I->GetLight()->GetSceneBoundRadius();
-		LobbyScene::I->GetLight()->SetSceneBounds(sceneBoundRadius + DeltaTime());
-	}
-	if (KEY_PRESSED('P')) {
-		float sceneBoundRadius = LobbyScene::I->GetLight()->GetSceneBoundRadius();
-		LobbyScene::I->GetLight()->SetSceneBounds(sceneBoundRadius - DeltaTime());
 	}
 
 	if (KEY_TAP(VK_LBUTTON)) {

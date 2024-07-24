@@ -858,7 +858,7 @@ void DXGIMgr::ChangeSwapChainState()
 	mDWriteFactory.Reset();
 	mD2DDevice.Reset();
 	mD2DDeviceContext.Reset();
-	TextMgr::I->Reset();
+	TextMgr::I->Clear();
 
 	GetMRT(GroupType::SwapChain)->ReleaseRenderTargets();
 

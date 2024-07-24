@@ -5,7 +5,6 @@
 #include "FrameResource.h"
 #include "Ssao.h"
 
-#include "ResourceMgr.h"
 #include "Object.h"
 #include "Model.h"
 #include "Terrain.h"
@@ -22,8 +21,8 @@
 #include "Component/Collider.h"
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
+#include "ResourceMgr.h"
 #include "AbilityMgr.h"
-#include "TextMgr.h"
 #include "ScriptExporter.h"
 
 #include "TestCube.h"
@@ -110,7 +109,6 @@ void BattleScene::Build()
 
 	// build settings
 	BuildTerrain();
-	BuildText();
 
 	std::cout << "OK\n";
 
@@ -205,7 +203,11 @@ void BattleScene::LoadSceneObjects()
 	const std::string kFileName = "Import/Scene.bin";
 	std::ifstream file = FileIO::OpenBinFile(kFileName);
 
-	mLight->BuildLights(file);
+	// load lights
+	std::string token = FileIO::ReadString(file); // "<Lights>:"
+	FileIO::ReadVal<int>(file);
+	//
+
 	LoadGameObjects(file);
 }
 
@@ -680,33 +682,6 @@ void BattleScene::Start()
 	UpdateGridInfo();
 
 	std::cout << "OK\n";
-}
-
-void BattleScene::BuildText()
-{
-	// Hello
-	{
-		TextOption t;
-		t.FontSize = 40.f;
-		t.FontStyle = DWRITE_FONT_STYLE_ITALIC;
-
-		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("HELLO");
-		testText->SetPosition(0.f, 500.f);
-	}
-
-	// Game Title
-	{
-		TextOption t;
-		t.Font = "ISOCPEUR";
-		t.FontSize = 70.f;
-		t.FontWeight = DWRITE_FONT_WEIGHT_ULTRA_BOLD;
-		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
-
-		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("X-MACHINA TEST");
-		testText->SetColor(D2D1::ColorF::Orange);
-	}
 }
 
 void BattleScene::Update()

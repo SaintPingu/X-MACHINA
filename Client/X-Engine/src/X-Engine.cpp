@@ -147,7 +147,7 @@ void Engine::LoadScene()
 
 	mCrntScene->Release();
 	Canvas::I->Clear();
-	TextMgr::I->Reset();
+	TextMgr::I->Clear();
 	ParticleManager::I->Clear();
 
 	SceneType sceneType = static_cast<SceneType>(mNextSceneType);

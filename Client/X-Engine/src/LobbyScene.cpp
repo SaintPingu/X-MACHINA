@@ -8,7 +8,6 @@
 #include "Light.h"
 #include "SkyBox.h"
 #include "ResourceMgr.h"
-#include "TextMgr.h"
 #include "DXGIMgr.h"
 #include "Shader.h"
 #include "FileIO.h"
@@ -93,19 +92,7 @@ void LobbyScene::Build()
 
 void LobbyScene::BuildText()
 {
-	// Game Title
-	{
-		TextOption t;
-		t.Font = "ISOCPEUR";
-		t.FontSize = 72.f;
-		t.FontWeight = DWRITE_FONT_WEIGHT_ULTRA_BOLD;
-		t.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 
-		sptr<TextBox> testText = std::make_shared<TextBox>()->Init(t);
-		testText->WriteText("PLAY");
-		testText->SetPosition(0, 0);
-		testText->SetColor(D2D1::ColorF::Black);
-	}
 }
 
 void LobbyScene::Release()
@@ -140,7 +127,6 @@ GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& po
 
 void LobbyScene::Start()
 {
-	mLight->BuildLights();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});

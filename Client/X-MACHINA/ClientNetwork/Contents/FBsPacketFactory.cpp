@@ -460,8 +460,8 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	}
 	else {
 		//data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0));
-		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0));
+		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0f));
+		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0f));
 
 	}
 

@@ -59,8 +59,6 @@ public:
 
 	float GetSceneBoundRadius() const { return mSceneBoundsRadius; }
 	void SetSceneBounds(float boundRadius);
-	void BuildLights(std::ifstream& file);
-	void BuildLights();
 
 	void Update();
 	void UpdateShaderVars(int index);
@@ -68,12 +66,13 @@ public:
 	// 조명의 볼륨 메쉬를 렌더링한다.
 	void Render();
 
-	// 조명을 Sunlight로 설정한다.
-	void SetSunlight();
-	void SetSunlight2();
+	void SetSunlightDir(const Vec3&);
 
 private:
 
+	// 조명을 Sunlight로 설정한다.
+	void SetSunlight();
+	void BuildLights();
 	// 조명 모델 폴더에서 조명 모델들을 불러온다.
 	void LoadLightModels();
 	// [file]에서 조명 모델을 불러오고 할당한다.

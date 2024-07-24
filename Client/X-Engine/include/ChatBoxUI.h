@@ -9,8 +9,8 @@ private:
 	bool			mIsEditing{};
 
 	UI*				mBackground{};
-	sptr<TextBox>	mChatTitle{};
-	sptr<TextBox>	mChat{};
+	TextBox*		mChatTitle{};
+	TextBox*		mChat{};
 	
 	std::wstring	mTotalText{};
 	std::wstring	mEditingText{};

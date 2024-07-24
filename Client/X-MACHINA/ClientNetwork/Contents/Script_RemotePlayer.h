@@ -55,7 +55,7 @@ private:
 
 	float mLerpVal = 0.f;
 
-	double mBezierTime = 0.f;
+	float mBezierTime = 0.f;
 
 	float t = 0;
 	

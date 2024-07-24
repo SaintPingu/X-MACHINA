@@ -23,6 +23,7 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "TextMgr.h"
 #include "InputMgr.h"
 #include "X-Engine.h"
 
@@ -45,6 +46,27 @@ void Script_BattleManager::Start()
 	base::Start();
 
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
+
+	// Hello
+	{
+		TextOption textOption;
+		textOption.FontSize = 40.f;
+		textOption.FontStyle = TextFontStyle::Italic;
+
+		TextMgr::I->CreateText("HELLO", Vec2(0.f, 500.f), textOption);
+	}
+
+	// Game Title
+	{
+		TextOption textOption;
+		textOption.Font = "ISOCPEUR";
+		textOption.FontSize = 70.f;
+		textOption.FontWeight = TextFontWeight::BOLD;
+		textOption.VAlignment = TextParagraphAlign::Near;
+
+		TextBox* text = TextMgr::I->CreateText("X-MACHINA TEST", Vec2::Zero, textOption);
+		text->SetColor(TextFontColor::Type::Orange);
+	}
 }
 
 void Script_BattleManager::Update()

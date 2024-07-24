@@ -14,15 +14,15 @@ void Script_LobbyUI::Start()
 
 	// Panels
 	{
-		const auto& top = Canvas::I->CreateUI<UI>(0, "Logo", Vec2(-1600, 900));
-		const auto& bottm = Canvas::I->CreateUI<UI>(0, "BottomPanel", Vec2(0, -940));
+		const auto& top = Canvas::I->CreateUI<UI>(0, "Logo", Vec2(-800, 450));
+		const auto& bottm = Canvas::I->CreateUI<UI>(0, "BottomPanel", Vec2(0, -470));
 	}
 
 	// Buttons
 	{
-		constexpr float x    = -1450;
-		constexpr float y    = -300;
-		constexpr float yGap = -110;
+		constexpr float x    = -720;
+		constexpr float y    = -150;
+		constexpr float yGap = -55;
 				
 		const auto& playButton    = Canvas::I->CreateUI<Button>(1, "PlayButton", Vec2(x, y));
 		const auto& customButton  = Canvas::I->CreateUI<Button>(1, "CustomButton", Vec2(x, y + (yGap * 1)));
@@ -43,8 +43,7 @@ void Script_LobbyUI::Update()
 	base::Update();
 
 	if (KEY_TAP(VK_LBUTTON)) {
-		Vec2 pos = mAimController->GetAimNDCPos();
-		Canvas::I->CheckClick(pos);
+		Canvas::I->CheckClick();
 
 		mCursorNormal->SetActive(false);
 		mCursorClick->SetActive(true);
@@ -52,8 +51,6 @@ void Script_LobbyUI::Update()
 		;
 	}
 	else if (KEY_AWAY(VK_LBUTTON)) {
-		Vec2 pos = mAimController->GetAimNDCPos();
-
 		mCursorNormal->SetActive(true);
 		mCursorClick->SetActive(false);
 		mAimController->SetUI(mCursorNormal);

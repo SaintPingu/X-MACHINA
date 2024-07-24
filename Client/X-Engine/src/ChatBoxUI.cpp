@@ -22,7 +22,7 @@ ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string
 		textOption.VAlignment = TextParagraphAlign::Near;
 		textOption.BoxExtent  = extent;
 
-		mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y + 100), textOption);
+		mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y + 50), textOption);
 	}
 
 	// ChatMain

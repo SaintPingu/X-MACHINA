@@ -824,7 +824,7 @@ Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
 void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
 {
 	constexpr float kStopRotAngle = 10.f;
-	const Vec2 aimDir = mAimController->GetAimDirection();
+	const Vec2 aimDir = InputMgr::I->GetMouseDir();
 
 	bool moving = dir != Dir::None;
 	// spine bone's look vector is aim direction (spine bone gonna look at aim from LateUpdate function)
@@ -890,7 +890,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 
 		// angle could be too large if aim is so close
 		constexpr float kAimMinDistance = 300.f;
-		Vec2 aimScreenPos = mAimController->GetAimPos();
+		Vec2 aimScreenPos = InputMgr::I->GetMousePos();
 		if (aimScreenPos.Length() < kAimMinDistance) {
 			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
 		}
@@ -1196,7 +1196,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 {
 	// ���� �����̸�, ���콺�� ��ġ�� ���? �������? ���� [offset_t]�� ũ�� �����Ѵ�. (�ִ� 1)
 	if (mIsAim) {
-		const Vec2 mousePos = mAimController->GetAimPos();
+		const Vec2 mousePos = InputMgr::I->GetMousePos() * 2.f;
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
 		const Vec2 ndcAbs   = Vec2(fabs(ndc.x), fabs(ndc.y));
 

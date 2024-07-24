@@ -73,7 +73,6 @@ void TextBox::CreateBrush()
 	option.HAlignment  = static_cast<DWRITE_TEXT_ALIGNMENT>(mOption.HAlignment);
 	option.VAlignment  = static_cast<DWRITE_PARAGRAPH_ALIGNMENT>(mOption.VAlignment);
 	option.BoxExtent   = mOption.BoxExtent;
-	//std::memcpy(&option, &mOption, sizeof(mOption));
 
 	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(option.FontColor), &mTextBrush));
 	THROW_IF_FAILED(DWRITE->CreateTextFormat(
@@ -113,7 +112,7 @@ float TextBox::GetAlpha() const
 
 void TextBox::SetPosition(const Vec2& pos)
 {
-	CopyMatrix(mMtxTransition, D2D1::Matrix3x2F::Translation(pos.x / 2.f, -pos.y / 2.f));
+	CopyMatrix(mMtxTransition, D2D1::Matrix3x2F::Translation(pos.x, -pos.y));
 
 	SetFinalMatrix();
 }

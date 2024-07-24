@@ -2,6 +2,7 @@
 #include "InputMgr.h"
 #include "DXGIMgr.h"
 
+#include "X-Engine.h"
 #include "Timer.h"
 #include "BattleScene.h"
 
@@ -58,6 +59,9 @@ void InputMgr::UpdateClient()
 {
 	mClientCenter = { DXGIMgr::I->GetWindowWidth() / 2, DXGIMgr::I->GetWindowHeight() / 2 };
 	mMousePos = Vec2(static_cast<float>(mClientCenter.x), static_cast<float>(mClientCenter.y));
+	mMaxPos.x = (Engine::I->GetWindowWidth() - 10.f) / 2.f;
+	mMaxPos.y = (Engine::I->GetWindowHeight() - 30.f) / 2.f;
+
 	InitFocus();
 }
 
@@ -80,9 +84,14 @@ void InputMgr::Update()
 		::GetCursorPos(&ptMouse);
 		::ScreenToClient(DXGIMgr::I->GetHwnd(), &ptMouse);
 
-		mMousePos = Vec2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
-		mMouseDir.x = mMousePos.x - mClientCenter.x;
-		mMouseDir.y = -(mMousePos.y - mClientCenter.y);
+		Vec2 mousePos = Vec2(static_cast<float>(ptMouse.x), static_cast<float>(ptMouse.y));
+		Vec2 mouseDelta = Vec2(mousePos.x - mClientCenter.x, mClientCenter.y - mousePos.y);
+		mMousePos += mouseDelta * mMouseSensitivity;
+		mMousePos.x = std::clamp(mMousePos.x, -mMaxPos.x, mMaxPos.x);
+		mMousePos.y = std::clamp(mMousePos.y, -mMaxPos.y, mMaxPos.y);
+
+		mMouseDir.x = mousePos.x - mClientCenter.x;
+		mMouseDir.y = -(mousePos.y - mClientCenter.y);
 
 		SetCursorCenter();
 	}
@@ -129,6 +138,11 @@ void InputMgr::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	default:
 		break;
 	}
+}
+
+Vec2 InputMgr::GetMouseNDCPos() const
+{
+	return Vec2(mMousePos.x / (Engine::I->GetWindowWidth() * 0.5f), mMousePos.y / (Engine::I->GetWindowHeight() * 0.5f));
 }
 
 void InputMgr::SetCursorCenter() const

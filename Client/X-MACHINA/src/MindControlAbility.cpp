@@ -40,7 +40,7 @@ void MindControlAbility::Update(float activeTime)
 
 	if (KEY_TAP(VK_LBUTTON) && mCurrControlledObjectCnt > 0) {
 
-		mPickedTarget = PickingObject(mAimController->GetScreenAimPos());
+		mPickedTarget = PickingObject(InputMgr::I->GetMousePos());
 
 		if (mPickedTarget) {
 			if (!ReducePheroAmount()) {

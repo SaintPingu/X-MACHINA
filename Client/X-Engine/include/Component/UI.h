@@ -41,7 +41,7 @@ public:
 	sptr<Texture> GetTexture() const { return mTexture; }
 	Vec2 GetScale() const;
 
-	void SetPosition(float x, float y, float z);
+	void SetPosition(float x, float y);
 	void SetPosition(const Vec2& pos);
 	void SetPosition(const Vec3& pos);
 
@@ -52,7 +52,7 @@ public:
 
 public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
-	bool CheckClick(const Vec2& mousePos) const;
+	bool CheckClick() const;
 	virtual void OnClick();
 
 	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
@@ -107,6 +107,7 @@ protected:
 
 private:
 	virtual void OnClick() override;
+	//virtual void OnHightlight();
 };
 
 // Canvas 위에 UI를 그리도록 한다.
@@ -151,6 +152,6 @@ public:
 	}
 	void RemoveUI(Layer layer, UI* ui);
 
-	void CheckClick(const Vec2& mousePos) const;
+	void CheckClick() const;
 };
 #pragma endregion

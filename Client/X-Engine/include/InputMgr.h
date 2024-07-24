@@ -69,8 +69,10 @@ private:
 	std::stack<KeyState*> mAwayKeys{}; 
 
 	POINT mClientCenter{};
-	Vec2 mMousePos{};		// 현재 마우스 위치
-	Vec2 mMouseDir{};		// 이전->현재의 마우스 이동 방향
+	Vec2 mMousePos{};				// 현재 마우스 위치
+	Vec2 mMaxPos{};					// 마우스 최대 위치
+	Vec2 mMouseDir{};
+	float mMouseSensitivity{ 1.f };	// 마우스 감도
 
 private:
 	InputMgr();
@@ -78,9 +80,11 @@ private:
 
 public:
 	KeyState GetKeyState(int key) const { return mKeys.at(key); }
-	Vec2 GetMousePos() const			{ return mMousePos; }
-	Vec2 GetMouseDir() const			{ return mMouseDir; }
-	Vec2 GetMouseDelta() const			{ return Vec2(mMousePos.x - mClientCenter.x, mClientCenter.y - mMousePos.y); }
+	const Vec2& GetMousePos() const		{ return mMousePos; }
+	const Vec2& GetMouseDir() const		{ return mMouseDir; }
+
+	Vec2 GetMouseNDCPos() const;
+
 
 public:
 	// 사용할 키들을 설정한다.

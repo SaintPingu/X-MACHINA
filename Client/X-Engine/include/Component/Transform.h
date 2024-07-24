@@ -57,17 +57,17 @@ public:
 	sptr<Transform> GetShared() { return shared_from_this(); }
 	/* Position */
 	// gets the position in world space 
-	Vec3 GetPosition()      const	{ return Vec3(mWorldTransform._41, mWorldTransform._42, mWorldTransform._43); }
+	Vec3 GetPosition()      const			{ return Vec3(mWorldTransform._41, mWorldTransform._42, mWorldTransform._43); }
 	// gets the position in local space 
-	Vec3 GetLocalPosition() const	{ return mPosition; }
+	const Vec3& GetLocalPosition() const	{ return mPosition; }
 
 	/* Axis */
 	// returns a right(x) axis in world space
-	Vec3 GetRight() const			{ return Vector3::Normalized(Vec3(mWorldTransform._11, mWorldTransform._12, mWorldTransform._13)); }
+	Vec3 GetRight() const	{ return Vector3::Normalized(Vec3(mWorldTransform._11, mWorldTransform._12, mWorldTransform._13)); }
 	// returns a up(y) axis in world space
-	Vec3 GetUp()    const			{ return Vector3::Normalized(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
+	Vec3 GetUp()    const	{ return Vector3::Normalized(Vec3(mWorldTransform._21, mWorldTransform._22, mWorldTransform._23)); }
 	// returns a look(z) axis in world space
-	Vec3 GetLook()  const			{ return Vector3::Normalized(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
+	Vec3 GetLook()  const	{ return Vector3::Normalized(Vec3(mWorldTransform._31, mWorldTransform._32, mWorldTransform._33)); }
 	// returns a quaternion in local space
 	Quat GetLocalRotation() const;
 	// returns a quaternion in world space

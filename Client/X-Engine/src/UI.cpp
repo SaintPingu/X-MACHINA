@@ -35,16 +35,17 @@ UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 }
 
 
-bool UI::CheckClick(const Vec2& mousePos) const
+bool UI::CheckClick() const
 {
-	Vec2 pos = GetPosition();
-	float width = mScale.x;
-	float height = mScale.y;
+	const Vec2 mousePos = InputMgr::I->GetMousePos();
+	const Vec2 pos = GetPosition();
+	const float width = mScale.x;
+	const float height = mScale.y;
 
-	float left = pos.x - width;
-	float right = pos.x + width;
-	float up = pos.y + height;
-	float down = pos.y - height;
+	const float left = pos.x - width;
+	const float right = pos.x + width;
+	const float up = pos.y + height;
+	const float down = pos.y - height;
 
 	if (mousePos.x < left) {
 		return false;
@@ -104,21 +105,21 @@ Vec2 UI::GetScale() const
 	return Vec2(mScale.x * Canvas::I->GetWidth(), mScale.y * Canvas::I->GetHeight());
 }
 
-void UI::SetPosition(float x, float y, float z)
+void UI::SetPosition(float x, float y)
 {
-	x /= Canvas::I->GetWidth();
-	y /= Canvas::I->GetHeight();
-	Transform::SetPosition(x, y, z);
+	x /= (Canvas::I->GetWidth() * 0.5f);
+	y /= (Canvas::I->GetHeight() * 0.5f);
+	Transform::SetPosition(x, y, 0.f);
 }
 
 void UI::SetPosition(const Vec2& pos)
 {
-	SetPosition(pos.x, pos.y, 0.f);
+	SetPosition(pos.x, pos.y);
 }
 
 void UI::SetPosition(const Vec3& pos)
 {
-	SetPosition(pos.x, pos.y, pos.z);
+	SetPosition(pos.x, pos.y);
 }
 
 void UI::SetScale(const Vec2& scale)
@@ -258,11 +259,11 @@ void Canvas::RemoveUI(Layer layer, UI* targetUI)
 	}
 }
 
-void Canvas::CheckClick(const Vec2& mousePos) const
+void Canvas::CheckClick() const
 {
 	for (auto& layer : mUIs) {
 		for (auto& ui : layer) {
-			if (ui->CheckClick(mousePos)) {
+			if (ui->CheckClick()) {
 				ui->OnClick();
 				return;
 			}

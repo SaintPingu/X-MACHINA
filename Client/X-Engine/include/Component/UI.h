@@ -7,6 +7,7 @@
 
 #pragma region ClassForwardDecl
 class Canvas;
+class Button;
 class Texture;
 class Shader;
 class ModelObjectMesh;
@@ -30,7 +31,7 @@ protected:
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(const std::string& textureName, const Vec2& pos, const Vec2& scale);
+	UI(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
 	virtual ~UI() = default;
 
 public:
@@ -51,7 +52,7 @@ public:
 
 public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
-	bool CheckClick(const Vec2& mousePos);
+	bool CheckClick(const Vec2& mousePos) const;
 	virtual void OnClick();
 
 	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
@@ -68,7 +69,7 @@ private:
 	float mValue{};			// 0~1 normalize value
 
 public:
-	SliderUI(const std::string& textureName, const Vec2& pos, const Vec2& scale);
+	SliderUI(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
 	virtual ~SliderUI() = default;
 
 public:
@@ -78,7 +79,6 @@ public:
 protected:
 	virtual void UpdateShaderVars(rsptr<Texture> texture) override;
 };
-
 
 
 class Button : public UI {
@@ -92,7 +92,7 @@ private:
 	sptr<Texture> mDisabledTexture{};
 
 public:
-	Button(const std::string& textureName, Vec2 pos, const Vec2& scale);
+	Button(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
 
 public:
 	virtual void Render() override;
@@ -108,7 +108,6 @@ protected:
 private:
 	virtual void OnClick() override;
 };
-
 
 // Canvas 위에 UI를 그리도록 한다.
 class Canvas : public Singleton<Canvas> {
@@ -141,7 +140,7 @@ public:
 	void Clear();
 
 	template<class T, typename std::enable_if<is_valid_ui_type<T>>::type* = nullptr>
-	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, const Vec2& scale)
+	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, Vec2 scale = Vec2::Zero)
 	{
 		if (layer > (mkLayerCnt - 1))
 			return nullptr;
@@ -152,6 +151,6 @@ public:
 	}
 	void RemoveUI(Layer layer, UI* ui);
 
-	void CheckClick(const Vec2& mousePos);
+	void CheckClick(const Vec2& mousePos) const;
 };
 #pragma endregion

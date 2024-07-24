@@ -1,6 +1,4 @@
-﻿#include "UI.h"
-#include "UI.h"
-#include "EnginePch.h"
+﻿#include "EnginePch.h"
 #include "Component/UI.h"
 
 #include "BattleScene.h"
@@ -18,7 +16,7 @@
 
 
 #pragma region UI
-UI::UI(const std::string& textureName, const Vec2& pos, const Vec2& scale)
+UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	:
 	Object()
 {
@@ -28,11 +26,16 @@ UI::UI(const std::string& textureName, const Vec2& pos, const Vec2& scale)
 	// ������Ʈ ��� ���� ��� �÷��״� ���� ������ �� �ִ�.
 	SetUseObjCB(true);
 	SetPosition(pos);
+
+	if (scale.Length() <= FLT_EPSILON) {
+		scale = Vec2(mTexture->GetWidth(), mTexture->GetHeight());
+	}
+
 	SetScale(scale);
 }
 
 
-bool UI::CheckClick(const Vec2& mousePos)
+bool UI::CheckClick(const Vec2& mousePos) const
 {
 	Vec2 pos = GetPosition();
 	float width = mScale.x;
@@ -138,7 +141,7 @@ void UI::SetColor(const Vec3& color)
 
 
 #pragma region SliderUI
-SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, const Vec2& scale)
+SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	:
 	UI(textureName, pos, scale)
 {
@@ -156,7 +159,7 @@ void SliderUI::UpdateShaderVars(rsptr<Texture> texture)
 
 
 #pragma region Button
-Button::Button(const std::string& textureName, Vec2 pos, const Vec2& scale)
+Button::Button(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	:
 	UI(textureName, pos, scale)
 {
@@ -255,7 +258,7 @@ void Canvas::RemoveUI(Layer layer, UI* targetUI)
 	}
 }
 
-void Canvas::CheckClick(const Vec2& mousePos)
+void Canvas::CheckClick(const Vec2& mousePos) const
 {
 	for (auto& layer : mUIs) {
 		for (auto& ui : layer) {

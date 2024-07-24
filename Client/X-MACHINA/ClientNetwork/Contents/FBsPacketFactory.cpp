@@ -452,8 +452,8 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	}
 	else {
 		//data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0));
-		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0));
+		data.TargetPos.x = static_cast<float>(Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0)));
+		data.TargetPos.z = static_cast<float>(Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0)));
 
 	}
 
@@ -1006,11 +1006,11 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 {
 	GameMonsterInfo info = {};
 
-	info.Id = monster->id();
-	info.Type = static_cast<MonsterType>(monster->type());
-
-	Vec3 monster_pos = GetPosition_Vec2(monster->pos());
-	monster->pheros();
+	info.Id		       = monster->id();
+	info.Type	       = monster->type();
+	info.Pos		   = GetPosition_Vec2(monster->pos());
+	std::string pheros = monster->pheros()->c_str();
+	info.InitPheros(pheros);
 
 	return info;
 }

@@ -28,12 +28,21 @@ enum WEAPON_TYPE : ubyte {
 }
 
 // +------------------------
-//		 WEAPON TYPE 
+//		 MONSTER_TYPE TYPE 
 // ------------------------+
 enum MONSTER_TYPE : ubyte {
 	ADVANCED_COMBAT_DROIR_5,
+	ANGLEROX,
+	ARACK,
+	ARANOBOT,
+	CERATOFEROX,
+	GOBBLER,
+	LIGHTBIPEDMECH,
+	MININGMECH,
 	ONYSCIDUS,
-	URSACETUS
+	URSACETUS,
+	RAPAX
+
 }
 
 

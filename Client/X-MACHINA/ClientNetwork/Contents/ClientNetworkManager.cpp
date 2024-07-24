@@ -481,21 +481,21 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 
 	for (int i = 0; i < monInfos.size(); ++i) {
 		// Monster »ý¼º! 
-		std::string monsterName{};
-		switch (monInfos[i].Type) {
-		case MonsterType::AdvancedCombatDroid_5:
-			monsterName = "AdvancedCombatDroid_5";
-			break;
-		case MonsterType::Onyscidus:
-			monsterName = "Onyscidus";
-			break;
-		case MonsterType::Ursacetus:
-			monsterName = "Ursacetus";
-			break;
-		default:
-			assert(0);
-			break;
-		}
+		std::string MonsterTypeNames[FBProtocol::MONSTER_TYPE_MAX + 1] = {
+					"ADVANCED_COMBAT_DROIR_5",  
+					"ANGLEROX",                 
+					"ARACK",                    
+					"ARANOBOT",                 
+					"CERATOFEROX",              
+					"GOBBLER",                  
+					"LIGHTBIPEDMECH",           
+					"MININGMECH",               
+					"ONYSCIDUS",                
+					"URSACETUS",                
+					"RAPAX"                     
+		};
+		std::string monsterName = MonsterTypeNames[monInfos[i].Type];
+		
 
 		GridObject* monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
 		monster->SetID(monInfos[i].Id);
@@ -504,14 +504,30 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monster->SetLocalRotation(monInfos[i].Rot);
 
 		switch (monInfos[i].Type) {
-		case MonsterType::AdvancedCombatDroid_5:
+		case FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5:
 			monster->AddComponent<Script_AdvancedCombatDroid_5>();
 			break;
-		case MonsterType::Onyscidus:
+		case FBProtocol::MONSTER_TYPE_ONYSCIDUS:
 			monster->AddComponent<Script_Onyscidus>();
 			break;
-		case MonsterType::Ursacetus:
+		case FBProtocol::MONSTER_TYPE_URSACETUS:
 			monster->AddComponent<Script_Ursacetus>();
+			break;
+		case FBProtocol::MONSTER_TYPE_ANGLEROX:
+			break;
+		case FBProtocol::MONSTER_TYPE_ARACK:
+			break;
+		case FBProtocol::MONSTER_TYPE_ARANOBOT:
+			break;
+		case FBProtocol::MONSTER_TYPE_CERATOFEROX:
+			break;
+		case FBProtocol::MONSTER_TYPE_GOBBLER:
+			break;
+		case FBProtocol::MONSTER_TYPE_MININGMECH:
+			break;
+		case FBProtocol::MONSTER_TYPE_LIGHTBIPEDMECH :
+			break;
+		case FBProtocol::MONSTER_TYPE_RAPAX:
 			break;
 		default:
 			assert(0);

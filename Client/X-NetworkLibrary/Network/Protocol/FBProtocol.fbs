@@ -164,6 +164,22 @@ table SPkt_Player_Transform
 
 }
 
+// +------------------------
+//	   PALYER Aim  Rotation
+// ------------------------+
+
+table CPkt_Player_AimRotation
+{
+	aim_rotation			: float; // Y rotation Euler
+}
+
+table SPkt_Player_AimRotation
+{
+	player_id				: uint;	// 8 bytes
+
+	aim_rotation		    : float; // Y rotation Euler
+}
+
 
 // +------------------------
 //	   PALYER ANIMATION 
@@ -232,7 +248,7 @@ table CPkt_DeadMonster
 table SPkt_DeadMonster
 {
 	id			 : uint;
-	dead_point : Position_Vec2;
+	dead_point   : Position_Vec2;
 }
 
 
@@ -321,7 +337,7 @@ table SPkt_GetPhero
 
 table CPkt_Bullet_OnShoot
 {
-
+	ray : Vector3;
 }
 
 table SPkt_Bullet_OnShoot

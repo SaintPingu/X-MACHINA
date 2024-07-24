@@ -24,6 +24,7 @@ table Player {
 // ------------------------+
 table Phero {
 	id			: uint;
+	level		: ubyte;
 	offset_dist : Position_Vec2;
 }
 
@@ -33,9 +34,9 @@ table Phero {
 // ------------------------+
 table Monster{
 	id			:  uint; 
-	type		:  ubyte; // UINT8
+	type		:  MONSTER_TYPE; // UINT8
 	pos			:  Position_Vec2;
 
-	pheros		: [Phero];
+	pheros		:  string; // "123456" --> "123" , "456" -> 1 : Phero Level , 23 : pheroOffsetIndex, (0 : id) ... 456 (1 : id) :: id( = order of decode string )
 	
 }

@@ -10,7 +10,7 @@ void Script_Item::Awake()
 {
 	base::Awake();
 
-	mUI = Canvas::I->CreateUI<UI>(3, "Key_E", Vec2(0, 0), 20, 20);
+	mUI = Canvas::I->CreateUI<UI>(3, "Key_E", Vec2::Zero, Vec2(20, 20));
 	mUI->SetActive(false);
 }
 

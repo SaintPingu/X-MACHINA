@@ -13,16 +13,6 @@ class ModelObjectMesh;
 #pragma endregion
 
 
-#pragma region Struct
-struct UITexture : public std::enable_shared_from_this<UITexture> {
-	sptr<Texture>	Image{};
-	float			Width{};
-	float			Height{};
-
-	UITexture(const std::string& imageName , float width, float height);
-};
-#pragma endregion
-
 
 #pragma region Class
 // 2D object (not entity)
@@ -30,43 +20,44 @@ class UI : public Object {
 	using base = Object;
 
 protected:
-	bool			mIsActive = true;
-	sptr<UITexture> mTexture{};
-	sptr<Shader>	mShader{};
+	bool		  mIsActive = true;
+	sptr<Texture> mTexture{};
+	sptr<Shader>  mShader{};
+
+	Vec2			mScale{};
+
 	std::function<void()> mClickCallback{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(const std::string& textureName, Vec2 pos, float width, float height);
+	UI(const std::string& textureName, const Vec2& pos, const Vec2& scale);
 	virtual ~UI() = default;
 
 public:
 	virtual void Update() {}
 	virtual void Render();
 
-	UITexture* GetUITexture() const { return mTexture.get(); }
-	Texture* GetTexture() const { return mTexture->Image.get(); }
-	float GetWidth() const { return mTexture->Width; }
-	float GetHeight() const { return mTexture->Height; }
-	void SetWidth(float width) { mTexture->Width = width; }
-	void SetHeight(float height) { mTexture->Height = height; }
+	sptr<Texture> GetTexture() const { return mTexture; }
+	Vec2 GetScale() const;
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const Vec2& pos);
 	void SetPosition(const Vec3& pos);
 
+	void SetScale(const Vec2& scale);
+
 	void SetActive(bool val) { mIsActive = val; }
 	void SetColor(const Vec3& color);
 
 public:
-	void ChangeUITexture(rsptr<UITexture> newUITexture);
+	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
 	bool CheckClick(const Vec2& mousePos);
 	virtual void OnClick();
 
 	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
 
 protected:
-	virtual void UpdateShaderVars();
+	virtual void UpdateShaderVars(rsptr<Texture> texture);
 };
 
 
@@ -77,7 +68,7 @@ private:
 	float mValue{};			// 0~1 normalize value
 
 public:
-	SliderUI(const std::string& textureName, const Vec2& pos, float width, float height);
+	SliderUI(const std::string& textureName, const Vec2& pos, const Vec2& scale);
 	virtual ~SliderUI() = default;
 
 public:
@@ -85,7 +76,7 @@ public:
 	void SetValue(float value) { mValue = value / mMaxValue; }
 
 protected:
-	virtual void UpdateShaderVars() override;
+	virtual void UpdateShaderVars(rsptr<Texture> texture) override;
 };
 
 
@@ -94,12 +85,28 @@ class Button : public UI {
 	using base = UI;
 
 private:
-	sptr<UITexture> mHighlightTexture{};
-	sptr<UITexture> mPressedTexture{};
-	sptr<UITexture> mDisabledTexture{};
+	bool mClicked{};
+	sptr<Texture> mCrntTexture{};
+	sptr<Texture> mHighlightTexture{};
+	sptr<Texture> mPressedTexture{};
+	sptr<Texture> mDisabledTexture{};
 
 public:
-	Button(const std::string& textureName, Vec2 pos, float width, float height);
+	Button(const std::string& textureName, Vec2 pos, const Vec2& scale);
+
+public:
+	virtual void Render() override;
+
+public:
+	void SetHighlightTexture(const std::string& textureName);
+	void SetPressedTexture(const std::string& textureName);
+	void SetDisabledTexture(const std::string& textureName);
+
+protected:
+	virtual void UpdateShaderVars(rsptr<Texture> texture) override;
+
+private:
+	virtual void OnClick() override;
 };
 
 
@@ -134,12 +141,12 @@ public:
 	void Clear();
 
 	template<class T, typename std::enable_if<is_valid_ui_type<T>>::type* = nullptr>
-	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, float width, float height)
+	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, const Vec2& scale)
 	{
 		if (layer > (mkLayerCnt - 1))
 			return nullptr;
 
-		sptr<T> ui = std::make_shared<T>(texture, pos, width, height);
+		sptr<T> ui = std::make_shared<T>(texture, pos, scale);
 		mUIs[layer].insert(ui);
 		return ui.get();
 	}

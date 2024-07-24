@@ -7,7 +7,7 @@
 #pragma region ClassForwardDecl
 class UI;
 class TextBox;
-struct UITexture;
+class Texture;
 #pragma endregion
 
 #pragma region Class
@@ -33,11 +33,12 @@ public:
 	Vec2 GetAimNDCPos() const;
 	Vec2 GetScreenAimPos() const;
 	
-	UITexture* GetUITexture();
+	sptr<Texture> GetTexture() const;
+	Vec2 GetTextureScale() const;
 
 public:
 	void SetUI(UI* ui) { mUI = ui; }
-	void ChangeAimUITexture(UITexture* newUITexture);
+	void ChangeAimTexture(rsptr<Texture> newTexture, const Vec2& scale);
 
 private:
 	void UpdatePosText();

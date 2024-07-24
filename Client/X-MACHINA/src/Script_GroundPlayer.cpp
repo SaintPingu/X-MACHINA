@@ -89,7 +89,7 @@ void Script_GroundPlayer::Awake()
 
 	// values //
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
-	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2(0, 0), 30, 30);
+	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(30, 30));
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 	SetMaxHP(1000.f);

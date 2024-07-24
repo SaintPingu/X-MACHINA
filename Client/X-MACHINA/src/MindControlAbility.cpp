@@ -31,7 +31,7 @@ MindControlAbility::MindControlAbility()
 	mCamera = MainCamera::I->GetCamera();
 	mMaxControlledObjectCnt = 1;
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
-	mMindControlAimUITexture = std::make_shared<UITexture>("MindControlAim", 300.f, 300.f);
+	mMindControlAimTexture = RESOURCE<Texture>("MindControlAim");
 }
 
 void MindControlAbility::Update(float activeTime)
@@ -53,7 +53,7 @@ void MindControlAbility::Update(float activeTime)
 		}
 
 		if (mCurrControlledObjectCnt <= 0) {
-			mAimController->ChangeAimUITexture(mPrevUITexture);
+			ChangeAimToOrigin();
 		}
 	}
 	else if (KEY_TAP(mHolderKey) && mCurrControlledObjectCnt > 0) {
@@ -71,15 +71,14 @@ void MindControlAbility::Activate()
 	RenderedAbility::Activate();
 
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
-	
+
 	mAimController = mObject->GetComponent<Script_AimController>();
 	if (!mAimController) {
 		Terminate();
 		return;
 	}
 
-	mPrevUITexture = mAimController->GetUITexture();
-	mAimController->ChangeAimUITexture(mMindControlAimUITexture.get());
+	ChangeAimToActive();
 }
 
 void MindControlAbility::DeActivate()
@@ -119,7 +118,7 @@ Object* MindControlAbility::PickingObject(const Vec2& screenPos)
 
 	float minDistance = FLT_MAX;
 	Object* pickedObject = nullptr;
-	
+
 	// 주변 그리드 내 모든 적 객체
 	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
 	for (const auto& grid : grids) {
@@ -186,6 +185,18 @@ void MindControlAbility::ActivePrevEnemyBT()
 
 void MindControlAbility::Terminate()
 {
-	mAimController->ChangeAimUITexture(mPrevUITexture);
+	ChangeAimToOrigin();
 	mTerminateCallback();
+}
+
+void MindControlAbility::ChangeAimToOrigin()
+{
+	mAimController->ChangeAimTexture(mPrevAimTexture, mPrevAimScale);
+}
+
+void MindControlAbility::ChangeAimToActive()
+{
+	mPrevAimTexture = mAimController->GetTexture();
+	mPrevAimScale = mAimController->GetTextureScale();
+	mAimController->ChangeAimTexture(mMindControlAimTexture, Vec2(300.f, 300.f));
 }

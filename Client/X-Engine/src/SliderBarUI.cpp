@@ -10,12 +10,12 @@
 #pragma region MainPlayer
 SliderBarUI::SliderBarUI(const std::string& backgroundTexture, const std::string& easeTexture, const std::string& fillTexture, const Vec2& pos, const Vec2& size, float maxValue)
 {
-	mBackgroundBarUI = Canvas::I->CreateUI<UI>(0, backgroundTexture, pos, size.x, size.y);
+	mBackgroundBarUI = Canvas::I->CreateUI<UI>(0, backgroundTexture, pos, size);
 
-	mEaseBarUI = Canvas::I->CreateUI<SliderUI>(1, easeTexture, pos, size.x, size.y);
+	mEaseBarUI = Canvas::I->CreateUI<SliderUI>(1, easeTexture, pos, size);
 	mEaseBarUI->SetMinMaxValue(0.f, maxValue);
 
-	mFillBarUI = Canvas::I->CreateUI<SliderUI>(2, fillTexture, pos, size.x, size.y);
+	mFillBarUI = Canvas::I->CreateUI<SliderUI>(2, fillTexture, pos, size);
 	mFillBarUI->SetMinMaxValue(0.f, maxValue);
 }
 

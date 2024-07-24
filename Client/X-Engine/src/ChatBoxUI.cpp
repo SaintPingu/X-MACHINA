@@ -37,7 +37,7 @@ ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string
 		mChat = TextMgr::I->CreateText("", position, textOption);
 	}
 
-	mBackground = Canvas::I->CreateUI<UI>(0, "Black", Vec2{ position.x, position.y }, extent.x, extent.y);
+	mBackground = Canvas::I->CreateUI<UI>(0, "Black", position, extent);
 	mBackground->mObjectCB.AlphaIntensity = 0.2f;
 }
 

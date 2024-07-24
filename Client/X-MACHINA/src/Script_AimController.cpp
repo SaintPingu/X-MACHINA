@@ -61,16 +61,23 @@ Vec2 Script_AimController::GetScreenAimPos() const
 	return screenPos;
 }
 
-UITexture* Script_AimController::GetUITexture() 
+sptr<Texture> Script_AimController::GetTexture() const
 {
 	assert(mUI);
-	return mUI->GetUITexture();
+	return mUI->GetTexture();
 }
 
-void Script_AimController::ChangeAimUITexture(UITexture* newUITexture)
+Vec2 Script_AimController::GetTextureScale() const
+{
+	return mUI->GetScale();
+}
+
+
+void Script_AimController::ChangeAimTexture(rsptr<Texture> newTexture, const Vec2& scale)
 {
 	if (mUI) {
-		mUI->ChangeUITexture(newUITexture->shared_from_this());
+		mUI->ChangeTexture(newTexture);
+		mUI->SetScale(scale);
 	}
 }
 

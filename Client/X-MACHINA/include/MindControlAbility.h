@@ -12,7 +12,7 @@ class Camera;
 class Object;
 class GridObject;
 class Script_AimController;
-struct UITexture;
+class Texture;
 #pragma endregion
 
 
@@ -33,8 +33,9 @@ private:
 	Object* mPickedTarget{};
 	sptr<Script_AimController> mAimController{};
 
-	UITexture* mPrevUITexture{};
-	sptr<UITexture> mMindControlAimUITexture{};
+	Vec2 mPrevAimScale{};
+	sptr<Texture> mPrevAimTexture{};
+	sptr<Texture> mMindControlAimTexture{};
 
 public:
 	MindControlAbility();
@@ -54,6 +55,9 @@ private:
 	void ActiveMindControlledEnemyBT();
 	void ActivePrevEnemyBT();
 	void Terminate();
+
+	void ChangeAimToOrigin();
+	void ChangeAimToActive();
 };
 #pragma endregion
 

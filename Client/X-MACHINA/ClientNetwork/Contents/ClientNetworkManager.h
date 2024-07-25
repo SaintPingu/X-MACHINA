@@ -40,7 +40,7 @@ private:
 	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
 
-
+	std::unordered_map<UINT32, class Script_EnemyNetwork*> mRemoteMonsters{};
 	Concurrency::concurrent_unordered_map<uint32_t, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 

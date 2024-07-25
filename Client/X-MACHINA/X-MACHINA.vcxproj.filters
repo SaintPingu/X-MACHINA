@@ -367,6 +367,9 @@
     <ClInclude Include="include\Script_LobbyManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_EnemyNetwork.h">
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -602,6 +605,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_LobbyManager.cpp">
       <Filter>Script\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_EnemyNetwork.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

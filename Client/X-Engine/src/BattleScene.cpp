@@ -335,6 +335,11 @@ void BattleScene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 	object->SetTag(tag);
 	ObjectType type = object->GetType();
 
+	// TODO : TEMP - need to remove
+	if (tag == ObjectTag::Enemy) {
+		return;
+	}
+
 	switch (type) {
 	case ObjectType::Dynamic:
 	case ObjectType::DynamicMove:

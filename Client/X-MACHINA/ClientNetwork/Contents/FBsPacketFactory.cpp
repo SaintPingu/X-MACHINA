@@ -575,7 +575,16 @@ bool FBsPacketFactory::Process_SPkt_Monster_Transform(SPtr_Session session, cons
 	Vec3	 Position   = GetVector3(pkt.trans()->position());
 	Vec3	 Rotation   = GetVector3(pkt.trans()->rotation());
 
+	std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos;
 	
+	NetworkEvent::Game::Event_Monster::MonsterMove info;
+	info.Id  = monster_id;
+	info.Pos = Position;
+	info.Rot = Rotation;
+	infos.push_back(info);
+
+	sptr<NetworkEvent::Game::Event_Monster::Move> Ext_EventData = CLIENT_NETWORK->CreateEvent_Move_Monster(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 	return true;
 }
 

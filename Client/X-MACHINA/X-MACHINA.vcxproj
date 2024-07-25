@@ -218,6 +218,7 @@
     <ClInclude Include="ClientNetwork\Contents\GameMonster.h" />
     <ClInclude Include="ClientNetwork\Contents\GamePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\NetworkEvents.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_EnemyNetwork.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_Network.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
@@ -295,6 +296,7 @@
     <ClCompile Include="ClientNetwork\Contents\GameMonster.cpp" />
     <ClCompile Include="ClientNetwork\Contents\GamePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\NetworkEvents.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_EnemyNetwork.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />

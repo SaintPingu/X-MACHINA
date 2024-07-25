@@ -4,6 +4,16 @@
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
 #include "Script_AdvancedCombatDroid_5.h"
+#include "Script_Anglerox.h"
+#include "Script_Arack.h"
+#include "Script_Aranobot.h"
+#include "Script_Ceratoferox.h"
+#include "Script_Gobbler.h"
+#include "Script_LightBipedMech.h"
+#include "Script_Onyscidus.h"
+#include "Script_Rapax.h"
+#include "Script_MiningMech.h"
+#include "Script_EnemyNetwork.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -98,7 +108,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"172.20.10.3", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -461,6 +471,10 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::G
 	ExtrapolatedData.Animdata.AnimParam_h = data->animparam_h;
 	ExtrapolatedData.Animdata.AnimParam_v = data->animparam_v;
 
+	if ((player->GetPosition() - ExtrapolatedData.TargetPos).Length() >= 5.f) {
+		player->SetPosition(ExtrapolatedData.TargetPos);
+	}
+
 	player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
 
 }
@@ -477,9 +491,30 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEven
 
 void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
 {
+	/* 
+		BattelScene ----- [1] [2] [3] 
+		[2] 
+	
+	
+	*/
+
+
 	std::vector<GameMonsterInfo> monInfos = data->NewMonsterInfos;
 
 	for (int i = 0; i < monInfos.size(); ++i) {
+		
+		int							monsterID	= monInfos[i].Id;
+		FBProtocol::MONSTER_TYPE	monType		=  monInfos[i].Type;
+		monInfos[i].mPheros;
+		monInfos[i].Name;
+		monInfos[i].Pos;
+		monInfos[i].Rot;
+		monInfos[i].SDir;
+
+		// 몬스터가 이미 생성된 적이 있다면 
+		if (mRemoteMonsters.find(monInfos[i].Id) != mRemoteMonsters.end())
+			return;
+
 		// Monster 생성! 
 		std::string MonsterTypeNames[FBProtocol::MONSTER_TYPE_MAX + 1] = {
 					"AdvancedCombatDroid",  
@@ -500,6 +535,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		
 
 		GridObject* monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
+		Script_EnemyNetwork* enemyNetwork = monster->AddComponent<Script_EnemyNetwork>().get();
 		monster->SetID(monInfos[i].Id);
 		monster->SetName(monsterName);
 		monster->SetPosition(monInfos[i].Pos);
@@ -516,25 +552,37 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			monster->AddComponent<Script_Ursacetus>();
 			break;
 		case FBProtocol::MONSTER_TYPE_ANGLEROX:
+			monster->AddComponent<Script_Anglerox>();
 			break;
 		case FBProtocol::MONSTER_TYPE_ARACK:
+			monster->AddComponent<Script_Arack>();
 			break;
 		case FBProtocol::MONSTER_TYPE_ARANOBOT:
+			monster->AddComponent<Script_Aranobot>();
 			break;
 		case FBProtocol::MONSTER_TYPE_CERATOFEROX:
+			monster->AddComponent<Script_Ceratoferox>();
 			break;
 		case FBProtocol::MONSTER_TYPE_GOBBLER:
+			monster->AddComponent<Script_Gobbler>();
 			break;
 		case FBProtocol::MONSTER_TYPE_MININGMECH:
+			monster->AddComponent<Script_MiningMech>();
 			break;
 		case FBProtocol::MONSTER_TYPE_LIGHTBIPEDMECH :
+			monster->AddComponent<Script_LightBipedMech>();
 			break;
 		case FBProtocol::MONSTER_TYPE_RAPAX:
+			monster->AddComponent<Script_Rapax>();
 			break;
 		default:
 			assert(0);
 			break;
 		}
+
+		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
+
+		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
 
 		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
 	}
@@ -548,7 +596,17 @@ void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event
 
 void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data)
 {
+	for (int i = 0; i < data->Mons.size(); ++i) {
+		int		ID  = data->Mons[i].Id;
+		Vec3	Pos = data->Mons[i].Pos;
+		Vec3	Rot = data->Mons[i].Rot;
 
+		if (mRemoteMonsters.find(ID) == mRemoteMonsters.end())
+			continue;
+		
+		mRemoteMonsters[ID]->SetPostion(Pos);
+		//mRemoteMonsters[ID]->SetRotation(Rot);
+	}
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data)
 {

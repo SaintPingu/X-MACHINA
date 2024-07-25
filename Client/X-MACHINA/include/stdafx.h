@@ -297,6 +297,17 @@ enum class WeaponName {
 
 	_count,
 };
+
+enum class EnemyState : UINT8 {
+	Idle = 0,
+	Walk,
+	GetHit,
+	Attack,
+	Death,
+	MoveToTarget,
+	MoveToPath,
+	Patrol,
+};
 #pragma endregion
 
 

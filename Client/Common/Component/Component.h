@@ -17,7 +17,7 @@ public:												\
     className(Object* object) : parent(object) { }	\
 private:											\
 	using base = parent;
-
+	
 #pragma endregion
 
 #pragma region ClassForwardDecl

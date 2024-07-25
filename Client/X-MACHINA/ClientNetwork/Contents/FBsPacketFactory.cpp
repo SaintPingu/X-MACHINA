@@ -258,6 +258,10 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
 	LOG_MGR->SetColor(TextColor::Default);
 
+	MyInfo.Name = "MyPlayer";
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(MyInfo);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
 	/// ________________________________________________________________________________
 	/// Remote Player infos ( Range : Same Room ) 
 	/// ________________________________________________________________________________ 
@@ -600,8 +604,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_HP(SPtr_Session session, const FBPro
 	uint32_t monster_id    = pkt.monster_id();
 	float	 monster_hp    = pkt.hp();
 
-
-
+	
 	return true;
 }
 
@@ -618,6 +621,15 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 	
 	uint32_t						monster_id = pkt.monster_id();
 	FBProtocol::MONSTER_BT_TYPE		state_type = pkt.monster_bt_type();
+
+	std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos;
+	NetworkEvent::Game::Event_Monster::MonsterUpdateState info;
+	info.Id = monster_id;
+	info.state = state_type;
+	infos.push_back(info);
+	
+	sptr<NetworkEvent::Game::Event_Monster::UpdateState> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateState_Monster(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 
 
 	return true;

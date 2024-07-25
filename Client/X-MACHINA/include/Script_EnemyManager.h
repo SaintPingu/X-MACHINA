@@ -5,18 +5,6 @@
 #include "XLManager.h"
 #pragma endregion
 
-
-#pragma region EnumClass
-enum class EnemyState : UINT8 {
-	Idle = 0,
-	Walk,
-	GetHit,
-	Attack,
-	Death,
-};
-#pragma endregion
-
-
 #pragma region Struct
 struct EnemyStat : public XLData {
 	int EnemyLevel{};
@@ -81,7 +69,6 @@ public:
 public:
 	void Awake() override;
 	void Update() override;
-
 
 public:
 	void Reset();

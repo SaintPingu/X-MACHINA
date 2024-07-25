@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ClientNetworkManager.h"
+#include "GameFramework.h"
 
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
@@ -14,6 +15,7 @@
 #include "Script_Rapax.h"
 #include "Script_MiningMech.h"
 #include "Script_EnemyNetwork.h"
+#include "Script_EnemyManager.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -108,7 +110,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"172.20.10.3", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -274,6 +276,15 @@ std::string ClientNetworkManager::GetLocalIPv4Address()
 	return ipAddress;
 }
 
+GridObject* ClientNetworkManager::GetRemotePlayer(UINT32 id) 
+{
+	GridObject* player = nullptr;
+	if (mRemotePlayers.count(id)) {
+		player = mRemotePlayers[id];
+	}
+	return player;
+}
+
 
 
 long long ClientNetworkManager::GetTimeStamp()
@@ -416,6 +427,11 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::Creat
 /// ---------------------------------------------------------------------------+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data )
 {
+	if (data->Name == "MyPlayer") {
+		mRemotePlayers[static_cast<UINT32>(data->Id)] = GameFramework::I->GetPlayer();
+		return;
+	}
+
 	GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 	remotePlayer->SetName(data->Name);
 	remotePlayer->SetID(static_cast<UINT32>(data->Id));
@@ -535,7 +551,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		
 
 		GridObject* monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
-		Script_EnemyNetwork* enemyNetwork = monster->AddComponent<Script_EnemyNetwork>().get();
 		monster->SetID(monInfos[i].Id);
 		monster->SetName(monsterName);
 		monster->SetPosition(monInfos[i].Pos);
@@ -579,6 +594,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			assert(0);
 			break;
 		}
+		Script_EnemyNetwork* enemyNetwork = monster->AddComponent<Script_EnemyNetwork>().get();
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
 
@@ -603,8 +619,9 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 
 		if (mRemoteMonsters.find(ID) == mRemoteMonsters.end())
 			continue;
-		
-		mRemoteMonsters[ID]->SetPostion(Pos);
+
+		//LOG_MGR->Cout(ID, " : ", Pos.x, " ", Pos.y, " ", Pos.z, "\n");
+		//mRemoteMonsters[ID]->SetPostion(Pos);
 		//mRemoteMonsters[ID]->SetRotation(Rot);
 	}
 }
@@ -614,7 +631,35 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Eve
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data)
 {
+	for (int i = 0; i < data->Mons.size(); ++i) {
+		uint32_t					ID	 =  data->Mons[i].Id;
+		FBProtocol::MONSTER_BT_TYPE type =  data->Mons[i].state;
 
+		switch (type)
+		{
+		case FBProtocol::MONSTER_BT_TYPE_DEATH:
+			mRemoteMonsters[ID]->SetState(EnemyState::Death);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_ATTACK:
+			mRemoteMonsters[ID]->SetState(EnemyState::Attack);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_GETHIT:
+			mRemoteMonsters[ID]->SetState(EnemyState::GetHit);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_TARGET:
+			mRemoteMonsters[ID]->SetState(EnemyState::MoveToTarget);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_PATH:
+			mRemoteMonsters[ID]->SetState(EnemyState::MoveToPath);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_PATROL:
+			mRemoteMonsters[ID]->SetState(EnemyState::Patrol);
+			break;
+		default:
+			break;
+		}
+
+	}
 }
 
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()

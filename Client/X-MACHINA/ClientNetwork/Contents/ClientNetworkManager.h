@@ -57,11 +57,12 @@ public:
 	void Init(std::wstring ip, UINT32 port);
 	void Launch(int ThreadNum);
 	void Stop();
-
+	
 	void ProcessEvents();
 	void SwapEventsQueue(); 
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	std::string GetLocalIPv4Address();
+	GridObject* GetRemotePlayer(UINT32 id);
 
 
 public:

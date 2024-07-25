@@ -85,7 +85,8 @@ public:
 	sptr<NetworkEvent::Game::Event_Monster::UpdateHP>					CreateEvent_UpdateHP_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterHP> infos);
 	sptr<NetworkEvent::Game::Event_Monster::UpdateState>				CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos);
 
-	
+	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate>		CreateEvent_Monster_Target(std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos);
+
 	
 	/// +---------------------------------------------------------------------------
 	/// >> ▶▶▶▶▶ PROCESS EVENT 
@@ -103,6 +104,7 @@ public:
 	void ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data);
 	void ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data);
 	void ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data);
+	void ProcessEvent_Monster_Target(NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data);
 
 
 	long long GetCurrentTimeMilliseconds();

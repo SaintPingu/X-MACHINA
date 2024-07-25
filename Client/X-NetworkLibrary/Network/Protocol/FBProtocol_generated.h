@@ -97,6 +97,12 @@ struct CPkt_DeadMonsterBuilder;
 struct SPkt_DeadMonster;
 struct SPkt_DeadMonsterBuilder;
 
+struct CPkt_MonsterTarget;
+struct CPkt_MonsterTargetBuilder;
+
+struct SPkt_MonsterTarget;
+struct SPkt_MonsterTargetBuilder;
+
 struct CPkt_RemoveMonster;
 struct CPkt_RemoveMonsterBuilder;
 
@@ -1499,6 +1505,96 @@ inline ::flatbuffers::Offset<SPkt_DeadMonster> CreateSPkt_DeadMonster(
   SPkt_DeadMonsterBuilder builder_(_fbb);
   builder_.add_dead_point(dead_point);
   builder_.add_id(id);
+  return builder_.Finish();
+}
+
+struct CPkt_MonsterTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_MonsterTargetBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_MonsterTargetBuilder {
+  typedef CPkt_MonsterTarget Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit CPkt_MonsterTargetBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_MonsterTarget> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_MonsterTarget>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_MonsterTarget> CreateCPkt_MonsterTarget(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  CPkt_MonsterTargetBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+struct SPkt_MonsterTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_MonsterTargetBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MONSTER_ID = 4,
+    VT_TARGET_PLAYER_ID = 6,
+    VT_TARGET_MONTSER_ID = 8
+  };
+  uint32_t monster_id() const {
+    return GetField<uint32_t>(VT_MONSTER_ID, 0);
+  }
+  uint32_t target_player_id() const {
+    return GetField<uint32_t>(VT_TARGET_PLAYER_ID, 0);
+  }
+  uint32_t target_montser_id() const {
+    return GetField<uint32_t>(VT_TARGET_MONTSER_ID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MONSTER_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_TARGET_PLAYER_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_TARGET_MONTSER_ID, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_MonsterTargetBuilder {
+  typedef SPkt_MonsterTarget Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_monster_id(uint32_t monster_id) {
+    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_MONSTER_ID, monster_id, 0);
+  }
+  void add_target_player_id(uint32_t target_player_id) {
+    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_TARGET_PLAYER_ID, target_player_id, 0);
+  }
+  void add_target_montser_id(uint32_t target_montser_id) {
+    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_TARGET_MONTSER_ID, target_montser_id, 0);
+  }
+  explicit SPkt_MonsterTargetBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_MonsterTarget> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_MonsterTarget>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_MonsterTarget> CreateSPkt_MonsterTarget(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t monster_id = 0,
+    uint32_t target_player_id = 0,
+    uint32_t target_montser_id = 0) {
+  SPkt_MonsterTargetBuilder builder_(_fbb);
+  builder_.add_target_montser_id(target_montser_id);
+  builder_.add_target_player_id(target_player_id);
+  builder_.add_monster_id(monster_id);
   return builder_.Finish();
 }
 

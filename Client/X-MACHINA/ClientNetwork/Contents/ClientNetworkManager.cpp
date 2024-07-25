@@ -226,6 +226,12 @@ void ClientNetworkManager::ProcessEvents()
 			ProcessEvent_Monster_UpdateState(data);
 		}
 		break;
+		case NetworkEvent::Game::MonsterType::Target:
+		{
+			NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate*>(EventData.get());
+			ProcessEvent_Monster_Target(data);
+		}
+		break;
 		}
 	}
 }
@@ -420,6 +426,14 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::Creat
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> ClientNetworkManager::CreateEvent_Monster_Target(std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos)
+{
+	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Event = std::make_shared<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate>();
+	Event->type = NetworkEvent::Game::MonsterType::Target;
+	Event->Mons = infos;
+
+	return Event;
+}
 
 
 /// +---------------------------------------------------------------------------
@@ -662,12 +676,26 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 	}
 }
 
+void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data)
+{
+	for (int i = 0; i < data->Mons.size(); ++i) {
+
+		int monster_id        = data->Mons[i].id;
+		int target_monster_id = data->Mons[i].target_monster_id;
+		int target_player_id  = data->Mons[i].target_player_id;
+
+	}
+}
+
+
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()
 {
 	auto now = std::chrono::system_clock::now();
 	auto duration = now.time_since_epoch();
 	return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
+
+
 
 
 std::string		ClientNetworkManager::WstrToStr(const std::wstring& source)

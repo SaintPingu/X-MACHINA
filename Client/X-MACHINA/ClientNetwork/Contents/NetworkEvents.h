@@ -28,12 +28,13 @@ namespace NetworkEvent
 			constexpr UINT16 Move        = 8;
 			constexpr UINT16 UpdateHP    = 9;
 			constexpr UINT16 UpdateState = 10;
+			constexpr UINT16 Target		 = 11;
 		}
 
 		namespace BulletType
 		{
-			constexpr UINT16 OnShoot	 = 11;
-			constexpr UINT16 OnCollision = 12;
+			constexpr UINT16 OnShoot	 = 12;
+			constexpr UINT16 OnCollision = 13;
 		}
 
 		/* EVENT DATA */
@@ -142,6 +143,18 @@ namespace NetworkEvent
 			struct UpdateState : public EventData {
 				std::vector<MonsterUpdateState> Mons;
 			};
+
+			/// >> MONSTER TARGET
+			struct MonsterTarget {
+				uint32_t id;
+				uint32_t target_monster_id;
+				uint32_t target_player_id;
+			};
+
+			struct MonsterTargetUpdate : public EventData {
+				std::vector<MonsterTarget> Mons;
+			};
+
 		}
 
 

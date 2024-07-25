@@ -253,6 +253,23 @@ table SPkt_DeadMonster
 
 
 // +------------------------
+//	   MONSTER TARGET  
+// ------------------------+
+table CPkt_MonsterTarget
+{
+
+}
+
+table SPkt_MonsterTarget
+{
+	monster_id			: uint;
+	target_player_id	: uint;
+	target_montser_id	: uint;
+}
+
+
+
+// +------------------------
 //	   REMOVE MONSTER   
 // ------------------------+
 table CPkt_RemoveMonster

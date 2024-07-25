@@ -68,7 +68,8 @@ private:
 	static bool Process_SPkt_Monster_Transform(SPtr_Session session, const FBProtocol::SPkt_Monster_Transform& pkt);
 	static bool Process_SPkt_Monster_HP(SPtr_Session session, const FBProtocol::SPkt_Monster_HP& pkt);
 	static bool Process_SPkt_Monster_State(SPtr_Session session, const FBProtocol::SPkt_Monster_State& pkt);
-	
+	static bool Process_SPkt_Monster_Target(SPtr_Session session, const FBProtocol::SPkt_MonsterTarget& pkt);
+
 	/* PHERO */
 	static bool Process_SPkt_GetPhero(SPtr_Session session, const FBProtocol::SPkt_GetPhero& pkt);
 

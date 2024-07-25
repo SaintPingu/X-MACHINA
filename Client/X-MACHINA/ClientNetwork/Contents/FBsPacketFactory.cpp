@@ -624,7 +624,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 
 	std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos;
 	NetworkEvent::Game::Event_Monster::MonsterUpdateState info;
-	info.Id = monster_id;
+	info.Id    = monster_id;
 	info.state = state_type;
 	infos.push_back(info);
 	
@@ -633,6 +633,26 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 
 
 	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_Monster_Target(SPtr_Session session, const FBProtocol::SPkt_MonsterTarget& pkt)
+{
+	int monster_id        = pkt.monster_id();
+	int target_monster_id = pkt.target_montser_id();
+	int target_player_id  = pkt.target_player_id();
+
+	std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos;
+	NetworkEvent::Game::Event_Monster::MonsterTarget info;
+	info.id                = monster_id;
+	info.target_monster_id = target_monster_id;
+	info.target_player_id  = target_player_id;
+
+
+	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Monster_Target(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
+	return true;
+
 }
 
 bool FBsPacketFactory::Process_SPkt_DeadMonster(SPtr_Session session, const FBProtocol::SPkt_DeadMonster& pkt)

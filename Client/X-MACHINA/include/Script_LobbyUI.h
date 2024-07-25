@@ -6,6 +6,7 @@
 #pragma endregion
 
 class UI;
+class PopupUI;
 class Script_AimController;
 
 #pragma region Class
@@ -16,6 +17,7 @@ private:
 	sptr<Script_AimController> mAimController{};
 	UI* mCursorNormal{};
 	UI* mCursorClick{};
+	sptr<PopupUI> mPopupQuit{};
 
 public:
 	virtual void Start() override;

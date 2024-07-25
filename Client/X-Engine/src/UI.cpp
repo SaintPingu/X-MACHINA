@@ -84,7 +84,7 @@ void UI::UpdateShaderVars(rsptr<Texture> texture)
 
 void UI::Render()
 {
-	if (!mIsActive || !mTexture) {
+	if (!mTexture) {
 		return;
 	}
 
@@ -98,6 +98,11 @@ void UI::Render()
 	UpdateShaderVars(mTexture);
 
 	RESOURCE<ModelObjectMesh>("Rect")->Render();
+}
+
+void UI::Remove()
+{
+	Canvas::I->RemoveUI(this);
 }
 
 Vec2 UI::GetScale() const
@@ -132,6 +137,11 @@ void UI::SetColor(const Vec3& color)
 {
 	mObjectCB.UseOutline = true;
 	mObjectCB.HitRimColor = color;
+}
+
+void UI::SetOpacity(float val)
+{
+	mObjectCB.AlphaIntensity = val;
 }
 
 #pragma endregion
@@ -240,28 +250,36 @@ void Canvas::Update()
 {
 	CheckHover();
 
-	for (auto& layer : mUIs) {
-		for (auto& ui : layer) {
-			ui->Update();
-		}
-	}
+	ProcessActiveUI([](sptr<UI> ui) {
+		ui->Update();
+		});
 }
 
 void Canvas::Render() const
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
-	for (auto& layer : mUIs) {
-		for (auto& ui : layer) {
-			ui->Render();
-		}
-	}
+
+	ProcessActiveUI([](sptr<UI> ui) {
+		ui->Render();
+		});
 }
 
 void Canvas::Clear()
 {
 	for (auto& layer : mUIs) {
 		layer.clear();
+	}
+}
+
+void Canvas::RemoveUI(UI* targetUI)
+{
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			if (ui.get() == targetUI) {
+				layer.erase(ui);
+				return;
+			}
+		}
 	}
 }
 
@@ -277,33 +295,49 @@ void Canvas::RemoveUI(Layer layer, UI* targetUI)
 
 void Canvas::CheckClick() const
 {
-	for (auto& layer : mUIs) {
-		for (auto& ui : layer) {
-			if (ui->IsHover()) {
-				ui->OnClick();
-				return;
-			}
+	ProcessActiveUI([](sptr<UI> ui) {
+		if (ui->IsHover()) {
+			ui->OnClick();
+			return;
 		}
-	}
+		});
 }
 
 void Canvas::CheckHover() const
 {
 	bool hovered = false;
-	for (auto& layer : mUIs) {
-		for (auto& ui : layer) {
-			if (ui->CheckHover()) {
-				if (!hovered) {
-					hovered = true;
-					ui->SetHover(true);
-				}
-				else {
-					ui->SetHover(false);
-				}
+	ProcessActiveUI([&hovered](sptr<UI> ui) {
+		if (ui->CheckHover()) {
+			if (!hovered) {
+				hovered = true;
+				ui->SetHover(true);
 			}
 			else {
 				ui->SetHover(false);
 			}
+		}
+		else {
+			ui->SetHover(false);
+		}
+		});
+}
+
+void Canvas::ProcessActiveUI(std::function<void(sptr<UI>)> processFunc) const
+{
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			if (ui->IsActive()) {
+				processFunc(ui);
+			}
+		}
+	}
+}
+
+void Canvas::ProcessAllUI(std::function<void(sptr<UI>)> processFunc) const
+{
+	for (auto& layer : mUIs) {
+		for (auto& ui : layer) {
+			processFunc(ui);
 		}
 	}
 }

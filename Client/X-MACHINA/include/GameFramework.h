@@ -36,6 +36,7 @@ public:
 	~GameFramework();
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
+	Vec2 GetWindowSize() const { return Vec2(static_cast<float>(mResolution.Width), static_cast<float>(mResolution.Height)); }
 	GridObject* GetPlayer() const { return mPlayer; }
 
 public:

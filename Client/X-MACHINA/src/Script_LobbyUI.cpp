@@ -4,6 +4,8 @@
 #include "Script_AimController.h"
 #include "Script_LobbyManager.h"
 
+#include "PopupUI.h"
+
 #include "Component/UI.h"
 #include "InputMgr.h"
 #include "TextMgr.h"
@@ -35,6 +37,12 @@ void Script_LobbyUI::Start()
 		quitButton->SetHighlightTexture("QuitHButton");
 		quitButton->AddClickCallback(std::bind(&Script_LobbyUI::QuitButton, this));
 	}
+
+	// Popup
+	{
+		//mPopupQuit = std::make_shared<PopupUI>();
+	}
+
 
 	mCursorNormal = Canvas::I->CreateUI<UI>(4, "Cursor_Normal", Vec2::Zero, Vec2(60, 60));
 	mCursorClick = Canvas::I->CreateUI<UI>(4, "Cursor_Click", Vec2::Zero, Vec2(60, 60));

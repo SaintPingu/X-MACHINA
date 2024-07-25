@@ -228,6 +228,7 @@
     <ClInclude Include="include\CloakingAbility.h" />
     <ClInclude Include="include\MindControlAbility.h" />
     <ClInclude Include="include\PheroAbilityInterface.h" />
+    <ClInclude Include="include\PopupUI.h" />
     <ClInclude Include="include\Script_AfterImageObject.h" />
     <ClInclude Include="include\Script_Anglerox.h" />
     <ClInclude Include="include\Script_Arack.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="src\CloakingAbility.cpp" />
     <ClCompile Include="src\MindControlAbility.cpp" />
     <ClCompile Include="src\PheroAbilityInterface.cpp" />
+    <ClCompile Include="src\PopupUI.cpp" />
     <ClCompile Include="src\Script_AfterImageObject.cpp" />
     <ClCompile Include="src\Script_Anglerox.cpp" />
     <ClCompile Include="src\Script_Arack.cpp" />

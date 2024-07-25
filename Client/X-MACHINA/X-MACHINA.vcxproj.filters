@@ -382,6 +382,9 @@
     <ClInclude Include="include\ChatBoxUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\PopupUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -631,6 +634,9 @@
       <Filter>Script\UI</Filter>
     </ClCompile>
     <ClCompile Include="src\ChatBoxUI.cpp">
+      <Filter>Script\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PopupUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
   </ItemGroup>

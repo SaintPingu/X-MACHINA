@@ -19,9 +19,9 @@ class ModelObjectMesh;
 // 2D object (not entity)
 class UI : public Object {
 	using base = Object;
+	using Object::Destroy;
 
 protected:
-	bool mIsActive = true;
 	bool mIsHover{};
 	sptr<Texture> mTexture{};
 	sptr<Shader>  mShader{};
@@ -32,12 +32,13 @@ protected:
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
-	UI(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
+	UI(const std::string& textureName, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero);
 	virtual ~UI() = default;
 
 public:
 	virtual void Update() { base::Update(); }
 	virtual void Render();
+	virtual void Remove();
 
 	sptr<Texture> GetTexture() const { return mTexture; }
 	Vec2 GetScale() const;
@@ -49,9 +50,9 @@ public:
 
 	void SetScale(const Vec2& scale);
 
-	void SetActive(bool val) { mIsActive = val; }
 	void SetColor(const Vec3& color);
 	void SetHover(bool val) { mIsHover = val; }
+	void SetOpacity(float val);
 
 public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
@@ -72,7 +73,7 @@ private:
 	float mValue{};			// 0~1 normalize value
 
 public:
-	SliderUI(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
+	SliderUI(const std::string& textureName, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero);
 	virtual ~SliderUI() = default;
 
 public:
@@ -95,7 +96,7 @@ private:
 	sptr<Texture> mDisabledTexture{};
 
 public:
-	Button(const std::string& textureName, const Vec2& pos, Vec2 scale = Vec2::Zero);
+	Button(const std::string& textureName, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero);
 
 public:
 	virtual void Update() override;
@@ -123,7 +124,7 @@ class Canvas : public Singleton<Canvas> {
 	static constexpr bool is_valid_ui_type = (std::is_same<T, UI>::value || std::is_same<T, SliderUI>::value || std::is_same<T, Button>::value);
 
 private:
-	static constexpr UINT8 mkLayerCnt = 5;
+	static constexpr UINT8 mkLayerCnt = 10;
 	std::array<std::unordered_set<sptr<UI>>, mkLayerCnt> mUIs{}; // all UIs
 
 	float mWidth{};
@@ -145,18 +146,25 @@ public:
 	void Clear();
 
 	template<class T, typename std::enable_if<is_valid_ui_type<T>>::type* = nullptr>
-	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos, Vec2 scale = Vec2::Zero)
+	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero)
 	{
 		if (layer > (mkLayerCnt - 1))
 			return nullptr;
 
 		sptr<T> ui = std::make_shared<T>(texture, pos, scale);
+		ui->SetActive(true);
 		mUIs[layer].insert(ui);
 		return ui.get();
 	}
+	
+	// should make nullptr [ui]
+	void RemoveUI(UI* ui);
 	void RemoveUI(Layer layer, UI* ui);
 
 	void CheckClick() const;
 	void CheckHover() const;
+
+	void ProcessActiveUI(std::function<void(sptr<UI>)> processFunc) const;
+	void ProcessAllUI(std::function<void(sptr<UI>)> processFunc) const;
 };
 #pragma endregion

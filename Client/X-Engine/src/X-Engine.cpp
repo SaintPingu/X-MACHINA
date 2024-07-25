@@ -9,6 +9,7 @@
 #include "Timer.h"
 #include "BattleScene.h"
 #include "LobbyScene.h"
+#include "LoadingScene.h"
 #include "Object.h"
 #include "FrameResource.h"
 
@@ -145,10 +146,19 @@ void Engine::LoadScene()
 
 	FRAME_RESOURCE_MGR->WaitForGpuComplete();
 
-	mCrntScene->Release();
 	Canvas::I->Clear();
 	TextMgr::I->Clear();
+
+	{
+		DXGIMgr::I->SwitchScene(SceneType::Loading);
+		LoadingScene::I->Build();
+		LoadingScene::I->Update();
+		DXGIMgr::I->RenderScene();
+		DXGIMgr::I->Update();
+	}
+
 	ParticleManager::I->Clear();
+	mCrntScene->Release();
 
 	SceneType sceneType = static_cast<SceneType>(mNextSceneType);
 	switch (sceneType) {
@@ -164,6 +174,8 @@ void Engine::LoadScene()
 	}
 
 	ResourceMemoryLeakChecker::I->Report();
+
+	LoadingScene::I->Release();
 	mCrntScene->Build();
 
 	DXGIMgr::I->SwitchScene(sceneType);

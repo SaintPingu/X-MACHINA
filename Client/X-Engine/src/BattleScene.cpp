@@ -682,6 +682,8 @@ void BattleScene::Start()
 	UpdateGridInfo();
 
 	std::cout << "OK\n";
+
+	Update();
 }
 
 void BattleScene::Update()

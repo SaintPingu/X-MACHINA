@@ -97,6 +97,9 @@
     <Filter Include="소스 파일\Shader\PS\Forward\DynamicEnviromentMapping">
       <UniqueIdentifier>{fa68a7bf-3232-4cf1-be38-ec4f1db3d2da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Framework\Scene">
+      <UniqueIdentifier>{f7eac2d4-910c-4384-9e11-176a40d46d60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -127,9 +130,6 @@
       <Filter>소스 파일\Framework\Device</Filter>
     </ClCompile>
     <ClCompile Include="src\Grid.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="src\BattleScene.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
     <ClCompile Include="src\Timer.cpp">
@@ -276,14 +276,20 @@
     <ClCompile Include="src\SobelFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="src\LobbyScene.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
     <ClCompile Include="src\DXGIMgr.cpp">
       <Filter>소스 파일\Framework\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BattleScene.cpp">
+      <Filter>소스 파일\Framework\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LobbyScene.cpp">
+      <Filter>소스 파일\Framework\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LoadingScene.cpp">
+      <Filter>소스 파일\Framework\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -493,6 +499,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\UI.h">
       <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LoadingScene.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

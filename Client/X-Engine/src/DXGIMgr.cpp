@@ -6,6 +6,7 @@
 #include "ResourceMgr.h"
 #include "BattleScene.h"
 #include "LobbyScene.h"
+#include "LoadingScene.h"
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
@@ -253,6 +254,9 @@ void DXGIMgr::SwitchScene(SceneType sceneType)
 		break;
 	case SceneType::Battle:
 		mCrntScene = BattleScene::I.get();
+		break;
+	case SceneType::Loading:
+		mCrntScene = LoadingScene::I.get();
 		break;
 	default:
 		assert(0);

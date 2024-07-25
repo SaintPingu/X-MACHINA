@@ -13,7 +13,8 @@ enum class RenderType : UINT8 {
 
 enum class SceneType {
 	Lobby,
-	Battle
+	Battle,
+	Loading
 };
 
 class Scene abstract {

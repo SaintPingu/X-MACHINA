@@ -80,6 +80,7 @@ void Script_Ursacetus::RoarAttackCallback()
 
 void Script_Ursacetus::SpecialAttack()
 {
+
 }
 
 void Script_Ursacetus::SpecialAttackCallback()
@@ -105,7 +106,9 @@ void Script_Ursacetus::SpecialAttackCallback()
 
 void Script_Ursacetus::SpecialAttackStartCallback()
 {
-	mCircleIndicator.lock()->OnTrigger(true);
+	if (mEnemyMgr->mController->GetParamValue<bool>("Walk") == false) {
+		mCircleIndicator.lock()->OnTrigger(true);
+	}
 }
 
 void Script_Ursacetus::AttackEndCallback()

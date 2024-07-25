@@ -538,9 +538,10 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monInfos[i].Pos;
 		monInfos[i].Rot;
 		monInfos[i].SDir;
+		
 
 		// 몬스터가 이미 생성된 적이 있다면 
-		if (!mRemoteMonsters.count(monsterID))
+		if (mRemoteMonsters.count(monsterID))
 			return;
 
 		// Monster 생성! 
@@ -609,8 +610,8 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		Script_EnemyNetwork* enemyNetwork = monster->AddComponent<Script_EnemyNetwork>().get();
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
-		if (TagetPlayerID != -1) {
-			enemyNetwork->SetTarget(mRemotePlayers[TargetPlayerID]);
+		if (monInfos[i].Target_Player_Id != -1) {
+			enemyNetwork->SetTarget(mRemotePlayers[monInfos[i].Target_Player_Id]);
 		}
 
 		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));

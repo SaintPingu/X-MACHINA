@@ -15,11 +15,11 @@ void Script_EnemyManager::Awake()
 
 void Script_EnemyManager::Update()
 {
-	if (mTarget) {
-		if (mTarget->GetComponent<Script_LiveObject>()->IsDead()) {
-			mTarget = nullptr;
-		}
-	}
+	//if (mTarget) {
+	//	if (mTarget->GetComponent<Script_LiveObject>()->IsDead()) {
+	//		mTarget = nullptr;
+	//	}
+	//}
 }
 
 void Script_EnemyManager::Reset()

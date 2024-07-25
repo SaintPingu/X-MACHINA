@@ -22,6 +22,7 @@ class UI : public Object {
 	using Object::Destroy;
 
 protected:
+	bool mIsHoverable{};
 	bool mIsHover{};
 	sptr<Texture> mTexture{};
 	sptr<Shader>  mShader{};
@@ -52,6 +53,7 @@ public:
 
 	void SetColor(const Vec3& color);
 	void SetHover(bool val) { mIsHover = val; }
+	void SetHoverable(bool val) { mIsHoverable = val; }
 	void SetOpacity(float val);
 
 public:
@@ -164,7 +166,7 @@ public:
 	void CheckClick() const;
 	void CheckHover() const;
 
-	void ProcessActiveUI(std::function<void(sptr<UI>)> processFunc) const;
-	void ProcessAllUI(std::function<void(sptr<UI>)> processFunc) const;
+	void ProcessActiveUI(std::function<void(sptr<UI>)> processFunc, bool isReverse = false) const;
+	void ProcessAllUI(std::function<void(sptr<UI>)> processFunc, bool isReverse = false) const;
 };
 #pragma endregion

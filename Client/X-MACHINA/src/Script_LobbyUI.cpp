@@ -35,18 +35,26 @@ void Script_LobbyUI::Start()
 		settingButton->SetHighlightTexture("SettingHButton");
 		const auto& quitButton    = Canvas::I->CreateUI<Button>(1, "QuitButton", Vec2(x, y + (yGap * 3)));
 		quitButton->SetHighlightTexture("QuitHButton");
-		quitButton->AddClickCallback(std::bind(&Script_LobbyUI::QuitButton, this));
+		quitButton->AddClickCallback(std::bind(&Script_LobbyUI::ShowQuitPopup, this));
 	}
 
 	// Popup
 	{
-		mPopupQuit = std::make_shared<PopupUI>();
+		mPopupQuit = std::make_shared<PopupUI>("QuitPopup");
+		const auto& yesButton = Canvas::I->CreateUI<Button>(7, "YesButton", Vec2(-70, -70));
+		yesButton->SetHighlightTexture("YesHButton");
+		yesButton->AddClickCallback(std::bind(&Script_LobbyUI::QuitGame, this));
+		const auto& noButton = Canvas::I->CreateUI<Button>(7, "NoButton", Vec2(100, -70));
+		noButton->SetHighlightTexture("NoHButton");
+		noButton->AddClickCallback(std::bind(&Script_LobbyUI::HideQuitPopup, this));
+		mPopupQuit->AddUI(yesButton);
+		mPopupQuit->AddUI(noButton);
 		mPopupQuit->SetActive(false);
 	}
 
 
-	mCursorNormal = Canvas::I->CreateUI<UI>(4, "Cursor_Normal", Vec2::Zero, Vec2(60, 60));
-	mCursorClick = Canvas::I->CreateUI<UI>(4, "Cursor_Click", Vec2::Zero, Vec2(60, 60));
+	mCursorNormal = Canvas::I->CreateUI<UI>(9, "Cursor_Normal", Vec2::Zero, Vec2(60, 60));
+	mCursorClick = Canvas::I->CreateUI<UI>(9, "Cursor_Click", Vec2::Zero, Vec2(60, 60));
 	mCursorClick->SetActive(false);
 
 	mAimController = mObject->AddComponent<Script_AimController>();
@@ -63,7 +71,6 @@ void Script_LobbyUI::Update()
 		mCursorNormal->SetActive(false);
 		mCursorClick->SetActive(true);
 		mAimController->SetUI(mCursorClick);
-		;
 	}
 	else if (KEY_AWAY(VK_LBUTTON)) {
 		mCursorNormal->SetActive(true);
@@ -84,7 +91,17 @@ void Script_LobbyUI::PlayButton() const
 	Script_LobbyManager::ChangeToBattleScene();
 }
 
-void Script_LobbyUI::QuitButton() const
+void Script_LobbyUI::QuitGame() const
 {
 	::PostQuitMessage(0);
+}
+
+void Script_LobbyUI::ShowQuitPopup() const
+{
+	mPopupQuit->SetActive(true);
+}
+
+void Script_LobbyUI::HideQuitPopup() const
+{
+	mPopupQuit->SetActive(false);
 }

@@ -26,7 +26,9 @@ public:
 
 private:
 	void PlayButton() const;
-	void QuitButton() const;
+	void QuitGame() const;
+	void ShowQuitPopup() const;
+	void HideQuitPopup() const;
 };
 
 #pragma endregion

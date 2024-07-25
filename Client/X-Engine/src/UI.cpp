@@ -37,6 +37,10 @@ UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 
 bool UI::CheckHover() const
 {
+	if (!mIsHoverable) {
+		return false;
+	}
+
 	const Vec2 mousePos = InputMgr::I->GetMouseNDCPos();
 	const Vec2 pos = GetPosition();
 	const float width = mScale.x;
@@ -175,6 +179,7 @@ Button::Button(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	UI(textureName, pos, scale)
 {
 	mCrntTexture = mTexture;
+	SetHoverable(true);
 }
 
 void Button::Update()
@@ -300,7 +305,7 @@ void Canvas::CheckClick() const
 			ui->OnClick();
 			return;
 		}
-		});
+		}, true);
 }
 
 void Canvas::CheckHover() const
@@ -319,25 +324,45 @@ void Canvas::CheckHover() const
 		else {
 			ui->SetHover(false);
 		}
-		});
+		}, true);
 }
 
-void Canvas::ProcessActiveUI(std::function<void(sptr<UI>)> processFunc) const
+void Canvas::ProcessActiveUI(std::function<void(sptr<UI>)> processFunc, bool isReverse) const
 {
-	for (auto& layer : mUIs) {
-		for (auto& ui : layer) {
-			if (ui->IsActive()) {
-				processFunc(ui);
+	if (isReverse) {
+		for (auto& layer : mUIs | std::views::reverse) {
+			for (auto& ui : layer) {
+				if (ui->IsActive()) {
+					processFunc(ui);
+				}
+			}
+		}
+	}
+	else {
+		for (auto& layer : mUIs) {
+			for (auto& ui : layer) {
+				if (ui->IsActive()) {
+					processFunc(ui);
+				}
 			}
 		}
 	}
 }
 
-void Canvas::ProcessAllUI(std::function<void(sptr<UI>)> processFunc) const
+void Canvas::ProcessAllUI(std::function<void(sptr<UI>)> processFunc, bool isReverse) const
 {
-	for (auto& layer : mUIs) {
-		for (auto& ui : layer) {
-			processFunc(ui);
+	if (isReverse) {
+		for (auto& layer : mUIs | std::views::reverse) {
+			for (auto& ui : layer) {
+				processFunc(ui);
+			}
+		}
+	}
+	else {
+		for (auto& layer : mUIs) {
+			for (auto& ui : layer) {
+				processFunc(ui);
+			}
 		}
 	}
 }

@@ -28,7 +28,7 @@ enum WEAPON_TYPE : ubyte {
 }
 
 // +------------------------
-//		 MONSTER_TYPE TYPE 
+//		 MONSTER_TYPE 
 // ------------------------+
 enum MONSTER_TYPE : ubyte {
 	ADVANCED_COMBAT_DROIR_5,
@@ -45,6 +45,19 @@ enum MONSTER_TYPE : ubyte {
 
 }
 
+// +------------------------
+//		 MONSTER_BT_TYPE 
+// ------------------------+
+enum MONSTER_BT_TYPE : ubyte {
+	DEATH,
+	ATTACK,
+	GETHIT,
+	MOVE_TO_TARGET,
+	MOVE_TO_PATH,
+	PATROL
+}
+
+
 
 // +------------------------
 //    PLAYER MOTION STATE
@@ -58,17 +71,6 @@ enum PLAYER_MOTION_STATE_TYPE : ubyte {
 	SPRINT
 }
 
-// +------------------------
-//      MONSTER STATE 
-// ------------------------+
-enum MONSTER_STATE_TYPE : ubyte {
-	ATTACK,
-	HIT,
-	MOVE,
-	SPAWN,
-	PATROL,
-	DEAD
-}
 
 // +------------------------
 //      SKILL TYPE

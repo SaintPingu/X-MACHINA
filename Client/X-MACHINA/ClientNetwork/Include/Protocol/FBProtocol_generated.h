@@ -1766,18 +1766,18 @@ struct SPkt_Monster_State FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   typedef SPkt_Monster_StateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MONSTER_ID = 4,
-    VT_STATE = 6
+    VT_MONSTER_BT_TYPE = 6
   };
   uint32_t monster_id() const {
     return GetField<uint32_t>(VT_MONSTER_ID, 0);
   }
-  FBProtocol::MONSTER_STATE_TYPE state() const {
-    return static_cast<FBProtocol::MONSTER_STATE_TYPE>(GetField<uint8_t>(VT_STATE, 0));
+  FBProtocol::MONSTER_BT_TYPE monster_bt_type() const {
+    return static_cast<FBProtocol::MONSTER_BT_TYPE>(GetField<uint8_t>(VT_MONSTER_BT_TYPE, 0));
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MONSTER_ID, 4) &&
-           VerifyField<uint8_t>(verifier, VT_STATE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_MONSTER_BT_TYPE, 1) &&
            verifier.EndTable();
   }
 };
@@ -1789,8 +1789,8 @@ struct SPkt_Monster_StateBuilder {
   void add_monster_id(uint32_t monster_id) {
     fbb_.AddElement<uint32_t>(SPkt_Monster_State::VT_MONSTER_ID, monster_id, 0);
   }
-  void add_state(FBProtocol::MONSTER_STATE_TYPE state) {
-    fbb_.AddElement<uint8_t>(SPkt_Monster_State::VT_STATE, static_cast<uint8_t>(state), 0);
+  void add_monster_bt_type(FBProtocol::MONSTER_BT_TYPE monster_bt_type) {
+    fbb_.AddElement<uint8_t>(SPkt_Monster_State::VT_MONSTER_BT_TYPE, static_cast<uint8_t>(monster_bt_type), 0);
   }
   explicit SPkt_Monster_StateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1806,10 +1806,10 @@ struct SPkt_Monster_StateBuilder {
 inline ::flatbuffers::Offset<SPkt_Monster_State> CreateSPkt_Monster_State(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t monster_id = 0,
-    FBProtocol::MONSTER_STATE_TYPE state = FBProtocol::MONSTER_STATE_TYPE_ATTACK) {
+    FBProtocol::MONSTER_BT_TYPE monster_bt_type = FBProtocol::MONSTER_BT_TYPE_DEATH) {
   SPkt_Monster_StateBuilder builder_(_fbb);
   builder_.add_monster_id(monster_id);
-  builder_.add_state(state);
+  builder_.add_monster_bt_type(monster_bt_type);
   return builder_.Finish();
 }
 
@@ -2052,8 +2052,8 @@ struct SPkt_Bullet_OnCollision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
   uint32_t player_id() const {
     return GetField<uint32_t>(VT_PLAYER_ID, 0);
   }
-  uint32_t gun_id() const {
-    return GetField<uint32_t>(VT_GUN_ID, 0);
+  FBProtocol::WEAPON_TYPE gun_id() const {
+    return static_cast<FBProtocol::WEAPON_TYPE>(GetField<uint8_t>(VT_GUN_ID, 0));
   }
   uint32_t bullet_id() const {
     return GetField<uint32_t>(VT_BULLET_ID, 0);
@@ -2061,7 +2061,7 @@ struct SPkt_Bullet_OnCollision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_PLAYER_ID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_GUN_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_GUN_ID, 1) &&
            VerifyField<uint32_t>(verifier, VT_BULLET_ID, 4) &&
            verifier.EndTable();
   }
@@ -2074,8 +2074,8 @@ struct SPkt_Bullet_OnCollisionBuilder {
   void add_player_id(uint32_t player_id) {
     fbb_.AddElement<uint32_t>(SPkt_Bullet_OnCollision::VT_PLAYER_ID, player_id, 0);
   }
-  void add_gun_id(uint32_t gun_id) {
-    fbb_.AddElement<uint32_t>(SPkt_Bullet_OnCollision::VT_GUN_ID, gun_id, 0);
+  void add_gun_id(FBProtocol::WEAPON_TYPE gun_id) {
+    fbb_.AddElement<uint8_t>(SPkt_Bullet_OnCollision::VT_GUN_ID, static_cast<uint8_t>(gun_id), 0);
   }
   void add_bullet_id(uint32_t bullet_id) {
     fbb_.AddElement<uint32_t>(SPkt_Bullet_OnCollision::VT_BULLET_ID, bullet_id, 0);
@@ -2094,12 +2094,12 @@ struct SPkt_Bullet_OnCollisionBuilder {
 inline ::flatbuffers::Offset<SPkt_Bullet_OnCollision> CreateSPkt_Bullet_OnCollision(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t player_id = 0,
-    uint32_t gun_id = 0,
+    FBProtocol::WEAPON_TYPE gun_id = FBProtocol::WEAPON_TYPE_H_LOOK,
     uint32_t bullet_id = 0) {
   SPkt_Bullet_OnCollisionBuilder builder_(_fbb);
   builder_.add_bullet_id(bullet_id);
-  builder_.add_gun_id(gun_id);
   builder_.add_player_id(player_id);
+  builder_.add_gun_id(gun_id);
   return builder_.Finish();
 }
 

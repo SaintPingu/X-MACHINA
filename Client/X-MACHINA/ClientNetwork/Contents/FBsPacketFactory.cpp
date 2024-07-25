@@ -617,7 +617,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	
 	uint32_t						monster_id = pkt.monster_id();
-	FBProtocol::MONSTER_STATE_TYPE	state_type = pkt.state();
+	FBProtocol::MONSTER_BT_TYPE		state_type = pkt.monster_bt_type();
 
 
 	return true;
@@ -928,7 +928,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_HP(uint32_t monsterID, float hp)
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_STATE_TYPE state)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_BT_TYPE state)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	/// table CPkt_Monster_State

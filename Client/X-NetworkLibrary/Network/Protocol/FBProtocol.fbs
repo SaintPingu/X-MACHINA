@@ -305,8 +305,8 @@ table CPkt_Monster_State
 
 table SPkt_Monster_State
 {
-	monster_id	: uint;					// 4 bytes
-	state		: MONSTER_STATE_TYPE;	// 1 byte
+	monster_id		: uint;					// 4 bytes
+	monster_bt_type	: MONSTER_BT_TYPE;		// 1 byte
 	
 }
 
@@ -363,7 +363,7 @@ table CPkt_Bullet_OnCollision
 table SPkt_Bullet_OnCollision
 {
 	player_id : uint; // 4 bytes - 어떤 플레이어가 
-	gun_id    : uint; // 4 bytes - 어떤 총이고 
+	gun_id    : WEAPON_TYPE; // 4 bytes - 어떤 총이고 
 	bullet_id : uint; // 4 bytes - 어떤 총알이 충돌했는가?
 }
 

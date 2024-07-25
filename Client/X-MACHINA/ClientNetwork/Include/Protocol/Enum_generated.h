@@ -156,6 +156,48 @@ inline const char *EnumNameMONSTER_TYPE(MONSTER_TYPE e) {
   return EnumNamesMONSTER_TYPE()[index];
 }
 
+enum MONSTER_BT_TYPE : uint8_t {
+  MONSTER_BT_TYPE_DEATH = 0,
+  MONSTER_BT_TYPE_ATTACK = 1,
+  MONSTER_BT_TYPE_GETHIT = 2,
+  MONSTER_BT_TYPE_MOVE_TO_TARGET = 3,
+  MONSTER_BT_TYPE_MOVE_TO_PATH = 4,
+  MONSTER_BT_TYPE_PATROL = 5,
+  MONSTER_BT_TYPE_MIN = MONSTER_BT_TYPE_DEATH,
+  MONSTER_BT_TYPE_MAX = MONSTER_BT_TYPE_PATROL
+};
+
+inline const MONSTER_BT_TYPE (&EnumValuesMONSTER_BT_TYPE())[6] {
+  static const MONSTER_BT_TYPE values[] = {
+    MONSTER_BT_TYPE_DEATH,
+    MONSTER_BT_TYPE_ATTACK,
+    MONSTER_BT_TYPE_GETHIT,
+    MONSTER_BT_TYPE_MOVE_TO_TARGET,
+    MONSTER_BT_TYPE_MOVE_TO_PATH,
+    MONSTER_BT_TYPE_PATROL
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMONSTER_BT_TYPE() {
+  static const char * const names[7] = {
+    "DEATH",
+    "ATTACK",
+    "GETHIT",
+    "MOVE_TO_TARGET",
+    "MOVE_TO_PATH",
+    "PATROL",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMONSTER_BT_TYPE(MONSTER_BT_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, MONSTER_BT_TYPE_DEATH, MONSTER_BT_TYPE_PATROL)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMONSTER_BT_TYPE()[index];
+}
+
 enum PLAYER_MOTION_STATE_TYPE : uint8_t {
   PLAYER_MOTION_STATE_TYPE_NONE = 0,
   PLAYER_MOTION_STATE_TYPE_STAND = 1,
@@ -196,48 +238,6 @@ inline const char *EnumNamePLAYER_MOTION_STATE_TYPE(PLAYER_MOTION_STATE_TYPE e) 
   if (::flatbuffers::IsOutRange(e, PLAYER_MOTION_STATE_TYPE_NONE, PLAYER_MOTION_STATE_TYPE_SPRINT)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPLAYER_MOTION_STATE_TYPE()[index];
-}
-
-enum MONSTER_STATE_TYPE : uint8_t {
-  MONSTER_STATE_TYPE_ATTACK = 0,
-  MONSTER_STATE_TYPE_HIT = 1,
-  MONSTER_STATE_TYPE_MOVE = 2,
-  MONSTER_STATE_TYPE_SPAWN = 3,
-  MONSTER_STATE_TYPE_PATROL = 4,
-  MONSTER_STATE_TYPE_DEAD = 5,
-  MONSTER_STATE_TYPE_MIN = MONSTER_STATE_TYPE_ATTACK,
-  MONSTER_STATE_TYPE_MAX = MONSTER_STATE_TYPE_DEAD
-};
-
-inline const MONSTER_STATE_TYPE (&EnumValuesMONSTER_STATE_TYPE())[6] {
-  static const MONSTER_STATE_TYPE values[] = {
-    MONSTER_STATE_TYPE_ATTACK,
-    MONSTER_STATE_TYPE_HIT,
-    MONSTER_STATE_TYPE_MOVE,
-    MONSTER_STATE_TYPE_SPAWN,
-    MONSTER_STATE_TYPE_PATROL,
-    MONSTER_STATE_TYPE_DEAD
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesMONSTER_STATE_TYPE() {
-  static const char * const names[7] = {
-    "ATTACK",
-    "HIT",
-    "MOVE",
-    "SPAWN",
-    "PATROL",
-    "DEAD",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameMONSTER_STATE_TYPE(MONSTER_STATE_TYPE e) {
-  if (::flatbuffers::IsOutRange(e, MONSTER_STATE_TYPE_ATTACK, MONSTER_STATE_TYPE_DEAD)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesMONSTER_STATE_TYPE()[index];
 }
 
 enum PLAYER_SKILL_TYPE : uint8_t {

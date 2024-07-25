@@ -482,18 +482,20 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 	for (int i = 0; i < monInfos.size(); ++i) {
 		// Monster »ý¼º! 
 		std::string MonsterTypeNames[FBProtocol::MONSTER_TYPE_MAX + 1] = {
-					"ADVANCED_COMBAT_DROIR_5",  
-					"ANGLEROX",                 
-					"ARACK",                    
-					"ARANOBOT",                 
-					"CERATOFEROX",              
-					"GOBBLER",                  
-					"LIGHTBIPEDMECH",           
-					"MININGMECH",               
-					"ONYSCIDUS",                
-					"URSACETUS",                
-					"RAPAX"                     
-		};
+					"AdvancedCombatDroid",  
+					"Anglerox",                 
+					"Arack",                    
+					"Aranobot",                 
+					"Ceratoferox",              
+					"Gobbler",                  
+					"LightBipedMech",           
+					"MiningMech",               
+					"Onyscidus",                
+					"Ursacetus",                
+					"Rapax"                     
+		}; 
+			
+			
 		std::string monsterName = MonsterTypeNames[monInfos[i].Type];
 		
 

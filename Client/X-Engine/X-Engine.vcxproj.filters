@@ -97,9 +97,6 @@
     <Filter Include="소스 파일\Shader\PS\Forward\DynamicEnviromentMapping">
       <UniqueIdentifier>{fa68a7bf-3232-4cf1-be38-ec4f1db3d2da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common\UI">
-      <UniqueIdentifier>{8cc250fd-ba09-45ab-9348-dfe6cea1abeb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UI.cpp">
@@ -272,12 +269,6 @@
     </ClCompile>
     <ClCompile Include="src\TextMgr.cpp">
       <Filter>소스 파일\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SliderBarUI.cpp">
-      <Filter>소스 파일\Component\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ChatBoxUI.cpp">
-      <Filter>소스 파일\Component\UI</Filter>
     </ClCompile>
     <ClCompile Include="src\ScriptExporter.cpp">
       <Filter>소스 파일\Component</Filter>
@@ -470,12 +461,6 @@
     <ClInclude Include="include\TextMgr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\SliderBarUI.h">
-      <Filter>Common\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ChatBoxUI.h">
-      <Filter>Common\UI</Filter>
-    </ClInclude>
     <ClInclude Include="include\ScriptExporter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -488,25 +473,25 @@
     <ClInclude Include="include\Scene.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\Transform.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Camera.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\Camera.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Collider.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\Collider.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Component.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\Component.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\ParticleSystem.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\ParticleSystem.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Rigidbody.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\Rigidbody.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Transform.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Component\UI.h">
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\UI.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
   </ItemGroup>

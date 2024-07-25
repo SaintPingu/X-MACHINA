@@ -224,7 +224,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\ChatBoxUI.cpp" />
     <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\DDSTextureLoader12.cpp" />
@@ -265,7 +264,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\SkyBox.cpp" />
-    <ClCompile Include="src\SliderBarUI.cpp" />
     <ClCompile Include="src\SobelFilter.cpp" />
     <ClCompile Include="src\Ssao.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
@@ -278,6 +276,13 @@
     <ClCompile Include="src\X-Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Camera.h" />
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Collider.h" />
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Component.h" />
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\ParticleSystem.h" />
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Rigidbody.h" />
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Transform.h" />
+    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\UI.h" />
     <ClInclude Include="..\Common\AbilityMgr.h" />
     <ClInclude Include="..\Common\Common.h" />
     <ClInclude Include="..\Common\DwordOverloader.h" />
@@ -302,14 +307,6 @@
     <ClInclude Include="include\Animator.h" />
     <ClInclude Include="include\AnimatorLayer.h" />
     <ClInclude Include="include\AnimatorMotion.h" />
-    <ClInclude Include="include\ChatBoxUI.h" />
-    <ClInclude Include="include\Component\Camera.h" />
-    <ClInclude Include="include\Component\Collider.h" />
-    <ClInclude Include="include\Component\Component.h" />
-    <ClInclude Include="include\Component\ParticleSystem.h" />
-    <ClInclude Include="include\Component\Rigidbody.h" />
-    <ClInclude Include="include\Component\Transform.h" />
-    <ClInclude Include="include\Component\UI.h" />
     <ClInclude Include="include\d3dx12.h" />
     <ClInclude Include="include\DDSTextureLoader12.h" />
     <ClInclude Include="include\DescriptorHeap.h" />
@@ -337,7 +334,6 @@
     <ClInclude Include="include\ScriptExporter.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SkyBox.h" />
-    <ClInclude Include="include\SliderBarUI.h" />
     <ClInclude Include="include\SobelFilter.h" />
     <ClInclude Include="include\Ssao.h" />
     <ClInclude Include="include\targetver.h" />

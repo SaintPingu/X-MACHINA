@@ -222,6 +222,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
+    <ClInclude Include="include\ChatBoxUI.h" />
     <ClInclude Include="include\CheckMindDetectionRange.h" />
     <ClInclude Include="include\CircleIndicator.h" />
     <ClInclude Include="include\CloakingAbility.h" />
@@ -240,6 +241,7 @@
     <ClInclude Include="include\Script_MindControlledEnemyBT.h" />
     <ClInclude Include="include\Script_MiningMech.h" />
     <ClInclude Include="include\Script_Rapax.h" />
+    <ClInclude Include="include\SliderBarUI.h" />
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h" />
     <ClInclude Include="include\XLManager.h" />
     <ClInclude Include="include\IRDetectorAbility.h" />
@@ -303,6 +305,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="Script_Rapax.cpp" />
+    <ClCompile Include="src\ChatBoxUI.cpp" />
     <ClCompile Include="src\CheckMindDetectionRange.cpp" />
     <ClCompile Include="src\CircleIndicator.cpp" />
     <ClCompile Include="src\CloakingAbility.cpp" />
@@ -323,6 +326,7 @@
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp" />
     <ClCompile Include="src\Script_MiningMech.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
+    <ClCompile Include="src\SliderBarUI.cpp" />
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp" />
     <ClCompile Include="src\XLManger.cpp" />
     <ClCompile Include="src\IRDetectorAbility.cpp" />

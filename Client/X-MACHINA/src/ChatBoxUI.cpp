@@ -1,8 +1,8 @@
-#include "EnginePch.h"
+#include "stdafx.h"
 #include "ChatBoxUI.h"
 
 #include "TextMgr.h"
-#include "DXGIMgr.h"
+#include "GameFramework.h"
 #include "Timer.h"
 
 #include "Component/UI.h"
@@ -133,7 +133,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	mIsEditing = true;
 
-	HIMC hIMC = ImmGetContext(DXGIMgr::I->GetHwnd());
+	HIMC hIMC = ImmGetContext(GameFramework::I->GetHwnd());
 	
 	switch (messageID) {
 	case WM_KEYDOWN:
@@ -173,7 +173,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 			mEditingText += resultStr;
 			mImeCompositionString.clear();
 		}
-		ImmReleaseContext(DXGIMgr::I->GetHwnd(), hIMC);
+		ImmReleaseContext(GameFramework::I->GetHwnd(), hIMC);
 		break;
 	}
 	default:

@@ -12,7 +12,7 @@ struct GameMonsterInfo {
 
 	std::string					Name = {};
 	uint32_t					Id   = {};
-	uint32_t					Target_Player_Id = -1;
+	int							Target_Player_Id = -1;
 	FBProtocol::MONSTER_TYPE	Type = {};
 	/* Transform Info */
 	Vec3						Pos  = {}; // Position

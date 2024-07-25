@@ -1060,6 +1060,9 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 	std::string pheros = monster->pheros()->c_str();
 	info.InitPheros(pheros);
 
+	info.Target_Player_Id = monster->target_player_id();
+
+
 	return info;
 }
 

@@ -36,11 +36,12 @@ private:
 	int mCurrAttackCnt{};
 	Transform* mLeftForeArm{};
 	sptr<Collider> mArmCollider{};
-	wptr<Script_TriggerAbilityHolder> mSpecialAttack{};
+	wptr<Script_TriggerAbilityHolder> mCircleIndicator{};
 
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
+	virtual void Update() override;
 	virtual void Attack() override;
 
 protected:

@@ -32,15 +32,21 @@ void Script_Ursacetus::Awake()
 
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddAnimateCallback(std::bind(&Script_Ursacetus::SpecialAttack, this));
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddCallback(std::bind(&Script_Ursacetus::SpecialAttackCallback, this), 65);
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddCallback(std::bind(&Script_Ursacetus::SpecialAttackStartCallback, this), 10);
+	//mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddCallback(std::bind(&Script_Ursacetus::SpecialAttackStartCallback, this), 10);
+	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddStartCallback(std::bind(&Script_Ursacetus::SpecialAttackStartCallback, this));
 }
 
 void Script_Ursacetus::Start()
 {
 	base::Start();
 
-	mSpecialAttack = mObject->AddComponent<Script_TriggerAbilityHolder>();
-	mSpecialAttack.lock()->SetAbility(0, std::make_shared<CircleIndicator>(2.05f));
+	mCircleIndicator = mObject->AddComponent<Script_TriggerAbilityHolder>();
+	mCircleIndicator.lock()->SetAbility(0, std::make_shared<CircleIndicator>(2.05f));
+}
+
+void Script_Ursacetus::Update()
+{
+	base::Update();
 }
 
 void Script_Ursacetus::Attack()
@@ -94,18 +100,19 @@ void Script_Ursacetus::SpecialAttackCallback()
 	mObject->mObjectCB.MindRimColor = Vec3{ 0.5f, 0.f, 0.5f };
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(2.f, 0.006f);
 
-	mSpecialAttack.lock()->OnTrigger(true);
+	mCircleIndicator.lock()->OnTrigger(true);
 }
 
 void Script_Ursacetus::SpecialAttackStartCallback()
 {
-	mSpecialAttack.lock()->OnTrigger(true);
+	mCircleIndicator.lock()->OnTrigger(true);
 }
 
 void Script_Ursacetus::AttackEndCallback()
 {
-	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt++);
+	++mCurrAttackCnt;
+	mCurrAttackCnt %= AttackTypeCount;
+	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
 	mEnemyMgr->mState = EnemyState::Idle;
 
-	mCurrAttackCnt %= AttackTypeCount;
 }

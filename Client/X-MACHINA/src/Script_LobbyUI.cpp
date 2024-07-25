@@ -23,8 +23,8 @@ void Script_LobbyUI::Start()
 	// Buttons
 	{
 		constexpr float x    = -720;
-		constexpr float y    = -150;
-		constexpr float yGap = -55;
+		constexpr float y    = -165;
+		constexpr float yGap = -65;
 				
 		const auto& playButton    = Canvas::I->CreateUI<Button>(1, "PlayButton", Vec2(x, y));
 		playButton->SetHighlightTexture("PlayHButton");
@@ -40,7 +40,8 @@ void Script_LobbyUI::Start()
 
 	// Popup
 	{
-		//mPopupQuit = std::make_shared<PopupUI>();
+		mPopupQuit = std::make_shared<PopupUI>();
+		mPopupQuit->SetActive(false);
 	}
 
 

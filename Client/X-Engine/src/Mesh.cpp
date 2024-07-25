@@ -602,9 +602,8 @@ void MergedMesh::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>
 	// 각 프레임마다 메쉬 정보(FrameMeshInfo)를 가져야 하기에 최종적으로 mFrameMeshInfo에 이를 추가한다.
 	FrameMeshInfo modelMeshInfo{};
 
-	// 메쉬가 없으면, 재질도 없다. -> 아무 정보 없는 FrameInfo를 삽입 후 종료한다.
+	// 메쉬가 없으면, 재질도 없다. -> 종료한다.
 	if (!mesh) {
-		mFrameMeshInfo.emplace_back();
 		return;
 	}
 
@@ -744,14 +743,9 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const Transform* root = mergedTransform[0];
 	root->SetUseObjCB(true);
 
-	for (UINT transformIndex = 0; transformIndex < transformCnt; ++transformIndex) {
-		const Transform* transform = mergedTransform[transformIndex];
-
-		if (!HasMesh(transformIndex)) {
-			continue;
-		}
-
-		const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[transformIndex];
+	int idx{};
+	for (const auto& transform : mergedTransform) {
+		const FrameMeshInfo& modelMeshInfo = mFrameMeshInfo[idx];
 		if (modelMeshInfo.SkinMesh) {
 			modelMeshInfo.SkinMesh->UpdateShaderVariables();
 		}
@@ -775,6 +769,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 		}
 
 		vertexLocation += vertexCnt;
+		++idx;
 	}
 }
 #pragma endregion
@@ -995,22 +990,22 @@ void Avatar::SetBoneType(const std::string& boneName, const std::string& boneTyp
 
 
 #pragma region SkinMesh
-BoneType SkinMesh::GetBoneType(int boneIndex) const
+BoneType SkinMesh::GetBoneType(const std::string& boneName) const
 {
-	if (boneIndex < 0 || boneIndex >= mBoneTypes.size()) {
+	if (!mBoneTypes.count(boneName)) {
 		return BoneType::None;
 	}
 
-	return mBoneTypes.at(boneIndex);
+	return mBoneTypes.at(boneName);
 }
 
-HumanBone SkinMesh::GetHumanBone(int boneIndex) const
+HumanBone SkinMesh::GetHumanBone(const std::string& boneName) const
 {
-	if (mBoneTypes.empty()) {
+	if (mBoneTypes.empty() || !mBoneTypes.count(boneName)) {
 		return HumanBone::None;
 	}
 
-	switch (mBoneTypes[boneIndex]) {
+	switch (mBoneTypes.at(boneName)) {
 	case BoneType::Hips:
 	case BoneType::Spine:
 		return HumanBone::Root;
@@ -1097,16 +1092,18 @@ void SkinMesh::UpdateShaderVariables()
 
 	SkinnedConstants skinnedConstatnts{};
 	
-	for (int i = 0; i < (*mBoneFrames).size(); ++i)
-	{
-		Matrix transform = mBoneOffsets[i] * (*mBoneFrames)[i]->GetWorldTransform();
-		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[i], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
+	int t{};
+	for (const auto& boneName : mBoneNames) {
+		Matrix transform = mBoneOffsets[t] * (*mBoneFrames)[boneName]->GetWorldTransform();
+		int boneIdx = mBoneNameIndices[boneName];
+		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[t++], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
 
 	// TODO : Memory Leak
-	int index = (*mBoneFrames)[0]->GetObjCBIndex();
+	const auto& frame = (*(*mBoneFrames).begin()).second;
+	int index = frame->GetObjCBIndex();
 	FRAME_RESOURCE_MGR->CopyData(index, skinnedConstatnts);
-	(*mBoneFrames)[0]->SetObjCBIndex(index);
+	frame->SetObjCBIndex(index);
 
 	DXGIMgr::I->SetGraphicsRootConstantBufferView(RootParam::SkinMesh, FRAME_RESOURCE_MGR->GetSKinMeshCBGpuAddr(index));
 

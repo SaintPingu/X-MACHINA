@@ -26,11 +26,11 @@ AnimatorLayer::AnimatorLayer(const AnimatorLayer& other)
 	mCrntState = mRootStateMachine->Entry();
 }
 
-Matrix AnimatorLayer::GetTransform(int boneIndex, HumanBone boneType) const
+Matrix AnimatorLayer::GetTransform(const std::string& boneName, HumanBone boneType) const
 {
-	Matrix transform = mCrntState->GetSRT(boneIndex) * mCrntState->GetWeight();
+	Matrix transform = mCrntState->GetSRT(boneName) * mCrntState->GetWeight();
 	for (auto& nextState : mNextStates) {
-		transform += nextState->GetSRT(boneIndex) * nextState->GetWeight();
+		transform += nextState->GetSRT(boneName) * nextState->GetWeight();
 	}
 
 	return transform;

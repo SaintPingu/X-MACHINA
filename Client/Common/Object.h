@@ -62,6 +62,11 @@ protected:
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.
 	void AttachToGround();
+
+
+public:
+	static void MergeTransform(std::vector<const Transform*>& out, const GameObject* transform);
+
 };
 
 

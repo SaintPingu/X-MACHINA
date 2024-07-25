@@ -76,11 +76,11 @@ void AnimatorController::Release()
 	mLayers.clear();
 }
 
-Matrix AnimatorController::GetTransform(int boneIndex, HumanBone boneType)
+Matrix AnimatorController::GetTransform(const std::string& boneName, HumanBone boneType)
 {
 	for (auto& layer : mLayers) {
 		if (layer->CheckBoneMask(boneType)) {
-			return layer->GetTransform(boneIndex, boneType);
+			return layer->GetTransform(boneName, boneType);
 		}
 	}
 

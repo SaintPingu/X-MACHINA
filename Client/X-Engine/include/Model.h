@@ -83,6 +83,7 @@ public:
 // mesh와 material 정보를 갖는다.
 class Model : public Object {
 private:
+	bool mHasMesh{};
 	sptr<MeshLoadInfo>			mMeshInfo{};
 	std::vector<sptr<Material>> mMaterials{};
 
@@ -90,7 +91,7 @@ public:
 	Model()          = default;
 	virtual ~Model() = default;
 
-	void SetMeshInfo(rsptr<MeshLoadInfo> meshInfo) { mMeshInfo = meshInfo; }
+	void SetMeshInfo(rsptr<MeshLoadInfo> meshInfo); 
 	void SetMaterials(const std::vector<sptr<Material>>& materials) { mMaterials = materials; }
 
 public:
@@ -99,6 +100,9 @@ public:
 
 	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
 	void MergeModel(MasterModel& out); 
+
+public:
+	static void MergeTransform(std::vector<const Transform*>& out, const Model* transform);
 };
 
 
@@ -114,6 +118,7 @@ private:
 	sptr<MergedMesh> mMesh{};
 	sptr<AnimationLoadInfo>	mAnimationInfo{};
 	sptr<Model> mModel{};
+	std::vector<const Transform*> mMergedTransform{};
 
 	bool mMerged{ false };
 
@@ -147,5 +152,10 @@ public:
 	// Model의 trasnform 계층구조를 [object]에 복사한다.
 	// call Model::CopyModelHierarchy()
 	void CopyModelHierarchy(GameObject* object) const;
+
+	std::vector<const Transform*> GetMergedTransform() const { return mMergedTransform; }
+
+private:
+	void MergeModelTransforms();
 };
 #pragma endregion

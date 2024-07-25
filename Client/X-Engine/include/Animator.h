@@ -19,23 +19,22 @@ private:
 	bool mIsCloned{};
 	sptr<AnimatorController> mController{};
 
-	std::vector<Transform*>		mBoneFrames{};
-	std::vector<Transform*>		mFrames{};
+	GameObject* mAvatar{};
+	std::unordered_map<std::string, Transform*>	mBoneFrames{};
+	std::unordered_map<std::string, int>		mBoneIndices{};
 	std::vector<sptr<SkinMesh>>	mSkinMeshes{};
-	std::function<void()>       mUpdateTransformFunc{};
 
 public:
 	Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 
 	AnimatorController* GetController() const { return mController.get(); }
-	const Transform& GetBoneFrame(int index) const { return *mBoneFrames[index]; }
+	//const Transform* GetBoneFrame(const std::string& frame) const { return mBoneFrames.at(frame); }
 
 public:
 	void UpdateShaderVariables();
 
 	void Animate();
 	void UpdateTransform();
-	void UpdateTransformManual();
 	void CloneBoneFrames(class Object* other);
 
 private:

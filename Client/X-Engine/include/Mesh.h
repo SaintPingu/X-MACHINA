@@ -209,8 +209,9 @@ public:
 class SkinMesh : public Mesh {
 public:
 	std::vector<std::string> mBoneNames;
-	std::vector<Transform*>* mBoneFrames{};
-	std::vector<BoneType> mBoneTypes{};
+	std::unordered_map<std::string, int> mBoneNameIndices;
+	std::unordered_map<std::string, Transform*>* mBoneFrames{};
+	std::unordered_map<std::string, BoneType> mBoneTypes{};
 
 private:
 	std::vector<Matrix> mBoneOffsets{};
@@ -220,8 +221,8 @@ public:
 	virtual ~SkinMesh() = default;
 
 public:
-	BoneType GetBoneType(int boneIndex) const;
-	HumanBone GetHumanBone(int boneIndex) const;
+	BoneType GetBoneType(const std::string& boneName) const;
+	HumanBone GetHumanBone(const std::string& boneName) const;
 	void SetBoneOffsets(const std::vector<Matrix>& boneOffsets) { mBoneOffsets = boneOffsets; }
 
 public:

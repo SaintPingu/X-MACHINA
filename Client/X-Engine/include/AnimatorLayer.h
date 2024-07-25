@@ -29,7 +29,7 @@ public:
 	std::string GetName() const { return mName; }
 	const AnimatorMotion* GetSyncState() const { return GetLastMotion(); }
 	AnimatorMotion* GetLastMotion() const		{ return mNextStates.empty() ? mCrntState : mNextStates.back(); }
-	Matrix GetTransform(int boneIndex, HumanBone boneType) const;
+	Matrix GetTransform(const std::string& boneName, HumanBone boneType) const;
 	AnimatorController* GetController() const { return mController; }
 
 	void SetSyncStateMachine(bool val) { mIsSyncSM = val; }

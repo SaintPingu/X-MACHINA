@@ -33,8 +33,9 @@ void GameObject::SetModel(rsptr<const MasterModel> model)
 	}
 
 	// 이 객체의 계층구조를 [mMergedTransform]에 저장한다 (캐싱)
-	Transform::MergeTransform(mMergedTransform, this);
+	GameObject::MergeTransform(mMergedTransform, this);
 }
+
 
 void GameObject::SetModel(const std::string& modelName)
 {
@@ -69,6 +70,21 @@ void GameObject::AttachToGround()
 
 	SetPosition(pos);
 }
+
+void GameObject::MergeTransform(std::vector<const Transform*>& out, const GameObject* transform)
+{
+	if (transform->HasMesh()) {
+		out.emplace_back(transform);
+	}
+
+	if (transform->mSibling) {
+		GameObject::MergeTransform(out, transform->mSibling->GetObj<GameObject>());
+	}
+	if (transform->mChild) {
+		GameObject::MergeTransform(out, transform->mChild->GetObj<GameObject>());
+	}
+}
+
 #pragma endregion
 
 

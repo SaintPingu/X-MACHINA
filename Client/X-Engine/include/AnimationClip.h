@@ -15,7 +15,7 @@ public:
 	int		mTransformCnt = 0;
 
 	std::vector<float> mKeyFrameTimes{};
-	std::vector<std::vector<Matrix>> mKeyFrameTransforms{};
+	std::unordered_map<std::string, std::vector<Matrix>> mKeyFrameTransforms{};
 
 public:
 	AnimationClip(float length, int frameRate, int keyFrameCnt, int boneCnt, const std::string& name);
@@ -26,5 +26,8 @@ public:
 	int GetMaxFrameRate() const { return static_cast<int>(mKeyFrameTimes.size()) - 1; }
 
 public:
-	Matrix GetSRT(int boneIndex, float position) const;
+	Matrix GetSRT(const std::string& boneName, float position) const;
+
+private:
+	const Matrix& GetMatrix(const std::string& boneName, int keyFrameIdx) const;
 };

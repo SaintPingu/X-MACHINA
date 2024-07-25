@@ -19,9 +19,9 @@ AnimatorState::AnimatorState(const AnimatorState& other)
 
 }
 
-Matrix AnimatorState::GetSRT(int boneIndex) const
+Matrix AnimatorState::GetSRT(const std::string& boneName) const
 {
-	return AnimatorTrack::GetSRT(boneIndex, GetLength());
+	return AnimatorTrack::GetSRT(boneName, GetLength());
 }
 
 int AnimatorState::GetMaxFrameRate() const

@@ -63,6 +63,14 @@ void Material::LoadTextureFromFile(TextureMap map, std::ifstream& file)
 
 
 #pragma region Model
+void Model::SetMeshInfo(rsptr<MeshLoadInfo> meshInfo)
+{
+	mMeshInfo = meshInfo;
+	if(mMeshInfo)
+	{
+		mHasMesh = true;
+	}
+}
 // 재귀함수
 void Model::CopyModelHierarchy(Object* object, Object* parent) const
 {
@@ -70,6 +78,10 @@ void Model::CopyModelHierarchy(Object* object, Object* parent) const
 	object->SetLocalTransform(GetLocalTransform());
 	object->SetName(GetName());
 	object->mParent = parent;
+
+	if (mHasMesh) {
+		object->SetHasMesh();
+	}
 
 	/* 각 계층 구조의 복사본(새 할당)을 받아 설정한다. */
 	if (mSibling) {
@@ -93,6 +105,19 @@ void Model::MergeModel(MasterModel& out)
 	}
 	if (mChild) {
 		mChild->GetObj<Model>()->MergeModel(out);
+	}
+}
+void Model::MergeTransform(std::vector<const Transform*>& out, const Model* transform)
+{
+	if (transform->mMeshInfo) {
+		out.emplace_back(transform);
+	}
+
+	if (transform->mSibling) {
+		Model::MergeTransform(out, transform->mSibling->GetObj<Model>());
+	}
+	if (transform->mChild) {
+		Model::MergeTransform(out, transform->mChild->GetObj<Model>());
 	}
 }
 #pragma endregion
@@ -142,6 +167,7 @@ void MasterModel::ReleaseUploadBuffers()
 void MasterModel::SetModel(const rsptr<Model> model)
 {
 	mModel = model;
+	MergeModelTransforms();
 	model->MergeModel(*this);
 	mMesh->StopMerge();
 
@@ -168,4 +194,9 @@ void MasterModel::Render(const ObjectPool* objectPool) const
 void MasterModel::CopyModelHierarchy(GameObject* object) const
 {
 	mModel->CopyModelHierarchy(object);
+}
+
+void MasterModel::MergeModelTransforms()
+{
+	Model::MergeTransform(mMergedTransform, mModel.get());
 }

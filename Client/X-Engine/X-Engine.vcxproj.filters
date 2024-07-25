@@ -479,29 +479,29 @@
     <ClInclude Include="include\Scene.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Camera.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Collider.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Component.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\ParticleSystem.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Rigidbody.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\Transform.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Other Projects\X-MACHINA\Client\X-Engine\include\Component\UI.h">
-      <Filter>Common\Component</Filter>
-    </ClInclude>
     <ClInclude Include="include\LoadingScene.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\Transform.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\Rigidbody.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\UI.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\Camera.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\Collider.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\Component.h">
+      <Filter>Common\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Component\ParticleSystem.h">
+      <Filter>Common\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

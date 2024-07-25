@@ -34,8 +34,8 @@ void Script_LobbyManager::Start()
 {
 	base::Start();
 
-	const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
-	trooper->SetPosition(7.4f, 0, 5.27f);
+	const auto& trooper = LobbyScene::I->Instantiate("Ursacetus");
+	trooper->SetPosition(-2, 0, -2);
 	trooper->SetLocalRotation(Quaternion::ToQuaternion(Vec3(0.f, 53.41f, 0.f)));
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));

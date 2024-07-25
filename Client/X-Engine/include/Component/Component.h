@@ -136,6 +136,7 @@ private:
 	ObjectTag	mTag{};
 	ObjectLayer mLayer{};
 	ObjectType	mType{};
+	bool mHasMesh = false;
 
 	bool mIsAwake  = false;			// Awake()가 호출되었는가?
 	bool mIsStart  = false;			// Start()가 호출되었는가?
@@ -164,6 +165,7 @@ public:
 	bool IsAwake() const				{ return mIsAwake; }
 	bool IsStart() const				{ return mIsStart; }
 	bool IsActive() const				{ return mIsEnable; }
+	bool HasMesh() const				{ return mHasMesh; }
 
 	const std::unordered_set<Object*>& GetCollisionObjects() { return mCollisionObjects; }
 #pragma endregion
@@ -173,6 +175,7 @@ public:
 	void SetName(const std::string& name)	{ mName = name; }
 	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
 	void SetID(UINT32 sessionID)			{ mID = sessionID; }
+	void SetHasMesh()						{ mHasMesh = true; }
 #pragma endregion
 
 

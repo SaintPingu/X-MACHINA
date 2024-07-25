@@ -20,15 +20,8 @@ Animator::Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* ava
 	// Set skin meshes
 	mSkinMeshes = animationInfo->SkinMeshes;
 	const size_t skinMeshCount = mSkinMeshes.size();
-
+	mAvatar = avatar;
 	InitBoneFrames(skinMeshCount, avatar, animationInfo->IsManualBoneCalc);
-
-	if (animationInfo->IsManualBoneCalc) {
-		mUpdateTransformFunc = std::bind(&Animator::UpdateTransformManual, this);
-	}
-	else {
-		mUpdateTransformFunc = std::bind(&Animator::UpdateTransform, this);
-	}
 }
 
 void Animator::UpdateShaderVariables()
@@ -46,7 +39,7 @@ void Animator::Animate()
 
 	mController->Animate();
 
-	mUpdateTransformFunc();
+	UpdateTransform();
 }
 
 void Animator::UpdateTransform()
@@ -55,23 +48,10 @@ void Animator::UpdateTransform()
 		return;
 	}
 
-	auto& skinMesh = mSkinMeshes.front();
-
-	for (int i = 0; i < mBoneFrames.size(); ++i) {
-		Matrix transform = mController->GetTransform(i, skinMesh->GetHumanBone(i));
-
-		mBoneFrames[i]->SetLocalTransform(transform, false);
-	}
-}
-
-void Animator::UpdateTransformManual()
-{
-	auto& skinMesh = mSkinMeshes.front();
-
-	for (int i = 0; i < mFrames.size(); ++i) {
-		Matrix transform = mController->GetTransform(i, HumanBone::None);
-
-		mFrames[i]->SetLocalTransform(transform, false);
+	const auto& skinMesh = mSkinMeshes.front();
+	for (const auto& [name, frame] : mBoneFrames) {
+		Matrix transform = mController->GetTransform(name, skinMesh->GetHumanBone(name));
+		frame->SetLocalTransform(transform, false);
 	}
 }
 
@@ -84,9 +64,9 @@ void Animator::CloneBoneFrames(Object* other)
 
 	mIsCloned = true;
 
-	for (int i = 0; i < mBoneFrames.size(); ++i) {
-		*mBoneFrames[i] = gameObject->GetAnimator()->GetBoneFrame(i);
-	}
+	//for (auto& [name, frame] : mBoneFrames) {
+	//	frame = gameObject->GetAnimator()->GetBoneFrame(name);
+	//}
 }
 
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
@@ -98,25 +78,19 @@ void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 
 void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar, bool isManualBoneCalc)
 {
-	// Bone이 가장 많은 것이 맨 앞으로
-	std::sort(mSkinMeshes.begin(), mSkinMeshes.end(), [](const auto& first, const auto& second) {
-		return first->mBoneNames.size() > second->mBoneNames.size();
-		});
-
-	const auto& boneNames = mSkinMeshes.front()->mBoneNames;
-	mBoneFrames.resize(boneNames.size());
-
-	for (size_t i = 0; i < boneNames.size(); ++i) {
-		mBoneFrames[i] = avatar->FindFrame(boneNames[i]);
-	}
-
 	if (isManualBoneCalc) {
 		auto& SetBoneFrame = [&](Transform* transform) {
-			mFrames.push_back(transform);
+			mBoneFrames[transform->GetObj<Object>()->GetName()] = transform;
 			};
 
-		rsptr<Transform> root = avatar->mChild;
-		assert(root->GetObj<Object>()->GetName() == "root");
+		Transform* root = avatar->FindFrame("root");
 		root->DoAllChilds(SetBoneFrame);
+	}
+	else {
+		for (const auto& skinMesh : mSkinMeshes) {
+			for (const auto& boneName : skinMesh->mBoneNames) {
+				mBoneFrames[boneName] = avatar->FindFrame(boneName);
+			}
+		}
 	}
 }

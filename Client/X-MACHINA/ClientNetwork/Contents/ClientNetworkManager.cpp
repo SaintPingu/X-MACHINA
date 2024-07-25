@@ -110,7 +110,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.15", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -527,8 +527,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 	
 	
 	*/
-
-
 	std::vector<GameMonsterInfo> monInfos = data->NewMonsterInfos;
 
 	for (int i = 0; i < monInfos.size(); ++i) {
@@ -542,7 +540,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monInfos[i].SDir;
 
 		// 몬스터가 이미 생성된 적이 있다면 
-		if (mRemoteMonsters.find(monInfos[i].Id) != mRemoteMonsters.end())
+		if (!mRemoteMonsters.count(monsterID))
 			return;
 
 		// Monster 생성! 
@@ -611,6 +609,9 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		Script_EnemyNetwork* enemyNetwork = monster->AddComponent<Script_EnemyNetwork>().get();
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
+		if (TagetPlayerID != -1) {
+			enemyNetwork->SetTarget(mRemotePlayers[TargetPlayerID]);
+		}
 
 		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
 
@@ -631,7 +632,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 		Vec3	Pos = data->Mons[i].Pos;
 		Vec3	Rot = data->Mons[i].Rot;
 
-		if (mRemoteMonsters.find(ID) == mRemoteMonsters.end())
+		if (!mRemoteMonsters.count(ID))
 			continue;
 
 		//LOG_MGR->Cout(ID, " : ", Pos.x, " ", Pos.y, " ", Pos.z, "\n");
@@ -648,6 +649,9 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 	for (int i = 0; i < data->Mons.size(); ++i) {
 		uint32_t					ID	 =  data->Mons[i].Id;
 		FBProtocol::MONSTER_BT_TYPE type =  data->Mons[i].state;
+
+		if (!mRemoteMonsters.count(ID))
+			continue;
 
 		switch (type)
 		{
@@ -683,7 +687,14 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 		int monster_id        = data->Mons[i].id;
 		int target_monster_id = data->Mons[i].target_monster_id;
 		int target_player_id  = data->Mons[i].target_player_id;
+		
+		if (!mRemoteMonsters.count(monster_id))
+			continue;
 
+		if (target_player_id == -1)
+			continue;
+
+		mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
 	}
 }
 

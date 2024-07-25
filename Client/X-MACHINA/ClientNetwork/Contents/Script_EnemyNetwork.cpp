@@ -13,6 +13,24 @@ void Script_EnemyNetwork::Awake()
 
 void Script_EnemyNetwork::Update()
 {
+	if (mEnemyMgr->mState == EnemyState::MoveToTarget)
+		MoveToTarget();
+}
+
+void Script_EnemyNetwork::SetPostion(const Vec3& pos)
+{
+	mObject->SetPosition(pos);
+}
+
+void Script_EnemyNetwork::SetRotation(const Vec3& rot)
+{
+	mObject->SetLocalRotation(Quaternion::ToQuaternion(rot));
+}
+
+void Script_EnemyNetwork::SetState(EnemyState state)
+{
+	mEnemyMgr->mState = state;
+
 	switch (mEnemyMgr->mState)
 	{
 	case EnemyState::Idle:
@@ -31,7 +49,7 @@ void Script_EnemyNetwork::Update()
 		std::cout << "Death" << std::endl;
 		break;
 	case EnemyState::MoveToTarget:
-		MoveToTarget();
+		std::cout << "MoveToTarget" << std::endl;
 		break;
 	case EnemyState::MoveToPath:
 		std::cout << "MoveToPath" << std::endl;
@@ -42,21 +60,6 @@ void Script_EnemyNetwork::Update()
 	default:
 		break;
 	}
-}
-
-void Script_EnemyNetwork::SetPostion(const Vec3& pos)
-{
-	mObject->SetPosition(pos);
-}
-
-void Script_EnemyNetwork::SetRotation(const Vec3& rot)
-{
-	mObject->SetLocalRotation(Quaternion::ToQuaternion(rot));
-}
-
-void Script_EnemyNetwork::SetState(EnemyState state)
-{
-	mEnemyMgr->mState = state;
 }
 
 void Script_EnemyNetwork::SetTarget(Object* target)

@@ -148,6 +148,13 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Monster_State(session, *packet);
 	}
 	break;
+	case FBsProtocolID::SPkt_Monster_Target:
+	{
+		const FBProtocol::SPkt_MonsterTarget* packet = flatbuffers::GetRoot<FBProtocol::SPkt_MonsterTarget>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Monster_Target(session, *packet);
+	}
+	break;
 	/// ________________________________________________________________________________
 	/// Phero 
 	/// ________________________________________________________________________________ 
@@ -646,7 +653,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_Target(SPtr_Session session, const F
 	info.id                = monster_id;
 	info.target_monster_id = target_monster_id;
 	info.target_player_id  = target_player_id;
-
+	infos.push_back(info);
 
 	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Monster_Target(infos);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);

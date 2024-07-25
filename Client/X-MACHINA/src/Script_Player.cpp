@@ -42,8 +42,8 @@ void Script_Player::Start()
 
 	mTarget = mObject->GetObj<GameObject>();
 
-	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -850.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
-	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, 300.f }, Vec2{300.f, 150.f}, "Name");
+	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -425.f }, Vec2{ 1000.f, 15.f }, GetMaxHp());
+	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, -200.f }, Vec2{300.f, 150.f}, "Name");
 }
 
 #include "Timer.h"
@@ -70,23 +70,26 @@ bool Script_Player::ProcessInput()
 	return true;
 }
 
-void Script_Player::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_Player::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	if (!mChatBoxUI) {
-		return;
+		return true;
 	}
 
 	switch (messageID) {
 	case WM_KEYDOWN:
 		if (wParam == VK_RETURN) {
 			mChatBoxUI->ToggleChatBox();
-			return;
+			return false;
 		}
 	}
 
 	if (mChatBoxUI->IsActive()) {
 		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
+		return false;
 	}
+
+	return true;
 }
 
 void Script_Player::Rotate(float pitch, float yaw, float roll)
@@ -96,7 +99,7 @@ void Script_Player::Rotate(float pitch, float yaw, float roll)
 
 bool Script_Player::Hit(float damage, Object* instigator)
 {
-	mHpBarUI->MustCallBeforeOnValueDecrease(GetCrntHp());
+	mHpBarUI->Decrease(GetCrntHp());
 
 	bool res = base::Hit(damage, instigator);
 
@@ -117,5 +120,4 @@ void Script_Player::Respawn()
 void Script_Player::AddScore(int score)
 {
 	mScore += score;
-	Canvas::I->SetScore(mScore);
 }

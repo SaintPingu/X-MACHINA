@@ -89,7 +89,7 @@ void Script_GroundPlayer::Awake()
 
 	// values //
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
-	const auto& aimUI = Canvas::I->CreateUI(3, "Aim", Vec2(0, 0), 30, 30);
+	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(30, 30));
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 	SetMaxHP(1000.f);
@@ -349,9 +349,11 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 }
 
 
-void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	base::ProcessMouseMsg(messageID, wParam, lParam);
+	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
+		return false;
+	}
 
 	switch (messageID) {
 	case WM_RBUTTONDOWN:
@@ -365,11 +367,15 @@ void Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 	default:
 		break;
 	}
+
+	return true;
 }
 
-void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	base::ProcessKeyboardMsg(messageID, wParam, lParam);
+	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
+		return false;
+	}
 
 	switch (messageID) {
 	case WM_KEYDOWN:
@@ -419,6 +425,8 @@ void Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPAR
 	default:
 		break;
 	}
+
+	return true;
 }
 
 void Script_GroundPlayer::InitWeaponAnimations()
@@ -802,7 +810,7 @@ float Script_GroundPlayer::GetAngleMuzzleToAim(const Vec3& aimWorldPos) const
 
 float Script_GroundPlayer::GetAngleSpineToAim(const Vec3& aimWorldPos) const
 {
-	return Vector3::SignedAngle(mSpineBone->GetUp().xz(), aimWorldPos.xz() - mSpineBone->GetPosition().xz(), Vector3::Up);;
+	return Vector3::SignedAngle(mSpineBone->GetUp().xz(), aimWorldPos.xz() - mSpineBone->GetPosition().xz(), Vector3::Up);
 }
 
 Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
@@ -816,7 +824,7 @@ Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
 void Script_GroundPlayer::RotateToAim(Dir dir, float& rotAngle)
 {
 	constexpr float kStopRotAngle = 10.f;
-	const Vec2 aimDir = mAimController->GetAimDirection();
+	const Vec2 aimDir = InputMgr::I->GetMouseDir();
 
 	bool moving = dir != Dir::None;
 	// spine bone's look vector is aim direction (spine bone gonna look at aim from LateUpdate function)
@@ -881,8 +889,8 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		}
 
 		// angle could be too large if aim is so close
-		constexpr float kAimMinDistance = 300.f;
-		Vec2 aimScreenPos = mAimController->GetAimPos();
+		constexpr float kAimMinDistance = 100.f;
+		Vec2 aimScreenPos = InputMgr::I->GetMousePos();
 		if (aimScreenPos.Length() < kAimMinDistance) {
 			aimScreenPos = Vector2::Normalized(aimScreenPos) * kAimMinDistance;
 		}
@@ -1188,7 +1196,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 {
 	// ���� �����̸�, ���콺�� ��ġ�� ���?? �������?? ���� [offset_t]�� ũ�� �����Ѵ�. (�ִ� 1)
 	if (mIsAim) {
-		const Vec2 mousePos = mAimController->GetAimPos();
+		const Vec2 mousePos = InputMgr::I->GetMousePos() * 2.f;
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
 		const Vec2 ndcAbs   = Vec2(fabs(ndc.x), fabs(ndc.y));
 

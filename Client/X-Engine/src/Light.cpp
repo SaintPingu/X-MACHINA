@@ -55,20 +55,26 @@ UINT Light::GetLightCount() const
 	return static_cast<UINT>(mLights->Lights.size());
 }
 
-void Light::BuildLights(std::ifstream& file)
-{
-	LoadLightObjects(file);
-	LoadLightModels();
-
-	SetSunlight();
-	BuildLights();
-}
-
 void Light::SetSceneBounds(float boundRadius)
 {
 	mSceneBoundsRadius = boundRadius;
 	mSceneBounds.Center = Vec3(0.f, 0.f, 0.f);
 	mSceneBounds.Radius = sqrt(boundRadius * boundRadius + boundRadius * boundRadius);
+}
+
+void Light::SetSunlight()
+{
+	auto& light = mLights->Lights[gkSunLightIdx];
+	light.Strength = Vec3(0.3f, 0.3f, 0.3f);
+	light.FalloffStart = 1.f;
+	light.Direction = Vec3(1, -2, -2);
+	light.Position = Vector3::Zero;
+	light.FalloffEnd = 30.f;
+	light.SpotPower = 64.f;
+	light.Type = static_cast<int>(LightType::Directional);
+	light.IsEnable = true;
+	
+	mLights->VolumeMeshes[gkSunLightIdx] = RESOURCE<ModelObjectMesh>("Rect");
 }
 
 void Light::BuildLights()
@@ -99,6 +105,8 @@ void Light::BuildLights()
 			break;
 		}
 	}
+
+	SetSunlight();
 }
 
 void Light::Update()
@@ -160,7 +168,6 @@ void Light::Render()
 
 	for (int i = 0; i < mLights->Lights.size(); ++i) {
 		auto& light = mLights->Lights[i];
-		auto& volumeMesh = mLights->VolumeMeshes[i];
 		if (light.IsEnable) {
 			switch (static_cast<LightType>(light.Type))
 			{
@@ -176,31 +183,18 @@ void Light::Render()
 			}
 			
 			UpdateShaderVars(i);
-			volumeMesh->Render();
+			auto& volumeMesh = mLights->VolumeMeshes[i];
+			if (volumeMesh) {
+				volumeMesh->Render();
+			}
 		}
 	}
 }
 
-void Light::SetSunlight()
+void Light::SetSunlightDir(const Vec3& dir)
 {
-	LightLoadInfo& light = mLoadLights->Lights[gkSunLightIdx];
-	light.Type           = static_cast<int>(LightType::Directional);
-	light.Ambient        = Vec4(0.1f, 0.1f, 0.1f, 1.f);
-	light.Diffuse        = Vec4(0.3f, 0.3f, 0.3f, 1.f);
-	light.Specular       = Vec4(0.5f, 0.5f, 0.5f, 1.f);
-	light.Direction		 = Vec3(1, -2, -1);
-	light.IsEnable		 = true;
-}
-
-void Light::SetSunlight2()
-{
-	LightLoadInfo& light = mLoadLights->Lights[gkSunLightIdx];
-	light.Type = static_cast<int>(LightType::Directional);
-	light.Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.f);
-	light.Diffuse = Vec4(0.3f, 0.3f, 0.3f, 1.f);
-	light.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.f);
-	light.Direction = Vec3(-1, -2, -2);
-	light.IsEnable = true;
+	auto& sunlight = mLights->Lights[gkSunLightIdx];
+	sunlight.Direction = dir;
 }
 
 void Light::LoadLightModels()

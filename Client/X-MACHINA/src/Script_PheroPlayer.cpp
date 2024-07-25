@@ -18,7 +18,7 @@ void Script_PheroPlayer::Start()
 	mMaxPheroAmount = 1000.f;
 	mPheroRegenRate = 3.f; // 초당 페로 회복량 (초당 3회복)
 
-	mPheroBarUI = std::make_shared<SliderBarUI>("BackgroundPheroBar", "EaseBar", "FillPheroBar", Vec2{0.f, -900.f}, Vec2{1000.f, 15.f}, mMaxPheroAmount);
+	mPheroBarUI = std::make_shared<SliderBarUI>("BackgroundPheroBar", "EaseBar", "FillPheroBar", Vec2{0.f, -450.f}, Vec2{1000.f, 15.f}, mMaxPheroAmount);
 }
 
 void Script_PheroPlayer::Update()
@@ -48,7 +48,7 @@ bool Script_PheroPlayer::ReducePheroAmount(float pheroCost, bool checkOnly)
 	}
 
 	if (!checkOnly) {
-		mPheroBarUI->MustCallBeforeOnValueDecrease(mCurrPheroAmount);
+		mPheroBarUI->Decrease(mCurrPheroAmount);
 		mCurrPheroAmount = max(mCurrPheroAmount - pheroCost, 0.f);
 	}
 

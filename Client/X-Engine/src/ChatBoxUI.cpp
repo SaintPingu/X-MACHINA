@@ -11,43 +11,40 @@
 
 ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string& chatName)
 	: 
-	mChatName(AnsiToWString(chatName))
+	mChatName(StringToWstring(chatName))
 {
 	// ChatTitle
 	{
-		TextOption op;
-		op.FontSize = 30.f;
-		op.FontWeight = DWRITE_FONT_WEIGHT_HEAVY;
-		op.HAlignment = DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
-		op.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
-		op.BoxExtent = extent;
+		TextOption textOption;
+		textOption.FontSize   = 30.f;
+		textOption.FontWeight = TextFontWeight::HEAVY;
+		textOption.HAlignment = TextAlignType::Justified;
+		textOption.VAlignment = TextParagraphAlign::Near;
+		textOption.BoxExtent  = extent;
 
-		mChatTitle = std::make_shared<TextBox>()->Init(op);
-		mChatTitle->WriteText("CHATTING");
-		mChatTitle->SetPosition(position.x, position.y - 50.f);
+		mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y + 50), textOption);
 	}
 
 	// ChatMain
 	{
-		TextOption op;
-		op.FontSize = 20.f;
-		op.FontWeight = DWRITE_FONT_WEIGHT_LIGHT;
-		op.HAlignment = DWRITE_TEXT_ALIGNMENT_LEADING;
-		op.VAlignment = DWRITE_PARAGRAPH_ALIGNMENT_FAR;
-		op.BoxExtent = extent;
+		TextOption textOption;
+		textOption.FontSize = 20.f;
+		textOption.FontWeight = TextFontWeight::LIGHT;
+		textOption.HAlignment = TextAlignType::Leading;
+		textOption.VAlignment = TextParagraphAlign::Far;
+		textOption.BoxExtent = extent;
 
-		mChat = std::make_shared<TextBox>()->Init(op);
-		mChat->SetPosition(position.x, position.y);
+		mChat = TextMgr::I->CreateText("", position, textOption);
 	}
 
-	mBackground = Canvas::I->CreateUI(0, "Black", Vec2{ position.x * 2.f, position.y * -2.f }, extent.x, extent.y);
+	mBackground = Canvas::I->CreateUI<UI>(0, "Black", position, extent);
 	mBackground->mObjectCB.AlphaIntensity = 0.2f;
 }
 
 void ChatBoxUI::SetPosition(const Vec2& position)
 {
-	mChatTitle->SetPosition(position.x, position.y);
-	mChat->SetPosition(position.x, position.y);
+	mChatTitle->SetPosition(position);
+	mChat->SetPosition(position);
 }
 
 void ChatBoxUI::ToggleChatBox()
@@ -98,10 +95,10 @@ void ChatBoxUI::Update()
 void ChatBoxUI::AddChat(const std::string& chat, const std::string& name)
 {
 	std::string res = '[' + name + "] " + chat + '\n';
-	mTotalText.insert(mLastChatIdx, AnsiToWString(res));
+	mTotalText.insert(mLastChatIdx, StringToWstring(res));
 	mCurrChatCnt++;
 
-	mChat->WriteText(mTotalText);
+	mChat->SetText(mTotalText);
 
 	mChat->SetAlpha(1.f);
 }
@@ -119,7 +116,7 @@ void ChatBoxUI::ClearChat(bool isAllClear)
 	}
 
 	mCurrChatCnt = 0;
-	mChat->WriteText(mEditingText);
+	mChat->SetText(mEditingText);
 }
 
 bool ChatBoxUI::ChatCommand()
@@ -184,5 +181,5 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 	}
 
 	mLastChatIdx = mTotalText.size() - mEditingText.size();
-	mChat->WriteText(mTotalText + mImeCompositionString);
+	mChat->SetText(mTotalText + mImeCompositionString);
 }

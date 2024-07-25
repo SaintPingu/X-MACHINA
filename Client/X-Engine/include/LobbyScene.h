@@ -35,6 +35,7 @@ public:
 
 private:
 	void Start();
+	void BuildText();
 	void UpdateObjects();
 	void RenderObjects();
 

@@ -3,38 +3,101 @@
 
 #include "DXGIMgr.h"
 
-sptr<TextBox> TextBox::Init(const TextOption& option)
-{
-	mOption = option;
+namespace {
+	inline D2D1_POINT_2F ConvertPoint(const Vec2& pos)
+	{
+		D2D1_POINT_2F result;
+		result.x = pos.x;
+		result.y = pos.y;
+		return result;
+	}
 
+	inline D2D1::ColorF ConvertColor(TextFontColor color)
+	{
+		return D2D1::ColorF(color.r, color.g, color.b, color.a);
+	}
+
+	struct D2D_TextOption {
+		std::string					Font        = "Verdana";
+		float						FontSize    = 20.f;
+		D2D1::ColorF				FontColor   = D2D1::ColorF::White;
+		DWRITE_FONT_WEIGHT			FontWeight  = DWRITE_FONT_WEIGHT_NORMAL;
+		DWRITE_FONT_STYLE			FontStyle   = DWRITE_FONT_STYLE_NORMAL;
+		DWRITE_FONT_STRETCH			FontStretch = DWRITE_FONT_STRETCH_NORMAL;
+		DWRITE_TEXT_ALIGNMENT		HAlignment  = DWRITE_TEXT_ALIGNMENT_CENTER;
+		DWRITE_PARAGRAPH_ALIGNMENT	VAlignment  = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+		Vec2						BoxExtent   = Vec2::Zero;
+	};
+
+	inline void CopyMatrix(TextMatrix& out, const D2D1::Matrix3x2F& matrix)
+	{
+		std::memcpy(&out, &matrix, sizeof(D2D1::Matrix3x2F));
+	}
+
+	inline TextMatrix CopyMatrix(const D2D1::Matrix3x2F& matrix)
+	{
+		TextMatrix result;
+		std::memcpy(&result, &matrix, sizeof(D2D1::Matrix3x2F));
+		return result;
+	}
+
+	inline D2D1::Matrix3x2F CopyMatrix(const TextMatrix& matrix)
+	{
+		D2D1::Matrix3x2F result;
+		std::memcpy(&result, &matrix, sizeof(TextMatrix));
+		return result;
+	}
+}
+
+TextBox::TextBox(const TextOption& option)
+	:
+	mOption(option)
+{
 	if (mOption.BoxExtent == Vec2::Zero) {
 		const auto& window = DXGIMgr::I->GetWindow();
 		mOption.BoxExtent = { (float)window.Width, (float)window.Height };
 	}
 
 	CreateBrush();
-
-	TextMgr::I->AddTextBox(shared_from_this());
-
-	return shared_from_this();
 }
 
 void TextBox::CreateBrush()
 {
-	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(mOption.FontColor), &mTextBrush));
+	D2D_TextOption option;
+	option.Font        = mOption.Font;
+	option.FontSize    = mOption.FontSize;
+	option.FontColor   = ConvertColor(mOption.FontColor);
+	option.FontWeight  = static_cast<DWRITE_FONT_WEIGHT>(mOption.FontWeight);
+	option.FontStyle   = static_cast<DWRITE_FONT_STYLE>(mOption.FontStyle);
+	option.FontStretch = static_cast<DWRITE_FONT_STRETCH>(mOption.FontStretch);
+	option.HAlignment  = static_cast<DWRITE_TEXT_ALIGNMENT>(mOption.HAlignment);
+	option.VAlignment  = static_cast<DWRITE_PARAGRAPH_ALIGNMENT>(mOption.VAlignment);
+	option.BoxExtent   = mOption.BoxExtent;
+
+	THROW_IF_FAILED(DEVICE_CONTEXT->CreateSolidColorBrush(D2D1::ColorF(option.FontColor), &mTextBrush));
 	THROW_IF_FAILED(DWRITE->CreateTextFormat(
-		AnsiToWString(mOption.Font).c_str(),
+		StringToWstring(option.Font).c_str(),
 		nullptr,
-		mOption.FontWeight,
-		mOption.FontStyle,
-		mOption.FontStretch,
-		mOption.FontSize,
+		option.FontWeight,
+		option.FontStyle,
+		option.FontStretch,
+		option.FontSize,
 		L"en-us",
 		&mTextFormat)
 	);
 
-	THROW_IF_FAILED(mTextFormat->SetTextAlignment(mOption.HAlignment));
-	THROW_IF_FAILED(mTextFormat->SetParagraphAlignment(mOption.VAlignment));
+	THROW_IF_FAILED(mTextFormat->SetTextAlignment(option.HAlignment));
+	THROW_IF_FAILED(mTextFormat->SetParagraphAlignment(option.VAlignment));
+}
+
+Vec2 TextBox::GetTextCenter() const
+{
+	const float width = mOption.BoxExtent.x / 2.f;
+	const float height = mOption.BoxExtent.y / 2.f;
+
+	const Vec2 center = Vec2{ width, height } - GetPosition();
+
+	return center;
 }
 
 Vec2 TextBox::GetPosition() const
@@ -42,26 +105,32 @@ Vec2 TextBox::GetPosition() const
 	return Vec2{ mMtxTransition._31, mMtxTransition._32 };
 }
 
-void TextBox::SetPosition(float x, float y)
+float TextBox::GetAlpha() const
 {
-	mMtxTransition = D2D1::Matrix3x2F::Translation(x, y);
+	return mTextBrush->GetOpacity();
+}
+
+void TextBox::SetPosition(const Vec2& pos)
+{
+	CopyMatrix(mMtxTransition, D2D1::Matrix3x2F::Translation(pos.x, -pos.y));
 
 	SetFinalMatrix();
 }
 
 void TextBox::SetRotation(float angle)
 {
-	mMtxRotation = D2D1::Matrix3x2F::Rotation(angle, GetTextCenter());
+	CopyMatrix(mMtxRotation, D2D1::Matrix3x2F::Rotation(angle, ConvertPoint(GetTextCenter())));
 
 	SetFinalMatrix();
 }
 
-void TextBox::SetScale(float x, float y)
+void TextBox::SetScale(const Vec2& scale)
 {
-	mMtxScale = D2D1::Matrix3x2F::Scale(D2D1_SIZE_F{ x, y }, GetTextCenter());
+	CopyMatrix(mMtxScale, D2D1::Matrix3x2F::Scale(D2D1_SIZE_F{ scale.x, scale.y }, ConvertPoint(GetTextCenter())));
 
 	SetFinalMatrix();
 }
+
 
 void TextBox::SetFinalMatrix()
 {
@@ -69,9 +138,9 @@ void TextBox::SetFinalMatrix()
 	mMtxFinal.SetProduct(mMtxFinal, mMtxTransition);
 }
 
-void TextBox::SetColor(D2D1::ColorF color)
+void TextBox::SetColor(TextFontColor color)
 {
-	mTextBrush->SetColor(color);
+	mTextBrush->SetColor(ConvertColor(color));
 }
 
 void TextBox::SetAlpha(float alpha)
@@ -87,12 +156,12 @@ void TextBox::SetAlpha(float alpha)
 	mTextBrush->SetOpacity(alpha);
 }
 
-void TextBox::WriteText(const std::string& text)
+void TextBox::SetText(const std::string& text)
 {
-	mText = AnsiToWString(text);
+	mText = StringToWstring(text);
 }
 
-void TextBox::WriteText(const std::wstring& text)
+void TextBox::SetText(const std::wstring& text)
 {
 	mText = text;
 }
@@ -114,7 +183,7 @@ void TextBox::AddAlpha(float alpha)
 
 void TextBox::Render(RComPtr<ID2D1DeviceContext2> device) const
 {
-	device->SetTransform(mMtxFinal);
+	device->SetTransform(CopyMatrix(mMtxFinal));
 
 	const auto& window = DXGIMgr::I->GetWindow();
 	D2D1_RECT_F rect = {
@@ -143,19 +212,21 @@ void TextBox::Reset()
 	mTextFormat.Reset();
 }
 
-void TextBox::Destroy()
+TextBox* TextMgr::CreateText(const std::string& text, const Vec2& pos, const TextOption& option)
 {
-	TextMgr::I->RemoveTextBox(shared_from_this());
+	sptr<TextBox> textBox = std::make_shared<TextBox>(option);
+	textBox->SetText(text);
+	textBox->SetPosition(pos);
+	mTextBoxes.insert(textBox);
+
+	return textBox.get();
 }
 
-D2D1_POINT_2F TextBox::GetTextCenter() const
+void TextMgr::RemoveTextBox(TextBox* target)
 {
-	const float width = mOption.BoxExtent.x / 2.f;
-	const float height = mOption.BoxExtent.y / 2.f;
-
-	const Vec2 center = Vec2{ width, height } - GetPosition();
-
-	return D2D1_POINT_2F{ center.x, center.y };
+	std::erase_if(mTextBoxes, [target](sptr<TextBox> textBox) {
+		return textBox.get() == target;
+		});
 }
 
 void TextMgr::Render(RComPtr<ID2D1DeviceContext2> device)
@@ -170,6 +241,10 @@ void TextMgr::Reset()
 	for (const auto& textBox : mTextBoxes) {
 		textBox->Reset();
 	}
+}
+
+void TextMgr::Clear()
+{
 	mTextBoxes.clear();
 }
 
@@ -178,4 +253,16 @@ void TextMgr::CreateBrush()
 	for (const auto& textBox : mTextBoxes) {
 		textBox->CreateBrush();
 	}
+}
+
+
+
+TextMatrix::TextMatrix()
+{
+	std::memcpy(this, &D2D1::Matrix3x2F::Identity(), sizeof(D2D1::Matrix3x2F));
+}
+
+TextMatrix TextMatrix::Identity()
+{
+	return CopyMatrix(D2D1::Matrix3x2F::Identity());
 }

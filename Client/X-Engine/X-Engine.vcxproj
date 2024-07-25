@@ -280,13 +280,6 @@
   <ItemGroup>
     <ClInclude Include="..\Common\AbilityMgr.h" />
     <ClInclude Include="..\Common\Common.h" />
-    <ClInclude Include="..\Common\Component\Camera.h" />
-    <ClInclude Include="..\Common\Component\Collider.h" />
-    <ClInclude Include="..\Common\Component\Component.h" />
-    <ClInclude Include="..\Common\Component\ParticleSystem.h" />
-    <ClInclude Include="..\Common\Component\Rigidbody.h" />
-    <ClInclude Include="..\Common\Component\Transform.h" />
-    <ClInclude Include="..\Common\Component\UI.h" />
     <ClInclude Include="..\Common\DwordOverloader.h" />
     <ClInclude Include="..\Common\Object.h" />
     <ClInclude Include="..\Common\SimpleMath.h" />
@@ -310,6 +303,13 @@
     <ClInclude Include="include\AnimatorLayer.h" />
     <ClInclude Include="include\AnimatorMotion.h" />
     <ClInclude Include="include\ChatBoxUI.h" />
+    <ClInclude Include="include\Component\Camera.h" />
+    <ClInclude Include="include\Component\Collider.h" />
+    <ClInclude Include="include\Component\Component.h" />
+    <ClInclude Include="include\Component\ParticleSystem.h" />
+    <ClInclude Include="include\Component\Rigidbody.h" />
+    <ClInclude Include="include\Component\Transform.h" />
+    <ClInclude Include="include\Component\UI.h" />
     <ClInclude Include="include\d3dx12.h" />
     <ClInclude Include="include\DDSTextureLoader12.h" />
     <ClInclude Include="include\DescriptorHeap.h" />

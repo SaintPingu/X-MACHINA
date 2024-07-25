@@ -108,9 +108,5 @@ public:
 
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();
-
-	std::string		WstrToStr(const std::wstring& source);
-	std::wstring	StrToWstr(const std::string& source);
-
 };
 

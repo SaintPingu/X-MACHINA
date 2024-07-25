@@ -175,7 +175,7 @@ public:
 #define THROW_IF_FAILED(hFunctionCall)															\
 {																								\
     HRESULT hResult = (hFunctionCall);															\
-    std::wstring fileName = AnsiToWString(__FILE__);											\
+    std::wstring fileName = StringToWstring(__FILE__);											\
     if(FAILED(hResult)) { throw DxException(hResult, L#hFunctionCall, fileName, __LINE__); }	\
 }
 
@@ -431,15 +431,6 @@ inline void AssertHResult(HRESULT hResult)
 		assert(0);
 	}
 }
-
-// string 형식의 ANSI 문자열을 wstring으로 변환
-inline std::wstring AnsiToWString(const std::string& str)
-{
-	WCHAR buffer[512];
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
-	return std::wstring(buffer);
-}
-
 #pragma endregion
 
 

@@ -154,7 +154,9 @@ void Script_MainCamera::Init()
 void Script_MainCamera::LookTarget()
 {
 	if (mTarget) {
-		MAIN_CAMERA->LookAt(mTarget->GetPosition(), mTarget->GetUp());
+		Vec3 targetPos = mTarget->GetPosition();
+		targetPos.y += 1.f;
+		MAIN_CAMERA->LookAt(targetPos, Vector3::Up);
 	}
 }
 

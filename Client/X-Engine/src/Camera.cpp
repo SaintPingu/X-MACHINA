@@ -121,7 +121,7 @@ Vec3 Camera::ScreenToWorldRay(const Vec2& pos)
 
 Vec2 Camera::ScreenToNDC(const Vec2& pos)
 {
-	return Vec2(pos.x / mViewport.Width, pos.y / mViewport.Height);
+	return Vec2(pos.x / (mViewport.Width * 0.5f), pos.y / (mViewport.Height * 0.5f));
 }
 
 void Camera::CalculateFrustumPlanes()

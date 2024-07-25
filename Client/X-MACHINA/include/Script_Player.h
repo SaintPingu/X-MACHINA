@@ -48,8 +48,8 @@ public:
 
 public:
 	virtual bool ProcessInput();
-	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) {}
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) { return true; }
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 	virtual void Rotate(float pitch, float yaw, float roll);
 
@@ -81,8 +81,8 @@ protected:
 	Transform* mMuzzle{};
 
 public:
-	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const { return mIsInDraw; }
@@ -198,8 +198,8 @@ public:
 	// [dir]방향을 바라보도록 회전한다.
 	void RotateTo(Dir dir);
 
-	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 	void InitWeaponAnimations();
 	// called by weapon //

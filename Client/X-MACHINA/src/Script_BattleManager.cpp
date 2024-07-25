@@ -12,6 +12,7 @@
 #include "Script_Gobbler.h"
 #include "Script_Rapax.h"
 #include "Script_LightBipedMech.h"
+#include "Script_BattleUI.h"
 
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
@@ -23,6 +24,7 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "TextMgr.h"
 #include "InputMgr.h"
 #include "X-Engine.h"
 
@@ -38,6 +40,8 @@ void Script_BattleManager::Awake()
 
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
+
+	mObject->AddComponent<Script_BattleUI>();
 }
 
 void Script_BattleManager::Start()
@@ -60,8 +64,10 @@ void Script_BattleManager::Reset()
 {
 	base::Reset();
 
-	GameFramework::I->DisconnectServer();
 	MainCamera::I->RemoveComponent<Script_MainCamera>();
+	mObject->RemoveComponent<Script_BattleUI>();
+
+	GameFramework::I->DisconnectServer();
 	mMainCamera = nullptr;
 	GameFramework::I->ResetPlayer();
 }

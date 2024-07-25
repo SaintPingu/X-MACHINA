@@ -8,7 +8,6 @@
 #include "Light.h"
 #include "SkyBox.h"
 #include "ResourceMgr.h"
-#include "TextMgr.h"
 #include "DXGIMgr.h"
 #include "Shader.h"
 #include "FileIO.h"
@@ -85,9 +84,15 @@ void LobbyScene::Build()
 	mLight->SetSceneBounds(15.f);
 
 	LoadSceneObjects();
+	BuildText();
 
 	Start();
 	std::cout << "OK\n";
+}
+
+void LobbyScene::BuildText()
+{
+
 }
 
 void LobbyScene::Release()
@@ -122,7 +127,6 @@ GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& po
 
 void LobbyScene::Start()
 {
-	mLight->BuildLights();
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Awake();
 		});

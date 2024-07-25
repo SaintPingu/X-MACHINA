@@ -98,7 +98,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	mClientNetwork->SetSessionConstructorFunc(std::make_shared<ServerSession>);
 
 	std::string Wifi_Ipv4 = GetLocalIPv4Address();
-	std::wstring wifi_Ipv4_wstr = StrToWstr(Wifi_Ipv4);
+	std::wstring wifi_Ipv4_wstr = StringToWstring(Wifi_Ipv4);
 
 //#define USE_LOOP_BACK_ADDR
 #ifdef USE_LOOP_BACK_ADDR
@@ -637,14 +637,4 @@ long long ClientNetworkManager::GetCurrentTimeMilliseconds()
 	auto now = std::chrono::system_clock::now();
 	auto duration = now.time_since_epoch();
 	return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-}
-
-
-std::string		ClientNetworkManager::WstrToStr(const std::wstring& source)
-{
-	return std::string().assign(source.begin(), source.end());
-}
-std::wstring	ClientNetworkManager::StrToWstr(const std::string& source)
-{
-	return std::wstring().assign(source.begin(), source.end());
 }

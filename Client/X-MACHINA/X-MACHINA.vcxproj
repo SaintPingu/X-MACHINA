@@ -231,6 +231,7 @@
     <ClInclude Include="include\Script_Anglerox.h" />
     <ClInclude Include="include\Script_Arack.h" />
     <ClInclude Include="include\Script_Aranobot.h" />
+    <ClInclude Include="include\Script_BattleUI.h" />
     <ClInclude Include="include\Script_Ceratoferox.h" />
     <ClInclude Include="include\Script_Gobbler.h" />
     <ClInclude Include="include\Script_LightBipedMech.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="src\Script_Anglerox.cpp" />
     <ClCompile Include="src\Script_Arack.cpp" />
     <ClCompile Include="src\Script_Aranobot.cpp" />
+    <ClCompile Include="src\Script_BattleUI.cpp" />
     <ClCompile Include="src\Script_Ceratoferox.cpp" />
     <ClCompile Include="src\Script_Gobbler.cpp" />
     <ClCompile Include="src\Script_Item_Weapon.cpp" />

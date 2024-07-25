@@ -5,7 +5,6 @@
 #include "FrameResource.h"
 #include "Ssao.h"
 
-#include "ResourceMgr.h"
 #include "Object.h"
 #include "Model.h"
 #include "Terrain.h"
@@ -22,8 +21,8 @@
 #include "Component/Collider.h"
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
+#include "ResourceMgr.h"
 #include "AbilityMgr.h"
-#include "TextMgr.h"
 #include "ScriptExporter.h"
 
 #include "TestCube.h"
@@ -204,7 +203,11 @@ void BattleScene::LoadSceneObjects()
 	const std::string kFileName = "Import/Scene.bin";
 	std::ifstream file = FileIO::OpenBinFile(kFileName);
 
-	mLight->BuildLights(file);
+	// load lights
+	std::string token = FileIO::ReadString(file); // "<Lights>:"
+	FileIO::ReadVal<int>(file);
+	//
+
 	LoadGameObjects(file);
 }
 

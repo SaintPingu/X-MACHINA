@@ -7,10 +7,14 @@
 #include "Object.h"
 
 
-void Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
+		return false;
+	}
+
 	if (!mWeaponScript) {
-		return;
+		return true;
 	}
 
 	switch (messageID) {
@@ -25,11 +29,15 @@ void Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARA
 	default:
 		break;
 	}
+
+	return true;
 }
 
-void Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	base::ProcessKeyboardMsg(messageID, wParam, lParam);
+	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
+		return false;
+	}
 
 	switch (messageID) {
 	case WM_KEYDOWN:
@@ -50,6 +58,8 @@ void Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LP
 	default:
 		break;
 	}
+
+	return true;
 }
 
 void Script_ShootingPlayer::StartFire()

@@ -10,7 +10,6 @@
 
 #include "Script_AbilityHolder.h"
 #include "CircleIndicator.h"
-#include "IRDetectorAbility.h"
 
 #include "Component/Collider.h"
 #include "Component/Camera.h"
@@ -32,7 +31,6 @@ void Script_Ursacetus::Awake()
 
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddAnimateCallback(std::bind(&Script_Ursacetus::SpecialAttack, this));
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddCallback(std::bind(&Script_Ursacetus::SpecialAttackCallback, this), 65);
-	//mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddCallback(std::bind(&Script_Ursacetus::SpecialAttackStartCallback, this), 10);
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddStartCallback(std::bind(&Script_Ursacetus::SpecialAttackStartCallback, this));
 }
 

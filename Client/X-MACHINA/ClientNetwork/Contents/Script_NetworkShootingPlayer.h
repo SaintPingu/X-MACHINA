@@ -37,7 +37,7 @@ protected:
 
 	virtual void DrawWeapon(int weaponNum);
 
-	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) abstract;
+	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed);// abstract;
 	virtual void DrawWeapon();
 	virtual void DrawWeaponEnd();
 	virtual void PutbackWeapon() abstract;

@@ -31,6 +31,7 @@
 #include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 #include "ClientNetwork/Contents/Script_NetworkPlayer.h"
 #include "ClientNetwork/Contents/Script_NetworkEnemy.h"
+#include "ClientNetwork/Contents/SCript_NetworkShootingPlayer.h"
 
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 
@@ -454,7 +455,8 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
 	LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
 
-	remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
+	//remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
+	remotePlayer->AddComponent<Script_NetworkShootingPlayer>();
 
 
 	//Vec4 rot   = remotePlayer->GetRotation();

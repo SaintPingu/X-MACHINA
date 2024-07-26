@@ -94,6 +94,8 @@ public:
 	SPtr_SendPktBuf CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v);
 	SPtr_SendPktBuf CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType);
+	SPtr_SendPktBuf CPkt_Player_Weapon(WeaponName weaponName);
+
 	SPtr_SendPktBuf CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount); // Ãß°¡
 
 	/* MONSTER */

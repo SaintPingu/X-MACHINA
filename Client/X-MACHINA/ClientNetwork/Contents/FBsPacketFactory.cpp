@@ -905,10 +905,30 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE wea
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	flatbuffers::FlatBufferBuilder builder{};
 
-	FBProtocol::CreateCPkt_Player_Weapon(builder, weaponType);
 
+	auto ServerPacket = FBProtocol::CreateCPkt_Player_Weapon(builder, weaponType);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Player_Weapon);
+	return sendBuffer;
+}
 
-
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(WeaponName weaponName)
+{
+	switch (weaponName)
+	{
+	case WeaponName::H_Lock:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_H_LOOK);
+	case WeaponName::DBMS:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_DBMS);
+	case WeaponName::SkyLine:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_SKYLINE);
+	case WeaponName::Burnout:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_BURNOUT);
+	case WeaponName::PipeLine:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_PIPELINE);
+	default:
+		break;
+	}
 	return SPtr_SendPktBuf();
 }
 

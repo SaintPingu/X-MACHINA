@@ -10,6 +10,8 @@
 #include "Script_Player.h"
 #include "Script_AfterImageObject.h"
 
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
 CloakingAbility::CloakingAbility()
@@ -45,6 +47,13 @@ void CloakingAbility::Activate()
 	mObject->mObjectCB.HitRimFactor = 1.f;
 	mAfterImage->SetActiveUpdate(true);
 	mObject->SetTag(ObjectTag::AfterSkinImage);
+
+	/// +-------------------------------
+	///		SKILLPACKET BROADCAST
+	/// -------------------------------+
+	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
+	CLIENT_NETWORK->Send(cpkt);
+
 }
 
 void CloakingAbility::DeActivate()

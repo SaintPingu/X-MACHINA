@@ -12,6 +12,10 @@
 #include "Script_LiveObject.h"
 #include "Script_Player.h"
 
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
+
 ShieldAbility::ShieldAbility()
 	:
 	RenderedAbility("Shield", 2.f, 4.5f),
@@ -40,6 +44,13 @@ void ShieldAbility::Activate()
 		mTerminateCallback();
 		return;
 	}
+
+
+	/// +-------------------------------
+	///		SKILLPACKET BROADCAST
+	/// -------------------------------+
+	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_SHIELD);
+	CLIENT_NETWORK->Send(cpkt);
 
 	base::Activate();
 

@@ -19,24 +19,26 @@ namespace NetworkEvent
 			constexpr UINT16 Move             = 3; // Remote 플레이어 이동 
 			constexpr UINT16 Extrapolate      = 4; // Remote 플레이어 위치 예측 
 			constexpr UINT16 UpdateAnimation  = 5; // Remote 플레이어 애니메이션 업데이트 
-			constexpr UINT16 UpdateWeapon	  = 6; // Remote 플레이어 애니메이션 업데이트 
+			constexpr UINT16 UpdateWeapon	  = 6; // Remote 플레이어 Weapon 업데이트 
+			constexpr UINT16 OnShoot		  = 7; // Remote 플레이어 OnShoot 업데이트 
+			constexpr UINT16 OnSkill		  = 8; // Remote 플레이어 OnSkioll 업데이트 
 			
 		}
 
 		namespace MonsterType
 		{
-			constexpr UINT16 Add         = 7;
-			constexpr UINT16 Remove      = 8;
-			constexpr UINT16 Move        = 9;
-			constexpr UINT16 UpdateHP    = 10;
-			constexpr UINT16 UpdateState = 11;
-			constexpr UINT16 Target		 = 12;
+			constexpr UINT16 Add         = 9;
+			constexpr UINT16 Remove      = 10;
+			constexpr UINT16 Move        = 11;
+			constexpr UINT16 UpdateHP    = 12;
+			constexpr UINT16 UpdateState = 13;
+			constexpr UINT16 Target		 = 14;
 		}
 
 		namespace BulletType
 		{
-			constexpr UINT16 OnShoot	 = 13;
-			constexpr UINT16 OnCollision = 14;
+			constexpr UINT16 OnShoot	 = 14;
+			constexpr UINT16 OnCollision = 15;
 		}
 
 		/* EVENT DATA */
@@ -105,6 +107,21 @@ namespace NetworkEvent
 			struct UpdateWeapon : public EventData {
 				uint32_t Id = {};
 				FBProtocol::WEAPON_TYPE weapon_type = {};
+			};
+
+			/// >> Update On Shoot 
+			struct UpdateOnShoot : public EventData {
+				uint32_t	id			= {};
+				int			bullet_id	= {};
+				int			weapon_id	= {};
+				Vec3		ray			= {};
+			};
+
+			/// >> Update On SKill 
+			struct UpdateOnSkill : public EventData {
+				uint32_t	id								= {};
+				float		phero_amount					= {};
+				FBProtocol::PLAYER_SKILL_TYPE skill_type	= {};
 			};
 		}
 

@@ -107,14 +107,20 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Player_Animation(session, *packet);
 	}
 	break;
-	case FBsProtocolID::CPkt_Player_Weapon:
+	case FBsProtocolID::SPkt_Player_Weapon:
 	{
 		const FBProtocol::SPkt_Player_Weapon* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Player_Weapon>(DataPtr);
 		if (!packet) return false;
 		Process_SPkt_Player_Weapon(session, *packet);
 	}
 	break;
-
+	case FBsProtocolID::SPkt_PlayerOnSkill:
+	{
+		const FBProtocol::SPkt_PlayerOnSkill* packet = flatbuffers::GetRoot<FBProtocol::SPkt_PlayerOnSkill>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Player_OnSkill(session, *packet);
+	}
+	break;
 	/// ________________________________________________________________________________
 	/// Monster 
 	/// ________________________________________________________________________________ 
@@ -535,7 +541,16 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 
 bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const FBProtocol::SPkt_PlayerOnSkill& pkt)
 {
-	return false;
+	int								player_id		= pkt.player_id();
+	float							phero_amount	= pkt.phero_amount();
+	FBProtocol::PLAYER_SKILL_TYPE	skill_type		= pkt.skill_type();
+	
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> EventData = CLIENT_NETWORK->CreateEvent_UpdateOnSkill_RemotePlayer(player_id, skill_type, phero_amount);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
+	LOG_MGR->Cout(player_id, " : ", static_cast<int>(skill_type));
+
+	return true;
 }
 
 
@@ -704,6 +719,15 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 	/// > 	ray			: Vector3;		// 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
 	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	
+	int  bullet_id	 = pkt.bullet_id();
+	int  gun_id		 = pkt.gun_id();
+	int  player_id	 = pkt.player_id();
+	Vec3& ray		 = GetVector3(pkt.ray());
+
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateOnShoot_RemotePlayer(player_id, bullet_id, gun_id, ray);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
 	return true;
 }
 
@@ -717,6 +741,7 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, con
 	/// > 	bullet_id	: int;  // 4 bytes - 어떤 총알이 충돌했는가?
 	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	
 	return true;
 }
 
@@ -935,9 +960,14 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(WeaponName weaponName)
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType)
 {
-	return SPtr_SendPktBuf();
+	flatbuffers::FlatBufferBuilder builder{};
+
+	auto ServerPacket = FBProtocol::CreateCPkt_PlayerOnSkill(builder, skillType);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_PlayerOnSkill);
+	return sendBuffer;
 }
 
 /// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

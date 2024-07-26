@@ -79,6 +79,8 @@ public:
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>			CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>		CreateEvent_UpdateAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>			CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::WEAPON_TYPE weaponType);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot>			CreateEvent_UpdateOnShoot_RemotePlayer(uint32_t remID, int bullet_id, int weapon_id, Vec3 ray);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill>			CreateEvent_UpdateOnSkill_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_SKILL_TYPE skillType, float phero_amount);
 
 
 
@@ -101,6 +103,8 @@ public:
 	void ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data);
 	void ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data);
 	void ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data);
+	void ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data);
+	void ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data);
 
 	/// MONSTER 
 	void ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data);

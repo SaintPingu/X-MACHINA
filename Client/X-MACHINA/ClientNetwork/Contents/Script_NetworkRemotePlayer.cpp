@@ -111,6 +111,34 @@ float Script_NetworkRemotePlayer::Distance(const Vec3& v1, const Vec3& v2)
 		(v1.z - v2.z) * (v1.z - v2.z));
 }
 
+void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType)
+{
+	
+	switch (weaponType)
+	{
+	case FBProtocol::WEAPON_TYPE_H_LOOK:
+		mCurrWeaponName = WeaponName::H_Lock;
+		break;
+	case FBProtocol::WEAPON_TYPE_DBMS:
+		mCurrWeaponName = WeaponName::DBMS;
+		break;
+	case FBProtocol::WEAPON_TYPE_PIPELINE:
+		mCurrWeaponName = WeaponName::PipeLine;
+		break;
+	case FBProtocol::WEAPON_TYPE_BURNOUT:
+		mCurrWeaponName = WeaponName::Burnout;
+		break;
+	case FBProtocol::WEAPON_TYPE_SKYLINE:
+		mCurrWeaponName = WeaponName::SkyLine;
+		break;
+	default:
+		break;
+	}
+
+	mCurrWeaponName = WeaponName::None;
+
+}
+
 
 Vec3 Script_NetworkRemotePlayer::GetDirection(Vec3 dir)
 {

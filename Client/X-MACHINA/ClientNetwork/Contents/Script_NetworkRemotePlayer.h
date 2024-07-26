@@ -63,6 +63,13 @@ private:
 	float				mLerpVal				= 0.f;
 	double				mBezierTime				= 0.f;
 
+
+	/// +-------------------------------------------------
+	///		WEAPON 
+	/// -------------------------------------------------+
+	WeaponName	       mCurrWeaponName			= {};
+
+	
 public:
 	virtual void Awake() override;
 	virtual void LateUpdate() override;
@@ -100,6 +107,13 @@ public:
 	float Distance(const Vec3& v1, const Vec3& v2);
 	
 	
+
+	/// +-------------------------------------------------
+	///		WEAPON 
+	/// -------------------------------------------------+
+public:
+	void		SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType);
+	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
 };
 

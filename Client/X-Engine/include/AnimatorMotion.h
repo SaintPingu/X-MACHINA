@@ -49,7 +49,7 @@ private:
 	std::string mName{};
 	const AnimatorStateMachine* mStateMachine{};
 
-	std::map<float, MotionCallback> mCallbacks;
+	std::multimap<float, MotionCallback> mCallbacks;
 	sptr<MotionCallback> mCallbackStop;
 	sptr<MotionCallback> mCallbackChange;
 	sptr<MotionCallback> mCallbackAnimate;

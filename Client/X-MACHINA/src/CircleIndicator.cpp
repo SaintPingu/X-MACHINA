@@ -10,32 +10,34 @@
 #include "Texture.h"
 #include "ResourceMgr.h"
 
-CircleIndicator::CircleIndicator(float activeTime)
+AttackIndicator::AttackIndicator(float activeTime, std::string indicatorShape)
 	:
 	RenderedAbility("IRDetector", 0.f, activeTime)
 {
 	mLayer = 0;
 
 	mRenderedObject = std::make_shared<GameObject>();
-	mRenderedObject->SetModel("CircleIndicator");
+	mRenderedObject->SetModel(indicatorShape);
 
 	mShader = RESOURCE<Shader>("CircleIndicator");
 }
 
-void CircleIndicator::Update(float activeTime)
+void AttackIndicator::Update(float activeTime)
 {
 	base::Update(activeTime);
 }
 
-void CircleIndicator::Activate()
+void AttackIndicator::Activate()
 {
 	base::Activate();
 
 	const Vec3 playerPos = mObject->GetPosition() + Vec3{ 0.f, 0.5f, 0.f };
+	const Quat playerRot = mObject->GetRotation();
 	mRenderedObject->SetPosition(playerPos);
+	mRenderedObject->SetLocalRotation(playerRot);
 }
 
-void CircleIndicator::DeActivate()
+void AttackIndicator::DeActivate()
 {
 	base::DeActivate();
 }

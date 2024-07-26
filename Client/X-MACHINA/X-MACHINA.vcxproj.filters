@@ -274,9 +274,6 @@
     <ClInclude Include="include\Script_Missile.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_Ursacetus.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_AbilityHolder.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -384,6 +381,9 @@
     </ClInclude>
     <ClInclude Include="include\PopupUI.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ursacetus.h">
+      <Filter>Script\Enemy\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

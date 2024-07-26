@@ -45,9 +45,9 @@ void Script_LobbyManager::Update()
 {
 	base::Update();
 
-	if (KEY_TAP('Q')) {
+	//if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
-	}
+	//}
 }
 
 void Script_LobbyManager::Reset()

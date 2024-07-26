@@ -39,7 +39,7 @@ void Script_Ursacetus::Start()
 	base::Start();
 
 	mCircleIndicator = mObject->AddComponent<Script_TriggerAbilityHolder>();
-	mCircleIndicator.lock()->SetAbility(0, std::make_shared<CircleIndicator>(2.05f));
+	mCircleIndicator.lock()->SetAbility(0, std::make_shared<AttackIndicator>(2.05f, "CircleIndicator"));
 }
 
 void Script_Ursacetus::Update()

@@ -4,11 +4,11 @@
 
 class GameObject;
 
-class CircleIndicator : public RenderedAbility {
+class AttackIndicator : public RenderedAbility {
 	using base = RenderedAbility;
 
 public:
-	CircleIndicator(float activeTime);
+	AttackIndicator(float activeTime, std::string indicatorShape);
 
 public:
 	virtual void Update(float activeTime) override;

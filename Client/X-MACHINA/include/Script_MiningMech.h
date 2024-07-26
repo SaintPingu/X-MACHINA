@@ -31,16 +31,20 @@ class Script_MiningMech : public Script_Enemy {
 
 private:
 	int mCurrAttackCnt{};
-	wptr<Script_TriggerAbilityHolder> mCircleIndicator{};
+	wptr<Script_TriggerAbilityHolder> mRectangleIndicator{};
 
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void Attack() override;
 
 protected:
 	void DiggerAttackCallback();
 	void DrillAttackCallback();
+
+	void SmashAttackStartCallback();
 	void SmashAttackCallback();
+	void SmashAttackEndCallback();
 
 	void AttackEndCallback();
 };

@@ -339,7 +339,7 @@ void Script_NetworkPlayer::Send_CPkt_Transform_Player(int32_t moveState, Vec3 mo
 	CLIENT_NETWORK->Send(pkt);
 }
 
-void Script_PlayerNetwork::Send_CPkt_AimRotation_Player(float aim_rotation_y)
+void Script_NetworkPlayer::Send_CPkt_AimRotation_Player(float aim_rotation_y)
 {
 	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(aim_rotation_y);
 	CLIENT_NETWORK->Send(pkt);

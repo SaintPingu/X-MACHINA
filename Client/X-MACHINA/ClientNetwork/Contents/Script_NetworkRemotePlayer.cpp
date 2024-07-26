@@ -41,33 +41,22 @@ void Script_NetworkRemotePlayer::LateUpdate()
 	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
 	mObject->SetPosition(newPosition);
 
-	if (!mInAim) {
+	if (!mIsAim) {
 		RotateTo(mCurrExtraPolated_Data.MoveDir, mRotationSpeed);
 	}
 
 	Vec3 crntPos = mObject->GetPosition();
 
-	if ((prevPos - crntPos).Length() > 0.1f) {
+	if ((prevPos - crntPos).Length() > 0.01f) {
 		UpdateParam(1, mParamV);
 	}
 
-	
-#endif
-	/* AIM ROTATION */
-	mAimRotation_Y;
-	// TODO : Aim Rotate RemotePlayer 
-
 	return;
-
+#endif
 
 #define LERP_DR
 #ifdef LERP_DR
 
-	Vec3 newPosition = lerp(curpos, TarPos, DeltaTime(), mCurrExtraPolated_Data.Velocity);
-	mObject->SetPosition(newPosition);
-	mObject->RotateToDir(mCurrExtraPolated_Data.MoveDir);
-
-	return;
 #endif
 
 //#define BEZIER_CURVE_DR
@@ -252,19 +241,19 @@ float Script_NetworkRemotePlayer::GetYAngleFromQuaternion(const Vec4& rotationQu
 	return yAngle;
 }
 
-void Script_NetworkRemotePlayer::RotateTo(const Vec3& Angle)
+void Script_NetworkRemotePlayer::RotateTo(float yAngle)
 {
 	if (yAngle < -10000) {
-		mInAim = false;
+		mIsAim = false;
 		return;
 	}
-	mInAim = true;
+	mIsAim = true;
 
 	Vec3 dir = Vector3::Rotate(Vector3::Forward, 0, yAngle, 0);
 	RotateTo(dir, 600);
 }
 
-void Script_RemotePlayer::RotateTo(const Vec3& dir, float speed)
+void Script_NetworkRemotePlayer::RotateTo(const Vec3& dir, float speed)
 {
 	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dir, Vector3::Up);
 	constexpr float smoothAngleBound = 10.f;
@@ -317,11 +306,11 @@ void Script_NetworkRemotePlayer::SetExtrapolatedData(ExtData& extData)
 	mCurrExtraPolated_Data = extData;
 }
 
-void Script_RemotePlayer::UpdateParams()
+void Script_NetworkRemotePlayer::UpdateParams()
 {
 }
 
-void Script_RemotePlayer::UpdateParam(float val, float& param)
+void Script_NetworkRemotePlayer::UpdateParam(float val, float& param)
 {
 	constexpr float kParamSpeed = 6.f;		// �Ķ����? ��ȯ �ӵ�
 	constexpr float kOppositeExtraSpeed = 8.f;		// �ݴ��� �̵� �� �߰� �̵� ��ȯ �ӵ�

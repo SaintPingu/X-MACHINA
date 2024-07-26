@@ -118,9 +118,6 @@ namespace FBsProtocolID
     constexpr UINT16 CPkt_Player_AimRotation = 1020;
     constexpr UINT16 SPkt_Player_AimRotation = 1021;
 
-    constexpr UINT16 CPkt_Player_AimRotation    = 1020;
-    constexpr UINT16 SPkt_Player_AimRotation    = 1021;
-
     /// +-----------------------------------------------------------------------
     ///  MONSTER PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+

@@ -6,6 +6,8 @@
 /* Extrapolation Data - 패킷을 통한 위치 예측을 위해 필요한 데이터 */
 
 class Script_Weapon;
+class Transform;
+class AnimatorController;
 
 
 /// +-------------------------------------------------
@@ -63,6 +65,11 @@ private:
 	float				mLerpVal				= 0.f;
 	double				mBezierTime				= 0.f;
 
+	Transform* mSpine{};
+	AnimatorController* mController;
+	bool mIsAim{};
+	float mParamV{};
+	float mParamH{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
@@ -72,6 +79,7 @@ private:
 	
 public:
 	virtual void Awake() override;
+	virtual void Update() override;
 	virtual void LateUpdate() override;
 	virtual void UpdateData(const void* data) override;
 
@@ -95,16 +103,21 @@ public:
 	///		Extrapolate Util Func 
 	/// -------------------------------------------------+
 public:
+	float GetYAngle();
 	Vec3  GetDirection(Vec3 dir);
 	Vec3  CalculateDirection(float yAngleRadian);
 	Vec3  lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
 	Vec3  lerp(Vec3 CurrPos, Vec3 TargetPos, float Deltatime, float speed);
 	Vec3  quadraticInterpolation(const Vec3& p0, const Vec3& p1, const Vec3& p2, float t);
 	float GetYAngleFromQuaternion(const Vec4& rotationQuaternion);
-	void  RotateTo(const Vec3& Angle);
+	void RotateTo(float yAngle);
+	void RotateTo(const Vec3& dir, float speed);
 	Vec3  Bezier_Curve_3(Vec3 start, Vec3 Target, float t);
 	Vec3 Script_NetworkRemotePlayer::Bezier_Curve(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float t);
 	float Distance(const Vec3& v1, const Vec3& v2);
+
+	void UpdateParams();
+	void UpdateParam(float val, float& param);
 	
 	
 

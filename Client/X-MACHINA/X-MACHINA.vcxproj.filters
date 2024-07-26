@@ -674,7 +674,7 @@
     </ClCompile>
     <ClCompile Include="src\PopupUI.cpp">
       <Filter>Script\UI</Filter>
-    /ClCompile>
+    </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkBullet.cpp">
       <Filter>ClientNetwork\Network\NetworkScript\Network Bullet</Filter>
     </ClCompile>

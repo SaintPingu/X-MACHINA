@@ -7,8 +7,8 @@
 #include "ClientNetwork/Include/SendBuffersFactory.h"
 #include "ClientNetwork/Include/SocketData.h"
 
-#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
-#include "ClientNetwork/Contents/Script_RemotePlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkPlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 #include "ClientNetwork/Contents/ServerSession.h"
 
 
@@ -1004,7 +1004,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_GetPhero(uint32_t phero_id, uint32_t play
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(uint32_t playerID, uint32_t gunID, uint32_t bulletID, Vec3 ray)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 ray)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	/// table CPkt_Bullet_OnShoot
@@ -1012,7 +1012,14 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(uint32_t playerID, uint32_
 	/// 
 	/// }
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
-	return SPtr_SendPktBuf();
+	flatbuffers::FlatBufferBuilder builder{};
+
+	auto RayDir = FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+
+	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnShoot(builder, RayDir);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnShoot);
+	return sendBuffer;
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID)

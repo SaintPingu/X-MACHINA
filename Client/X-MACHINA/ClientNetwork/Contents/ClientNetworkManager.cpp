@@ -14,7 +14,7 @@
 #include "Script_Onyscidus.h"
 #include "Script_Rapax.h"
 #include "Script_MiningMech.h"
-#include "Script_EnemyNetwork.h"
+#include "Script_NetworkEnemy.h"
 #include "Script_EnemyManager.h"
 
 #include "Object.h"
@@ -28,8 +28,10 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Include/NetworkManager.h"
 #include "ClientNetwork/Include/SendBuffersFactory.h"
-#include "ClientNetwork/Contents/Script_RemotePlayer.h"
-#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkPlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkEnemy.h"
+
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 
 #include "X-Engine.h"
@@ -452,7 +454,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
 	LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
 
-	remotePlayer->AddComponent<Script_RemotePlayer>();
+	remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
 
 
 	//Vec4 rot   = remotePlayer->GetRotation();
@@ -475,7 +477,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Ev
 {
 	if (mRemotePlayers.count(data->Id)) {
 		GridObject* player = mRemotePlayers[data->Id];
-		player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->Pos);
+		player->GetComponent<Script_NetworkRemotePlayer>()->SetPacketPos(data->Pos);
 		//player->SetPosition(data->RemoteP_Pos);
 	}
 	else {
@@ -505,7 +507,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::G
 		player->SetPosition(ExtrapolatedData.TargetPos);
 	}
 
-	player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
+	player->GetComponent<Script_NetworkRemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
 
 }
 
@@ -607,7 +609,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			assert(0);
 			break;
 		}
-		Script_EnemyNetwork* enemyNetwork = monster->AddComponent<Script_EnemyNetwork>().get();
+		Script_NetworkEnemy* enemyNetwork = monster->AddComponent<Script_NetworkEnemy>().get();
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
 		if (monInfos[i].Target_Player_Id != -1) {

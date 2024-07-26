@@ -32,7 +32,7 @@
 
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 #include "ClientNetwork/Include/ThreadManager.h"
-#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
+#include "ClientNetwork/Contents/Script_NetworkPlayer.h"
 
 #define SERVER_COMMUNICATION
 
@@ -356,7 +356,7 @@ void GameFramework::InitPlayer()
 	mPlayerScript = mPlayer->AddComponent<Script_PheroPlayer>();
 
 #ifdef SERVER_COMMUNICATION
-	auto& networkScript = mPlayer->AddComponent<Script_PlayerNetwork>();
+	auto& networkScript = mPlayer->AddComponent<Script_NetworkPlayer>();
 #endif
 }
 

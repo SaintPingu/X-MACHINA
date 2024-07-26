@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Script_RemotePlayer.h"
+#include "Script_NetworkRemotePlayer.h"
 #include "GameMonster.h"
 
 

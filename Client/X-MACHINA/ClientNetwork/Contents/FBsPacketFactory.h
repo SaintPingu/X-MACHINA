@@ -110,7 +110,7 @@ public:
 	SPtr_SendPktBuf CPkt_GetPhero(uint32_t phero_id, uint32_t player_id);
 
 	/* BULLET */
-	SPtr_SendPktBuf CPkt_Bullet_OnShoot(uint32_t playerID, uint32_t gunID, uint32_t bulletID, Vec3 ray);
+	SPtr_SendPktBuf CPkt_Bullet_OnShoot(Vec3 ray);
 	SPtr_SendPktBuf CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID);
 
 private:

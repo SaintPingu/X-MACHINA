@@ -19,7 +19,7 @@
 #include "ClientNetwork/Contents/NetworkEvents.h"
 #include "ClientNetwork/Contents/GamePlayer.h"
 #include "ClientNetwork/Contents/GameMonster.h"
-#include "ClientNetwork/Contents/Script_RemotePlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 #include "BattleScene.h"
 #include "InputMgr.h"
 
@@ -40,7 +40,7 @@ private:
 	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
 
-	std::unordered_map<UINT32, class Script_EnemyNetwork*> mRemoteMonsters{};
+	std::unordered_map<UINT32, class Script_NetworkEnemy*> mRemoteMonsters{};
 	Concurrency::concurrent_unordered_map<uint32_t, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 

@@ -95,37 +95,16 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 		object->AddComponent<Script_Item_WeaponCrate>()->LoadData(exporter);
 		break;
 	case Hash("AdvancedCombatDroid"):
-		object->AddComponent<Script_AdvancedCombatDroid_5>();
-		break;
 	case Hash("Onyscidus"):
-		object->AddComponent<Script_Onyscidus>();
-		break;
 	case Hash("Ursacetus"):
-		object->AddComponent<Script_Ursacetus>();
-		break;
 	case Hash("Arack"):
-		object->AddComponent<Script_Arack>();
-		break;
 	case Hash("Ceratoferox"):
-		object->AddComponent<Script_Ceratoferox>();
-		break;
 	case Hash("Anglerox"):
-		object->AddComponent<Script_Anglerox>();
-		break;
 	case Hash("MiningMech"):
-		object->AddComponent<Script_MiningMech>();
-		break;
 	case Hash("Aranobot"):
-		object->AddComponent<Script_Aranobot>();
-		break;
 	case Hash("Gobbler"):
-		object->AddComponent<Script_Gobbler>();
-		break;
 	case Hash("Rapax"):
-		object->AddComponent<Script_Rapax>();
-		break;
 	case Hash("LightBipedMech"):
-		object->AddComponent<Script_LightBipedMech>();
 		break;
 	default:
 		throw std::runtime_error("[Error] Couldn't import script");

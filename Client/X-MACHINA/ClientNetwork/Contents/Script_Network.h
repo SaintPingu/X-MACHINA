@@ -12,5 +12,5 @@ class Script_Network abstract : public Component {
 	COMPONENT_ABSTRACT(Script_Network, Component)
 
 public:
-	virtual void UpdateData(const void* data) abstract;
+	virtual void UpdateData(const void* data) {}
 };

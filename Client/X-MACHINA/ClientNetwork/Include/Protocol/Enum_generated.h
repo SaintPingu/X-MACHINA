@@ -60,11 +60,12 @@ enum WEAPON_TYPE : uint8_t {
   WEAPON_TYPE_PIPELINE = 5,
   WEAPON_TYPE_BURNOUT = 6,
   WEAPON_TYPE_DIRECT_DRAIN = 7,
+  WEAPON_TYPE_SKYLINE = 8,
   WEAPON_TYPE_MIN = WEAPON_TYPE_H_LOOK,
-  WEAPON_TYPE_MAX = WEAPON_TYPE_DIRECT_DRAIN
+  WEAPON_TYPE_MAX = WEAPON_TYPE_SKYLINE
 };
 
-inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[8] {
+inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[9] {
   static const WEAPON_TYPE values[] = {
     WEAPON_TYPE_H_LOOK,
     WEAPON_TYPE_DBMS,
@@ -73,13 +74,14 @@ inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[8] {
     WEAPON_TYPE_T_12,
     WEAPON_TYPE_PIPELINE,
     WEAPON_TYPE_BURNOUT,
-    WEAPON_TYPE_DIRECT_DRAIN
+    WEAPON_TYPE_DIRECT_DRAIN,
+    WEAPON_TYPE_SKYLINE
   };
   return values;
 }
 
 inline const char * const *EnumNamesWEAPON_TYPE() {
-  static const char * const names[9] = {
+  static const char * const names[10] = {
     "H_LOOK",
     "DBMS",
     "STUART",
@@ -88,48 +90,115 @@ inline const char * const *EnumNamesWEAPON_TYPE() {
     "PIPELINE",
     "BURNOUT",
     "DIRECT_DRAIN",
+    "SKYLINE",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameWEAPON_TYPE(WEAPON_TYPE e) {
-  if (::flatbuffers::IsOutRange(e, WEAPON_TYPE_H_LOOK, WEAPON_TYPE_DIRECT_DRAIN)) return "";
+  if (::flatbuffers::IsOutRange(e, WEAPON_TYPE_H_LOOK, WEAPON_TYPE_SKYLINE)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesWEAPON_TYPE()[index];
 }
 
 enum MONSTER_TYPE : uint8_t {
   MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5 = 0,
-  MONSTER_TYPE_ONYSCIDUS = 1,
-  MONSTER_TYPE_URSACETUS = 2,
+  MONSTER_TYPE_ANGLEROX = 1,
+  MONSTER_TYPE_ARACK = 2,
+  MONSTER_TYPE_ARANOBOT = 3,
+  MONSTER_TYPE_CERATOFEROX = 4,
+  MONSTER_TYPE_GOBBLER = 5,
+  MONSTER_TYPE_LIGHTBIPEDMECH = 6,
+  MONSTER_TYPE_MININGMECH = 7,
+  MONSTER_TYPE_ONYSCIDUS = 8,
+  MONSTER_TYPE_URSACETUS = 9,
+  MONSTER_TYPE_RAPAX = 10,
   MONSTER_TYPE_MIN = MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
-  MONSTER_TYPE_MAX = MONSTER_TYPE_URSACETUS
+  MONSTER_TYPE_MAX = MONSTER_TYPE_RAPAX
 };
 
-inline const MONSTER_TYPE (&EnumValuesMONSTER_TYPE())[3] {
+inline const MONSTER_TYPE (&EnumValuesMONSTER_TYPE())[11] {
   static const MONSTER_TYPE values[] = {
     MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
+    MONSTER_TYPE_ANGLEROX,
+    MONSTER_TYPE_ARACK,
+    MONSTER_TYPE_ARANOBOT,
+    MONSTER_TYPE_CERATOFEROX,
+    MONSTER_TYPE_GOBBLER,
+    MONSTER_TYPE_LIGHTBIPEDMECH,
+    MONSTER_TYPE_MININGMECH,
     MONSTER_TYPE_ONYSCIDUS,
-    MONSTER_TYPE_URSACETUS
+    MONSTER_TYPE_URSACETUS,
+    MONSTER_TYPE_RAPAX
   };
   return values;
 }
 
 inline const char * const *EnumNamesMONSTER_TYPE() {
-  static const char * const names[4] = {
+  static const char * const names[12] = {
     "ADVANCED_COMBAT_DROIR_5",
+    "ANGLEROX",
+    "ARACK",
+    "ARANOBOT",
+    "CERATOFEROX",
+    "GOBBLER",
+    "LIGHTBIPEDMECH",
+    "MININGMECH",
     "ONYSCIDUS",
     "URSACETUS",
+    "RAPAX",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMONSTER_TYPE(MONSTER_TYPE e) {
-  if (::flatbuffers::IsOutRange(e, MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5, MONSTER_TYPE_URSACETUS)) return "";
+  if (::flatbuffers::IsOutRange(e, MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5, MONSTER_TYPE_RAPAX)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMONSTER_TYPE()[index];
+}
+
+enum MONSTER_BT_TYPE : uint8_t {
+  MONSTER_BT_TYPE_DEATH = 0,
+  MONSTER_BT_TYPE_ATTACK = 1,
+  MONSTER_BT_TYPE_GETHIT = 2,
+  MONSTER_BT_TYPE_MOVE_TO_TARGET = 3,
+  MONSTER_BT_TYPE_MOVE_TO_PATH = 4,
+  MONSTER_BT_TYPE_PATROL = 5,
+  MONSTER_BT_TYPE_MIN = MONSTER_BT_TYPE_DEATH,
+  MONSTER_BT_TYPE_MAX = MONSTER_BT_TYPE_PATROL
+};
+
+inline const MONSTER_BT_TYPE (&EnumValuesMONSTER_BT_TYPE())[6] {
+  static const MONSTER_BT_TYPE values[] = {
+    MONSTER_BT_TYPE_DEATH,
+    MONSTER_BT_TYPE_ATTACK,
+    MONSTER_BT_TYPE_GETHIT,
+    MONSTER_BT_TYPE_MOVE_TO_TARGET,
+    MONSTER_BT_TYPE_MOVE_TO_PATH,
+    MONSTER_BT_TYPE_PATROL
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMONSTER_BT_TYPE() {
+  static const char * const names[7] = {
+    "DEATH",
+    "ATTACK",
+    "GETHIT",
+    "MOVE_TO_TARGET",
+    "MOVE_TO_PATH",
+    "PATROL",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMONSTER_BT_TYPE(MONSTER_BT_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, MONSTER_BT_TYPE_DEATH, MONSTER_BT_TYPE_PATROL)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMONSTER_BT_TYPE()[index];
 }
 
 enum PLAYER_MOTION_STATE_TYPE : uint8_t {
@@ -172,48 +241,6 @@ inline const char *EnumNamePLAYER_MOTION_STATE_TYPE(PLAYER_MOTION_STATE_TYPE e) 
   if (::flatbuffers::IsOutRange(e, PLAYER_MOTION_STATE_TYPE_NONE, PLAYER_MOTION_STATE_TYPE_SPRINT)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPLAYER_MOTION_STATE_TYPE()[index];
-}
-
-enum MONSTER_STATE_TYPE : uint8_t {
-  MONSTER_STATE_TYPE_ATTACK = 0,
-  MONSTER_STATE_TYPE_HIT = 1,
-  MONSTER_STATE_TYPE_MOVE = 2,
-  MONSTER_STATE_TYPE_SPAWN = 3,
-  MONSTER_STATE_TYPE_PATROL = 4,
-  MONSTER_STATE_TYPE_DEAD = 5,
-  MONSTER_STATE_TYPE_MIN = MONSTER_STATE_TYPE_ATTACK,
-  MONSTER_STATE_TYPE_MAX = MONSTER_STATE_TYPE_DEAD
-};
-
-inline const MONSTER_STATE_TYPE (&EnumValuesMONSTER_STATE_TYPE())[6] {
-  static const MONSTER_STATE_TYPE values[] = {
-    MONSTER_STATE_TYPE_ATTACK,
-    MONSTER_STATE_TYPE_HIT,
-    MONSTER_STATE_TYPE_MOVE,
-    MONSTER_STATE_TYPE_SPAWN,
-    MONSTER_STATE_TYPE_PATROL,
-    MONSTER_STATE_TYPE_DEAD
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesMONSTER_STATE_TYPE() {
-  static const char * const names[7] = {
-    "ATTACK",
-    "HIT",
-    "MOVE",
-    "SPAWN",
-    "PATROL",
-    "DEAD",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameMONSTER_STATE_TYPE(MONSTER_STATE_TYPE e) {
-  if (::flatbuffers::IsOutRange(e, MONSTER_STATE_TYPE_ATTACK, MONSTER_STATE_TYPE_DEAD)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesMONSTER_STATE_TYPE()[index];
 }
 
 enum PLAYER_SKILL_TYPE : uint8_t {

@@ -5,6 +5,9 @@
 #include "Script_Item.h"
 
 #include "Object.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 
 
 bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -89,6 +92,11 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mWeapon->SetActive(true);
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
 		mMuzzle = mWeaponScript->GetMuzzle();
+
+		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
+		CLIENT_NETWORK->Send(cpkt); 
+
+
 	}
 }
 

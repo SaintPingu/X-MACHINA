@@ -26,6 +26,10 @@ void IRDetectorAbility::Activate()
 {
 	base::Activate();
 	BattleScene::I->SetFilterOptions(FilterOption::Custom);
+
+
+
+
 }
 
 void IRDetectorAbility::DeActivate()

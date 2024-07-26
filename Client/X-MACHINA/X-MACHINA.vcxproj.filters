@@ -91,6 +91,27 @@
     <Filter Include="Script\Weapon">
       <UniqueIdentifier>{b20bf65b-e92a-4c4c-9b3e-a1d70735dffb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network Bullet">
+      <UniqueIdentifier>{fd3da2b0-93a9-4f15-b629-c2dd55c7917c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network LiveObject">
+      <UniqueIdentifier>{d5868740-4e88-48d4-808a-69cfe5a34028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player">
+      <UniqueIdentifier>{2d5a75a7-c724-4968-8a6d-73735847f68b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network LiveObject\Network Enemy">
+      <UniqueIdentifier>{99a66b71-da46-4def-9a0b-5d374b6968c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote">
+      <UniqueIdentifier>{cc3c5004-e6a5-4093-b5bf-3c5d59623690}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\player">
+      <UniqueIdentifier>{730595ab-3bf8-4c71-8556-e6e51e002bf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon">
+      <UniqueIdentifier>{4565990e-c9a4-43ed-a6aa-95a2cf674594}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -256,9 +277,6 @@
     <ClInclude Include="ClientNetwork\Contents\Script_Network.h">
       <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClInclude>
-    <ClInclude Include="ClientNetwork\Contents\Script_PlayerNetwork.h">
-      <Filter>ClientNetwork\Network\NetworkScript</Filter>
-    </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h">
       <Filter>ClientNetwork\Network</Filter>
     </ClInclude>
@@ -267,9 +285,6 @@
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\FBsPacketFactory.h">
       <Filter>ClientNetwork\Network\Packet</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientNetwork\Contents\Script_RemotePlayer.h">
-      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_Missile.h">
       <Filter>헤더 파일</Filter>
@@ -384,6 +399,33 @@
     </ClInclude>
     <ClInclude Include="include\Script_Ursacetus.h">
       <Filter>Script\Enemy\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkBullet.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkEnemy.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkLiveObject.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingRemotePlayer.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkPlayer.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\player</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\player</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkWeapon.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkBulletWeapon.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -504,9 +546,6 @@
     <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp">
       <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClCompile>
-    <ClCompile Include="ClientNetwork\Contents\Script_PlayerNetwork.cpp">
-      <Filter>ClientNetwork\Network\NetworkScript</Filter>
-    </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp">
       <Filter>ClientNetwork\Network</Filter>
     </ClCompile>
@@ -515,9 +554,6 @@
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\FBsPacketFactory.cpp">
       <Filter>ClientNetwork\Network\Packet</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientNetwork\Contents\Script_RemotePlayer.cpp">
-      <Filter>ClientNetwork\Network\NetworkScript</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Missile.cpp">
       <Filter>Script\Object</Filter>
@@ -638,6 +674,33 @@
     </ClCompile>
     <ClCompile Include="src\PopupUI.cpp">
       <Filter>Script\UI</Filter>
+    /ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkBullet.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkEnemy.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkLiveObject.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkShootingRemotePlayer.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkPlayer.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\player</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\player</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkWeapon.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkBulletWeapon.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

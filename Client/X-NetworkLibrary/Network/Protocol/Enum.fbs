@@ -24,17 +24,41 @@ enum WEAPON_TYPE : ubyte {
 	T_12,
 	PIPELINE,
 	BURNOUT,
-	DIRECT_DRAIN
+	DIRECT_DRAIN,
+	SKYLINE,
+
 }
 
 // +------------------------
-//		 WEAPON TYPE 
+//		 MONSTER_TYPE 
 // ------------------------+
 enum MONSTER_TYPE : ubyte {
 	ADVANCED_COMBAT_DROIR_5,
+	ANGLEROX,
+	ARACK,
+	ARANOBOT,
+	CERATOFEROX,
+	GOBBLER,
+	LIGHTBIPEDMECH,
+	MININGMECH,
 	ONYSCIDUS,
-	URSACETUS
+	URSACETUS,
+	RAPAX
+
 }
+
+// +------------------------
+//		 MONSTER_BT_TYPE 
+// ------------------------+
+enum MONSTER_BT_TYPE : ubyte {
+	DEATH,
+	ATTACK,
+	GETHIT,
+	MOVE_TO_TARGET,
+	MOVE_TO_PATH,
+	PATROL
+}
+
 
 
 // +------------------------
@@ -49,17 +73,6 @@ enum PLAYER_MOTION_STATE_TYPE : ubyte {
 	SPRINT
 }
 
-// +------------------------
-//      MONSTER STATE 
-// ------------------------+
-enum MONSTER_STATE_TYPE : ubyte {
-	ATTACK,
-	HIT,
-	MOVE,
-	SPAWN,
-	PATROL,
-	DEAD
-}
 
 // +------------------------
 //      SKILL TYPE

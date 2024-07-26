@@ -165,19 +165,19 @@ table SPkt_Player_Transform
 }
 
 // +------------------------
-//      PALYER Aim  Rotation
+//	   PALYER Aim  Rotation
 // ------------------------+
 
 table CPkt_Player_AimRotation
 {
-   aim_rotation         : float; // Y rotation Euler
+	aim_rotation			: float; // Y rotation Euler
 }
 
 table SPkt_Player_AimRotation
 {
-   player_id            : uint;   // 8 bytes
+	player_id				: uint;	// 8 bytes
 
-   aim_rotation          : float; // Y rotation Euler
+	aim_rotation		    : float; // Y rotation Euler
 }
 
 
@@ -247,13 +247,30 @@ table CPkt_DeadMonster
 
 table SPkt_DeadMonster
 {
-   id          : uint;
-   dead_point : Position_Vec2;
+	id			 : uint;
+	dead_point   : Position_Vec2;
 }
 
 
 // +------------------------
-//      REMOVE MONSTER   
+//	   MONSTER TARGET  
+// ------------------------+
+table CPkt_MonsterTarget
+{
+
+}
+
+table SPkt_MonsterTarget
+{
+	monster_id			: int;
+	target_player_id	: int;
+	target_montser_id	: int;
+}
+
+
+
+// +------------------------
+//	   REMOVE MONSTER   
 // ------------------------+
 table CPkt_RemoveMonster
 {
@@ -305,9 +322,9 @@ table CPkt_Monster_State
 
 table SPkt_Monster_State
 {
-   monster_id   : uint;               // 4 bytes
-   state      : MONSTER_STATE_TYPE;   // 1 byte
-   
+	monster_id		: uint;					// 4 bytes
+	monster_bt_type	: MONSTER_BT_TYPE;		// 1 byte
+	
 }
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -337,7 +354,7 @@ table SPkt_GetPhero
 
 table CPkt_Bullet_OnShoot
 {
-
+	ray : Vector3;
 }
 
 table SPkt_Bullet_OnShoot
@@ -362,9 +379,9 @@ table CPkt_Bullet_OnCollision
 
 table SPkt_Bullet_OnCollision
 {
-   player_id : uint; // 4 bytes - 어떤 플레이어가 
-   gun_id    : uint; // 4 bytes - 어떤 총이고 
-   bullet_id : uint; // 4 bytes - 어떤 총알이 충돌했는가?
+	player_id : uint; // 4 bytes - 어떤 플레이어가 
+	gun_id    : WEAPON_TYPE; // 4 bytes - 어떤 총이고 
+	bullet_id : uint; // 4 bytes - 어떤 총알이 충돌했는가?
 }
 
 

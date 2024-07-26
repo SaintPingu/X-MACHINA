@@ -7,8 +7,8 @@
 #include "ClientNetwork/Include/SendBuffersFactory.h"
 #include "ClientNetwork/Include/SocketData.h"
 
-#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
-#include "ClientNetwork/Contents/Script_RemotePlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkPlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 #include "ClientNetwork/Contents/ServerSession.h"
 
 
@@ -123,6 +123,13 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 	break;
 	
 
+	case FBsProtocolID::SPkt_PlayerOnSkill:
+	{
+		const FBProtocol::SPkt_PlayerOnSkill* packet = flatbuffers::GetRoot<FBProtocol::SPkt_PlayerOnSkill>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Player_OnSkill(session, *packet);
+	}
+	break;
 	/// ________________________________________________________________________________
 	/// Monster 
 	/// ________________________________________________________________________________ 
@@ -154,6 +161,13 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		const FBProtocol::SPkt_Monster_State* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Monster_State>(DataPtr);
 		if (!packet) return false;
 		Process_SPkt_Monster_State(session, *packet);
+	}
+	break;
+	case FBsProtocolID::SPkt_Monster_Target:
+	{
+		const FBProtocol::SPkt_MonsterTarget* packet = flatbuffers::GetRoot<FBProtocol::SPkt_MonsterTarget>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Monster_Target(session, *packet);
 	}
 	break;
 	/// ________________________________________________________________________________
@@ -265,6 +279,10 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 	LOG_MGR->SetColor(TextColor::BrightGreen);
 	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
 	LOG_MGR->SetColor(TextColor::Default);
+
+	MyInfo.Name = "MyPlayer";
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(MyInfo);
+	CLIENT_NETWORK->RegisterEvent(EventData);
 
 	/// ________________________________________________________________________________
 	/// Remote Player infos ( Range : Same Room ) 
@@ -460,8 +478,8 @@ bool FBsPacketFactory::Process_SPkt_Player_Transform(SPtr_Session session, const
 	}
 	else {
 		//data.TargetPos = Packetpos + (data.MoveDir * vel * ((data.PingTime) / 1000.0));
-		data.TargetPos.x = Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0f));
-		data.TargetPos.z = Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0f));
+		data.TargetPos.x = static_cast<float>(Packetpos.x + (data.MoveDir.x * velocity * ((data.PingTime) / 1000.0)));
+		data.TargetPos.z = static_cast<float>(Packetpos.z + (data.MoveDir.z * velocity * ((data.PingTime) / 1000.0)));
 
 	}
 
@@ -524,12 +542,24 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 	uint32_t				player_id   = pkt.player_id();
 	FBProtocol::WEAPON_TYPE weapon_type = pkt.weapon_type();
 
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> EventData = CLIENT_NETWORK->CreateEvent_UpdateWeapon_RemotePlayer(player_id, weapon_type);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
 	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const FBProtocol::SPkt_PlayerOnSkill& pkt)
 {
-	return false;
+	int								player_id		= pkt.player_id();
+	float							phero_amount	= pkt.phero_amount();
+	FBProtocol::PLAYER_SKILL_TYPE	skill_type		= pkt.skill_type();
+	
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> EventData = CLIENT_NETWORK->CreateEvent_UpdateOnSkill_RemotePlayer(player_id, skill_type, phero_amount);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
+	LOG_MGR->Cout(player_id, " : ", static_cast<int>(skill_type));
+
+	return true;
 }
 
 bool FBsPacketFactory::Process_SPkt_Player_AimRotation(SPtr_Session session, const FBProtocol::SPkt_Player_AimRotation& pkt)
@@ -596,7 +626,16 @@ bool FBsPacketFactory::Process_SPkt_Monster_Transform(SPtr_Session session, cons
 	Vec3	 Position   = GetVector3(pkt.trans()->position());
 	Vec3	 Rotation   = GetVector3(pkt.trans()->rotation());
 
+	std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos;
 	
+	NetworkEvent::Game::Event_Monster::MonsterMove info;
+	info.Id  = monster_id;
+	info.Pos = Position;
+	info.Rot = Rotation;
+	infos.push_back(info);
+
+	sptr<NetworkEvent::Game::Event_Monster::Move> Ext_EventData = CLIENT_NETWORK->CreateEvent_Move_Monster(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 	return true;
 }
 
@@ -612,8 +651,7 @@ bool FBsPacketFactory::Process_SPkt_Monster_HP(SPtr_Session session, const FBPro
 	uint32_t monster_id    = pkt.monster_id();
 	float	 monster_hp    = pkt.hp();
 
-
-
+	
 	return true;
 }
 
@@ -629,10 +667,39 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	
 	uint32_t						monster_id = pkt.monster_id();
-	FBProtocol::MONSTER_STATE_TYPE	state_type = pkt.state();
+	FBProtocol::MONSTER_BT_TYPE		state_type = pkt.monster_bt_type();
+
+	std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos;
+	NetworkEvent::Game::Event_Monster::MonsterUpdateState info;
+	info.Id    = monster_id;
+	info.state = state_type;
+	infos.push_back(info);
+	
+	sptr<NetworkEvent::Game::Event_Monster::UpdateState> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateState_Monster(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 
 
 	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_Monster_Target(SPtr_Session session, const FBProtocol::SPkt_MonsterTarget& pkt)
+{
+	int monster_id        = pkt.monster_id();
+	int target_monster_id = pkt.target_montser_id();
+	int target_player_id  = pkt.target_player_id();
+
+	std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos;
+	NetworkEvent::Game::Event_Monster::MonsterTarget info;
+	info.id                = monster_id;
+	info.target_monster_id = target_monster_id;
+	info.target_player_id  = target_player_id;
+	infos.push_back(info);
+
+	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Monster_Target(infos);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
+	return true;
+
 }
 
 bool FBsPacketFactory::Process_SPkt_DeadMonster(SPtr_Session session, const FBProtocol::SPkt_DeadMonster& pkt)
@@ -674,6 +741,15 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 	/// > 	ray			: Vector3;		// 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
 	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	
+	int  bullet_id	 = pkt.bullet_id();
+	int  gun_id		 = pkt.gun_id();
+	int  player_id	 = pkt.player_id();
+	Vec3& ray		 = GetVector3(pkt.ray());
+
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateOnShoot_RemotePlayer(player_id, bullet_id, gun_id, ray);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
 	return true;
 }
 
@@ -687,6 +763,7 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, con
 	/// > 	bullet_id	: int;  // 4 bytes - 어떤 총알이 충돌했는가?
 	/// > }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+	
 	return true;
 }
 
@@ -878,16 +955,41 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE wea
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	flatbuffers::FlatBufferBuilder builder{};
 
-	FBProtocol::CreateCPkt_Player_Weapon(builder, weaponType);
 
+	auto ServerPacket = FBProtocol::CreateCPkt_Player_Weapon(builder, weaponType);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Player_Weapon);
+	return sendBuffer;
+}
 
-
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(WeaponName weaponName)
+{
+	switch (weaponName)
+	{
+	case WeaponName::H_Lock:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_H_LOOK);
+	case WeaponName::DBMS:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_DBMS);
+	case WeaponName::SkyLine:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_SKYLINE);
+	case WeaponName::Burnout:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_BURNOUT);
+	case WeaponName::PipeLine:
+		return CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_PIPELINE);
+	default:
+		break;
+	}
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType)
 {
-	return SPtr_SendPktBuf();
+	flatbuffers::FlatBufferBuilder builder{};
+
+	auto ServerPacket = FBProtocol::CreateCPkt_PlayerOnSkill(builder, skillType);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_PlayerOnSkill);
+	return sendBuffer;
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_AimRotation(float aim_rotation_y)
@@ -950,7 +1052,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_HP(uint32_t monsterID, float hp)
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_STATE_TYPE state)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_BT_TYPE state)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	/// table CPkt_Monster_State
@@ -987,7 +1089,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_GetPhero(uint32_t phero_id, uint32_t play
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(uint32_t playerID, uint32_t gunID, uint32_t bulletID, Vec3 ray)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 ray)
 {
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 	/// table CPkt_Bullet_OnShoot
@@ -995,7 +1097,14 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(uint32_t playerID, uint32_
 	/// 
 	/// }
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-	return SPtr_SendPktBuf();
+	flatbuffers::FlatBufferBuilder builder{};
+
+	auto RayDir = FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+
+	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnShoot(builder, RayDir);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnShoot);
+	return sendBuffer;
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID)
@@ -1037,11 +1146,14 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 {
 	GameMonsterInfo info = {};
 
-	info.Id = monster->id();
-	info.Type = static_cast<MonsterType>(monster->type());
+	info.Id		       = monster->id();
+	info.Type	       = monster->type();
+	info.Pos		   = GetPosition_Vec2(monster->pos());
+	std::string pheros = monster->pheros()->c_str();
+	info.InitPheros(pheros);
 
-	Vec3 monster_pos = GetPosition_Vec2(monster->pos());
-	monster->pheros();
+	info.Target_Player_Id = monster->target_player_id();
+
 
 	return info;
 }

@@ -47,4 +47,5 @@ BT::NodeState TaskGetHit::Evaluate()
 void TaskGetHit::GetHitEndCallback()
 {
 	mEnemyMgr->mController->SetValue("GetHit", false);
+	mEnemyMgr->mState = EnemyState::Idle;
 }

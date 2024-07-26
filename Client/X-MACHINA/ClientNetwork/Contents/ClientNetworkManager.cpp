@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ClientNetworkManager.h"
+#include "GameFramework.h"
 
 #include "Script_Ursacetus.h"
 #include "Script_Onyscidus.h"
@@ -12,6 +13,11 @@
 #include "Script_LightBipedMech.h"
 #include "Script_MiningMech.h"
 #include "Script_Rapax.h"
+#include "Script_Onyscidus.h"
+#include "Script_Rapax.h"
+#include "Script_MiningMech.h"
+#include "Script_NetworkEnemy.h"
+#include "Script_EnemyManager.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -24,8 +30,11 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Include/NetworkManager.h"
 #include "ClientNetwork/Include/SendBuffersFactory.h"
-#include "ClientNetwork/Contents/Script_RemotePlayer.h"
-#include "ClientNetwork/Contents/Script_PlayerNetwork.h"
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkPlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkEnemy.h"
+#include "ClientNetwork/Contents/SCript_NetworkShootingPlayer.h"
+
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 
 #include "X-Engine.h"
@@ -106,7 +115,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.15", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -195,6 +204,26 @@ void ClientNetworkManager::ProcessEvents()
 			ProcessEvent_RemotePlayer_AimRotation(data);
 		}
 		break;
+		case NetworkEvent::Game::RemotePlayerType::UpdateWeapon:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon*>(EventData.get());
+			ProcessEvent_RemotePlayer_UpdateWeapon(data);
+		}
+		break;
+		case NetworkEvent::Game::RemotePlayerType::OnShoot:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot*>(EventData.get());
+			ProcessEvent_RemotePlayer_UpdateOnShoot(data);
+		}
+		break;
+		case NetworkEvent::Game::RemotePlayerType::OnSkill:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill*>(EventData.get());
+			ProcessEvent_RemotePlayer_UpdateOnSkill(data);
+		}
+		break;
+
+
 		/// +---------------------------------------------------------------------------
 		/// >> ▶▶▶▶▶ PROCESS EVENT MONSTER  
 		/// ---------------------------------------------------------------------------+
@@ -226,6 +255,12 @@ void ClientNetworkManager::ProcessEvents()
 		{
 			NetworkEvent::Game::Event_Monster::UpdateState* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateState*>(EventData.get());
 			ProcessEvent_Monster_UpdateState(data);
+		}
+		break;
+		case NetworkEvent::Game::MonsterType::Target:
+		{
+			NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate*>(EventData.get());
+			ProcessEvent_Monster_Target(data);
 		}
 		break;
 		}
@@ -278,6 +313,15 @@ std::string ClientNetworkManager::GetLocalIPv4Address()
 	return ipAddress;
 }
 
+GridObject* ClientNetworkManager::GetRemotePlayer(UINT32 id) 
+{
+	GridObject* player = nullptr;
+	if (mRemotePlayers.count(id)) {
+		player = mRemotePlayers[id];
+	}
+	return player;
+}
+
 
 
 long long ClientNetworkManager::GetTimeStamp()
@@ -297,7 +341,7 @@ void ClientNetworkManager::Send(SPtr_PacketSendBuf pkt)
 /// ---------------------------------------------------------------------------+
 sptr<NetworkEvent::Game::Event_RemotePlayer::Add> ClientNetworkManager::CreateEvent_Add_RemotePlayer(GamePlayerInfo info)
 {
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Add>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::Add>();
 	
 	Event->type				= NetworkEvent::Game::RemotePlayerType::Add;
 
@@ -312,7 +356,7 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::Add> ClientNetworkManager::CreateEv
 
 sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> ClientNetworkManager::CreateEvent_Remove_RemotePlayer(uint32_t remID)
 {
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Remove>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::Remove>();
 	
 	Event->type = NetworkEvent::Game::RemotePlayerType::Remove;
 
@@ -323,7 +367,7 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::Remove> ClientNetworkManager::Creat
 
 sptr<NetworkEvent::Game::Event_RemotePlayer::Move> ClientNetworkManager::CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate )
 {
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Move>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Move> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::Move>();
 
 	Event->type = NetworkEvent::Game::RemotePlayerType::Move;
 
@@ -336,7 +380,7 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::Move> ClientNetworkManager::CreateE
 
 sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> ClientNetworkManager::CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata)
 {
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>();
 
 	Event->type = NetworkEvent::Game::RemotePlayerType::Extrapolate;
 
@@ -355,7 +399,7 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate> ClientNetworkManager::
 
 sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> ClientNetworkManager::CreateEvent_UpdateAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
 {
-	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>();
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>();
 
 	Event->type = NetworkEvent::Game::RemotePlayerType::UpdateAnimation;
 	
@@ -380,9 +424,49 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> ClientNetworkMan
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> ClientNetworkManager::CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::WEAPON_TYPE weaponType)
+{
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>();
+	
+	Event->type = NetworkEvent::Game::RemotePlayerType::UpdateWeapon;
+
+	Event->Id	= remID;
+
+	Event->type = weaponType;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> ClientNetworkManager::CreateEvent_UpdateOnShoot_RemotePlayer(uint32_t remID, int bullet_id , int weapon_id, Vec3 ray)
+{
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot>();
+	
+	Event->type = NetworkEvent::Game::RemotePlayerType::OnShoot;
+
+	Event->id			= remID;
+	Event->bullet_id	= bullet_id;
+	Event->weapon_id	= weapon_id;
+	Event->ray			= ray;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> ClientNetworkManager::CreateEvent_UpdateOnSkill_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_SKILL_TYPE skillType, float phero_amount)
+{
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill>();
+
+	Event->type = NetworkEvent::Game::RemotePlayerType::OnSkill;
+
+	Event->id			= remID;
+	Event->skill_type	= skillType;
+	Event->phero_amount = phero_amount;
+
+	return Event;
+}
+
 sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos)
 {
-	sptr<NetworkEvent::Game::Event_Monster::Add> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Add>();
+	sptr<NetworkEvent::Game::Event_Monster::Add> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::Add>();
 
 	Event->type = NetworkEvent::Game::MonsterType::Add;
 	Event->NewMonsterInfos = infos;
@@ -392,7 +476,7 @@ sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_A
 
 sptr<NetworkEvent::Game::Event_Monster::Remove> ClientNetworkManager::CreateEvent_Remove_Monster(std::vector<uint32_t> Ids)
 {
-	sptr<NetworkEvent::Game::Event_Monster::Remove> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Remove>();
+	sptr<NetworkEvent::Game::Event_Monster::Remove> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::Remove>();
 	Event->type = NetworkEvent::Game::MonsterType::Remove;
 	Event->IDs = Ids;
 	return Event;
@@ -400,7 +484,7 @@ sptr<NetworkEvent::Game::Event_Monster::Remove> ClientNetworkManager::CreateEven
 
 sptr<NetworkEvent::Game::Event_Monster::Move> ClientNetworkManager::CreateEvent_Move_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos)
 {
-	sptr<NetworkEvent::Game::Event_Monster::Move> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Move>();
+	sptr<NetworkEvent::Game::Event_Monster::Move> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::Move>();
 	Event->type = NetworkEvent::Game::MonsterType::Move;
 	Event->Mons = infos;
 
@@ -409,7 +493,7 @@ sptr<NetworkEvent::Game::Event_Monster::Move> ClientNetworkManager::CreateEvent_
 
 sptr<NetworkEvent::Game::Event_Monster::UpdateHP> ClientNetworkManager::CreateEvent_UpdateHP_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterHP> infos)
 {
-	sptr<NetworkEvent::Game::Event_Monster::UpdateHP> Event = std::make_shared<NetworkEvent::Game::Event_Monster::UpdateHP>();
+	sptr<NetworkEvent::Game::Event_Monster::UpdateHP> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::UpdateHP>();
 	Event->type = NetworkEvent::Game::MonsterType::UpdateHP;
 	Event->Mons = infos;
 
@@ -418,13 +502,21 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateHP> ClientNetworkManager::CreateEv
 
 sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos)
 {
-	sptr<NetworkEvent::Game::Event_Monster::UpdateState> Event = std::make_shared<NetworkEvent::Game::Event_Monster::UpdateState>();
+	sptr<NetworkEvent::Game::Event_Monster::UpdateState> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::UpdateState>();
 	Event->type = NetworkEvent::Game::MonsterType::UpdateState;
 	Event->Mons = infos;
 
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> ClientNetworkManager::CreateEvent_Monster_Target(std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos)
+{
+	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate>();
+	Event->type = NetworkEvent::Game::MonsterType::Target;
+	Event->Mons = infos;
+
+	return Event;
+}
 
 
 /// +---------------------------------------------------------------------------
@@ -432,6 +524,11 @@ sptr<NetworkEvent::Game::Event_Monster::UpdateState> ClientNetworkManager::Creat
 /// ---------------------------------------------------------------------------+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data )
 {
+	if (data->Name == "MyPlayer") {
+		mRemotePlayers[static_cast<UINT32>(data->Id)] = GameFramework::I->GetPlayer();
+		return;
+	}
+
 	GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
 	remotePlayer->GetAnimator()->GetController()->SetRemotePlayer();
 	remotePlayer->SetName(data->Name);
@@ -439,15 +536,8 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
 	LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
 
-	remotePlayer->AddComponent<Script_RemotePlayer>();
-
-
-	//Vec4 rot   = remotePlayer->GetRotation();
-	//Vec3 euler = Quaternion::ToEuler(rot);
-	//euler.y    = data->RemoteP_Rot.y;
-	//remotePlayer->SetLocalRotation(Quaternion::ToQuaternion(euler));
-
-
+	remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
+	
 	mRemotePlayers[static_cast<UINT32>(data->Id)] = remotePlayer;
 	std::cout << "Process Event : Add_RemotePlayer - " << remotePlayer << std::endl;
 }
@@ -462,7 +552,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Ev
 {
 	if (mRemotePlayers.count(data->Id)) {
 		GridObject* player = mRemotePlayers[data->Id];
-		player->GetComponent<Script_RemotePlayer>()->SetPacketPos(data->Pos);
+		player->GetComponent<Script_NetworkRemotePlayer>()->SetPacketPos(data->Pos);
 		//player->SetPosition(data->RemoteP_Pos);
 	}
 	else {
@@ -488,7 +578,11 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Extrapolate(NetworkEvent::G
 	ExtrapolatedData.Animdata.AnimParam_h = data->animparam_h;
 	ExtrapolatedData.Animdata.AnimParam_v = data->animparam_v;
 
-	player->GetComponent<Script_RemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
+	if ((player->GetPosition() - ExtrapolatedData.TargetPos).Length() >= 5.f) {
+		player->SetPosition(ExtrapolatedData.TargetPos);
+	}
+
+	player->GetComponent<Script_NetworkRemotePlayer>()->SetExtrapolatedData(ExtrapolatedData);
 
 }
 
@@ -509,58 +603,103 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_AimRotation(NetworkEvent::G
 	}
 	GridObject* player = mRemotePlayers[data->id];
 	player->GetComponent<Script_RemotePlayer>()->RotateTo(data->aim_rotation_y);
-	// TODO : Aim Rotation Y 
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data)
+{
+	uint32_t				player_id	= data->Id;
+	FBProtocol::WEAPON_TYPE weapon_Type = data->weapon_type;
+
+	if (!mRemotePlayers.count(data->Id)) {
+		return;
+	}
+
+	GridObject* player = mRemotePlayers[player_id];
+	auto script_NRP = player->GetComponent<Script_NetworkRemotePlayer>();
+	if (script_NRP) {
+		script_NRP->SetCurrWeaponName(weapon_Type);
+	}
+
+	//  TODO: Remote PLayer 가 무기를 들게 한다. 
+
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data)
+{
+	uint32_t	player_id	= data->id;
+	int			bullet_id	= data->bullet_id;
+	int			weapon_id	= data->weapon_id;
+	Vec3		Ray			= data->ray; // Remote Player 가 발사한 총알 방향  
+
+	GridObject* player	= mRemotePlayers[player_id];
+	auto script_NRP		= player->GetComponent<Script_NetworkRemotePlayer>();
+	if (script_NRP) {
+		
+		// 현재 RemotePlayer 가 들고 있는 무기 이름 
+		WeaponName currWeaponName = script_NRP->GetCurrWeaponName();
+
+	}
+	// TODO: Remote PLayer 가 총을 쏘게 한다
+	
+	LOG_MGR->Cout(player_id, " OnShoot : ", Ray.x, " ", Ray.y, " ", Ray.z, '\n');
+
+
+
+}
+
+void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data)
+{
+
+	int player_id								= data->id;
+	FBProtocol::PLAYER_SKILL_TYPE skill_type	= data->skill_type;
+
+	LOG_MGR->Cout(player_id, " OnSkill : ", static_cast<int>(skill_type), '\n');
 
 }
 
 void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
 {
+	/* 
+		BattelScene ----- [1] [2] [3] 
+		[2] 
+	
+	
+	*/
 	std::vector<GameMonsterInfo> monInfos = data->NewMonsterInfos;
 
 	for (int i = 0; i < monInfos.size(); ++i) {
+		
+		int							monsterID	= monInfos[i].Id;
+		FBProtocol::MONSTER_TYPE	monType		= monInfos[i].Type;
+		std::vector<PheroInfo>		pheros		= monInfos[i].mPheros;
+		std::string					name		= monInfos[i].Name;
+		Vec3						position	= monInfos[i].Pos;
+		Vec3						Rotation	= monInfos[i].Rot;
+		Vec3						SpineDir	= monInfos[i].SDir;
+		
+
+		// 몬스터가 이미 생성된 적이 있다면 
+		if (mRemoteMonsters.count(monsterID))
+			return;
+
 		// Monster 생성! 
-		std::string monsterName{};
-		switch (monInfos[i].Type)
-		{
-		case MonsterType::Ursacetus:
-			monsterName = "Ursacetus";
-			break;
-		case MonsterType::Onyscidus:
-			monsterName = "Onyscidus";
-			break;
-		case MonsterType::AdvancedCombatDroid_5:
-			monsterName = "AdvancedCombatDroid_5";
-			break;
-		case MonsterType::Anglerox:
-			monsterName = "Anglerox";
-			break;
-		case MonsterType::Arack:
-			monsterName = "Arack";
-			break;
-		case MonsterType::Ceratoferox:
-			monsterName = "Ceratoferox";
-			break;
-		case MonsterType::Gobbler:
-			monsterName = "Gobbler";
-			break;
-		case MonsterType::LightBipedMech:
-			monsterName = "LightBipedMech";
-			break;
-		case MonsterType::MiningMech:
-			monsterName = "MiningMech";
-			break;
-		case MonsterType::Rapax:
-			monsterName = "Rapax";
-			break;
-		case MonsterType::Aranobot:
-			monsterName = "Aranobot";
-			break;
-		case MonsterType::End:
-			break;
-		default:
-			assert(0);
-			break;
-		}
+		std::string MonsterTypeNames[FBProtocol::MONSTER_TYPE_MAX + 1] = {
+					"AdvancedCombatDroid",  
+					"Anglerox",                 
+					"Arack",                    
+					"Aranobot",                 
+					"Ceratoferox",              
+					"Gobbler",                  
+					"LightBipedMech",           
+					"MiningMech",               
+					"Onyscidus",                
+					"Ursacetus",                
+					"Rapax"                     
+		}; 
+			
+			
+		std::string monsterName = MonsterTypeNames[monInfos[i].Type];
+		
 
 		GridObject* monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
 		monster->SetID(monInfos[i].Id);
@@ -569,45 +708,54 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monster->SetLocalRotation(monInfos[i].Rot);
 
 		switch (monInfos[i].Type) {
-		case MonsterType::AdvancedCombatDroid_5:
+		case FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5:
 			monster->AddComponent<Script_AdvancedCombatDroid_5>();
 			break;
-		case MonsterType::Onyscidus:
+		case FBProtocol::MONSTER_TYPE_ONYSCIDUS:
 			monster->AddComponent<Script_Onyscidus>();
 			break;
-		case MonsterType::Ursacetus:
+		case FBProtocol::MONSTER_TYPE_URSACETUS:
 			monster->AddComponent<Script_Ursacetus>();
 			break;
-		case MonsterType::Anglerox:
+		case FBProtocol::MONSTER_TYPE_ANGLEROX:
 			monster->AddComponent<Script_Anglerox>();
 			break;
-		case MonsterType::Arack:
+		case FBProtocol::MONSTER_TYPE_ARACK:
 			monster->AddComponent<Script_Arack>();
 			break;
-		case MonsterType::Ceratoferox:
-			monster->AddComponent<Script_Ceratoferox>();
-			break;
-		case MonsterType::Gobbler:
-			monster->AddComponent<Script_Gobbler>();
-			break;
-		case MonsterType::LightBipedMech:
-			monster->AddComponent<Script_LightBipedMech>();
-			break;
-		case MonsterType::MiningMech:
-			monster->AddComponent<Script_MiningMech>();
-			break;
-		case MonsterType::Rapax:
-			monster->AddComponent<Script_Rapax>();
-			break;
-		case MonsterType::Aranobot:
+		case FBProtocol::MONSTER_TYPE_ARANOBOT:
 			monster->AddComponent<Script_Aranobot>();
 			break;
-		case MonsterType::End:
+		case FBProtocol::MONSTER_TYPE_CERATOFEROX:
+			monster->AddComponent<Script_Ceratoferox>();
+			break;
+		case FBProtocol::MONSTER_TYPE_GOBBLER:
+			monster->AddComponent<Script_Gobbler>();
+			break;
+		case FBProtocol::MONSTER_TYPE_MININGMECH:
+			monster->AddComponent<Script_MiningMech>();
+			break;
+		case FBProtocol::MONSTER_TYPE_LIGHTBIPEDMECH :
+			monster->AddComponent<Script_LightBipedMech>();
+			break;
+		case FBProtocol::MONSTER_TYPE_RAPAX:
+			monster->AddComponent<Script_Rapax>();
 			break;
 		default:
 			assert(0);
 			break;
 		}
+		Script_NetworkEnemy* enemyNetwork = monster->AddComponent<Script_NetworkEnemy>().get();
+
+		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
+		if (monInfos[i].Target_Player_Id == 0) {
+			enemyNetwork->SetTarget(nullptr);
+		}
+		else {
+			enemyNetwork->SetTarget(mRemotePlayers[monInfos[i].Target_Player_Id]);
+		}
+
+		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
 
 		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
 	}
@@ -621,7 +769,18 @@ void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event
 
 void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data)
 {
+	for (int i = 0; i < data->Mons.size(); ++i) {
+		int		ID  = data->Mons[i].Id;
+		Vec3	Pos = data->Mons[i].Pos;
+		Vec3	Rot = data->Mons[i].Rot;
 
+		if (!mRemoteMonsters.count(ID))
+			continue;
+
+		//LOG_MGR->Cout(ID, " : ", Pos.x, " ", Pos.y, " ", Pos.z, "\n");
+		//mRemoteMonsters[ID]->SetPostion(Pos);
+		//mRemoteMonsters[ID]->SetRotation(Rot);
+	}
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data)
 {
@@ -629,8 +788,63 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Eve
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data)
 {
+	for (int i = 0; i < data->Mons.size(); ++i) {
+		uint32_t					ID	 =  data->Mons[i].Id;
+		FBProtocol::MONSTER_BT_TYPE type =  data->Mons[i].state;
 
+		if (!mRemoteMonsters.count(ID))
+			continue;
+
+		switch (type)
+		{
+		case FBProtocol::MONSTER_BT_TYPE_DEATH:
+			mRemoteMonsters[ID]->SetState(EnemyState::Death);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_ATTACK:
+			mRemoteMonsters[ID]->SetState(EnemyState::Attack);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_GETHIT:
+			mRemoteMonsters[ID]->SetState(EnemyState::GetHit);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_TARGET:
+			mRemoteMonsters[ID]->SetState(EnemyState::MoveToTarget);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_PATH:
+			mRemoteMonsters[ID]->SetState(EnemyState::MoveToPath);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_PATROL:
+			mRemoteMonsters[ID]->SetState(EnemyState::Patrol);
+			break;
+		default:
+			break;
+		}
+
+	}
 }
+
+void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data)
+{
+	for (int i = 0; i < data->Mons.size(); ++i) {
+
+		int monster_id        = data->Mons[i].id;
+		int target_monster_id = data->Mons[i].target_monster_id;
+		int target_player_id  = data->Mons[i].target_player_id;
+		
+		if (!mRemoteMonsters.count(monster_id))
+			continue;
+
+		if (!mRemotePlayers.count(target_player_id))
+			continue;
+
+		if (target_player_id == 0) {
+			mRemoteMonsters[monster_id]->SetTarget(nullptr);
+		}
+		else {
+			mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
+		}
+	}
+}
+
 
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()
 {

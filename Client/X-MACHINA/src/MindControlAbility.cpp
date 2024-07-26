@@ -20,6 +20,10 @@
 #include "Script_MindControlledEnemyBT.h"
 #include "Script_BehaviorTree.h"
 
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
+
 
 MindControlAbility::MindControlAbility()
 	:
@@ -67,6 +71,8 @@ void MindControlAbility::Activate()
 		mTerminateCallback();
 		return;
 	}
+
+
 
 	RenderedAbility::Activate();
 

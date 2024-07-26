@@ -68,7 +68,8 @@ private:
 	static bool Process_SPkt_Monster_Transform(SPtr_Session session, const FBProtocol::SPkt_Monster_Transform& pkt);
 	static bool Process_SPkt_Monster_HP(SPtr_Session session, const FBProtocol::SPkt_Monster_HP& pkt);
 	static bool Process_SPkt_Monster_State(SPtr_Session session, const FBProtocol::SPkt_Monster_State& pkt);
-	
+	static bool Process_SPkt_Monster_Target(SPtr_Session session, const FBProtocol::SPkt_MonsterTarget& pkt);
+
 	/* PHERO */
 	static bool Process_SPkt_GetPhero(SPtr_Session session, const FBProtocol::SPkt_GetPhero& pkt);
 
@@ -93,8 +94,9 @@ public:
 	SPtr_SendPktBuf CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v);
 	SPtr_SendPktBuf CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType);
-	SPtr_SendPktBuf CPkt_Player_OnSkill(uint32_t playerID, FBProtocol::PLAYER_SKILL_TYPE skillType, float pheroAmount); // 추가
 	SPtr_SendPktBuf CPkt_Player_AimRotation(float aim_rotation_y);
+	SPtr_SendPktBuf CPkt_Player_Weapon(WeaponName weaponName);
+	SPtr_SendPktBuf CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType); // 추가
 
 	/* MONSTER */
 	SPtr_SendPktBuf CPkt_NewMonster(uint32_t monster_id, FBProtocol::MONSTER_TYPE montser_type);
@@ -103,14 +105,14 @@ public:
 
 	SPtr_SendPktBuf CPkt_Monster_Transform(uint32_t monsterID, Vec3 Pos, Vec3 Rot);
 	SPtr_SendPktBuf CPkt_Monster_HP(uint32_t monsterID, float hp);
-	SPtr_SendPktBuf CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_STATE_TYPE state);
+	SPtr_SendPktBuf CPkt_Monster_State(uint32_t monsterID, FBProtocol::MONSTER_BT_TYPE state);
 
 
 	/* PHERO */
 	SPtr_SendPktBuf CPkt_GetPhero(uint32_t phero_id, uint32_t player_id);
 
 	/* BULLET */
-	SPtr_SendPktBuf CPkt_Bullet_OnShoot(uint32_t playerID, uint32_t gunID, uint32_t bulletID, Vec3 ray);
+	SPtr_SendPktBuf CPkt_Bullet_OnShoot(Vec3 ray);
 	SPtr_SendPktBuf CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID);
 
 private:

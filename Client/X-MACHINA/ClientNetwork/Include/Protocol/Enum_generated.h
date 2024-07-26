@@ -60,11 +60,12 @@ enum WEAPON_TYPE : uint8_t {
   WEAPON_TYPE_PIPELINE = 5,
   WEAPON_TYPE_BURNOUT = 6,
   WEAPON_TYPE_DIRECT_DRAIN = 7,
+  WEAPON_TYPE_SKYLINE = 8,
   WEAPON_TYPE_MIN = WEAPON_TYPE_H_LOOK,
-  WEAPON_TYPE_MAX = WEAPON_TYPE_DIRECT_DRAIN
+  WEAPON_TYPE_MAX = WEAPON_TYPE_SKYLINE
 };
 
-inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[8] {
+inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[9] {
   static const WEAPON_TYPE values[] = {
     WEAPON_TYPE_H_LOOK,
     WEAPON_TYPE_DBMS,
@@ -73,13 +74,14 @@ inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[8] {
     WEAPON_TYPE_T_12,
     WEAPON_TYPE_PIPELINE,
     WEAPON_TYPE_BURNOUT,
-    WEAPON_TYPE_DIRECT_DRAIN
+    WEAPON_TYPE_DIRECT_DRAIN,
+    WEAPON_TYPE_SKYLINE
   };
   return values;
 }
 
 inline const char * const *EnumNamesWEAPON_TYPE() {
-  static const char * const names[9] = {
+  static const char * const names[10] = {
     "H_LOOK",
     "DBMS",
     "STUART",
@@ -88,13 +90,14 @@ inline const char * const *EnumNamesWEAPON_TYPE() {
     "PIPELINE",
     "BURNOUT",
     "DIRECT_DRAIN",
+    "SKYLINE",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameWEAPON_TYPE(WEAPON_TYPE e) {
-  if (::flatbuffers::IsOutRange(e, WEAPON_TYPE_H_LOOK, WEAPON_TYPE_DIRECT_DRAIN)) return "";
+  if (::flatbuffers::IsOutRange(e, WEAPON_TYPE_H_LOOK, WEAPON_TYPE_SKYLINE)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesWEAPON_TYPE()[index];
 }

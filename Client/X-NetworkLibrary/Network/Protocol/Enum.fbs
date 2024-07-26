@@ -24,7 +24,9 @@ enum WEAPON_TYPE : ubyte {
 	T_12,
 	PIPELINE,
 	BURNOUT,
-	DIRECT_DRAIN
+	DIRECT_DRAIN,
+	SKYLINE,
+
 }
 
 // +------------------------

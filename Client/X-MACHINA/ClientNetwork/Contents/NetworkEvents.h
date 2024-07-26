@@ -146,9 +146,9 @@ namespace NetworkEvent
 
 			/// >> MONSTER TARGET
 			struct MonsterTarget {
-				uint32_t id;
-				uint32_t target_monster_id;
-				uint32_t target_player_id;
+				int id;
+				int target_monster_id;
+				int target_player_id;
 			};
 
 			struct MonsterTargetUpdate : public EventData {

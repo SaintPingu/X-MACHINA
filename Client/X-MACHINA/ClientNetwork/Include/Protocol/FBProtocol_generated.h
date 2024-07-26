@@ -1544,20 +1544,20 @@ struct SPkt_MonsterTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
     VT_TARGET_PLAYER_ID = 6,
     VT_TARGET_MONTSER_ID = 8
   };
-  uint32_t monster_id() const {
-    return GetField<uint32_t>(VT_MONSTER_ID, 0);
+  int32_t monster_id() const {
+    return GetField<int32_t>(VT_MONSTER_ID, 0);
   }
-  uint32_t target_player_id() const {
-    return GetField<uint32_t>(VT_TARGET_PLAYER_ID, 0);
+  int32_t target_player_id() const {
+    return GetField<int32_t>(VT_TARGET_PLAYER_ID, 0);
   }
-  uint32_t target_montser_id() const {
-    return GetField<uint32_t>(VT_TARGET_MONTSER_ID, 0);
+  int32_t target_montser_id() const {
+    return GetField<int32_t>(VT_TARGET_MONTSER_ID, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_MONSTER_ID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_TARGET_PLAYER_ID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_TARGET_MONTSER_ID, 4) &&
+           VerifyField<int32_t>(verifier, VT_MONSTER_ID, 4) &&
+           VerifyField<int32_t>(verifier, VT_TARGET_PLAYER_ID, 4) &&
+           VerifyField<int32_t>(verifier, VT_TARGET_MONTSER_ID, 4) &&
            verifier.EndTable();
   }
 };
@@ -1566,14 +1566,14 @@ struct SPkt_MonsterTargetBuilder {
   typedef SPkt_MonsterTarget Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_monster_id(uint32_t monster_id) {
-    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_MONSTER_ID, monster_id, 0);
+  void add_monster_id(int32_t monster_id) {
+    fbb_.AddElement<int32_t>(SPkt_MonsterTarget::VT_MONSTER_ID, monster_id, 0);
   }
-  void add_target_player_id(uint32_t target_player_id) {
-    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_TARGET_PLAYER_ID, target_player_id, 0);
+  void add_target_player_id(int32_t target_player_id) {
+    fbb_.AddElement<int32_t>(SPkt_MonsterTarget::VT_TARGET_PLAYER_ID, target_player_id, 0);
   }
-  void add_target_montser_id(uint32_t target_montser_id) {
-    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_TARGET_MONTSER_ID, target_montser_id, 0);
+  void add_target_montser_id(int32_t target_montser_id) {
+    fbb_.AddElement<int32_t>(SPkt_MonsterTarget::VT_TARGET_MONTSER_ID, target_montser_id, 0);
   }
   explicit SPkt_MonsterTargetBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1588,9 +1588,9 @@ struct SPkt_MonsterTargetBuilder {
 
 inline ::flatbuffers::Offset<SPkt_MonsterTarget> CreateSPkt_MonsterTarget(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t monster_id = 0,
-    uint32_t target_player_id = 0,
-    uint32_t target_montser_id = 0) {
+    int32_t monster_id = 0,
+    int32_t target_player_id = 0,
+    int32_t target_montser_id = 0) {
   SPkt_MonsterTargetBuilder builder_(_fbb);
   builder_.add_target_montser_id(target_montser_id);
   builder_.add_target_player_id(target_player_id);

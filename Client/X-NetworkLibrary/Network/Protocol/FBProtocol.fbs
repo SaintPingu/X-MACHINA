@@ -262,9 +262,9 @@ table CPkt_MonsterTarget
 
 table SPkt_MonsterTarget
 {
-	monster_id			: uint;
-	target_player_id	: uint;
-	target_montser_id	: uint;
+	monster_id			: int;
+	target_player_id	: int;
+	target_montser_id	: int;
 }
 
 

@@ -72,24 +72,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;$(SolutionDir)X-Engine\fmod\inc\</IncludePath>
     <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
-    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)X-Engine\fmod\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;$(SolutionDir)X-Engine\fmod\inc\</IncludePath>
     <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
-    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)X-Engine\fmod\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)X-MACHINA\lib\Debug\</OutDir>
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
-    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;$(SolutionDir)X-Engine\fmod\inc\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-Engine\fmod\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)X-MACHINA\lib\Release\</OutDir>
-    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;(SolutionDir)X-Engine\fmod\inc\</IncludePath>
-    <LibraryPath>$(SolutionDir)X-Engine\lib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Common\;$(SolutionDir)X-Engine\;$(SolutionDir)X-Engine\include\;$(SolutionDir)X-Engine\fmod\inc\</IncludePath>
+    <LibraryPath>$(SolutionDir)X-Engine\fmod\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -266,6 +266,7 @@
     </ClCompile>
     <ClCompile Include="src\SkyBox.cpp" />
     <ClCompile Include="src\SobelFilter.cpp" />
+    <ClCompile Include="src\SoundMgr.cpp" />
     <ClCompile Include="src\Ssao.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\TestCube.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\SkyBox.h" />
     <ClInclude Include="include\SobelFilter.h" />
+    <ClInclude Include="include\SoundMgr.h" />
     <ClInclude Include="include\Ssao.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Terrain.h" />

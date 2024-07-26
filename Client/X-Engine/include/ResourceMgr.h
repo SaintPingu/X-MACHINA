@@ -72,6 +72,7 @@ private:
 	void LoadAnimationClips();
 	void LoadAnimatorControllers();
 	void LoadParticleSystemCPUData();
+	void LoadSounds();
 };
 #pragma endregion
 

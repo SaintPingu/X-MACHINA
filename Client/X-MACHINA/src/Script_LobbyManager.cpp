@@ -5,6 +5,7 @@
 
 #include "X-Engine.h"
 #include "InputMgr.h"
+#include "SoundMgr.h"
 #include "Timer.h"
 #include "Scene.h"
 #include "Light.h"
@@ -42,6 +43,8 @@ void Script_LobbyManager::Start()
 	trooper->GetAnimator()->GetController()->SetValue("Walk", true);
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
+
+	SoundMgr::I->Play("BGM", "Intro", 1.0f, true);
 }
 
 void Script_LobbyManager::Update()
@@ -50,6 +53,19 @@ void Script_LobbyManager::Update()
 
 	if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
+	}
+	if (KEY_TAP('W')) {
+		SoundMgr::I->Play("BGM", "Lobby", 1.0f, true);
+	}
+	if (KEY_TAP('E')) {
+		SoundMgr::I->Play("BGM", "Intro", 1.0f, true);
+	}
+
+	if (KEY_TAP('O')) {
+		SoundMgr::I->Play("Effect", "fire");
+	}
+	if (KEY_TAP('P')) {
+		SoundMgr::I->Play("Effect", "shot");
 	}
 }
 

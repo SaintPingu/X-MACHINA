@@ -22,7 +22,7 @@ protected:
 private:
 	bool mIsStatic = false;
 	sptr<const MasterModel> mMasterModel{};				// ·»´õ¸µ ¸ðµ¨
-	std::vector<const Transform*> mMergedTransform{};	// ·»´õ¸µ ¸ðµ¨ÀÇ transform ±¸Á¶ (caching)
+	std::vector<Transform*> mMergedTransform{};	// ·»´õ¸µ ¸ðµ¨ÀÇ transform ±¸Á¶ (caching)
 
 	std::vector<sptr<InstObject>>			mObjectPool{};			// all objects
 	std::unordered_set<const InstObject*>	mRenderedObjects{};		// rendered objects
@@ -38,8 +38,8 @@ public:
 	ObjectPool(rsptr<const MasterModel> model, int maxSize);
 	virtual ~ObjectPool() = default;
 
-	int GetInstanceCnt() const										{ return mCurrBuffIdx; }
-	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
+	int GetInstanceCnt() const									{ return mCurrBuffIdx; }
+	const std::vector<Transform*>& GetMergedTransform() const	{ return mMergedTransform; }
 
 	void SetStatic() { mIsStatic = true; }
 

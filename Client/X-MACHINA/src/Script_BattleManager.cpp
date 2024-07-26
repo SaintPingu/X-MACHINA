@@ -24,6 +24,7 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "SoundMgr.h"
 #include "TextMgr.h"
 #include "InputMgr.h"
 #include "X-Engine.h"
@@ -49,14 +50,32 @@ void Script_BattleManager::Start()
 	base::Start();
 
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
+
+	mBoss = BattleScene::I->Instantiate("Dystopia_Mech");
+
+	SoundMgr::I->Play("BGM", "Battle_Stage1", 1.0f, true);
 }
 
+#include "Animator.h"
+#include "AnimatorController.h"
 void Script_BattleManager::Update()
 {
 	base::Update();
 
+	const auto& player = GameFramework::I->GetPlayer();
+	Vec3 pos = player->GetPosition();	
+	pos.x += 1;
+	pos.z += 1;
+	mBoss->SetPosition(pos);
+	mBoss->SetLocalRotation(player->GetLocalRotation());
 	if (KEY_TAP('Q')) {
 		Engine::I->LoadScene(SceneType::Lobby);
+	}
+	if (KEY_TAP('N')) {
+		mBoss->GetAnimator()->GetController()->SetValue("Walk", true);
+	}
+	if (KEY_TAP('M')) {
+		mBoss->GetAnimator()->GetController()->SetValue("Walk", false);
 	}
 }
 

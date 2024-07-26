@@ -28,11 +28,10 @@ class GameObject : public Object {
 	friend class DynamicEnvironmentMappingManager;
 
 private:
-	bool mIsSkinMesh = false;
 	bool mUseShadow = true;
 
-	sptr<const MasterModel>		  mMasterModel{};		// 렌더링 모델
-	std::vector<const Transform*> mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위한 캐싱)
+	sptr<const MasterModel>		 mMasterModel{};		// 렌더링 모델
+	std::vector<Transform*>		 mMergedTransform{};	// 모든 계층의 transfom (빠른 접근을 위한 캐싱)
 	sptr<Animator>	  mAnimator{};
 
 public:
@@ -40,8 +39,7 @@ public:
 	virtual ~GameObject() = default;
 
 	sptr<GameObject> GetShared() { return std::static_pointer_cast<GameObject>(shared_from_this()); }
-	bool IsSkinMesh() const											{ return mIsSkinMesh; }
-	const std::vector<const Transform*>& GetMergedTransform() const { return mMergedTransform; }
+	const std::vector<Transform*>& GetMergedTransform() const	{ return mMergedTransform; }
 	// 최상위(대표) 텍스쳐를 반환한다.
 	rsptr<Texture> GetTexture() const;
 
@@ -62,6 +60,11 @@ protected:
 private:
 	// 객체의 위치(pos)를 지면에 붙인다.
 	void AttachToGround();
+
+
+public:
+	static void MergeTransform(std::vector<Transform*>& out, GameObject* transform);
+
 };
 
 

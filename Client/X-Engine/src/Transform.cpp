@@ -583,16 +583,13 @@ void Transform::DoAllChilds(const std::function<void(Transform*)>& processFunc)
 	}
 }
 
-void Transform::MergeTransform(std::vector<const Transform*>& out, const Transform* transform)
+Transform* Transform::GetRoot()
 {
-	out.emplace_back(transform);
+	if (!mParent) {
+		return this;
+	}
 
-	if (transform->mSibling) {
-		MergeTransform(out, transform->mSibling.get());
-	}
-	if (transform->mChild) {
-		MergeTransform(out, transform->mChild.get());
-	}
+	return mParent->GetRoot();
 }
 
 void Transform::UpdateColliderShaderVars(const Matrix& matrix, const Vec4& color)

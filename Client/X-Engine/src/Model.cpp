@@ -63,6 +63,18 @@ void Material::LoadTextureFromFile(TextureMap map, std::ifstream& file)
 
 
 #pragma region Model
+void Model::SetMeshInfo(rsptr<MeshLoadInfo> meshInfo)
+{
+	mMeshInfo = meshInfo;
+	if(mMeshInfo)
+	{
+		mHasMesh = true;
+		if (mMeshInfo->SkinMesh)
+		{
+			mIsSkinMesh = true;
+		}
+	}
+}
 // 재귀함수
 void Model::CopyModelHierarchy(Object* object, Object* parent) const
 {
@@ -70,6 +82,10 @@ void Model::CopyModelHierarchy(Object* object, Object* parent) const
 	object->SetLocalTransform(GetLocalTransform());
 	object->SetName(GetName());
 	object->mParent = parent;
+
+	if (mHasMesh) {
+		object->SetHasMesh();
+	}
 
 	/* 각 계층 구조의 복사본(새 할당)을 받아 설정한다. */
 	if (mSibling) {
@@ -84,15 +100,31 @@ void Model::CopyModelHierarchy(Object* object, Object* parent) const
 	}
 }
 
-void Model::MergeModel(MasterModel& out)
+void Model::MergeModel(MasterModel& out, bool& isSkinMesh)
 {
+	if (mHasMesh && !mIsSkinMesh) {
+		isSkinMesh = false;
+	}
 	out.MergeMesh(mMeshInfo, mMaterials);	// mesh와 material을 out에 병합한다.
 
 	if (mSibling) {
-		mSibling->GetObj<Model>()->MergeModel(out);
+		mSibling->GetObj<Model>()->MergeModel(out, isSkinMesh);
 	}
 	if (mChild) {
-		mChild->GetObj<Model>()->MergeModel(out);
+		mChild->GetObj<Model>()->MergeModel(out, isSkinMesh);
+	}
+}
+void Model::MergeTransform(std::vector<Transform*>& out, Model* transform)
+{
+	if (transform->mMeshInfo) {
+		out.emplace_back(transform);
+	}
+
+	if (transform->mSibling) {
+		Model::MergeTransform(out, transform->mSibling->GetObj<Model>());
+	}
+	if (transform->mChild) {
+		Model::MergeTransform(out, transform->mChild->GetObj<Model>());
 	}
 }
 #pragma endregion
@@ -142,7 +174,9 @@ void MasterModel::ReleaseUploadBuffers()
 void MasterModel::SetModel(const rsptr<Model> model)
 {
 	mModel = model;
-	model->MergeModel(*this);
+	MergeModelTransforms();
+	mIsSkinMesh = true;
+	model->MergeModel(*this, mIsSkinMesh);
 	mMesh->StopMerge();
 
 	mMerged = true;
@@ -168,4 +202,9 @@ void MasterModel::Render(const ObjectPool* objectPool) const
 void MasterModel::CopyModelHierarchy(GameObject* object) const
 {
 	mModel->CopyModelHierarchy(object);
+}
+
+void MasterModel::MergeModelTransforms()
+{
+	Model::MergeTransform(mMergedTransform, mModel.get());
 }

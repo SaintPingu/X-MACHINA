@@ -249,6 +249,7 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 			std::string meshName{};
 			FileIO::ReadString(file, meshName);
 			model = RESOURCE<MasterModel>(meshName);
+			assert(model);
 
 			FileIO::ReadString(file, token); //"<Transforms>:"
 			FileIO::ReadVal(file, sameObjectCount);

@@ -129,8 +129,9 @@ public:
 
 /* Library */
 #include <boost/serialization/nvp.hpp>
-//#include <fmod.hpp>
-
+#include <mmsystem.h>
+#include <fmod.hpp>
+#pragma comment(lib, "fmod_vc.lib")
 
 /* Custom */
 #include "Common.h"

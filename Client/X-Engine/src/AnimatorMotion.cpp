@@ -223,7 +223,7 @@ AnimatorTrack::AnimatorTrack(const AnimatorTrack& other)
 	mClip = other.mClip;
 }
 
-Matrix AnimatorTrack::GetSRT(int boneIndex, float length) const
+Matrix AnimatorTrack::GetSRT(const std::string& boneName, float length) const
 {
-	return mClip->GetSRT(boneIndex, length);
+	return mClip->GetSRT(boneName, length);
 }

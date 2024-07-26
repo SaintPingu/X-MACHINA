@@ -13,7 +13,7 @@ ObjectPool::ObjectPool(rsptr<const MasterModel> model, int maxSize)
 	mMasterModel(model),
 	mObjectPool(maxSize)
 {
-	Transform::MergeTransform(mMergedTransform, mMasterModel->GetTransform());
+	mMergedTransform = mMasterModel->GetMergedTransform();
 
 	mInstanceBuffers.resize(FrameResourceMgr::mkFrameResourceCount);
 	for (auto& buffer : mInstanceBuffers) {
@@ -145,7 +145,7 @@ void ObjectPool::ChangeModel(rsptr<const MasterModel> model)
 	mMergedTransform.clear();
 	mMasterModel = model;
 	
-	Transform::MergeTransform(mMergedTransform, mMasterModel->GetTransform());
+	mMergedTransform = mMasterModel->GetMergedTransform();
 }
 
 void ObjectPool::EndRender()

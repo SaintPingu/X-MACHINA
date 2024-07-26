@@ -21,9 +21,9 @@ ChildMotion::ChildMotion(const ChildMotion& other)
 	mPosition = other.mPosition;
 }
 
-Matrix ChildMotion::GetSRT(int boneIndex) const
+Matrix ChildMotion::GetSRT(const std::string& boneName) const
 {
-	return AnimatorTrack::GetSRT(boneIndex, GetLength());
+	return AnimatorTrack::GetSRT(boneName, GetLength());
 }
 
 
@@ -89,13 +89,13 @@ void BlendTree::CalculateWeights() const
 	}
 }
 
-Matrix BlendTree::GetSRT(int boneIndex) const
+Matrix BlendTree::GetSRT(const std::string& boneName) const
 {
 	Matrix transform = Matrix4x4::Zero();
 	for (auto& motion : mMotions) {
 		float weight = motion->GetWeight();
 		if (weight > 0.f) {
-			transform += (motion->GetSRT(boneIndex) * weight);
+			transform += (motion->GetSRT(boneName) * weight);
 		}
 	}
 

@@ -126,6 +126,8 @@ struct ObjectInfo {
     uint    UseOutline;
 	int		DynamicEnvironmentMapIndex;
     float   AlphaIntensity;
+    
+    uint    IsSkinMesh;
 };
 
 struct PassInfo {

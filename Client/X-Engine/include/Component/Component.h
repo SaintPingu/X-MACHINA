@@ -136,15 +136,18 @@ private:
 	ObjectTag	mTag{};
 	ObjectLayer mLayer{};
 	ObjectType	mType{};
+	bool mHasMesh = false;
 
 	bool mIsAwake  = false;			// Awake()가 호출되었는가?
 	bool mIsStart  = false;			// Start()가 호출되었는가?
 	bool mIsEnable = false;			// OnEnable()이 호출되었는가? (활성화 상태인가?)
 	bool mIsDestroyed = false;		// Destroy()가 호출되었는가?
 
-private:
 	std::vector<sptr<Component>> mComponents{};
 	std::unordered_set<Object*> mCollisionObjects{};	// 한 프레임에서 충돌한 오브젝트 집합
+
+protected:
+	bool mIsSkinMesh = false;
 
 public:
 #pragma region C/Dtor
@@ -164,6 +167,8 @@ public:
 	bool IsAwake() const				{ return mIsAwake; }
 	bool IsStart() const				{ return mIsStart; }
 	bool IsActive() const				{ return mIsEnable; }
+	bool IsSkinMesh() const				{ return mIsSkinMesh; }
+	bool HasMesh() const				{ return mHasMesh; }
 
 	const std::unordered_set<Object*>& GetCollisionObjects() { return mCollisionObjects; }
 #pragma endregion
@@ -173,6 +178,7 @@ public:
 	void SetName(const std::string& name)	{ mName = name; }
 	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
 	void SetID(UINT32 sessionID)			{ mID = sessionID; }
+	void SetHasMesh()						{ mHasMesh = true; }
 #pragma endregion
 
 

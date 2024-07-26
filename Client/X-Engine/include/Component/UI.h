@@ -30,6 +30,8 @@ protected:
 	Vec2			mScale{};
 
 	std::function<void()> mClickCallback{};
+	std::string mClickSound{};
+	std::string mHoverSound{};
 
 public:
 	// [texture]를 설정하고, [pos]위치에 [width * height] 크기의 UI를 생성한다.
@@ -52,7 +54,7 @@ public:
 	void SetScale(const Vec2& scale);
 
 	void SetColor(const Vec3& color);
-	void SetHover(bool val) { mIsHover = val; }
+	virtual void SetHover(bool val);
 	void SetHoverable(bool val) { mIsHoverable = val; }
 	void SetOpacity(float val);
 
@@ -61,7 +63,9 @@ public:
 	bool CheckHover() const;
 	virtual void OnClick();
 
-	void AddClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
+	void SetClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
+	void SetClickSound(const std::string& sound) { mClickSound = sound; }
+	void SetHoverSound(const std::string& sound) { mHoverSound = sound; }
 
 protected:
 	virtual void UpdateShaderVars(rsptr<Texture> texture);
@@ -114,7 +118,6 @@ protected:
 
 private:
 	virtual void OnClick() override;
-	//virtual void OnHightlight();
 };
 
 // Canvas 위에 UI를 그리도록 한다.

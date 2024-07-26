@@ -23,18 +23,24 @@ rsptr<Texture> GameObject::GetTexture() const
 
 void GameObject::SetModel(rsptr<const MasterModel> model)
 {
+	assert(model);
 	mMasterModel = model;
 	mMasterModel->CopyModelHierarchy(this);
-	
+	mIsSkinMesh = mMasterModel->IsSkinMesh();
+	mObjectCB.IsSkinMesh = mIsSkinMesh;
+
+	// 최상위 부모의 mUseObjCB가 true여야 객체 파괴시 오브젝트 인덱스 반환 가능
+	SetUseObjCB(true);
+
 	sptr<const AnimationLoadInfo> animationInfo = model->GetAnimationInfo();
 	if (animationInfo) {
-		mIsSkinMesh = true;
 		mAnimator = std::make_shared<Animator>(animationInfo, this);
 	}
 
 	// 이 객체의 계층구조를 [mMergedTransform]에 저장한다 (캐싱)
-	Transform::MergeTransform(mMergedTransform, this);
+	GameObject::MergeTransform(mMergedTransform, this);
 }
+
 
 void GameObject::SetModel(const std::string& modelName)
 {
@@ -69,6 +75,21 @@ void GameObject::AttachToGround()
 
 	SetPosition(pos);
 }
+
+void GameObject::MergeTransform(std::vector<Transform*>& out, GameObject* transform)
+{
+	if (transform->HasMesh()) {
+		out.emplace_back(transform);
+	}
+
+	if (transform->mSibling) {
+		GameObject::MergeTransform(out, transform->mSibling->GetObj<GameObject>());
+	}
+	if (transform->mChild) {
+		GameObject::MergeTransform(out, transform->mChild->GetObj<GameObject>());
+	}
+}
+
 #pragma endregion
 
 

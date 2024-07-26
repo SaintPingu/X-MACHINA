@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "Shader.h"
+#include "SoundMgr.h"
 #include "AnimationClip.h"
 #include "AnimatorController.h"
 #include "Component/ParticleSystem.h"
@@ -27,6 +28,7 @@ void ResourceMgr::LoadResources()
 	LoadShaders();
 	LoadAnimationClips();
 	LoadAnimatorControllers();
+	LoadSounds();
 }
 
 void ResourceMgr::Clear()
@@ -1475,4 +1477,13 @@ void ResourceMgr::LoadParticleSystemCPUData()
 		ResourceMgr::I->Add<ParticleSystemCPUData>(resName, ParticleSystem::LoadPSCD(rootFolder + fileName));
 		ResourceMgr::I->Add<ParticleSystemGPULoadData>(resName, ParticleSystem::LoadPSGD(resName));
 	}
+}
+
+void ResourceMgr::LoadSounds()
+{
+	std::cout << "Load Sounds...";
+
+	SoundMgr::I->LoadSounds();
+
+	std::cout << "OK\n";
 }

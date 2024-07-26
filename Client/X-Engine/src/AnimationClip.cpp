@@ -12,18 +12,16 @@ AnimationClip::AnimationClip(float length, int frameRate, int keyFrameCnt, int t
 	mKeyFrameTimes(keyFrameCnt),
 	mKeyFrameTransforms(keyFrameCnt)
 {
-	for (auto& transforms : mKeyFrameTransforms) {
-		transforms.resize(transformCnt);
-	}
+
 }
 
-Matrix AnimationClip::GetSRT(int boneIndex, float position) const
+Matrix AnimationClip::GetSRT(const std::string& boneName, float position) const
 {
 
 	const float lastPosition = mKeyFrameTimes.back();
 	if (position >= lastPosition) {
-		const size_t lastIndex = mKeyFrameTimes.size() - 1;
-		return mKeyFrameTransforms[lastIndex][boneIndex];
+		const int lastIndex = static_cast<int>(mKeyFrameTimes.size() - 1);
+		return GetMatrix(boneName, lastIndex);
 	}
 	else if (position < 0.f) {
 		position = 0.f;
@@ -34,8 +32,13 @@ Matrix AnimationClip::GetSRT(int boneIndex, float position) const
 		keyFramePosition = std::prev(keyFramePosition);
 	}
 
-	const size_t keyFrameIndex = std::distance(mKeyFrameTimes.begin(), keyFramePosition);
+	const int keyFrameIndex = static_cast<int>(std::distance(mKeyFrameTimes.begin(), keyFramePosition));
 	const float t = (position - mKeyFrameTimes[keyFrameIndex]) / (mKeyFrameTimes[keyFrameIndex + 1] - mKeyFrameTimes[keyFrameIndex]);
 
-	return Matrix4x4::Interpolate(mKeyFrameTransforms[keyFrameIndex][boneIndex], mKeyFrameTransforms[keyFrameIndex + 1][boneIndex], t);
+	return Matrix4x4::Interpolate(GetMatrix(boneName, keyFrameIndex), GetMatrix(boneName, keyFrameIndex + 1), t);
+}
+
+const Matrix& AnimationClip::GetMatrix(const std::string& boneName, int keyFrameIdx) const
+{
+	return (mKeyFrameTransforms.at(boneName))[keyFrameIdx];
 }

@@ -190,6 +190,8 @@ struct ObjectConstants {
 	int		UseOutline{};
 	int		DynamicEnvironmentMapIndex = -1;
 	float	AlphaIntensity = 1.f;
+
+	int		IsSkinMesh{};
 };
 
 struct MinimapConstants {

@@ -146,7 +146,7 @@ namespace {
 
 
 
-		sptr<SkinMesh> LoadSkinMesh(std::ifstream& file, sptr<MeshLoadInfo>& meshInfo)
+		sptr<SkinMesh> LoadSkinMesh(std::ifstream& file, sptr<MeshLoadInfo>& meshInfo, int& skinBoneCnt)
 		{
 			sptr<SkinMesh> mesh = std::make_shared<SkinMesh>();
 			std::string token;
@@ -176,19 +176,17 @@ namespace {
 						FileIO::ReadString(file, token); // <Names>:
 					}
 
-					int skinBoneCnt = FileIO::ReadVal<int>(file);
-					if (skinBoneCnt > 0) {
-						mesh->mBoneNames.resize(skinBoneCnt);
+					int cnt = FileIO::ReadVal<int>(file);
+					if (cnt > 0) {
+						mesh->mBoneNames.resize(cnt);
 
-						if (avatar) {
-							mesh->mBoneTypes.resize(skinBoneCnt);
-						}
-
-						for (int i = 0; i < skinBoneCnt; i++)
+						for (int i = 0; i < cnt; i++)
 						{
 							FileIO::ReadString(file, mesh->mBoneNames[i]);
+								mesh->mBoneNameIndices[mesh->mBoneNames[i]] = skinBoneCnt++;
 							if (avatar) {
-								mesh->mBoneTypes[i] = avatar->GetBoneType(mesh->mBoneNames[i]);
+								const std::string& boneName = mesh->mBoneNames[i];
+								mesh->mBoneTypes[boneName] = avatar->GetBoneType(boneName);
 							}
 						}
 					}
@@ -367,7 +365,7 @@ namespace {
 
 
 		// 한 프레임의 정보를 불러온다. (FrameName, Transform, BoundingBox, ...)
-		sptr<Model> LoadFrameHierarchy(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo)
+		sptr<Model> LoadFrameHierarchy(std::ifstream& file, sptr<AnimationLoadInfo>& animationInfo, int& skinBoneCnt)
 		{
 			std::string token;
 
@@ -463,7 +461,7 @@ namespace {
 				{
 					FileIO::ReadString(file, token);	// <Mesh>:
 					meshInfo = ::LoadMesh(file);
-					meshInfo->SkinMesh = ::LoadSkinMesh(file, meshInfo);
+					meshInfo->SkinMesh = ::LoadSkinMesh(file, meshInfo, skinBoneCnt);
 					if (!animationInfo) {
 						animationInfo = std::make_shared<AnimationLoadInfo>();
 					}
@@ -481,11 +479,12 @@ namespace {
 				{
 					int nChilds = FileIO::ReadVal<int>(file);
 					if (nChilds > 0) {
+						std::vector<sptr<Model>> childs{};
 						for (int i = 0; i < nChilds; i++) {
-							sptr<Model> child = LoadFrameHierarchy(file, animationInfo);
-							if (child) {
-								model->SetChild(child);
-							}
+							childs.push_back(LoadFrameHierarchy(file, animationInfo, skinBoneCnt));
+						}
+						for(const auto& child : childs){
+							model->SetChild(child);
 						}
 					}
 				}
@@ -743,6 +742,7 @@ namespace FileIO {
 			sptr<MasterModel> masterModelA = std::make_shared<MasterModel>();
 			sptr<AnimationLoadInfo> animationInfo{};
 			std::string token;
+			int skinBoneCnt{};
 
 			bool isEOF{ false };
 			while (!isEOF) {
@@ -756,7 +756,7 @@ namespace FileIO {
 					break;
 
 				case Hash("<Hierarchy>:"):
-					model = ::LoadFrameHierarchy(file, animationInfo);
+					model = ::LoadFrameHierarchy(file, animationInfo, skinBoneCnt);
 					break;
 
 				case Hash("<ScriptExporter>:"):
@@ -772,6 +772,8 @@ namespace FileIO {
 					break;
 				}
 			}
+
+			assert(skinBoneCnt < gkSkinBoneSize);
 
 			sptr<MasterModel> masterModel = std::make_shared<MasterModel>();
 			masterModel->SetModel(model);
@@ -872,9 +874,16 @@ namespace FileIO {
 
 			sptr<AnimationClip> clip = std::make_shared<AnimationClip>(length, frameRate, keyFrameCnt, boneCnt, clipName);
 
+			clip->mKeyFrameTimes.resize(keyFrameCnt);
 			for (int i = 0; i < keyFrameCnt; ++i) {
 				FileIO::ReadVal(file, clip->mKeyFrameTimes[i]);
-				FileIO::ReadRange(file, clip->mKeyFrameTransforms[i], boneCnt);
+
+				for (int j = 0; j < boneCnt; ++j) {
+					std::string boneName = FileIO::ReadString(file);
+					auto& keyFrameTransforms = clip->mKeyFrameTransforms[boneName];
+					Matrix matrix = FileIO::ReadVal<Matrix>(file);
+					clip->mKeyFrameTransforms[boneName].push_back(matrix);
+				}
 			}
 
 			return clip;

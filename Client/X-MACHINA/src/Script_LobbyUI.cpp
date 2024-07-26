@@ -9,6 +9,7 @@
 #include "Component/UI.h"
 #include "InputMgr.h"
 #include "TextMgr.h"
+#include "SoundMgr.h"
 
 void Script_LobbyUI::Start()
 {
@@ -28,14 +29,24 @@ void Script_LobbyUI::Start()
 				
 		const auto& playButton    = Canvas::I->CreateUI<Button>(1, "PlayButton", Vec2(x, y));
 		playButton->SetHighlightTexture("PlayHButton");
-		playButton->AddClickCallback(std::bind(&Script_LobbyUI::PlayButton, this));
+		playButton->SetClickCallback(std::bind(&Script_LobbyUI::PlayButton, this));
 		const auto& customButton  = Canvas::I->CreateUI<Button>(1, "CustomButton", Vec2(x, y + (yGap * 1)));
 		customButton->SetHighlightTexture("CustomHButton");
 		const auto& settingButton = Canvas::I->CreateUI<Button>(1, "SettingButton", Vec2(x, y + (yGap * 2)));
 		settingButton->SetHighlightTexture("SettingHButton");
 		const auto& quitButton    = Canvas::I->CreateUI<Button>(1, "QuitButton", Vec2(x, y + (yGap * 3)));
 		quitButton->SetHighlightTexture("QuitHButton");
-		quitButton->AddClickCallback(std::bind(&Script_LobbyUI::ShowQuitPopup, this));
+		quitButton->SetClickCallback(std::bind(&Script_LobbyUI::ShowQuitPopup, this));
+
+		playButton->SetClickSound("ButtonClick");
+		customButton->SetClickSound("ButtonClick");
+		settingButton->SetClickSound("ButtonClick");
+		quitButton->SetClickSound("ButtonClick");
+
+		playButton->SetHoverSound("ButtonHighlight");
+		customButton->SetHoverSound("ButtonHighlight");
+		settingButton->SetHoverSound("ButtonHighlight");
+		quitButton->SetHoverSound("ButtonHighlight");
 	}
 
 	// Popup
@@ -43,10 +54,10 @@ void Script_LobbyUI::Start()
 		mPopupQuit = std::make_shared<PopupUI>("QuitPopup");
 		const auto& yesButton = Canvas::I->CreateUI<Button>(7, "YesButton", Vec2(-70, -70));
 		yesButton->SetHighlightTexture("YesHButton");
-		yesButton->AddClickCallback(std::bind(&Script_LobbyUI::QuitGame, this));
+		yesButton->SetClickCallback(std::bind(&Script_LobbyUI::QuitGame, this));
 		const auto& noButton = Canvas::I->CreateUI<Button>(7, "NoButton", Vec2(100, -70));
 		noButton->SetHighlightTexture("NoHButton");
-		noButton->AddClickCallback(std::bind(&Script_LobbyUI::HideQuitPopup, this));
+		noButton->SetClickCallback(std::bind(&Script_LobbyUI::HideQuitPopup, this));
 		mPopupQuit->AddUI(yesButton);
 		mPopupQuit->AddUI(noButton);
 		mPopupQuit->SetActive(false);

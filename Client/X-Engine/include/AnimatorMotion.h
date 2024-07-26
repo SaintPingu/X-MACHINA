@@ -62,7 +62,7 @@ public:
 	void Release();
 
 	virtual int GetMaxFrameRate() const abstract;
-	virtual Matrix GetSRT(int boneIndex) const abstract;
+	virtual Matrix GetSRT(const std::string& boneName) const abstract;
 
 	std::string GetName() const { return mName; }
 	float GetLength() const { return mCrntLength; }
@@ -131,7 +131,7 @@ public:
 	rsptr<const AnimationClip> GetClip() const { return mClip; }
 
 protected:
-	Matrix GetSRT(int boneIndex, float length) const;
+	Matrix GetSRT(const std::string& boneName, float length) const;
 };
 
 
@@ -144,7 +144,7 @@ public:
 	AnimatorState(const AnimatorState& other);
 	virtual ~AnimatorState() = default;
 
-	virtual Matrix GetSRT(int boneIndex) const override;
+	virtual Matrix GetSRT(const std::string& boneName) const override;
 	virtual int GetMaxFrameRate() const override;
 	virtual sptr<const AnimationClip> GetClip() const override;
 
@@ -158,7 +158,7 @@ protected:
 class ChildMotion : public AnimatorTrack {
 private:
 	float	mCrntLength = 0.f;
-	float 	mWeight     = 1.f;
+	float 	mWeight = 1.f;
 
 	Vec2	mPosition{};
 
@@ -170,7 +170,7 @@ public:
 	float GetLength() const { return mCrntLength; }
 	float GetWeight() const { return mWeight; }
 	Vec2 GetPosition() const { return mPosition; }
-	Matrix GetSRT(int boneIndex) const;
+	Matrix GetSRT(const std::string& boneName) const;
 
 	void SetLength(float length) { mCrntLength = length; }
 	void SetWeight(float weight) { mWeight = weight; }
@@ -194,7 +194,7 @@ public:
 	BlendTree(const BlendTree& other);
 	virtual ~BlendTree() = default;
 
-	virtual Matrix GetSRT(int boneIndex) const override;
+	virtual Matrix GetSRT(const std::string& boneName) const override;
 	virtual int GetMaxFrameRate() const override;
 	virtual sptr<const AnimationClip> GetClip() const override;
 

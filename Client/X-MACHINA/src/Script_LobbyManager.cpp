@@ -5,12 +5,15 @@
 
 #include "X-Engine.h"
 #include "InputMgr.h"
+#include "SoundMgr.h"
 #include "Timer.h"
 #include "Scene.h"
 #include "Light.h"
 #include "Object.h"
 #include "LobbyScene.h"
 #include "GameFramework.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 
 #include "Component/Camera.h"
 
@@ -39,15 +42,18 @@ void Script_LobbyManager::Start()
 	trooper->SetLocalRotation(Quaternion::ToQuaternion(Vec3(0.f, 53.41f, 0.f)));
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
+	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.12f);
+
+	SoundMgr::I->Play("BGM", "Lobby", 0.5f, true);
 }
 
 void Script_LobbyManager::Update()
 {
 	base::Update();
 
-	//if (KEY_TAP('Q')) {
+	if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
-	//}
+	}
 }
 
 void Script_LobbyManager::Reset()

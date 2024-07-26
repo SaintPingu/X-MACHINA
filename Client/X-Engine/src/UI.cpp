@@ -8,6 +8,7 @@
 #include "Mesh.h"
 #include "FileIO.h"
 
+#include "SoundMgr.h"
 #include "DXGIMgr.h"
 #include "InputMgr.h"
 #include "FrameResource.h"
@@ -74,6 +75,9 @@ void UI::OnClick()
 	if (mClickCallback) {
 		mClickCallback();
 	}
+	if (mClickSound != "") {
+		SoundMgr::I->Play("UI", mClickSound);
+	}
 }
 
 
@@ -137,6 +141,18 @@ void UI::SetScale(const Vec2& scale)
 	mScale.y = scale.y / Canvas::I->GetHeight();
 }
 
+void UI::SetHover(bool val)
+{
+	if (mIsHover == val) {
+		return;
+	}
+
+	mIsHover = val;
+	if (mHoverSound != "") {
+		SoundMgr::I->Play("UI", mHoverSound, 3.f);
+	}
+}
+
 void UI::SetColor(const Vec3& color)
 {
 	mObjectCB.UseOutline = true;
@@ -174,6 +190,7 @@ void SliderUI::UpdateShaderVars(rsptr<Texture> texture)
 
 
 #pragma region Button
+#include "SoundMgr.h"
 Button::Button(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	:
 	UI(textureName, pos, scale)
@@ -235,6 +252,7 @@ void Button::OnClick()
 	base::OnClick();
 
 	mClicked = true;
+	
 	if (mPressedTexture) {
 		mCrntTexture = mPressedTexture;
 	}

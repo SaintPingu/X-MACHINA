@@ -80,6 +80,7 @@ void LobbyScene::Update()
 void LobbyScene::Build()
 {
 	Scene::Build();
+
 	std::cout << "Load Lobby Scene...";
 	mLight->SetSceneBounds(15.f);
 

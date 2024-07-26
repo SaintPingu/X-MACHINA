@@ -54,6 +54,7 @@ private:
 
 	
 	void DoInput_Move();
+	void DoInput_Mouse();
 	void DoInput_OnShoot();
 	void DoNetLatency();
 

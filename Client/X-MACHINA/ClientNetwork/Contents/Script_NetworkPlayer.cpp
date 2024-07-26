@@ -28,6 +28,7 @@ void Script_NetworkPlayer::LateUpdate()
 {
 	base::LateUpdate();
 
+	DoInput_Mouse();
 	DoInput_Move();		// Send Move Transform Packet By Key Input
 	DoInput_OnShoot();	// Semd Bullet On Shoot Packet By Key Input  
 
@@ -133,6 +134,30 @@ void Script_NetworkPlayer::DoInput_Move()
 	}
 
 	return;
+}
+
+void Script_NetworkPlayer::DoInput_Mouse()
+{
+	if (KEY_PRESSED(VK_RBUTTON)) {
+		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
+
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
+			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
+		{
+			Send_CPkt_AimRotation_Player(mObject->GetYAngle());
+			mMouseTimePoint_latest = currentTime;
+		}
+	}
+	if (KEY_AWAY(VK_RBUTTON)) {
+		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
+
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
+			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
+		{
+			Send_CPkt_AimRotation_Player(-99999.f);
+			mMouseTimePoint_latest = currentTime;
+		}
+	}
 }
 
 void Script_NetworkPlayer::DoInput_OnShoot()

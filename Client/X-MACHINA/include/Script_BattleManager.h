@@ -18,7 +18,6 @@ class Script_BattleManager : public Component {
 	COMPONENT(Script_BattleManager, Component)
 
 private:
-	GridObject* mBoss{};
 	sptr<Script_MainCamera> mMainCamera{};
 	std::vector<sptr<GameObject>> mObjects{};
 

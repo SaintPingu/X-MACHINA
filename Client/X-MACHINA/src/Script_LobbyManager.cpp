@@ -37,14 +37,14 @@ void Script_LobbyManager::Start()
 {
 	base::Start();
 
-	const auto& trooper = LobbyScene::I->Instantiate("Dystopia_Mech");
+	const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
 	trooper->SetPosition(7.4f, 0, 5.27f);
 	trooper->SetLocalRotation(Quaternion::ToQuaternion(Vec3(0.f, 53.41f, 0.f)));
-	trooper->GetAnimator()->GetController()->SetValue("Walk", true);
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
+	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.12f);
 
-	SoundMgr::I->Play("BGM", "Intro", 1.0f, true);
+	SoundMgr::I->Play("BGM", "Lobby", 1.0f, true);
 }
 
 void Script_LobbyManager::Update()
@@ -54,19 +54,8 @@ void Script_LobbyManager::Update()
 	if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
 	}
-	if (KEY_TAP('W')) {
-		SoundMgr::I->Play("BGM", "Lobby", 1.0f, true);
-	}
-	if (KEY_TAP('E')) {
-		SoundMgr::I->Play("BGM", "Intro", 1.0f, true);
-	}
 
-	if (KEY_TAP('O')) {
-		SoundMgr::I->Play("Effect", "fire");
-	}
-	if (KEY_TAP('P')) {
-		SoundMgr::I->Play("Effect", "shot");
-	}
+
 }
 
 void Script_LobbyManager::Reset()

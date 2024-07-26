@@ -9,8 +9,6 @@
 class Script_LobbyManager : public Component {
 	COMPONENT(Script_LobbyManager, Component)
 
-private:
-
 public:
 	virtual void Awake() override;
 	virtual void Start() override;

@@ -67,6 +67,7 @@ public:
 	void Render();
 
 	void SetSunlightDir(const Vec3&);
+	void SetSunlightColor(const Vec3& color);
 
 private:
 

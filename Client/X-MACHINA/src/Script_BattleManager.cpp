@@ -24,6 +24,7 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "SoundMgr.h"
 #include "TextMgr.h"
 #include "InputMgr.h"
 #include "X-Engine.h"
@@ -51,6 +52,8 @@ void Script_BattleManager::Start()
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
 
 	mBoss = BattleScene::I->Instantiate("Dystopia_Mech");
+
+	SoundMgr::I->Play("BGM", "Battle_Stage1", 1.0f, true);
 }
 
 #include "Animator.h"

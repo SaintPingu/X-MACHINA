@@ -14,7 +14,7 @@ SkyBox::SkyBox() : Transform(this)
 {
 	mMesh = std::make_shared<ModelObjectMesh>();
 	mMesh->CreateSphereMesh(0.5f);
-	mTexture = RESOURCE<Texture>("SkyBox_0");
+	mTexture = RESOURCE<Texture>("SkyBox_1");
 }
 
 void SkyBox::Render()

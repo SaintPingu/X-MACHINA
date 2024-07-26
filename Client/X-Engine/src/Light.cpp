@@ -62,17 +62,29 @@ void Light::SetSceneBounds(float boundRadius)
 	mSceneBounds.Radius = sqrt(boundRadius * boundRadius + boundRadius * boundRadius);
 }
 
+void Light::SetSunlightDir(const Vec3& dir)
+{
+	auto& sunlight = mLights->Lights[gkSunLightIdx];
+	sunlight.Direction = dir;
+}
+
+void Light::SetSunlightColor(const Vec3& color)
+{
+	auto& sunlight = mLights->Lights[gkSunLightIdx];
+	sunlight.Strength = color;
+}
+
 void Light::SetSunlight()
 {
-	auto& light = mLights->Lights[gkSunLightIdx];
-	light.Strength = Vec3(0.3f, 0.3f, 0.3f);
-	light.FalloffStart = 1.f;
-	light.Direction = Vec3(1, -2, -2);
-	light.Position = Vector3::Zero;
-	light.FalloffEnd = 30.f;
-	light.SpotPower = 64.f;
-	light.Type = static_cast<int>(LightType::Directional);
-	light.IsEnable = true;
+	auto& sunlight = mLights->Lights[gkSunLightIdx];
+	sunlight.Strength = Vec3(0.3f, 0.3f, 0.3f);
+	sunlight.FalloffStart = 1.f;
+	sunlight.Direction = Vec3(1, -2, -2);
+	sunlight.Position = Vector3::Zero;
+	sunlight.FalloffEnd = 30.f;
+	sunlight.SpotPower = 64.f;
+	sunlight.Type = static_cast<int>(LightType::Directional);
+	sunlight.IsEnable = true;
 	
 	mLights->VolumeMeshes[gkSunLightIdx] = RESOURCE<ModelObjectMesh>("Rect");
 }
@@ -189,12 +201,6 @@ void Light::Render()
 			}
 		}
 	}
-}
-
-void Light::SetSunlightDir(const Vec3& dir)
-{
-	auto& sunlight = mLights->Lights[gkSunLightIdx];
-	sunlight.Direction = dir;
 }
 
 void Light::LoadLightModels()

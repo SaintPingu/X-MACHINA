@@ -527,6 +527,9 @@ bool FBsPacketFactory::Process_SPkt_Player_Weapon(SPtr_Session session, const FB
 	uint32_t				player_id   = pkt.player_id();
 	FBProtocol::WEAPON_TYPE weapon_type = pkt.weapon_type();
 
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> EventData = CLIENT_NETWORK->CreateEvent_UpdateWeapon_RemotePlayer(player_id, weapon_type);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
 	return true;
 }
 

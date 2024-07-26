@@ -196,6 +196,14 @@ void ClientNetworkManager::ProcessEvents()
 			ProcessEvent_RemotePlayer_UpdateAnimation(data);
 		}
 		break;
+		case NetworkEvent::Game::RemotePlayerType::UpdateWeapon:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon*>(EventData.get());
+			ProcessEvent_RemotePlayer_UpdateWeapon(data);
+		}
+		break;
+
+
 		/// +---------------------------------------------------------------------------
 		/// >> ▶▶▶▶▶ PROCESS EVENT MONSTER  
 		/// ---------------------------------------------------------------------------+
@@ -384,6 +392,17 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> ClientNetworkManag
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> ClientNetworkManager::CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::WEAPON_TYPE weaponType)
+{
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>();
+
+	Event->Id	= remID;
+
+	Event->type = weaponType;
+
+	return Event;
+}
+
 sptr<NetworkEvent::Game::Event_Monster::Add> ClientNetworkManager::CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos)
 {
 	sptr<NetworkEvent::Game::Event_Monster::Add> Event = std::make_shared<NetworkEvent::Game::Event_Monster::Add>();
@@ -523,6 +542,13 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateAnimation(NetworkEven
 
 }
 
+void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data)
+{
+	uint32_t				player_id	= data->Id;
+	FBProtocol::WEAPON_TYPE weapon_Type = data->weapon_type;
+
+}
+
 void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
 {
 	/* 
@@ -536,12 +562,12 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 	for (int i = 0; i < monInfos.size(); ++i) {
 		
 		int							monsterID	= monInfos[i].Id;
-		FBProtocol::MONSTER_TYPE	monType		=  monInfos[i].Type;
-		monInfos[i].mPheros;
-		monInfos[i].Name;
-		monInfos[i].Pos;
-		monInfos[i].Rot;
-		monInfos[i].SDir;
+		FBProtocol::MONSTER_TYPE	monType		= monInfos[i].Type;
+		std::vector<PheroInfo>		pheros		= monInfos[i].mPheros;
+		std::string					name		= monInfos[i].Name;
+		Vec3						position	= monInfos[i].Pos;
+		Vec3						Rotation	= monInfos[i].Rot;
+		Vec3						SpineDir	= monInfos[i].SDir;
 		
 
 		// 몬스터가 이미 생성된 적이 있다면 

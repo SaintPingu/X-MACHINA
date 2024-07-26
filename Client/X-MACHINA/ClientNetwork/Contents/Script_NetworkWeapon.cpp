@@ -32,11 +32,7 @@ void Script_NetworkBulletWeapon::FireBullet()
 
 		bulletScript->Fire(*mMuzzle, err);
 
-		/// +-------------------------------------------------------------------
-		///		Send OnShoot Packet
-		/// -------------------------------------------------------------------+
-		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
-		CLIENT_NETWORK->Send(cpkt);
+
 	}
 }
 

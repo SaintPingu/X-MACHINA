@@ -14,8 +14,8 @@
 #include "Timer.h"
 
 
-
-
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 #pragma region Script_Weapon
 void Script_Weapon::Awake()
@@ -236,6 +236,12 @@ void Script_BulletWeapon::FireBullet()
 		bulletScript->SetSpeed(GetBulletSpeed() - bulletSpeedErr);
 
 		bulletScript->Fire(*mMuzzle, err);
+
+		/// +-------------------------------------------------------------------
+		///		Send OnShoot Packet
+		/// -------------------------------------------------------------------+
+		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
+		CLIENT_NETWORK->Send(cpkt);
 	}
 }
 

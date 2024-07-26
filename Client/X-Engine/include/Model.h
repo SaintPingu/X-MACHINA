@@ -83,6 +83,7 @@ public:
 // mesh와 material 정보를 갖는다.
 class Model : public Object {
 private:
+	bool mIsSkinMesh{};
 	bool mHasMesh{};
 	sptr<MeshLoadInfo>			mMeshInfo{};
 	std::vector<sptr<Material>> mMaterials{};
@@ -99,10 +100,10 @@ public:
 	void CopyModelHierarchy(Object* object, Object* parent = nullptr) const;
 
 	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
-	void MergeModel(MasterModel& out); 
+	void MergeModel(MasterModel& out, bool& isSkinMesh); 
 
 public:
-	static void MergeTransform(std::vector<const Transform*>& out, const Model* transform);
+	static void MergeTransform(std::vector<Transform*>& out, Model* transform);
 };
 
 
@@ -118,8 +119,9 @@ private:
 	sptr<MergedMesh> mMesh{};
 	sptr<AnimationLoadInfo>	mAnimationInfo{};
 	sptr<Model> mModel{};
-	std::vector<const Transform*> mMergedTransform{};
+	std::vector<Transform*> mMergedTransform{};
 
+	bool mIsSkinMesh{};		// all mesh is skinned mesh
 	bool mMerged{ false };
 
 public:
@@ -133,6 +135,9 @@ public:
 	rsptr<Texture> GetTexture() const;
 
 	sptr<const AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }
+
+	bool IsSkinMesh() const { return mIsSkinMesh; }
+
 	void SetAnimationInfo(sptr<AnimationLoadInfo> animationInfo);
 
 public:
@@ -153,7 +158,7 @@ public:
 	// call Model::CopyModelHierarchy()
 	void CopyModelHierarchy(GameObject* object) const;
 
-	std::vector<const Transform*> GetMergedTransform() const { return mMergedTransform; }
+	std::vector<Transform*> GetMergedTransform() const { return mMergedTransform; }
 
 private:
 	void MergeModelTransforms();

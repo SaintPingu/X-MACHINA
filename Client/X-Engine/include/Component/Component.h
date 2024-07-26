@@ -143,9 +143,11 @@ private:
 	bool mIsEnable = false;			// OnEnable()이 호출되었는가? (활성화 상태인가?)
 	bool mIsDestroyed = false;		// Destroy()가 호출되었는가?
 
-private:
 	std::vector<sptr<Component>> mComponents{};
 	std::unordered_set<Object*> mCollisionObjects{};	// 한 프레임에서 충돌한 오브젝트 집합
+
+protected:
+	bool mIsSkinMesh = false;
 
 public:
 #pragma region C/Dtor
@@ -165,6 +167,7 @@ public:
 	bool IsAwake() const				{ return mIsAwake; }
 	bool IsStart() const				{ return mIsStart; }
 	bool IsActive() const				{ return mIsEnable; }
+	bool IsSkinMesh() const				{ return mIsSkinMesh; }
 	bool HasMesh() const				{ return mHasMesh; }
 
 	const std::unordered_set<Object*>& GetCollisionObjects() { return mCollisionObjects; }

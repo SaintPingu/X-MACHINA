@@ -11,6 +11,8 @@
 #include "Object.h"
 #include "LobbyScene.h"
 #include "GameFramework.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 
 #include "Component/Camera.h"
 
@@ -34,9 +36,10 @@ void Script_LobbyManager::Start()
 {
 	base::Start();
 
-	const auto& trooper = LobbyScene::I->Instantiate("Ursacetus");
-	trooper->SetPosition(-2, 0, -2);
+	const auto& trooper = LobbyScene::I->Instantiate("Dystopia_Mech");
+	trooper->SetPosition(7.4f, 0, 5.27f);
 	trooper->SetLocalRotation(Quaternion::ToQuaternion(Vec3(0.f, 53.41f, 0.f)));
+	trooper->GetAnimator()->GetController()->SetValue("Walk", true);
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
 }

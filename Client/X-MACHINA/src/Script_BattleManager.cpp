@@ -50,7 +50,7 @@ void Script_BattleManager::Start()
 
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
 
-	mBoss = BattleScene::I->Instantiate("Dystopia_Mech_Rust");
+	mBoss = BattleScene::I->Instantiate("Dystopia_Mech");
 }
 
 #include "Animator.h"

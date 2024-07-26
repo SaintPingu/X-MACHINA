@@ -730,7 +730,7 @@ void MergedMesh::MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelMe
 	}
 }
 
-void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt) const
+void MergedMesh::Render(const std::vector<Transform*>& mergedTransform, UINT instanceCnt) const
 {
 	CMD_LIST->IASetVertexBuffers(mSlot, (UINT)mVertexBufferViews.size(), mVertexBufferViews.data());
 	CMD_LIST->IASetIndexBuffer(&mIndexBufferView);
@@ -740,8 +740,7 @@ void MergedMesh::Render(const std::vector<const Transform*>& mergedTransform, UI
 	const UINT transformCnt = (UINT)mergedTransform.size();
 
 	// 최상위 부모의 mUseObjCB가 true여야 객체 파괴시 오브젝트 인덱스 반환 가능
-	const Transform* root = mergedTransform[0];
-	root->SetUseObjCB(true);
+	const Transform* root = mergedTransform[0]->GetRoot();
 
 	int idx{};
 	for (const auto& transform : mergedTransform) {
@@ -1094,9 +1093,9 @@ void SkinMesh::UpdateShaderVariables()
 	
 	int t{};
 	for (const auto& boneName : mBoneNames) {
-		Matrix transform = mBoneOffsets[t] * (*mBoneFrames)[boneName]->GetWorldTransform();
+		Matrix transform = mBoneOffsets[t++] * (*mBoneFrames)[boneName]->GetWorldTransform();
 		int boneIdx = mBoneNameIndices[boneName];
-		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[t++], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
+		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[boneIdx], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}
 
 	// TODO : Memory Leak

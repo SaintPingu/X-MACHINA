@@ -190,7 +190,7 @@ private:
 	// merge all sub meshes from (mesh)
 	void MergeSubMeshes(rsptr<MeshLoadInfo> mesh, FrameMeshInfo& modelInfo);
 
-	void Render(const std::vector<const Transform*>& mergedTransform, UINT instanceCnt = 1) const;
+	void Render(const std::vector<Transform*>& mergedTransform, UINT instanceCnt = 1) const;
 };
 
 class Avatar {

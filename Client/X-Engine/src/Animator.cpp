@@ -48,10 +48,19 @@ void Animator::UpdateTransform()
 		return;
 	}
 
-	const auto& skinMesh = mSkinMeshes.front();
-	for (const auto& [name, frame] : mBoneFrames) {
-		Matrix transform = mController->GetTransform(name, skinMesh->GetHumanBone(name));
-		frame->SetLocalTransform(transform, false);
+	if (!mSkinMeshes.empty()) {
+		const auto& skinMesh = mSkinMeshes.front();
+		for (const auto& [name, frame] : mBoneFrames) {
+			Matrix transform = mController->GetTransform(name, skinMesh->GetHumanBone(name));
+			frame->SetLocalTransform(transform, false);
+		}
+	}
+	else {
+		for (const auto& [name, frame] : mBoneFrames) {
+			Matrix transform = mController->GetTransform(name, HumanBone::None);
+			frame->SetLocalTransform(transform);
+		}
+		(*mBoneFrames.begin()).second->GetRoot()->ComputeWorldTransform();
 	}
 }
 
@@ -80,8 +89,10 @@ void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar, bool isM
 {
 	if (isManualBoneCalc) {
 		auto& SetBoneFrame = [&](Transform* transform) {
-			mBoneFrames[transform->GetObj<Object>()->GetName()] = transform;
-			};
+			Object* obj = transform->GetObj<Object>();
+			if (!obj->HasMesh()) {
+				mBoneFrames[obj->GetName()] = transform;
+			}};
 
 		Transform* root = avatar->FindFrame("root");
 		root->DoAllChilds(SetBoneFrame);

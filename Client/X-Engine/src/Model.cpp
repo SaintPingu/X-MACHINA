@@ -69,6 +69,10 @@ void Model::SetMeshInfo(rsptr<MeshLoadInfo> meshInfo)
 	if(mMeshInfo)
 	{
 		mHasMesh = true;
+		if (mMeshInfo->SkinMesh)
+		{
+			mIsSkinMesh = true;
+		}
 	}
 }
 // 재귀함수
@@ -96,18 +100,21 @@ void Model::CopyModelHierarchy(Object* object, Object* parent) const
 	}
 }
 
-void Model::MergeModel(MasterModel& out)
+void Model::MergeModel(MasterModel& out, bool& isSkinMesh)
 {
+	if (mHasMesh && !mIsSkinMesh) {
+		isSkinMesh = false;
+	}
 	out.MergeMesh(mMeshInfo, mMaterials);	// mesh와 material을 out에 병합한다.
 
 	if (mSibling) {
-		mSibling->GetObj<Model>()->MergeModel(out);
+		mSibling->GetObj<Model>()->MergeModel(out, isSkinMesh);
 	}
 	if (mChild) {
-		mChild->GetObj<Model>()->MergeModel(out);
+		mChild->GetObj<Model>()->MergeModel(out, isSkinMesh);
 	}
 }
-void Model::MergeTransform(std::vector<const Transform*>& out, const Model* transform)
+void Model::MergeTransform(std::vector<Transform*>& out, Model* transform)
 {
 	if (transform->mMeshInfo) {
 		out.emplace_back(transform);
@@ -168,7 +175,8 @@ void MasterModel::SetModel(const rsptr<Model> model)
 {
 	mModel = model;
 	MergeModelTransforms();
-	model->MergeModel(*this);
+	mIsSkinMesh = true;
+	model->MergeModel(*this, mIsSkinMesh);
 	mMesh->StopMerge();
 
 	mMerged = true;

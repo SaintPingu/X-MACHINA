@@ -25,9 +25,17 @@ VSOutput_Standard VS_SkinnedMesh(VSInput_Standard input)
     VSOutput_Standard output;
     
     float4x4 mtxVertexToBoneWorld = (float4x4) 0.0f;
-    for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+    
+    if (gObjectCB.IsSkinMesh)
     {
-        mtxVertexToBoneWorld += input.Weights[i] * gSkinMeshCB.BoneTransforms[input.Indices[i]];
+        for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+        {
+            mtxVertexToBoneWorld += input.Weights[i] * gSkinMeshCB.BoneTransforms[input.Indices[i]];
+        }
+    }
+    else
+    {
+        mtxVertexToBoneWorld = gObjectCB.MtxWorld;
     }
 
     output.PosW = (float3) mul(float4(input.Position, 1.f), mtxVertexToBoneWorld);

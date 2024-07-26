@@ -23,7 +23,8 @@ void Script_GroundObject::LateUpdate()
 	if (isnan(mObject->GetPosition().x)) {
 		mObject->SetPosition(0, 0, 0);
 	}
-	Vec3 pos = mObject->GetPosition();
-	float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
-	mObject->SetPositionY(terrainHeight);
+	mObject->SetPositionY(0.1f);
+	//Vec3 pos = mObject->GetPosition();
+	//float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
+	//mObject->SetPositionY(terrainHeight);
 }

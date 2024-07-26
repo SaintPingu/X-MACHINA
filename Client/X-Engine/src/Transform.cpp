@@ -1,5 +1,4 @@
 #include "Transform.h"
-#include "Transform.h"
 #include "EnginePch.h"
 
 #include "Component/Transform.h"
@@ -582,6 +581,15 @@ void Transform::DoAllChilds(const std::function<void(Transform*)>& processFunc)
 	if (mChild) {
 		mChild->DoAllTransforms(processFunc);
 	}
+}
+
+Transform* Transform::GetRoot()
+{
+	if (!mParent) {
+		return this;
+	}
+
+	return mParent->GetRoot();
 }
 
 void Transform::UpdateColliderShaderVars(const Matrix& matrix, const Vec4& color)

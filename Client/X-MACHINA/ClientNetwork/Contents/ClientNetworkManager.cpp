@@ -612,7 +612,10 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		Script_NetworkEnemy* enemyNetwork = monster->AddComponent<Script_NetworkEnemy>().get();
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
-		if (monInfos[i].Target_Player_Id != -1) {
+		if (monInfos[i].Target_Player_Id == 0) {
+			enemyNetwork->SetTarget(nullptr);
+		}
+		else {
 			enemyNetwork->SetTarget(mRemotePlayers[monInfos[i].Target_Player_Id]);
 		}
 
@@ -694,10 +697,15 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 		if (!mRemoteMonsters.count(monster_id))
 			continue;
 
-		if (target_player_id == -1)
+		if (!mRemotePlayers.count(target_player_id))
 			continue;
 
-		mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
+		if (target_player_id == 0) {
+			mRemoteMonsters[monster_id]->SetTarget(nullptr);
+		}
+		else {
+			mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
+		}
 	}
 }
 

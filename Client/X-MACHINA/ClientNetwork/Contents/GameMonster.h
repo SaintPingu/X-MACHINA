@@ -11,7 +11,7 @@ struct PheroInfo {
 struct GameMonsterInfo {
 
 	std::string					Name = {};
-	uint32_t					Id   = {};
+	int							Id   = {};
 	int							Target_Player_Id = -1;
 	FBProtocol::MONSTER_TYPE	Type = {};
 	/* Transform Info */

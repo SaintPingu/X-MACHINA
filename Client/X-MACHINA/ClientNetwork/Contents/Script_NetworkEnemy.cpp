@@ -100,6 +100,7 @@ void Script_NetworkEnemy::MoveToTarget()
 
 void Script_NetworkEnemy::Attack()
 {
+	mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.AttackRotationSpeed);
 	mEnemyMgr->mController->SetValue("Walk", false);
 	mEnemyMgr->mController->SetValue("Attack", true);
 }

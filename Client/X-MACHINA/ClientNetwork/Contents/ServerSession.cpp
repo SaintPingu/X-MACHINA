@@ -69,7 +69,8 @@ UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)
 		/* 패킷 해석 */
 		FBsPacketFactory::ProcessFBsPacket(static_pointer_cast<Session>(shared_from_this()), buffer + ProcessDataSize, packet->PacketSize);
 		ProcessDataSize += packet->PacketSize;
-
+		if (packet->PacketSize == 0)
+			assert(0);
 	}
 
 	return len;

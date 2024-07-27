@@ -352,7 +352,6 @@ void GameFramework::DisconnectServer()
 void GameFramework::InitPlayer()
 {
 	mPlayer = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
-	mPlayer->ResetCollider();
 	mPlayerScript = mPlayer->AddComponent<Script_PheroPlayer>();
 
 #ifdef SERVER_COMMUNICATION

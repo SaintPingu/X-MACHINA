@@ -18,6 +18,7 @@
 #include "Script_Item.h"
 #include "Component/ParticleSystem.h"
 #include "Component/Camera.h"
+#include "Component/Collider.h"
 
 #include "GameFramework.h"
 
@@ -98,6 +99,9 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 	case Hash("WeaponCrate2"):
 		object->AddComponent<Script_Item_WeaponCrate>()->LoadData(exporter);
 		break;
+	case Hash("Bound"):
+		WriteBounds(object);
+		break;
 #ifdef SERVER_COMMINICATION
 	case Hash("AdvancedCombatDroid"):
 	case Hash("Onyscidus"):
@@ -150,4 +154,42 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 		throw std::runtime_error("[Error] Couldn't import script");
 		break;
 	}
+}
+
+void Script_BattleManager::WriteBounds(rsptr<Object> object)
+{
+	object->RemoveAllComponents<ObjectCollider>();
+	object->RemoveAllComponents<BoxCollider>();
+	object->RemoveAllComponents<SphereCollider>();
+	const auto& exporter = object->GetComponent<ScriptExporter>();
+
+	int boundingCnt{};
+	exporter->GetData("Size", boundingCnt);
+
+	// Sphere
+	{
+		const auto& collider = object->AddComponent<SphereCollider>();
+		MyBoundingSphere bs;
+		exporter->GetData("rad", bs.Radius);
+		collider->SetBoundingSphere(bs);
+		collider->Update();
+	}
+
+	// Box
+	{
+		for (int i = 0; i < boundingCnt; ++i) {
+			const auto& collider = object->AddComponent<BoxCollider>();
+			const std::string& idx = std::to_string(i);
+
+			MyBoundingOrientedBox box;
+			exporter->GetData(idx + "x", box.Extents.x);
+			exporter->GetData(idx + "y", box.Extents.y);
+			exporter->GetData(idx + "z", box.Extents.z);
+			collider->SetBoundingBox(box);
+			collider->Update();
+		}
+	}
+
+	object->AddComponent<ObjectCollider>();
+	std::static_pointer_cast<GridObject>(object)->ResetCollider();
 }

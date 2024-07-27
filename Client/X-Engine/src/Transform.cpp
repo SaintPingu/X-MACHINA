@@ -468,6 +468,26 @@ void Transform::UpdateLocalTransform(bool isComputeWorldTransform)
 	}
 }
 
+std::vector<Transform*> Transform::GetAllTransforms()
+{
+	std::vector<Transform*> result;
+	GetAllTransforms(result, this);
+	return result;
+}
+
+void Transform::GetAllTransforms(std::vector<Transform*>& out, Transform* current)
+{
+	out.push_back(current);
+
+	if (current->mSibling) {
+		GetAllTransforms(out, current->mSibling.get());
+	}
+	if (current->mChild) {
+		GetAllTransforms(out, current->mChild.get());
+	}
+}
+
+
 void Transform::ComputeWorldTransform(const Matrix* parentTransform)
 {
 	if (!parentTransform && mParent) {

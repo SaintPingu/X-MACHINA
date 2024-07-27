@@ -100,11 +100,9 @@ public:
 	// Scene::UpdateObjectGrid(this)
 	virtual void UpdateGrid();
 
-	// Collider를 다시 추가해 적용한다.
-	void ResetCollider();
-
 	// 내가 위치한 grid indices를 모두 제거한다.
 	void ClearGridIndices() { mGridIndices.clear(); }
+	void ResetCollider();
 
 public:
 	virtual void SetTag(ObjectTag tag) override;

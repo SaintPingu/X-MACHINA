@@ -2,6 +2,7 @@
 #include "Script_Player.h"
 
 #include "Script_Bullet.h"
+#include "Script_GroundObject.h"
 #include "Script_AimController.h"
 #include "Script_MainCamera.h"
 #include "Script_Weapon.h"
@@ -81,6 +82,7 @@ void Script_GroundPlayer::Awake()
 	base::Awake();
 
 	// add scripts //
+	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('U', std::make_shared<MindControlAbility>());
@@ -112,7 +114,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230);
+	constexpr Vec3 kSpawnPoint = Vec3(124, 0, 220);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -153,7 +155,7 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 	switch (other.GetTag())
 	{
 	case ObjectTag::Building:
-	case ObjectTag::DissolveBuilding:
+	case ObjectTag::Bound:
 		ComputeSlideVector(other);
 		break;
 	default:

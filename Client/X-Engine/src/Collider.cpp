@@ -225,9 +225,9 @@ void ObjectCollider::Awake()
 	}
 
 	// 객체의 모든 BoxCollider와 bounding box들을 가져온다.
-	const auto& mergedTransform = gridObject->GetMergedTransform();
+	const auto& allTransforms = gridObject->GetAllTransforms();
 
-	for (auto transform : mergedTransform) {
+	for (auto transform : allTransforms) {
 		const Object* object = transform->GetObj<Object>();
 		const auto& colliders = object->GetComponents<Collider>();
 

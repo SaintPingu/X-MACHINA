@@ -781,7 +781,12 @@ void BattleScene::UpdateRenderedObjects()
 			if (MAIN_CAMERA->GetFrustumShadow().Intersects(grid->GetBB())) {
 				auto& objects = grid->GetObjects();
 				for (auto& object : objects) {
-					if (MAIN_CAMERA->GetFrustumShadow().Intersects(object->GetCollider()->GetBS())) {
+					if (object->GetTag() == ObjectTag::Bound) {
+						continue;
+					}
+
+					const auto& collider = object->GetCollider();
+					if (collider && MAIN_CAMERA->GetFrustumShadow().Intersects(collider->GetBS())) {
 						mRenderedObjects.insert(object);
 					}
 				}
@@ -792,6 +797,9 @@ void BattleScene::UpdateRenderedObjects()
 		for (auto& object : mRenderedObjects) {
 			if (object->GetTag() == ObjectTag::AfterSkinImage) {
 				mObjectsByShader[ObjectTag::AfterSkinImage].insert(object);
+				continue;
+			}
+			else if (object->GetTag() == ObjectTag::Bound) {
 				continue;
 			}
 
@@ -1153,6 +1161,9 @@ ObjectTag BattleScene::GetTagByString(const std::string& tag)
 
 	case Hash("Crate"):
 		return ObjectTag::Crate;
+
+	case Hash("Bound"):
+		return ObjectTag::Bound;
 
 	default:
 		//assert(0);

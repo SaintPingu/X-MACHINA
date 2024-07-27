@@ -102,6 +102,12 @@ GridObject::GridObject()
 
 }
 
+void GridObject::ResetCollider()
+{
+	mCollider = GetComponent<ObjectCollider>().get();
+	assert(mCollider);
+}
+
 void GridObject::SetTag(ObjectTag tag)
 {
 	ObjectTag beforeTag = GetTag();
@@ -113,12 +119,15 @@ void GridObject::SetTag(ObjectTag tag)
 
 void GridObject::Awake()
 {
-	AddComponent<ObjectCollider>();
+	mCollider = AddComponent<ObjectCollider>().get();
 	base::Awake();
 
 	const auto& collider = GetComponent<ObjectCollider>();
 	if (collider) {
 		mCollider = collider.get();
+	}
+	else {
+		mCollider = nullptr;
 	}
 }
 
@@ -176,11 +185,6 @@ void GridObject::UpdateGrid()
 	BattleScene::I->UpdateObjectGrid(this);
 }
 
-
-void GridObject::ResetCollider()
-{
-	mCollider = AddComponent<ObjectCollider>().get();
-}
 #pragma endregion
 
 

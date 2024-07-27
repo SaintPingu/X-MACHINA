@@ -63,6 +63,7 @@ class ObjectTag : public DwordOverloader<ObjectTag> {
 	static const DWORD AfterSkinImage	= 0x0400;
 	static const DWORD Crate			= 0x0800;
 	static const DWORD Item				= 0x1000;
+	static const DWORD Bound			= 0x2000;
 };
 
 class FilterOption : public DwordOverloader<FilterOption> {

@@ -70,6 +70,8 @@ public:
 	virtual bool Intersects(const BoundingSphere& bs) const override;
 	virtual bool Intersects(const Ray& ray, float& dist) const override;
 
+	void SetBoundingBox(const MyBoundingOrientedBox& box) { mBox = box; }
+
 protected:
 	virtual void UpdateTransform() override;
 };
@@ -100,6 +102,8 @@ public:
 	virtual bool Intersects(const BoundingOrientedBox& obb) const override;
 	virtual bool Intersects(const BoundingSphere& bs) const override;
 	virtual bool Intersects(const Ray& ray, float& dist) const override;
+
+	void SetBoundingSphere(const MyBoundingSphere& bs) { mBS = bs; }
 
 protected:
 	virtual void UpdateTransform() override;

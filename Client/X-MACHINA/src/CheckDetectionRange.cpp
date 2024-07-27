@@ -21,7 +21,7 @@ CheckDetectionRange::CheckDetectionRange(Object* object)
 
 BT::NodeState CheckDetectionRange::Evaluate()
 {
-	if (!mEnemyMgr->mTarget) {
+	if (!mEnemyMgr->mTarget) { 
 		mEnemyMgr->mTarget = mTarget;
 	}
 

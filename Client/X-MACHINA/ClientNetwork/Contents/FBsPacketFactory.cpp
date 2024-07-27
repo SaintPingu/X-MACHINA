@@ -565,10 +565,11 @@ bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const F
 bool FBsPacketFactory::Process_SPkt_Player_AimRotation(SPtr_Session session, const FBProtocol::SPkt_Player_AimRotation& pkt)
 {
 	uint32_t player_id      = pkt.player_id();
-	float aim_rotation = pkt.aim_rotation();
+	float aim_rotation      = pkt.aim_rotation();
+	float spine_angle       = pkt.spine_angle();
 
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> EventData = CLIENT_NETWORK->CreateEvent_UpdateAimRotation_RemotePlayer(
-		player_id, aim_rotation);
+		player_id, aim_rotation, spine_angle);
 
 	CLIENT_NETWORK->RegisterEvent(EventData);
 

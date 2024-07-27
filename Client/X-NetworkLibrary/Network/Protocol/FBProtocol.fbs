@@ -1,6 +1,6 @@
 
 // +------------------------
-//      Protocol.fbs
+//		Protocol.fbs
 // ------------------------+
 
 
@@ -12,10 +12,10 @@ namespace FBProtocol;
 
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///   ▶   LOG IN / LOG OUT ( BROADCAST NEW PLAYER / REMOVE PLAYER ) 
+///	▶	LOG IN / LOG OUT ( BROADCAST NEW PLAYER / REMOVE PLAYER ) 
 /// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 // +------------------------
-//         LOG IN
+//		   LOG IN
 // ------------------------+
 table CPkt_LogIn
 {
@@ -24,23 +24,23 @@ table CPkt_LogIn
 
 table SPkt_LogIn
 {
-   success : bool;         // 1 byte
+	success : bool;			// 1 byte
 
 }
 
 
 // +------------------------
-//           CHAT 
+//		     CHAT 
 // ------------------------+
 table CPkt_Chat
 {
-   message    : string;   // 가변 크기
+	message    : string;	// 가변 크기
 }
 
 table SPkt_Chat
 {
-   player_id  : uint;      // uint64
-   message    : string;   // 가변 크기
+	player_id  : uint;		// uint64
+	message    : string;	// 가변 크기
 }
 
 // +--------------------
@@ -48,44 +48,44 @@ table SPkt_Chat
 // --------------------+
 table CPkt_NetworkLatency
 {
-   timestamp : long;   // 8 bytes
+	timestamp : long;	// 8 bytes
 }
 
 table SPkt_NetworkLatency
 {
-   timestamp : long;   // 8 bytes
+	timestamp : long;	// 8 bytes
 }
 
 
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///   ▶   ENTER GAME 
+///	▶	ENTER GAME 
 /// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 // +------------------------
-//        ENTER GAME 
+//		  ENTER GAME 
 // ------------------------+
 table CPkt_EnterGame
 {
-   player_id: uint;   // 8 bytes
+	player_id: uint;	// 8 bytes
 }
 
 table SPkt_EnterGame
 {
-   myinfo  : Player;      // 나의 정보 
-   players : [Player];      // 나를 포함한 Room안의 모든 player 정보 
+	myinfo  : Player;		// 나의 정보 
+	players : [Player];		// 나를 포함한 Room안의 모든 player 정보 
 }
 
 
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///   ▶▶▶▶▶   PLAYER 
+///	▶▶▶▶▶	PLAYER 
 /// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 // +------------------------
-//        NEW PLAYER 
+//		  NEW PLAYER 
 // ------------------------+
 table CPkt_NewPlayer
 {
@@ -94,11 +94,11 @@ table CPkt_NewPlayer
 
 table SPkt_NewPlayer
 {
-   newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
+	newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
 }
 
 // +------------------------
-//       REMOVE PLAYER 
+//		 REMOVE PLAYER 
 // ------------------------+
 table CPkt_RemovePlayer
 {
@@ -107,60 +107,60 @@ table CPkt_RemovePlayer
 
 table SPkt_RemovePlayer
 {
-   player_id : uint; // 4 bytes // 삭제할 플레이어의 아이디 
+	player_id : uint; // 4 bytes // 삭제할 플레이어의 아이디 
 }
 
 
 // +------------------------
-//      PLAYER SKILL 
+//		PLAYER SKILL 
 // ------------------------+
 table CPkt_PlayerOnSkill
 {
-   skill_type : PLAYER_SKILL_TYPE;
+	skill_type : PLAYER_SKILL_TYPE;
 
 }
 
 table SPkt_PlayerOnSkill
 {
-   player_id    : uint; // 4 bytes // 삭제할 플레이어의 아이디 
-   skill_type    : PLAYER_SKILL_TYPE;
-   phero_amount : float;
+	player_id	 : uint; // 4 bytes // 삭제할 플레이어의 아이디 
+	skill_type	 : PLAYER_SKILL_TYPE;
+	phero_amount : float;
 
 }
 
 
 // +------------------------
-//      PLAYER TRANSFORM
+//	   PLAYER TRANSFORM
 // ------------------------+
 table CPkt_Player_Transform
 {
-   move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
-   
-   latency     : long;                  // 8 bytes
-   velocity    : float;               // 4 bytes
-   movedir     : Vector3;               // 12 bytes (3 * 4 bytes)
-   trans       : Transform;            // 24 bytes (Vector3 * 2)
+	move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
+	
+	latency     : long;						// 8 bytes
+	velocity    : float;					// 4 bytes
+	movedir     : Vector3;					// 12 bytes (3 * 4 bytes)
+	trans	    : Transform;				// 24 bytes (Vector3 * 2)
 
-   spine_look   : Vector3;               // 12 bytes (3 * 4 bytes)
-   animparam_h : float;               // 4 bytes
-   animparam_v : float;               // 4 bytes
+	spine_look	: Vector3;					// 12 bytes (3 * 4 bytes)
+	animparam_h : float;					// 4 bytes
+	animparam_v : float;					// 4 bytes
 }
 
 table SPkt_Player_Transform
 {
-   player_id   : uint;               // 8 bytes            // uint64
+	player_id	: uint;					// 8 bytes				// uint64
 
-   move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
+	move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
 
-   latency     : long;                  // 8 bytes
-   velocity    : float;               // 4 bytes
-   movedir     : Vector3;               // 12 bytes (3 * 4 bytes)
-   trans       : Transform;            // 24 bytes (Vector3 * 2)
+	latency     : long;						// 8 bytes
+	velocity    : float;					// 4 bytes
+	movedir     : Vector3;					// 12 bytes (3 * 4 bytes)
+	trans	    : Transform;				// 24 bytes (Vector3 * 2)
 
 
-   spine_look   : Vector3;               // 12 bytes (3 * 4 bytes)
-   animparam_h : float;               // 4 bytes
-   animparam_v : float;               // 4 bytes
+	spine_look	: Vector3;					// 12 bytes (3 * 4 bytes)
+	animparam_h : float;					// 4 bytes
+	animparam_v : float;					// 4 bytes
 
 }
 
@@ -170,7 +170,9 @@ table SPkt_Player_Transform
 
 table CPkt_Player_AimRotation
 {
+
 	aim_rotation			: float; // Y rotation Euler
+	spine_angle				: float; // Spine Angle;
 }
 
 table SPkt_Player_AimRotation
@@ -178,54 +180,56 @@ table SPkt_Player_AimRotation
 	player_id				: uint;	// 8 bytes
 
 	aim_rotation		    : float; // Y rotation Euler
+	spine_angle				: float; // Spine Angle;
+
 }
 
 
 // +------------------------
-//      PALYER ANIMATION 
+//	   PALYER ANIMATION 
 // ------------------------+
 
 table CPkt_Player_Animation
 {
-   animation_upper_index   : int;      // 4 bytes
-   animation_lower_index   : int;      // 4 bytes
-   animation_param_h      : float;   // 4 bytes
-   animation_param_v       : float;   // 4 bytes
+	animation_upper_index   : int;		// 4 bytes
+	animation_lower_index   : int;		// 4 bytes
+	animation_param_h		: float;	// 4 bytes
+	animation_param_v       : float;	// 4 bytes
 }
 
 table SPkt_Player_Animation
 {
-   player_id            : uint;   // 8 bytes
+	player_id				: uint;	// 8 bytes
 
-   animation_upper_index   : int;      // 4 bytes
-   animation_lower_index   : int;      // 4 bytes
-   animation_param_h      : float;   // 4 bytes
-   animation_param_v       : float;   // 4 bytes
+	animation_upper_index   : int;		// 4 bytes
+	animation_lower_index   : int;		// 4 bytes
+	animation_param_h		: float;	// 4 bytes
+	animation_param_v       : float;	// 4 bytes
 }
 
 
 // +------------------------
-//      PALYER WEAPON 
+//	   PALYER WEAPON 
 // ------------------------+
 
 table CPkt_Player_Weapon
 {
-   weapon_type : WEAPON_TYPE;   // 1 byte
+	weapon_type : WEAPON_TYPE;	// 1 byte
 }
 
 table SPkt_Player_Weapon
 {
-   player_id   : uint;         // 8 bytes
-   weapon_type : WEAPON_TYPE;   // 1 byte
+	player_id	: uint;			// 8 bytes
+	weapon_type : WEAPON_TYPE;	// 1 byte
 }
 
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///   ▶▶▶▶▶   MONSTER 
+///	▶▶▶▶▶	MONSTER 
 /// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 // +------------------------
-//      NEW MONSTER   
+//	   NEW MONSTER   
 // ------------------------+
 table CPkt_NewMonster
 {
@@ -234,11 +238,11 @@ table CPkt_NewMonster
 
 table SPkt_NewMonster
 {
-   new_monsters : [Monster];   // 가변 크기 // Created New Monster Infos 
+	new_monsters : [Monster];	// 가변 크기 // Created New Monster Infos 
 }
 
 // +------------------------
-//      Dead MONSTER   
+//	   Dead MONSTER   
 // ------------------------+
 table CPkt_DeadMonster
 {
@@ -262,9 +266,9 @@ table CPkt_MonsterTarget
 
 table SPkt_MonsterTarget
 {
-	monster_id			: int;
-	target_player_id	: int;
-	target_montser_id	: int;
+	monster_id			: uint;
+	target_player_id	: uint;
+	target_montser_id	: uint;
 }
 
 
@@ -279,12 +283,12 @@ table CPkt_RemoveMonster
 
 table SPkt_RemoveMonster
 {
-   monster_id : uint;   // 4 bytes
+	monster_id : uint;	// 4 bytes
 }
 
 
 // +------------------------
-//     MONSTER TRANSFORM  
+//	  MONSTER TRANSFORM  
 // ------------------------+
 table CPkt_Monster_Transform
 {
@@ -293,31 +297,31 @@ table CPkt_Monster_Transform
 
 table SPkt_Monster_Transform
 {
-   monster_id   : uint;   // 4 bytes
-   trans       : Transform;            // 24 bytes (Vector3 * 2)
+	monster_id	: uint;	// 4 bytes
+	trans	    : Transform;				// 24 bytes (Vector3 * 2)
 }
 
 
 // +------------------------
-//     MONSTER HP  
+//	  MONSTER HP  
 // ------------------------+
 table CPkt_Monster_HP
 {
-   
+	
 }
 
 table SPkt_Monster_HP
 {
-   monster_id : uint;      // 4 bytes
-   hp         : float;      // 4 bytes
+	monster_id : uint;		// 4 bytes
+	hp		   : float;		// 4 bytes
 }
 
 // +------------------------
-//     MONSTER STATE  
+//	  MONSTER STATE  
 // ------------------------+
 table CPkt_Monster_State
 {
-   
+	
 }
 
 table SPkt_Monster_State
@@ -328,7 +332,7 @@ table SPkt_Monster_State
 }
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///   ▶▶▶▶▶   PHERO 
+///	▶▶▶▶▶	PHERO 
 /// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 table CPkt_GetPhero
 {
@@ -337,19 +341,19 @@ table CPkt_GetPhero
 
 table SPkt_GetPhero
 {
-   phero_id  : uint;
-   player_id : uint;
+	phero_id  : uint;
+	player_id : uint;
 
 }
 
 
 /// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///   ▶▶▶▶▶   BULLET 
+///	▶▶▶▶▶	BULLET 
 /// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 // +------------------------
-//      BULLET ON SHOOT   
+//	   BULLET ON SHOOT   
 // ------------------------+
 
 table CPkt_Bullet_OnShoot
@@ -359,17 +363,17 @@ table CPkt_Bullet_OnShoot
 
 table SPkt_Bullet_OnShoot
 {
-   player_id : uint; // 4 bytes - 어떤 플레이어가 
-   gun_id    : uint; // 4 bytes - 어떤 총이고 
-   bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
+	player_id : uint; // 4 bytes - 어떤 플레이어가 
+	gun_id    : uint; // 4 bytes - 어떤 총이고 
+	bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
 
-   ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
+	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
 }
 
 
 
 // +------------------------
-//      BULLET ON COLLISION   
+//	   BULLET ON COLLISION   
 // ------------------------+
 
 table CPkt_Bullet_OnCollision

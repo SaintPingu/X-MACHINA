@@ -107,6 +107,7 @@ namespace NetworkEvent
 			struct UpdateAimRotation : public EventData {
 				uint32_t id             = {};
 				float	 aim_rotation_y = {};
+				float	 spine_angle    = {};
 			};
 			/// >> Update Weapon
 			struct UpdateWeapon : public EventData {

@@ -412,14 +412,15 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation> ClientNetworkManag
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> ClientNetworkManager::CreateEvent_UpdateAimRotation_RemotePlayer(uint32_t remID, float aim_rotation_y)
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> ClientNetworkManager::CreateEvent_UpdateAimRotation_RemotePlayer(uint32_t remID, float aim_rotation_y, float spine_angle)
 {
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> Event = std::make_shared<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation>();
 
 	Event->type = NetworkEvent::Game::RemotePlayerType::AimRotation;
 
-	Event->id = remID;
+	Event->id             = remID;
 	Event->aim_rotation_y = aim_rotation_y;
+	Event->spine_angle    = spine_angle;
 
 	return Event;
 }
@@ -601,6 +602,9 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_AimRotation(NetworkEvent::G
 	if (!mRemotePlayers.count(data->id)) {
 		return;
 	}
+
+	data->spine_angle;
+
 	GridObject* player = mRemotePlayers[data->id];
 	player->GetComponent<Script_NetworkRemotePlayer>()->RotateTo(data->aim_rotation_y);
 }

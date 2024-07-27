@@ -2,11 +2,17 @@
 #include "Script_NetworkRemotePlayer.h"
 
 #include "Script_Weapon.h"
+#include "Script_Weapon_Pistol.h"
+#include "Script_Weapon_Rifle.h"
+#include "Script_Weapon_Shotgun.h"
+#include "Script_Weapon_Sniper.h"
+#include "Script_Weapon_MissileLauncher.h"
 
 #include "Timer.h"
 #include "Object.h"
 #include "Animator.h"
 #include "AnimatorController.h"
+#include "AnimatorMotion.h"
 #include "BattleScene.h"
 #include "ClientNetwork/Include/LogManager.h"
 
@@ -34,7 +40,32 @@ void Script_NetworkRemotePlayer::Awake()
 		Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
 		transform->SetChild(weapon->GetShared());
 	}
-	mWeapons[WeaponName::H_Lock]->SetActive(true);
+	mCrntWeapon = mWeapons[WeaponName::H_Lock];
+	mCrntWeapon->SetActive(true);
+
+	for (const auto& [weaponName, weapon] : mWeapons) {
+		switch (weaponName) {
+		case WeaponName::H_Lock:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Pistol>();
+			break;
+		case WeaponName::DBMS:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_DBMS>();
+			break;
+		case WeaponName::SkyLine:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Skyline>();
+			break;
+		case WeaponName::Burnout:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Burnout>();
+			break;
+		case WeaponName::PipeLine:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_PipeLine>();
+			ResetBoltActionMotionSpeed(weapon->GetComponent<Script_Weapon>());
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
 }
 
 void Script_NetworkRemotePlayer::Update()
@@ -192,10 +223,12 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 		break;
 	default:
 		mCurrWeaponName = WeaponName::None;
+		mCrntWeapon = nullptr;
 		return;
 	}
 
-	mWeapons[mCurrWeaponName]->SetActive(true);
+	mCrntWeapon = mWeapons[mCurrWeaponName];
+	mCrntWeapon->SetActive(true);
 }
 
 
@@ -368,7 +401,35 @@ void Script_NetworkRemotePlayer::UpdateParam(float val, float& param)
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ���̷� ����
 }
 
-void Script_NetworkRemotePlayer::FireBullet(const Vec3& ray)
+void Script_NetworkRemotePlayer::FireBullet() const
 {
-	
+	if (!mCrntWeapon) {
+		return;
+	}
+
+	mWeaponScripts.at(mCrntWeapon)->FireBullet_Force();
+}
+
+void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon)
+{
+	if (weapon->GetWeaponType() != WeaponType::Sniper) {
+		return;
+	}
+
+	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+
+	// motion speed
+	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
+	const float fireDelay = weapon->GetFireDelay();
+	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
+}
+
+void Script_NetworkRemotePlayer::SetMotionSpeed(AnimatorMotion* motion, float time)
+{
+	if (time <= 0.f) {
+		return;
+	}
+
+	const float motionSpeed = motion->GetMaxLength() / time;
+	motion->ResetOriginSpeed(motionSpeed);
 }

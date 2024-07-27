@@ -8,6 +8,7 @@
 class Script_Weapon;
 class Transform;
 class AnimatorController;
+class AnimatorMotion;
 
 
 /// +-------------------------------------------------
@@ -72,8 +73,8 @@ private:
 	float mParamH{};
 
 	std::unordered_map<WeaponName, GameObject*> mWeapons{};
-	GameObject* mWeapon{};
-	Transform* mMuzzle{};
+	std::unordered_map<GameObject*, sptr<Script_Weapon>> mWeaponScripts{};
+	GameObject* mCrntWeapon{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
@@ -123,7 +124,7 @@ public:
 	void UpdateParams();
 	void UpdateParam(float val, float& param);
 
-	void FireBullet(const Vec3& ray);
+	void FireBullet() const;
 	
 
 	/// +-------------------------------------------------
@@ -133,5 +134,8 @@ public:
 	void		SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType);
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
+private:
+	void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);
+	void Script_NetworkRemotePlayer::SetMotionSpeed(AnimatorMotion* motion, float time);
 };
 

@@ -746,7 +746,8 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 	int  gun_id		 = pkt.gun_id();
 	int  player_id	 = pkt.player_id();
 	Vec3& ray		 = GetVector3(pkt.ray());
-
+	
+	std::cout << "Client : ON SHOOT(" << player_id << ") ray : " << ray.x << ", " << ray.y << ", " << ray.z << "\n";
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateOnShoot_RemotePlayer(player_id, bullet_id, gun_id, ray);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 

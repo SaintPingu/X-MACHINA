@@ -637,7 +637,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent:
 		
 		// 현재 RemotePlayer 가 들고 있는 무기 이름 
 		WeaponName currWeaponName = script_NRP->GetCurrWeaponName();
-		script_NRP->FireBullet(ray);
+		script_NRP->FireBullet();
 	}
 	// TODO: Remote PLayer 가 총을 쏘게 한다
 	

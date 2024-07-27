@@ -35,6 +35,9 @@
 #include "MindControlAbility.h"
 #include "CloakingAbility.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+
 
 #pragma region Variable
 const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
@@ -534,6 +537,15 @@ void Script_GroundPlayer::BulletFired()
 	if (fabs(mCurRecoil) >= mMaxRecoil) {
 		mCurRecoil = mMaxRecoil;
 	}
+
+#ifdef SERVER_COMMUNICATION
+	/// +-------------------------------------------------------------------
+	///		Send OnShoot Packet
+	/// -------------------------------------------------------------------+
+	std::cout << "Send Fire\n";
+	auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
+	CLIENT_NETWORK->Send(cpkt);
+#endif
 }
 
 

@@ -75,6 +75,8 @@ public:
 	virtual void EndReload();
 	virtual void StopReload() { InitReload(); }
 
+	virtual void FireBullet_Force() { FireBullet(); }
+
 protected:
 	virtual void FireBullet() abstract;
 

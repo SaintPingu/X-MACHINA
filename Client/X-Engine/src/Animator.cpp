@@ -73,9 +73,9 @@ void Animator::CloneBoneFrames(Object* other)
 
 	mIsCloned = true;
 
-	//for (auto& [name, frame] : mBoneFrames) {
-	//	frame = gameObject->GetAnimator()->GetBoneFrame(name);
-	//}
+	for (auto& [name, frame] : mBoneFrames) {
+		*frame = gameObject->GetAnimator()->GetBoneFrame(name);
+	}
 }
 
 void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)

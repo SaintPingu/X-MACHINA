@@ -38,14 +38,14 @@ public:
 	template <typename T, typename = std::enable_if_t<std::is_base_of<Transform, T>::value>>
 	Transform(T* object) : mObjCBIndices(30, -1) { mObject = object; }
 
-	Transform& operator=(const Transform& other) {
-		mWorldTransform = other.mWorldTransform;
-		mLocalTransform = other.mLocalTransform;
-		mPrevTransform = other.mPrevTransform;
-		mPosition = other.mPosition;
-		mRight = other.mRight;
-		mUp = other.mUp;
-		mLook = other.mLook;
+	Transform& operator=(const Transform* other) {
+		mWorldTransform = other->mWorldTransform;
+		mLocalTransform = other->mLocalTransform;
+		mPrevTransform = other->mPrevTransform;
+		mPosition = other->mPosition;
+		mRight = other->mRight;
+		mUp = other->mUp;
+		mLook = other->mLook;
 
 		return *this;
 	}

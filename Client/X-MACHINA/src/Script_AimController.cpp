@@ -64,5 +64,9 @@ void Script_AimController::UpdatePosText()
 	std::string x = std::to_string(static_cast<int>(mousePos.x));
 	std::string y = std::to_string(static_cast<int>(mousePos.y));
 
-	mPosText->SetText("(" + x + ", " + y + ")");
+	std::string pX = std::to_string(static_cast<int>(mObject->GetPosition().x));
+	std::string pZ = std::to_string(static_cast<int>(mObject->GetPosition().z));
+
+
+	mPosText->SetText("(Pos : " + pX  +  ", " + pZ + ") (Dir : " + x + ", " + y + ")");
 }

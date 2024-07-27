@@ -28,7 +28,7 @@ public:
 	Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar);
 
 	AnimatorController* GetController() const { return mController.get(); }
-	//const Transform* GetBoneFrame(const std::string& frame) const { return mBoneFrames.at(frame); }
+	const Transform* GetBoneFrame(const std::string& frame) const { return mBoneFrames.at(frame); }
 
 public:
 	void UpdateShaderVariables();

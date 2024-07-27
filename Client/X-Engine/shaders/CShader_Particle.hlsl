@@ -149,7 +149,23 @@ void SetSphereStartPosDir(PSShape shape, inout NumberGenerator rand, inout float
 
 void SetConeStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 pos, inout float3 dir)
 {
+    float sphereCenter = 0.f;
+    float sphereRadius = shape.Radius;
+    float sphereRadiusThickness = shape.RadiusThickness;
     
+    float theta = 2.f * 3.141592 * rand.GetCurrentFloat();
+    float phi = acos(2.f * rand.GetCurrentFloat() - 1.f);
+    float sinPhi = sin(phi);
+    
+    float r = rand.GetRandomFloat(sphereRadius * (1 - sphereRadiusThickness), sphereRadius);
+    
+    float x = r * sinPhi * cos(theta);
+    float y = 0.f;
+    float z = r * sinPhi * sin(theta);
+    
+    pos = sphereCenter + float3(x, y, z);
+    
+    dir = normalize(pos - sphereCenter);
 }
 
 void SetBoxStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 pos, inout float3 dir)

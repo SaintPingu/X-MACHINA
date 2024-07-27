@@ -11,12 +11,15 @@
 #include "Script_AbilityHolder.h"
 #include "CircleIndicator.h"
 
+#include "Component/ParticleSystem.h"
 #include "Component/Collider.h"
 #include "Component/Camera.h"
 #include "Object.h"
 
 #include "ResourceMgr.h"
 #include "Mesh.h"
+
+
 
 void Script_Ursacetus::Awake()
 {
@@ -108,6 +111,8 @@ void Script_Ursacetus::SpecialAttackCallback()
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(2.f, 0.006f);
 
 	mCircleIndicator.lock()->SetActive(false);
+	ParticleManager::I->Play("Ursacetus_Smash_Dust_Ring", mObject->FindFrame("Ursacetus_ L Toe0"));
+	ParticleManager::I->Play("Ursacetus_Smash_Dust_Spread", mObject->FindFrame("Ursacetus_ L Toe0"));
 }
 
 void Script_Ursacetus::SpecialAttackStartCallback()
@@ -125,5 +130,4 @@ void Script_Ursacetus::AttackEndCallback()
 	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
 	mEnemyMgr->mController->SetValue("IsAttack", false);
 	mEnemyMgr->mState = EnemyState::Idle;
-
 }

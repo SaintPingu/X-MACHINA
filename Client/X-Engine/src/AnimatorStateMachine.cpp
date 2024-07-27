@@ -13,7 +13,7 @@ std::string AnimatorTransition::CheckTransition(const AnimatorController* contro
 	}
 
 	for (const auto& condition : Conditions) {
-		const AnimatorParameter* param = controller->GetParam(condition.paramName);
+		const AnimatorParameter* param = controller->GetParamRef(condition.paramName);
 		if (!param) {
 			continue;
 		}

@@ -14,6 +14,8 @@
 
 
 #pragma region Define
+#define SERVER_COMMUNICATION
+
 #define _MATRIX(x)	XMLoadFloat4x4(&x)
 #define _VECTOR4(x)	XMLoadFloat4(&x)
 #define _VECTOR(x)	XMLoadFloat3(&x)

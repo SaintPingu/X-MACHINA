@@ -34,8 +34,6 @@
 #include "ClientNetwork/Include/ThreadManager.h"
 #include "ClientNetwork/Contents/Script_NetworkPlayer.h"
 
-//#define SERVER_COMMUNICATION
-
 
 HINSTANCE GameFramework::mhInst = nullptr;
 HWND      GameFramework::mhWnd = nullptr;

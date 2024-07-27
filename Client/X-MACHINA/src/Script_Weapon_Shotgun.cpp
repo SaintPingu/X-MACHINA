@@ -6,6 +6,8 @@
 #include "Object.h"
 #include "ObjectPool.h"
 
+#include "SoundMgr.h"
+
 void Script_Weapon_Shotgun::Awake()
 {
 	base::Awake();
@@ -16,6 +18,10 @@ void Script_Weapon_Shotgun::Awake()
 void Script_Weapon_Shotgun::FireBullet()
 {
 	Script_Weapon::FireBullet();	// Script_BulletWeapon은 단일 총알 발사이기 때문에 무시한다.
+
+	if (mFireSound != "") {
+		SoundMgr::I->Play("Gun", mFireSound);
+	}
 
 	const auto& bullets = mBulletPool->GetMulti(mBulletCntPerShot, true);
 	for (auto& bullet : bullets) {
@@ -46,6 +52,8 @@ void Script_Weapon_DBMS::InitValues()
 	mSpeerErr = 20.f;
 	mErrX = Vec2(-20.f, 20.f);
 	mErrY = Vec2(-10.f, 6.f);
+
+	SetFireSound("DBMS Fire");
 }
 
 void Script_Weapon_DBMS::BulletInitFunc(rsptr<InstObject> bullet) const

@@ -35,6 +35,9 @@
 #include "MindControlAbility.h"
 #include "CloakingAbility.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+
 
 #pragma region Variable
 const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
@@ -47,14 +50,6 @@ const float Script_GroundPlayer::mkStartRotAngle = 40.f;
 namespace {
 	constexpr int kPistolNum = 1;
 	constexpr int kDrawFrame = 13;	// the hand is over the shoulder
-
-	static const std::unordered_map<WeaponName, WeaponType> kWeaponTypes{
-		{WeaponName::H_Lock, WeaponType::HandedGun },
-		{WeaponName::DBMS, WeaponType::ShotGun },
-		{WeaponName::SkyLine, WeaponType::AssaultRifle },
-		{WeaponName::Burnout, WeaponType::MissileLauncher },
-		{WeaponName::PipeLine, WeaponType::Sniper },
-	};
 
 	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
 		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
@@ -479,10 +474,11 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	// setting callbacks //
 	constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
 
-	for (int i = 0; i < static_cast<int>(WeaponName::_count) - 1; ++i) {
-		WeaponType weaponType = static_cast<WeaponType>(i);
+	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
+		WeaponName weaponName = static_cast<WeaponName>(i + 1);
+		WeaponType weaponType = gkWeaponTypeMap.at(weaponName);
 
-		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponType)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
+		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponName)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
 		const auto& drawMotion = mController->FindMotionByName(kDrawMotions.at(weaponType), "Body");
 		const auto& putbackMotion = mController->FindMotionByName(kPutbackMotions.at(weaponType), "Body");
 
@@ -541,6 +537,15 @@ void Script_GroundPlayer::BulletFired()
 	if (fabs(mCurRecoil) >= mMaxRecoil) {
 		mCurRecoil = mMaxRecoil;
 	}
+
+#ifdef SERVER_COMMUNICATION
+	/// +-------------------------------------------------------------------
+	///		Send OnShoot Packet
+	/// -------------------------------------------------------------------+
+	std::cout << "Send Fire\n";
+	auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
+	CLIENT_NETWORK->Send(cpkt);
+#endif
 }
 
 
@@ -643,7 +648,7 @@ void Script_GroundPlayer::DrawWeaponCallback()
 	base::DrawWeapon();
 
 	if (mWeaponScript) {
-		auto motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponType())];
+		auto motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponName())];
 		SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
 	}
 }

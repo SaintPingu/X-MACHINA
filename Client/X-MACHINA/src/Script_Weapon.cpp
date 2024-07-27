@@ -13,6 +13,8 @@
 #include "ObjectPool.h"
 #include "Timer.h"
 
+#include "SoundMgr.h"
+
 
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
@@ -236,14 +238,9 @@ void Script_BulletWeapon::FireBullet()
 		bulletScript->SetSpeed(GetBulletSpeed() - bulletSpeedErr);
 
 		bulletScript->Fire(*mMuzzle, err);
-
-#ifdef SERVER_COMMUNICATION
-		/// +-------------------------------------------------------------------
-		///		Send OnShoot Packet
-		/// -------------------------------------------------------------------+
-		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
-		CLIENT_NETWORK->Send(cpkt);
-#endif
+		if (mFireSound != "") {
+			SoundMgr::I->Play("Gun", mFireSound);
+		}
 	}
 }
 

@@ -57,7 +57,6 @@ public:
 
 	Matrix GetTransform(const std::string& boneName, HumanBone boneType);
 	const Animations::ParamMap& GetParams() const { return mParameters; }
-	const AnimatorParameter* GetParam(const std::string& paramName) const { return &mParameters.at(paramName); }
 	const AnimatorParameter* GetParamRef(const std::string& paramName) const { return &mParameters.at(paramName); }
 
 	int GetMotionIndex(int layerIdx);

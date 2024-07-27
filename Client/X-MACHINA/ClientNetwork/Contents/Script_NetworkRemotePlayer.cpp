@@ -1,17 +1,71 @@
 #include "stdafx.h"
 #include "Script_NetworkRemotePlayer.h"
 
+#include "Script_Weapon.h"
+#include "Script_Weapon_Pistol.h"
+#include "Script_Weapon_Rifle.h"
+#include "Script_Weapon_Shotgun.h"
+#include "Script_Weapon_Sniper.h"
+#include "Script_Weapon_MissileLauncher.h"
+
 #include "Timer.h"
 #include "Object.h"
 #include "Animator.h"
 #include "AnimatorController.h"
+#include "AnimatorMotion.h"
+#include "BattleScene.h"
 #include "ClientNetwork/Include/LogManager.h"
 
 void Script_NetworkRemotePlayer::Awake()
 {
+	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
+	{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
+	{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
+	{WeaponType::ShotGun, "RefPosShotgun_Action" },
+	{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+	{WeaponType::Sniper, "RefPosSniper_Action" },
+	};
+
 	base::Awake();
 	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 	mSpine = mObject->FindFrame("Humanoid_ Spine1");
+
+	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
+		WeaponName weaponName = static_cast<WeaponName>(i + 1);
+		std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
+
+		auto& weapon = mWeapons[weaponName] = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Unspecified, ObjectLayer::Default, false);
+
+		WeaponType weaponType = gkWeaponTypeMap.at(weaponName);
+		Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
+		transform->SetChild(weapon->GetShared());
+	}
+	mCrntWeapon = mWeapons[WeaponName::H_Lock];
+	mCrntWeapon->SetActive(true);
+
+	for (const auto& [weaponName, weapon] : mWeapons) {
+		switch (weaponName) {
+		case WeaponName::H_Lock:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Pistol>();
+			break;
+		case WeaponName::DBMS:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_DBMS>();
+			break;
+		case WeaponName::SkyLine:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Skyline>();
+			break;
+		case WeaponName::Burnout:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Burnout>();
+			break;
+		case WeaponName::PipeLine:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_PipeLine>();
+			ResetBoltActionMotionSpeed(weapon->GetComponent<Script_Weapon>());
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
 }
 
 void Script_NetworkRemotePlayer::Update()
@@ -146,7 +200,10 @@ float Script_NetworkRemotePlayer::Distance(const Vec3& v1, const Vec3& v2)
 
 void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType)
 {
-	
+	if (mCurrWeaponName != WeaponName::None) {
+		mWeapons[mCurrWeaponName]->SetActive(false);
+	}
+
 	switch (weaponType)
 	{
 	case FBProtocol::WEAPON_TYPE_H_LOOK:
@@ -165,11 +222,13 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 		mCurrWeaponName = WeaponName::SkyLine;
 		break;
 	default:
-		break;
+		mCurrWeaponName = WeaponName::None;
+		mCrntWeapon = nullptr;
+		return;
 	}
 
-	mCurrWeaponName = WeaponName::None;
-
+	mCrntWeapon = mWeapons[mCurrWeaponName];
+	mCrntWeapon->SetActive(true);
 }
 
 
@@ -340,4 +399,37 @@ void Script_NetworkRemotePlayer::UpdateParam(float val, float& param)
 	}
 
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ���̷� ����
+}
+
+void Script_NetworkRemotePlayer::FireBullet() const
+{
+	if (!mCrntWeapon) {
+		return;
+	}
+
+	mWeaponScripts.at(mCrntWeapon)->FireBullet_Force();
+}
+
+void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon)
+{
+	if (weapon->GetWeaponType() != WeaponType::Sniper) {
+		return;
+	}
+
+	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
+
+	// motion speed
+	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
+	const float fireDelay = weapon->GetFireDelay();
+	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
+}
+
+void Script_NetworkRemotePlayer::SetMotionSpeed(AnimatorMotion* motion, float time)
+{
+	if (time <= 0.f) {
+		return;
+	}
+
+	const float motionSpeed = motion->GetMaxLength() / time;
+	motion->ResetOriginSpeed(motionSpeed);
 }

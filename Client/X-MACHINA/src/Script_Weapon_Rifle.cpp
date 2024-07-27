@@ -71,6 +71,8 @@ void Script_Weapon_Skyline::InitValues()
 
 	mMaxErrX = 8.f;
 	mMaxErrX = 3.f;
+
+	SetFireSound("Skyline Fire");
 }
 
 void Script_Weapon_Skyline::BulletInitFunc(rsptr<InstObject> bullet) const

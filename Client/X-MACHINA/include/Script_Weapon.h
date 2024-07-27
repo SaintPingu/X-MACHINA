@@ -114,9 +114,13 @@ public:
 	enum class BulletType { Bullet, Missile };
 
 protected:
+	std::string mFireSound{};
 	Vec2 mErrX{};	// 좌우 오차
 	Vec2 mErrY{};	// 상하 오차
 	float mSpeerErr{};	// 속도 오차
+
+public:
+	void SetFireSound(const std::string& fireSound) { mFireSound = fireSound; }
 
 protected:
 	virtual void FireBullet() override;

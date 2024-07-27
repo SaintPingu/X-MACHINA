@@ -19,6 +19,7 @@ void Script_NetworkPlayer::Awake()
 {
 	base::Awake();
 
+	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
 	mLatencyTimePoint_latest = std::chrono::steady_clock::now();
 	mMouseTimePoint_latest = std::chrono::steady_clock::now();
 	SetClientCallback_ChangeAnimation();
@@ -144,7 +145,9 @@ void Script_NetworkPlayer::DoInput_Mouse()
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
 			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
 		{
-			Send_CPkt_AimRotation_Player(mObject->GetYAngle());
+			
+			float spineYAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up);
+			Send_CPkt_AimRotation_Player(mObject->GetYAngle(), spineYAngle);
 			mMouseTimePoint_latest = currentTime;
 		}
 	}
@@ -154,7 +157,8 @@ void Script_NetworkPlayer::DoInput_Mouse()
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
 			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
 		{
-			Send_CPkt_AimRotation_Player(-99999.f);
+			float spineYAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up);
+			Send_CPkt_AimRotation_Player(-99999.f, spineYAngle);
 			mMouseTimePoint_latest = currentTime;
 		}
 	}
@@ -364,9 +368,9 @@ void Script_NetworkPlayer::Send_CPkt_Transform_Player(int32_t moveState, Vec3 mo
 	CLIENT_NETWORK->Send(pkt);
 }
 
-void Script_NetworkPlayer::Send_CPkt_AimRotation_Player(float aim_rotation_y)
+void Script_NetworkPlayer::Send_CPkt_AimRotation_Player(float aim_rotation_y, float spine_angle)
 {
-	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(aim_rotation_y);
+	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(aim_rotation_y, spine_angle);
 	CLIENT_NETWORK->Send(pkt);
 }
 

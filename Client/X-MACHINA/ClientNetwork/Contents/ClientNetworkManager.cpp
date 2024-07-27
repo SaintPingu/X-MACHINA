@@ -603,10 +603,8 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_AimRotation(NetworkEvent::G
 		return;
 	}
 
-	data->spine_angle;
-
 	GridObject* player = mRemotePlayers[data->id];
-	player->GetComponent<Script_NetworkRemotePlayer>()->RotateTo(data->aim_rotation_y);
+	player->GetComponent<Script_NetworkRemotePlayer>()->RotateTo(data->aim_rotation_y, data->spine_angle);
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data)

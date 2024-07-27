@@ -22,6 +22,7 @@ private:
 	std::chrono::steady_clock::time_point mMouseTimePoint_latest   = {}; /* Mouse Interval Time */
 	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
 
+	Transform* mSpineBone{};
 	Vec3			mPrevPos;
 	PlayerMotion	mMotion;	
 	PlayerMotion	mPrevMovement;
@@ -64,7 +65,7 @@ private:
 
 public:
 	void Send_CPkt_Transform_Player(int32_t moveState, Vec3 moveDir, float speed);
-	void Send_CPkt_AimRotation_Player(float aim_rotation_y);
+	void Send_CPkt_AimRotation_Player(float aim_rotation_y, float spine_angle);
 
 	void SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState);
 	void UpdateMovement(Dir dir);

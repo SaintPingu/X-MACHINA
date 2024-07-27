@@ -96,7 +96,12 @@ void Script_NetworkRemotePlayer::LateUpdate()
 	mObject->SetPosition(newPosition);
 
 	if (!mIsAim) {
-		RotateTo(mCurrExtraPolated_Data.MoveDir, mRotationSpeed);
+		RotateTo(mObject, mCurrExtraPolated_Data.MoveDir, mRotationSpeed);
+	}
+	else {
+		if (fabs(mSpineAngle) > 1.f) {
+			mSpine->RotateGlobal(Vector3::Up, mSpineAngle);
+		}
 	}
 
 	Vec3 crntPos = mObject->GetPosition();
@@ -300,28 +305,30 @@ float Script_NetworkRemotePlayer::GetYAngleFromQuaternion(const Vec4& rotationQu
 	return yAngle;
 }
 
-void Script_NetworkRemotePlayer::RotateTo(float yAngle)
+void Script_NetworkRemotePlayer::RotateTo(float yAngle, float ySpineAngle)
 {
 	if (yAngle < -10000) {
 		mIsAim = false;
+		mSpineAngle = 0.f;
 		return;
 	}
 	mIsAim = true;
 
 	Vec3 dir = Vector3::Rotate(Vector3::Forward, 0, yAngle, 0);
-	RotateTo(dir, 600);
+	RotateTo(mObject, dir, 900);
+	mSpineAngle = ySpineAngle;
 }
 
-void Script_NetworkRemotePlayer::RotateTo(const Vec3& dir, float speed)
+void Script_NetworkRemotePlayer::RotateTo(Transform* transform, const Vec3& dir, float speed)
 {
-	const float angle = Vector3::SignedAngle(mObject->GetLook().xz(), dir, Vector3::Up);
+	const float angle = Vector3::SignedAngle(transform->GetLook().xz(), dir, Vector3::Up);
 	constexpr float smoothAngleBound = 10.f;
 	// smooth rotation if angle over [smoothAngleBound] degree
 	if (fabs(angle) > smoothAngleBound) {
-		mObject->Rotate(0, Math::Sign(angle) * speed * DeltaTime(), 0);
+		transform->Rotate(0, Math::Sign(angle) * speed * DeltaTime(), 0);
 	}
 	else if (fabs(angle) > FLT_EPSILON) {
-		mObject->Rotate(0, angle, 0);
+		transform->Rotate(0, angle, 0);
 	}
 }
 

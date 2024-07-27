@@ -67,6 +67,7 @@ private:
 	double				mBezierTime = 0.f;
 
 	Transform* mSpine{};
+	float mSpineAngle{};
 	AnimatorController* mController;
 	bool mIsAim{};
 	float mParamV{};
@@ -115,8 +116,8 @@ public:
 	Vec3  lerp(Vec3 CurrPos, Vec3 TargetPos, float Deltatime, float speed);
 	Vec3  quadraticInterpolation(const Vec3& p0, const Vec3& p1, const Vec3& p2, float t);
 	float GetYAngleFromQuaternion(const Vec4& rotationQuaternion);
-	void RotateTo(float yAngle);
-	void RotateTo(const Vec3& dir, float speed);
+	void RotateTo(float yAngle, float ySpineAngle);
+	void RotateTo(Transform* transform, const Vec3& dir, float speed);
 	Vec3  Bezier_Curve_3(Vec3 start, Vec3 Target, float t);
 	Vec3 Script_NetworkRemotePlayer::Bezier_Curve(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float t);
 	float Distance(const Vec3& v1, const Vec3& v2);

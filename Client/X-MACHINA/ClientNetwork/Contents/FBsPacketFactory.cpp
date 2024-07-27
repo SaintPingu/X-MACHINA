@@ -994,11 +994,11 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_T
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_AimRotation(float aim_rotation_y)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_AimRotation(float aim_rotation_y, float spine_angle)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 	
-	auto ServerPacket = FBProtocol::CreateCPkt_Player_AimRotation(builder, aim_rotation_y);
+	auto ServerPacket = FBProtocol::CreateCPkt_Player_AimRotation(builder, aim_rotation_y, spine_angle);
 	builder.Finish(ServerPacket);
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Player_AimRotation);
 	return sendBuffer;

@@ -22,7 +22,9 @@ void Script_Enemy::Awake()
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
 	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_PheroObject>();
-	//mObject->AddComponent<Script_DefaultEnemyBT>();
+#ifndef SERVER_COMMUNICATION
+	mObject->AddComponent<Script_DefaultEnemyBT>();
+#endif
 
 	SetEnemyStat(mObject->GetName());
 	SetMaxHP(mEnemyMgr->mStat.MaxHp);

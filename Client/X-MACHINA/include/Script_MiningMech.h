@@ -12,7 +12,7 @@ class GridObject;
 class Collider;
 class AnimatorController;
 class GameObject;
-class Script_TriggerAbilityHolder;
+class Script_StateAbilityHolder;
 #pragma endregion
 
 
@@ -31,11 +31,12 @@ class Script_MiningMech : public Script_Enemy {
 
 private:
 	int mCurrAttackCnt{};
-	wptr<Script_TriggerAbilityHolder> mRectangleIndicator{};
+	wptr<Script_StateAbilityHolder> mRectangleIndicator{};
 
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
+	virtual void LateUpdate() override;
 	virtual void Attack() override;
 
 protected:

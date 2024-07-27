@@ -38,7 +38,7 @@ void Script_Ursacetus::Start()
 {
 	base::Start();
 
-	mCircleIndicator = mObject->AddComponent<Script_TriggerAbilityHolder>();
+	mCircleIndicator = mObject->AddComponent<Script_StateAbilityHolder>();
 	mCircleIndicator.lock()->SetAbility(0, std::make_shared<AttackIndicator>(2.05f, "CircleIndicator"));
 }
 
@@ -47,10 +47,18 @@ void Script_Ursacetus::Update()
 	base::Update();
 }
 
+void Script_Ursacetus::LateUpdate()
+{
+	base::LateUpdate();
+
+	mEnemyMgr->mController->SetValue("IsAttack", false);
+}
+
 void Script_Ursacetus::Attack()
 {
 	mEnemyMgr->RemoveAllAnimation();
 	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
+	mEnemyMgr->mController->SetValue("IsAttack", true);
 }
 
 void Script_Ursacetus::BasicAttackCallback()
@@ -99,13 +107,13 @@ void Script_Ursacetus::SpecialAttackCallback()
 	mObject->mObjectCB.MindRimColor = Vec3{ 0.5f, 0.f, 0.5f };
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(2.f, 0.006f);
 
-	mCircleIndicator.lock()->OnTrigger(true);
+	mCircleIndicator.lock()->SetActive(false);
 }
 
 void Script_Ursacetus::SpecialAttackStartCallback()
 {
-	if (mEnemyMgr->mController->GetParamValue<bool>("Walk") == false) {
-		mCircleIndicator.lock()->OnTrigger(true);
+	if (mEnemyMgr->mController->GetParamValue<bool>("IsAttack")) {
+		mCircleIndicator.lock()->SetActive(true);
 	}
 }
 
@@ -113,7 +121,9 @@ void Script_Ursacetus::AttackEndCallback()
 {
 	++mCurrAttackCnt;
 	mCurrAttackCnt %= AttackTypeCount;
+
 	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
+	mEnemyMgr->mController->SetValue("IsAttack", false);
 	mEnemyMgr->mState = EnemyState::Idle;
 
 }

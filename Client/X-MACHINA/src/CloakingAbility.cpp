@@ -48,12 +48,13 @@ void CloakingAbility::Activate()
 	mAfterImage->SetActiveUpdate(true);
 	mObject->SetTag(ObjectTag::AfterSkinImage);
 
+#ifdef SERVER_COMMUNICATION
 	/// +-------------------------------
 	///		SKILLPACKET BROADCAST
 	/// -------------------------------+
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
 	CLIENT_NETWORK->Send(cpkt);
-
+#endif
 }
 
 void CloakingAbility::DeActivate()

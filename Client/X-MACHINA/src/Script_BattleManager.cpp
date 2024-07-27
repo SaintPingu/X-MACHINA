@@ -54,16 +54,11 @@ void Script_BattleManager::Start()
 	SoundMgr::I->Play("BGM", "Battle_Stage1", 1.0f, true);
 }
 
-#include "Animator.h"
-#include "AnimatorController.h"
+
 void Script_BattleManager::Update()
 {
 	base::Update();
 
-	const auto& player = GameFramework::I->GetPlayer();
-	Vec3 pos = player->GetPosition();	
-	pos.x += 1;
-	pos.z += 1;
 	if (KEY_TAP('Q')) {
 		Engine::I->LoadScene(SceneType::Lobby);
 	}
@@ -103,6 +98,7 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 	case Hash("WeaponCrate2"):
 		object->AddComponent<Script_Item_WeaponCrate>()->LoadData(exporter);
 		break;
+#ifdef SERVER_COMMINICATION
 	case Hash("AdvancedCombatDroid"):
 	case Hash("Onyscidus"):
 	case Hash("Ursacetus"):
@@ -115,6 +111,41 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 	case Hash("Rapax"):
 	case Hash("LightBipedMech"):
 		break;
+#else
+	case Hash("AdvancedCombatDroid"):
+		object->AddComponent<Script_AdvancedCombatDroid_5>();
+		break;
+	case Hash("Onyscidus"):
+		object->AddComponent<Script_Onyscidus>();
+		break;
+	case Hash("Ursacetus"):
+		object->AddComponent<Script_Ursacetus>();
+		break;
+	case Hash("Arack"):
+		object->AddComponent<Script_Arack>();
+		break;
+	case Hash("Ceratoferox"):
+		object->AddComponent<Script_Ceratoferox>();
+		break;
+	case Hash("Anglerox"):
+		object->AddComponent<Script_Anglerox>();
+		break;
+	case Hash("MiningMech"):
+		object->AddComponent<Script_MiningMech>();
+		break;
+	case Hash("Aranobot"):
+		object->AddComponent<Script_Aranobot>();
+		break;
+	case Hash("Gobbler"):
+		object->AddComponent<Script_Gobbler>();
+		break;
+	case Hash("Rapax"):
+		object->AddComponent<Script_Rapax>();
+		break;
+	case Hash("LightBipedMech"):
+		object->AddComponent<Script_LightBipedMech>();
+		break;
+#endif
 	default:
 		throw std::runtime_error("[Error] Couldn't import script");
 		break;

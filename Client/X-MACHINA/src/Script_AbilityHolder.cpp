@@ -125,7 +125,31 @@ void Script_ToggleAbilityHolder::Update()
 }
 #pragma endregion
 
-void Script_TriggerAbilityHolder::Update()
+
+#pragma region State
+void Script_StateAbilityHolder::SetActive(bool isActive)
+{
+	switch (mState) {
+	case AbilityState::Ready:
+		if (!isActive) {
+			return;
+		}
+		Enable();
+		break;
+	case AbilityState::Active:
+		if (isActive) {
+			return;
+		}
+		Disable();
+		break;
+	case AbilityState::Cooldown:
+		break;
+	default:
+		break;
+	}
+}
+
+void Script_StateAbilityHolder::Update()
 {
 	if (!mAbility)
 		return;
@@ -133,24 +157,14 @@ void Script_TriggerAbilityHolder::Update()
 	switch (mState)
 	{
 	case AbilityState::Ready:
-		if (mIsOnTrigger) {
-			mIsOnTrigger = false;
-			mState = AbilityState::Active;
-			mAbility->Activate();
-			mActiveTime = mAbility->GetActiveTime();
-		}
 		break;
 	case AbilityState::Active:
-		if (mIsOnTrigger) {
-			mIsOnTrigger = false;
-			mState = AbilityState::Cooldown;
-			mAbility->DeActivate();
-			mCooldownTime = mAbility->GetCooldownTime();
+		mActiveTime -= DeltaTime();
+		if (mActiveTime <= 0) {
+			mActiveTime = 0;
+			Disable();
 		}
-		else {
-			mActiveTime -= DeltaTime();
-			mAbility->Update(mActiveTime);
-		}
+		mAbility->Update(mActiveTime);
 		break;
 	case AbilityState::Cooldown:
 		if (mCooldownTime > 0.f) {
@@ -164,3 +178,18 @@ void Script_TriggerAbilityHolder::Update()
 		break;
 	}
 }
+
+void Script_StateAbilityHolder::Enable()
+{
+	mState = AbilityState::Active;
+	mAbility->Activate();
+	mActiveTime = mAbility->GetActiveTime();
+}
+
+void Script_StateAbilityHolder::Disable()
+{
+	mState = AbilityState::Cooldown;
+	mAbility->DeActivate();
+	mCooldownTime = mAbility->GetCooldownTime();
+}
+#pragma endregion

@@ -45,16 +45,17 @@ void ShieldAbility::Activate()
 		return;
 	}
 
+	base::Activate();
 
+	mObject->GetComponent<Script_LiveObject>()->SetShield(mShieldAmount);
+
+#ifdef SERVER_COMMUNICATION
 	/// +-------------------------------
 	///		SKILLPACKET BROADCAST
 	/// -------------------------------+
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_SHIELD);
 	CLIENT_NETWORK->Send(cpkt);
-
-	base::Activate();
-
-	mObject->GetComponent<Script_LiveObject>()->SetShield(mShieldAmount);
+#endif
 }
 
 void ShieldAbility::DeActivate()

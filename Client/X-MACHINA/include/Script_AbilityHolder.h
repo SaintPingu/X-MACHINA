@@ -57,16 +57,18 @@ public:
 	virtual void Update() override;
 };
 
-class Script_TriggerAbilityHolder : public Script_AbilityHolder {
-	COMPONENT(Script_TriggerAbilityHolder, Script_AbilityHolder)
-
-private:
-	bool mIsOnTrigger{};
+class Script_StateAbilityHolder : public Script_AbilityHolder {
+	COMPONENT(Script_StateAbilityHolder, Script_AbilityHolder)
 
 public:
-	void OnTrigger(bool trigger) { mIsOnTrigger = trigger; }
+	void SetActive(bool isActive);
 
 public:
 	virtual void Update() override;
+
+private:
+	void Enable();
+	void Disable();
+
 };
 #pragma endregion

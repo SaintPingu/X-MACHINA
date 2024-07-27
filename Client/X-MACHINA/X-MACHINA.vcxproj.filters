@@ -397,9 +397,6 @@
     <ClInclude Include="include\PopupUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_Ursacetus.h">
-      <Filter>Script\Enemy\Object</Filter>
-    </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkBullet.h">
       <Filter>ClientNetwork\Network\NetworkScript\Network Bullet</Filter>
     </ClInclude>
@@ -426,6 +423,9 @@
     </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkBulletWeapon.h">
       <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ursacetus.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

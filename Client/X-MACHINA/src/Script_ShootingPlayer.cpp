@@ -93,10 +93,10 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
 		mMuzzle = mWeaponScript->GetMuzzle();
 
+#ifdef SERVER_COMMUNICATION
 		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
 		CLIENT_NETWORK->Send(cpkt); 
-
-
+#endif
 	}
 }
 

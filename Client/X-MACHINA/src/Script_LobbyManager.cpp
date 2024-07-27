@@ -44,7 +44,7 @@ void Script_LobbyManager::Start()
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
 	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.12f);
 
-	SoundMgr::I->Play("BGM", "Lobby", 0.5f, true);
+	SoundMgr::I->Play("BGM", "Lobby", 1.0f, true);
 }
 
 void Script_LobbyManager::Update()

@@ -94,8 +94,10 @@ Vec2 Camera::WorldToScreenPoint(const Vec3& pos)
 	screenPoint /= XMVectorGetW(screenPoint);
 
 	// NDC를 screen 좌표로 변환
-	screenPoint = XMVectorMultiplyAdd(screenPoint, XMVectorSet(mViewport.Width, mViewport.Height, 0.0f, 0.0f), XMVectorSet(mViewport.Width * 0.5f, mViewport.Height * 0.5f, 0.0f, 0.0f));
-	screenPoint = XMVectorSubtract(screenPoint, XMVectorSet(mViewport.Width * 0.5f, mViewport.Height * 0.5f, 0.f, 0.f));
+	const float halfWidth = mViewport.Width * 0.5f;
+	const float halfHeight = mViewport.Height * 0.5f;
+	screenPoint = XMVectorMultiplyAdd(screenPoint, XMVectorSet(halfWidth, halfHeight, 0.0f, 0.0f), XMVectorSet(halfWidth, halfHeight, 0.0f, 0.0f));
+	screenPoint = XMVectorSubtract(screenPoint, XMVectorSet(halfWidth, halfHeight, 0.f, 0.f));
 
 	Vec3 result;
 	XMStoreFloat3(&result, screenPoint);

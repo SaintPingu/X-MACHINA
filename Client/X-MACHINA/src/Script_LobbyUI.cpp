@@ -61,6 +61,8 @@ void Script_LobbyUI::Start()
 		mPopupQuit->AddUI(yesButton);
 		mPopupQuit->AddUI(noButton);
 		mPopupQuit->SetActive(false);
+
+		noButton->SetClickSound("BackButtonClick");
 	}
 
 

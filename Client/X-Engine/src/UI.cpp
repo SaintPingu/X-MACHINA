@@ -148,7 +148,7 @@ void UI::SetHover(bool val)
 	}
 
 	mIsHover = val;
-	if (mHoverSound != "") {
+	if (mIsHover && mHoverSound != "") {
 		SoundMgr::I->Play("UI", mHoverSound, 3.f);
 	}
 }

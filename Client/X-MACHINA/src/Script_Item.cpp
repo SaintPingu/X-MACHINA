@@ -20,7 +20,7 @@ void Script_Item::Update()
 
 	if (mCanInteract) {
 		Vec2 pos = MAIN_CAMERA->WorldToScreenPoint(mObject->GetPosition());
-		pos.y += 50.f;
+		pos.y += 25.f;
 		mUI->SetPosition(pos);
 	}
 }

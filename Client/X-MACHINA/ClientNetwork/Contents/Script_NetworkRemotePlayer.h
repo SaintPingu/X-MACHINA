@@ -65,6 +65,7 @@ private:
 	float				mRotationSpeed = 360.f;
 	float				mLerpVal = 0.f;
 	double				mBezierTime = 0.f;
+	int					mFireCnt{};	// 패킷 밀릴 경우 한 번 씩 발사하기 위함
 
 	Transform* mSpine{};
 	float mSpineAngle{};
@@ -125,7 +126,7 @@ public:
 	void UpdateParams();
 	void UpdateParam(float val, float& param);
 
-	void FireBullet() const;
+	void FireBullet();
 	
 
 	/// +-------------------------------------------------

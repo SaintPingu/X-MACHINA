@@ -146,7 +146,7 @@ void Script_NetworkPlayer::DoInput_Mouse()
 			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
 		{
 			
-			float spineYAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up);
+			float spineYAngle = Vector3::SignedAngle(Vector3::Forward, mSpineBone->GetUp().xz(), Vector3::Up);
 			Send_CPkt_AimRotation_Player(mObject->GetYAngle(), spineYAngle);
 			mMouseTimePoint_latest = currentTime;
 		}
@@ -157,8 +157,7 @@ void Script_NetworkPlayer::DoInput_Mouse()
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
 			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
 		{
-			float spineYAngle = Vector3::SignedAngle(mObject->GetLook().xz(), mSpineBone->GetUp().xz(), Vector3::Up);
-			Send_CPkt_AimRotation_Player(-99999.f, spineYAngle);
+			Send_CPkt_AimRotation_Player(-99999.f, 0.f);
 			mMouseTimePoint_latest = currentTime;
 		}
 	}

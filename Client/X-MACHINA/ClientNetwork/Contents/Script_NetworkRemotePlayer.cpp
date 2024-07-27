@@ -76,6 +76,10 @@ void Script_NetworkRemotePlayer::Update()
 		mController->SetValueOnly("Vertical", fabs(mParamV) > 0.1f ? mParamV : 0.f);
 		mController->SetValueOnly("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
 	}
+	if (mFireCnt > 0) {
+		--mFireCnt;
+		mWeaponScripts.at(mCrntWeapon)->FireBullet_Force();
+	}
 }
 
 void Script_NetworkRemotePlayer::LateUpdate()
@@ -100,7 +104,8 @@ void Script_NetworkRemotePlayer::LateUpdate()
 	}
 	else {
 		if (fabs(mSpineAngle) > 1.f) {
-			mSpine->RotateGlobal(Vector3::Up, mSpineAngle);
+			float crntAngle = Vector3::SignedAngle(Vector3::Forward, mSpine->GetUp().xz(), Vector3::Up);
+			mSpine->RotateGlobal(Vector3::Up, mSpineAngle - crntAngle);
 		}
 	}
 
@@ -408,13 +413,13 @@ void Script_NetworkRemotePlayer::UpdateParam(float val, float& param)
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ���̷� ����
 }
 
-void Script_NetworkRemotePlayer::FireBullet() const
+void Script_NetworkRemotePlayer::FireBullet()
 {
 	if (!mCrntWeapon) {
 		return;
 	}
 
-	mWeaponScripts.at(mCrntWeapon)->FireBullet_Force();
+	++mFireCnt;
 }
 
 void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon)

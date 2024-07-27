@@ -45,31 +45,35 @@ struct ExtData
 
 
 class Script_NetworkRemotePlayer : public Script_NetworkLiveObject
-{	
+{
 	COMPONENT(Script_NetworkRemotePlayer, Script_NetworkLiveObject)
 
 private:
 	/// +-------------------------------------------------
 	///		TRANSFORM ( Dead Reckoning )
 	/// -------------------------------------------------+
-	ExtData				mCurrExtraPolated_Data	= {};
-	ExtData				mPrevExtrapolated_Data	= {};
+	ExtData				mCurrExtraPolated_Data = {};
+	ExtData				mPrevExtrapolated_Data = {};
 
-	Vec3				mCurrMoveDir			= Vec3();
-	Vec3				mPrevMoveDir			= Vec3();
-	Vec3				mCurrPacketPos			= Vec3();
-	Vec3				mPrevPacketPos			= Vec3();
+	Vec3				mCurrMoveDir = Vec3();
+	Vec3				mPrevMoveDir = Vec3();
+	Vec3				mCurrPacketPos = Vec3();
+	Vec3				mPrevPacketPos = Vec3();
 
 	ExtData::MOVESTATE	mMoveState;
-	float				mRotationSpeed			= 360.f;
-	float				mLerpVal				= 0.f;
-	double				mBezierTime				= 0.f;
+	float				mRotationSpeed = 360.f;
+	float				mLerpVal = 0.f;
+	double				mBezierTime = 0.f;
 
 	Transform* mSpine{};
 	AnimatorController* mController;
 	bool mIsAim{};
 	float mParamV{};
 	float mParamH{};
+
+	std::unordered_map<WeaponName, GameObject*> mWeapons{};
+	GameObject* mWeapon{};
+	Transform* mMuzzle{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
@@ -118,7 +122,8 @@ public:
 
 	void UpdateParams();
 	void UpdateParam(float val, float& param);
-	
+
+	void FireBullet(const Vec3& ray);
 	
 
 	/// +-------------------------------------------------

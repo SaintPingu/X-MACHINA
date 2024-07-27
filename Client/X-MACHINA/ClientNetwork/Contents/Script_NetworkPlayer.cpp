@@ -340,8 +340,8 @@ void Script_NetworkPlayer::ClientCallBack_ChangeAnimation()
 
 	int anim_upper_idx = controller->GetMotionIndex(0);
 	int anim_lower_idx = controller->GetMotionIndex(1);
-	float v = controller->GetParam("Vertical")->val.f;
-	float h = controller->GetParam("Horizontal")->val.f;
+	float v{};
+	float h{};
 
 	/* Send Changed Animation Packet To Server */
 	auto pkt = FBS_FACTORY->CPkt_Player_Animation(anim_upper_idx, anim_lower_idx, h, v);
@@ -357,8 +357,8 @@ void Script_NetworkPlayer::Send_CPkt_Transform_Player(int32_t moveState, Vec3 mo
 	long long	latency      = FBS_FACTORY->CurrLatency.load();
 
 	const auto& controller  = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
-	float		animparam_h = controller->GetParam("Horizontal")->val.f;
-	float		animparam_v = controller->GetParam("Vertical")->val.f;
+	float		animparam_h{};
+	float		animparam_v{};
 
 	auto pkt = FBS_FACTORY->CPkt_Player_Transform(Pos, Rot, moveState, moveDir, speed, SpineDir, latency, animparam_h, animparam_v);
 	CLIENT_NETWORK->Send(pkt);

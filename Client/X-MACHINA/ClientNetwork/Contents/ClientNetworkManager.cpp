@@ -115,7 +115,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.15", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.17", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -432,7 +432,7 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> ClientNetworkManager:
 
 	Event->Id	= remID;
 
-	Event->type = weaponType;
+	Event->weapon_type = weaponType;
 
 	return Event;
 }
@@ -629,19 +629,19 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent:
 	uint32_t	player_id	= data->id;
 	int			bullet_id	= data->bullet_id;
 	int			weapon_id	= data->weapon_id;
-	Vec3		Ray			= data->ray; // Remote Player 가 발사한 총알 방향  
+	Vec3		ray			= data->ray; // Remote Player 가 발사한 총알 방향  
 
 	GridObject* player	= mRemotePlayers[player_id];
-	auto script_NRP		= player->GetComponent<Script_NetworkRemotePlayer>();
+	const auto& script_NRP		= player->GetComponent<Script_NetworkRemotePlayer>();
 	if (script_NRP) {
 		
 		// 현재 RemotePlayer 가 들고 있는 무기 이름 
 		WeaponName currWeaponName = script_NRP->GetCurrWeaponName();
-
+		script_NRP->FireBullet(ray);
 	}
 	// TODO: Remote PLayer 가 총을 쏘게 한다
 	
-	LOG_MGR->Cout(player_id, " OnShoot : ", Ray.x, " ", Ray.y, " ", Ray.z, '\n');
+	LOG_MGR->Cout(player_id, " OnShoot : ", ray.x, " ", ray.y, " ", ray.z, '\n');
 
 
 

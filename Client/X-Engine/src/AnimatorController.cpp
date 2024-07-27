@@ -38,10 +38,14 @@ void AnimatorController::SetAnimation(int upperIndex, int lowerIndex, float v, f
 			std::string motionName = mMotionMapInt.at(index);
 			mLayers[layerIndex]->SetAnimation(motionName);
 		}
+		else {
+			std::cout << "[WARNING_SetAnimation()] Wrong animation index : " << index << std::endl;
+		}
 		};
 
 	SetIndex(0, upperIndex);
 	SetIndex(1, lowerIndex);
+	std::cout << "\n";
 }
 
 void AnimatorController::SetPlayer()
@@ -91,9 +95,12 @@ int AnimatorController::GetMotionIndex(int layerIdx)
 {
 	const auto& motion = mPrevMotions[layerIdx];
 	if (mMotionMapString.count(motion->GetName())) {
-		return mMotionMapString.at(motion->GetName());
+		if (mLayers[layerIdx]->FindMotionByName(motion->GetName())) {
+			return mMotionMapString.at(motion->GetName());
+		}
 	}
 
+	std::cout << "[WARNING_GetMotionIndex()] Wrong motion : " << motion->GetName() << std::endl;
 	return -1;
 }
 
@@ -142,13 +149,13 @@ void AnimatorController::CheckTransition(bool isChangeImmed)
 	int i{};
 	for (auto& layer : mLayers) {
 		auto nextMotion = layer->CheckTransition(this, isChangeImmed);
-		if (nextMotion && mSendCallback) {
+		if (mSendCallback && nextMotion) {
 			if (mPrevMotions[i] != nextMotion) {
 				mPrevMotions[i] = nextMotion;
 				isSend = true;
 			}
-			++i;
 		}
+		++i;
 	}
 
 	if (mIsPlayer && isSend) {

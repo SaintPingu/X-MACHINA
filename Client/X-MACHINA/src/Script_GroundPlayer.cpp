@@ -542,7 +542,6 @@ void Script_GroundPlayer::BulletFired()
 	/// +-------------------------------------------------------------------
 	///		Send OnShoot Packet
 	/// -------------------------------------------------------------------+
-	std::cout << "Send Fire\n";
 	auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
 	CLIENT_NETWORK->Send(cpkt);
 #endif

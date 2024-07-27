@@ -61,6 +61,7 @@ public:
 	void Init(const AnimatorStateMachine* stateMachine) { mStateMachine = stateMachine; }
 	void Release();
 
+	const AnimatorStateMachine* GetStateMachine() const { return mStateMachine; }
 	virtual int GetMaxFrameRate() const abstract;
 	virtual Matrix GetSRT(const std::string& boneName) const abstract;
 

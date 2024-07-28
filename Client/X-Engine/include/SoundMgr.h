@@ -35,9 +35,12 @@ public:
 	void Release();
 	void LoadSounds();
 
+	void Update();
+
 public:
-	void Play(const std::string& channel, const std::string& sound, float volume = 1.0f, bool isStopBefore = false);
-	void Stop(const std::string& channel);
+	void Play(const std::string& channelName, const std::string& soundName, float volume = 1.0f, bool isStopBefore = false);
+	void PlayNoChannel(const std::string& channelName, const std::string& soundName);
+	void Stop(const std::string& channelName);
 
 private:
 	bool CheckChannelName(const std::string& channelName);

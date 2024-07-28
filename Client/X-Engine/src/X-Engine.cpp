@@ -5,6 +5,7 @@
 #include "InputMgr.h"
 #include "ResourceMgr.h"
 #include "TextMgr.h"
+#include "SoundMgr.h"
 
 #include "Timer.h"
 #include "BattleScene.h"
@@ -60,6 +61,7 @@ void Engine::Release()
 void Engine::Update()
 {
 	DXGIMgr::I->Update();
+	SoundMgr::I->Update();
 
 	mCrntScene->Update();
 

@@ -16,6 +16,7 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
+#include "Script_StageNameUI.h"
 #include "Component/ParticleSystem.h"
 #include "Component/Camera.h"
 #include "Component/Collider.h"
@@ -29,6 +30,7 @@
 #include "TextMgr.h"
 #include "InputMgr.h"
 #include "X-Engine.h"
+#include "Component/UI.h"
 
 
 
@@ -53,6 +55,8 @@ void Script_BattleManager::Start()
 	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
 
 	SoundMgr::I->Play("BGM", "Battle_Stage1", 1.0f, true);
+
+	mObject->AddComponent<Script_StageNameUI>();
 }
 
 

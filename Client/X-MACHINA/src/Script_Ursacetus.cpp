@@ -35,6 +35,10 @@ void Script_Ursacetus::Awake()
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddAnimateCallback(std::bind(&Script_Ursacetus::SpecialAttack, this));
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddCallback(std::bind(&Script_Ursacetus::SpecialAttackCallback, this), 65);
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack3AnimName)->AddStartCallback(std::bind(&Script_Ursacetus::SpecialAttackStartCallback, this));
+
+	SetDetectSound("Ursacetus Detect");
+	SetAttackSound("Ursacetus Attack1");
+	SetDeathSound("Ursacetus Death");
 }
 
 void Script_Ursacetus::Start()

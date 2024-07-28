@@ -56,6 +56,16 @@ void Script_Weapon::Update()
 	}
 }
 
+void Script_Weapon::OnEnable()
+{
+	base::OnEnable();
+}
+
+void Script_Weapon::OnDisable()
+{
+	base::OnDisable();
+}
+
 void Script_Weapon::FireBullet()
 {
 	if (!mOwner) {
@@ -118,6 +128,10 @@ bool Script_Weapon::InitReload()
 
 void Script_Weapon::StartReload()
 {
+	if (IsReloading()) {
+		return;
+	}
+
 	InitReload();
 
 	if (mOwner) {
@@ -241,6 +255,36 @@ void Script_BulletWeapon::FireBullet()
 		if (mFireSound != "") {
 			SoundMgr::I->Play("Gun", mFireSound);
 		}
+	}
+}
+
+void Script_BulletWeapon::StartReload()
+{
+	if (IsReloading()) {
+		return;
+	}
+	base::StartReload();
+
+	if (mReloadSound != "") {
+		SoundMgr::I->Play("Reload", mReloadSound);
+	}
+}
+
+void Script_BulletWeapon::StopReload()
+{
+	base::StopReload();
+
+	if (mReloadSound != "") {
+		SoundMgr::I->Stop("Reload");
+	}
+}
+
+void Script_BulletWeapon::EndReload()
+{
+	base::EndReload();
+
+	if (mEndReloadSound != "") {
+		SoundMgr::I->PlayNoChannel("Reload", mEndReloadSound);
 	}
 }
 

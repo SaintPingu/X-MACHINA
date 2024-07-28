@@ -220,14 +220,16 @@ public:
 	void AquireNewWeapon(WeaponName weaponName);
 	void TakeWeapon(rsptr<Script_Weapon> weapon);
 
-	Vec3  GetMoveDir()			   { return mDirVec; }
-	Vec3  GetPrevMoveDir()		   { return mPrevDirVec; }
+	Vec3  GetMoveDir() const	   { return mDirVec; }
+	Vec3  GetPrevMoveDir() const   { return mPrevDirVec; }
+
 private:
 	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) override;
 	virtual void DrawWeaponCallback();
 	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
 	virtual void PutbackWeaponEndCallback();
+	void AimEndCallback();
 	virtual void DropWeapon(int weaponIdx) override;
 	void UpdateParam(float val, float& param);
 	virtual void ResetWeaponAnimation() override;
@@ -260,6 +262,7 @@ private:
 	void ChangeReloadCallback();
 	void EndReloadCallback();
 	void BoltActionCallback();
+	void BoltActionSoundCallback();
 
 	void ResetAimingTime() { mAimingDeltaTime = 0.f; }
 	void RecoverRecoil();

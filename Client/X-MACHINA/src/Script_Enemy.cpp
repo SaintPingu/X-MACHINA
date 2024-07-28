@@ -12,6 +12,7 @@
 #include "Timer.h"
 #include "Object.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "SoundMgr.h"
 
 #include "XLManager.h"
 
@@ -21,6 +22,7 @@ void Script_Enemy::Awake()
 	base::Awake();
 
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
+	mEnemyMgr->mEnemy = this;
 	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_PheroObject>();
 #ifndef SERVER_COMMUNICATION
@@ -71,6 +73,19 @@ void Script_Enemy::Update()
 void Script_Enemy::OnDestroy()
 {
 	CLIENT_NETWORK->EraseMonster(mObject->GetID());
+	mObject->mObjectCB.HitRimFactor = max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
+
+	if (mNoTarget) {
+		if (mEnemyMgr->mTarget) {
+			mNoTarget = false;
+			Detect();
+		}
+	}
+	else {
+		if (!mEnemyMgr->mTarget) {
+			mNoTarget = true;
+		}
+	}
 }
 
 void Script_Enemy::Attack()
@@ -78,6 +93,24 @@ void Script_Enemy::Attack()
 	mEnemyMgr->RemoveAllAnimation();
 	mEnemyMgr->mController->SetValue("Attack", true);
 }
+
+void Script_Enemy::Dead()
+{
+	base::Dead();
+
+	if(mDeathSound != "") {
+		SoundMgr::I->Play("Enemy", mDeathSound);
+	}
+}
+
+void Script_Enemy::Detect()
+{
+	if (mDetectSound != "") {
+		SoundMgr::I->Play("Enemy", mDetectSound);
+	}
+}
+
+
 
 bool Script_Enemy::Hit(float damage, Object* instigator)
 {
@@ -107,6 +140,10 @@ void Script_Enemy::AttackCallback()
 		auto liveObject = mEnemyMgr->mTarget->GetComponent<Script_LiveObject>();
 		if (liveObject) {
 			liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject);
+		}
+
+		if (mAttackSound != "") {
+			SoundMgr::I->Play("Enemy", mAttackSound);
 		}
 	}
 }

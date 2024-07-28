@@ -53,12 +53,16 @@ void Script_Weapon_Burnout::InitValues()
 	mMuzzles[mBulletCntPerMag - 3] = mObject->FindFrame("FirePos_3");
 	mMuzzles[mBulletCntPerMag - 4] = mObject->FindFrame("FirePos_4");
 	mMuzzle = mMuzzles[mBulletCntPerMag - 1];
+
+	SetFireSound("Buronout Fire");
 }
 
 void Script_Weapon_Burnout::BulletInitFunc(rsptr<InstObject> bullet) const
 {
 	base::InitBullet(bullet, mkBulletDamage, mkBulletSpeed, BulletType::Missile);
-	bullet->GetComponent<Script_Missile>()->SetExplosionDamage(mkExplosionDamage);
+	const auto& missile = bullet->GetComponent<Script_Missile>();
+	missile->SetExplosionDamage(mkExplosionDamage);
+	missile->SetImpactSound("Burnout Impact");
 }
 
 void Script_Weapon_Burnout::SetParticleSystemNames()

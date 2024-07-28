@@ -253,6 +253,7 @@
     <ClInclude Include="include\Script_Aranobot.h" />
     <ClInclude Include="include\Script_BattleUI.h" />
     <ClInclude Include="include\Script_Ceratoferox.h" />
+    <ClInclude Include="include\Script_FootStepSound.h" />
     <ClInclude Include="include\Script_Gobbler.h" />
     <ClInclude Include="include\Script_LightBipedMech.h" />
     <ClInclude Include="include\Script_LobbyManager.h" />
@@ -260,6 +261,7 @@
     <ClInclude Include="include\Script_MindControlledEnemyBT.h" />
     <ClInclude Include="include\Script_MiningMech.h" />
     <ClInclude Include="include\Script_Rapax.h" />
+    <ClInclude Include="include\Script_StageNameUI.h" />
     <ClInclude Include="include\SliderBarUI.h" />
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h" />
     <ClInclude Include="include\XLManager.h" />
@@ -343,6 +345,7 @@
     <ClCompile Include="src\Script_Aranobot.cpp" />
     <ClCompile Include="src\Script_BattleUI.cpp" />
     <ClCompile Include="src\Script_Ceratoferox.cpp" />
+    <ClCompile Include="src\Script_FootStepSound.cpp" />
     <ClCompile Include="src\Script_Gobbler.cpp" />
     <ClCompile Include="src\Script_Item_Weapon.cpp" />
     <ClCompile Include="src\Script_Item_WeaponCrate.cpp" />
@@ -352,6 +355,7 @@
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp" />
     <ClCompile Include="src\Script_MiningMech.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
+    <ClCompile Include="src\Script_StageNameUI.cpp" />
     <ClCompile Include="src\SliderBarUI.cpp" />
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp" />
     <ClCompile Include="src\XLManger.cpp" />

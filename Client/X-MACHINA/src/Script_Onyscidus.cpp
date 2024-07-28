@@ -12,5 +12,8 @@ void Script_Onyscidus::Awake()
 
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Onyscidus::AttackCallback, this), 17);
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Onyscidus::AttackCallback, this), 44);
+
+	SetDeathSound("Onyscidus Death");
+	SetDetectSound("Onyscidus Detect");
 }
 

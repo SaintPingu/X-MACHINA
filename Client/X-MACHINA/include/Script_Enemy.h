@@ -17,6 +17,13 @@ class Script_EnemyManager;
 class Script_Enemy abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Enemy, Script_LiveObject)
 
+private:
+	std::string mAttackSound{};
+	std::string mDeathSound{};
+	std::string mDetectSound{};
+
+	bool mNoTarget{ true };
+
 protected:
 	sptr<Script_EnemyManager>  mEnemyMgr{};
 
@@ -27,10 +34,16 @@ public:
 
 public:
 	virtual void Attack();
+	virtual void Dead() override;
+	virtual void Detect();
 	virtual bool Hit(float damage, Object* instigator = nullptr) override;
 
 public:
 	void SetEnemyStat(const std::string& modelName);
+
+	void SetAttackSound(const std::string& sound) { mAttackSound = sound; }
+	void SetDeathSound(const std::string& sound) { mDeathSound = sound; }
+	void SetDetectSound(const std::string& sound) { mDetectSound = sound; }
 
 protected:
 	virtual void AttackCallback();

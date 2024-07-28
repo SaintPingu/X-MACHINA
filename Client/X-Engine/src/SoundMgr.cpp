@@ -69,6 +69,11 @@ void SoundMgr::LoadSounds()
 	}
 }
 
+void SoundMgr::Update()
+{
+	FMOD_System_Update(mSoundSystem);
+}
+
 void SoundMgr::Play(const std::string& channelName, const std::string& soundName, float volume, bool isStopBefore)
 {
 	if (!CheckChannelName(channelName)) {
@@ -82,27 +87,36 @@ void SoundMgr::Play(const std::string& channelName, const std::string& soundName
 	auto& sound = mSoundList[soundPath];
 	auto& channel = mChannels[channelName];
 
-	FMOD_System_Update(mSoundSystem);
+	if (isStopBefore && channel) {
+		FMOD_Channel_Stop(channel);
+	}
 
-	if (isStopBefore || !channel) {
-		if (channel) {
-			FMOD_Channel_Stop(channel);
-		}
-		FMOD_System_PlaySound(mSoundSystem, sound, 0, false, &channel);
-		FMOD_Channel_SetVolume(channel, volume);
-	}
-	else {
-		FMOD_System_PlaySound(mSoundSystem, sound, 0, false, nullptr);
-	}
+	FMOD_System_PlaySound(mSoundSystem, sound, 0, false, &channel);
+	FMOD_Channel_SetVolume(channel, volume);
 }
 
-void SoundMgr::Stop(const std::string& channel)
+void SoundMgr::PlayNoChannel(const std::string& channelName, const std::string& soundName)
 {
-	if (!CheckChannelName(channel)) {
+	if (!CheckChannelName(channelName)) {
+		return;
+	}
+	const std::string soundPath = channelName + "/" + soundName;
+	if (!CheckSoundName(soundPath)) {
 		return;
 	}
 
-	FMOD_Channel_Stop(mChannels[channel]);
+	auto& sound = mSoundList[soundPath];
+	FMOD_System_PlaySound(mSoundSystem, sound, 0, false, nullptr);
+}
+
+void SoundMgr::Stop(const std::string& channelName)
+{
+	if (!CheckChannelName(channelName)) {
+		return;
+	}
+
+	auto& channel = mChannels[channelName];
+	FMOD_Channel_Stop(channel);
 }
 
 bool SoundMgr::CheckChannelName(const std::string& channelName)

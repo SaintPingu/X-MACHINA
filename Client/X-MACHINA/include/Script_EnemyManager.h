@@ -53,6 +53,7 @@ struct EnemyStatTable : public XLTable {
 
 #pragma region ClassForwardDecl
 class AnimatorController;
+class Script_Enemy;
 #pragma endregion
 
 
@@ -69,6 +70,7 @@ public:
 
 	std::stack<Vec3> mPath{};
 	AnimatorController* mController{};
+	Script_Enemy* mEnemy{};
 
 public:
 	void Awake() override;

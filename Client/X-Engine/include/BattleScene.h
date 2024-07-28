@@ -38,6 +38,7 @@ private:
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
+	sptr<ObjectPool>				mBounds{};
 	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
 	std::vector<sptr<Object>>		mScriptObjects{};			// Unity Scene에서 스크립트를 가지고 있는 객체들
 	std::set<size_t>				mDestroyObjects{};

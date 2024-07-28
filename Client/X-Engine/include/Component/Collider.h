@@ -125,6 +125,7 @@ class ObjectCollider : public Component {
 private:
 	sptr<SphereCollider>		mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
 	std::vector<sptr<Collider>>	mColliders{};		// 모든 colliders
+	Vec3						mColor{ Vector3::One };
 
 public:
 	const MyBoundingSphere& GetBS() const { return mSphereCollider->mBS; }
@@ -136,7 +137,7 @@ public:
 	virtual void Update() override;
 
 public:
-	void Render(Vec4 color = Vec4::Zero) const;
+	void Render() const;
 
 	bool Intersects(const ObjectCollider* other) const;
 	bool Intersects(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }
@@ -153,6 +154,8 @@ public:
 
 		return false;
 	}
+
+	void SetBoundColor(const Vec3& color) { mColor = color; }
 
 	// 두 객체의 충돌 여부를 반환한다.
 	static bool Intersects(const GridObject& a, const GridObject& b);

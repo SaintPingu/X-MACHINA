@@ -261,6 +261,9 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 				objectPool = CreateObjectPool(model, sameObjectCount, [&](rsptr<InstObject> object) {
 					object->SetTag(tag);
 					});
+				if (tag == ObjectTag::Bound) {
+					mBounds = objectPool;
+				}
 			}
 
 			if (tag == ObjectTag::Unspecified) {
@@ -630,6 +633,13 @@ bool BattleScene::RenderBounds()
 
 	RenderObjectBounds();
 	RenderGridBounds();
+
+	// manual bounds
+	{
+		mBounds->DoAllObjects([](rsptr<InstObject> object) {
+			object->RenderBounds();
+			});
+	}
 
 	return true;
 }

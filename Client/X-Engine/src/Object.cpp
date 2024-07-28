@@ -106,6 +106,7 @@ void GridObject::ResetCollider()
 {
 	mCollider = GetComponent<ObjectCollider>().get();
 	assert(mCollider);
+	ResetColliderColor();
 }
 
 void GridObject::SetTag(ObjectTag tag)
@@ -120,6 +121,8 @@ void GridObject::SetTag(ObjectTag tag)
 void GridObject::Awake()
 {
 	mCollider = AddComponent<ObjectCollider>().get();
+	assert(mCollider);
+	ResetColliderColor();
 	base::Awake();
 
 	const auto& collider = GetComponent<ObjectCollider>();
@@ -161,22 +164,33 @@ void GridObject::OnDestroy()
 	BattleScene::I->RemoveDynamicObject(this);
 }
 
+void GridObject::ResetColliderColor()
+{
+	if (mCollider) {
+		Vec3 color;
+		switch (GetTag()) {
+		case ObjectTag::Player:
+			color = Vec3(0, 1, 0);
+			break;
+		case ObjectTag::Enemy:
+			color = Vec3(1, 0, 0);
+			break;
+		case ObjectTag::Bound:
+			color = Vec3(1, 1, 0);
+			break;
+		default:
+			color = Vec3(0.2, 0.2f, 0.2f);
+			break;
+		}
+
+		mCollider->SetBoundColor(color);
+	}
+}
+
 void GridObject::RenderBounds()
 {
-	Vec4 color{};
-	switch (GetTag()) {
-	case ObjectTag::Player:
-		color = Vec4(0, 1, 0, 1);
-		break;
-	case ObjectTag::Enemy:
-		color = Vec4(1, 0, 0, 1);
-		break;
-	default:
-		color = Vec4(1, 1, 1, 1);
-		break;
-	}
 	if (mCollider) {
-		GetComponent<ObjectCollider>()->Render(color);
+		GetComponent<ObjectCollider>()->Render();
 	}
 }
 

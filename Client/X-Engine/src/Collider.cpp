@@ -263,14 +263,14 @@ void ObjectCollider::Update()
 	}
 }
 
-void ObjectCollider::Render(Vec4 color) const
+void ObjectCollider::Render() const
 {
 	if (!IsActive()) {
 		return;
 	}
 
 	for (auto& collider : mColliders) {
-		collider->Render(color);
+		collider->Render(Vec4(mColor.x, mColor.y, mColor.z, 1.0f));
 	}
 
 	//#define RENDER_BOUNDING_SPHERE

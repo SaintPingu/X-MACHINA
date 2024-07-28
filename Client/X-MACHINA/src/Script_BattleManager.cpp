@@ -190,6 +190,6 @@ void Script_BattleManager::WriteBounds(rsptr<Object> object)
 		}
 	}
 
-	object->AddComponent<ObjectCollider>();
+	object->AddComponent<ObjectCollider>()->SetBoundColor(Vec3(1.f, 1.f, 0.f));
 	std::static_pointer_cast<GridObject>(object)->ResetCollider();
 }

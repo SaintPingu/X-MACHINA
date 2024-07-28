@@ -96,6 +96,8 @@ void Script_Enemy::AttackCallback()
 		if (liveObject) {
 			liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject);
 		}
+
+		SoundMgr::I->Play("Enemy", mAttackSound);
 	}
 }
 

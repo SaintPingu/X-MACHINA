@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Script_Player.h"
 
 #include "Script_Bullet.h"

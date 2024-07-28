@@ -176,10 +176,12 @@ void GridObject::ResetColliderColor()
 			color = Vec3(1, 0, 0);
 			break;
 		case ObjectTag::Bound:
+		case ObjectTag::Building:
+		case ObjectTag::DissolveBuilding:
 			color = Vec3(1, 1, 0);
 			break;
 		default:
-			color = Vec3(0.2, 0.2f, 0.2f);
+			color = Vec3(0.2f, 0.2f, 0.2f);
 			break;
 		}
 

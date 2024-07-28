@@ -73,7 +73,7 @@ void Script_Enemy::Update()
 void Script_Enemy::OnDestroy()
 {
 	CLIENT_NETWORK->EraseMonster(mObject->GetID());
-	mObject->mObjectCB.HitRimFactor = max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
+	mObject->mObjectCB.HitRimFactor = std::max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
 
 	if (mNoTarget) {
 		if (mEnemyMgr->mTarget) {

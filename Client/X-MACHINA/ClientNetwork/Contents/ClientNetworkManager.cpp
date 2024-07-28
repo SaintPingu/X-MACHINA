@@ -452,15 +452,16 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> ClientNetworkManager
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> ClientNetworkManager::CreateEvent_UpdateOnSkill_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_SKILL_TYPE skillType, float phero_amount)
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> ClientNetworkManager::CreateEvent_UpdateOnSkill_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_SKILL_TYPE skillType, float phero_amount, int mindControl_monster_id)
 {
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill>();
 
 	Event->type = NetworkEvent::Game::RemotePlayerType::OnSkill;
 
-	Event->id			= remID;
-	Event->skill_type	= skillType;
-	Event->phero_amount = phero_amount;
+	Event->id			          = remID;
+	Event->skill_type	          = skillType;
+	Event->phero_amount           = phero_amount;
+	Event->mindControl_monster_id = mindControl_monster_id;
 
 	return Event;
 }
@@ -660,6 +661,9 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent:
 
 	int player_id								= data->id;
 	FBProtocol::PLAYER_SKILL_TYPE skill_type	= data->skill_type;
+	int mindControl_monster_id                  = data->mindControl_monster_id;
+
+
 
 	LOG_MGR->Cout(player_id, " OnSkill : ", static_cast<int>(skill_type), '\n');
 

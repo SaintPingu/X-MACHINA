@@ -670,14 +670,19 @@ inline ::flatbuffers::Offset<SPkt_RemovePlayer> CreateSPkt_RemovePlayer(
 struct CPkt_PlayerOnSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_PlayerOnSkillBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SKILL_TYPE = 4
+    VT_SKILL_TYPE = 4,
+    VT_MINDCONTROL_MONSTER_ID = 6
   };
   FBProtocol::PLAYER_SKILL_TYPE skill_type() const {
     return static_cast<FBProtocol::PLAYER_SKILL_TYPE>(GetField<uint8_t>(VT_SKILL_TYPE, 0));
   }
+  int32_t mindcontrol_monster_Id() const {
+    return GetField<int32_t>(VT_MINDCONTROL_MONSTER_ID, 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_SKILL_TYPE, 1) &&
+           VerifyField<int32_t>(verifier, VT_MINDCONTROL_MONSTER_ID, 4) &&
            verifier.EndTable();
   }
 };
@@ -688,6 +693,9 @@ struct CPkt_PlayerOnSkillBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_skill_type(FBProtocol::PLAYER_SKILL_TYPE skill_type) {
     fbb_.AddElement<uint8_t>(CPkt_PlayerOnSkill::VT_SKILL_TYPE, static_cast<uint8_t>(skill_type), 0);
+  }
+  void add_mindcontrol_monster_Id(int32_t mindcontrol_monster_Id) {
+    fbb_.AddElement<int32_t>(CPkt_PlayerOnSkill::VT_MINDCONTROL_MONSTER_ID, mindcontrol_monster_Id, 0);
   }
   explicit CPkt_PlayerOnSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -702,8 +710,10 @@ struct CPkt_PlayerOnSkillBuilder {
 
 inline ::flatbuffers::Offset<CPkt_PlayerOnSkill> CreateCPkt_PlayerOnSkill(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    FBProtocol::PLAYER_SKILL_TYPE skill_type = FBProtocol::PLAYER_SKILL_TYPE_IMPOSSIBLE) {
+    FBProtocol::PLAYER_SKILL_TYPE skill_type = FBProtocol::PLAYER_SKILL_TYPE_IMPOSSIBLE,
+    int32_t mindcontrol_monster_Id = 0) {
   CPkt_PlayerOnSkillBuilder builder_(_fbb);
+  builder_.add_mindcontrol_monster_Id(mindcontrol_monster_Id);
   builder_.add_skill_type(skill_type);
   return builder_.Finish();
 }
@@ -713,7 +723,8 @@ struct SPkt_PlayerOnSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PLAYER_ID = 4,
     VT_SKILL_TYPE = 6,
-    VT_PHERO_AMOUNT = 8
+    VT_PHERO_AMOUNT = 8,
+    VT_MINDCONTROL_MONSTER_ID = 10
   };
   uint32_t player_id() const {
     return GetField<uint32_t>(VT_PLAYER_ID, 0);
@@ -724,11 +735,15 @@ struct SPkt_PlayerOnSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   float phero_amount() const {
     return GetField<float>(VT_PHERO_AMOUNT, 0.0f);
   }
+  int32_t mindcontrol_monster_id() const {
+    return GetField<int32_t>(VT_MINDCONTROL_MONSTER_ID, 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_PLAYER_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_SKILL_TYPE, 1) &&
            VerifyField<float>(verifier, VT_PHERO_AMOUNT, 4) &&
+           VerifyField<int32_t>(verifier, VT_MINDCONTROL_MONSTER_ID, 4) &&
            verifier.EndTable();
   }
 };
@@ -746,6 +761,9 @@ struct SPkt_PlayerOnSkillBuilder {
   void add_phero_amount(float phero_amount) {
     fbb_.AddElement<float>(SPkt_PlayerOnSkill::VT_PHERO_AMOUNT, phero_amount, 0.0f);
   }
+  void add_mindcontrol_monster_id(int32_t mindcontrol_monster_id) {
+    fbb_.AddElement<int32_t>(SPkt_PlayerOnSkill::VT_MINDCONTROL_MONSTER_ID, mindcontrol_monster_id, 0);
+  }
   explicit SPkt_PlayerOnSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -761,8 +779,10 @@ inline ::flatbuffers::Offset<SPkt_PlayerOnSkill> CreateSPkt_PlayerOnSkill(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t player_id = 0,
     FBProtocol::PLAYER_SKILL_TYPE skill_type = FBProtocol::PLAYER_SKILL_TYPE_IMPOSSIBLE,
-    float phero_amount = 0.0f) {
+    float phero_amount = 0.0f,
+    int32_t mindcontrol_monster_id = 0) {
   SPkt_PlayerOnSkillBuilder builder_(_fbb);
+  builder_.add_mindcontrol_monster_id(mindcontrol_monster_id);
   builder_.add_phero_amount(phero_amount);
   builder_.add_player_id(player_id);
   builder_.add_skill_type(skill_type);
@@ -1564,20 +1584,20 @@ struct SPkt_MonsterTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
     VT_TARGET_PLAYER_ID = 6,
     VT_TARGET_MONTSER_ID = 8
   };
-  uint32_t monster_id() const {
-    return GetField<uint32_t>(VT_MONSTER_ID, 0);
+  int32_t monster_id() const {
+    return GetField<int32_t>(VT_MONSTER_ID, 0);
   }
-  uint32_t target_player_id() const {
-    return GetField<uint32_t>(VT_TARGET_PLAYER_ID, 0);
+  int32_t target_player_id() const {
+    return GetField<int32_t>(VT_TARGET_PLAYER_ID, 0);
   }
-  uint32_t target_montser_id() const {
-    return GetField<uint32_t>(VT_TARGET_MONTSER_ID, 0);
+  int32_t target_montser_id() const {
+    return GetField<int32_t>(VT_TARGET_MONTSER_ID, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_MONSTER_ID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_TARGET_PLAYER_ID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_TARGET_MONTSER_ID, 4) &&
+           VerifyField<int32_t>(verifier, VT_MONSTER_ID, 4) &&
+           VerifyField<int32_t>(verifier, VT_TARGET_PLAYER_ID, 4) &&
+           VerifyField<int32_t>(verifier, VT_TARGET_MONTSER_ID, 4) &&
            verifier.EndTable();
   }
 };
@@ -1586,14 +1606,14 @@ struct SPkt_MonsterTargetBuilder {
   typedef SPkt_MonsterTarget Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_monster_id(uint32_t monster_id) {
-    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_MONSTER_ID, monster_id, 0);
+  void add_monster_id(int32_t monster_id) {
+    fbb_.AddElement<int32_t>(SPkt_MonsterTarget::VT_MONSTER_ID, monster_id, 0);
   }
-  void add_target_player_id(uint32_t target_player_id) {
-    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_TARGET_PLAYER_ID, target_player_id, 0);
+  void add_target_player_id(int32_t target_player_id) {
+    fbb_.AddElement<int32_t>(SPkt_MonsterTarget::VT_TARGET_PLAYER_ID, target_player_id, 0);
   }
-  void add_target_montser_id(uint32_t target_montser_id) {
-    fbb_.AddElement<uint32_t>(SPkt_MonsterTarget::VT_TARGET_MONTSER_ID, target_montser_id, 0);
+  void add_target_montser_id(int32_t target_montser_id) {
+    fbb_.AddElement<int32_t>(SPkt_MonsterTarget::VT_TARGET_MONTSER_ID, target_montser_id, 0);
   }
   explicit SPkt_MonsterTargetBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1608,9 +1628,9 @@ struct SPkt_MonsterTargetBuilder {
 
 inline ::flatbuffers::Offset<SPkt_MonsterTarget> CreateSPkt_MonsterTarget(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t monster_id = 0,
-    uint32_t target_player_id = 0,
-    uint32_t target_montser_id = 0) {
+    int32_t monster_id = 0,
+    int32_t target_player_id = 0,
+    int32_t target_montser_id = 0) {
   SPkt_MonsterTargetBuilder builder_(_fbb);
   builder_.add_target_montser_id(target_montser_id);
   builder_.add_target_player_id(target_player_id);

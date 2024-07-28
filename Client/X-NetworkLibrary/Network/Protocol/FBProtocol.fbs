@@ -117,7 +117,7 @@ table SPkt_RemovePlayer
 table CPkt_PlayerOnSkill
 {
 	skill_type : PLAYER_SKILL_TYPE;
-
+	mindcontrol_monster_Id : int;
 }
 
 table SPkt_PlayerOnSkill
@@ -125,6 +125,7 @@ table SPkt_PlayerOnSkill
 	player_id	 : uint; // 4 bytes // 삭제할 플레이어의 아이디 
 	skill_type	 : PLAYER_SKILL_TYPE;
 	phero_amount : float;
+	mindcontrol_monster_id : int;
 
 }
 
@@ -266,9 +267,9 @@ table CPkt_MonsterTarget
 
 table SPkt_MonsterTarget
 {
-	monster_id			: uint;
-	target_player_id	: uint;
-	target_montser_id	: uint;
+	monster_id			: int;
+	target_player_id	: int;
+	target_montser_id	: int;
 }
 
 

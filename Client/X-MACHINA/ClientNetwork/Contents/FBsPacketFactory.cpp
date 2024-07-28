@@ -553,8 +553,9 @@ bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const F
 	int								player_id		= pkt.player_id();
 	float							phero_amount	= pkt.phero_amount();
 	FBProtocol::PLAYER_SKILL_TYPE	skill_type		= pkt.skill_type();
-	
-	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> EventData = CLIENT_NETWORK->CreateEvent_UpdateOnSkill_RemotePlayer(player_id, skill_type, phero_amount);
+	int mindcontrol_monster_id                      = pkt.mindcontrol_monster_id();
+
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> EventData = CLIENT_NETWORK->CreateEvent_UpdateOnSkill_RemotePlayer(player_id, skill_type, phero_amount, mindcontrol_monster_id);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
 	LOG_MGR->Cout(player_id, " : ", static_cast<int>(skill_type));
@@ -984,11 +985,11 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(WeaponName weaponName)
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType, int mindcontrol_monster_id)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 
-	auto ServerPacket = FBProtocol::CreateCPkt_PlayerOnSkill(builder, skillType);
+	auto ServerPacket = FBProtocol::CreateCPkt_PlayerOnSkill(builder, skillType, mindcontrol_monster_id);
 	builder.Finish(ServerPacket);
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_PlayerOnSkill);
 	return sendBuffer;

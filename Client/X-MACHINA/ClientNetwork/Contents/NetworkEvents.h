@@ -128,6 +128,7 @@ namespace NetworkEvent
 				uint32_t	id								= {};
 				float		phero_amount					= {};
 				FBProtocol::PLAYER_SKILL_TYPE skill_type	= {};
+				int mindControl_monster_id					= -1;
 			};
 		}
 

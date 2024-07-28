@@ -96,7 +96,7 @@ public:
 	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType);
 	SPtr_SendPktBuf CPkt_Player_AimRotation(float aim_rotation_y, float spine_angle);
 	SPtr_SendPktBuf CPkt_Player_Weapon(WeaponName weaponName);
-	SPtr_SendPktBuf CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType); // 추가
+	SPtr_SendPktBuf CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType, int mindcontrol_monster_id); // 추가
 
 	/* MONSTER */
 	SPtr_SendPktBuf CPkt_NewMonster(uint32_t monster_id, FBProtocol::MONSTER_TYPE montser_type);

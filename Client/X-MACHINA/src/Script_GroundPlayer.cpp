@@ -44,7 +44,7 @@
 #pragma region Variable
 const float Script_GroundPlayer::mkSitWalkSpeed   = 1.5f;
 const float Script_GroundPlayer::mkStandWalkSpeed = 2.2f;
-const float Script_GroundPlayer::mkRunSpeed       = 50.f;
+const float Script_GroundPlayer::mkRunSpeed       = 5.f;
 const float Script_GroundPlayer::mkSprintSpeed    = 8.f;
 
 const float Script_GroundPlayer::mkStartRotAngle = 40.f;

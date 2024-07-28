@@ -1163,6 +1163,11 @@ void Script_GroundPlayer::ChangeReloadCallback()
 	if (ratio > kAllowRatio && IsReloading()) {
 		EndReload();
 	}
+	else {
+		if (mWeaponScript) {
+			mWeaponScript->StopReload();
+		}
+	}
 }
 
 void Script_GroundPlayer::EndReloadCallback()

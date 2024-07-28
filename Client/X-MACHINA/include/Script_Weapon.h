@@ -73,7 +73,7 @@ public:
 	void StopFire() { mIsShooting = false; mIsBeforeShooting = false; }
 	bool CheckReload();
 	virtual void EndReload();
-	virtual void StopReload() { InitReload(); }
+	virtual void StopReload() {}
 
 	virtual void FireBullet_Force() { FireBullet(); }
 
@@ -117,15 +117,19 @@ public:
 
 protected:
 	std::string mFireSound{};
+	std::string mReloadSound{};
 	Vec2 mErrX{};	// 좌우 오차
 	Vec2 mErrY{};	// 상하 오차
 	float mSpeerErr{};	// 속도 오차
 
 public:
-	void SetFireSound(const std::string& fireSound) { mFireSound = fireSound; }
+	void SetFireSound(const std::string& sound) { mFireSound = sound; }
+	void SetReloadSound(const std::string& sound) { mReloadSound = sound; }
 
 protected:
 	virtual void FireBullet() override;
+	virtual void StartReload() override;
+	virtual void StopReload() override;
 
 	void InitBullet(rsptr<InstObject> bullet, float damage, float speed, BulletType bulletType = BulletType::Bullet) const;
 

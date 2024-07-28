@@ -244,6 +244,24 @@ void Script_BulletWeapon::FireBullet()
 	}
 }
 
+void Script_BulletWeapon::StartReload()
+{
+	base::StartReload();
+
+	if (mReloadSound != "") {
+		SoundMgr::I->Play("Reload", mReloadSound);
+	}
+}
+
+void Script_BulletWeapon::StopReload()
+{
+	base::StopReload();
+
+	if (mReloadSound != "") {
+		SoundMgr::I->Stop("Reload");
+	}
+}
+
 void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, float speed, BulletType bulletType) const
 {
 	bullet->AddComponent<Rigidbody>();

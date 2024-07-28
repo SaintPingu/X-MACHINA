@@ -5,6 +5,7 @@
 #include "InputMgr.h"
 #include "ResourceMgr.h"
 #include "TextMgr.h"
+#include "SoundMgr.h"
 
 #include "Timer.h"
 #include "BattleScene.h"
@@ -64,6 +65,7 @@ void Engine::Update()
 	mCrntScene->Update();
 
 	InputMgr::I->Update();
+	SoundMgr::I->Update();
 
 	if (mIsChangeScene) {
 		LoadScene();

@@ -11,6 +11,7 @@
 
 #include "Timer.h"
 #include "Object.h"
+#include "SoundMgr.h"
 
 #include "XLManager.h"
 
@@ -56,6 +57,15 @@ void Script_Enemy::Attack()
 void Script_Enemy::Death()
 {
 }
+
+void Script_Enemy::Dead()
+{
+	base::Dead();
+
+	SoundMgr::I->Play("Enemy", mDeathSound);
+}
+
+
 
 bool Script_Enemy::Hit(float damage, Object* instigator)
 {

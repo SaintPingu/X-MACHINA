@@ -56,6 +56,16 @@ void Script_Weapon::Update()
 	}
 }
 
+void Script_Weapon::OnEnable()
+{
+	base::OnEnable();
+}
+
+void Script_Weapon::OnDisable()
+{
+	base::OnDisable();
+}
+
 void Script_Weapon::FireBullet()
 {
 	if (!mOwner) {

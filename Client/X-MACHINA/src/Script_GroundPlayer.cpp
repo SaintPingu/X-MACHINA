@@ -102,6 +102,7 @@ void Script_GroundPlayer::Awake()
 	// weapons //
 	mWeapons.resize(3);
 	AquireNewWeapon(WeaponName::H_Lock);
+	mLaserPointer = BattleScene::I->Instantiate("LaserPointer", ObjectTag::Unspecified, ObjectLayer::Default, false);
 }
 
 void Script_GroundPlayer::Start()
@@ -110,7 +111,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230);
+	constexpr Vec3 kSpawnPoint = Vec3(100, 0, 210);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -461,7 +462,6 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	const std::function<void()> drawEndCallback = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
 	const std::function<void()> putbackCallback = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
-
 	// bolt action sniper �ʱ�ȭ
 	{
 		const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
@@ -475,7 +475,6 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	}
 
 	
-
 	// setting callbacks //
 	constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
 
@@ -655,6 +654,10 @@ void Script_GroundPlayer::DrawWeaponCallback()
 		auto motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponName())];
 		SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
 	}
+
+	if (mMuzzle && mLaserPointer) {
+		mMuzzle->SetChild(mLaserPointer->GetShared());
+	}
 }
 
 void Script_GroundPlayer::DrawWeaponEndCallback()
@@ -755,8 +758,6 @@ void Script_GroundPlayer::ResetWeaponAnimation()
 	mController->SetValue("BoltAction", false);
 	mController->SetValue("Draw", false);
 }
-
-
 
 void Script_GroundPlayer::UpdateMovement(Dir dir)
 {
@@ -984,8 +985,14 @@ void Script_GroundPlayer::OnAim()
 	if (!mWeapon || !mController) {
 		return;
 	}
+
+	SoundMgr::I->Play("Gun", "OnAim");
 	mController->SetValue("Aim", true);
 	mIsAim = true;
+
+	if (mLaserPointer) {
+		mLaserPointer->SetActive(true);
+	}
 }
 
 void Script_GroundPlayer::OffAim()
@@ -1001,6 +1008,10 @@ void Script_GroundPlayer::OffAim()
 		if (prevMotion == PlayerMotion::None) {
 			mController->SetValue("Walk", false);
 		}
+	}
+
+	if (mLaserPointer) {
+		mLaserPointer->SetActive(false);
 	}
 }
 

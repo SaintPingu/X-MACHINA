@@ -19,16 +19,18 @@ void Script_FootStepSound::Awake()
 
 void Script_FootStepSound::Update()
 {
+	constexpr float departY = 0.05f;
+	constexpr float groundY = 0.02f;
+
 	for (int i = 0; i < 2; ++i) {
 		float footY = mFoots[i]->GetPosition().y;
-		std::cout << footY << std::endl;
 		if (!mReady[i]) {
-			if (footY > 0.05f) {
+			if (footY > departY) {
 				mReady[i] = true;
 			}
 		}
 		else {
-			if (footY < 0.02f) {
+			if (footY < groundY) {
 				mReady[i] = false;
 				SoundMgr::I->Play("Env", mSounds[mCurCnt]);
 				if (++mCurCnt >= mMaxCnt) {

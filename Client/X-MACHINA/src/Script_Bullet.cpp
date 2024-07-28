@@ -53,6 +53,9 @@ void Script_Bullet::OnCollisionEnter(Object& other)
 	case ObjectTag::Enemy:	
 	{
 		auto& enemy = other.GetComponent<Script_Enemy>();
+		if (enemy->IsDead()) {
+			return;
+		}
 		enemy->Hit(GetDamage());
 		PlayPSs(BulletPSType::Explosion);
 		Explode();

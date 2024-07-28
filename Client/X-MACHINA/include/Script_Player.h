@@ -18,6 +18,7 @@ class Script_MainCamera;
 class UI;
 class SliderBarUI;
 class ChatBoxUI;
+class GridObject;
 #pragma endregion
 
 
@@ -75,10 +76,13 @@ private:
 	bool mIsInPutback{};
 
 protected:
-	GameObject* mWeapon{};
+	GridObject* mWeapon{};
 	sptr<Script_Weapon> mWeaponScript{};
-	std::vector<GameObject*> mWeapons{};
+	std::vector<GridObject*> mWeapons{};
 	Transform* mMuzzle{};
+
+public:
+	virtual void OnDestroy() override;
 
 public:
 	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
@@ -266,8 +270,8 @@ private:
 	void SetMotionSpeed(AnimatorMotion* motion, float time);
 	void ComputeSlideVector(Object& other);
 
-	void SwitchWeapon(GameObject* weapon);
-	void SetWeaponChild(GameObject* weapon);
+	void SwitchWeapon(GridObject* weapon);
+	void SetWeaponChild(GridObject* weapon);
 
 	void Interact();
 

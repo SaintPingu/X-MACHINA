@@ -419,6 +419,13 @@ void BattleScene::ApplyDynamicContext()
 	DynamicEnvironmentMappingManager::I->Render(mSkinMeshObjects);
 }
 
+void BattleScene::RenderEnd()
+{
+	Scene::RenderEnd();
+
+	ClearRenderedObjects();
+}
+
 void BattleScene::RenderDynamicEnvironmentMappingObjects()
 {
 	RenderGridObjects(RenderType::DynamicEnvironmentMapping);
@@ -994,10 +1001,19 @@ void BattleScene::RemoveDynamicObject(GridObject* target)
 	for (size_t i = 0; i < mDynamicObjects.size();++i) {
 		auto& object = mDynamicObjects[i];
 		if (object.get() == target) {
+			object->RemoveWholeComponents();
 			if (object->IsSkinMesh()) {
 				mDissolveObjects.insert(object);
 			}
 			mDestroyObjects.insert(i);
+
+			{
+				mRenderedObjects.erase(object.get());
+				for (int idx : object->GetGridIndices()) {
+					mGrids[idx]->RemoveObject(object.get());
+				}
+			}
+
 			object = nullptr;
 			return;
 		}

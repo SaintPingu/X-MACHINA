@@ -115,7 +115,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.12", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.15", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -546,6 +546,12 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data)
 {
 	std::cout << "RemoveOtherPlayer \n";
+
+	if (!mRemotePlayers.count(data->Id)) {
+		return;
+	}
+
+	BattleScene::I->RemoveDynamicObject(mRemotePlayers[data->Id]);
 	mRemotePlayers.unsafe_erase(data->Id);
 }
 
@@ -797,6 +803,10 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
+		if (mRemoteMonsters[ID]->GetState() == EnemyState::Death) {
+			continue;
+		}
+
 		switch (type)
 		{
 		case FBProtocol::MONSTER_BT_TYPE_DEATH:
@@ -818,6 +828,7 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 			mRemoteMonsters[ID]->SetState(EnemyState::Patrol);
 			break;
 		default:
+			mRemoteMonsters[ID]->SetState(EnemyState::Idle);
 			break;
 		}
 

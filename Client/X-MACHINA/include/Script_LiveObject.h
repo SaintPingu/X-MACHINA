@@ -15,13 +15,16 @@ class Object;
 class Script_LiveObject abstract : public Component {
 	COMPONENT_ABSTRACT(Script_LiveObject, Component)
 
+protected:
+	bool  mIsDead{};
+	float mAccTime{};
+	float mRemoveTime{};
+
 private:
 	float mMaxHP{};
 	float mShieldAmount{};
 	float mCrntHP{};
 	float mPrevHP{};
-
-	bool  mIsDead{};
 
 public:
 	virtual void Awake() override;

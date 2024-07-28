@@ -47,7 +47,7 @@ BT::Node* Script_DefaultEnemyBT::SetupTree()
 
 #pragma region BehaviorTree
 	BT::Node* root = new BT::Selector{ std::vector<BT::Node*>{
-		new CheckDeath(mObject, std::bind(&Script_Enemy::Death, enemy)),
+		new CheckDeath(mObject, std::bind(&Script_Enemy::Dead, enemy)),
 		new BT::Sequence{ std::vector<BT::Node*>{
 			new CheckAttackRange(mObject),
 			new TaskAttack(mObject, std::bind(&Script_Enemy::Attack, enemy)),

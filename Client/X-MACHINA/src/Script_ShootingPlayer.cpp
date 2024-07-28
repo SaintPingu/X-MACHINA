@@ -10,6 +10,18 @@
 
 
 
+void Script_ShootingPlayer::OnDestroy()
+{
+	base::OnDestroy();
+
+	for (auto& weapon : mWeapons) {
+		if (weapon) {
+			weapon->mParent = nullptr;
+			BattleScene::I->RemoveDynamicObject(weapon);
+		}
+	}
+}
+
 bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {

@@ -24,24 +24,24 @@ BT::NodeState CheckDeath::Evaluate()
 	if (!mLiveObject->IsDead())
 		return BT::NodeState::Failure;
 
-	mEnemyMgr->mState = EnemyState::Death;
+	//mEnemyMgr->mState = EnemyState::Death;
 
-	mAccTime += DeltaTime();
+	//mAccTime += DeltaTime();
 
-	mEnemyMgr->RemoveAllAnimation();
-	mEnemyMgr->mController->SetValue("Death", true);
+	//mEnemyMgr->RemoveAllAnimation();
+	//mEnemyMgr->mController->SetValue("Death", true);
 
-	ExecuteCallback();
+	//ExecuteCallback();
 
-	if (mAccTime >= mRemoveTime) {
-		mObject->mObjectCB.HitRimFactor = 0.7f;
-		mObject->Destroy();
-	}
+	//if (mAccTime >= mRemoveTime) {
+	//	mObject->mObjectCB.HitRimFactor = 0.7f;
+	//	mObject->Destroy();
+	//}
 
 	return BT::NodeState::Success;
 }
 
 void CheckDeath::DeathEndCallback()
 {
-	mEnemyMgr->mController->GetCrntMotion()->SetSpeed(0.f);
+	//mEnemyMgr->mController->GetCrntMotion()->SetSpeed(0.f);
 }

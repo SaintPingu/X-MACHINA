@@ -409,9 +409,6 @@
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.h">
       <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
     </ClInclude>
-    <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingRemotePlayer.h">
-      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
-    </ClInclude>
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkPlayer.h">
       <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\player</Filter>
     </ClInclude>
@@ -685,9 +682,6 @@
       <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.cpp">
-      <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientNetwork\Contents\Script_NetworkShootingRemotePlayer.cpp">
       <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Player\Remote</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkPlayer.cpp">

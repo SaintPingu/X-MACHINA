@@ -107,7 +107,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230);
+	constexpr Vec3 kSpawnPoint = Vec3(100, 0, 230);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -555,7 +555,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		return;
 	}
 
-	GameObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
+	GridObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
 
 	// ��ũ��Ʈ �߰� //
 	switch (weaponName) {
@@ -589,7 +589,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 
 void Script_GroundPlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 {
-	GameObject* gameObject = weapon->GetObj()->GetObj<GameObject>();
+	GridObject* gameObject = weapon->GetObj()->GetObj<GridObject>();
 	SwitchWeapon(gameObject);
 	SetWeaponChild(gameObject);
 	gameObject->GetComponent<Script_Weapon>()->SetOwner(this);
@@ -1342,7 +1342,7 @@ void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon
 	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 }
 
-void Script_GroundPlayer::SwitchWeapon(GameObject* weapon)
+void Script_GroundPlayer::SwitchWeapon(GridObject* weapon)
 {
 	int weaponIdx = Script_Weapon::GetWeaponIdx(weapon->GetComponent<Script_Weapon>(true)->GetWeaponType());
 
@@ -1358,7 +1358,7 @@ void Script_GroundPlayer::SwitchWeapon(GameObject* weapon)
 	}
 }
 
-void Script_GroundPlayer::SetWeaponChild(GameObject* weapon)
+void Script_GroundPlayer::SetWeaponChild(GridObject* weapon)
 {
 	const auto& weaponScript = weapon->GetComponent<Script_Weapon>(true);
 

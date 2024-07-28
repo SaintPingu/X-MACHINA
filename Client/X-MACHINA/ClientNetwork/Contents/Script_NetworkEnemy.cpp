@@ -72,14 +72,16 @@ void Script_NetworkEnemy::SetTarget(Object* target)
 	}
 }
 
+EnemyState Script_NetworkEnemy::GetState()
+{
+	return mEnemyMgr->mState;
+}
+
 void Script_NetworkEnemy::MoveToTarget()
 {
 	if (!mEnemyMgr->mTarget) {
 		return;
 	}
-
-	mEnemyMgr->mController->SetValue("Attack", false);
-	mEnemyMgr->mController->SetValue("Walk", true);
 
 	// 허리 쪽부터 광선을 쏴야 맞는다.
 	Vec3 objectAdjPos = mObject->GetPosition() + mObject->GetUp() * 0.5f;
@@ -87,6 +89,10 @@ void Script_NetworkEnemy::MoveToTarget()
 
 	// 오브젝트로부터 타겟까지의 벡터
 	Vec3 toTarget = targetAdjPos - objectAdjPos;
+
+	if (toTarget.Length() < mEnemyMgr->mStat.AttackRange) {
+		return;
+	}
 
 	// 오브젝트로부터 타겟까지의 벡터
 	const float kMinDistance = 0.1f;
@@ -96,6 +102,9 @@ void Script_NetworkEnemy::MoveToTarget()
 		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.RotationSpeed);
 		mObject->Translate(mObject->GetLook(), mEnemyMgr->mStat.MoveSpeed * DeltaTime());
 	}
+
+	mEnemyMgr->mController->SetValue("Attack", false);
+	mEnemyMgr->mController->SetValue("Walk", true);
 }
 
 void Script_NetworkEnemy::Attack()

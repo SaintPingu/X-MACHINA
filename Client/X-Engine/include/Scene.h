@@ -46,6 +46,7 @@ public:
 	virtual void RenderText(RComPtr<struct ID2D1DeviceContext2> device);
 
 	virtual void ApplyDynamicContext() abstract;
+	virtual void RenderEnd() {}
 
 	virtual void UpdateShaderVars();
 	virtual void UpdateMainPassCB();

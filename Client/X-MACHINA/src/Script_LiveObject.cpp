@@ -17,6 +17,7 @@ void Script_LiveObject::Start()
 
 	mCrntHP = mMaxHP;
 	mPrevHP = mMaxHP;
+	mRemoveTime = 4.f;
 }
 
 void Script_LiveObject::Update()

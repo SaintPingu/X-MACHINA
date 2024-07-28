@@ -18,6 +18,7 @@ public:
 	void SetRotation(const Vec3& rot);
 	void SetState(EnemyState state);
 	void SetTarget(Object* target);
+	EnemyState GetState();
 
 public:
 	void MoveToTarget();

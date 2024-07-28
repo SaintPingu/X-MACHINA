@@ -143,6 +143,7 @@ public:
 	virtual void RenderForward() override;
 	virtual void RenderUI() override;
 	virtual void ApplyDynamicContext() override;
+	virtual void RenderEnd() override;
 	void RenderDynamicEnvironmentMappingObjects();
 
 	void RenderDeferredForServer();

@@ -14,15 +14,15 @@ void Script_PheroObject::Start()
 {
 	base::Start();
 	
-	//int level = 1;
-	//auto& enemyMgr = mObject->GetComponent<Script_EnemyManager>();
-	//if (enemyMgr) {
-	//	level = enemyMgr->mStat.PheroLevel;
-	//}
+	int level = 1;
+	auto& enemyMgr = mObject->GetComponent<Script_EnemyManager>();
+	if (enemyMgr) {
+		level = enemyMgr->mStat.PheroLevel;
+	}
 
-	//XLManager::I->Set(level, mStartStat);
+	XLManager::I->Set(level, mStartStat);
 
-	//GenerateRandomPheroCount();
+	GenerateRandomPheroCount();
 }
 
 void Script_PheroObject::OnDestroy()
@@ -36,21 +36,21 @@ void Script_PheroObject::OnDestroy()
 
 void Script_PheroObject::GenerateRandomPheroCount()
 {
-	//mLastStat.PheroCount = Math::RandInt(1, mStartStat.MaxPheroCount);
-	//mLastStat.LevelPerPDCs.resize(mStartStat.LevelPerPDRs.size());
+	mLastStat.PheroCount = Math::RandInt(1, mStartStat.MaxPheroCount);
+	mLastStat.LevelPerPDCs.resize(mStartStat.LevelPerPDRs.size());
 
-	//for (int i = 0; i < mLastStat.PheroCount; ++i) {
-	//	int randValue = Math::RandInt(0, 100);
-	//	float cumulativeProbability = 0.f;
+	for (int i = 0; i < mLastStat.PheroCount; ++i) {
+		int randValue = Math::RandInt(0, 100);
+		float cumulativeProbability = 0.f;
 
-	//	for (int j = 0; j < mStartStat.LevelPerPDRs.size(); ++j) {
-	//		cumulativeProbability += mStartStat.LevelPerPDRs[j];
-	//		if (randValue <= cumulativeProbability) {
-	//			mLastStat.LevelPerPDCs[j]++;
-	//			break;
-	//		}
-	//	}
-	//}
+		for (int j = 0; j < mStartStat.LevelPerPDRs.size(); ++j) {
+			cumulativeProbability += mStartStat.LevelPerPDRs[j];
+			if (randValue <= cumulativeProbability) {
+				mLastStat.LevelPerPDCs[j]++;
+				break;
+			}
+		}
+	}
 }
 
 void Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount)

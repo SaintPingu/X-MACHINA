@@ -151,3 +151,4 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 		break;
 	}
 }
+	

@@ -7,6 +7,7 @@
 
 class Script_Weapon;
 class Transform;
+class GridObject;
 class AnimatorController;
 class AnimatorMotion;
 
@@ -74,9 +75,9 @@ private:
 	float mParamV{};
 	float mParamH{};
 
-	std::unordered_map<WeaponName, GameObject*> mWeapons{};
-	std::unordered_map<GameObject*, sptr<Script_Weapon>> mWeaponScripts{};
-	GameObject* mCrntWeapon{};
+	std::unordered_map<WeaponName, GridObject*> mWeapons{};
+	std::unordered_map<GridObject*, sptr<Script_Weapon>> mWeaponScripts{};
+	GridObject* mCrntWeapon{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
@@ -87,6 +88,7 @@ private:
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
+	virtual void OnDestroy() override;
 	virtual void LateUpdate() override;
 	virtual void UpdateData(const void* data) override;
 

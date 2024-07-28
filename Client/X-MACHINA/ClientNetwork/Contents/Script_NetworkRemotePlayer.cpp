@@ -82,6 +82,16 @@ void Script_NetworkRemotePlayer::Update()
 	}
 }
 
+void Script_NetworkRemotePlayer::OnDestroy()
+{
+	base::OnDestroy();
+
+	for (auto& [weaponName, weapon] : mWeapons) {
+		weapon->mParent = nullptr;
+		BattleScene::I->RemoveDynamicObject(weapon);
+	}
+}
+
 void Script_NetworkRemotePlayer::LateUpdate()
 {
 	base::LateUpdate();

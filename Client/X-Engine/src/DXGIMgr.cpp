@@ -290,6 +290,8 @@ void DXGIMgr::RenderScene()
 	mSwapChain->Present(1, 0);
 
 	MoveToNextFrame();
+
+	mCrntScene->RenderEnd();
 }
 
 void DXGIMgr::RenderShadow()

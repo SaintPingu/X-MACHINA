@@ -31,6 +31,8 @@ struct NetSceneEventQueue
 };
 
 
+class GridObject;
+
 class ClientNetworkManager
 {
 	DECLARE_SINGLETON(ClientNetworkManager);
@@ -63,6 +65,8 @@ public:
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	std::string GetLocalIPv4Address();
 	GridObject* GetRemotePlayer(UINT32 id);
+
+	void EraseMonster(UINT32 id) { mRemoteMonsters.erase(id); }
 
 
 public:

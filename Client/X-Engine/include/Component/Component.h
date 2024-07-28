@@ -267,6 +267,14 @@ public:
 			});
 	}
 
+	void RemoveWholeComponents()
+	{
+		for (auto& component : mComponents) {
+			component->OnDestroy();
+		}
+		mComponents.clear();
+	}
+
 
 	// src 객체의 모든 component들을 복사해 추가한다.
 	void CopyComponents(const Object& src);

@@ -238,7 +238,6 @@
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkPlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.h" />
-    <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingRemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkWeapon.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
     <ClInclude Include="include\ChatBoxUI.h" />
@@ -328,7 +327,6 @@
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkPlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.cpp" />
-    <ClCompile Include="ClientNetwork\Contents\Script_NetworkShootingRemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkWeapon.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="Script_Rapax.cpp" />

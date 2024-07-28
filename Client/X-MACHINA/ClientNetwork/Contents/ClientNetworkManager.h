@@ -123,5 +123,8 @@ public:
 
 	long long GetCurrentTimeMilliseconds();
 	long long GetTimeStamp();
+
+	std::string GetServerIPFromtxt(const std::string& filePath);
+
 };
 

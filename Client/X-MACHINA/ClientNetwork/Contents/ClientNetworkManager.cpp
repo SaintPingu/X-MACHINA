@@ -114,8 +114,11 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 	wifi_Ipv4_wstr = L"127.0.0.1";
 #endif
 
-	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.15", 7777)) {
+	LOG_MGR->WCout("My IP : ", wifi_Ipv4_wstr, '\n');
+	std::string filePath = "ClientNetwork/ServerIP.txt";
+	std::string serverIP = GetServerIPFromtxt(filePath);
+	std::wstring WserverIP = std::wstring(serverIP.begin(), serverIP.end());
+	if (FALSE == mClientNetwork->Start(WserverIP, 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -633,6 +636,22 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::
 
 }
 
+std::string ClientNetworkManager::GetServerIPFromtxt(const std::string& filePath)
+{
+	std::ifstream file(filePath);
+
+	// 파일이 열리지 않으면 빈 문자열 반환
+	if (!file.is_open()) {
+		std::cerr << "파일을 열 수 없습니다: " << filePath << std::endl;
+		return "";
+	}
+
+	std::stringstream buffer;
+	buffer << file.rdbuf(); // 파일 내용을 버퍼에 저장
+
+	return buffer.str(); // 문자열 반환
+}
+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data)
 {
 	uint32_t	player_id	= data->id;
@@ -662,8 +681,6 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent:
 	int player_id								= data->id;
 	FBProtocol::PLAYER_SKILL_TYPE skill_type	= data->skill_type;
 	int mindControl_monster_id                  = data->mindControl_monster_id;
-
-
 
 	LOG_MGR->Cout(player_id, " OnSkill : ", static_cast<int>(skill_type), '\n');
 

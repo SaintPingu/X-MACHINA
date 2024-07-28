@@ -50,6 +50,11 @@ GameFramework::~GameFramework()
 
 void GameFramework::Init(HINSTANCE hInstance)
 {
+	std::string filePath = "ClientNetwork/ServerIP.txt";
+	std::string serverIP = CLIENT_NETWORK->GetServerIPFromtxt(filePath);
+	std::wstring WserverIP = std::wstring(serverIP.begin(), serverIP.end());
+
+
 	/* mhWnd 초기화 */
 	const short width = Engine::I->GetWindowWidth();
 	const short height = Engine::I->GetWindowHeight();

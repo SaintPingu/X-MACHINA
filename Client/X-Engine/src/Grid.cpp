@@ -181,7 +181,12 @@ void CollisionManager::CheckCollisionObjects(std::unordered_set<GridObject*> obj
 
 void CollisionManager::ProcessCollision(GridObject* objectA, GridObject* objectB)
 {
+	if (objectA->GetTag() == ObjectTag::Bound || objectB->GetTag() == ObjectTag::Bound) {
+		int a = 5;
+	}
+
 	if (ObjectCollider::Intersects(*objectA, *objectB)) {
+
 		if (!objectA->IsCollided(objectB)) {
 			objectA->OnCollisionEnter(*objectB);
 			objectB->OnCollisionEnter(*objectA);
@@ -207,7 +212,7 @@ Grid::Grid(int index, int width, int height, const BoundingBox& bb)
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::DissolveBuilding);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Enemy);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Building);
-	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::DissolveBuilding);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Bound);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Crate);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Item);
 }
@@ -227,6 +232,8 @@ void Grid::AddObject(GridObject* object)
 	if (mObjects.count(object)) {
 		return;
 	}
+
+
 
 	mObjects.insert(object);
 
@@ -251,8 +258,12 @@ void Grid::UpdateTiles(Tile tile, GridObject* object)
 	std::queue<Pos> q;
 	std::map<Pos, bool> visited;
 
+	const auto& collider = object->GetComponent<ObjectCollider>();
+	if (!collider) {
+		return;
+	}
 	// 오브젝트의 충돌 박스
-	for (const auto& collider : object->GetComponent<ObjectCollider>()->GetColliders()) {
+	for (const auto& collider : collider->GetColliders()) {
 		if (collider->GetType() != Collider::Type::Box) {
 			continue;
 		}

@@ -2,6 +2,7 @@
 #include "Script_Player.h"
 
 #include "Script_Bullet.h"
+#include "Script_GroundObject.h"
 #include "Script_AimController.h"
 #include "Script_MainCamera.h"
 #include "Script_Weapon.h"
@@ -76,6 +77,7 @@ void Script_GroundPlayer::Awake()
 	base::Awake();
 
 	// add scripts //
+	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('U', std::make_shared<MindControlAbility>());
@@ -107,7 +109,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(100, 0, 230);
+	constexpr Vec3 kSpawnPoint = Vec3(70, 0, 230);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -148,7 +150,7 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 	switch (other.GetTag())
 	{
 	case ObjectTag::Building:
-	case ObjectTag::DissolveBuilding:
+	case ObjectTag::Bound:
 		ComputeSlideVector(other);
 		break;
 	default:
@@ -159,7 +161,7 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 
 void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
-	if (mIsAim) {										// ���� ���¶��??, �÷��̾��� look���⿡ ���� �ٸ� �ٸ�(Legs) �ִϸ��̼��� ����Ѵ�??.
+	if (mIsAim) {										// ���� ���¶��??, �÷��̾��� look���⿡ ���� �ٸ� �ٸ�(Legs) �ִϸ��̼��� ����Ѵ�??.
 
 		const float rotAngleAbs = fabs(rotAngle);
 		// �̵� ���� //
@@ -171,7 +173,7 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 
 			// v, h�� ����, dir�� ũ�Ⱑ �׻� ���簢�� ������ �굵�� �Ѵ�.
 			// BlendTree�� �� ���� ���簢���� ���� ��ġ�� �ֱ� �����̴�.
-			// �Ʒ� �����?? ���� ������ ����Ȯ�� v, h���� ��������. (���� ���ڿ�������)
+			// �Ʒ� �����?? ���� ������ ����Ȯ�� v, h���� ��������. (���� ���ڿ�������)
 			{
 				float dirAngle = Vector3::SignedAngle(Vector3::Forward, rotatedMovementDir, Vector3::Up);
 
@@ -223,7 +225,7 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 bool Script_GroundPlayer::ProcessInput()
 {
 	if (!base::ProcessInput()) {
-		// TODO : �÷��̾� ���?? �ִϸ��̼� ����
+		// TODO : �÷��̾� ���?? �ִϸ��̼� ����
 		return false;
 	}
 
@@ -711,18 +713,18 @@ void Script_GroundPlayer::DropWeapon(int weaponIdx)
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
-	constexpr float kParamSpeed         = 6.f;		// �Ķ����?? ��ȯ �ӵ�
+	constexpr float kParamSpeed         = 6.f;		// �Ķ����?? ��ȯ �ӵ�
 	constexpr float kOppositeExtraSpeed = 8.f;		// �ݴ��� �̵� �� �߰� �̵� ��ȯ �ӵ�
 
-	int sign = Math::Sign(val);						// sign : �Ķ����?? �̵� ���� = ���� �Է°��� ��ȣ
-	if (Math::IsZero(val)) {						//		  �Է��� ���ٸ� ���� �Ķ������?? �ݴ� ��ȣ
+	int sign = Math::Sign(val);						// sign : �Ķ����?? �̵� ���� = ���� �Է°��� ��ȣ
+	if (Math::IsZero(val)) {						//		  �Է��� ���ٸ� ���� �Ķ������?? �ݴ� ��ȣ
 		if (Math::IsZero(param)) {
 			return;
 		}
 		sign = -Math::Sign(param);
 	}
 	float before = param;
-	param += (kParamSpeed * sign) * DeltaTime();	// �Ķ���Ͱ�?? ����
+	param += (kParamSpeed * sign) * DeltaTime();	// �Ķ���Ͱ�?? ����
 
 	if (!Math::IsZero(val)) {
 		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// �ݴ��� �̵� ��
@@ -731,7 +733,7 @@ void Script_GroundPlayer::UpdateParam(float val, float& param)
 		else if (fabs(param) >= fabs(before)) {						// ������ �̵� ��
 			param = std::clamp(param, -fabs(val), fabs(val));		// param�� val�� ���� ���ϵ��� �Ѵ�.
 
-			// �������� ���� && 0�� �����?? ���?? �ش� �Ķ���ʹ�?? �����Ѵ�.
+			// �������� ���� && 0�� �����?? ���?? �ش� �Ķ���ʹ�?? �����Ѵ�.
 			if (fabs(fabs(param) - fabs(before)) < 0.001f && fabs(param) < 0.1f) {								// 0�� �����ϸ� 0���� ����
 				param = 0.f;
 			}
@@ -819,7 +821,7 @@ float Script_GroundPlayer::GetAngleSpineToAim(const Vec3& aimWorldPos) const
 
 Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
 {
-	// aim���� �߻��?? �������� �ѱ��� y���� ��ġ�ϴ� ������ ã�´�.
+	// aim���� �߻��?? �������� �ѱ��� y���� ��ġ�ϴ� ������ ã�´�.
 	const Vec3 ray = MAIN_CAMERA->ScreenToWorldRay(aimScreenPos);
 	const Vec3 camPos = MAIN_CAMERA->GetPosition();
 	return Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y).xz();
@@ -903,7 +905,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		::IncreaseDelta(mAimingDeltaTime, kAimingSpeed);
 
 		const Vec3 aimWorldPos = GetAimWorldPos(aimScreenPos);
-		// ������ ���̶��??, �ѱ��� �ƴ� ô���� ���⿡ ���� ȸ������ ���Ѵ�.
+		// ������ ���̶��??, �ѱ��� �ƴ� ô���� ���⿡ ���� ȸ������ ���Ѵ�.
 		if (IsReloading()) {
 			// ���� ������ �����ϸ� [mReloadingDeltaTime]�� 1�� �� �� ���� ������ ȸ���Ѵ�.
 			if (::IncreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
@@ -988,7 +990,7 @@ void Script_GroundPlayer::OffAim()
 	mController->SetValue("Aim", false);
 	mIsAim = false;
 
-	// ���� ���� ȸ�����¿��ٸ� �̸� ����Ѵ�??.
+	// ���� ���� ȸ�����¿��ٸ� �̸� ����Ѵ�??.
 	if (mIsInBodyRotation) {
 		mIsInBodyRotation = false;
 
@@ -1019,8 +1021,8 @@ void Script_GroundPlayer::StopReload()
 
 void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState)
 {
-	// ���� ������ ���¿� �ٸ� ���?? ���� ������Ʈ �Ѵ�.
-	// ���� ���¸� ����ϰ�?? ���� ���·� ��ȯ�Ѵ�.
+	// ���� ������ ���¿� �ٸ� ���?? ���� ������Ʈ �Ѵ�.
+	// ���� ���¸� ����ϰ�?? ���� ���·� ��ȯ�Ѵ�.
 	if (!(crntState & prevState)) {
 		switch (prevState) {
 		case PlayerMotion::None:
@@ -1075,7 +1077,7 @@ void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMoti
 
 void Script_GroundPlayer::SetMotion(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState, PlayerMotion& crntMotion)
 {
-	// ���� ������ �����?? ����ϰ�?? ���� ������ �������?? ��ȯ�Ѵ�.
+	// ���� ������ �����?? ����ϰ�?? ���� ������ �������?? ��ȯ�Ѵ�.
 	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
 		switch (prevMotion) {
 		case PlayerMotion::None:
@@ -1157,8 +1159,8 @@ void Script_GroundPlayer::ChangeReloadCallback()
 	const auto& motion = mController->GetCrntMotion("Body");
 	float ratio = motion->GetLength() / motion->GetMaxLength();
 
-	// ���ε� ���� ���?? ���� �� 80%�̻� ����Ǿ��ٸ�?? ���� �Ϸ� ó��
-	// ���� ������ ������ ���?? ����
+	// ���ε� ���� ���?? ���� �� 80%�̻� ����Ǿ��ٸ�?? ���� �Ϸ� ó��
+	// ���� ������ ������ ���?? ����
 	constexpr float kAllowRatio = 0.8f;
 	if (ratio > kAllowRatio && IsReloading()) {
 		EndReload();
@@ -1198,7 +1200,7 @@ void Script_GroundPlayer::RecoverRecoil()
 
 void Script_GroundPlayer::MoveCamera(Dir dir)
 {
-	// ���� �����̸�, ���콺�� ��ġ�� ���?? �������?? ���� [offset_t]�� ũ�� �����Ѵ�. (�ִ� 1)
+	// ���� �����̸�, ���콺�� ��ġ�� ���?? �������?? ���� [offset_t]�� ũ�� �����Ѵ�. (�ִ� 1)
 	if (mIsAim) {
 		const Vec2 mousePos = InputMgr::I->GetMousePos() * 2.f;
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
@@ -1240,14 +1242,14 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	// �㸮 �ʺ��� �̵� ������ ���ϴ� ����
 	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, Vector3::Normalized(mDirVec) };
 
-	//// ���� �浹ü�� ���� �浹ü�� �ٸ� ���??
+	//// ���� �浹ü�� ���� �浹ü�� �ٸ� ���??
 	//if (prevOther != nullptr) {
 	//	if (prevOther->GetID() != other.GetID()) {
-	//		// �������κ��� �� �浹ü�� �Ÿ��� ���??
+	//		// �������κ��� �� �浹ü�� �Ÿ��� ���??
 	//		float crntDist = Vec3::Distance(ray.Position, other.GetPosition());
 	//		float prevDist = Vec3::Distance(ray.Position, prevOther->GetPosition());
 
-	//		// ���� �浹ü������ �Ÿ��� �� �� ���?? ���� �����̵� ���͸� ���??
+	//		// ���� �浹ü������ �Ÿ��� �� �� ���?? ���� �����̵� ���͸� ���??
 	//		if (crntDist > prevDist) {
 	//			mSlideVec = prevSlideVec;
 	//			return;
@@ -1258,7 +1260,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	float dist{};
 	float minDist{ 999.f };
 
-	// �ּ� �Ÿ��� ���� ��쿡��?? ����
+	// �ּ� �Ÿ��� ���� ��쿡��?? ����
 	sptr<Collider> box{};
 	for (const auto& collider : other.GetComponent<ObjectCollider>()->GetColliders()) {
 		if (collider->GetType() != Collider::Type::Box) {
@@ -1337,7 +1339,7 @@ void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon
 	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 	// motion speed
-	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
+	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
 	const float fireDelay = weapon->GetFireDelay();
 	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 }

@@ -34,6 +34,8 @@ private:
 	void InitCustomObjectScripts();
 
 	void ProcessSceneObjectScript(sptr<Object> object);
+
+	void WriteBounds(rsptr<Object> object);
 };
 
 #pragma endregion

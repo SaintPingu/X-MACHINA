@@ -194,11 +194,15 @@ public:
 	// 부모의 world transform과 내 local transform을 곱해 내 world transform을 계산한다.
 	void ComputeWorldTransform(const Matrix* parentTransform = nullptr);
 
+	std::vector<Transform*> GetAllTransforms();
+
 private:
 	// set axis vectors from local transform
 	void UpdateAxis(bool isComputeWorldTransform = true);
 	// set local transform from axis vectors
 	void UpdateLocalTransform(bool isComputeWorldTransform = true);
+
+	void GetAllTransforms(std::vector<Transform*>& out, Transform* current);
 
 public:
 #pragma endregion

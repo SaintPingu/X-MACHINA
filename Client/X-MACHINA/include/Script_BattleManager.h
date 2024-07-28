@@ -7,7 +7,6 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
 class GameObject;
 class Script_MainCamera;
 #pragma endregion

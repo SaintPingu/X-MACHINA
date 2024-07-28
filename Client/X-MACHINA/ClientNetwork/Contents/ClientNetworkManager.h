@@ -65,6 +65,7 @@ public:
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	std::string GetLocalIPv4Address();
 	GridObject* GetRemotePlayer(UINT32 id);
+	const auto& GetRemotePlayers() const { return mRemotePlayers; }
 
 	void EraseMonster(UINT32 id) { mRemoteMonsters.erase(id); }
 

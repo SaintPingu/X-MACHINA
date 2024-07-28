@@ -11,6 +11,8 @@
 
 #include "Script_Player.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 void Script_Phero::Start()
 {
 	GameObject* object = dynamic_cast<GameObject*>(mObject);
@@ -111,7 +113,18 @@ void Script_Phero::FloatGently()
 
 bool Script_Phero::CheckPlayerRange()
 {
-	GridObject* target = GameFramework::I->GetPlayer();
+	const Vec3& pos = mObject->GetPosition();
+
+	float min = FLT_MAX;
+	GridObject* target = nullptr;
+	for (const auto& [id, player] : CLIENT_NETWORK->GetRemotePlayers()) {
+		float dist = Vec3::Distance(pos, player->GetPosition());
+		if (dist < min) {
+			min = dist;
+			target = player;
+		}
+	}
+
 	if (!target) {
 		return false;
 	}

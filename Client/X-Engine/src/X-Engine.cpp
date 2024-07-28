@@ -61,11 +61,11 @@ void Engine::Release()
 void Engine::Update()
 {
 	DXGIMgr::I->Update();
+	SoundMgr::I->Update();
 
 	mCrntScene->Update();
 
 	InputMgr::I->Update();
-	SoundMgr::I->Update();
 
 	if (mIsChangeScene) {
 		LoadScene();

@@ -22,6 +22,8 @@ private:
 	std::string mDeathSound{};
 	std::string mDetectSound{};
 
+	bool mNoTarget{ true };
+
 protected:
 	sptr<Script_EnemyManager>  mEnemyMgr{};
 
@@ -33,6 +35,7 @@ public:
 	virtual void Attack();
 	virtual void Death();
 	virtual void Dead() override;
+	virtual void Detect();
 	virtual bool Hit(float damage, Object* instigator = nullptr) override;
 
 public:

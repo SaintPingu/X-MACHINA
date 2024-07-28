@@ -165,7 +165,6 @@ private:
 	Vec3 mSlideVec{};
 
 	// others
-	GameObject* mLaserPointer{};
 	bool mIsInteracted{};
 
 	// For Network

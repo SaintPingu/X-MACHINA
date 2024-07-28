@@ -14,5 +14,6 @@ void Script_Arack::Awake()
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Arack::AttackCallback, this), 13);
 
 	SetAttackSound("Arack Attack");
+	SetDetectSound("Arack Detect");
 	SetDeathSound("Arack Death");
 }

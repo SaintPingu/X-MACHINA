@@ -21,6 +21,7 @@ void Script_Enemy::Awake()
 	base::Awake();
 
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
+	mEnemyMgr->mEnemy = this;
 	mObject->AddComponent<Script_GroundObject>();
 	mObject->AddComponent<Script_PheroObject>();
 #ifndef SERVER_COMMUNICATION
@@ -46,6 +47,18 @@ void Script_Enemy::Update()
 	base::Update();
 
 	mObject->mObjectCB.HitRimFactor = max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
+
+	if (mNoTarget) {
+		if (mEnemyMgr->mTarget) {
+			mNoTarget = false;
+			Detect();
+		}
+	}
+	else {
+		if (!mEnemyMgr->mTarget) {
+			mNoTarget = true;
+		}
+	}
 }
 
 void Script_Enemy::Attack()
@@ -63,6 +76,13 @@ void Script_Enemy::Dead()
 	base::Dead();
 
 	SoundMgr::I->Play("Enemy", mDeathSound);
+}
+
+void Script_Enemy::Detect()
+{
+	if (mDetectSound != "") {
+		SoundMgr::I->Play("Enemy", mDetectSound);
+	}
 }
 
 
@@ -97,7 +117,9 @@ void Script_Enemy::AttackCallback()
 			liveObject->Hit(mEnemyMgr->mStat.AttackRate, mObject);
 		}
 
-		SoundMgr::I->Play("Enemy", mAttackSound);
+		if (mAttackSound != "") {
+			SoundMgr::I->Play("Enemy", mAttackSound);
+		}
 	}
 }
 

@@ -13,4 +13,7 @@ void Script_Anglerox::Awake()
 
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Anglerox::AttackCallback, this), 10);
 	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_Anglerox::AttackCallback, this), 32);
+
+	SetDetectSound("Anglerox Detect");
+	SetAttackSound("Anglerox Attack");
 }

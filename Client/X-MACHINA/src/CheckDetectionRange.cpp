@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "AnimatorController.h"
 
+#include "Script_Enemy.h"
 #include "Script_EnemyManager.h"
 #include "Script_AbilityHolder.h"
 #include "CloakingAbility.h"

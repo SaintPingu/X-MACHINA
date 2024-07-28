@@ -102,7 +102,6 @@ void Script_GroundPlayer::Awake()
 	// weapons //
 	mWeapons.resize(3);
 	AquireNewWeapon(WeaponName::H_Lock);
-	mLaserPointer = BattleScene::I->Instantiate("LaserPointer", ObjectTag::Unspecified, ObjectLayer::Default, false);
 }
 
 void Script_GroundPlayer::Start()
@@ -654,10 +653,6 @@ void Script_GroundPlayer::DrawWeaponCallback()
 		auto motion = mReloadMotions[static_cast<int>(mWeaponScript->GetWeaponName())];
 		SetMotionSpeed(motion, mWeaponScript->GetReloadTime());
 	}
-
-	if (mMuzzle && mLaserPointer) {
-		mMuzzle->SetChild(mLaserPointer->GetShared());
-	}
 }
 
 void Script_GroundPlayer::DrawWeaponEndCallback()
@@ -989,10 +984,6 @@ void Script_GroundPlayer::OnAim()
 	SoundMgr::I->Play("Gun", "OnAim");
 	mController->SetValue("Aim", true);
 	mIsAim = true;
-
-	if (mLaserPointer) {
-		mLaserPointer->SetActive(true);
-	}
 }
 
 void Script_GroundPlayer::OffAim()
@@ -1008,10 +999,6 @@ void Script_GroundPlayer::OffAim()
 		if (prevMotion == PlayerMotion::None) {
 			mController->SetValue("Walk", false);
 		}
-	}
-
-	if (mLaserPointer) {
-		mLaserPointer->SetActive(false);
 	}
 }
 

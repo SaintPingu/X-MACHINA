@@ -18,7 +18,7 @@ void Script_LobbyUI::Start()
 	// Panels
 	{
 		const auto& top = Canvas::I->CreateUI<UI>(0, "Logo", Vec2(-800, 450));
-		const auto& bottm = Canvas::I->CreateUI<UI>(0, "BottomPanel", Vec2(0, -470));
+		const auto& bottm = Canvas::I->CreateUI<UI>(0, "BottomPanel", Vec2(0, -480));
 	}
 
 	// Buttons

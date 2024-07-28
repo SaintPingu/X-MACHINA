@@ -39,6 +39,7 @@ public:
 
 public:
 	void Play(const std::string& channelName, const std::string& soundName, float volume = 1.0f, bool isStopBefore = false);
+	void PlayNoChannel(const std::string& channelName, const std::string& soundName);
 	void Stop(const std::string& channelName);
 
 private:

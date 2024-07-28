@@ -21,6 +21,7 @@ private:
 	InstObject*		mGameObject{};	// self GameObject
 	const Object*	mOwner{};		// 총알을 발사한 객체 (자신은 충돌하지 않도록 한다)
 	sptr<Rigidbody> mRigid{};
+	std::string		mImpactSound{};
 
 	std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames;
 	std::array<std::queue<ParticleSystem*>, BulletPSTypeCount> mPSs;
@@ -38,6 +39,7 @@ public:
 	void SetOwner(const Object* object) { mOwner = object; }
 	void SetLifeTime(float lifeTIme) { mMaxLifeTime = lifeTIme; }
 	void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
+	void SetImpactSound(const std::string& sound) { mImpactSound = sound; }
 
 public:
 	virtual void Update() override;

@@ -17,6 +17,7 @@ void Script_Weapon_Pistol::InitValues()
 	mBulletCntPerMag  = 15;
 	mMaxMag           = 8;
 	SetFireSound("H_Lock Fire");
+	SetReloadSound("H_Lock Reload");
 }
 
 void Script_Weapon_Pistol::BulletInitFunc(rsptr<InstObject> bullet) const

@@ -54,6 +54,7 @@ void Script_Weapon_DBMS::InitValues()
 	mErrY = Vec2(-10.f, 6.f);
 
 	SetFireSound("DBMS Fire");
+	SetReloadSound("DBMS Reload");
 }
 
 void Script_Weapon_DBMS::BulletInitFunc(rsptr<InstObject> bullet) const

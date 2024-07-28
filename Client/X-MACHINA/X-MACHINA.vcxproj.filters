@@ -427,6 +427,9 @@
     <ClInclude Include="include\Script_Ursacetus.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_FootStepSound.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -701,6 +704,9 @@
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkBulletWeapon.cpp">
       <Filter>ClientNetwork\Network\NetworkScript\Network LiveObject\Network Bullet Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_FootStepSound.cpp">
+      <Filter>Script\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

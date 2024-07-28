@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "Timer.h"
 #include "BattleScene.h"
+#include "SoundMgr.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
@@ -105,6 +106,10 @@ void Script_Bullet::Explode()
 
 	mRigid->Stop();
 	mGameObject->Return();
+
+	if (mImpactSound != "") {
+		SoundMgr::I->Play("Effect", mImpactSound);
+	}
 }
 
 void Script_Bullet::PlayPSs(BulletPSType type)

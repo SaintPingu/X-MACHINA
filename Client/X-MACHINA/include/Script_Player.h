@@ -256,6 +256,7 @@ private:
 	void ChangeReloadCallback();
 	void EndReloadCallback();
 	void BoltActionCallback();
+	void BoltActionSoundCallback();
 
 	void ResetAimingTime() { mAimingDeltaTime = 0.f; }
 	void RecoverRecoil();

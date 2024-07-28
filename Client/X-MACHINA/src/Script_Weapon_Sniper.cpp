@@ -17,6 +17,8 @@ void Script_Weapon_PipeLine::InitValues()
 	mMaxDistance      = 60.f;
 	mBulletCntPerMag  = 5;
 	mMaxMag           = 5;
+
+	SetFireSound("PipeLine Fire");
 }
 
 void Script_Weapon_PipeLine::BulletInitFunc(rsptr<InstObject> bullet) const

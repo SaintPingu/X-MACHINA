@@ -118,6 +118,10 @@ bool Script_Weapon::InitReload()
 
 void Script_Weapon::StartReload()
 {
+	if (IsReloading()) {
+		return;
+	}
+
 	InitReload();
 
 	if (mOwner) {
@@ -246,6 +250,9 @@ void Script_BulletWeapon::FireBullet()
 
 void Script_BulletWeapon::StartReload()
 {
+	if (IsReloading()) {
+		return;
+	}
 	base::StartReload();
 
 	if (mReloadSound != "") {
@@ -259,6 +266,15 @@ void Script_BulletWeapon::StopReload()
 
 	if (mReloadSound != "") {
 		SoundMgr::I->Stop("Reload");
+	}
+}
+
+void Script_BulletWeapon::EndReload()
+{
+	base::EndReload();
+
+	if (mEndReloadSound != "") {
+		SoundMgr::I->PlayNoChannel("Reload", mEndReloadSound);
 	}
 }
 

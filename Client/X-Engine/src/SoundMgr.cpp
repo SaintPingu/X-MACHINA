@@ -95,6 +95,20 @@ void SoundMgr::Play(const std::string& channelName, const std::string& soundName
 	FMOD_Channel_SetVolume(channel, volume);
 }
 
+void SoundMgr::PlayNoChannel(const std::string& channelName, const std::string& soundName)
+{
+	if (!CheckChannelName(channelName)) {
+		return;
+	}
+	const std::string soundPath = channelName + "/" + soundName;
+	if (!CheckSoundName(soundPath)) {
+		return;
+	}
+
+	auto& sound = mSoundList[soundPath];
+	FMOD_System_PlaySound(mSoundSystem, sound, 0, false, nullptr);
+}
+
 void SoundMgr::Stop(const std::string& channelName)
 {
 	if (!CheckChannelName(channelName)) {

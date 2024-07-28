@@ -12,6 +12,7 @@
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_AbilityHolder.h"
 #include "Script_Item.h"
+#include "Script_FootStepSound.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -21,6 +22,7 @@
 #include "Object.h"
 #include "ObjectPool.h"
 #include "InputMgr.h"
+#include "SoundMgr.h"
 #include "Timer.h"
 #include "Animator.h"
 #include "AnimationClip.h"
@@ -80,7 +82,8 @@ void Script_GroundPlayer::Awake()
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
 	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('U', std::make_shared<MindControlAbility>());
 	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility('I', std::make_shared<CloakingAbility>());
-	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility(VK_TAB, std::make_shared<MinimapAbility>());
+	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility('I', std::make_shared<CloakingAbility>());
+	mObject->AddComponent<Script_FootStepSound>();
 
 	// values //
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");
@@ -462,11 +465,13 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	// bolt action sniper �ʱ�ȭ
 	{
 		const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
+		const std::function<void()> boltActionSoundCallback = std::bind(&Script_GroundPlayer::BoltActionSoundCallback, this);
 		const auto& boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 		// callback
 		boltActionMotion->AddEndCallback(boltActionCallback);
 		boltActionMotion->AddChangeCallback(boltActionCallback);
+		boltActionMotion->AddCallback(boltActionSoundCallback, 20);
 	}
 
 	
@@ -1006,7 +1011,7 @@ bool Script_GroundPlayer::Reload()
 	}
 
 	StartReload();
-
+	
 	return true;
 }
 
@@ -1187,6 +1192,11 @@ void Script_GroundPlayer::BoltActionCallback()
 			mWeapon->SetLocalTransform(Matrix::Identity);
 		}
 	}
+}
+
+void Script_GroundPlayer::BoltActionSoundCallback()
+{
+	SoundMgr::I->Play("Reload", "PipeLine BoltAction");
 }
 
 void Script_GroundPlayer::RecoverRecoil()

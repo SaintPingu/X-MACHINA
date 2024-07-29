@@ -713,6 +713,10 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monster->SetPosition(monInfos[i].Pos);
 		monster->SetLocalRotation(monInfos[i].Rot);
 
+		if (mRemoteMonsters[ID]->GetObj()->GetName() == "Ursacetus" || mRemoteMonsters[ID]->GetObj()->GetName() == "MiningMech") {
+			continue;
+		}
+
 		switch (monInfos[i].Type) {
 		case FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5:
 			monster->AddComponent<Script_AdvancedCombatDroid_5>();

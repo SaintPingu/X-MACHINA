@@ -150,7 +150,7 @@ void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
 
 	InputMgr::I->UpdateClient();
 
-	//ChangeSwapChainState();
+	ChangeSwapChainState();
 }
 
 void DXGIMgr::Release()

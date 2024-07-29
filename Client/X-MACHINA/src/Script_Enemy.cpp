@@ -114,7 +114,7 @@ void Script_Enemy::Detect()
 
 bool Script_Enemy::Hit(float damage, Object* instigator)
 {
-	bool res = base::Hit(damage, instigator);
+	bool res = base::Hit(damage * 2.0f, instigator);
 
 	mObject->mObjectCB.HitRimFactor = 0.7f;
 	

@@ -13,6 +13,8 @@
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
 
+#include "Script_DefaultEnemyBT.h"
+
 
 void Script_MiningMech::Awake()
 {
@@ -32,6 +34,8 @@ void Script_MiningMech::Start()
 
 	mRectangleIndicator = mObject->AddComponent<Script_StateAbilityHolder>();
 	mRectangleIndicator.lock()->SetAbility(0, std::make_shared<AttackIndicator>(1.8f, "RectangleIndicator"));
+
+	mObject->AddComponent<Script_DefaultEnemyBT>();
 }
 
 void Script_MiningMech::LateUpdate()

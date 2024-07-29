@@ -115,7 +115,7 @@ void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
 #endif
 
 	LOG_MGR->WCout(wifi_Ipv4_wstr, '\n');
-	if (FALSE == mClientNetwork->Start(L"192.168.0.15", 7777)) {
+	if (FALSE == mClientNetwork->Start(L"192.168.0.17", 7777)) {
 		LOG_MGR->Cout("CLIENT NETWORK SERVICE START FAIL\n");
 		return;
 	}
@@ -707,8 +707,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			
 			
 		std::string monsterName = MonsterTypeNames[monInfos[i].Type];
-		
-
 		GridObject* monster = BattleScene::I->Instantiate(monsterName, ObjectTag::Enemy);
 		monster->SetID(monInfos[i].Id);
 		monster->SetName(monsterName);
@@ -804,6 +802,10 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 			continue;
 
 		if (mRemoteMonsters[ID]->GetState() == EnemyState::Death) {
+			continue;
+		}
+
+		if (mRemoteMonsters[ID]->GetObj()->GetName() == "Ursacetus" || mRemoteMonsters[ID]->GetObj()->GetName() == "MiningMech") {
 			continue;
 		}
 

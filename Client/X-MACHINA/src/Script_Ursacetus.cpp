@@ -4,6 +4,7 @@
 #include "Script_EnemyManager.h"
 #include "Script_MainCamera.h"
 #include "Script_PheroObject.h"
+#include "Script_DefaultEnemyBT.h"
 
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
@@ -47,6 +48,8 @@ void Script_Ursacetus::Start()
 
 	mCircleIndicator = mObject->AddComponent<Script_StateAbilityHolder>();
 	mCircleIndicator.lock()->SetAbility(0, std::make_shared<AttackIndicator>(2.05f, "CircleIndicator"));
+
+	mObject->AddComponent<Script_DefaultEnemyBT>();
 }
 
 void Script_Ursacetus::Update()

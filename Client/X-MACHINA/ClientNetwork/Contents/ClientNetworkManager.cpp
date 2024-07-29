@@ -713,7 +713,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monster->SetPosition(monInfos[i].Pos);
 		monster->SetLocalRotation(monInfos[i].Rot);
 
-		if (mRemoteMonsters[ID]->GetObj()->GetName() == "Ursacetus" || mRemoteMonsters[ID]->GetObj()->GetName() == "MiningMech") {
+		if (mRemoteMonsters[monsterID]->GetObj()->GetName() == "Ursacetus" || mRemoteMonsters[monsterID]->GetObj()->GetName() == "MiningMech") {
 			continue;
 		}
 

@@ -713,10 +713,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		monster->SetPosition(monInfos[i].Pos);
 		monster->SetLocalRotation(monInfos[i].Rot);
 
-		if (mRemoteMonsters[monsterID]->GetObj()->GetName() == "Ursacetus" || mRemoteMonsters[monsterID]->GetObj()->GetName() == "MiningMech") {
-			continue;
-		}
-
+	
 		switch (monInfos[i].Type) {
 		case FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5:
 			monster->AddComponent<Script_AdvancedCombatDroid_5>();
@@ -765,8 +762,13 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			enemyNetwork->SetTarget(mRemotePlayers[monInfos[i].Target_Player_Id]);
 		}
 
-		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
+	
 
+		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
+		if (mRemoteMonsters[monsterID]->GetObj()->GetName() == "Ursacetus" || mRemoteMonsters[monsterID]->GetObj()->GetName() == "MiningMech") {
+			mRemoteMonsters.erase(monsterID);
+			continue;
+		}
 		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
 	}
 	

@@ -25,6 +25,12 @@ void Script_NetworkPlayer::Awake()
 	SetClientCallback_ChangeAnimation();
 }
 
+void Script_NetworkPlayer::Start()
+{
+	base::Start();
+	mPlayer = mObject->GetComponent<Script_GroundPlayer>().get();
+}
+
 void Script_NetworkPlayer::LateUpdate()
 {
 	base::LateUpdate();
@@ -66,7 +72,7 @@ void Script_NetworkPlayer::DoInput_Move()
 		bKeyEvent = true;
 
 		mMoveDir_Key_Pressed = GetMoveDirection_Key_Pressed();
-		mMovementSpeed       = mkRunSpeed;
+		mMovementSpeed = mPlayer->GetMovementSpeed();
 		/// +--------------------------------------------------------------------------------------------------------------------
 		///	♣ 이동방향이 바뀌었다면 즉시 패킷을 보낸다. 
 		/// _____________________________________________________________________________________________________________________
@@ -140,26 +146,11 @@ void Script_NetworkPlayer::DoInput_Move()
 void Script_NetworkPlayer::DoInput_Mouse()
 {
 	if (KEY_PRESSED(VK_RBUTTON)) {
-		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
-
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
-			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
-		{
-			
-			float spineYAngle = Vector3::SignedAngle(Vector3::Forward, mSpineBone->GetUp().xz(), Vector3::Up);
-			Send_CPkt_AimRotation_Player(mObject->GetYAngle(), spineYAngle);
-			mMouseTimePoint_latest = currentTime;
-		}
+		float spineYAngle = Vector3::SignedAngle(Vector3::Forward, mSpineBone->GetUp().xz(), Vector3::Up);
+		Send_CPkt_AimRotation_Player(mObject->GetYAngle(), spineYAngle);
 	}
 	if (KEY_AWAY(VK_RBUTTON)) {
-		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
-
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
-			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
-		{
-			Send_CPkt_AimRotation_Player(-99999.f, 0.f);
-			mMouseTimePoint_latest = currentTime;
-		}
+		Send_CPkt_AimRotation_Player(-99999.f, 0.f);
 	}
 }
 

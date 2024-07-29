@@ -322,7 +322,7 @@ float Script_NetworkRemotePlayer::GetYAngleFromQuaternion(const Vec4& rotationQu
 
 void Script_NetworkRemotePlayer::RotateTo(float yAngle, float ySpineAngle)
 {
-	if (yAngle < -10000) {
+	if (yAngle < -1000) {
 		mIsAim = false;
 		mSpineAngle = 0.f;
 		return;

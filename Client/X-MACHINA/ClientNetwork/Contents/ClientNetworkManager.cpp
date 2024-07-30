@@ -712,6 +712,16 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		if (mRemoteMonsters.count(monsterID)){
 			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
 			mRemoteMonsters[monsterID]->SetState(monBtType);
+			mRemoteMonsters[monsterID]->SetPosition(position);
+			mRemoteMonsters[monsterID]->SetLocalRotation(Rotation);
+
+			if (monInfos[i].Target_Player_Id == 0) {
+				mRemoteMonsters[monsterID]->SetTarget(nullptr);
+			}
+			else {
+				mRemoteMonsters[monsterID]->SetTarget(mRemotePlayers[monInfos[i].Target_Player_Id]);
+			}
+
 			return;
 		}
 
@@ -817,7 +827,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
-		mRemoteMonsters[ID]->SetPostion(Pos);
+		mRemoteMonsters[ID]->SetPosition(Pos);
 		mRemoteMonsters[ID]->SetRotation(Angle);
 		mRemoteMonsters[ID]->SetTarget(nullptr);
 		mRemoteMonsters[ID]->SetState(EnemyState::Idle);

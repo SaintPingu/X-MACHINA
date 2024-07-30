@@ -24,7 +24,7 @@ void Script_NetworkEnemy::Update()
 		Attack();
 }
 
-void Script_NetworkEnemy::SetPostion(const Vec3& pos)
+void Script_NetworkEnemy::SetPosition(const Vec3& pos)
 {
 	mObject->SetPosition(pos);
 }
@@ -33,6 +33,11 @@ void Script_NetworkEnemy::SetRotation(float angle)
 {
 	mObject->SetLocalRotation(Quat::Identity);
 	mObject->Rotate(Vector3::Up, angle);
+}
+
+void Script_NetworkEnemy::SetLocalRotation(const Quat& quat)
+{
+	mObject->SetLocalRotation(quat);
 }
 
 void Script_NetworkEnemy::SetState(EnemyState state)

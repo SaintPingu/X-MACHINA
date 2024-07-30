@@ -15,8 +15,9 @@ public:
 	virtual void Update() override;
 
 public:
-	void SetPostion(const Vec3& pos);
+	void SetPosition(const Vec3& pos);
 	void SetRotation(float angle);
+	void SetLocalRotation(const Quat& quat);
 	void SetState(EnemyState state);
 	void SetState(FBProtocol::MONSTER_BT_TYPE btType);
 	void SetTarget(Object* target);

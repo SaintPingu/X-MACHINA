@@ -101,6 +101,8 @@ void ChatBoxUI::Update()
 
 void ChatBoxUI::AddChat(const std::string& chat, const std::string& name)
 {
+	mLastChatIdx = mTotalText.size() - mEditingText.size();
+
 	std::string res = '[' + name + "] " + chat + '\n';
 	mTotalText.insert(mLastChatIdx, StringToWstring(res));
 	mCurrChatCnt++;

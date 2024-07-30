@@ -9,15 +9,19 @@
 
 void Script_NetworkEnemy::Awake()
 {
+	base::Awake();
+
 	mEnemyMgr = mObject->GetComponent<Script_EnemyManager>().get();
 }
 
 void Script_NetworkEnemy::Update()
 {
-	if (mEnemyMgr->mState == EnemyState::MoveToTarget)
-		MoveToTarget();
-	if (mEnemyMgr->mState == EnemyState::Attack)
-		Attack();
+	base::Update();
+
+	//if (mEnemyMgr->mState == EnemyState::MoveToTarget)
+	//	//MoveToTarget();
+	//if (mEnemyMgr->mState == EnemyState::Attack)
+	//	Attack();
 }
 
 void Script_NetworkEnemy::SetPostion(const Vec3& pos)

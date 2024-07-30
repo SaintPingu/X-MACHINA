@@ -34,9 +34,9 @@ table Phero {
 // ------------------------+
 table Monster{
 	id					:  uint; 
-	type				:  MONSTER_TYPE; // UINT8
-	pos					:  Position_Vec2;
-
+	type				:  MONSTER_TYPE;		// UINT8
+	pos_2				:  Position_Vec2;
+	rot_y				:  float;				// y
 	pheros				:  string; // "123456" --> "123" , "456" -> 1 : Phero Level , 23 : pheroOffsetIndex, (0 : id) ... 456 (1 : id) :: id( = order of decode string )
 	
 	target_player_id	: int;

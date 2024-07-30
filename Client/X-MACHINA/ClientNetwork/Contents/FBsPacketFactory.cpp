@@ -1149,10 +1149,12 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 {
 	GameMonsterInfo info = {};
 
-	info.Id		       = monster->id();
-	info.Type	       = monster->type();
-	info.Pos		   = GetPosition_Vec2(monster->pos());
-	std::string pheros = monster->pheros()->c_str();
+	info.Id		        = monster->id();
+	info.Type	        = monster->type();
+	info.Pos		    = GetPosition_Vec2(monster->pos_2());
+	float rot_y			= monster->rot_y();
+	info.Rot			= GetRot_y(rot_y);
+	std::string pheros  = monster->pheros()->c_str();
 	info.InitPheros(pheros);
 
 	info.Target_Player_Id = monster->target_player_id();
@@ -1179,6 +1181,12 @@ Vec3 FBsPacketFactory::GetPosition_Vec2(const FBProtocol::Position_Vec2* vec2)
 {
 	Vec3 Position_xz = Vec3(vec2->x(), 0.f, vec2->z());
 	return Position_xz;
+}
+
+Vec4 FBsPacketFactory::GetRot_y(const float rot_y)
+{
+	Vec4 Rotation = Quaternion::ToQuaternion(Vec3(0, rot_y, 0));
+	return Rotation;
 }
 
 

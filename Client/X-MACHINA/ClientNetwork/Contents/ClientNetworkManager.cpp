@@ -703,7 +703,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		std::vector<PheroInfo>		pheros		= monInfos[i].mPheros;
 		std::string					name		= monInfos[i].Name;
 		Vec3						position	= monInfos[i].Pos;
-		Vec3						Rotation	= monInfos[i].Rot;
+		Vec4						Rotation	= monInfos[i].Rot;
 		Vec3						SpineDir	= monInfos[i].SDir;
 		
 
@@ -806,9 +806,10 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
-		//LOG_MGR->Cout(ID, " : ", Pos.x, " ", Pos.y, " ", Pos.z, "\n");
-		//mRemoteMonsters[ID]->SetPostion(Pos);
-		//mRemoteMonsters[ID]->SetRotation(Rot);
+		mRemoteMonsters[ID]->SetPostion(Pos);
+		mRemoteMonsters[ID]->SetRotation(Rot);
+		Vec3 r = Quaternion::ToEuler(mRemoteMonsters[ID]->GetObj()->GetLocalRotation());
+		LOG_MGR->Cout(ID, " Rot : ", r.x, " ", r.y, " ", r.z, "\n");
 	}
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data)
@@ -833,8 +834,11 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 		case FBProtocol::MONSTER_BT_TYPE_DEATH:
 			mRemoteMonsters[ID]->SetState(EnemyState::Death);
 			break;
-		case FBProtocol::MONSTER_BT_TYPE_ATTACK:
+		case FBProtocol::MONSTER_BT_TYPE_ATTACK_1:
 			mRemoteMonsters[ID]->SetState(EnemyState::Attack);
+			break;
+		case FBProtocol::MONSTER_BT_TYPE_ATTACK_2:
+		case FBProtocol::MONSTER_BT_TYPE_ATTACK_3:
 			break;
 		case FBProtocol::MONSTER_BT_TYPE_GETHIT:
 			mRemoteMonsters[ID]->SetState(EnemyState::GetHit);

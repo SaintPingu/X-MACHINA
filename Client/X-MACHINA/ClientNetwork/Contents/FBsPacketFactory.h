@@ -125,6 +125,7 @@ private:
 	static Vec3 GetVector3(const FBProtocol::Vector3* vec3);
 	static Vec4 GetVector4(const FBProtocol::Vector4* vec4);
 	static Vec3 GetPosition_Vec2(const FBProtocol::Position_Vec2* vec2);
+	static Vec4 GetRot_y(const float rot_y);
 
 
 	static Vec3 CalculateDirection(float yAngleRadian);

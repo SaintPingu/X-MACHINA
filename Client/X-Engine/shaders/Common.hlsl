@@ -545,8 +545,8 @@ void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
     
     float yDist = abs(gPassCB.CameraPos.y - posW.y);
         
-    float3 pinPosV = mul(float4(posW, 1.f), gPassCB.MtxNoLagView);
-    float3 camPosV = mul(float4(gPassCB.CameraPos, 1.f), gPassCB.MtxNoLagView);
+    float3 pinPosV = (float3) mul(float4(posW, 1.f), gPassCB.MtxNoLagView);
+    float3 camPosV = (float3) mul(float4(gPassCB.CameraPos, 1.f), gPassCB.MtxNoLagView);
         
     float sphereMask = SphereMask(float4(pinPosV.xy, 0.f, 0.f), float4(camPosV.xy, 0.f, 0.f), radius, 0.1f);
     

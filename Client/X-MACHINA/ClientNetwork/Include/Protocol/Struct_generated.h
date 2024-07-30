@@ -195,10 +195,11 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_TYPE = 6,
-    VT_POS = 8,
-    VT_PHEROS = 10,
-    VT_TARGET_PLAYER_ID = 12,
-    VT_TARGET_MONSTER_ID = 14
+    VT_POS_2 = 8,
+    VT_ROT_Y = 10,
+    VT_PHEROS = 12,
+    VT_TARGET_PLAYER_ID = 14,
+    VT_TARGET_MONSTER_ID = 16
   };
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
@@ -206,8 +207,11 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   FBProtocol::MONSTER_TYPE type() const {
     return static_cast<FBProtocol::MONSTER_TYPE>(GetField<uint8_t>(VT_TYPE, 0));
   }
-  const FBProtocol::Position_Vec2 *pos() const {
-    return GetPointer<const FBProtocol::Position_Vec2 *>(VT_POS);
+  const FBProtocol::Position_Vec2 *pos_2() const {
+    return GetPointer<const FBProtocol::Position_Vec2 *>(VT_POS_2);
+  }
+  float rot_y() const {
+    return GetField<float>(VT_ROT_Y, 0.0f);
   }
   const ::flatbuffers::String *pheros() const {
     return GetPointer<const ::flatbuffers::String *>(VT_PHEROS);
@@ -222,8 +226,9 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
-           VerifyOffset(verifier, VT_POS) &&
-           verifier.VerifyTable(pos()) &&
+           VerifyOffset(verifier, VT_POS_2) &&
+           verifier.VerifyTable(pos_2()) &&
+           VerifyField<float>(verifier, VT_ROT_Y, 4) &&
            VerifyOffset(verifier, VT_PHEROS) &&
            verifier.VerifyString(pheros()) &&
            VerifyField<int32_t>(verifier, VT_TARGET_PLAYER_ID, 4) &&
@@ -242,8 +247,11 @@ struct MonsterBuilder {
   void add_type(FBProtocol::MONSTER_TYPE type) {
     fbb_.AddElement<uint8_t>(Monster::VT_TYPE, static_cast<uint8_t>(type), 0);
   }
-  void add_pos(::flatbuffers::Offset<FBProtocol::Position_Vec2> pos) {
-    fbb_.AddOffset(Monster::VT_POS, pos);
+  void add_pos_2(::flatbuffers::Offset<FBProtocol::Position_Vec2> pos_2) {
+    fbb_.AddOffset(Monster::VT_POS_2, pos_2);
+  }
+  void add_rot_y(float rot_y) {
+    fbb_.AddElement<float>(Monster::VT_ROT_Y, rot_y, 0.0f);
   }
   void add_pheros(::flatbuffers::Offset<::flatbuffers::String> pheros) {
     fbb_.AddOffset(Monster::VT_PHEROS, pheros);
@@ -269,7 +277,8 @@ inline ::flatbuffers::Offset<Monster> CreateMonster(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     FBProtocol::MONSTER_TYPE type = FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
-    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos = 0,
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos_2 = 0,
+    float rot_y = 0.0f,
     ::flatbuffers::Offset<::flatbuffers::String> pheros = 0,
     int32_t target_player_id = 0,
     int32_t target_monster_id = 0) {
@@ -277,7 +286,8 @@ inline ::flatbuffers::Offset<Monster> CreateMonster(
   builder_.add_target_monster_id(target_monster_id);
   builder_.add_target_player_id(target_player_id);
   builder_.add_pheros(pheros);
-  builder_.add_pos(pos);
+  builder_.add_rot_y(rot_y);
+  builder_.add_pos_2(pos_2);
   builder_.add_id(id);
   builder_.add_type(type);
   return builder_.Finish();
@@ -287,7 +297,8 @@ inline ::flatbuffers::Offset<Monster> CreateMonsterDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     FBProtocol::MONSTER_TYPE type = FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
-    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos = 0,
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos_2 = 0,
+    float rot_y = 0.0f,
     const char *pheros = nullptr,
     int32_t target_player_id = 0,
     int32_t target_monster_id = 0) {
@@ -296,7 +307,8 @@ inline ::flatbuffers::Offset<Monster> CreateMonsterDirect(
       _fbb,
       id,
       type,
-      pos,
+      pos_2,
+      rot_y,
       pheros__,
       target_player_id,
       target_monster_id);

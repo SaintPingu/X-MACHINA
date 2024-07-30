@@ -98,6 +98,8 @@ public:
 
 	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate>		CreateEvent_Monster_Target(std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos);
 
+	sptr<NetworkEvent::Game::Event_Contents::Chat>						CreateEvent_Chat(uint32_t Id, std::string chat);
+
 	
 	/// +---------------------------------------------------------------------------
 	/// >> ?–¶?–¶?–¶?–¶?–¶ PROCESS EVENT 
@@ -120,6 +122,9 @@ public:
 	void ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data);
 	void ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data);
 	void ProcessEvent_Monster_Target(NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data);
+
+	/// Chat 
+	void ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_Contents::Chat* data);
 
 
 	long long GetCurrentTimeMilliseconds();

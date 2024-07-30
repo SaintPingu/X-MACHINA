@@ -117,6 +117,11 @@ void Script_Player::Respawn()
 	mObject->SetWorldTransform(mSpawnTransform);
 }
 
+void Script_Player::SetText(const std::string& text)
+{
+	mChatBoxUI->AddChat(text, "other");
+}
+
 void Script_Player::AddScore(int score)
 {
 	mScore += score;

@@ -8,6 +8,10 @@
 #include "Component/UI.h"
 #include "Component/Transform.h"
 
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "Object.h"
+
 
 ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string& chatName)
 	: 
@@ -67,7 +71,10 @@ void ChatBoxUI::ToggleChatBox()
 					mTotalText.insert(mLastChatIdx, L'[' + mChatName + L"] ");
 					mCurrChatCnt++;
 					mTotalText += L'\n';
-					
+
+					auto cpkt = FBS_FACTORY->CPkt_Chat(GameFramework::I->GetPlayer()->GetID(), WstringToString(mEditingText));
+					CLIENT_NETWORK->Send(cpkt);
+
 					mEditingText.clear();
 					return;
 				}

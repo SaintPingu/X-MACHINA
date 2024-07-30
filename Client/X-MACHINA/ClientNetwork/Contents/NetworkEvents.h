@@ -12,6 +12,7 @@ namespace NetworkEvent
 {
 	namespace Game
 	{
+
 		namespace RemotePlayerType
 		{
 			constexpr UINT16 Add              = 1; // 새로운 플레이어 생성
@@ -28,18 +29,23 @@ namespace NetworkEvent
 
 		namespace MonsterType
 		{
-			constexpr UINT16 Add         = 10;
-			constexpr UINT16 Remove      = 11;
-			constexpr UINT16 Move        = 12;
-			constexpr UINT16 UpdateHP    = 13;
-			constexpr UINT16 UpdateState = 14;
-			constexpr UINT16 Target		 = 15;
-		}
-
-		namespace BulletType
-		{
-			constexpr UINT16 OnShoot	 = 16;
-			constexpr UINT16 OnCollision = 17;
+			constexpr UINT16 Add			  = 10;
+			constexpr UINT16 Remove			  = 11;
+			constexpr UINT16 Move			  = 12;
+			constexpr UINT16 UpdateHP		  = 13;
+			constexpr UINT16 UpdateState	  = 14;
+			constexpr UINT16 Target			  = 15;
+		}									  
+											  
+		namespace BulletType				  
+		{									  
+			constexpr UINT16 OnShoot		  = 16;
+			constexpr UINT16 OnCollision	  = 17;
+		}									  
+											  
+		namespace ContentsType					  
+		{									  
+			constexpr UINT16 Chat			  = 18;
 		}
 
 		/* EVENT DATA */
@@ -196,6 +202,19 @@ namespace NetworkEvent
 		/// ---------------------------------------------------------------------+
 		namespace Bullet {
 
+		}
+
+
+
+		/// +---------------------------------------------------------------------
+		///	EVENT ▶▶▶▶▶ MONSTER  
+		/// ---------------------------------------------------------------------+
+		namespace Event_Contents {
+			struct Chat : public EventData {
+				uint32_t		Id;
+				std::string		chat;
+			};
+		
 		}
 	}
 }

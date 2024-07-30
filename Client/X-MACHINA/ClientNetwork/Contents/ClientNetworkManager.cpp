@@ -18,6 +18,7 @@
 #include "Script_MiningMech.h"
 #include "Script_NetworkEnemy.h"
 #include "Script_EnemyManager.h"
+#include "Script_Player.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -264,6 +265,16 @@ void ClientNetworkManager::ProcessEvents()
 		{
 			NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate*>(EventData.get());
 			ProcessEvent_Monster_Target(data);
+		}
+		break;
+
+		/// +---------------------------------------------------------------------------
+		/// >> ¢º¢º¢º¢º¢º PROCESS EVENT Contents
+		/// ---------------------------------------------------------------------------+
+		case NetworkEvent::Game::ContentsType::Chat:
+		{
+			NetworkEvent::Game::Event_Contents::Chat* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Chat*>(EventData.get());
+			ProcessEvent_Contents_Chat(data);
 		}
 		break;
 		}
@@ -519,6 +530,18 @@ sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> ClientNetworkManage
 	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate>();
 	Event->type = NetworkEvent::Game::MonsterType::Target;
 	Event->Mons = infos;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Contents::Chat> ClientNetworkManager::CreateEvent_Chat(uint32_t Id, std::string chat)
+{
+	sptr<NetworkEvent::Game::Event_Contents::Chat> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Contents::Chat>();
+	
+	Event->type = NetworkEvent::Game::ContentsType::Chat;
+	
+	Event->Id	= Id;
+	Event->chat = chat;
 
 	return Event;
 }
@@ -875,6 +898,14 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 			mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
 		}
 	}
+}
+
+void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_Contents::Chat* data)
+{
+	std::string chat	= data->chat;
+	uint32_t player_id	= data->Id;
+
+	GameFramework::I->GetPlayer()->GetComponent<Script_Player>()->SetText(chat);
 }
 
 

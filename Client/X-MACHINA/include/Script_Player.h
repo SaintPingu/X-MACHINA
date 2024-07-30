@@ -58,6 +58,8 @@ public:
 	virtual void Dead() override;
 	virtual void Respawn();
 
+	void SetText(const std::string& text);
+
 	void AddScore(int score);
 };
 

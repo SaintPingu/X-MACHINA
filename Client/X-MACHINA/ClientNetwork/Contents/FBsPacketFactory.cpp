@@ -325,10 +325,12 @@ bool FBsPacketFactory::Process_SPkt_Chat(SPtr_Session session, const FBProtocol:
 
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�	
 
+	uint32_t	id		= pkt.player_id();
 	std::string message = pkt.message()->c_str();
 
-	std::cout << "SPkt CHAT [" << session->GetID() << "] - SESSION : " << session.get() << " DATA : " <<
-		message.c_str() << std::endl;
+	sptr<NetworkEvent::Game::Event_Contents::Chat> EventData = CLIENT_NETWORK->CreateEvent_Chat(id, message);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
 	return true;
 }
 

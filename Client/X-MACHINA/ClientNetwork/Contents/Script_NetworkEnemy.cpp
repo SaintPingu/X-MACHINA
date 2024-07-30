@@ -70,11 +70,40 @@ void Script_NetworkEnemy::SetState(EnemyState state)
 	}
 }
 
+void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType)
+{
+	switch (btType)
+	{
+	case FBProtocol::MONSTER_BT_TYPE_DEATH:
+		SetState(EnemyState::Death);
+		break;
+	case FBProtocol::MONSTER_BT_TYPE_ATTACK_1:
+		SetState(EnemyState::Attack);
+		break;
+	case FBProtocol::MONSTER_BT_TYPE_ATTACK_2:
+	case FBProtocol::MONSTER_BT_TYPE_ATTACK_3:
+		break;
+	case FBProtocol::MONSTER_BT_TYPE_GETHIT:
+		SetState(EnemyState::GetHit);
+		break;
+	case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_TARGET:
+		SetState(EnemyState::MoveToTarget);
+		break;
+	case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_PATH:
+		SetState(EnemyState::MoveToPath);
+		break;
+	case FBProtocol::MONSTER_BT_TYPE_PATROL:
+		SetState(EnemyState::Patrol);
+		break;
+	default:
+		SetState(EnemyState::Idle);
+		break;
+	}
+}
+
 void Script_NetworkEnemy::SetTarget(Object* target)
 {
-	if (target) {
-		mEnemyMgr->mTarget = target;
-	}
+	mEnemyMgr->mTarget = target;
 }
 
 void Script_NetworkEnemy::SetActiveMyObject(bool isActive)

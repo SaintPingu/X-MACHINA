@@ -1158,6 +1158,8 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 
 	info.Id		        = monster->id();
 	info.Type	        = monster->type();
+	info.bt_type        = monster->bt_type();
+
 	info.Pos		    = GetPosition_Vec2(monster->pos_2());
 	float rot_y			= monster->rot_y();
 	info.Rot			= GetRot_y(rot_y);

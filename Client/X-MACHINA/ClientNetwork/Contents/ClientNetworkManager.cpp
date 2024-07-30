@@ -700,6 +700,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		
 		int							monsterID	= monInfos[i].Id;
 		FBProtocol::MONSTER_TYPE	monType		= monInfos[i].Type;
+		FBProtocol::MONSTER_BT_TYPE monBtType	= monInfos[i].bt_type;
 		std::vector<PheroInfo>		pheros		= monInfos[i].mPheros;
 		std::string					name		= monInfos[i].Name;
 		Vec3						position	= monInfos[i].Pos;
@@ -710,6 +711,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		// 몬스터가 이미 생성된 적이 있다면 
 		if (mRemoteMonsters.count(monsterID)){
 			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
+			mRemoteMonsters[monsterID]->SetState(monBtType);
 			return;
 		}
 
@@ -787,6 +789,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		}
 
 		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
+		mRemoteMonsters[monsterID]->SetState(monBtType);
 
 		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
 	}
@@ -816,6 +819,8 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 
 		mRemoteMonsters[ID]->SetPostion(Pos);
 		mRemoteMonsters[ID]->SetRotation(Angle);
+		mRemoteMonsters[ID]->SetTarget(nullptr);
+		mRemoteMonsters[ID]->SetState(EnemyState::Idle);
 	}
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data)
@@ -835,34 +840,7 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 			continue;
 		}
 
-		switch (type)
-		{
-		case FBProtocol::MONSTER_BT_TYPE_DEATH:
-			mRemoteMonsters[ID]->SetState(EnemyState::Death);
-			break;
-		case FBProtocol::MONSTER_BT_TYPE_ATTACK_1:
-			mRemoteMonsters[ID]->SetState(EnemyState::Attack);
-			break;
-		case FBProtocol::MONSTER_BT_TYPE_ATTACK_2:
-		case FBProtocol::MONSTER_BT_TYPE_ATTACK_3:
-			break;
-		case FBProtocol::MONSTER_BT_TYPE_GETHIT:
-			mRemoteMonsters[ID]->SetState(EnemyState::GetHit);
-			break;
-		case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_TARGET:
-			mRemoteMonsters[ID]->SetState(EnemyState::MoveToTarget);
-			break;
-		case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_PATH:
-			mRemoteMonsters[ID]->SetState(EnemyState::MoveToPath);
-			break;
-		case FBProtocol::MONSTER_BT_TYPE_PATROL:
-			mRemoteMonsters[ID]->SetState(EnemyState::Patrol);
-			break;
-		default:
-			mRemoteMonsters[ID]->SetState(EnemyState::Idle);
-			break;
-		}
-
+		mRemoteMonsters[ID]->SetState(type);
 	}
 }
 
@@ -873,13 +851,13 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 		int monster_id        = data->Mons[i].id;
 		int target_monster_id = data->Mons[i].target_monster_id;
 		int target_player_id  = data->Mons[i].target_player_id;
-		
 		if (!mRemoteMonsters.count(monster_id))
 			continue;
 
 		if (!mRemotePlayers.count(target_player_id))
 			continue;
 
+		std::cout << "target : " << target_player_id << "\n";
 		if (target_player_id == 0) {
 			mRemoteMonsters[monster_id]->SetTarget(nullptr);
 		}

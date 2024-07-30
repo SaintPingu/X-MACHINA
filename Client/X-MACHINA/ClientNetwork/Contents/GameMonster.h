@@ -31,6 +31,7 @@ struct GameMonsterInfo {
 	int							Id   = {};
 	int							Target_Player_Id = -1;
 	FBProtocol::MONSTER_TYPE	Type = {};
+	FBProtocol::MONSTER_BT_TYPE	bt_type = {};
 	/* Transform Info */
 	Vec3						Pos  = {}; // Position
 	Vec4						Rot  = {}; // Rotation 

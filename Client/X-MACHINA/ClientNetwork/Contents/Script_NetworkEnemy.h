@@ -1,5 +1,6 @@
 #pragma once
-
+#undef max
+#include "ClientNetwork/Include/Protocol/Enum_generated.h"
 #include "Script_NetworkLiveObject.h"
 
 class Script_EnemyManager;
@@ -17,6 +18,7 @@ public:
 	void SetPostion(const Vec3& pos);
 	void SetRotation(float angle);
 	void SetState(EnemyState state);
+	void SetState(FBProtocol::MONSTER_BT_TYPE btType);
 	void SetTarget(Object* target);
 	void SetActiveMyObject(bool isActive);
 	EnemyState GetState();

@@ -15,7 +15,7 @@ public:
 
 public:
 	void SetPostion(const Vec3& pos);
-	void SetRotation(const Vec3& rot);
+	void SetRotation(float angle);
 	void SetState(EnemyState state);
 	void SetTarget(Object* target);
 	EnemyState GetState();

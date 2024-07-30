@@ -152,7 +152,7 @@ namespace NetworkEvent
 			struct MonsterMove {
 				uint32_t	Id;
 				Vec3		Pos;
-				Vec3		Rot;
+				float		Angle;
 			};
 			struct Move : public EventData {
 				std::vector<MonsterMove> Mons;

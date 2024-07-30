@@ -801,15 +801,13 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 	for (int i = 0; i < data->Mons.size(); ++i) {
 		int		ID  = data->Mons[i].Id;
 		Vec3	Pos = data->Mons[i].Pos;
-		Vec3	Rot = data->Mons[i].Rot;
+		float	Angle = data->Mons[i].Angle;
 
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
 		mRemoteMonsters[ID]->SetPostion(Pos);
-		mRemoteMonsters[ID]->SetRotation(Rot);
-		Vec3 r = Quaternion::ToEuler(mRemoteMonsters[ID]->GetObj()->GetLocalRotation());
-		LOG_MGR->Cout(ID, " Rot : ", r.x, " ", r.y, " ", r.z, "\n");
+		mRemoteMonsters[ID]->SetRotation(Angle);
 	}
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data)

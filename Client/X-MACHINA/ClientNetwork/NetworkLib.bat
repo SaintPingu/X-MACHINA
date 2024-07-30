@@ -2,7 +2,6 @@
 
 rem 프로젝트 폴더 위치를 변수에 저장
 set "SolutionPath=..\..\"
-set "C:\Users\MDH\Desktop\DirectX12_Project\Client"
 
 rem 대상 폴더 경로 설정 (예시로 ClientNetwork 디렉토리 아래에 복사)``
 set "source=%SolutionPath%\X-NetworkLibrary\Executable"

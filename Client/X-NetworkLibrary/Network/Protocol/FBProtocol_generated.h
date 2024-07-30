@@ -1741,19 +1741,24 @@ struct SPkt_Monster_Transform FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   typedef SPkt_Monster_TransformBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MONSTER_ID = 4,
-    VT_TRANS = 6
+    VT_POS_2 = 6,
+    VT_ROT_Y = 8
   };
   uint32_t monster_id() const {
     return GetField<uint32_t>(VT_MONSTER_ID, 0);
   }
-  const FBProtocol::Transform *trans() const {
-    return GetPointer<const FBProtocol::Transform *>(VT_TRANS);
+  const FBProtocol::Position_Vec2 *pos_2() const {
+    return GetPointer<const FBProtocol::Position_Vec2 *>(VT_POS_2);
+  }
+  float rot_y() const {
+    return GetField<float>(VT_ROT_Y, 0.0f);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MONSTER_ID, 4) &&
-           VerifyOffset(verifier, VT_TRANS) &&
-           verifier.VerifyTable(trans()) &&
+           VerifyOffset(verifier, VT_POS_2) &&
+           verifier.VerifyTable(pos_2()) &&
+           VerifyField<float>(verifier, VT_ROT_Y, 4) &&
            verifier.EndTable();
   }
 };
@@ -1765,8 +1770,11 @@ struct SPkt_Monster_TransformBuilder {
   void add_monster_id(uint32_t monster_id) {
     fbb_.AddElement<uint32_t>(SPkt_Monster_Transform::VT_MONSTER_ID, monster_id, 0);
   }
-  void add_trans(::flatbuffers::Offset<FBProtocol::Transform> trans) {
-    fbb_.AddOffset(SPkt_Monster_Transform::VT_TRANS, trans);
+  void add_pos_2(::flatbuffers::Offset<FBProtocol::Position_Vec2> pos_2) {
+    fbb_.AddOffset(SPkt_Monster_Transform::VT_POS_2, pos_2);
+  }
+  void add_rot_y(float rot_y) {
+    fbb_.AddElement<float>(SPkt_Monster_Transform::VT_ROT_Y, rot_y, 0.0f);
   }
   explicit SPkt_Monster_TransformBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1782,9 +1790,11 @@ struct SPkt_Monster_TransformBuilder {
 inline ::flatbuffers::Offset<SPkt_Monster_Transform> CreateSPkt_Monster_Transform(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t monster_id = 0,
-    ::flatbuffers::Offset<FBProtocol::Transform> trans = 0) {
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos_2 = 0,
+    float rot_y = 0.0f) {
   SPkt_Monster_TransformBuilder builder_(_fbb);
-  builder_.add_trans(trans);
+  builder_.add_rot_y(rot_y);
+  builder_.add_pos_2(pos_2);
   builder_.add_monster_id(monster_id);
   return builder_.Finish();
 }

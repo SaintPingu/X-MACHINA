@@ -299,7 +299,9 @@ table CPkt_Monster_Transform
 table SPkt_Monster_Transform
 {
 	monster_id	: uint;	// 4 bytes
-	trans	    : Transform;				// 24 bytes (Vector3 * 2)
+
+	pos_2				:  Position_Vec2;
+	rot_y				:  float;				
 }
 
 

@@ -708,8 +708,10 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		
 
 		// 몬스터가 이미 생성된 적이 있다면 
-		if (mRemoteMonsters.count(monsterID))
+		if (mRemoteMonsters.count(monsterID)){
+			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
 			return;
+		}
 
 		// Monster 생성! 
 		std::string MonsterTypeNames[FBProtocol::MONSTER_TYPE_MAX + 1] = {
@@ -793,7 +795,13 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 }
 void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event_Monster::Remove* data)
 {
+	for (int id : data->IDs) {
+		if (!mRemoteMonsters.count(id)) {
+			continue;
+		}
 
+		mRemoteMonsters[id]->SetActiveMyObject(false);
+	}
 }
 
 void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data)

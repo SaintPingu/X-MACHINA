@@ -18,10 +18,10 @@ void Script_NetworkEnemy::Update()
 {
 	base::Update();
 
-	//if (mEnemyMgr->mState == EnemyState::MoveToTarget)
-	//	//MoveToTarget();
-	//if (mEnemyMgr->mState == EnemyState::Attack)
-	//	Attack();
+	if (mEnemyMgr->mState == EnemyState::MoveToTarget)
+		MoveToTarget();
+	if (mEnemyMgr->mState == EnemyState::Attack)
+		Attack();
 }
 
 void Script_NetworkEnemy::SetPostion(const Vec3& pos)
@@ -75,6 +75,11 @@ void Script_NetworkEnemy::SetTarget(Object* target)
 	if (target) {
 		mEnemyMgr->mTarget = target;
 	}
+}
+
+void Script_NetworkEnemy::SetActiveMyObject(bool isActive)
+{
+	mObject->SetActive(isActive);
 }
 
 EnemyState Script_NetworkEnemy::GetState()

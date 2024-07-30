@@ -121,7 +121,7 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Player_AimRotation(session, *packet);
 	}
 	break;
-	
+
 
 	case FBsProtocolID::SPkt_PlayerOnSkill:
 	{
@@ -141,7 +141,13 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_NewMonster(session, *packet);
 	}
 	break;
-
+	case FBsProtocolID::SPkt_RemoveMonster:
+	{
+		const FBProtocol::SPkt_RemoveMonster* packet = flatbuffers::GetRoot<FBProtocol::SPkt_RemoveMonster>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_RemoveMonster(session, *packet);
+	}
+	break;
 	case FBsProtocolID::SPkt_Monster_Transform:
 	{
 		const FBProtocol::SPkt_Monster_Transform* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Monster_Transform>(DataPtr);

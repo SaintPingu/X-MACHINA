@@ -18,6 +18,7 @@ public:
 	void SetRotation(float angle);
 	void SetState(EnemyState state);
 	void SetTarget(Object* target);
+	void SetActiveMyObject(bool isActive);
 	EnemyState GetState();
 
 public:

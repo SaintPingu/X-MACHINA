@@ -40,7 +40,6 @@ void Script_BattleManager::Awake()
 
 	MainCamera::I->AddComponent<Script_MainCamera>();
 	GameFramework::I->InitPlayer();
-	GameFramework::I->ConnectServer();
 
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
@@ -57,6 +56,8 @@ void Script_BattleManager::Start()
 	SoundMgr::I->Play("BGM", "Battle_Stage1", 1.0f, true);
 
 	mObject->AddComponent<Script_StageNameUI>();
+
+	GameFramework::I->ConnectServer();
 }
 
 

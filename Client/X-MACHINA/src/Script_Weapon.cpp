@@ -290,8 +290,6 @@ void Script_BulletWeapon::EndReload()
 
 void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, float speed, BulletType bulletType) const
 {
-	bullet->AddComponent<Rigidbody>();
-
 	sptr<Script_Bullet> bulletScript{};
 	switch (bulletType) {
 	case BulletType::Bullet:

@@ -10,7 +10,7 @@ class Script_Weapon_Pistol : public Script_BulletWeapon {
 
 private:
 	static constexpr float mkBulletDamage = 8.f;
-	static constexpr float mkBulletSpeed  = 40.f;
+	static constexpr float mkBulletSpeed  = 100.f;
 	static constexpr float mkRPM          = 350.f;
 
 public:

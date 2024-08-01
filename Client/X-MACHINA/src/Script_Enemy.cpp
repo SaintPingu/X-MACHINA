@@ -114,6 +114,10 @@ void Script_Enemy::Detect()
 
 bool Script_Enemy::Hit(float damage, Object* instigator)
 {
+	if (IsDead()) {
+		return false;
+	}
+
 	bool res = base::Hit(damage, instigator);
 
 	mObject->mObjectCB.HitRimFactor = 0.7f;

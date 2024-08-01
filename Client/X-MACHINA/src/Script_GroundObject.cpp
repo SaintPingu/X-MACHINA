@@ -24,7 +24,4 @@ void Script_GroundObject::LateUpdate()
 		mObject->SetPosition(0, 0, 0);
 	}
 	mObject->SetPositionY(0.1f);
-	//Vec3 pos = mObject->GetPosition();
-	//float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
-	//mObject->SetPositionY(terrainHeight);
 }

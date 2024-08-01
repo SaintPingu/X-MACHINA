@@ -9,7 +9,7 @@ class Script_Weapon_Shotgun abstract : public Script_BulletWeapon {
 	COMPONENT_ABSTRACT(Script_Weapon_Shotgun, Script_BulletWeapon)
 
 protected:
-	static constexpr float mkBulletSpeed = 40.f;
+	static constexpr float mkBulletSpeed = 100.f;
 
 public:
 	virtual WeaponType GetWeaponType() const override { return WeaponType::ShotGun; }

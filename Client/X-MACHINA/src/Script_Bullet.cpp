@@ -9,7 +9,7 @@
 #include "BattleScene.h"
 #include "SoundMgr.h"
 
-#include "Component/Rigidbody.h"
+#include "Component/Collider.h"
 #include "Component/ParticleSystem.h"
 
 void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames)
@@ -21,61 +21,28 @@ void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std:
 
 void Script_Bullet::Update()
 {
-	mCurrLifeTime += DeltaTime();
+	base::Update();
 
-	if (mCurrLifeTime >= mMaxLifeTime) {
-		Reset();
-		StopPSs(BulletPSType::Contrail);
-		mGameObject->Return();
-	}
-	else if ((mObject->GetPosition().y < 0.f) || IntersectTerrain()) {
-		Explode();
-	}
+	const float distance = mSpeed * DeltaTime();
 
-}
+	mCurDistance += distance;
+	mObject->MoveForward(distance);
 
-void Script_Bullet::OnCollisionEnter(Object& other)
-{
-	if (mCurrLifeTime <= FLT_EPSILON) {
-		return;
-	}
-	if (IsOwner(&other)) {
-		return;
-	}
-
-	switch (other.GetTag()) {
-	case ObjectTag::Building:
-	case ObjectTag::DissolveBuilding:
-		PlayPSs(BulletPSType::Building);
-		Explode();
-		break;
-
-	case ObjectTag::Enemy:	
-	{
-		auto& enemy = other.GetComponent<Script_Enemy>();
-		if (enemy->IsDead()) {
-			return;
+	if (mCurDistance >= mMaxDistance) {
+		if (Math::IsEqual(mMaxDistance, mkMaxDistance)) {
+			Disappear();
 		}
-		enemy->Hit(GetDamage());
-		PlayPSs(BulletPSType::Explosion);
-		Explode();
-	}
-
-	break;
-	default:
-		break;
+		else {
+			mObject->MoveForward(mMaxDistance - mCurDistance - 0.5f);	// return to impact point
+			Explode();
+		}
 	}
 }
-
 
 void Script_Bullet::Init()
 {
-	mGameObject = mObject->GetObj<InstObject>();
+	mInstObject = mObject->GetObj<InstObject>();
 	mObject->SetTag(ObjectTag::Bullet);
-
-	mRigid = mObject->GetComponent<Rigidbody>();
-	mRigid->SetFriction(0.001f);
-	mRigid->SetDrag(0.001f);
 
 	Reset();
 }
@@ -83,12 +50,46 @@ void Script_Bullet::Init()
 void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
 {
 	mObject->SetPosition(pos);
+	mObject->SetLook(dir);
 
-	mRigid->Stop();
-	mRigid->AddForce(dir, mSpeed, ForceMode::Impulse);
+	SetDamage(GetDamage());
 
-	SetDamage(mDamage);
-	StartFire();
+	Ray ray{ pos, dir };
+	ray.Direction.Normalize();
+
+	static const ObjectTag kCollisionTag = ObjectTag::Building | ObjectTag::DissolveBuilding | ObjectTag::Enemy | ObjectTag::Bound | ObjectTag::Player;
+
+	GridObject* target{};
+	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(pos), true);
+	for (const auto& grid : grids) {
+		for (const auto& other : grid->GetObjects()) {
+			ObjectTag otherTag = other->GetTag();
+			if (!(otherTag & kCollisionTag)) {
+				continue;
+			}
+
+			float distance = 0.f;
+			if (!other->GetCollider()->Intersects(ray, distance)) {
+				continue;
+			}
+
+			if (distance < mMaxDistance) {
+				mMaxDistance = distance;
+				target = other;
+			}
+		}
+	}
+
+	if (target) {
+		if (target->GetTag() == ObjectTag::Enemy) {
+			const auto& enemy = target->GetComponent<Script_Enemy>().get();
+			Hit(enemy);
+			mParticleType = BulletPSType::Explosion;
+		}
+		else {
+			mParticleType = BulletPSType::Building;
+		}
+	}
 }
 
 void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
@@ -100,19 +101,18 @@ void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 	dir = Vector3::Rotate(dir, err.y, err.x, 0.f);
 	mObject->Rotate(err.y, err.x, 0.f);
 	Fire(transform.GetPosition(), dir, transform.GetUp());
+	StartFire();
 }
 
 void Script_Bullet::Explode()
 {
-	Reset();
-	StopPSs(BulletPSType::Contrail);
-
-	mRigid->Stop();
-	mGameObject->Return();
+	Disappear();
 
 	if (mImpactSound != "") {
 		SoundMgr::I->Play("Effect", mImpactSound);
 	}
+
+	PlayPSs(mParticleType);
 }
 
 void Script_Bullet::PlayPSs(BulletPSType type)
@@ -135,19 +135,22 @@ void Script_Bullet::StopPSs(BulletPSType type)
 	}
 }
 
-void Script_Bullet::Reset()
+void Script_Bullet::Hit(Script_LiveObject* target)
 {
-	mCurrLifeTime = 0.f;
+	if (target) {
+		target->Hit(GetDamage());
+	}
 }
 
-bool Script_Bullet::IntersectTerrain()
+void Script_Bullet::Disappear()
 {
-	const Vec3 pos = mObject->GetPosition();
-	const float terrainHeight = BattleScene::I->GetTerrainHeight(pos.x, pos.z);
+	Reset();
+	StopPSs(BulletPSType::Contrail);
+	mInstObject->Return();
+}
 
-	if (pos.y <= terrainHeight) {
-		return true;
-	}
-
-	return false;
+void Script_Bullet::Reset()
+{
+	mCurDistance = 0.f;
+	mMaxDistance = mkMaxDistance;
 }

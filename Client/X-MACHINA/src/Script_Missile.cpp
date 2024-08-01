@@ -11,6 +11,32 @@
 #include "BattleScene.h"
 
 
+void Script_Missile::OnCollisionEnter(Object& other)
+{
+	if (IsOwner(&other)) {
+		return;
+	}
+
+	switch (other.GetTag()) {
+	case ObjectTag::Enemy:
+	case ObjectTag::Building:
+	case ObjectTag::DissolveBuilding:
+		Explode();
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Script_Missile::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
+{
+	mObject->SetPosition(pos);
+	mObject->SetLook(dir);
+
+	SetDamage(GetDamage());
+}
+
 void Script_Missile::Init()
 {
 	base::Init();
@@ -20,6 +46,8 @@ void Script_Missile::Init()
 
 void Script_Missile::Explode()
 {
+	base::Explode();
+
 	if (mExplosionCollider) {
 		mExplosionCollider->SetActive(true);
 	}
@@ -37,9 +65,6 @@ void Script_Missile::Explode()
 	}
 
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(1.f, 0.001f);
-
-	base::Explode();
-
 }
 
 void Script_Missile::StartFire()

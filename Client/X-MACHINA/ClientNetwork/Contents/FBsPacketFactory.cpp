@@ -678,6 +678,8 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 	uint32_t						monster_id = pkt.monster_id();
 	FBProtocol::MONSTER_BT_TYPE		state_type = pkt.monster_bt_type();
 
+	LOG_MGR->Cout(monster_id, " - ", "Process SPkt Monster State : ", static_cast<int>(state_type), "\n");
+
 	std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos;
 	NetworkEvent::Game::Event_Monster::MonsterUpdateState info;
 	info.Id    = monster_id;

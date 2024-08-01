@@ -547,6 +547,12 @@ void Script_GroundPlayer::BulletFired()
 	/// +-------------------------------------------------------------------
 	///		Send OnShoot Packet
 	/// -------------------------------------------------------------------+
+	float spineYAngle = Vector3::SignedAngle(Vector3::Forward, mSpineBone->GetUp().xz(), Vector3::Up);
+	float objYAngle   = mObject->GetYAngle();
+
+	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(objYAngle, spineYAngle);
+	CLIENT_NETWORK->Send(pkt);
+
 	auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
 	CLIENT_NETWORK->Send(cpkt);
 #endif

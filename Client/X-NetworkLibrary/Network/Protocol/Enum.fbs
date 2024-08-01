@@ -52,10 +52,9 @@ enum MONSTER_TYPE : ubyte {
 //		 MONSTER_BT_TYPE 
 // ------------------------+
 enum MONSTER_BT_TYPE : ubyte {
+	IDLE,
 	DEATH,
-	ATTACK_1,
-	ATTACK_2,
-	ATTACK_3,
+	ATTACK,
 	GETHIT,
 	MOVE_TO_TARGET,
 	MOVE_TO_PATH,

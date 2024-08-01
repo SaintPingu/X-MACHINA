@@ -82,11 +82,8 @@ void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType)
 	case FBProtocol::MONSTER_BT_TYPE_DEATH:
 		SetState(EnemyState::Death);
 		break;
-	case FBProtocol::MONSTER_BT_TYPE_ATTACK_1:
+	case FBProtocol::MONSTER_BT_TYPE_ATTACK:
 		SetState(EnemyState::Attack);
-		break;
-	case FBProtocol::MONSTER_BT_TYPE_ATTACK_2:
-	case FBProtocol::MONSTER_BT_TYPE_ATTACK_3:
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_GETHIT:
 		SetState(EnemyState::GetHit);

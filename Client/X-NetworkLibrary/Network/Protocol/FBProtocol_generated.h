@@ -1952,7 +1952,7 @@ struct SPkt_Monster_StateBuilder {
 inline ::flatbuffers::Offset<SPkt_Monster_State> CreateSPkt_Monster_State(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t monster_id = 0,
-    FBProtocol::MONSTER_BT_TYPE monster_bt_type = FBProtocol::MONSTER_BT_TYPE_DEATH) {
+    FBProtocol::MONSTER_BT_TYPE monster_bt_type = FBProtocol::MONSTER_BT_TYPE_IDLE) {
   SPkt_Monster_StateBuilder builder_(_fbb);
   builder_.add_monster_id(monster_id);
   builder_.add_monster_bt_type(monster_bt_type);

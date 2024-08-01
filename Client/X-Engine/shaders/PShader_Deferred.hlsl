@@ -35,6 +35,11 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     int occlusionMapIndex   = matInfo.OcclusionMapIndex;
     int occlusionMask       = matInfo.OcclusionMask;
     
+    if (gObjectCB.IsHide == TRUE && pin.PosW.y > 0.5f)
+    {
+        discard;
+    }
+    
     // sampling diffuseMap
     if (diffuseMapIndex != NONE) 
          diffuse *= GammaDecoding(gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.UV));

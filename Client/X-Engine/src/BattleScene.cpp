@@ -42,11 +42,6 @@ BattleScene::BattleScene()
 	mGridXLength(static_cast<int>(mMapBorder.Extents.x / kGridXCount)),
 	mGridZLength(static_cast<int>(mMapBorder.Extents.z / kGridZCount))
 {
-#ifdef RENDER_FOR_SERVER
-#ifndef RENDER_FOR_SERVER_WITH_TEXTURE
-	mIsRenderBounds = true;
-#endif
-#endif
 }
 #pragma endregion
 
@@ -724,6 +719,8 @@ void BattleScene::Update()
 	mLight->Update();
 	Canvas::I->Update();
 	UpdateSurroundGrids();
+
+	MainCamera::I->LateUpdate();
 
 	UpdateShaderVars();
 

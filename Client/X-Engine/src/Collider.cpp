@@ -344,6 +344,21 @@ bool ObjectCollider::Intersects(rsptr<Collider> collider) const
 	return false;
 }
 
+bool ObjectCollider::Intersects(const Ray& ray, float& dist) const
+{
+	if (!ray.Intersects(GetBS(), dist)) {
+		return false;
+	}
+
+	for (const auto& collider : mColliders) {
+		if (collider->Intersects(ray, dist)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // 두 ObjectCollider 충돌처리 알고리즘
 //         [A]   <->    [B]
 // 1.      BS    <->    BS

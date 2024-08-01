@@ -40,6 +40,7 @@ public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void Update() override;
+	virtual void LateUpdate() override;
 
 	// [weight]      : 각 방향에 얼마나 가중치를 둘 것인가(0~1)
 	// [maxOffset_t] : [mMaxOffset]을 얼마나 반영할 것인가 (0~1)
@@ -61,5 +62,7 @@ private:
 	void RecoverExtraOffset();
 
 	void Shake();
+
+	void HideObstacles();
 };
 #pragma endregion

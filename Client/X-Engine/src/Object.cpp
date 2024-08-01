@@ -118,6 +118,16 @@ void GridObject::SetTag(ObjectTag tag)
 	BattleScene::I->UpdateTag(this, beforeTag);
 }
 
+void GridObject::Hide()
+{
+	mObjectCB.IsHide = true;
+}
+
+void GridObject::Show()
+{
+	mObjectCB.IsHide = false;
+}
+
 void GridObject::Awake()
 {
 	mCollider = AddComponent<ObjectCollider>().get();
@@ -138,6 +148,7 @@ void GridObject::Update()
 {
 	base::Update();
 
+	Show();
 	if (IsActive()) {
 		UpdateGrid();
 	}
@@ -176,9 +187,11 @@ void GridObject::ResetColliderColor()
 			color = Vec3(1, 0, 0);
 			break;
 		case ObjectTag::Bound:
+			color = Vec3(1, 1, 0);
+			break;
 		case ObjectTag::Building:
 		case ObjectTag::DissolveBuilding:
-			color = Vec3(1, 1, 0);
+			color = Vec3(0.9f, 0.9f, 0.2f);
 			break;
 		default:
 			color = Vec3(0.2f, 0.2f, 0.2f);

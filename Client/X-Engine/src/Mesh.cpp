@@ -643,10 +643,6 @@ void MergedMesh::MergeMesh(sptr<MeshLoadInfo>& mesh, std::vector<sptr<Material>>
 
 void MergedMesh::StopMerge()
 {
-#ifndef RENDER_TEXTURE
-	return;
-#endif
-
 	/* 기존 resource(buffer) 정보를 초기화한다. (불필요 데이터 삽입 방지) */
 	mVertexBuffer    = nullptr;
 	mNormalBuffer    = nullptr;

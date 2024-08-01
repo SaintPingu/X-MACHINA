@@ -195,6 +195,9 @@ struct ObjectConstants {
 	float	AlphaIntensity = 1.f;
 
 	int		IsSkinMesh{};
+	int		IsHide{};
+	int		Padding1{};
+	int		Padding2{};
 };
 
 struct MinimapConstants {

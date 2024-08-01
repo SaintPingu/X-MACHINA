@@ -142,6 +142,7 @@ public:
 	bool Intersects(const ObjectCollider* other) const;
 	bool Intersects(const BoundingFrustum& frustum) const { return frustum.Intersects(mSphereCollider->mBS); }
 	bool Intersects(rsptr<Collider> collider) const;
+	bool Intersects(const Ray& ray, float& dist) const;
 
 	template<class T, typename std::enable_if<is_valid_collider_type<T>>::type* = nullptr>
 	bool Intersects(const T& bounding) const

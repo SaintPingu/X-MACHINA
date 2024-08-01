@@ -62,7 +62,7 @@ void Scene::RenderText(RComPtr<struct ID2D1DeviceContext2> device)
 void Scene::UpdateShaderVars()
 {
 	UpdateMainPassCB();
-#ifdef RENDER_TEXTURE
+#ifndef RENDER_FOR_SERVER
 	UpdateShadowPassCB();
 	UpdateSsaoCB();
 #endif
@@ -103,7 +103,7 @@ void Scene::UpdateMainPassCB()
 	passCB.RT6G_OutlineIndex = RESOURCE<Texture>("OutlineTarget")->GetSrvIdx();
 	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
 
-#ifdef RENDER_TEXTURE
+#ifndef RENDER_FOR_SERVER
 
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();

@@ -128,6 +128,9 @@ struct ObjectInfo {
     float   AlphaIntensity;
     
     uint    IsSkinMesh;
+    uint    IsHide;
+    uint    Padding1;
+    uint    Padding2;
 };
 
 struct PassInfo {

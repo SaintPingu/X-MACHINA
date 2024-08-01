@@ -500,9 +500,8 @@ namespace {
 				}
 			}
 
-#ifdef RENDER_TEXTURE
 			model->SetMeshInfo(meshInfo);
-#endif
+
 			return model;
 		}
 

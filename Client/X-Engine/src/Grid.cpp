@@ -210,8 +210,10 @@ Grid::Grid(int index, int width, int height, const BoundingBox& bb)
 
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Building);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::DissolveBuilding);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Bound);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Bullet, ObjectTag::Enemy);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Building);
+	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::DissolveBuilding);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Bound);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Crate);
 	mCollisionMgr.AddCollisionPair(ObjectTag::Player, ObjectTag::Item);

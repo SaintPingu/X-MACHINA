@@ -112,7 +112,7 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(100, 0, 200);
+	constexpr Vec3 kSpawnPoint = Vec3(400, 0, 200);
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
@@ -153,6 +153,7 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 	switch (other.GetTag())
 	{
 	case ObjectTag::Building:
+	case ObjectTag::DissolveBuilding:
 	case ObjectTag::Bound:
 		ComputeSlideVector(other);
 		break;
@@ -1253,7 +1254,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	//static Vec3 prevSlideVec{};
 
 	// �㸮 �ʺ��� �̵� ������ ���ϴ� ����
-	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.5f, Vector3::Normalized(mDirVec) };
+	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.25f, Vector3::Normalized(mDirVec) };
 
 	//// ���� �浹ü�� ���� �浹ü�� �ٸ� ���??
 	//if (prevOther != nullptr) {

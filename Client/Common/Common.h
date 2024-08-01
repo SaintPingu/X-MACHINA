@@ -652,15 +652,9 @@ public:
 	void Transform(const Matrix& transform)
 	{
 		const XMMATRIX kMatrix = _MATRIX(transform);
-
-		// temp
 		const XMVECTOR kRotation = XMQuaternionRotationMatrix(kMatrix);
-		XMVECTOR s{};
-		XMVECTOR r = XMVectorSet(0, 0, 0, 1);
-		XMVECTOR t{};
-		XMMatrixDecompose(&s, &r, &t, kMatrix);
-		XMStoreFloat4(&Orientation, r);
 
+		XMStoreFloat4(&Orientation, kRotation);
 		XMStoreFloat3(&Center, XMVector3Transform(_VECTOR(mOriginCenter), kMatrix));
 	}
 

@@ -9,11 +9,9 @@
 #include "Script_Player.h"
 
 #pragma region Default
-void Script_AbilityHolder::SetAbility(int key, sptr<Ability> ability)
+void Script_AbilityHolder::SetAbility(sptr<Ability> ability)
 {
-	mKey = key;
 	mAbility = ability;
-	mAbility->SetHolderKey(key);
 }
 
 const std::string& Script_AbilityHolder::GetAbilityName() const
@@ -32,124 +30,6 @@ void Script_AbilityHolder::Start()
 }
 
 void Script_AbilityHolder::Update()
-{
-	if (!mAbility)
-		return;
-
-	if (mPlayer->IsActiveChatBox()) {
-		return;
-	}
-
-	switch (mState)
-	{
-	case AbilityState::Ready:
-		if (KEY_TAP(mKey)) {
-			mState = AbilityState::Active;
-			mAbility->Activate();
-			mActiveTime = mAbility->GetActiveTime();
-		}
-		break;
-	case AbilityState::Active:
-		if (mActiveTime > 0.f) {
-			mActiveTime -= DeltaTime();
-			mAbility->Update(mActiveTime);
-		}
-		else {
-			mAbility->DeActivate();
-			mState = AbilityState::Cooldown;
-			mCooldownTime = mAbility->GetCooldownTime();
-		}
-		break;
-	case AbilityState::Cooldown:
-		if (mCooldownTime > 0.f) {
-			mCooldownTime -= DeltaTime();
-		}
-		else {
-			mState = AbilityState::Ready;
-		}
-		break;
-	default:
-		break;
-	}
-}
-
-void Script_AbilityHolder::Terminate()
-{
-	mState = AbilityState::Ready;
-}
-#pragma endregion
-
-
-
-
-
-#pragma region Toggle
-void Script_ToggleAbilityHolder::Update()
-{
-	if (!mAbility)
-		return;
-
-	if (mPlayer->IsActiveChatBox()) {
-		return;
-	}
-
-	switch (mState)
-	{
-	case AbilityState::Ready:
-		if (KEY_TAP(mKey)) {
-			mState = AbilityState::Active;
-			mAbility->Activate();
-		}
-		break;
-	case AbilityState::Active:
-		if (KEY_TAP(mKey)) {
-			mState = AbilityState::Cooldown;
-			mAbility->DeActivate();
-			mCooldownTime = mAbility->GetCooldownTime();
-		}
-		else{
-			mAbility->Update(0.f);
-		}
-		break;
-	case AbilityState::Cooldown:
-		if (mCooldownTime > 0.f) {
-			mCooldownTime -= DeltaTime();
-		}
-		else {
-			mState = AbilityState::Ready;
-		}
-		break;
-	default:
-		break;
-	}
-}
-#pragma endregion
-
-
-#pragma region State
-void Script_StateAbilityHolder::SetActive(bool isActive)
-{
-	switch (mState) {
-	case AbilityState::Ready:
-		if (!isActive) {
-			return;
-		}
-		Enable();
-		break;
-	case AbilityState::Active:
-		if (isActive) {
-			return;
-		}
-		Disable();
-		break;
-	case AbilityState::Cooldown:
-		break;
-	default:
-		break;
-	}
-}
-
-void Script_StateAbilityHolder::Update()
 {
 	if (!mAbility)
 		return;
@@ -179,17 +59,79 @@ void Script_StateAbilityHolder::Update()
 	}
 }
 
-void Script_StateAbilityHolder::Enable()
+void Script_AbilityHolder::Toggle()
 {
+	if (mState == AbilityState::Ready) {
+		Enable();
+	}
+	else if (mState == AbilityState::Active) {
+		Disable();
+	}
+}
+
+void Script_AbilityHolder::Terminate()
+{
+	mState = AbilityState::Ready;
+}
+
+void Script_AbilityHolder::Enable()
+{
+	if (mState != AbilityState::Ready) {
+		return;
+	}
+
 	mState = AbilityState::Active;
 	mAbility->Activate();
 	mActiveTime = mAbility->GetActiveTime();
 }
 
-void Script_StateAbilityHolder::Disable()
+void Script_AbilityHolder::Disable()
 {
+	if (mState != AbilityState::Active) {
+		return;
+	}
+
 	mState = AbilityState::Cooldown;
 	mAbility->DeActivate();
 	mCooldownTime = mAbility->GetCooldownTime();
 }
 #pragma endregion
+
+
+
+
+
+#pragma region Toggle
+void Script_ToggleAbilityHolder::Update()
+{
+	if (!mAbility)
+		return;
+
+	switch (mState)
+	{
+	case AbilityState::Ready:
+		break;
+	case AbilityState::Active:
+		mAbility->Update(0.f);
+		break;
+	case AbilityState::Cooldown:
+		if (mCooldownTime > 0.f) {
+			mCooldownTime -= DeltaTime();
+		}
+		else {
+			mState = AbilityState::Ready;
+		}
+		break;
+	default:
+		break;
+	}
+}
+#pragma endregion
+
+
+void Script_CooldownAbilityHolder::Toggle()
+{
+	if (mState == AbilityState::Ready) {
+		Enable();
+	}
+}

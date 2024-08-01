@@ -5,7 +5,7 @@
 
 
 class GridObject;
-class Script_Player;
+class Script_PlayerController;
 class Script_BattleManager;
 class Session;
 class ClientSession;
@@ -22,7 +22,7 @@ class GameFramework : public Singleton<GameFramework> {
 	friend Singleton;
 
 private:
-	sptr<Script_Player> mPlayerScript{};
+	Script_PlayerController* mPlayerScript{};
 	GridObject* mPlayer{};
 	volatile bool mIsLogin{};
 
@@ -38,6 +38,7 @@ public:
 	RESOLUTION GetWindowResolution() const { return mResolution; }
 	Vec2 GetWindowSize() const { return Vec2(static_cast<float>(mResolution.Width), static_cast<float>(mResolution.Height)); }
 	GridObject* GetPlayer() const { return mPlayer; }
+	Script_PlayerController* GetPlayerScript() const { return mPlayerScript; }
 
 public:
 	void Init(HINSTANCE hInstance);

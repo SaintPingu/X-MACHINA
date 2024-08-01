@@ -24,6 +24,7 @@
 #include "Script_Player.h"
 #include "Script_BattleManager.h"
 #include "Script_LobbyManager.h"
+#include "Script_PlayerController.h"
 
 
 #include "InputMgr.h"
@@ -350,7 +351,8 @@ void GameFramework::DisconnectServer()
 void GameFramework::InitPlayer()
 {
 	mPlayer = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
-	mPlayerScript = mPlayer->AddComponent<Script_PheroPlayer>();
+	mPlayerScript = mPlayer->AddComponent<Script_PlayerController>().get();
+	mPlayer->AddComponent<Script_PheroPlayer>();
 
 #ifdef SERVER_COMMUNICATION
 	auto& networkScript = mPlayer->AddComponent<Script_NetworkPlayer>();

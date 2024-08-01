@@ -35,10 +35,9 @@ protected:
 	int				mAbilityCBIdx = -1;
 
 	AbilityState	mState = AbilityState::Ready;
-	int				mKey{};
 
 public:
-	void SetAbility(int key, sptr<Ability> ability);
+	void SetAbility(sptr<Ability> ability);
 	const AbilityState GetAbilityState() const { return mState; }
 	const std::string& GetAbilityName() const;
 
@@ -47,7 +46,11 @@ public:
 	virtual void Update() override;
 
 public:
+	virtual void Toggle();
 	void Terminate();
+
+	void Enable();
+	void Disable();
 };
 
 class Script_ToggleAbilityHolder : public Script_AbilityHolder {
@@ -57,18 +60,10 @@ public:
 	virtual void Update() override;
 };
 
-class Script_StateAbilityHolder : public Script_AbilityHolder {
-	COMPONENT(Script_StateAbilityHolder, Script_AbilityHolder)
+class Script_CooldownAbilityHolder : public Script_AbilityHolder {
+	COMPONENT(Script_CooldownAbilityHolder, Script_AbilityHolder)
 
 public:
-	void SetActive(bool isActive);
-
-public:
-	virtual void Update() override;
-
-private:
-	void Enable();
-	void Disable();
-
+	virtual void Toggle() override;
 };
 #pragma endregion

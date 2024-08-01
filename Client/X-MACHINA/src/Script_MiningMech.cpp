@@ -30,8 +30,8 @@ void Script_MiningMech::Start()
 {
 	base::Start();
 
-	mRectangleIndicator = mObject->AddComponent<Script_StateAbilityHolder>();
-	mRectangleIndicator.lock()->SetAbility(0, std::make_shared<AttackIndicator>(1.8f, "RectangleIndicator"));
+	mRectangleIndicator = mObject->AddComponent<Script_AbilityHolder>();
+	mRectangleIndicator.lock()->SetAbility(std::make_shared<AttackIndicator>(1.8f, "RectangleIndicator"));
 }
 
 void Script_MiningMech::LateUpdate()

@@ -285,7 +285,9 @@ void Object::LateUpdate()
 
 void Object::OnDestroy()
 {
-	assert(!mIsDestroyed);
+	if (mIsDestroyed) {
+		return;
+	}
 	mIsDestroyed = true;
 
 	SetActive(false);

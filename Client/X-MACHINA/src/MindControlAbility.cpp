@@ -42,26 +42,8 @@ void MindControlAbility::Update(float activeTime)
 {
 	base::Update(activeTime);
 
-	if (KEY_TAP(VK_LBUTTON) && mCurrControlledObjectCnt > 0) {
-
-		mPickedTarget = PickingObject(InputMgr::I->GetMousePos());
-
-		if (mPickedTarget) {
-			if (!ReducePheroAmount()) {
-				Terminate();
-				return;
-			}
-
-			ActiveMindControlledEnemyBT();
-			mCurrControlledObjectCnt--;
-		}
-
-		if (mCurrControlledObjectCnt <= 0) {
-			ChangeAimToOrigin();
-		}
-	}
-	else if (KEY_TAP(mHolderKey) && mCurrControlledObjectCnt > 0) {
-		Terminate();
+	if (KEY_TAP(VK_LBUTTON)) {
+		Click();
 	}
 }
 
@@ -71,8 +53,6 @@ void MindControlAbility::Activate()
 		mTerminateCallback();
 		return;
 	}
-
-
 
 	RenderedAbility::Activate();
 
@@ -90,6 +70,8 @@ void MindControlAbility::Activate()
 void MindControlAbility::DeActivate()
 {
 	base::DeActivate();
+
+	ChangeAimToOrigin();
 
 	if (mPickedTarget) {
 		ActivePrevEnemyBT();
@@ -186,6 +168,29 @@ void MindControlAbility::ActivePrevEnemyBT()
 			component->SetActive(true);
 			break;
 		}
+	}
+}
+
+void MindControlAbility::Click()
+{
+	if (mCurrControlledObjectCnt > 0) {
+		return;
+	}
+
+	mPickedTarget = PickingObject(InputMgr::I->GetMousePos());
+
+	if (mPickedTarget) {
+		if (!ReducePheroAmount()) {
+			Terminate();
+			return;
+		}
+
+		ActiveMindControlledEnemyBT();
+		mCurrControlledObjectCnt--;
+	}
+
+	if (mCurrControlledObjectCnt <= 0) {
+		ChangeAimToOrigin();
 	}
 }
 

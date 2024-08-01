@@ -17,7 +17,6 @@ class Script_AimController;
 class Script_MainCamera;
 class UI;
 class SliderBarUI;
-class ChatBoxUI;
 class GridObject;
 #pragma endregion
 
@@ -29,16 +28,11 @@ class Script_Player abstract : public Script_LiveObject {
 protected:
 	Script_MainCamera* mCamera{};
 
-	GameObject*		mTarget{};		// self GameObject
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
-	int				mScore{};
 	sptr<SliderBarUI> mHpBarUI{};
-	sptr<ChatBoxUI> mChatBoxUI{};
 
 public:
-	bool IsActiveChatBox() const;
-
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -48,19 +42,11 @@ public:
 	virtual void Update() override;
 
 public:
-	virtual bool ProcessInput();
-	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) { return true; }
-	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-
 	virtual void Rotate(float pitch, float yaw, float roll);
 
 	virtual bool Hit(float damage, Object* instigator) override;
 	virtual void Dead() override;
 	virtual void Respawn();
-
-	void SetText(const std::string& text);
-
-	void AddScore(int score);
 };
 
 
@@ -86,22 +72,23 @@ protected:
 public:
 	virtual void OnDestroy() override;
 
-public:
-	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
-	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
-
 	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const { return mIsInDraw; }
 	bool IsInPutBack() const { return mIsInPutback; }
 
 	virtual void BulletFired() {}
 
+public:
+	virtual void StartFire();
+	virtual void StopFire();
+	virtual bool Reload();
+
+	virtual void DrawWeapon(int weaponNum);
+
 protected:
 	int GetCrntWeaponIdx() const { return mCrntWeaponNum - 1; }
 	int GetCrntWeaponNum() const { return mCrntWeaponNum; }
 	int GetNextWeaponNum() const { return mNextWeaponNum; }
-
-	virtual void DrawWeapon(int weaponNum);
 
 	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) abstract;
 	virtual void DrawWeapon();
@@ -110,11 +97,6 @@ protected:
 	virtual void PutbackWeaponEnd();
 	virtual void DropWeapon(int weaponIdx);
 	virtual void ResetWeaponAnimation() {}
-
-
-	virtual void StartFire();
-	virtual void StopFire();
-	virtual bool Reload();
 
 private:
 	void SetWeapon(int weaponNum);
@@ -197,15 +179,12 @@ public:
 
 public:
 	void UpdateParams(Dir dir, float v, float h, float rotAngle);
-	virtual bool ProcessInput() override;
+	void ProcessInput();
 
 	// direction 방향으로 이동한다.
 	virtual void Move(Dir dir);
 	// [dir]방향을 바라보도록 회전한다.
 	void RotateTo(Dir dir);
-
-	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
-	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 	void InitWeaponAnimations();
 	// called by weapon //
@@ -213,6 +192,8 @@ public:
 	void BoltAction();
 	// called by callback //
 	void EndReload();
+	// called by itself //
+	virtual bool Reload() override;
 
 	virtual void BulletFired() override;
 
@@ -225,13 +206,18 @@ public:
 	Vec3  GetMoveDir() const	   { return mDirVec; }
 	Vec3  GetPrevMoveDir() const   { return mPrevDirVec; }
 
+	void OnAim();
+	void OffAim();
+
+	virtual void DropCrntWeapon();
+	void Interact();
+
 private:
 	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) override;
 	virtual void DrawWeaponCallback();
 	virtual void DrawWeaponEndCallback();
 	virtual void PutbackWeapon() override;
 	virtual void PutbackWeaponEndCallback();
-	void AimEndCallback();
 	virtual void DropWeapon(int weaponIdx) override;
 	void UpdateParam(float val, float& param);
 	virtual void ResetWeaponAnimation() override;
@@ -244,17 +230,10 @@ private:
 	void RotateToAim(Dir dir, float& rotAngle);
 
 
-
-
 	// angle 만큼 서서히 회전한다.
 	void Rotate(float angle) const;
 	void RotateMuzzleToAim();
 
-	void OnAim();
-	void OffAim();
-
-	// called by itself
-	virtual bool Reload() override;
 	void StopReload();
 
 	void SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState);
@@ -277,8 +256,6 @@ private:
 
 	void SwitchWeapon(GridObject* weapon);
 	void SetWeaponChild(GridObject* weapon);
-
-	void Interact();
 
 	void ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);
 };

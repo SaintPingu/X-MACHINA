@@ -11,7 +11,6 @@
 #include "Script_Weapon_Shotgun.h"
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
-#include "Script_AbilityHolder.h"
 #include "Script_Item.h"
 #include "Script_FootStepSound.h"
 
@@ -31,12 +30,6 @@
 #include "AnimatorController.h"
 
 #include "Component/UI.h"
-
-#include "ShieldAbility.h"
-#include "IRDetectorAbility.h"
-#include "MinimapAbility.h"
-#include "MindControlAbility.h"
-#include "CloakingAbility.h"
 
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
@@ -80,11 +73,6 @@ void Script_GroundPlayer::Awake()
 
 	// add scripts //
 	mObject->AddComponent<Script_GroundObject>();
-	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('T', std::make_shared<ShieldAbility>());
-	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('Y', std::make_shared<IRDetectorAbility>());
-	mObject->AddComponent<Script_AbilityHolder>()->SetAbility('U', std::make_shared<MindControlAbility>());
-	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility('I', std::make_shared<CloakingAbility>());
-	mObject->AddComponent<Script_ToggleAbilityHolder>()->SetAbility('I', std::make_shared<CloakingAbility>());
 	mObject->AddComponent<Script_FootStepSound>();
 
 	// values //
@@ -124,8 +112,6 @@ void Script_GroundPlayer::Update()
 	base::Update();
 
 	mIsInteracted = false;
-
-	ProcessInput();
 
 	RecoverRecoil();
 }
@@ -226,14 +212,8 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 }
 
 
-bool Script_GroundPlayer::ProcessInput()
+void Script_GroundPlayer::ProcessInput()
 {
-	if (!base::ProcessInput()) {
-		// TODO : �÷��̾� ���?? �ִϸ��̼� ����
-		return false;
-	}
-
-	// Ű �Է¿� ���� ���� ���� //
 	Dir dir{};
 	float v{}, h{};
 	if (KEY_PRESSED('W')) { v += 1; }
@@ -269,10 +249,7 @@ bool Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('O')) mCamera->ZoomOut();
 	if (KEY_PRESSED('P')) mCamera->ZoomIn();
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
-
-	return true;
 }
-
 
 
 void Script_GroundPlayer::Move(Dir dir)
@@ -349,86 +326,6 @@ void Script_GroundPlayer::RotateTo(Dir dir)
 	}
 }
 
-
-bool Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
-		return false;
-	}
-
-	switch (messageID) {
-	case WM_RBUTTONDOWN:
-		OnAim();
-		break;
-
-	case WM_RBUTTONUP:
-		OffAim();
-		break;
-
-	default:
-		break;
-	}
-
-	return true;
-}
-
-bool Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
-		return false;
-	}
-
-	switch (messageID) {
-	case WM_KEYDOWN:
-	{
-		switch (wParam)
-		{
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		{
-			const int weaponNum = static_cast<int>(wParam - '0');
-			DrawWeapon(weaponNum);
-		}
-			break;
-		case '6':
-			AquireNewWeapon(WeaponName::SkyLine);
-			break;
-		case '7':
-			AquireNewWeapon(WeaponName::DBMS);
-			break;
-		case '8':
-			AquireNewWeapon(WeaponName::Burnout);
-			break;
-		case '9':
-			AquireNewWeapon(WeaponName::PipeLine);
-			break;
-		case 'E':
-			Interact();
-			break;
-		case 'G':
-			DropWeapon(GetCrntWeaponNum() - 1);
-			break;
-
-		default:
-			break;
-		}
-	}
-
-	break;
-	case WM_KEYUP:
-	{
-
-	}
-
-	break;
-	default:
-		break;
-	}
-
-	return true;
-}
 
 void Script_GroundPlayer::InitWeaponAnimations()
 {
@@ -605,6 +502,73 @@ void Script_GroundPlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 	}
 }
 
+
+void Script_GroundPlayer::OnAim()
+{
+	if (!mWeapon || !mController) {
+		return;
+	}
+
+	SoundMgr::I->Play("Gun", "OnAim");
+	mController->SetValue("Aim", true);
+	mIsAim = true;
+}
+
+void Script_GroundPlayer::OffAim()
+{
+	mController->SetValue("Aim", false);
+	mIsAim = false;
+
+	// ���� ���� ȸ�����¿��ٸ� �̸� ����Ѵ�??.
+	if (mIsInBodyRotation) {
+		mIsInBodyRotation = false;
+
+		PlayerMotion prevMotion = mPrevMovement & 0xF0;
+		if (prevMotion == PlayerMotion::None) {
+			mController->SetValue("Walk", false);
+		}
+	}
+}
+
+void Script_GroundPlayer::DropCrntWeapon()
+{
+	DropWeapon(GetCrntWeaponNum() - 1);
+}
+
+void Script_GroundPlayer::Interact()
+{
+	const auto collisionObjects = mObject->GetCollisionObjects();
+	for (auto other : collisionObjects) {
+		switch (other->GetTag()) {
+		case ObjectTag::Crate:
+		case ObjectTag::Item:
+			if (!mIsInteracted) {
+				mIsInteracted = other->GetComponent<Script_Item>()->Interact(mObject);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+
+void Script_GroundPlayer::DropWeapon(int weaponIdx)
+{
+	if (weaponIdx < 0) {
+		return;
+	}
+
+
+	base::DropWeapon(weaponIdx);
+
+	OffAim();
+
+	if (mWeapon == nullptr) {
+		ResetWeaponAnimation();
+	}
+}
+
 void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 {
 	base::DrawWeaponStart(weaponNum, isDrawImmed);
@@ -699,21 +663,6 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 	mController->SetValue("PutBack", false);
 }
 
-
-void Script_GroundPlayer::DropWeapon(int weaponIdx)
-{
-	if (weaponIdx < 0) {
-		return;
-	}
-
-	base::DropWeapon(weaponIdx);
-
-	OffAim();
-
-	if (mWeapon == nullptr) {
-		ResetWeaponAnimation();
-	}
-}
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
@@ -974,34 +923,6 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 	else if (::DecreaseDelta(mAimingDeltaTime, kHoldingSpeed)) {
 		mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle * mAimingDeltaTime);
 		mCrntSpineAngle *= mAimingDeltaTime;
-	}
-}
-
-
-void Script_GroundPlayer::OnAim()
-{
-	if (!mWeapon || !mController) {
-		return;
-	}
-
-	SoundMgr::I->Play("Gun", "OnAim");
-	mController->SetValue("Aim", true);
-	mIsAim = true;
-}
-
-void Script_GroundPlayer::OffAim()
-{
-	mController->SetValue("Aim", false);
-	mIsAim = false;
-
-	// ���� ���� ȸ�����¿��ٸ� �̸� ����Ѵ�??.
-	if (mIsInBodyRotation) {
-		mIsInBodyRotation = false;
-
-		PlayerMotion prevMotion = mPrevMovement & 0xF0;
-		if (prevMotion == PlayerMotion::None) {
-			mController->SetValue("Walk", false);
-		}
 	}
 }
 
@@ -1327,22 +1248,6 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	}
 }
 
-void Script_GroundPlayer::Interact()
-{
-	const auto collisionObjects = mObject->GetCollisionObjects();
-	for (auto other : collisionObjects) {
-		switch (other->GetTag()) {
-		case ObjectTag::Crate:
-		case ObjectTag::Item:
-			if (!mIsInteracted) {
-				 mIsInteracted = other->GetComponent<Script_Item>()->Interact(mObject);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-}
 
 void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon)
 {

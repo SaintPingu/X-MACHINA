@@ -45,6 +45,9 @@ public:
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 
+	void Click();
+	void Terminate();
+
 protected:
 	virtual bool ReducePheroAmount(bool checkOnly = false) override;
 
@@ -54,7 +57,6 @@ private:
 	// 행동트리 변경
 	void ActiveMindControlledEnemyBT();
 	void ActivePrevEnemyBT();
-	void Terminate();
 
 	void ChangeAimToOrigin();
 	void ChangeAimToActive();

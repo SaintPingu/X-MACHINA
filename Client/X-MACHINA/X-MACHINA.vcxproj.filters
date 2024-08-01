@@ -430,6 +430,9 @@
     <ClInclude Include="include\Script_StageNameUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_PlayerController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -707,6 +710,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_StageNameUI.cpp">
       <Filter>Script\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_PlayerController.cpp">
+      <Filter>Script\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

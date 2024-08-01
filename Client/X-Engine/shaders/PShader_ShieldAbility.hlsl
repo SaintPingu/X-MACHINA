@@ -34,11 +34,11 @@ float4 PSShieldAbility(VSOutput_Standard pin) : SV_TARGET0
     float depthDiff = depthViewZ - pixelViewZ;
     float depthFade = saturate(pow(depthDiff, 4.f));
     
-    float opacity = max(opacitySample, rim);
+    float opacity = max(opacitySample, rim).a;
     float2 bandUV = pin.UV + float2(0.f, -gAbilityCB.AccTime * 0.5f);
     
     float4 litColor = GammaEncoding(lerp(diffuse, float4(1.f.xxx, 0.8f), rim));
-    litColor.a = diffuse.a * max(opacitySample * GeneratedBand(bandUV, false, 0.25f, 0.25f, 0.8f), rim * 0.5f) * depthFade;
+    litColor.a = diffuse.a * max(opacitySample * GeneratedBand(bandUV, false, 0.25f, 0.25f, 0.8f), rim * 0.5f).a * depthFade;
     
     // 시간에 따라 알파 값을 선형 감쇠
     litColor.a *= CalcAttenuation(gAbilityCB.AccTime, gAbilityCB.Duration, gAbilityCB.ActiveTime);

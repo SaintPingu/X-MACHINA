@@ -27,7 +27,7 @@ float4 PSScrollSmoke(GSOutput_Particle pin) : SV_TARGET
     color.rgb *= gInputPraticles[pin.ID].FinalColor.xyz;
     color.a = alphaMask;
     
-    color = lerp((0.5f, 0.5f, 0.5f, 0.5f), color, alphaMask);
+    color = lerp(float4(0.5f, 0.5f, 0.5f, 0.5f), color, alphaMask);
     
     return color;
 }

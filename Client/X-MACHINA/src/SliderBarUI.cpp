@@ -19,6 +19,13 @@ SliderBarUI::SliderBarUI(const std::string& backgroundTexture, const std::string
 	mFillBarUI->SetMinMaxValue(0.f, maxValue);
 }
 
+SliderBarUI::~SliderBarUI()
+{
+	mBackgroundBarUI->Remove();
+	mEaseBarUI->Remove();
+	mFillBarUI->Remove();
+}
+
 void SliderBarUI::Update(float currPheroAmount)
 {
 	if (mDisplayFillValue < currPheroAmount) {

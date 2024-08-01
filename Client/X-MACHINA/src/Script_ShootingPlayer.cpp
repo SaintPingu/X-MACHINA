@@ -22,73 +22,26 @@ void Script_ShootingPlayer::OnDestroy()
 	}
 }
 
-bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
-		return false;
-	}
-
-	if (!mWeaponScript) {
-		return true;
-	}
-
-	switch (messageID) {
-	case WM_LBUTTONDOWN:
-		StartFire();
-		break;
-
-	case WM_LBUTTONUP:
-		StopFire();
-		break;
-
-	default:
-		break;
-	}
-
-	return true;
-}
-
-bool Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
-		return false;
-	}
-
-	switch (messageID) {
-	case WM_KEYDOWN:
-	{
-		switch (wParam)
-		{
-		case 'R':
-			if (!IsInGunChangeMotion()) {
-				Reload();
-			}
-			break;
-
-		default:
-			break;
-		}
-	}
-	break;
-	default:
-		break;
-	}
-
-	return true;
-}
-
 void Script_ShootingPlayer::StartFire()
 {
-	mWeaponScript->StartFire();
+	if (mWeaponScript) {
+		mWeaponScript->StartFire();
+	}
 }
 
 void Script_ShootingPlayer::StopFire()
 {
-	mWeaponScript->StopFire();
+	if (mWeaponScript) {
+		mWeaponScript->StopFire();
+	}
 }
 
 bool Script_ShootingPlayer::Reload()
 {
+	if (IsInGunChangeMotion()) {
+		return false;
+	}
+
 	if (mWeaponScript) {
 		return mWeaponScript->CheckReload();
 	}
@@ -228,6 +181,7 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 		if (weapon == mWeapon) {
 			mWeapon = nullptr;
+			mWeaponScript->StopFire();
 			mWeaponScript = nullptr;
 			mMuzzle = nullptr;
 			mCrntWeaponNum = 0;

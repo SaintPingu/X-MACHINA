@@ -19,6 +19,7 @@
 #include "Script_NetworkEnemy.h"
 #include "Script_EnemyManager.h"
 #include "Script_Player.h"
+#include "Script_PlayerController.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -905,7 +906,7 @@ void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_
 	std::string chat	= data->chat;
 	uint32_t player_id	= data->Id;
 
-	GameFramework::I->GetPlayer()->GetComponent<Script_Player>()->SetText(chat);
+	GameFramework::I->GetPlayerScript()->Chat(chat);
 }
 
 

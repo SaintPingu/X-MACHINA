@@ -15,7 +15,6 @@ protected:
 	Object*		mObject{};
 	float		mCooldownTime{};
 	float		mActiveTime{};
-	int			mHolderKey{};
 	std::string mAbilityName{};
 
 	std::function<void()> mTerminateCallback{};
@@ -30,7 +29,6 @@ public:
 
 public:
 	void SetObject(Object* object) { mObject = object; }
-	void SetHolderKey(int holderKey) { mHolderKey = holderKey; }
 	void SetTerminateCallback(const std::function<void()>& callback) { mTerminateCallback = callback; }
 
 public:

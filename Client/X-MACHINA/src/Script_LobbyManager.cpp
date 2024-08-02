@@ -26,7 +26,7 @@ void Script_LobbyManager::Awake()
 	//MainCamera::I->SetPosition(Vec3(5, 3, 2));
 	MAIN_CAMERA->SetOffset(Vec3(9.88f, 1.86f, 6.93f));
 	MainCamera::I->SetPosition(Vec3(9.88f, 1.86f, 6.93f));
-	MainCamera::I->SetLocalRotation(Quaternion::ToQuaternion(Vec3(8.25f, -124.f, 0.f)));
+	MainCamera::I->SetLocalRotation(Vec3(8.25f, -124.f, 0.f));
 	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
 
@@ -39,7 +39,7 @@ void Script_LobbyManager::Start()
 
 	const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
 	trooper->SetPosition(7.4f, 0, 5.27f);
-	trooper->SetLocalRotation(Quaternion::ToQuaternion(Vec3(0.f, 53.41f, 0.f)));
+	trooper->SetLocalRotation(Vec3(0.f, 53.41f, 0.f));
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
 	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.12f);

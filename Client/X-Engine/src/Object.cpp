@@ -233,11 +233,11 @@ void InstObject::SetUpdateFunc()
 {
 	switch (GetType()) {
 	case ObjectType::DynamicMove:
-		mUpdateFunc = [this]() { UpdateDynamic(); };
+		mUpdateFunc = &InstObject::UpdateDynamic;
 		break;
 
 	default:
-		mUpdateFunc = [this]() { UpdateStatic(); };
+		mUpdateFunc = &InstObject::UpdateStatic;
 		break;
 	}
 }

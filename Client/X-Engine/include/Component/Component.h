@@ -37,14 +37,15 @@ class Component {
 	friend Object;
 
 protected:
-	Object* mObject{};	// 이 Component를 소유하는 객체
+	Object* mObject{};	// Object that own this Component
 
 private:
 	bool mIsAwake  = false;
 	bool mIsStart  = false;
 	bool mIsActive = false;
 
-	std::function<void()> UpdateFunc{ std::bind(&Component::FirstUpdate, this) };
+	void (Component::*mUpdateFunc)() { &Component::FirstUpdate };
+	void UpdateFunc() { (this->*mUpdateFunc)(); }
 
 public:
 	Component(Object* object) { mObject = object; }

@@ -4,13 +4,11 @@
 
 #include "AnimatorController.h"
 #include "AnimationClip.h"
-#include "BattleScene.h"
 #include "Mesh.h"
-#include "Timer.h"
-#include "Component/Transform.h"
 #include "ResourceMgr.h"
-
 #include "Object.h"
+
+#include "Component/Transform.h"
 
 
 Animator::Animator(rsptr<const AnimationLoadInfo> animationInfo, GameObject* avatar)
@@ -87,7 +85,7 @@ void Animator::InitController(rsptr<const AnimationLoadInfo> animationInfo)
 
 void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar, bool isManualBoneCalc)
 {
-	if (isManualBoneCalc) {
+	if (isManualBoneCalc) {	// get frames from root
 		auto& SetBoneFrame = [&](Transform* transform) {
 			Object* obj = transform->GetObj<Object>();
 			if (!obj->HasMesh()) {
@@ -97,7 +95,7 @@ void Animator::InitBoneFrames(size_t skinMeshCount, GameObject* avatar, bool isM
 		Transform* root = avatar->FindFrame("root");
 		root->DoAllChilds(SetBoneFrame);
 	}
-	else {
+	else {	// get frames from SkinMesh's bones
 		for (const auto& skinMesh : mSkinMeshes) {
 			for (const auto& boneName : skinMesh->mBoneNames) {
 				mBoneFrames[boneName] = avatar->FindFrame(boneName);

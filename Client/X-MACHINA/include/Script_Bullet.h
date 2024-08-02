@@ -30,7 +30,7 @@ private:
 	float mCurDistance{};	// 현재 비행 길이
 	float mMaxDistance{};	// 최대 비행 길이
 
-	inline static const float mkMaxDistance{ 20.f };
+	inline static const float mkMaxDistance{ 30.f };
 
 public:
 	float GetDamage() const { return mDamage; }

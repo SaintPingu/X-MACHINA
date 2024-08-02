@@ -1196,8 +1196,7 @@ Vec3 FBsPacketFactory::GetPosition_Vec2(const FBProtocol::Position_Vec2* vec2)
 
 Vec4 FBsPacketFactory::GetRot_y(const float rot_y)
 {
-	Vec4 Rotation = Quaternion::ToQuaternion(Vec3(0, rot_y, 0));
-	return Rotation;
+	return Vec3(0, rot_y, 0).ToQuaternion();
 }
 
 

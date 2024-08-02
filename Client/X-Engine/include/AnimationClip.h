@@ -29,5 +29,5 @@ public:
 	Matrix GetSRT(const std::string& boneName, float position) const;
 
 private:
-	const Matrix& GetMatrix(const std::string& boneName, int keyFrameIdx) const;
+	const Matrix& GetMatrix(const std::string& boneName, int keyFrameIdx) const { return (mKeyFrameTransforms.at(boneName))[keyFrameIdx]; }
 };

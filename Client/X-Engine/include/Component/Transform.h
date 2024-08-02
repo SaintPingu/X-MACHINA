@@ -167,11 +167,15 @@ public:
 	void RotateGlobal(const Vec3& axis, float angle);
 	// (global) rotates by [eulerAngles]
 	void RotateGlobal(const Vec3& eulerAngles);
+	// (global) rotates by [quatAngle] (Quaternion)
+	void RotateGlobal(const XMVECTOR& quatAngles);
 	// (local) rotates around [offset] by [axis] and [angle]
 	void RotateOffset(const Vec3& axis, float angle, const Vec3& offset);
 	// (local) rotates to target by Y-axis 
 	bool RotateTargetAxisY(const Vec3& target, float rotationSpeed);
-	// (local) set rotation to quaternion
+	// (local) set rotation to [eulerAngles]
+	void SetLocalRotation(const Vec3& eulerAngles);
+	// (local) set rotation to [quaternion]
 	void SetLocalRotation(const Vec4& quaternion);
 	void ResetRotation(float yAngle);
 

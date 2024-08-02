@@ -271,6 +271,8 @@ namespace DirectX
             Vector3 xz() const noexcept;
             Vector3 yz() const noexcept;
 
+            Vector4 ToQuaternion() const noexcept;
+
             // Static functions
             static float Distance(const Vector3& v1, const Vector3& v2) noexcept;
             static float DistanceSquared(const Vector3& v1, const Vector3& v2) noexcept;
@@ -699,6 +701,8 @@ namespace DirectX
             void Inverse(Quaternion& result) const noexcept;
 
             float Dot(const Quaternion& Q) const noexcept;
+
+            Vector3 ToEuler() const noexcept;
 
             // Static functions
             static Quaternion CreateFromAxisAngle(const Vector3& axis, float angle) noexcept;

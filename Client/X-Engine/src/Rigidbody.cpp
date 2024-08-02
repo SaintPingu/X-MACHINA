@@ -82,7 +82,7 @@ void Rigidbody::AddForce(const Vec3& force, ForceMode forceMode)
 
 	const Vec3 acc = ((force * mAcc) / mMass) * t;	// 가속도 = ((force * mAcc) / 질량) * t
 	mVelocity += acc;								// 현재 속도에 가속도를 더한다.
-	if (mVelocity.Length()> mMaxSpeed) {	// 최대 속도를 넘지 않도록 한다.
+	if (mVelocity.Length()> mMaxSpeed) {			// 최대 속도를 넘지 않도록 한다.
 		SetVelocity(mMaxSpeed);
 	}
 }

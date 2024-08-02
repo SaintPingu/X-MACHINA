@@ -79,7 +79,7 @@ void Component::Reset()
 	mIsStart = false;
 	mIsActive = false;
 
-	UpdateFunc = std::bind(&Component::FirstUpdate, this);
+	mUpdateFunc = &Component::FirstUpdate;
 }
 
 void Component::FirstUpdate()
@@ -95,8 +95,9 @@ void Component::FirstUpdate()
 	if (!mIsStart) {
 		Start();
 	}
+
+	mUpdateFunc = &Component::Update;
 	Update();
-	UpdateFunc = std::bind(&Component::Update, this);
 }
 #pragma endregion
 
@@ -110,7 +111,7 @@ void Component::FirstUpdate()
 #pragma region Object
 void Object::SetTag(ObjectTag tag)
 {
-	mTag  = tag;
+	mTag = tag;
 	mType = GetObjectType(tag);
 }
 
@@ -190,7 +191,7 @@ void Object::OnEnable()
 	mIsEnable = true;
 
 	ProcessComponents([](rsptr<Component> component) {
-			component->SetActive(true);
+		component->SetActive(true);
 		});
 	Transform::ComputeWorldTransform();
 

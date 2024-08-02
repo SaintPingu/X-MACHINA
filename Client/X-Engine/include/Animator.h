@@ -2,7 +2,6 @@
 
 class Transform;
 class AnimatorController;
-class AnimationSet;
 class GameObject;
 class SkinMesh;
 

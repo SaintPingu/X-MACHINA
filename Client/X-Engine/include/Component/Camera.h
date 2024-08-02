@@ -11,7 +11,6 @@
 
 
 #pragma region ClassForwardDecl
-class GridObject;
 #pragma endregion
 
 #pragma region Class
@@ -96,8 +95,6 @@ public:
 	void SetMovingSpeed(float speed) { mMovingSpeed = speed; }
 
 public:
-	void Rotate(float pitch = 0.f, float yaw = 0.f, float roll = 0.f);
-
 	void LookAt(const Vec3& lookAt, const Vec3& up);
 };
 

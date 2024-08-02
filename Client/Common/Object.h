@@ -135,7 +135,7 @@ protected:
 	const int mPoolID{};				// my ID(index) of ObjectPool
 	ObjectPool* const mObjectPool{};	// my ObjectPool
 
-	std::function<void()> mUpdateFunc{};
+	void (InstObject::* mUpdateFunc)() { &InstObject::UpdateDynamic };
 
 public:
 	InstObject(ObjectPool* pool, int id);
@@ -155,7 +155,7 @@ public:
 protected:
 	// 인스턴싱 객체는 나중에 한 번에 렌더링 하도록 한다.
 	virtual void Render() override { PushRender(); }
-	virtual void Update() override { mUpdateFunc(); }
+	virtual void Update() override { (this->*mUpdateFunc)(); }
 
 private:
 	// 렌더링 버퍼에 이 객체를 추가한다.

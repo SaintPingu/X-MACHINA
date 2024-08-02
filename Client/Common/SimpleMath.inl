@@ -1,3 +1,4 @@
+#include "SimpleMath.h"
 //-------------------------------------------------------------------------------------
 // SimpleMath.inl -- Simplified C++ Math wrapper for DirectXMath
 //
@@ -989,6 +990,15 @@ inline Vector3 Vector3::xz() const noexcept
 inline Vector3 Vector3::yz() const noexcept
 {
     return Vector3(0, y, z);
+}
+
+inline Vector4 DirectX::SimpleMath::Vector3::ToQuaternion() const noexcept
+{
+    XMVECTOR eulerRad = XMVectorScale(XMLoadFloat3(this), XM_PI / 180.0f);
+
+    Vector4 result;
+    XMStoreFloat4(&result, XMQuaternionRotationRollPitchYawFromVector(eulerRad));
+    return result;
 }
 
 //------------------------------------------------------------------------------
@@ -3101,6 +3111,28 @@ inline float Quaternion::Dot(const Quaternion& q) const noexcept
     XMVECTOR q1 = XMLoadFloat4(this);
     XMVECTOR q2 = XMLoadFloat4(&q);
     return XMVectorGetX(XMQuaternionDot(q1, q2));
+}
+
+inline Vector3 DirectX::SimpleMath::Quaternion::ToEuler() const noexcept
+{
+    Vector3 result{};
+
+    // Roll (x-axis rotation)
+    float sinr_cosp = 2 * (w * x + y * z);
+    float cosr_cosp = 1 - 2 * (x * x + y * y);
+    result.x = XMConvertToDegrees(atan2f(sinr_cosp, cosr_cosp));
+
+    // Pitch (y-axis rotation)
+    float sinp = sqrtf(1 + 2 * (w * y - z * x));
+    float cosp = sqrtf(1 - 2 * (w * y - z * x));
+    result.y = XMConvertToDegrees(2 * atan2f(sinp, cosp) - XM_PI / 2);
+
+    // Yaw (z-axis rotation)
+    float siny_cosp = 2 * (w * z + x * y);
+    float cosy_cosp = 1 - 2 * (y * y + z * z);
+    result.z = XMConvertToDegrees(atan2f(siny_cosp, cosy_cosp));
+
+    return result;
 }
 
 //------------------------------------------------------------------------------

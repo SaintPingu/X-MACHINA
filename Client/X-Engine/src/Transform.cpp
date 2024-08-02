@@ -308,39 +308,35 @@ void Transform::RotateToDir(const Vec3& dir)
 
 void Transform::RotateGlobal(const Vec3& axis, float angle)
 {
+	RotateGlobal(XMQuaternionRotationAxis(_VECTOR(axis), XMConvertToRadians(angle)));
+}
+
+void Transform::RotateGlobal(const Vec3& eulerAngles)
+{
+	RotateGlobal(_VECTOR4(eulerAngles.ToQuaternion()));
+}
+
+void Transform::RotateGlobal(const XMVECTOR& quatAngles)
+{
 	//// <Algorithm>
 	//// 1. 기존 회전값과 월드 회전값을 미리 저장한다.
 	//// 2. 월드 회전값의 역으로 회전하여 좌표축을 정상(왼손 좌표계)으로 되돌린다.
 	//// 3. 해당 좌표축은 월드 공간이다. 원하는 축으로 회전한다.
 	//// 4. 1에서 저장한 월드 회전값과 기존 회전값을 적용한다.
-
+	
+	// 1 //
 	XMVECTOR originLocalRotation = _VECTOR4(GetLocalRotation());
 	SetLocalRotation(Quat::Identity);
 	XMVECTOR worldRotation = _VECTOR4(GetRotation());
+
+	// 2 //
 	XMVECTOR localRotation = XMQuaternionInverse(worldRotation);
+	localRotation = XMQuaternionMultiply(quatAngles, localRotation);
 
-	XMVECTOR quatAngle = XMQuaternionRotationAxis(_VECTOR(axis), XMConvertToRadians(angle));
-
-	localRotation = XMQuaternionMultiply(quatAngle, localRotation);
+	// 3 //
 	localRotation = XMQuaternionMultiply(worldRotation, localRotation);
-	localRotation = XMQuaternionMultiply(originLocalRotation, localRotation);
 
-	Quat result;
-	XMStoreFloat4(&result, localRotation);
-	SetLocalRotation(result);
-}
-
-void Transform::RotateGlobal(const Vec3& eulerAngles)
-{
-	XMVECTOR originLocalRotation = _VECTOR4(GetLocalRotation());
-	SetLocalRotation(Quat::Identity);
-	XMVECTOR worldRotation = _VECTOR4(GetRotation());
-	XMVECTOR localRotation = XMQuaternionInverse(worldRotation);
-
-	XMVECTOR quatAngle = _VECTOR4(Quaternion::ToQuaternion(eulerAngles));
-
-	localRotation = XMQuaternionMultiply(quatAngle, localRotation);
-	localRotation = XMQuaternionMultiply(worldRotation, localRotation);
+	// 4 //
 	localRotation = XMQuaternionMultiply(originLocalRotation, localRotation);
 
 	Quat result;
@@ -383,6 +379,11 @@ bool Transform::RotateTargetAxisY(const Vec3& target, float rotationSpeed)
 
 	Rotate(Vector3::Up, rotationAngle);
 	return true;
+}
+
+void Transform::SetLocalRotation(const Vec3& eulerAngles)
+{
+	SetLocalRotation(eulerAngles.ToQuaternion());
 }
 
 void Transform::SetLocalRotation(const Vec4& quaternion)

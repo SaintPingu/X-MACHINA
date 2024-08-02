@@ -78,5 +78,5 @@ float4 PSSsao(VSOutput_SSAO pin) : SV_TARGET0
     float access = 1.f - occlusionSum;
     
     // SSAO가 극적인 효과를 내도록 SSAO의 대비를 증가시킨다.
-    return saturate(pow(access, gSsaoCB.AccessContrast));
+    return saturate(pow(abs(access), gSsaoCB.AccessContrast));
 }

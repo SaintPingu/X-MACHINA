@@ -280,7 +280,7 @@ SamplerState gsamDepthMap         : register(s7);
 // 감마 보정을 적용하는 함수
 float4 GammaEncoding(float4 color)
 {
-    return float4(pow(color.rgb, 1 / 2.2f), color.a);
+    return float4(pow(abs(color.rgb), 1 / 2.2f), color.a);
 }
 
 float4 GammaEncodingAlpha(float4 color)
@@ -291,7 +291,7 @@ float4 GammaEncodingAlpha(float4 color)
 // 감마 보정을 해제하는 함수
 float4 GammaDecoding(float4 color)
 {
-    return float4(pow(color.rgb, 2.2f), color.a);
+    return float4(pow(abs(color.rgb), 2.2f), color.a);
 }
 
 float4 GammaDecodingAlpha(float4 color)

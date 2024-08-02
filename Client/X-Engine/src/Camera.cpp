@@ -87,13 +87,13 @@ void Camera::LookAt(const Vec3& lookAt, const Vec3& upVector)
 
 Vec2 Camera::WorldToScreenPoint(const Vec3& pos)
 {
-	// position을 클립 좌표 공간으로 변환
+	// "pos" to "clip coord"
 	XMVECTOR screenPoint = XMVector3TransformCoord(XMVector3TransformCoord(_VECTOR(pos), _MATRIX(mViewTransform)), _MATRIX(mProjTransform));
 
-	// 클립 좌표를 NDC로 변환
+	// "clip coord" to "NDC"
 	screenPoint /= XMVectorGetW(screenPoint);
 
-	// NDC를 screen 좌표로 변환
+	// "NDC" to "screen coord"
 	const float halfWidth = mViewport.Width * 0.5f;
 	const float halfHeight = mViewport.Height * 0.5f;
 	screenPoint = XMVectorMultiplyAdd(screenPoint, XMVectorSet(halfWidth, halfHeight, 0.0f, 0.0f), XMVectorSet(halfWidth, halfHeight, 0.0f, 0.0f));
@@ -106,7 +106,7 @@ Vec2 Camera::WorldToScreenPoint(const Vec3& pos)
 
 Vec3 Camera::ScreenToWorldRay(const Vec2& pos)
 {
-	// 스크린 좌표 -> NDC(Normalized Device Coordinates) -> 클립 좌표로 변환
+	// screen coord -> NDC(Normalized Device Coordinates) -> clip coord
 	const Vec2 ndc = ScreenToNDC(pos);
 
 	Vec3 pickPos;
@@ -114,9 +114,9 @@ Vec3 Camera::ScreenToWorldRay(const Vec2& pos)
 	pickPos.y = ndc.y / mProjTransform._22;
 	pickPos.z = 1.f;
 
-	// 월드공간으로 변환 후 카메라와의 차이 계산
+	// Calculate the difference with the camera after converting to world space //
 	const Matrix inverse = Matrix4x4::Inverse(mViewTransform);
-	const Vec3 world = Vec3::Transform(pickPos, inverse); // front of camera
+	const Vec3 world = Vec3::Transform(pickPos, inverse);		// Front of camera
 
  	return Vector3::Normalized(world - mObject->GetPosition());
 }
@@ -130,7 +130,7 @@ void Camera::CalculateFrustumPlanes()
 {
 	mFrustumView.Transform(mFrustumWorld, XMMatrixInverse(nullptr, _MATRIX(mViewTransform)));
 	
-	// shadow camera frustum
+	// shadow camera frustum //
 	std::memcpy(&mFrustumWorldShadow, &mFrustumWorld, sizeof(mFrustumWorld));
 	mFrustumWorldShadow.Origin.y += mOffset.y * 2;
 	mFrustumWorldShadow.Origin.z += mOffset.z * 2;
@@ -144,17 +144,8 @@ void Camera::CalculateFrustumPlanes()
 #pragma region CameraObject
 CameraObject::CameraObject() : Object()
 {
-	mCamera = AddComponent<Camera>(false);
+	mCamera = AddComponent<Camera>();
 }
-
-
-void CameraObject::Rotate(float pitch, float yaw, float roll)
-{
-	base::Rotate(pitch, yaw, roll);
-
-	SetRightY(0.f);	// Roll 회전 x
-}
-
 
 void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 {

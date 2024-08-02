@@ -34,13 +34,12 @@ public:
 
 private:
 	/* Object */
-	std::vector<sptr<GameObject>>	mEnvironments{};
 	std::vector<sptr<GridObject>>	mStaticObjects{};
 	std::vector<sptr<GridObject>>	mDynamicObjects{};
 	std::vector<sptr<ObjectPool>>	mObjectPools{};
-	sptr<ObjectPool>				mBounds{};
-	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// 추가(Instantiate) 대기 버퍼
-	std::vector<sptr<Object>>		mScriptObjects{};			// Unity Scene에서 스크립트를 가지고 있는 객체들
+	std::vector<sptr<GridObject>>	mDynamicObjectBuffer{};		// Instantiate ready buffer
+	std::vector<sptr<Object>>		mScriptObjects{};			// Objects with scripts in Unity Scene
+	sptr<ObjectPool>				mBounds{};					// Manually added bounds
 	std::set<size_t>				mDestroyObjects{};
 
 	std::set<sptr<GridObject>>		mDissolveObjects{};
@@ -55,14 +54,15 @@ private:
 	BoundingBox			mMapBorder{};			// max scene range	(grid will be generated within this border)
 
 	/* Grid */
-	std::vector<sptr<Grid>>	mGrids{};				// all scene grids
-	std::vector<sptr<Grid>>	mSurroundGrids{};		// around player grids
+	std::vector<sptr<Grid>>	mGrids{};			// all scene grids
+	std::vector<sptr<Grid>>	mSurroundGrids{};	// around player grids
 
-	float					mGridStartPoint{};		// leftmost coord of the entire grid
-	int						mGridXLength{};			// length of x for one grid
-	int						mGridZLength{};			// length of z for one grid
-	int						mGridXCount{};			// number of columns(x) in the grid
-	int						mGridZCount{};			// number of rows(z)    in the grid
+	static constexpr int mkGridXCount = 20;
+	static constexpr int mkGridZCount = 10;
+	static constexpr int mkMapWidth   = 1000;
+	static constexpr int mkMapLength  = 500;
+	static constexpr int mkGridWidth  = mkMapWidth / mkGridXCount;
+	static constexpr int mkGridLength = mkMapLength / mkGridZCount;
 
 	/* Others */
 	bool mIsRenderBounds = false;
@@ -72,7 +72,7 @@ private:
 
 private:
 #pragma region C/Dtor
-	BattleScene();
+	BattleScene() = default;
 	virtual ~BattleScene() = default;
 
 #pragma endregion
@@ -160,7 +160,6 @@ private:
 	void RenderSkinMeshObjects(RenderType type);
 	void RenderInstanceObjects(RenderType type);
 	void RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects, RenderType type);
-	void RenderEnvironments();
 	void RenderTerrain(RenderType type);
 	void RenderAfterSkinImage();
 
@@ -208,7 +207,7 @@ public:
 	void UpdateSurroundGrids();
 
 	// create new game object from model
-	GridObject* Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Unspecified, ObjectLayer layer = ObjectLayer::Default, bool enable = true);
+	GridObject* Instantiate(const std::string& modelName, ObjectTag tag = ObjectTag::Untagged, bool enable = true);
 
 	void AddDynamicObject(rsptr<GridObject> object) { mDynamicObjects.push_back(object); }
 	void RemoveDynamicObject(GridObject* object);
@@ -242,8 +241,5 @@ private:
 
 	// 유니티의 tag 문자열을 ObjectTag로 변환한다.
 	static ObjectTag GetTagByString(const std::string& tag);
-
-	// 유니티의 Layer 번호[num]를 ObjectLayer로 변환한다.
-	static ObjectLayer GetLayerByNum(int num);
 };
 #pragma endregion

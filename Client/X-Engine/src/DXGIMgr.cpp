@@ -347,6 +347,8 @@ void DXGIMgr::RenderCustomDepth()
 
 void DXGIMgr::RenderOffScreen()
 {
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	GetMRT(GroupType::GBuffer)->WaitResourceToTarget(static_cast<UINT8>(GBuffer::Normal));
 	GetMRT(GroupType::GBuffer)->WaitResourceToTarget(static_cast<UINT8>(GBuffer::Emissive));
 	GetMRT(GroupType::OffScreen)->OMSetRenderTargets();
@@ -360,6 +362,8 @@ void DXGIMgr::RenderBloom()
 {
 	if (mFilterOption & FilterOption::Bloom)
 	{
+		CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 		mBloom->Execute();
 		GetMRT(GroupType::OffScreen)->WaitResourceToTarget(0);
 		GetMRT(GroupType::OffScreen)->OMSetRenderTargets(1, 0);
@@ -371,6 +375,7 @@ void DXGIMgr::RenderBloom()
 
 void DXGIMgr::RenderPostProcessing()
 {
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	PostPassRenderBegin();
 
 	UINT offScreenIndex{};

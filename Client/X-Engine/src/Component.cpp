@@ -9,7 +9,7 @@ UINT32 Object::sID = 0;
 namespace {
 
 	constexpr DWORD gkDynamicMoveObjects {
-		ObjectTag::Unspecified		|
+		ObjectTag::Untagged		|
 		ObjectTag::Player			|
 		ObjectTag::Bullet			|
 		ObjectTag::Enemy			|
@@ -23,12 +23,6 @@ namespace {
 		ObjectTag::AfterSkinImage
 	};
 
-	constexpr DWORD gkEnvObjects {
-		ObjectTag::Unspecified		|
-		ObjectTag::Environment		|
-		ObjectTag::Terrain
-	};
-
 	constexpr bool IsDynamicMoveObject(ObjectTag tag)
 	{
 		return gkDynamicMoveObjects & tag;
@@ -37,11 +31,6 @@ namespace {
 	constexpr bool IsDynamicObject(ObjectTag tag)
 	{
 		return gkDynamicMoveObjects & tag;
-	}
-
-	constexpr bool IsEnvObject(ObjectTag tag)
-	{
-		return gkEnvObjects & tag;
 	}
 }
 
@@ -53,9 +42,6 @@ ObjectType GetObjectType(ObjectTag tag)
 	}
 	else if (::IsDynamicObject(tag)) {
 		return ObjectType::Dynamic;
-	}
-	else if (::IsEnvObject(tag)) {
-		return ObjectType::Env;
 	}
 
 	return ObjectType::Static;

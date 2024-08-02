@@ -59,7 +59,7 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 
 	// create weapon from name
 	std::string weaponModelName = Script_Weapon::GetWeaponModelName(mWeaponName);
-	mWeapon = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Item, ObjectLayer::Default, false);
+	mWeapon = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Item, false);
 	mWeapon->SetWorldTransform(mObject->GetWorldTransform());
 	mWeapon->AddComponent<Script_Item_Weapon>();
 	

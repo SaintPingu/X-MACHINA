@@ -78,7 +78,7 @@ private:
 };
 
 
-/* Camera Component를 가지는 객체 */
+/* Object with Camera Component */
 class CameraObject : public Object {
 	using base = Object;
 
@@ -102,7 +102,7 @@ public:
 };
 
 
-/* main camera for scene rendering */
+/* Main camera for scene rendering */
 class MainCamera : public Singleton<MainCamera>, public CameraObject {
 	friend Singleton;
 

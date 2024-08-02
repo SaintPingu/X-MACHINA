@@ -458,7 +458,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		return;
 	}
 
-	GridObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, ObjectLayer::Default, false);
+	GridObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, false);
 
 	// ��ũ��Ʈ �߰� //
 	switch (weaponName) {

@@ -51,21 +51,20 @@ class CollisionType : public DwordOverloader<CollisionType> {
 class ObjectTag : public DwordOverloader<ObjectTag> {
 	DWORD_OVERLOADER(ObjectTag)
 
-	static const DWORD Unspecified		= 0x0000;
+	static const DWORD Untagged			= 0x0000;
 	static const DWORD Player			= 0x0001;
 	static const DWORD Terrain			= 0x0002;
 	static const DWORD Building			= 0x0004;
-	static const DWORD Environment		= 0x0008;
-	static const DWORD Dynamic			= 0x0010;
-	static const DWORD DissolveBuilding = 0x0020;
-	static const DWORD Bullet			= 0x0040;
-	static const DWORD Enemy			= 0x0080;
-	static const DWORD Prop				= 0x0100;
-	static const DWORD AfterStaticImage	= 0x0200;
-	static const DWORD AfterSkinImage	= 0x0400;
-	static const DWORD Crate			= 0x0800;
-	static const DWORD Item				= 0x1000;
-	static const DWORD Bound			= 0x2000;
+	static const DWORD Dynamic			= 0x0008;
+	static const DWORD DissolveBuilding = 0x0010;
+	static const DWORD Bullet			= 0x0020;
+	static const DWORD Enemy			= 0x0040;
+	static const DWORD Prop				= 0x0080;
+	static const DWORD AfterStaticImage	= 0x0100;
+	static const DWORD AfterSkinImage	= 0x0200;
+	static const DWORD Crate			= 0x0400;
+	static const DWORD Item				= 0x0800;
+	static const DWORD Bound			= 0x1000;
 };
 
 class FilterOption : public DwordOverloader<FilterOption> {
@@ -81,19 +80,11 @@ class FilterOption : public DwordOverloader<FilterOption> {
 	static const DWORD Sobel			= 0x100;
 };
 
-// rendering layer
-enum class ObjectLayer {
-	Default = 0,
-	Transparent,	// use transparent shader
-	Water			// use water shader
-};
-
-// update type
+// Update type
 enum class ObjectType {
 	DynamicMove = 0,	// do update,     do     grid update.
 	Dynamic, 			// do update,	  do not grid update.
 	Static, 			// do not update, do not grid update.
-	Env,				// also static,   do not collision.
 };
 
 enum class BlendType : UINT8 {
@@ -165,11 +156,6 @@ using rwptr = const wptr<T>&;
 
 
 #pragma region Struct
-struct NavMesh {
-	std::vector<Vec2> Vertices;
-	std::vector<UINT> Indices;
-};
-
 struct InstanceData {
 	Matrix	MtxWorld{};
 };
@@ -237,7 +223,7 @@ constexpr unsigned int Hash(const std::wstring& str) noexcept
 	return Hash(str.data());
 }
 
-// std::string을 std::wstring으로 변환
+// std::string to std::wstring
 inline std::wstring StringToWstring(const std::string& str) {
 	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
 	std::wstring wstrTo(size_needed, 0);
@@ -245,7 +231,7 @@ inline std::wstring StringToWstring(const std::string& str) {
 	return wstrTo;
 }
 
-// std::wstring을 std::string으로 변환
+// std::wstring to std::string
 inline std::string WstringToString(const std::wstring& wstr) {
 	int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
 	std::string strTo(size_needed, 0);

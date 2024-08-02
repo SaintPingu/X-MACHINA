@@ -203,7 +203,6 @@ void LobbyScene::LoadGameObjects(std::ifstream& file)
 
 	bool isInstancing{};
 	ObjectTag tag{};
-	ObjectLayer layer{};
 
 	for (int i = 0; i < objectCount; ++i) {
 		sptr<GameObject> object{};

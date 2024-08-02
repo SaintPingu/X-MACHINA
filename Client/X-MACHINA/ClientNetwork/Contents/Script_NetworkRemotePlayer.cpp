@@ -34,7 +34,7 @@ void Script_NetworkRemotePlayer::Awake()
 		WeaponName weaponName = static_cast<WeaponName>(i + 1);
 		std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
 
-		auto& weapon = mWeapons[weaponName] = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Unspecified, ObjectLayer::Default, false);
+		auto& weapon = mWeapons[weaponName] = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Untagged, false);
 
 		WeaponType weaponType = gkWeaponTypeMap.at(weaponName);
 		Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));

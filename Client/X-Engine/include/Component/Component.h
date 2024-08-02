@@ -134,7 +134,6 @@ private:
 
 	std::string	mName{};
 	ObjectTag	mTag{};
-	ObjectLayer mLayer{};
 	ObjectType	mType{};
 	bool mHasMesh = false;
 
@@ -160,7 +159,6 @@ public:
 
 	const std::string& GetName() const	{ return mName; }
 	ObjectTag GetTag() const			{ return mTag; }
-	ObjectLayer GetLayer() const		{ return mLayer; }
 	ObjectType GetType() const			{ return mType; }
 	UINT32 GetID() const				{ return mID; }
 
@@ -176,7 +174,6 @@ public:
 #pragma region Setter
 	virtual void SetTag(ObjectTag tag);
 	void SetName(const std::string& name)	{ mName = name; }
-	void SetLayer(ObjectLayer layer)		{ mLayer = layer; }
 	void SetID(UINT32 sessionID)			{ mID = sessionID; }
 	void SetHasMesh()						{ mHasMesh = true; }
 #pragma endregion

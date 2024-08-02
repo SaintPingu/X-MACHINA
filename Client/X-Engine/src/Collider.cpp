@@ -216,7 +216,7 @@ void ObjectCollider::Awake()
 {
 	base::Awake();
 
-	// SphereCollider를 가져오고, 없으면 ObjectCollider를 제거한다.
+	// Get the SphereCollider, and if not remove this.
 	mSphereCollider = mObject->GetComponent<SphereCollider>();
 	const auto& gridObject = mObject->GetObj<GridObject>();
 	if (!mSphereCollider) {
@@ -224,7 +224,7 @@ void ObjectCollider::Awake()
 		return;
 	}
 
-	// 객체의 모든 BoxCollider와 bounding box들을 가져온다.
+	// Gets all the colliders of the object.
 	const auto& allTransforms = gridObject->GetAllTransforms();
 
 	for (auto transform : allTransforms) {
@@ -286,7 +286,7 @@ bool ObjectCollider::Intersects(const ObjectCollider* other) const
 	const auto& aBS = GetBS();
 	const auto& bBS = other->GetBS();
 
-	// 두 객체간 Bounding Sphere 우선 검사
+	// Bounding Sphere priority check between two objects
 	if (!aBS.Intersects(bBS)) {
 		return false;
 	}
@@ -359,21 +359,15 @@ bool ObjectCollider::Intersects(const Ray& ray, float& dist) const
 	return false;
 }
 
-// 두 ObjectCollider 충돌처리 알고리즘
-//         [A]   <->    [B]
-// 1.      BS    <->    BS
-// 2.   Collider <-> Collider
 bool ObjectCollider::Intersects(const GridObject& a, const GridObject& b)
 {
 	const auto& colliderA = a.GetCollider();
 	const auto& colliderB = b.GetCollider();
 
-	// 반드시 두 객체 모두 ObjectCollider를 가지고 있어야 한다.
 	if (!colliderA || !colliderB) {
 		return false;
 	}
 
-	// 둘 중 하나라도 비활성 상태라면 검사하지 않는다.
 	if (!colliderA->IsActive() || !colliderB->IsActive()) {
 		return false;
 	}

@@ -27,25 +27,6 @@
 
 #include "TestCube.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma region C/Dtor
-namespace {
-	constexpr int kGridXCount     = 20;
-	constexpr int kGridZCount     = 10;
-	constexpr Vec3 kBorderPos     = Vec3(500, 20, 250);		// center of border
-	constexpr Vec3 kBorderExtents = Vec3(1000, 500, 500);		// extents of border
-}
-
-BattleScene::BattleScene()
-	:
-	mMapBorder(kBorderPos, kBorderExtents),
-	mGridXLength(static_cast<int>(mMapBorder.Extents.x / kGridXCount)),
-	mGridZLength(static_cast<int>(mMapBorder.Extents.z / kGridZCount))
-{
-}
-#pragma endregion
-
-
 
 
 
@@ -61,8 +42,7 @@ float BattleScene::GetTerrainHeight(float x, float z) const
 std::vector<sptr<GameObject>> BattleScene::GetAllObjects() const
 {
 	std::vector<sptr<GameObject>> result;
-	result.reserve(mEnvironments.size() + mStaticObjects.size() + mDynamicObjects.size());
-	result.insert(result.end(), mEnvironments.begin(), mEnvironments.end());
+	result.reserve(mStaticObjects.size() + mDynamicObjects.size());
 	result.insert(result.end(), mStaticObjects.begin(), mStaticObjects.end());
 	result.insert(result.end(), mDynamicObjects.begin(), mDynamicObjects.end());
 
@@ -118,7 +98,6 @@ void BattleScene::Release()
 		object->Destroy();
 		});
 
-	mEnvironments.clear();
 	mStaticObjects.clear();
 	mDynamicObjects.clear();
 	mObjectPools.clear();
@@ -151,34 +130,23 @@ void BattleScene::BuildGrid()
 {
 	constexpr float kMaxHeight = 300.f;	// for 3D grid
 
-	// recalculate scene grid size
-	const int adjustedX = Math::GetNearestMultiple((int)mMapBorder.Extents.x, mGridXLength);
-	const int adjustedZ = Math::GetNearestMultiple((int)mMapBorder.Extents.z, mGridZLength);
-	mMapBorder.Extents = Vec3((float)adjustedX, mMapBorder.Extents.y, (float)adjustedZ);
-
-	// set grid start pos
-	mGridStartPoint = mMapBorder.Center.x - mMapBorder.Extents.x / 2;
-
-	// set grid count
-	mGridXCount = adjustedX / mGridXLength;
-	mGridZCount = adjustedZ / mGridZLength;
-	const int gridCount = mGridXCount * mGridZCount;
+	constexpr int gridCount = mkGridXCount * mkGridZCount;
 	mGrids.resize(gridCount);
 
 	// set grid bounds
-	const float gridExtentX = (float)mGridXLength / 2.0f;
-	const float gridExtentZ = (float)mGridZLength / 2.0f;
-	for (int z = 0; z < mGridZCount; ++z) {
-		for (int x = 0; x < mGridXCount; ++x) {
-			float gridX = (mGridXLength * x) + ((float)mGridXLength / 2) + mGridStartPoint;
-			float gridZ = (mGridZLength * z) + ((float)mGridZLength / 2) + mGridStartPoint;
+	constexpr float gridExtentX = static_cast<float>(mkGridWidth) / 2.0f;
+	constexpr float gridExtentZ = static_cast<float>(mkGridLength) / 2.0f;
+	for (int z = 0; z < mkGridZCount; ++z) {
+		for (int x = 0; x < mkGridXCount; ++x) {
+			float gridX = (mkGridWidth * x) + ((float)mkGridWidth / 2);
+			float gridZ = (mkGridLength * z) + ((float)mkGridLength / 2);
 
 			BoundingBox bb{};
 			bb.Center = Vec3(gridX, kMaxHeight, gridZ);
 			bb.Extents = Vec3(gridExtentX, kMaxHeight, gridExtentZ);
 
-			int index = (z * mGridXCount) + x;
-			mGrids[index] = std::make_shared<Grid>(index, mGridXLength, mGridZLength, bb);
+			int index = (z * mkGridXCount) + x;
+			mGrids[index] = std::make_shared<Grid>(index, mkGridWidth, mkGridLength, bb);
 		}
 	}
 }
@@ -224,7 +192,6 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 	
 	bool isInstancing{};
 	ObjectTag tag{};
-	ObjectLayer layer{};
 
 	for (int i = 0; i < objectCount; ++i) {
 		sptr<GridObject> object{};
@@ -237,7 +204,6 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 			int layerNum{};
 			FileIO::ReadString(file, token); //"<Layer>:"
 			FileIO::ReadVal(file, layerNum);
-			layer = GetLayerByNum(layerNum);
 
 			FileIO::ReadString(file, token); //"<FileName>:"
 
@@ -261,7 +227,7 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 				}
 			}
 
-			if (tag == ObjectTag::Unspecified) {
+			if (tag == ObjectTag::Untagged) {
 				std::cout << "[WARNING] Untagged Object : " << model->GetName() << std::endl;
 			}
 		}
@@ -275,7 +241,6 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 				object->SetModel(model);
 				InitObjectByTag(tag, object);
 			}
-			object->SetLayer(layer);
 
 			// transform
 			{
@@ -324,9 +289,6 @@ void BattleScene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 	case ObjectType::DynamicMove:
 		mDynamicObjects.push_back(object);
 		break;
-	case ObjectType::Env:
-		mEnvironments.push_back(object);
-		break;
 	default:
 		mStaticObjects.push_back(object);
 		break;
@@ -340,14 +302,6 @@ void BattleScene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region Render
-namespace {
-	bool IsBehind(const Vec3& point, const Vec4& plane)
-	{
-		return XMVectorGetX(XMPlaneDotCoord(XMLoadFloat4(&plane), _VECTOR(point))) < 0.f;
-	}
-}
-
-
 void BattleScene::RenderBegin()
 {
 	ClearRenderedObjects();
@@ -355,33 +309,24 @@ void BattleScene::RenderBegin()
 
 void BattleScene::RenderShadow()
 {
-#pragma region Shadow_Global
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	RenderGridObjects(RenderType::Shadow);
-#pragma endregion
-#pragma region Shadow_SkinMesh
 	RenderSkinMeshObjects(RenderType::Shadow);
-#pragma endregion
-#pragma region Shadow_ObjectInst
 	RenderInstanceObjects(RenderType::Shadow);
-#pragma endregion
 }
 
 
 void BattleScene::RenderDeferred()
 {
-#pragma region Globald
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	RenderGridObjects(RenderType::Deferred);
-	RenderEnvironments();
-#pragma endregion
-#pragma region ObjectInst
-	RenderInstanceObjects(RenderType::Deferred);
-#pragma endregion
-#pragma region SkinMesh
 	RenderSkinMeshObjects(RenderType::Deferred);
-#pragma endregion
-#pragma region Terrain
+	RenderInstanceObjects(RenderType::Deferred);
+
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	RenderTerrain(RenderType::Deferred);
-#pragma endregion
 }
 
 
@@ -390,9 +335,7 @@ void BattleScene::RenderCustomDepth()
 	if (!DXGIMgr::I->GetFilterOption(FilterOption::Custom))
 		return;
 
-#pragma region CustomDepth_SkinMesh
 	RenderSkinMeshObjects(RenderType::CustomDepth);
-#pragma endregion
 }
 
 void BattleScene::RenderForward()
@@ -402,6 +345,8 @@ void BattleScene::RenderForward()
 	RenderSkyBox(RenderType::Forward);
 
 	RenderAbilities();
+
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	RenderParticles();
 }
 
@@ -440,8 +385,6 @@ void BattleScene::RenderDeferredForServer()
 
 void BattleScene::RenderTerrain(RenderType type)
 {
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
 	switch (type)
 	{
 	case RenderType::DynamicEnvironmentMapping:
@@ -505,9 +448,7 @@ void BattleScene::RenderSkyBox(RenderType type)
 
 void BattleScene::RenderParticles()
 {
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	ParticleManager::I->Render();
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void BattleScene::RenderAbilities()
@@ -525,8 +466,6 @@ void BattleScene::ClearRenderedObjects()
 
 void BattleScene::RenderGridObjects(RenderType type)
 {
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	switch (type) {
 	case RenderType::Shadow:
 		RESOURCE<Shader>("Shadow_Global")->Set();
@@ -604,38 +543,18 @@ void BattleScene::RenderObjectsWithFrustumCulling(std::set<GridObject*>& objects
 	}
 }
 
-void BattleScene::RenderEnvironments()
-{
-	for (auto& env : mEnvironments) {
-		env->Render();
-	}
-}
-
 bool BattleScene::RenderBounds()
 {
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	RESOURCE<Shader>("Wire")->Set();
-	MeshRenderer::RenderBox(Vec3(100, 13.5f, 105), Vec3(.2f,.2f,.2f));
-
-	//for (auto& path : mOpenList) {
-	//	path.y = GetTerrainHeight(path.x, path.z);
-	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 0.f, 1.f, 0.f, 1.f });
-	//}
-
-	//for (auto& path : mClosedList) {
-	//	path.y = GetTerrainHeight(path.x, path.z);
-	//	MeshRenderer::RenderBox(path, Vec3{ 0.1f, 0.1f, 0.1f }, Vec4{ 1.f, 0.f, 0.f, 1.f });
-	//}
-
 	if (!mIsRenderBounds) {
 		return false;
 	}
 
+	RESOURCE<Shader>("Wire")->Set();
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
 	RenderObjectBounds();
 	RenderGridBounds();
 
-	// manual bounds
 	{
 		mBounds->DoAllObjects([](rsptr<InstObject> object) {
 			object->RenderBounds();
@@ -656,14 +575,10 @@ void BattleScene::RenderObjectBounds()
 void BattleScene::RenderGridBounds()
 {
 	for (const auto& grid : mSurroundGrids) {
-#ifdef DRAW_SCENE_GRID_3D
-		MeshRenderer::Render(grid->GetBB());
-#else
 		constexpr float kGirdHeight = 0.5f;
 		Vec3 pos = grid->GetBB().Center;
 		pos.y = kGirdHeight;
-		MeshRenderer::RenderPlane(pos, (float)mGridXLength, (float)mGridZLength);
-#endif
+		MeshRenderer::RenderPlane(pos, (float)mkGridWidth, (float)mkGridLength);
 	}
 }
 #pragma endregion
@@ -689,13 +604,14 @@ void BattleScene::Start()
 
 
 	/* Enable */
-	std::cout << "ActiveTerrain...";
+	std::cout << "ActivateTerrain...";
 	mTerrain->SetActive(true);
+
+	std::cout << "ActivateObjects...";
 	ProcessAllObjects([](sptr<Object> object) {
 		object->SetActive(true);
 		});
 	mManager->SetActive(true);
-	std::cout << "ActivateObjects...";
 
 	std::cout << "UpdatedGrid...";
 	UpdateGridInfo();
@@ -707,19 +623,23 @@ void BattleScene::Start()
 
 void BattleScene::Update()
 {
+	// rendering //
 	UpdateRenderedObjects();
 	
+	// collision //
 	ProcessCollisions();
-	UpdateObjects();
-	ParticleManager::I->Update();
-	mManager->Update();
 
-	MainCamera::I->Update();
-	MAIN_CAMERA->UpdateViewMtx();
+	// update objects //
+	UpdateObjects();
+	mManager->Update();
 	mLight->Update();
-	Canvas::I->Update();
 	UpdateSurroundGrids();
 
+	// update singletons //
+	ParticleManager::I->Update();
+	MainCamera::I->Update();
+	MAIN_CAMERA->UpdateViewMtx();
+	Canvas::I->Update();
 	MainCamera::I->LateUpdate();
 
 	UpdateShaderVars();
@@ -857,27 +777,24 @@ rsptr<Grid> BattleScene::GetGridFromPos(const Vec3& pos)
 
 int BattleScene::GetGridIndexFromPos(Vec3 pos) const
 {
-	pos.x -= mGridStartPoint;
-	pos.z -= mGridStartPoint;
+	const int gridX = static_cast<int>(pos.x / mkGridWidth);
+	const int gridZ = static_cast<int>(pos.z / mkGridLength);
 
-	const int gridX = static_cast<int>(pos.x / mGridXLength);
-	const int gridZ = static_cast<int>(pos.z / mGridZLength);
-
-	return gridZ * mGridXCount + gridX;
+	return gridZ * mkGridXCount + gridX;
 }
 
 Pos BattleScene::GetTileUniqueIndexFromPos(const Vec3& pos) const
 {
-	const int tileGroupIndexX = static_cast<int>((pos.x - mGridStartPoint) / Grid::mkTileWidth);
-	const int tileGroupIndexZ = static_cast<int>((pos.z - mGridStartPoint) / Grid::mkTileHeight);
+	const int tileGroupIndexX = static_cast<int>((pos.x) / Grid::mkTileWidth);
+	const int tileGroupIndexZ = static_cast<int>((pos.z) / Grid::mkTileHeight);
 
 	return Pos{ tileGroupIndexZ, tileGroupIndexX };
 }
 
 Vec3 BattleScene::GetTilePosFromUniqueIndex(const Pos& index) const
 {
-	const float posX = index.X * Grid::mkTileWidth + mGridStartPoint;
-	const float posZ = index.Z * Grid::mkTileHeight + mGridStartPoint;
+	const float posX = index.X * Grid::mkTileWidth;
+	const float posZ = index.Z * Grid::mkTileHeight;
 
 	return Vec3{ posX, 0, posZ };
 }
@@ -889,24 +806,24 @@ Tile BattleScene::GetTileFromPos(const Vec3& pos) const
 
 Tile BattleScene::GetTileFromUniqueIndex(const Pos& index) const
 {
-	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridXLength);
-	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridZLength);
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mkGridWidth);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mkGridLength);
 
 	const int tileX = index.X % Grid::mTileCols;
 	const int tileZ = index.Z % Grid::mTileRows;
 
-	return mGrids[gridZ * mGridXCount + gridX]->GetTileFromUniqueIndex(Pos{tileZ, tileX});
+	return mGrids[gridZ * mkGridXCount + gridX]->GetTileFromUniqueIndex(Pos{tileZ, tileX});
 }
 
 void BattleScene::SetTileFromUniqueIndex(const Pos& index, Tile tile)
 {
-	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mGridXLength);
-	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mGridZLength);
+	const int gridX = static_cast<int>(index.X * Grid::mkTileWidth / mkGridWidth);
+	const int gridZ = static_cast<int>(index.Z * Grid::mkTileHeight / mkGridLength);
 
 	const int tileX = index.X % Grid::mTileCols;
 	const int tileZ = index.Z % Grid::mTileRows;
 
-	mGrids[gridZ * mGridXCount + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
+	mGrids[gridZ * mkGridXCount + gridX]->SetTileFromUniqueIndex(Pos{ tileZ, tileX }, tile);
 }
 
 void BattleScene::ToggleFilterOptions()
@@ -990,7 +907,7 @@ void BattleScene::UpdateSurroundGrids()
 	}
 }
 
-GridObject* BattleScene::Instantiate(const std::string& modelName, ObjectTag tag, ObjectLayer layer, bool enable)
+GridObject* BattleScene::Instantiate(const std::string& modelName, ObjectTag tag, bool enable)
 {
 	const auto& model = RESOURCE<MasterModel>(modelName);
 	if (!model) {
@@ -1000,7 +917,6 @@ GridObject* BattleScene::Instantiate(const std::string& modelName, ObjectTag tag
 	sptr<GridObject> instance = std::make_shared<GridObject>();
 	instance->SetModel(model);
 	instance->SetTag(tag);
-	instance->SetLayer(layer);
 	instance->SetName(modelName);
 	if (enable) {
 		instance->SetActive(true);
@@ -1054,16 +970,16 @@ std::vector<sptr<Grid>> BattleScene::GetNeighborGrids(int gridIndex, bool includ
 	std::vector<sptr<Grid>> result;
 	result.reserve(9);
 
-	const int gridX = gridIndex % mGridXCount;
-	const int gridZ = gridIndex / mGridXCount;
+	const int gridX = gridIndex % mkGridXCount;
+	const int gridZ = gridIndex / mkGridXCount;
 
 	for (int offsetZ = -1; offsetZ <= 1; ++offsetZ) {
 		for (int offsetX = -1; offsetX <= 1; ++offsetX) {
 			const int neighborX = gridX + offsetX;
 			const int neighborZ = gridZ + offsetZ;
 
-			if (neighborX >= 0 && neighborX < mGridXCount && neighborZ >= 0 && neighborZ < mGridZCount) {
-				const int neighborIndex = (neighborZ * mGridXCount) + neighborX;
+			if (neighborX >= 0 && neighborX < mkGridXCount && neighborZ >= 0 && neighborZ < mkGridZCount) {
+				const int neighborIndex = (neighborZ * mkGridXCount) + neighborX;
 
 				if (neighborIndex == gridIndex && !includeSelf) {
 					continue;
@@ -1169,9 +1085,6 @@ ObjectTag BattleScene::GetTagByString(const std::string& tag)
 	case Hash("Dissolve_Building"):
 		return ObjectTag::DissolveBuilding;
 
-	case Hash("Background"):
-		return ObjectTag::Environment;
-
 	case Hash("Enemy"):
 		return ObjectTag::Enemy;
 
@@ -1192,24 +1105,5 @@ ObjectTag BattleScene::GetTagByString(const std::string& tag)
 		break;
 	}
 
-	return ObjectTag::Unspecified;
-}
-
-ObjectLayer BattleScene::GetLayerByNum(int num)
-{
-	switch (num) {
-	case 0:
-		return ObjectLayer::Default;
-
-	case 3:
-		return ObjectLayer::Transparent;
-
-	case 4:
-		return ObjectLayer::Water;
-
-	default:
-		break;
-	}
-
-	return ObjectLayer::Default;
+	return ObjectTag::Untagged;
 }

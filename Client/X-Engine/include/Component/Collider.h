@@ -46,7 +46,7 @@ protected:
 
 
 
-// basic cuboid-shaped collision primitive.
+// Basic cuboid-shaped collision primitive.
 class BoxCollider : public Collider {
 	COMPONENT(BoxCollider, Collider)
 
@@ -79,7 +79,7 @@ protected:
 
 
 
-// basic sphere-shaped collision primitive.
+// Basic sphere-shaped collision primitive.
 class SphereCollider : public Collider {
 	COMPONENT(SphereCollider, Collider)
 
@@ -111,7 +111,7 @@ protected:
 
 
 
-// for collision check
+// For collision checking with objects
 class ObjectCollider : public Component {
 	COMPONENT(ObjectCollider, Component)
 
@@ -123,8 +123,8 @@ class ObjectCollider : public Component {
 												 || std::is_same<T, MyBoundingSphere>::value);
 
 private:
-	sptr<SphereCollider>		mSphereCollider{};	// (객체 전체를 감싸는)SphereCollider가 반드시 있어야 하며 하나만 존재해야 한다.
-	std::vector<sptr<Collider>>	mColliders{};		// 모든 colliders
+	sptr<SphereCollider>		mSphereCollider{};		// There must be a Sphere Collider (which encloses the entire object)
+	std::vector<sptr<Collider>>	mColliders{};
 	Vec3						mColor{ Vector3::One };
 
 public:
@@ -158,7 +158,6 @@ public:
 
 	void SetBoundColor(const Vec3& color) { mColor = color; }
 
-	// 두 객체의 충돌 여부를 반환한다.
 	static bool Intersects(const GridObject& a, const GridObject& b);
 };
 #pragma endregion

@@ -59,7 +59,7 @@ bool Script_Item_Weapon::Interact(Object* user)
 
 	if (weapon) {
 		player->TakeWeapon(weapon);
-		mObject->SetTag(ObjectTag::Unspecified);
+		mObject->SetTag(ObjectTag::Untagged);
 		mObject->SetActive(false);
 		mObject->mObjectCB.UseOutline = false;
 		mObject->RemoveComponent<Script_Item_Weapon>();

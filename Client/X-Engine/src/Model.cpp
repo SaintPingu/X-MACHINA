@@ -9,8 +9,6 @@
 #include "FileIO.h"
 #include "ResourceMgr.h"
 
-#include "Animator.h"
-
 
 #pragma region MaterialColors
 MaterialColors::MaterialColors(const MaterialLoadInfo& materialInfo)

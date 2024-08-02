@@ -65,10 +65,9 @@ void LobbyScene::Update()
 {
 	//ParticleManager::I->Update();
 	UpdateObjects();
+	mLight->Update();
 
 	MainCamera::I->Update();
-	MAIN_CAMERA->UpdateViewMtx();
-	mLight->Update();
 	Canvas::I->Update();
 
 	UpdateShaderVars();

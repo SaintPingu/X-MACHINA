@@ -4,14 +4,11 @@
 #include "DXGIMgr.h"
 #include "FrameResource.h"
 #include "ResourceMgr.h"
-#include "BattleScene.h"
 #include "FileIO.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "Component/Camera.h"
-#include "BattleScene.h"
 #include "Object.h"
-#include "X-Engine.h"
 
 namespace {
 	constexpr int	gkSunLightIdx = 0;

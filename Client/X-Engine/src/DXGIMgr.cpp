@@ -267,7 +267,6 @@ void DXGIMgr::SwitchScene(SceneType sceneType)
 void DXGIMgr::RenderScene()
 {
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx, 1.f);
-	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::Lighting)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView(0, 1.f);
@@ -313,6 +312,7 @@ void DXGIMgr::RenderShadow()
 
 	CMD_LIST->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
 
+	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 	mCrntScene->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();
@@ -734,6 +734,7 @@ void DXGIMgr::CreateMRTs()
 		std::vector<RenderTarget> rts(0);
 		mMRTs[static_cast<UINT8>(GroupType::Shadow)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->Create(GroupType::Shadow, std::move(rts), mShadowDs);
+		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->ClearRenderTargetView(1.f);
 	}
 #pragma endregion
 

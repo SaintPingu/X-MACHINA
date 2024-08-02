@@ -71,7 +71,7 @@ void Timer::Tick(float lockFPS)
 		}
     }
 
-	mFPS++;
+	++mFPS;
 	mFPSTimeElapsed += timeElapsed;
 	if (mFPSTimeElapsed > 1.f)  {
 		mCurrFrameRate	= mFPS;

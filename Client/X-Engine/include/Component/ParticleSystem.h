@@ -382,7 +382,7 @@ class ParticleSystem {
 
 private:
 	bool				mIsUse = false;
-	Transform*				mTarget{};					// 파티클을 부착시킬 타겟
+	Transform*			mTarget{};					// 파티클을 부착시킬 타겟
 	ParticleSystem*		mNext{};
 
 	int					mPSIdx = -1;				// 파티클 시스템 구조적 버퍼 인덱스

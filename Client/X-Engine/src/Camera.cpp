@@ -147,6 +147,13 @@ CameraObject::CameraObject() : Object()
 	mCamera = AddComponent<Camera>();
 }
 
+void CameraObject::Update()
+{
+	base::Update();
+
+	mCamera->UpdateViewMtx();
+}
+
 void CameraObject::LookAt(const Vec3& lookAt, const Vec3& up)
 {
 	mCamera->LookAt(lookAt, up);

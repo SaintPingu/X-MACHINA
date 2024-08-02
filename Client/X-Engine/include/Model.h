@@ -100,7 +100,7 @@ public:
 	void CopyModelHierarchy(Object* object, Object* parent = nullptr) const;
 
 	// 이 Model의 trasnform 계층구조에 속하는 모든 mesh와 material을 병합해 [out]으로 반환한다.
-	void MergeModel(MasterModel& out, bool& isSkinMesh); 
+	void MergeModel(MasterModel& out, bool& isSkinMesh);
 
 public:
 	static void MergeTransform(std::vector<Transform*>& out, Model* transform);

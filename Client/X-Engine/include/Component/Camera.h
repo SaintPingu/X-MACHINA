@@ -50,6 +50,7 @@ public:
 public:
 	virtual void Awake() override;
 
+public:
 	void UpdateViewMtx();
 	void SetProjMtx(float nearPlaneDistance, float farPlaneDistance, float fovAngle);
 	void SetLens(float fovY, float aspect, float zn, float zf);
@@ -89,10 +90,14 @@ public:
 	CameraObject();
 	virtual ~CameraObject() = default;
 
+public:
 	rsptr<Camera> GetCamera() const { return mCamera; }
 	float GetMovingSpeed() const	{ return mMovingSpeed; }
 
 	void SetMovingSpeed(float speed) { mMovingSpeed = speed; }
+
+public:
+	virtual void Update() override;
 
 public:
 	void LookAt(const Vec3& lookAt, const Vec3& up);

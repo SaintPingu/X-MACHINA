@@ -634,7 +634,6 @@ void BattleScene::Update()
 	// update singletons //
 	ParticleManager::I->Update();
 	MainCamera::I->Update();
-	MAIN_CAMERA->UpdateViewMtx();
 	Canvas::I->Update();
 	MainCamera::I->LateUpdate();
 

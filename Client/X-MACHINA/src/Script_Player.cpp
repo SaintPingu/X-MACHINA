@@ -12,10 +12,6 @@
 #include "SliderBarUI.h"
 #include "ChatBoxUI.h"
 
-namespace {
-	BoundingBox border = { Vec3(256, 100, 256), Vec3(240, 1100, 240) };
-}
-
 void Script_Player::SetSpawn(const Vec3& pos)
 {
 	mObject->SetPosition(pos);
@@ -39,12 +35,6 @@ void Script_Player::Start()
 void Script_Player::Update()
 {
 	base::Update();
-
-	Vec3 pos = mObject->GetPosition();
-
-	if (!border.Contains(_VECTOR(pos))) {
-		mObject->ReturnToPrevTransform();
-	}
 
 	mHpBarUI->Update(GetCrntHp());
 }

@@ -34,14 +34,17 @@ void RenderedAbility::Render()
 {
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	if (mShader)
+	if (mShader) {
 		mShader->Set();
+	}
 
-	if (mRenderedObject)
+	if (mRenderedObject) {
 		mRenderedObject->Render();
+	}
 
-	if (mRenderedMesh)
+	if (mRenderedMesh) {
 		mRenderedMesh->Render();
+	}
 }
 
 void AbilityMgr::Render()
@@ -50,8 +53,9 @@ void AbilityMgr::Render()
 		for (const auto& ability : layers) {
 			const int abilityCBIdx = ability->GetAbilityCBIdx();
 
-			if (abilityCBIdx == -1)
+			if (abilityCBIdx == -1) {
 				continue;
+			}
 
 			BattleScene::I->SetAbilityCB(abilityCBIdx);
 			ability->Render();

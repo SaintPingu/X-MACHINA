@@ -4,20 +4,17 @@
 #include "FileIO.h"
 #include "ResourceMgr.h"
 
-inline constexpr void CheckResult(const FMOD_RESULT& result)
+static inline constexpr void CheckResult(const FMOD_RESULT& result)
 {
-	if (result != FMOD_OK)
-	{
-		assert(0);
-	}
+	assert(result == FMOD_OK);
 }
 
 
 void SoundMgr::Init()
 {
 	Release();
-	FMOD_System_Create(&mSoundSystem, FMOD_VERSION);
-	FMOD_System_Init(mSoundSystem, 32, FMOD_INIT_NORMAL, NULL);
+	FMOD::System_Create(&mSoundSystem, FMOD_VERSION);
+	mSoundSystem->init(32, FMOD_INIT_NORMAL, NULL);
 }
 
 void SoundMgr::Release()
@@ -25,8 +22,8 @@ void SoundMgr::Release()
 	mSoundList.clear();
 	mChannels.clear();
 	if (mSoundSystem) {
-		FMOD_System_Close(mSoundSystem);
-		FMOD_System_Release(mSoundSystem);
+		mSoundSystem->close();
+		mSoundSystem->release();
 		mSoundSystem = nullptr;
 	}
 }
@@ -64,14 +61,14 @@ void SoundMgr::LoadSounds()
 			const std::string filePath = folder + fileName;
 			const std::string soundName = FileIO::RemoveExtension(fileName);
 			mChannels[channelName] = nullptr;
-			CheckResult(FMOD_System_CreateSound(mSoundSystem, filePath.data(), loopType, 0, &mSoundList[channelName + "/" + soundName]));
+			mSoundSystem->createSound(filePath.data(), loopType, NULL, &mSoundList[channelName + "/" + soundName]);
 		}
 	}
 }
 
 void SoundMgr::Update()
 {
-	FMOD_System_Update(mSoundSystem);
+	mSoundSystem->update();
 }
 
 void SoundMgr::Play(const std::string& channelName, const std::string& soundName, float volume, bool isStopBefore)
@@ -88,11 +85,10 @@ void SoundMgr::Play(const std::string& channelName, const std::string& soundName
 	auto& channel = mChannels[channelName];
 
 	if (isStopBefore && channel) {
-		FMOD_Channel_Stop(channel);
+		channel->stop();
 	}
-
-	FMOD_System_PlaySound(mSoundSystem, sound, 0, false, &channel);
-	FMOD_Channel_SetVolume(channel, volume);
+	mSoundSystem->playSound(sound, NULL, false, &channel);
+	channel->setVolume(volume);
 }
 
 void SoundMgr::PlayNoChannel(const std::string& channelName, const std::string& soundName)
@@ -106,7 +102,7 @@ void SoundMgr::PlayNoChannel(const std::string& channelName, const std::string& 
 	}
 
 	auto& sound = mSoundList[soundPath];
-	FMOD_System_PlaySound(mSoundSystem, sound, 0, false, nullptr);
+	mSoundSystem->playSound(sound, NULL, false, nullptr);
 }
 
 void SoundMgr::Stop(const std::string& channelName)
@@ -116,7 +112,7 @@ void SoundMgr::Stop(const std::string& channelName)
 	}
 
 	auto& channel = mChannels[channelName];
-	FMOD_Channel_Stop(channel);
+	channel->stop();
 }
 
 bool SoundMgr::CheckChannelName(const std::string& channelName)

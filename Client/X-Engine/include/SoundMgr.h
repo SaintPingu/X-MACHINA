@@ -1,34 +1,19 @@
 #pragma once
 
-// has Channel
-#define SOUND_LIST_BGM 7
-#define SOUND_LIST_Effect 10
-#define SOUND_LIST_Skill 3
-#define SOUND_LIST_BOSS 6
-#define SOUND_LIST_SELECT 4
-#define SOUND_CHANNEL_LIST 4
-
-// has no Channel
-#define SOUND_LIST_Hit 4
-
-
-enum class BGMSound { Intro = 0, };
-enum class SoundChannel { Bgm = 0, };
-
-
-struct FMOD_SYSTEM;
-struct FMOD_SOUND;
-struct FMOD_CHANNEL;
-
+namespace FMOD {
+	class System;
+	class Sound;
+	class Channel;
+}
 
 class SoundMgr : public Singleton<SoundMgr> {
 	friend Singleton;
 
 private:
 	// Stop은 Play후에 사용할 것
-	FMOD_SYSTEM* mSoundSystem = nullptr;
-	std::unordered_map<std::string, FMOD_SOUND*> mSoundList;
-	std::unordered_map<std::string, FMOD_CHANNEL*> mChannels;
+	FMOD::System* mSoundSystem = nullptr;
+	std::unordered_map<std::string, FMOD::Sound*> mSoundList;
+	std::unordered_map<std::string, FMOD::Channel*> mChannels;
 
 public:
 	void Init();

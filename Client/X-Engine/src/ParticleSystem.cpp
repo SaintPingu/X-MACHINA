@@ -68,8 +68,9 @@ bool ParticleSystem::Update()
 	// 시뮬레이션 속도를 위해 델타 타임에 시뮬레이션 속도 적용
 	const float kSimulationDeltaTime = DeltaTime() * mPSCD->SimulationSpeed;
 
-	if (mPSCD->Looping || mPSCD->SimulationSpace == PSSimulationSpace::Local)
+	if (mPSCD->Looping || mPSCD->SimulationSpace == PSSimulationSpace::Local) {
 		mPSGD->WorldPos = mTarget->GetPosition() + mPSCD->Position;
+	}
 
 	mPSGD->DeltaTime = kSimulationDeltaTime;
 	mPSGD->TotalTime += kSimulationDeltaTime;
@@ -77,12 +78,14 @@ bool ParticleSystem::Update()
 	mIsRunning = true;
 
 	// 정지 시 업데이트
-	if (mIsStopCreation)
+	if (mIsStopCreation) {
 		mStopElapsed += kSimulationDeltaTime;
+	}
 
 	// 루핑 사용 시 업데이트
-	if (mPSCD->Looping)
+	if (mPSCD->Looping) {
 		mLoopingElapsed += kSimulationDeltaTime;
+	}
 
 	// 이미션 사용 시 업데이트
 	if (mPSCD->Emission.IsOn) {
@@ -123,8 +126,9 @@ bool ParticleSystem::Update()
 	// 모든 버스트에 대하여 경과 시간이 지나면 count만큼 추가
 	for (int i = 0; i < mPSCD->Emission.Bursts.size(); ++i) {
 		if (mBurstElapseds[i] >= mPSCD->Emission.Bursts[i].Time) {
-			if (mBurstRunnings[i])
+			if (mBurstRunnings[i]) {
 				continue;
+			}
 
 			// AddCount에 해당 버스트의 Count 추가
 			mPSGD->AddCount += mPSCD->Emission.Bursts[i].Count;

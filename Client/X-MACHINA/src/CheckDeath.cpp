@@ -9,7 +9,7 @@
 #include "Timer.h"
 
 
-CheckDeath::CheckDeath(Object* object, std::function<void()> callback)
+CheckDeath::CheckDeath(Object* object, const std::function<void()>& callback)
 	: BT::ActionNode(callback)
 {
 	mObject = object;

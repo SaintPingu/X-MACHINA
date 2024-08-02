@@ -51,7 +51,6 @@ private:
 
 	/* Map */
 	sptr<Terrain>		mTerrain{};
-	BoundingBox			mMapBorder{};			// max scene range	(grid will be generated within this border)
 
 	/* Grid */
 	std::vector<sptr<Grid>>	mGrids{};			// all scene grids
@@ -222,15 +221,15 @@ public:
 	std::vector<sptr<GridObject>> FindObjectsByName(const std::string& name);
 
 	// Unity Scene 스크립트 보유 객체에 대해 각각 Script를 Add 및 초기화 하도록 한다.
-	void ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFunc);
+	void ProcessInitScriptOjbects(const std::function<void(sptr<Object>)>& processFunc);
 
 	void UpdateTag(GridObject* object, ObjectTag beforeTag);
 
 private:
 	// do [processFunc] for activated objects
-	void ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc);
+	void ProcessActiveObjects(const std::function<void(sptr<GridObject>)>& processFunc);
 	// do [processFunc] for all objects
-	void ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc);
+	void ProcessAllObjects(const std::function<void(sptr<GridObject>)>& processFunc);
 
 	void RemoveDesrtoyedObjects();
 

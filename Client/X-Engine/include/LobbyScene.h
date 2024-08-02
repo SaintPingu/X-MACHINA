@@ -44,6 +44,6 @@ private:
 
 	sptr<ObjectPool> CreateObjectPool(rsptr<const MasterModel> model, int maxSize, const std::function<void(rsptr<InstObject>)>& objectInitFunc = nullptr);
 
-	void ProcessAllObjects(std::function<void(sptr<GameObject>)> processFunc);
-	void ProcessActiveObjects(std::function<void(sptr<GameObject>)> processFunc);
+	void ProcessAllObjects(const std::function<void(sptr<GameObject>)>& processFunc);
+	void ProcessActiveObjects(const std::function<void(sptr<GameObject>)>& processFunc);
 };

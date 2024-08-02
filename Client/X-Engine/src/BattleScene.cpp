@@ -1003,7 +1003,7 @@ std::vector<sptr<GridObject>> BattleScene::FindObjectsByName(const std::string& 
 	return result;
 }
 
-void BattleScene::ProcessInitScriptOjbects(std::function<void(sptr<Object>)> processFunc)
+void BattleScene::ProcessInitScriptOjbects(const std::function<void(sptr<Object>)>& processFunc)
 {
 	for (const auto& object : mScriptObjects) {
 		processFunc(object);
@@ -1019,7 +1019,7 @@ void BattleScene::UpdateTag(GridObject* object, ObjectTag beforeTag)
 	}
 }
 
-void BattleScene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> processFunc)
+void BattleScene::ProcessActiveObjects(const std::function<void(sptr<GridObject>)>& processFunc)
 {
 	for (auto& object : mDynamicObjects) {
 		if (object && object->IsActive()) {
@@ -1034,7 +1034,7 @@ void BattleScene::ProcessActiveObjects(std::function<void(sptr<GridObject>)> pro
 	}
 }
 
-void BattleScene::ProcessAllObjects(std::function<void(sptr<GridObject>)> processFunc)
+void BattleScene::ProcessAllObjects(const std::function<void(sptr<GridObject>)>& processFunc)
 {
 	for (auto& object : mStaticObjects) {
 		processFunc(object);

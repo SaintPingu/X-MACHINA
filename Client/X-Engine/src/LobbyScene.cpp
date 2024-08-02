@@ -265,7 +265,7 @@ sptr<ObjectPool> LobbyScene::CreateObjectPool(rsptr<const MasterModel> model, in
 	return pool;
 }
 
-void LobbyScene::ProcessAllObjects(std::function<void(sptr<GameObject>)> processFunc)
+void LobbyScene::ProcessAllObjects(const std::function<void(sptr<GameObject>)>& processFunc)
 {
 	for (auto& object : mMeshObjects) {
 		processFunc(object);
@@ -280,7 +280,7 @@ void LobbyScene::ProcessAllObjects(std::function<void(sptr<GameObject>)> process
 	}
 }
 
-void LobbyScene::ProcessActiveObjects(std::function<void(sptr<GameObject>)> processFunc)
+void LobbyScene::ProcessActiveObjects(const std::function<void(sptr<GameObject>)>& processFunc)
 {
 	for (auto& object : mMeshObjects) {
 		if (object->IsActive()) {

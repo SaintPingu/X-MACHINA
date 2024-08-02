@@ -21,7 +21,7 @@ private:
 	float mRemoveTime{};
 
 public:
-	CheckDeath(Object* object, std::function<void()> callback = nullptr);
+	CheckDeath(Object* object, const std::function<void()>& callback = nullptr);
 	virtual ~CheckDeath() = default;
 
 public:

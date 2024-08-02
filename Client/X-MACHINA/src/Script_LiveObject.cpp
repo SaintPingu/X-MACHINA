@@ -25,6 +25,14 @@ void Script_LiveObject::Update()
 	base::Update();
 }
 
+void Script_LiveObject::FillHP(float amount)
+{
+	mCrntHP += amount;
+	if (mCrntHP > mMaxHP) {
+		mCrntHP = mMaxHP;
+	}
+}
+
 bool Script_LiveObject::Hit(float damage, Object* instigator)
 {
 	if (mCrntHP <= 0) {

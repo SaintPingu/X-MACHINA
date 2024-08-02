@@ -6,9 +6,11 @@
 #pragma endregion
 
 
-class Script_GroundPlayer;
+class Script_PheroPlayer;
 class Script_AbilityHolder;
+class Script_AimController;
 class ChatBoxUI;
+class SliderBarUI;
 
 
 class Script_PlayerController : public Component {
@@ -17,12 +19,16 @@ class Script_PlayerController : public Component {
 private:
 	sptr<ChatBoxUI> mChatBoxUI{};
 
-	sptr<Script_GroundPlayer> mScript{};
+	sptr<Script_PheroPlayer>  mScript{};
+	sptr<Script_AimController> mAimController{};
 
 	sptr<Script_AbilityHolder> mAbilityShield{};
 	sptr<Script_AbilityHolder> mAbilityIRDetector{};
 	sptr<Script_AbilityHolder> mAbilityMindControl{};
 	sptr<Script_AbilityHolder> mAbilityCloaking{};
+
+	sptr<SliderBarUI> mPheroBarUI{};
+	sptr<SliderBarUI> mHpBarUI{};
 
 public:
 	virtual void Awake() override;

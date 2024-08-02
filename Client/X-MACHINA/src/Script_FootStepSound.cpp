@@ -5,7 +5,7 @@
 
 void Script_FootStepSound::Awake()
 {
-	base::Awake();
+	base::Awake(); 
 
 	mMaxCnt = 21;
 	mSounds.resize(mMaxCnt);

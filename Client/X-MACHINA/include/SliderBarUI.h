@@ -11,6 +11,7 @@ class SliderBarUI {
 private:
 	float mDisplayFillValue{};
 	float mDisplayEaseValue{};
+	float mCurValue{};
 
 	SliderUI* mFillBarUI;
 	SliderUI* mEaseBarUI;
@@ -28,8 +29,6 @@ public:
 	virtual ~SliderBarUI();
 
 public:
-	// 값이 감소되기 전 무조건 해당 함수를 호출해줘야 한다. 
-	void Decrease(float originalValue) { mDisplayEaseValue = originalValue; }
 
 public:
 	void Update(float currValue);

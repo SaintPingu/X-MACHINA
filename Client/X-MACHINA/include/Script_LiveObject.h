@@ -39,6 +39,7 @@ public:
 	float GetCrntHp() const { return mCrntHP; }
 	float GetMaxHp() const { return mMaxHP; }
 
+	void FillHP(float amount);
 	bool UpdatePrevHP() { bool res = mPrevHP == mCrntHP; mPrevHP = mCrntHP; return res; }
 
 	virtual bool Hit(float damage, Object* instigator = nullptr);

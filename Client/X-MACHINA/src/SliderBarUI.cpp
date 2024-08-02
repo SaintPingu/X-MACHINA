@@ -32,11 +32,18 @@ void SliderBarUI::Update(float currPheroAmount)
 		AddDisplayValue(currPheroAmount);
 		mFillBarUI->SetValue(mDisplayFillValue);
 	}
+
+	if (mCurValue > currPheroAmount) {
+		mDisplayEaseValue = mCurValue;
+	}
+
 	if (mDisplayEaseValue > currPheroAmount) {
 		ReduceDisplayValue(currPheroAmount);
 		mEaseBarUI->SetValue(mDisplayEaseValue);
 		mFillBarUI->SetValue(mDisplayFillValue);
 	}
+
+	mCurValue = currPheroAmount;
 }
 
 void SliderBarUI::AddDisplayValue(float currPheroAmount)

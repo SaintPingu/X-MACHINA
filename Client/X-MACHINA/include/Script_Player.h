@@ -8,15 +8,11 @@
 
 
 #pragma region ClassForwardDecl
-class GameObject;
 class Animator;
 class AnimatorMotion;
 class AnimatorController;
 class Script_Weapon;
-class Script_AimController;
 class Script_MainCamera;
-class UI;
-class SliderBarUI;
 class GridObject;
 #pragma endregion
 
@@ -30,21 +26,16 @@ protected:
 
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
-	sptr<SliderBarUI> mHpBarUI{};
-
 public:
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
 public:
 	virtual void Awake() override;
-	virtual void Start() override;
-	virtual void Update() override;
 
 public:
 	virtual void Rotate(float pitch, float yaw, float roll);
 
-	virtual bool Hit(float damage, Object* instigator) override;
 	virtual void Dead() override;
 	virtual void Respawn();
 };
@@ -140,7 +131,6 @@ private:
 	float mReloadingDeltaTime{};
 	float mCrntYawAngle{};
 	Transform* mSpineBone{};
-	sptr<Script_AimController> mAimController{};
 
 	// recoil //
 	int   mRecoilSign{};
@@ -268,17 +258,19 @@ class Script_PheroPlayer : public Script_GroundPlayer {
 
 protected:
 	float mStartPheroAmount{};
-	float mCurrPheroAmount{};
+	float mCurPheroAmount{};
 	float mMaxPheroAmount{};
 	float mPheroRegenRate{};
-	sptr<SliderBarUI> mPheroBarUI{};
+	float mPrevPheroAmount{};
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void Respawn() override;
 
 public:
+	float GetMaxPheroAmount() const { return mMaxPheroAmount; }
+	float GetCurPheroAmount() const { return mCurPheroAmount; }
 	virtual void AddPheroAmount(float pheroAmount);
 	virtual bool ReducePheroAmount(float pheroCost, bool checkOnly = false);
 };

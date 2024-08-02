@@ -4,6 +4,7 @@
 #include "Script_Player.h"
 #include "Script_AbilityHolder.h"
 #include "Script_FootStepSound.h"
+#include "Script_AimController.h"
 
 #include "ShieldAbility.h"
 #include "IRDetectorAbility.h"
@@ -13,6 +14,7 @@
 
 
 #include "ChatBoxUI.h"
+#include "SliderBarUI.h"
 
 #include "Component/UI.h"
 
@@ -24,6 +26,10 @@ void Script_PlayerController::Awake()
 
 	mObject->AddComponent<Script_FootStepSound>();
 
+	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(30, 30));
+	mAimController = mObject->AddComponent<Script_AimController>();
+	mAimController->SetUI(aimUI);
+
 	mAbilityShield = mObject->AddComponent<Script_CooldownAbilityHolder>();
 	mAbilityIRDetector = mObject->AddComponent<Script_AbilityHolder>();
 	mAbilityMindControl = mObject->AddComponent<Script_ToggleAbilityHolder>();
@@ -33,13 +39,17 @@ void Script_PlayerController::Awake()
 	mAbilityIRDetector->SetAbility(std::make_shared<IRDetectorAbility>());
 	mAbilityMindControl->SetAbility(std::make_shared<MindControlAbility>());
 	mAbilityCloaking->SetAbility(std::make_shared<CloakingAbility>());
+
 }
 
 void Script_PlayerController::Start()
 {
 	base::Start();
 
-	mScript = mObject->GetComponent<Script_GroundPlayer>();
+	mScript = mObject->GetComponent<Script_PheroPlayer>();
+
+	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -425.f }, Vec2{ 1000.f, 15.f }, mScript->GetMaxHp());
+	mPheroBarUI = std::make_shared<SliderBarUI>("BackgroundPheroBar", "EaseBar", "FillPheroBar", Vec2{ 0.f, -450.f }, Vec2{ 1000.f, 15.f }, mScript->GetMaxPheroAmount());
 }
 
 void Script_PlayerController::Update()
@@ -49,6 +59,8 @@ void Script_PlayerController::Update()
 	ProcessInput();
 
 	mChatBoxUI->Update();
+	mPheroBarUI->Update(mScript->GetCurPheroAmount());
+	mHpBarUI->Update(mScript->GetCrntHp());
 }
 
 
@@ -151,6 +163,17 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 		case 'Y':
 			mAbilityIRDetector->Toggle();
+			break;
+
+			// cheat keys
+		case'L':
+			mScript->AddPheroAmount(1000);
+			break;
+		case'J':
+			mScript->Hit(100);
+			break;
+		case'H':
+			mScript->FillHP(1000);
 			break;
 
 		default:

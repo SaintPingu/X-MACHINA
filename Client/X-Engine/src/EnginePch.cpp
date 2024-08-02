@@ -160,7 +160,9 @@ namespace D3DUtil {
 
 		size_t maxsize = 0;
 #ifdef RENDER_FOR_SERVER
-		maxsize = 256;
+		if (!fileName.contains(L"/UI/")) {
+			maxsize = 256;
+		}
 #endif
 		HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(DEVICE.Get(), fileName.c_str(), maxsize, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &texture, ddsData, subResources, &ddsAlphaMode, &bIsCubeMap);
 		AssertHResult(hResult);

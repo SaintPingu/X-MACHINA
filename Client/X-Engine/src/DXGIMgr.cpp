@@ -267,9 +267,20 @@ void DXGIMgr::SwitchScene(SceneType sceneType)
 void DXGIMgr::RenderScene()
 {
 	GetMRT(GroupType::SwapChain)->ClearRenderTargetView(mCurrBackBufferIdx, 1.f);
+	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::Lighting)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView(0, 1.f);
+
+#ifdef RENDER_FOR_SERVER
+
+	RenderDeferred();
+	RenderLights();
+	RenderOffScreen();
+	RenderPostProcessing();
+	RenderUI();
+
+#else
 
 	RenderShadow();
 	RenderEnvironmentMapping();
@@ -282,6 +293,7 @@ void DXGIMgr::RenderScene()
 	RenderPostProcessing();
 	RenderUI();
 
+#endif
 
 	RenderEnd();
 
@@ -301,7 +313,6 @@ void DXGIMgr::RenderShadow()
 
 	CMD_LIST->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
 
-	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 	mCrntScene->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();
@@ -380,6 +391,13 @@ void DXGIMgr::RenderPostProcessing()
 
 	UINT offScreenIndex{};
 	UINT outlineIndex{};
+
+#ifdef RENDER_FOR_SERVER
+
+	offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetSrvIdx();
+
+#else
+
 	if (mFilterOption & FilterOption::None)
 		offScreenIndex = GetMRT(GroupType::OffScreen)->GetTexture(0)->GetSrvIdx();
 	if (mFilterOption & FilterOption::Sobel)
@@ -388,6 +406,7 @@ void DXGIMgr::RenderPostProcessing()
 		offScreenIndex = mBlurFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0), 4);
 	if (mFilterOption & FilterOption::LUT || mFilterOption & FilterOption::Tone)
 		offScreenIndex = mLUTFilter->Execute(GetMRT(GroupType::OffScreen)->GetTexture(0));
+#endif
 
 	GetMRT(GroupType::SwapChain)->OMSetRenderTargets(1, mCurrBackBufferIdx);
 

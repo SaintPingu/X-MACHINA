@@ -102,13 +102,8 @@ void Scene::UpdateMainPassCB()
 	passCB.RT0O_OffScreenIndex = RESOURCE<Texture>("OffScreenTarget")->GetSrvIdx();
 	passCB.RT6G_OutlineIndex = RESOURCE<Texture>("OutlineTarget")->GetSrvIdx();
 	passCB.BloomIndex = RESOURCE<Texture>("BloomTarget")->GetSrvIdx();
-
-#ifndef RENDER_FOR_SERVER
-
 	passCB.LiveObjectDissolveIndex = RESOURCE<Texture>("LiveObjectDissolve")->GetSrvIdx();
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
-
-#endif
 
 	passCB.LightCount = mLight->GetLightCount();
 	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);

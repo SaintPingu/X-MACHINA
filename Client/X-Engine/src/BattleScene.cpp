@@ -1,9 +1,7 @@
 #include "EnginePch.h"
 #include "BattleScene.h"
 #include "DXGIMgr.h"
-#include "MultipleRenderTarget.h"
 #include "FrameResource.h"
-#include "Ssao.h"
 
 #include "Object.h"
 #include "Model.h"
@@ -16,16 +14,15 @@
 #include "SkyBox.h"
 #include "Texture.h"
 #include "ObjectPool.h"
+#include "ResourceMgr.h"
+#include "AbilityMgr.h"
+#include "ScriptExporter.h"
+
 #include "Component/UI.h"
 #include "Component/Camera.h"
 #include "Component/Collider.h"
 #include "Component/Component.h"
 #include "Component/ParticleSystem.h"
-#include "ResourceMgr.h"
-#include "AbilityMgr.h"
-#include "ScriptExporter.h"
-
-#include "TestCube.h"
 
 
 
@@ -342,7 +339,6 @@ void BattleScene::RenderForward()
 {
 	RenderDissolveObjects();
 	RenderAfterSkinImage();
-	RenderSkyBox(RenderType::Forward);
 
 	RenderAbilities();
 

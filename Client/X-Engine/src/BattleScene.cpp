@@ -197,13 +197,8 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 			FileIO::ReadString(file, token); //"<Tag>:"
 			FileIO::ReadString(file, token);
 			tag = GetTagByString(token);
-			
-			int layerNum{};
-			FileIO::ReadString(file, token); //"<Layer>:"
-			FileIO::ReadVal(file, layerNum);
 
-			FileIO::ReadString(file, token); //"<FileName>:"
-
+			FileIO::ReadString(file, token); //"<MeshName>:"
 			std::string meshName{};
 			FileIO::ReadString(file, meshName);
 			model = RESOURCE<MasterModel>(meshName);

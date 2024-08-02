@@ -372,45 +372,21 @@ namespace {
 			int nFrame = 0;
 			int nTextures = 0;
 
-			sptr<Model> model{};
+			sptr<Model> model = std::make_shared<Model>();
 			sptr<MeshLoadInfo> meshInfo{};
+
+			FileIO::ReadString(file, token);	// <Frame>:
+			model->SetName(FileIO::ReadString(file));
+
+			FileIO::ReadString(file, token);	// <TransformMatrix>:
+			Matrix transform = FileIO::ReadVal<Matrix>(file);
+			model->SetLocalTransform(transform);
 
 			bool isEOF{ false };
 			while (!isEOF) {
 				FileIO::ReadString(file, token);
 
 				switch (Hash(token)) {
-				case Hash("<Frame>:"):
-				{
-					model = std::make_shared<Model>();
-
-					FileIO::ReadVal(file, nFrame);
-					FileIO::ReadVal(file, nTextures);
-
-					model->SetName(FileIO::ReadString(file));
-				}
-
-				break;
-				case Hash("<Transform>:"):
-				{
-					Vec3 position, rotation, scale;
-					Vec4 quaternion;
-					FileIO::ReadVal(file, position);
-					FileIO::ReadVal(file, rotation);
-					FileIO::ReadVal(file, scale);
-					FileIO::ReadVal(file, quaternion);
-				}
-
-				break;
-				case Hash("<TransformMatrix>:"):
-				{
-					Matrix transform;
-					FileIO::ReadVal(file, transform);
-
-					model->SetLocalTransform(transform);
-				}
-
-				break;
 				case Hash("<BoundingSphere>:"):
 				{
 					int sphereCnt = FileIO::ReadVal<int>(file);

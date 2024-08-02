@@ -338,8 +338,9 @@ void DXGIMgr::RenderDeferred()
 
 void DXGIMgr::RenderSSAO()
 {
-	if (mFilterOption & FilterOption::Ssao)
+	if (mFilterOption & FilterOption::Ssao) {
 		mSsao->Execute(1);
+	}
 }
 
 void DXGIMgr::RenderLights()
@@ -738,7 +739,6 @@ void DXGIMgr::CreateMRTs()
 		std::vector<RenderTarget> rts(0);
 		mMRTs[static_cast<UINT8>(GroupType::Shadow)] = std::make_shared<MultipleRenderTarget>();
 		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->Create(GroupType::Shadow, std::move(rts), mShadowDs);
-		mMRTs[static_cast<UINT8>(GroupType::Shadow)]->ClearRenderTargetView(1.f);
 	}
 #pragma endregion
 

@@ -209,11 +209,7 @@ void LobbyScene::LoadGameObjects(std::ifstream& file)
 			FileIO::ReadString(file, token); //"<Tag>:"
 			FileIO::ReadString(file, token);
 
-			FileIO::ReadString(file, token); //"<Layer>:"
-			FileIO::ReadVal<int>(file);
-
-			FileIO::ReadString(file, token); //"<FileName>:"
-
+			FileIO::ReadString(file, token); //"<MeshName>:"
 			std::string meshName = FileIO::ReadString(file);
 			model = RESOURCE<MasterModel>(meshName);
 

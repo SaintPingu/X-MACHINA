@@ -54,7 +54,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
         bumpedNormalW = NormalSampleToWorldSpace(gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.UV).rgb, pin.NormalW, pin.TangentW);
     
     // sampling emissiveMap
-    float4 emissiveMapSample = (float4)(0.f, 0.f, 0.f, 0.f);
+    float4 emissiveMapSample = (float4)0;
     if (emissiveMapIndex != NONE) 
         emissiveMapSample = gTextureMaps[emissiveMapIndex].Sample(gsamAnisotropicWrap, pin.UV);
     else

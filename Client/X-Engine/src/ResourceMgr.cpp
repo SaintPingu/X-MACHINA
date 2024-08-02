@@ -843,63 +843,6 @@ void ResourceMgr::LoadShaders()
 
 // ForwardShader
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma region Water
-	{
-		ShaderInfo info = {
-			ShaderType::HDR,
-			RasterizerType::Cull_Back,
-			DepthStencilType::Less_No_Write,
-			BlendType::Alpha_Blend,
-		};
-
-		ShaderPath path = {
-			 "VShader_Water.cso",
-			 "PShader_Water.cso",
-		};
-
-		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
-		Add<Shader>("Water", shader);
-	}
-#pragma endregion
-#pragma region Billboard
-	{
-		ShaderInfo info = {
-			ShaderType::HDR,
-			RasterizerType::Cull_Back,
-			DepthStencilType::Less,
-			BlendType::Alpha_Blend,
-		};
-
-		ShaderPath path = {
-			 "VShader_Billboard.cso",
-			 "PShader_Billboard.cso",
-		};
-
-		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
-		Add<Shader>("Billboard", shader);
-	}
-#pragma endregion
-#pragma region Sprite
-	{
-		ShaderInfo info = {
-			ShaderType::HDR,
-			RasterizerType::Cull_Back,
-			DepthStencilType::Less,
-			BlendType::Alpha_Blend,
-		};
-
-		ShaderPath path = {
-			 "VShader_Sprite.cso",
-			 "PShader_Billboard.cso",
-		};
-
-		sptr<Shader> shader = std::make_shared<Shader>();
-		shader->Load(info, path);
-		Add<Shader>("Sprite", shader);
-	}
-#pragma endregion
 #pragma region Final
 	{
 		ShaderInfo info = {

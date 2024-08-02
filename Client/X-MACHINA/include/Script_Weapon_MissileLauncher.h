@@ -28,7 +28,7 @@ class Script_Weapon_Burnout : public Script_Weapon_MissileLauncher {
 	COMPONENT(Script_Weapon_Burnout, Script_Weapon_MissileLauncher)
 
 protected:
-	static constexpr float mkBulletSpeed = 15.f;
+	static constexpr float mkBulletSpeed = 20.f;
 
 private:
 	static constexpr int   mkBulletCntPerMag = 4;

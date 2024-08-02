@@ -284,7 +284,6 @@
     <ClInclude Include="include\Resource.h" />
     <ClInclude Include="include\Script_AimController.h" />
     <ClInclude Include="include\Script_BehaviorTree.h" />
-    <ClInclude Include="include\Script_Billboard.h" />
     <ClInclude Include="include\Script_Bullet.h" />
     <ClInclude Include="include\Script_Missile.h" />
     <ClInclude Include="include\Script_Enemy.h" />
@@ -295,7 +294,6 @@
     <ClInclude Include="include\Script_MainCamera.h" />
     <ClInclude Include="include\Script_DefaultEnemyBT.h" />
     <ClInclude Include="include\Script_Player.h" />
-    <ClInclude Include="include\Script_Sprite.h" />
     <ClInclude Include="include\Script_Ursacetus.h" />
     <ClInclude Include="include\Script_Weapon.h" />
     <ClInclude Include="include\Script_Weapon_MissileLauncher.h" />
@@ -377,7 +375,6 @@
     <ClCompile Include="src\GameFramework.cpp" />
     <ClCompile Include="src\Script_AimController.cpp" />
     <ClCompile Include="src\Script_BehaviorTree.cpp" />
-    <ClCompile Include="src\Script_Billboard.cpp" />
     <ClCompile Include="src\Script_Bullet.cpp" />
     <ClCompile Include="src\Script_Missile.cpp" />
     <ClCompile Include="src\Script_Enemy.cpp" />
@@ -390,7 +387,6 @@
     <ClCompile Include="src\Script_DefaultEnemyBT.cpp" />
     <ClCompile Include="src\Script_Player.cpp" />
     <ClCompile Include="src\Script_ShootingPlayer.cpp" />
-    <ClCompile Include="src\Script_Sprite.cpp" />
     <ClCompile Include="src\Script_Ursacetus.cpp" />
     <ClCompile Include="src\Script_Weapon.cpp" />
     <ClCompile Include="src\Script_Weapon_MissileLauncher.cpp" />

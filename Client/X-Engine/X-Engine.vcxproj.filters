@@ -523,14 +523,8 @@
     <FxCompile Include="shaders\VShader_Terrain.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\VShader_Water.hlsl">
-      <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\VShader_Wired.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_Billboard.hlsl">
-      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Canvas.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
@@ -543,9 +537,6 @@
     </FxCompile>
     <FxCompile Include="shaders\PShader_Terrain.hlsl">
       <Filter>소스 파일\Shader\PS\Deferred</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\PShader_Water.hlsl">
-      <Filter>소스 파일\Shader\PS\Forward</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_Wired.hlsl">
       <Filter>소스 파일\Shader\PS\Forward</Filter>
@@ -569,9 +560,6 @@
       <Filter>소스 파일\Shader\Utils</Filter>
     </FxCompile>
     <FxCompile Include="shaders\VShader_Tex.hlsl">
-      <Filter>소스 파일\Shader\VS</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\VShader_Sprite.hlsl">
       <Filter>소스 파일\Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_SpotPointLighting.hlsl">

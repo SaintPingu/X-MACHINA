@@ -21,7 +21,7 @@ public:
 	virtual void RenderBegin() override {}
 
 	virtual void RenderShadow() override {}
-	virtual void RenderDeferred() override {}
+	virtual void RenderDeferred() override;
 	virtual void RenderLights() override {}
 	virtual void RenderCustomDepth() override {}
 	virtual void RenderForward() override {}

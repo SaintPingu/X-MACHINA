@@ -28,9 +28,6 @@
     <Filter Include="Script\Object">
       <UniqueIdentifier>{b2925dd5-ec23-4ed3-a3c6-908ccd36d9ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Script\Object\Billboard">
-      <UniqueIdentifier>{5b5d8b5c-8fac-4d5d-b41f-581b44b2791f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Script\Player">
       <UniqueIdentifier>{3e65203b-4102-494b-b5c5-4710b62de873}</UniqueIdentifier>
     </Filter>
@@ -166,16 +163,10 @@
     <ClInclude Include="..\Common\Component\UI.h">
       <Filter>Common\Component</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_Billboard.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_Bullet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_Player.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Script_Sprite.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Object.h">
@@ -446,12 +437,6 @@
     </ClCompile>
     <ClCompile Include="src\Script_ShootingPlayer.cpp">
       <Filter>Script\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Billboard.cpp">
-      <Filter>Script\Object\Billboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_Sprite.cpp">
-      <Filter>Script\Object\Billboard</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_Bullet.cpp">
       <Filter>Script\Object</Filter>

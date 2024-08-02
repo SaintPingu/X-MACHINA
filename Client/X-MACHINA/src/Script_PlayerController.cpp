@@ -119,10 +119,11 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 		case VK_RETURN:
 			mChatBoxUI->ToggleChatBox();
 			return false;
+
+			// weapons //
 		case 'R':
 			mScript->Reload();
 			break;
-
 		case '0':
 		case '1':
 		case '2':
@@ -144,6 +145,8 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 		case '9':
 			mScript->AquireNewWeapon(WeaponName::PipeLine);
+
+			// items //
 			break;
 		case 'E':
 			mScript->Interact();
@@ -152,6 +155,7 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			mScript->DropCrntWeapon();
 			break;
 
+			// phero skills //
 		case 'U':
 			mAbilityMindControl->Toggle();
 			break;
@@ -165,7 +169,7 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			mAbilityIRDetector->Toggle();
 			break;
 
-			// cheat keys
+			// cheats //
 		case'L':
 			mScript->AddPheroAmount(1000);
 			break;

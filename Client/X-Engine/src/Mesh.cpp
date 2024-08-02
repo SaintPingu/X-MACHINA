@@ -679,21 +679,14 @@ void MergedMesh::UpdateMaterialBuffer()
 	}
 }
 
-//void UpdateShaderVars(const Matrix& transform)
-//{
-//	Scene::I->SetGraphicsRoot32BitConstants(RootParam::GameObjectInfo, XMMatrix::Transpose(transform), 0);
-//}
-
 
 void MergedMesh::Render(const GameObject* object) const
 {
-	// copy
 	Render(object->GetMergedTransform());
 }
 
 void MergedMesh::Render(const ObjectPool* objectPool) const
 {
-	// copy
 	if (!objectPool) {
 		return;
 	}
@@ -1087,9 +1080,9 @@ void SkinMesh::UpdateShaderVariables()
 
 	SkinnedConstants skinnedConstatnts{};
 	
-	int t{};
+	int offsetIdx{};
 	for (const auto& boneName : mBoneNames) {
-		Matrix transform = mBoneOffsets[t++] * (*mBoneFrames)[boneName]->GetWorldTransform();
+		Matrix transform = mBoneOffsets[offsetIdx++] * (*mBoneFrames)[boneName]->GetWorldTransform();
 		int boneIdx = mBoneNameIndices[boneName];
 		XMStoreFloat4x4(&skinnedConstatnts.BoneTransforms[boneIdx], XMMatrixTranspose(XMLoadFloat4x4(&transform)));
 	}

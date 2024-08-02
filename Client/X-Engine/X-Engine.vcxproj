@@ -207,7 +207,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Imgui\ImGuiMgr.cpp" />
-    <ClCompile Include="include\TLS.cpp" />
     <ClCompile Include="src\AbilityMgr.cpp" />
     <ClCompile Include="src\AnimatorBlendTree.cpp" />
     <ClCompile Include="src\AnimatorState.cpp" />
@@ -346,7 +345,6 @@
     <ClInclude Include="include\TextMgr.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Timer.h" />
-    <ClInclude Include="include\TLS.h" />
     <ClInclude Include="include\UploadBuffer.h" />
     <ClInclude Include="include\X-Engine.h" />
   </ItemGroup>

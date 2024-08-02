@@ -21,12 +21,16 @@ void Shader::Load(ShaderInfo info, ShaderPath path, bool isClose)
 		CreateComputeShader(isClose);
 	}
 	else {
-		if (!path.VS.empty())
+		if (!path.VS.empty()) {
 			mVSBlob = D3DUtil::ReadCompiledShaderFile(path.VS);
-		if (!path.PS.empty())
+		}
+		if (!path.PS.empty()) {
 			mPSBlob = D3DUtil::ReadCompiledShaderFile(path.PS);
-		if (!path.GS.empty())
+		}
+		if (!path.GS.empty()) {
 			mGSBlob = D3DUtil::ReadCompiledShaderFile(path.GS);
+		}
+
 		CreateGraphicsShader(isClose);
 	}
 }

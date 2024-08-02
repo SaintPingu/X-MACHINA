@@ -86,12 +86,14 @@ void Ssao::BlurSsaoMap(bool horzBlur)
 
 void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
 {
+	constexpr int kTexSize = 256;
+
 	D3D12_RESOURCE_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(D3D12_RESOURCE_DESC));
 	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	texDesc.Alignment = 0;
-	texDesc.Width = 256;
-	texDesc.Height = 256;
+	texDesc.Width = kTexSize;
+	texDesc.Height = kTexSize;
 	texDesc.DepthOrArraySize = 1;
 	texDesc.MipLevels = 1;
 	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -119,22 +121,20 @@ void Ssao::CreateRandomVectorTexture(ID3D12GraphicsCommandList* directCmdList)
 		nullptr,
 		IID_PPV_ARGS(mRandomVecMapUploadBuffer.GetAddressOf()));
 
-	XMCOLOR initData[256 * 256];
-	for (int i = 0; i < 256; ++i)
-	{
-		for (int j = 0; j < 256; ++j)
-		{
+	XMCOLOR initData[kTexSize * kTexSize];
+	for (int i = 0; i < kTexSize; ++i) {
+		for (int j = 0; j < kTexSize; ++j) {
 			// Random vector in [0,1].  We will decompress in shader to [-1,1].
 			Vec3 v(Math::RandFloat(), Math::RandFloat(), Math::RandFloat());
 
-			initData[i * 256 + j] = XMCOLOR(v.x, v.y, v.z, 0.0f);
+			initData[i * kTexSize + j] = XMCOLOR(v.x, v.y, v.z, 0.0f);
 		}
 	}
 
 	D3D12_SUBRESOURCE_DATA subResourceData = {};
 	subResourceData.pData = initData;
-	subResourceData.RowPitch = 256 * sizeof(XMCOLOR);
-	subResourceData.SlicePitch = subResourceData.RowPitch * 256;
+	subResourceData.RowPitch = kTexSize * sizeof(XMCOLOR);
+	subResourceData.SlicePitch = subResourceData.RowPitch * kTexSize;
 
 	D3DUtil::ResourceTransition(mRandomVecMap.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST);
 	UpdateSubresources(directCmdList, mRandomVecMap.Get(), mRandomVecMapUploadBuffer.Get(), 0, 0, num2DSubresources, &subResourceData);
@@ -164,8 +164,7 @@ void Ssao::CreateOffsetVectors()
 	mOffsets[12] = Vec4(0.0f, 0.0f, -1.0f, 0.0f);
 	mOffsets[13] = Vec4(0.0f, 0.0f, +1.0f, 0.0f);
 
-	for (int i = 0; i < 14; ++i)
-	{
+	for (int i = 0; i < 14; ++i) {
 		// Create random lengths in [0.25, 1.0].
 		float s = Math::RandFloat(0.25f, 1.f);
 		

@@ -128,10 +128,10 @@ public:
 	MasterModel();
 	virtual ~MasterModel() = default;
 
-	rsptr<Model> GetModel() const { return mModel; }
+	Model* GetModel() const					{ return mModel.get(); }
 	const Transform* GetTransform() const	{ return mModel.get(); }
 	const std::string& GetName() const		{ return mModel->GetName(); }
-	rsptr<MergedMesh> GetMesh() const		{ return mMesh; }
+	MergedMesh* GetMesh() const				{ return mMesh.get(); }
 	rsptr<Texture> GetTexture() const;
 
 	sptr<const AnimationLoadInfo> GetAnimationInfo() const { return mAnimationInfo; }

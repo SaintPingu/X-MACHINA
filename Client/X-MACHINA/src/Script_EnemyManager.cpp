@@ -10,16 +10,14 @@
 
 void Script_EnemyManager::Awake()
 {
+	base::Awake();
+
 	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 }
 
 void Script_EnemyManager::Update()
 {
-	//if (mTarget) {
-	//	if (mTarget->GetComponent<Script_LiveObject>()->IsDead()) {
-	//		mTarget = nullptr;
-	//	}
-	//}
+	base::Update();
 }
 
 void Script_EnemyManager::Reset()

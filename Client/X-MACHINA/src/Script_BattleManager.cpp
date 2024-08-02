@@ -107,7 +107,7 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 	case Hash("Bound"):
 		WriteBounds(object);
 		break;
-#ifdef SERVER_COMMINICATION
+#ifdef SERVER_COMMUNICATION
 	case Hash("AdvancedCombatDroid"):
 	case Hash("Onyscidus"):
 	case Hash("Ursacetus"):

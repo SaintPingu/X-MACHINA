@@ -24,7 +24,7 @@ UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	mTexture = RESOURCE<Texture>(textureName);
 	mObjectCB.SliderValue = 1.f;
 
-	// ������Ʈ ��� ���� ��� �÷��״� ���� ������ �� �ִ�.
+	// The object constant buffer usage flag can be set directly.
 	SetUseObjCB(true);
 	SetPosition(pos);
 

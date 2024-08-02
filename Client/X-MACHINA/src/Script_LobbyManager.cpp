@@ -23,7 +23,6 @@ void Script_LobbyManager::Awake()
 {
 	base::Awake();
 
-	//MainCamera::I->SetPosition(Vec3(5, 3, 2));
 	MAIN_CAMERA->SetOffset(Vec3(9.88f, 1.86f, 6.93f));
 	MainCamera::I->SetPosition(Vec3(9.88f, 1.86f, 6.93f));
 	MainCamera::I->SetLocalRotation(Vec3(8.25f, -124.f, 0.f));

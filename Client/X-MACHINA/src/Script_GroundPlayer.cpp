@@ -151,7 +151,7 @@ void Script_GroundPlayer::OnCollisionStay(Object& other)
 
 void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle)
 {
-	if (mIsAim) {										// ���� ���¶��??, �÷��̾��� look���⿡ ���� �ٸ� �ٸ�(Legs) �ִϸ��̼��� ����Ѵ�??.
+	if (mIsAim) { // In the aim state, play a different leg animation depending on the player's look direction.
 
 		const float rotAngleAbs = fabs(rotAngle);
 		// �̵� ���� //
@@ -161,9 +161,10 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 			const float lookAngle = Vector3::SignedAngle(mObject->GetLook().xz(), Vector3::Forward, Vector3::Up);
 			Vec3 rotatedMovementDir = Vector3::Normalized(Vector3::Rotate(movementDir, Vector3::Up, lookAngle));
 
-			// v, h�� ����, dir�� ũ�Ⱑ �׻� ���簢�� ������ �굵�� �Ѵ�.
-			// BlendTree�� �� ���� ���簢���� ���� ��ġ�� �ֱ� �����̴�.
-			// �Ʒ� �����?? ���� ������ ����Ȯ�� v, h���� ��������. (���� ���ڿ�������)
+			// Recalculating the values of v and h //
+			// Always make sure that the dir size reaches the square side.
+			// This is because each point of BlendTree is located on the side of a square.
+			// If you don't do the following calculations, you'll get the incorrect values of v and h. (a little unnatural)
 			{
 				float dirAngle = Vector3::SignedAngle(Vector3::Forward, rotatedMovementDir, Vector3::Up);
 
@@ -184,21 +185,21 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 				}
 			}
 		}
-		// ���� ���¿��� ȸ�� //
+		// Rotating in a stationary state //
 		else if (rotAngleAbs > 10.f) {
 			mController->SetValue("Walk", true);
 
-			// ȸ�� ��ȣ�� ���� h���� �����Ѵ�.
+			// Set the h value according to the rotation sign.
 			v = Math::Sign(rotAngle) > 0 ? 0.5f : -0.5f;
 			h = Math::Sign(rotAngle) > 0 ? -1.f : 1.f;
 		}
-		// ���� ���� //
+		// Stationary state //
 		else {
 			mController->SetValue("Walk", false);
 		}
 	}
 	else {
-		if (!Math::IsZero(v) || !Math::IsZero(h)) {		// ���� ���°� �ƴϸ� ������ ������ �̵��Ѵ�.
+		if (!Math::IsZero(v) || !Math::IsZero(h)) { // If it's not in an aim state, it moves forward unconditionally.
 			v = 1;
 		}
 		else {
@@ -353,7 +354,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 		{WeaponType::Sniper, "PutBackAssaultRifle" },
 	};
 
-	// �ִϸ��̼� �ݹ� �Լ� //
+	// animation callback functions //
 	const std::function<void()> reloadCallback = std::bind(&Script_GroundPlayer::EndReloadCallback, this);
 	const std::function<void()> reloadStopCallback = std::bind(&Script_GroundPlayer::StopReloadCallback, this);
 	const std::function<void()> reloadChangeCallback = std::bind(&Script_GroundPlayer::ChangeReloadCallback, this);
@@ -361,7 +362,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	const std::function<void()> drawEndCallback = std::bind(&Script_GroundPlayer::DrawWeaponEndCallback, this);
 	const std::function<void()> putbackCallback = std::bind(&Script_GroundPlayer::PutbackWeaponEndCallback, this);
 
-	// bolt action sniper �ʱ�ȭ
+	// init bolt action sniper
 	{
 		const std::function<void()> boltActionCallback = std::bind(&Script_GroundPlayer::BoltActionCallback, this);
 		const std::function<void()> boltActionSoundCallback = std::bind(&Script_GroundPlayer::BoltActionSoundCallback, this);
@@ -460,7 +461,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 
 	GridObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, false);
 
-	// ��ũ��Ʈ �߰� //
+	// add scripts //
 	switch (weaponName) {
 	case WeaponName::H_Lock:
 		weapon->AddComponent<Script_Weapon_Pistol>();
@@ -482,8 +483,6 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		assert(0);
 		break;
 	}
-
-	// ��ũ��Ʈ ���� //
 	weapon->GetComponent<Script_Weapon>()->SetOwner(this);
 
 	SwitchWeapon(weapon);
@@ -519,7 +518,6 @@ void Script_GroundPlayer::OffAim()
 	mController->SetValue("Aim", false);
 	mIsAim = false;
 
-	// ���� ���� ȸ�����¿��ٸ� �̸� ����Ѵ�??.
 	if (mIsInBodyRotation) {
 		mIsInBodyRotation = false;
 
@@ -537,8 +535,8 @@ void Script_GroundPlayer::DropCrntWeapon()
 
 void Script_GroundPlayer::Interact()
 {
-	const auto collisionObjects = mObject->GetCollisionObjects();
-	for (auto other : collisionObjects) {
+	const auto& collisionObjects = mObject->GetCollisionObjects();
+	for (const auto& other : collisionObjects) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
 		case ObjectTag::Item:
@@ -656,7 +654,7 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 
 	base::PutbackWeaponEnd();
 
-	// ���� ���Ⱑ ���ٸ� ���� ���¸� �����Ѵ�.
+	// If you don't have the next weapon, end the aiming state.
 	if (GetNextWeaponNum() == -1 && mIsAim) {
 		OffAim();
 	}
@@ -666,34 +664,34 @@ void Script_GroundPlayer::PutbackWeaponEndCallback()
 
 void Script_GroundPlayer::UpdateParam(float val, float& param)
 {
-	constexpr float kParamSpeed         = 6.f;		// �Ķ����?? ��ȯ �ӵ�
-	constexpr float kOppositeExtraSpeed = 8.f;		// �ݴ��� �̵� �� �߰� �̵� ��ȯ �ӵ�
+	constexpr float kParamChangeSpeed   = 6.f;
+	constexpr float kOppositeExtraSpeed = 8.f;		// Additional movement speed when moving to the opposite side
 
-	int sign = Math::Sign(val);						// sign : �Ķ����?? �̵� ���� = ���� �Է°��� ��ȣ
-	if (Math::IsZero(val)) {						//		  �Է��� ���ٸ� ���� �Ķ������?? �ݴ� ��ȣ
+	int sign = Math::Sign(val);						// sign = Direction of param = Sign of the current input value
+	if (Math::IsZero(val)) {						//		  If there is no input, the opposite sign of the current parameter
 		if (Math::IsZero(param)) {
 			return;
 		}
 		sign = -Math::Sign(param);
 	}
 	float before = param;
-	param += (kParamSpeed * sign) * DeltaTime();	// �Ķ���Ͱ�?? ����
+	param += (kParamChangeSpeed * sign) * DeltaTime();
 
 	if (!Math::IsZero(val)) {
-		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// �ݴ��� �̵� ��
-			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// �߰� ��ȯ �ӵ� ����
+		if (fabs(param) < 0.5f && (fabs(before) > fabs(param))) {	// When moving to the opposite side
+			param += (sign * kOppositeExtraSpeed) * DeltaTime();	// apply opposite extra speed
 		}
-		else if (fabs(param) >= fabs(before)) {						// ������ �̵� ��
-			param = std::clamp(param, -fabs(val), fabs(val));		// param�� val�� ���� ���ϵ��� �Ѵ�.
+		else if (fabs(param) >= fabs(before)) {						// When moving forward
+			param = std::clamp(param, -fabs(val), fabs(val));		// Do not allow the param to cross the val.
 
-			// �������� ���� && 0�� �����?? ���?? �ش� �Ķ���ʹ�?? �����Ѵ�.
-			if (fabs(fabs(param) - fabs(before)) < 0.001f && fabs(param) < 0.1f) {								// 0�� �����ϸ� 0���� ����
+			// If the inc/dec width is low && it is close to 0, the param is ignored.
+			if ((fabs(fabs(param) - fabs(before)) < 0.001f) && (fabs(param) < 0.1f)) {
 				param = 0.f;
 			}
 		}
 	}
 
-	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ���̷� ����
+	param = std::clamp(param, -1.f, 1.f);		// Fixed between -1 ~ 1
 }
 
 void Script_GroundPlayer::ResetWeaponAnimation()
@@ -708,8 +706,9 @@ void Script_GroundPlayer::ResetWeaponAnimation()
 
 void Script_GroundPlayer::UpdateMovement(Dir dir)
 {
-	// ���� ĳ������ ������ ���¸� Ű �Է¿� ���� �����Ѵ�.
+	// The current character's movement state is set according to the key input. //
 	PlayerMotion crntMovement = PlayerMotion::None;
+
 	// Stand / Sit
 	if (KEY_PRESSED(VK_CONTROL)) { crntMovement |= PlayerMotion::Sit; }
 	else { crntMovement |= PlayerMotion::Stand; }
@@ -742,26 +741,26 @@ void Script_GroundPlayer::UpdateMovement(Dir dir)
 
 float Script_GroundPlayer::GetAngleMuzzleToAim(const Vec3& aimWorldPos) const
 {
-	// ȸ����
+	// center of rotation
 	const Vec3 offsetPos = mSpineBone->GetPosition().xz();
 
-	// �ѱ� ��ġ&����
+	// Positon & direction of the muzzle
 	const Vec3 muzzlePos = mMuzzle->GetPosition().xz();
 	const Vec3 muzzleLook = mMuzzle->GetLook().xz();
 
-	// ȸ���࿡�� ���������� ���ϴ� ����
+	// Vector from center of rotation to point of aim
 	const Vec3 offsetToAim = aimWorldPos - offsetPos;
 
-	// �ѱ����� ź�������� ���ϴ� ������ ���� �ٻ簪
+	// Length approximation of the vector from the muzzle to the impact point
 	const float approxLength = (offsetToAim.Length() - (muzzlePos - offsetPos).Length());
 
-	// ź�������� ���ϴ� ����
-	const Vec3 muzzleToBullet = muzzlePos + (muzzleLook * approxLength);
+	// Vector to the impact point
+	const Vec3 muzzleToImpact = muzzlePos + (muzzleLook * approxLength);
 
-	// ȸ���࿡�� ź�������� ���ϴ� ����
-	const Vec3 offsetToBullet = muzzleToBullet - offsetPos;
+	// Vector from the center of rotation to the point of impact
+	const Vec3 offsetToBullet = muzzleToImpact - offsetPos;
 
-	// (ȸ����-ź����) -> (ȸ����-������)���� ���ϴ� ����
+	// Angle (center of rotation->impact point) -> (center of rotation->aim point)
 	return Vector3::SignedAngle(offsetToBullet, offsetToAim, Vector3::Up);
 }
 
@@ -772,7 +771,7 @@ float Script_GroundPlayer::GetAngleSpineToAim(const Vec3& aimWorldPos) const
 
 Vec3 Script_GroundPlayer::GetAimWorldPos(const Vec2& aimScreenPos) const
 {
-	// aim���� �߻��?? �������� �ѱ��� y���� ��ġ�ϴ� ������ ã�´�.
+	// Find the point that matches the y-value of the [muzzle] in the ray fired from the [aimScreenPos].
 	const Vec3 ray = MAIN_CAMERA->ScreenToWorldRay(aimScreenPos);
 	const Vec3 camPos = MAIN_CAMERA->GetPosition();
 	return Vector3::RayOnPoint(camPos, ray, mMuzzle->GetPosition().y).xz();
@@ -820,7 +819,7 @@ void Script_GroundPlayer::Rotate(float angle) const
 	const int sign = Math::Sign(angle);
 	const float angleAbs = fabs(angle);
 
-	// [kMaxAngle] ���� ���ϸ� ����
+	// If it's below the [kMaxAngle], interpolate
 	float rotationSpeed{};
 	if (angleAbs > kMaxAngle) {
 		rotationSpeed = mRotationSpeed;
@@ -856,9 +855,9 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 		::IncreaseDelta(mAimingDeltaTime, kAimingSpeed);
 
 		const Vec3 aimWorldPos = GetAimWorldPos(aimScreenPos);
-		// ������ ���̶��??, �ѱ��� �ƴ� ô���� ���⿡ ���� ȸ������ ���Ѵ�.
+		// If it is reloading, the angle of rotation is calculated according to the direction of the spine
 		if (IsReloading()) {
-			// ���� ������ �����ϸ� [mReloadingDeltaTime]�� 1�� �� �� ���� ������ ȸ���Ѵ�.
+			// Maintain the current angle and slowly rotate until [mReloadingDeltaTime] becomes 1.
 			if (::IncreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
 
 				mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle);
@@ -870,8 +869,8 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 				mCrntSpineAngle = GetAngleSpineToAim(aimWorldPos) * mAimingDeltaTime;
 			}
 		}
-		// ������ ���̾��ٸ� ���� ������ �����ϸ� ��ǥ �������� ������ ȸ���Ѵ�.
 		else {
+			// If you were reloading, keep your current angle and slowly rotate to your target point.
 			if (::DecreaseDelta(mReloadingDeltaTime, kAimingSpeed)) {
 
 				mSpineBone->RotateGlobal(Vector3::Up, mCrntSpineAngle);
@@ -901,21 +900,23 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 			}
 		}
 			
-		// ���ϸ� ȸ���Ͽ� �ѱ��� yaw ȸ���� �����Ѵ�.
+		// Remove the yaw rotation of the muzzle by rotating up and down.
 		if (!mWeaponScript->IsReloading() && mController->IsEndTransition("Body")) {
 			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
 			if (fabs(yawAngle) > 0.1f) {
-				// [maxAngle]�� �̻��� �� �ִ� �ӵ�
-				constexpr float alignSpeed = 100.f;
-				constexpr float maxAngle   = 3.f;
-				const float ratio          = std::clamp(fabs(yawAngle) / maxAngle, 0.f, 1.f);
-				const float speed          = alignSpeed * ratio;
+				// Maximum speed when above the [kMaxAngle]
+				constexpr float kAlignSpeed  = 100.f;
+				constexpr float kMaxAngle    = 3.f;
+				constexpr float kMaxYawAngle = 10.f;
+				const float ratio            = std::clamp(fabs(yawAngle) / kMaxAngle, 0.f, 1.f);
+				const float speed            = kAlignSpeed * ratio;
 
 				mCrntYawAngle += Math::Sign(yawAngle) * speed * DeltaTime();
+				mCrntYawAngle = std::clamp(mCrntYawAngle, -kMaxYawAngle, kMaxYawAngle);
 			}
 		}
 
-		// �ݵ� ����
+		// apply recoil
 		if (mCurRecoil > 0.f) {
 			mSpineBone->Rotate(Vector3::Forward, mCurRecoil);
 		}
@@ -946,8 +947,7 @@ void Script_GroundPlayer::StopReload()
 
 void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState)
 {
-	// ���� ������ ���¿� �ٸ� ���?? ���� ������Ʈ �Ѵ�.
-	// ���� ���¸� ����ϰ�?? ���� ���·� ��ȯ�Ѵ�.
+	// Only update the value if it is different from the previous state of motion.
 	if (!(crntState & prevState)) {
 		switch (prevState) {
 		case PlayerMotion::None:
@@ -1002,7 +1002,6 @@ void Script_GroundPlayer::SetState(PlayerMotion prevState, PlayerMotion prevMoti
 
 void Script_GroundPlayer::SetMotion(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState, PlayerMotion& crntMotion)
 {
-	// ���� ������ �����?? ����ϰ�?? ���� ������ �������?? ��ȯ�Ѵ�.
 	if (!(crntState & prevState) || !(crntMotion & prevMotion)) {
 		switch (prevMotion) {
 		case PlayerMotion::None:
@@ -1084,8 +1083,7 @@ void Script_GroundPlayer::ChangeReloadCallback()
 	const auto& motion = mController->GetCrntMotion("Body");
 	float ratio = motion->GetLength() / motion->GetMaxLength();
 
-	// ���ε� ���� ���?? ���� �� 80%�̻� ����Ǿ��ٸ�?? ���� �Ϸ� ó��
-	// ���� ������ ������ ���?? ����
+	// Reloading completion if motion change during reload has progressed more than [kAllowRatio]
 	constexpr float kAllowRatio = 0.8f;
 	if (ratio > kAllowRatio && IsReloading()) {
 		EndReload();
@@ -1135,13 +1133,13 @@ void Script_GroundPlayer::RecoverRecoil()
 
 void Script_GroundPlayer::MoveCamera(Dir dir)
 {
-	// ���� �����̸�, ���콺�� ��ġ�� ���?? �������?? ���� [offset_t]�� ũ�� �����Ѵ�. (�ִ� 1)
+	// In the aiming state, set [offset_t] larger as the mouse's position approaches the boundary. (Max = 1)
 	if (mIsAim) {
 		const Vec2 mousePos = InputMgr::I->GetMousePos() * 2.f;
 		const Vec2 ndc      = MAIN_CAMERA->ScreenToNDC(mousePos);
 		const Vec2 ndcAbs   = Vec2(fabs(ndc.x), fabs(ndc.y));
 
-		constexpr float offsetMaxRatio = 0.8f; // �ִ� [n]% ������ ���� (��ũ�� ������ [n - 100]% ���������� �ִ� offset ����)
+		constexpr float offsetMaxRatio = 0.8f;
 		float maxOffset_t = (std::max)(ndcAbs.x, ndcAbs.y);
 		if (maxOffset_t > offsetMaxRatio) {
 			maxOffset_t = offsetMaxRatio;
@@ -1150,7 +1148,7 @@ void Script_GroundPlayer::MoveCamera(Dir dir)
 
 		mCamera->Move(mousePos, ndcAbs, maxOffset_t);
 	}
-	// �̵� �����̸�, ���⿡ ���� offset�� �ִ� [maxOffset_t]%�� �����Ѵ�
+	// When in the moving state, apply offset only up to [maxOffset_t]% depending on the direction
 	else if(dir != Dir::None) {
 		constexpr float maxOffset_t = 0.6f;
 		const Vec3 dirVec = Transform::GetWorldDirection(dir);
@@ -1170,21 +1168,21 @@ void Script_GroundPlayer::SetMotionSpeed(AnimatorMotion* motion, float time)
 }
 void Script_GroundPlayer::ComputeSlideVector(Object& other)
 {
-	//// ���� �浹ü�� ���� �����̵� ���͸� ����
+	//// 이전 충돌체와 이전 슬라이딩 벡터를 저장
 	//static Object* prevOther = nullptr;
 	//static Vec3 prevSlideVec{};
 
-	// �㸮 �ʺ��� �̵� ������ ���ϴ� ����
+	// 무릎부터 이동 방향을 향하는 광선
 	Ray ray{ mObject->GetPosition() + mObject->GetUp() * 0.25f, Vector3::Normalized(mDirVec) };
 
-	//// ���� �浹ü�� ���� �浹ü�� �ٸ� ���??
+	//// 이전 충돌체가 현재 충돌체와 다른 경우
 	//if (prevOther != nullptr) {
 	//	if (prevOther->GetID() != other.GetID()) {
-	//		// �������κ��� �� �浹ü�� �Ÿ��� ���??
+	//		// 광선으로부터 두 충돌체의 거리를 계산
 	//		float crntDist = Vec3::Distance(ray.Position, other.GetPosition());
 	//		float prevDist = Vec3::Distance(ray.Position, prevOther->GetPosition());
 
-	//		// ���� �浹ü������ �Ÿ��� �� �� ���?? ���� �����̵� ���͸� ���??
+	//		// 현재 충돌체까지의 거리가 더 길 경우 이전 슬라이딩 벡터를 사용
 	//		if (crntDist > prevDist) {
 	//			mSlideVec = prevSlideVec;
 	//			return;
@@ -1195,7 +1193,7 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 	float dist{};
 	float minDist{ 999.f };
 
-	// �ּ� �Ÿ��� ���� ��쿡��?? ����
+	// 최소 거리가 작을 경우에만 실행
 	sptr<Collider> box{};
 	for (const auto& collider : other.GetComponent<ObjectCollider>()->GetColliders()) {
 		if (collider->GetType() != Collider::Type::Box) {
@@ -1242,9 +1240,6 @@ void Script_GroundPlayer::ComputeSlideVector(Object& other)
 			mSlideVec = XMVector3Normalize(ray.Direction - collisionNormal * rdn);
 			mSlideVec = Vec3::Transform(mSlideVec, worldToOBB);
 		}
-
-		//prevOther = &other;
-		//prevSlideVec = mSlideVec;
 	}
 }
 
@@ -1258,7 +1253,7 @@ void Script_GroundPlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon
 	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 	// motion speed
-	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
+	constexpr float decTime = 0.1f;
 	const float fireDelay = weapon->GetFireDelay();
 	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 }
@@ -1282,8 +1277,6 @@ void Script_GroundPlayer::SwitchWeapon(GridObject* weapon)
 void Script_GroundPlayer::SetWeaponChild(GridObject* weapon)
 {
 	const auto& weaponScript = weapon->GetComponent<Script_Weapon>(true);
-
-	// transform ���� //
 	WeaponType weaponType = weaponScript->GetWeaponType();
 
 	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType), true);

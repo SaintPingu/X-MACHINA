@@ -133,7 +133,7 @@ private:
 
 	// aim //
 	bool mIsAim{};
-	bool mIsInBodyRotation{};
+	bool mIsInBodyRotation{};	// is in spine rotation
 	float mCrntSpineAngle{};
 	float mSpineDstAngle{};
 	float mAimingDeltaTime{};
@@ -237,6 +237,7 @@ private:
 	void StopReload();
 
 	void SetState(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState);
+	// Cancel the previous state and switch to the current state.
 	void SetMotion(PlayerMotion prevState, PlayerMotion prevMotion, PlayerMotion crntState, PlayerMotion& crntMotion);
 
 	void StopReloadCallback();

@@ -14,14 +14,6 @@ void Script_GroundObject::Start()
 	if (isnan(mObject->GetPosition().x)) {
 		mObject->SetPosition(0, 0, 0);
 	}
-}
 
-void Script_GroundObject::LateUpdate()
-{
-	base::LateUpdate();
-
-	if (isnan(mObject->GetPosition().x)) {
-		mObject->SetPosition(0, 0, 0);
-	}
-	mObject->SetPositionY(0.1f);
+	mObject->SetPositionY(0.f);
 }

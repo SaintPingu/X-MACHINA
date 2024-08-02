@@ -11,7 +11,6 @@ class Script_GroundObject : public Component {
 
 public:
 	virtual void Start() override;
-	virtual void LateUpdate() override;
 };
 
 #pragma endregion

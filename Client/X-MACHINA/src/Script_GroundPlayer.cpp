@@ -12,7 +12,6 @@
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_Item.h"
-#include "Script_FootStepSound.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -73,7 +72,6 @@ void Script_GroundPlayer::Awake()
 
 	// add scripts //
 	mObject->AddComponent<Script_GroundObject>();
-	mObject->AddComponent<Script_FootStepSound>();
 
 	// values //
 	mSpineBone = mObject->FindFrame("Humanoid_ Spine1");

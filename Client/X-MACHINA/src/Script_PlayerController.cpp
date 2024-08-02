@@ -3,6 +3,7 @@
 
 #include "Script_Player.h"
 #include "Script_AbilityHolder.h"
+#include "Script_FootStepSound.h"
 
 #include "ShieldAbility.h"
 #include "IRDetectorAbility.h"
@@ -21,6 +22,7 @@ void Script_PlayerController::Awake()
 
 	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, -200.f }, Vec2{ 300.f, 150.f }, "Name");
 
+	mObject->AddComponent<Script_FootStepSound>();
 
 	mAbilityShield = mObject->AddComponent<Script_CooldownAbilityHolder>();
 	mAbilityIRDetector = mObject->AddComponent<Script_AbilityHolder>();

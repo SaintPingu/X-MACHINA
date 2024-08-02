@@ -19,6 +19,8 @@ void Script_FootStepSound::Awake()
 
 void Script_FootStepSound::Update()
 {
+	base::Update();
+
 	constexpr float departY = 0.05f;
 	constexpr float groundY = 0.02f;
 

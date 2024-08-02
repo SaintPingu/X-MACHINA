@@ -34,8 +34,10 @@ DXGIMgr::DXGIMgr()
 	:
 	mDescriptorHeap(std::make_shared<DescriptorHeap>())
 {
-	DWORD filterOption = 0;
-	filterOption |= FilterOption::None;
+	DWORD filterOption = FilterOption::None;
+
+#ifndef RENDER_FOR_SERVER
+
 	//filterOption |= FilterOption::Blur;
 	filterOption |= FilterOption::LUT;
 	filterOption |= FilterOption::Tone;
@@ -43,6 +45,8 @@ DXGIMgr::DXGIMgr()
 	filterOption |= FilterOption::Shadow;
 	filterOption |= FilterOption::Bloom;
 	filterOption |= FilterOption::Sobel;
+
+#endif
 
 	mFilterOption = filterOption;
 }

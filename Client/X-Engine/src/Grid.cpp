@@ -9,7 +9,7 @@ int Grid::mTileRows = 0;
 int Grid::mTileCols = 0;
 
 
-inline bool IsNotBuilding(ObjectTag tag)
+static inline bool IsNotBuilding(ObjectTag tag)
 {
 	return tag != ObjectTag::Building && tag != ObjectTag::DissolveBuilding;
 }

@@ -14,13 +14,3 @@ void LoadingScene::Release()
 {
 	Canvas::I->RemoveUI(0, mBackground);
 }
-
-void LoadingScene::RenderDeferred()
-{
-	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void LoadingScene::UpdateShaderVars()
-{
-	UpdateMainPassCB();
-}

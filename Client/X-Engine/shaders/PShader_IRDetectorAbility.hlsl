@@ -32,6 +32,14 @@ float4 PSIRDetectorAbility(VSOutput_Tex pin) : SV_TARGET0
         litColor = lerp(color1, color2, rim);
     }
     
+    // Noise //
+    float noiseStrength = 0.1f;
+    NumberGenerator rand;
+    rand.SetSeed((uint) (gAbilityCB.AccTime * 10));
+    float2 uv = pin.UV + rand.GetRandomFloat(0, 100);
+    float4 noiseSample = gTextureMaps[gAbilityCB.NoiseIndex].Sample(gsamAnisotropicWrap, uv);
+    litColor.rgb += noiseStrength * (noiseSample.rgb - 0.5f);
+    
     float lifeRatio = gAbilityCB.AccTime / gAbilityCB.ActiveTime;
     float startBandRatio = CalcAmplification(gAbilityCB.AccTime, 0.f, gAbilityCB.ActiveTime - gAbilityCB.Duration);
     float endBandRatio = CalcAttenuation(gAbilityCB.AccTime, gAbilityCB.Duration, gAbilityCB.ActiveTime);

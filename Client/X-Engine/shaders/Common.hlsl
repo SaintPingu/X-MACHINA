@@ -241,6 +241,8 @@ struct AbilityInfo {
     int     UIIndex;
 
     MinimapInfo MinimapData;
+    
+    int     NoiseIndex;
 };
 
 struct InstanceInfo {

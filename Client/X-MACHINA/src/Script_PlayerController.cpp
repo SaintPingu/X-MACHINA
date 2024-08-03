@@ -28,10 +28,10 @@ void Script_PlayerController::Awake()
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 
-	mAbilityShield = mObject->AddComponent<Script_Ability_Shield>(false);
-	mAbilityIRDetector = mObject->AddComponent<Script_Ability_IRDetector>(false);
-	mAbilityMindControl = mObject->AddComponent<Script_Ability_MindControl>(false);
-	mAbilityCloaking = mObject->AddComponent<Script_Ability_Cloaking>(false);
+	mAbilityShield = mObject->AddComponent<Script_Ability_Shield>(true, false);
+	mAbilityIRDetector = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
+	mAbilityMindControl = mObject->AddComponent<Script_Ability_MindControl>(true, false);
+	mAbilityCloaking = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
 }
 
 void Script_PlayerController::Start()

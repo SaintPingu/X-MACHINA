@@ -226,7 +226,7 @@ public:
 
 	// T component를 추가한다.
 	template<class T>
-	sptr<T> AddComponent(bool awake = true)
+	sptr<T> AddComponent(bool awake = true, bool active = true)
 	{
 		static_assert(!std::is_abstract<T>::value, "The component type must not be abstract when added.");
 
@@ -234,7 +234,7 @@ public:
 		mComponents.push_back(component);
 		if (awake && IsActive()) {
 			component->Awake();
-			component->mIsActive = true;
+			component->mIsActive = active;
 		}
 
 		return component;

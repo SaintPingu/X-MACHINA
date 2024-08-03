@@ -339,13 +339,14 @@ void BattleScene::RenderCustomDepth()
 
 void BattleScene::RenderForward()
 {
-	base::RenderForward();
-
 	RenderDissolveObjects();
 	RenderAfterSkinImage();
 
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	RenderParticles();
+
+	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	base::RenderForward();
 }
 
 void BattleScene::RenderUI()

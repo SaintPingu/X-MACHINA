@@ -9,6 +9,7 @@
 #include "Script_Ability_IRDetector.h"
 #include "Script_Ability_MindControl.h"
 #include "Script_Ability_Cloaking.h"
+#include "Script_Ability_NightVision.h"
 
 
 #include "ChatBoxUI.h"
@@ -28,10 +29,11 @@ void Script_PlayerController::Awake()
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 
-	mAbilityShield = mObject->AddComponent<Script_Ability_Shield>(true, false);
-	mAbilityIRDetector = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
+	mAbilityShield      = mObject->AddComponent<Script_Ability_Shield>(true, false);
+	mAbilityIRDetector  = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
 	mAbilityMindControl = mObject->AddComponent<Script_Ability_MindControl>(true, false);
-	mAbilityCloaking = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
+	mAbilityCloaking    = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
+	mAbilityNightVision = mObject->AddComponent<Script_Ability_NightVision>(true, false);
 }
 
 void Script_PlayerController::Start()
@@ -159,6 +161,9 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 		case 'Y':
 			mAbilityIRDetector->Toggle();
+			break;
+		case 'N':
+			mAbilityNightVision->Toggle();
 			break;
 
 			// cheats //

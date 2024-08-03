@@ -900,7 +900,7 @@ void Script_GroundPlayer::RotateMuzzleToAim()
 			float yawAngle = -Vector3::SignedAngle(mMuzzle->GetLook(), mMuzzle->GetLook().xz(), mMuzzle->GetRight());
 			if (fabs(yawAngle) > 0.1f) {
 				// Maximum speed when above the [kMaxAngle]
-				constexpr float kAlignSpeed  = 100.f;
+				constexpr float kAlignSpeed  = 80.f;
 				constexpr float kMaxAngle    = 3.f;
 				constexpr float kMaxYawAngle = 10.f;
 				const float ratio            = std::clamp(fabs(yawAngle) / kMaxAngle, 0.f, 1.f);

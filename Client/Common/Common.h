@@ -202,6 +202,7 @@ struct AbilityConstants {
 	MinimapConstants MinimapData{};
 
 	int		NoiseIndex{};
+	int		UI2Index{};
 };
 #pragma endregion
 

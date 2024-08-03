@@ -10,6 +10,7 @@
 #include "Script_Ability_MindControl.h"
 #include "Script_Ability_Cloaking.h"
 #include "Script_Ability_NightVision.h"
+#include "Script_Ability_AerialController.h"
 
 
 #include "ChatBoxUI.h"
@@ -29,11 +30,12 @@ void Script_PlayerController::Awake()
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 
-	mAbilityShield      = mObject->AddComponent<Script_Ability_Shield>(true, false);
-	mAbilityIRDetector  = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
-	mAbilityMindControl = mObject->AddComponent<Script_Ability_MindControl>(true, false);
-	mAbilityCloaking    = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
-	mAbilityNightVision = mObject->AddComponent<Script_Ability_NightVision>(true, false);
+	mAbilityShield           = mObject->AddComponent<Script_Ability_Shield>(true, false);
+	mAbilityIRDetector       = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
+	mAbilityMindControl      = mObject->AddComponent<Script_Ability_MindControl>(true, false);
+	mAbilityCloaking         = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
+	mAbilityNightVision      = mObject->AddComponent<Script_Ability_NightVision>(true, false);
+	mAbilityAerialController = mObject->AddComponent<Script_Ability_AerialController>(true, false);
 }
 
 void Script_PlayerController::Start()
@@ -164,6 +166,9 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 		case 'N':
 			mAbilityNightVision->Toggle();
+			break;
+		case 'M':
+			mAbilityAerialController->Toggle();
 			break;
 
 			// cheats //

@@ -27,6 +27,7 @@ private:
 	sptr<Script_Ability> mAbilityMindControl{};
 	sptr<Script_Ability> mAbilityCloaking{};
 	sptr<Script_Ability> mAbilityNightVision{};
+	sptr<Script_Ability> mAbilityAerialController{};
 
 	sptr<SliderBarUI> mPheroBarUI{};
 	sptr<SliderBarUI> mHpBarUI{};

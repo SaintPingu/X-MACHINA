@@ -19,6 +19,7 @@ void Script_Missile::OnCollisionEnter(Object& other)
 
 	switch (other.GetTag()) {
 	case ObjectTag::Enemy:
+	case ObjectTag::Bound:
 	case ObjectTag::Building:
 	case ObjectTag::DissolveBuilding:
 		Explode();

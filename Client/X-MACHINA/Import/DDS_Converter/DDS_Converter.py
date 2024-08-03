@@ -51,7 +51,7 @@ for file in files:
 files = os.listdir(INPUT_PATH_UI)
 for file in files:
     file_path = INPUT_PATH_UI + file
-    cmd = texconv_cmd = 'texconv.exe -r ' + file_path
+    cmd = texconv_cmd = 'texconv.exe -srgb ' + file_path
     subprocess.run(texconv_cmd, shell=True)
     
     os.replace(file_path, INPUT_CONVERTED_PATH_UI + file)

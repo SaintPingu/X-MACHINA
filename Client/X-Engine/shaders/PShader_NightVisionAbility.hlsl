@@ -7,7 +7,6 @@ struct VSOutput_Tex {
 
 float4 PSNightVisionAbility(VSOutput_Tex pin) : SV_TARGET0
 {
-    // 텍스처 샘플링
     float4 color = gTextureMaps[gPassCB.RT0O_OffScreenIndex].Sample(gsamAnisotropicWrap, pin.UV);
 
     // 밝기 추출 (RGB를 회색조로 변환)
@@ -18,7 +17,6 @@ float4 PSNightVisionAbility(VSOutput_Tex pin) : SV_TARGET0
 
     // 밝기 조절
     brightness = saturate(brightness * 2.0); // 밝기 증가, 필요에 따라 조정 가능
-
     
     // Noise //
     float noiseStrength = 0.1f;

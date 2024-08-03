@@ -65,7 +65,7 @@ float4 PSIRDetectorAbility(VSOutput_Tex pin) : SV_TARGET0
         }   
     }
 
-    litColor = litColor * litBand + (offScreen * 0.5f);
+    litColor = (litColor * litBand) + (offScreen * 0.5f);
     litColor += GammaEncoding(uiColor);
     
     return litColor;

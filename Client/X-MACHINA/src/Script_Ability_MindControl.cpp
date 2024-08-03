@@ -22,7 +22,7 @@
 void Script_Ability_MindControl::Awake()
 {
 	base::Awake();
-	base::Init("MindControl", 10.f, 30.f);
+	Init("MindControl", 10.f, 30.f);
 	SetPheroCost(200.f);
 
 	mMaxControlledObjectCnt = 1;

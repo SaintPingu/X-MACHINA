@@ -18,7 +18,7 @@ void Script_Ability_Shield::Awake()
 {
 	base::Awake();
 
-	base::Init("Shield", 2.f, 4.5f);
+	Init("Shield", 2.f, 4.5f);
 	SetPheroCost(100.f);
 
 	mLayer = 1;

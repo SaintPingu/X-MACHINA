@@ -12,7 +12,7 @@ void Script_Ability_IRDetector::Awake()
 {
 	base::Awake();
 
-	base::Init("IRDetetor", 2.f, 10.f);
+	Init("IRDetetor", 2.f, 10.f);
 
 	mLayer = 0;
 	mAbilityCB.Duration = 9.8f;

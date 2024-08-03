@@ -15,7 +15,7 @@ void Script_Ability_Cloaking::Awake()
 {
 	base::Awake();
 
-	base::Init("Cloaking", 3.f);
+	Init("Cloaking", 3.f);
 	SetPheroCost(30.f);
 
 	mAfterImage = mObject->AddComponent<Script_AfterImageObject>();

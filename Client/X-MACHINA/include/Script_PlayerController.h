@@ -7,7 +7,7 @@
 
 
 class Script_PheroPlayer;
-class Script_AbilityHolder;
+class Script_Ability;
 class Script_AimController;
 class ChatBoxUI;
 class SliderBarUI;
@@ -22,10 +22,10 @@ private:
 	sptr<Script_PheroPlayer>  mScript{};
 	sptr<Script_AimController> mAimController{};
 
-	sptr<Script_AbilityHolder> mAbilityShield{};
-	sptr<Script_AbilityHolder> mAbilityIRDetector{};
-	sptr<Script_AbilityHolder> mAbilityMindControl{};
-	sptr<Script_AbilityHolder> mAbilityCloaking{};
+	sptr<Script_Ability> mAbilityShield{};
+	sptr<Script_Ability> mAbilityIRDetector{};
+	sptr<Script_Ability> mAbilityMindControl{};
+	sptr<Script_Ability> mAbilityCloaking{};
 
 	sptr<SliderBarUI> mPheroBarUI{};
 	sptr<SliderBarUI> mHpBarUI{};

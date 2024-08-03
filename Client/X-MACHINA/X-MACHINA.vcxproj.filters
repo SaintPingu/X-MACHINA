@@ -280,15 +280,6 @@
     <ClInclude Include="include\Script_Missile.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\Script_AbilityHolder.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ShieldAbility.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\IRDetectorAbility.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\AbilityMgr.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -313,9 +304,6 @@
     <ClInclude Include="include\PheroAbilityInterface.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\MindControlAbility.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\Script_MindControlledEnemyBT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -323,9 +311,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\CloakingAbility.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_AfterImageObject.h">
@@ -373,7 +358,7 @@
     <ClInclude Include="include\Script_LobbyUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\CircleIndicator.h">
+    <ClInclude Include="include\Script_Ability_AttackIndicator.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_BattleUI.h">
@@ -422,6 +407,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\Script_PlayerController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ability.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_AbilityManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ability_Cloaking.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ability_MindControl.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ability_IRDetector.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Ability_Shield.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -552,15 +555,6 @@
     <ClCompile Include="src\Script_Ursacetus.cpp">
       <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_AbilityHolder.cpp">
-      <Filter>Script\Abilities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ShieldAbility.cpp">
-      <Filter>Script\Abilities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IRDetectorAbility.cpp">
-      <Filter>Script\Abilities</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_Onyscidus.cpp">
       <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
@@ -585,9 +579,6 @@
     <ClCompile Include="src\PheroAbilityInterface.cpp">
       <Filter>Script\Interface</Filter>
     </ClCompile>
-    <ClCompile Include="src\MindControlAbility.cpp">
-      <Filter>Script\Abilities</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_MindControlledEnemyBT.cpp">
       <Filter>Script\Enemy\AI\BehaviorTree</Filter>
     </ClCompile>
@@ -596,9 +587,6 @@
     </ClCompile>
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp">
       <Filter>Script\Enemy\AI\Task</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CloakingAbility.cpp">
-      <Filter>Script\Abilities</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_AfterImageObject.cpp">
       <Filter>Script</Filter>
@@ -651,7 +639,7 @@
     <ClCompile Include="src\Script_LobbyUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
-    <ClCompile Include="src\CircleIndicator.cpp">
+    <ClCompile Include="src\Script_Ability_AttackIndicator.cpp">
       <Filter>Script\Abilities</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_BattleUI.cpp">
@@ -698,6 +686,24 @@
     </ClCompile>
     <ClCompile Include="src\Script_PlayerController.cpp">
       <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ability.cpp">
+      <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_AbilityManager.cpp">
+      <Filter>Script\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ability_Cloaking.cpp">
+      <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ability_MindControl.cpp">
+      <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ability_IRDetector.cpp">
+      <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Ability_Shield.cpp">
+      <Filter>Script\Abilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

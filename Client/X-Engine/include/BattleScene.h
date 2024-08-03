@@ -25,6 +25,7 @@ class ObjectTag;
 #pragma region Class
 class BattleScene : public Singleton<BattleScene>, public Scene {
 	friend Singleton;
+	using base = Scene;
 
 public:
 	enum class FXType {
@@ -166,7 +167,6 @@ private:
 	void RenderDissolveObjects();
 	void RenderSkyBox(RenderType type);
 	void RenderParticles();
-	void RenderAbilities();
 
 	// [renderedObjects]와 grid의 bounds를 rendering한다.
 	bool RenderBounds();

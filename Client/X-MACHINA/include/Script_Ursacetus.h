@@ -12,7 +12,7 @@ class GridObject;
 class Collider;
 class AnimatorController;
 class GameObject;
-class Script_AbilityHolder;
+class Script_Ability_AttackIndicator;
 #pragma endregion
 
 
@@ -33,7 +33,7 @@ private:
 	int mCurrAttackCnt{};
 	Transform* mLeftForeArm{};
 	sptr<Collider> mArmCollider{};
-	wptr<Script_AbilityHolder> mCircleIndicator{};
+	wptr<Script_Ability_AttackIndicator> mIndicator{};
 
 public:
 	virtual void Awake() override;

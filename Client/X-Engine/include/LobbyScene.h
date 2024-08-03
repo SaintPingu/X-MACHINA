@@ -10,6 +10,7 @@ class InstObject;
 
 class LobbyScene : public Singleton<LobbyScene>, public Scene {
 	friend Singleton;
+	using base = Scene;
 
 public:
 	std::vector<sptr<GameObject>> mMeshObjects{};
@@ -17,14 +18,9 @@ public:
 	std::vector<sptr<ObjectPool>> mObjectPools{};
 
 public:
-	virtual void RenderBegin() override;
-
 	virtual void RenderShadow() override;
 	virtual void RenderDeferred() override;
-	virtual void RenderCustomDepth() override;
 	virtual void RenderForward() override;
-
-	virtual void ApplyDynamicContext() override;
 
 	void Update();
 	virtual void Build() override;
@@ -35,7 +31,6 @@ public:
 
 private:
 	void Start();
-	void BuildText();
 	void UpdateObjects();
 	void RenderObjects();
 

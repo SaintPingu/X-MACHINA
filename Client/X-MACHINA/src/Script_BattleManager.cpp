@@ -12,11 +12,14 @@
 #include "Script_Gobbler.h"
 #include "Script_Rapax.h"
 #include "Script_LightBipedMech.h"
-#include "Script_BattleUI.h"
 
+#include "Script_AbilityManager.h"
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
+
+#include "Script_BattleUI.h"
 #include "Script_StageNameUI.h"
+
 #include "Component/ParticleSystem.h"
 #include "Component/Camera.h"
 #include "Component/Collider.h"
@@ -45,6 +48,7 @@ void Script_BattleManager::Awake()
 	InitCustomObjectScripts();
 
 	mObject->AddComponent<Script_BattleUI>();
+	mObject->AddComponent<Script_AbilityManager>();
 }
 
 void Script_BattleManager::Start()

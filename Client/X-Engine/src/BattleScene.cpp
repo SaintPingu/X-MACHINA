@@ -15,7 +15,6 @@
 #include "Texture.h"
 #include "ObjectPool.h"
 #include "ResourceMgr.h"
-#include "AbilityMgr.h"
 #include "ScriptExporter.h"
 
 #include "Component/UI.h"
@@ -73,7 +72,7 @@ void BattleScene::SetAbilityCB(int idx) const
 #pragma region Build
 void BattleScene::Build()
 {
-	Scene::Build();
+	base::Build();
 	std::cout << "Load Battle Scene...";
 
 	// load models
@@ -89,7 +88,7 @@ void BattleScene::Build()
 
 void BattleScene::Release()
 {
-	Scene::Release();
+	base::Release();
 
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Destroy();
@@ -186,7 +185,7 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 	int sameObjectCount{};			// get one unique model from same object
 	sptr<MasterModel> model{};
 	sptr<ObjectPool> objectPool{};
-	
+
 	bool isInstancing{};
 	ObjectTag tag{};
 
@@ -209,7 +208,7 @@ void BattleScene::LoadGameObjects(std::ifstream& file)
 
 			FileIO::ReadString(file, token); //"<IsInstancing>:"
 			FileIO::ReadVal(file, isInstancing);
-			
+
 			if (isInstancing) {
 				objectPool = CreateObjectPool(model, sameObjectCount, [&](rsptr<InstObject> object) {
 					object->SetTag(tag);
@@ -296,11 +295,15 @@ void BattleScene::InitObjectByTag(ObjectTag tag, sptr<GridObject> object)
 #pragma region Render
 void BattleScene::RenderBegin()
 {
+	base::RenderBegin();
+
 	ClearRenderedObjects();
 }
 
 void BattleScene::RenderShadow()
 {
+	base::RenderShadow();
+
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderGridObjects(RenderType::Shadow);
@@ -311,6 +314,8 @@ void BattleScene::RenderShadow()
 
 void BattleScene::RenderDeferred()
 {
+	base::RenderDeferred();
+
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderGridObjects(RenderType::Deferred);
@@ -327,15 +332,17 @@ void BattleScene::RenderCustomDepth()
 	if (!DXGIMgr::I->GetFilterOption(FilterOption::Custom))
 		return;
 
+	base::RenderCustomDepth();
+
 	RenderSkinMeshObjects(RenderType::CustomDepth);
 }
 
 void BattleScene::RenderForward()
 {
+	base::RenderForward();
+
 	RenderDissolveObjects();
 	RenderAfterSkinImage();
-
-	RenderAbilities();
 
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	RenderParticles();
@@ -343,19 +350,21 @@ void BattleScene::RenderForward()
 
 void BattleScene::RenderUI()
 {
-	Scene::RenderUI();
+	base::RenderUI();
 
 	RenderBounds();
 }
 
 void BattleScene::ApplyDynamicContext()
 {
+	base::ApplyDynamicContext();
+
 	DynamicEnvironmentMappingManager::I->Render(mSkinMeshObjects);
 }
 
 void BattleScene::RenderEnd()
 {
-	Scene::RenderEnd();
+	base::RenderEnd();
 
 	ClearRenderedObjects();
 }
@@ -440,11 +449,6 @@ void BattleScene::RenderSkyBox(RenderType type)
 void BattleScene::RenderParticles()
 {
 	ParticleManager::I->Render();
-}
-
-void BattleScene::RenderAbilities()
-{
-	AbilityMgr::I->Render();
 }
 
 void BattleScene::ClearRenderedObjects()

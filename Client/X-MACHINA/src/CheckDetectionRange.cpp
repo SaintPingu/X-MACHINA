@@ -9,8 +9,7 @@
 
 #include "Script_Enemy.h"
 #include "Script_EnemyManager.h"
-#include "Script_AbilityHolder.h"
-#include "CloakingAbility.h"
+#include "Script_Ability_Cloaking.h"
 
 CheckDetectionRange::CheckDetectionRange(Object* object)
 {
@@ -26,12 +25,10 @@ BT::NodeState CheckDetectionRange::Evaluate()
 		mEnemyMgr->mTarget = mTarget;
 	}
 
-	const auto& abilitys = mEnemyMgr->mTarget->GetComponents<Script_AbilityHolder>();
-	for (const auto& ability : abilitys) {
-		if (ability->GetAbilityName() == "Cloaking" && ability->GetAbilityState() == AbilityState::Active) {
-			mEnemyMgr->mTarget = nullptr;
-			return BT::NodeState::Failure;
-		}
+	const auto& ability = mEnemyMgr->mTarget->GetComponent<Script_Ability_Cloaking>();
+	if (ability && ability->GetState() == Script_Ability::State::Active) {
+		mEnemyMgr->mTarget = nullptr;
+		return BT::NodeState::Failure;
 	}
 
 	// 경로 길찾기가 실행중이거나 감지 범위 내에 들어온 경우 다음 노드로 진행

@@ -4,12 +4,8 @@ class PheroAbilityInterface {
 protected:
 	float mPheroCost{};
 
-public:
-	PheroAbilityInterface() = delete;
-	PheroAbilityInterface(float cost) : mPheroCost(cost) {}
-	virtual ~PheroAbilityInterface() = default;
-
 protected:
+	void SetPheroCost(float cost) { mPheroCost = cost; }
 	virtual bool ReducePheroAmount(bool checkOnly = false) abstract;
 };
 

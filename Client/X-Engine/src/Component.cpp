@@ -232,9 +232,7 @@ void Object::Start()
 	mIsStart = true;
 
 	ProcessComponents([](rsptr<Component> component) {
-		if (component->IsActive() && !component->IsStart()) {
-			component->Start();
-		}
+			component->SetActive(true);
 		});
 	Transform::ComputeWorldTransform();
 }

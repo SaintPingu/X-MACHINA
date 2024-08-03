@@ -258,9 +258,6 @@
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>소스 파일\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="src\AbilityMgr.cpp">
-      <Filter>소스 파일\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="src\Bloom.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
@@ -454,9 +451,6 @@
     </ClInclude>
     <ClInclude Include="include\AnimationClip.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\AbilityMgr.h">
-      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="include\Bloom.h">
       <Filter>헤더 파일</Filter>
@@ -656,6 +650,9 @@
       <Filter>소스 파일\Shader\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="shaders\PShader_CircleIndicator.hlsl">
+      <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\PShader_NightVisionAbility.hlsl">
       <Filter>소스 파일\Shader\PS\Forward\Abilities</Filter>
     </FxCompile>
   </ItemGroup>

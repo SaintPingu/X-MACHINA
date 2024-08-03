@@ -1,19 +1,19 @@
 #include "stdafx.h"
-#include "IRDetectorAbility.h"
+#include "Script_Ability_IRDetector.h"
 
 #include "BattleScene.h"
-#include "GameFramework.h"
-
-#include "Mesh.h"
-#include "Shader.h"
-#include "Object.h"
-#include "Texture.h"
 #include "ResourceMgr.h"
+#include "Mesh.h"
+#include "Texture.h"
+#include "Shader.h"
 
-IRDetectorAbility::IRDetectorAbility()
-	:
-	RenderedAbility("IRDetector", 2.f, 10.f)
+
+void Script_Ability_IRDetector::Awake()
 {
+	base::Awake();
+
+	base::Init("IRDetetor", 2.f, 10.f);
+
 	mLayer = 0;
 	mAbilityCB.Duration = 9.8f;
 
@@ -23,18 +23,14 @@ IRDetectorAbility::IRDetectorAbility()
 	mAbilityCB.NoiseIndex = RESOURCE<Texture>("Noise")->GetSrvIdx();
 }
 
-void IRDetectorAbility::Activate()
+void Script_Ability_IRDetector::On()
 {
-	base::Activate();
+	base::On();
 	BattleScene::I->SetFilterOptions(FilterOption::Custom);
-
-
-
-
 }
 
-void IRDetectorAbility::DeActivate()
+void Script_Ability_IRDetector::Off()
 {
-	base::DeActivate();
+	base::Off();
 	BattleScene::I->SetFilterOptions(FilterOption::Custom);
 }

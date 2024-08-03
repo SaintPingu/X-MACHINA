@@ -8,8 +8,7 @@
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
 
-#include "Script_AbilityHolder.h"
-#include "CircleIndicator.h"
+#include "Script_Ability_AttackIndicator.h"
 
 #include "Component/ParticleSystem.h"
 #include "Component/Collider.h"
@@ -45,8 +44,8 @@ void Script_Ursacetus::Start()
 {
 	base::Start();
 
-	mCircleIndicator = mObject->AddComponent<Script_AbilityHolder>();
-	mCircleIndicator.lock()->SetAbility(std::make_shared<AttackIndicator>(2.05f, "CircleIndicator"));
+	mIndicator = mObject->AddComponent<Script_Ability_AttackIndicator>();
+	mIndicator.lock()->Init(2.05f, "CircleIndicator");
 }
 
 void Script_Ursacetus::Update()
@@ -114,7 +113,7 @@ void Script_Ursacetus::SpecialAttackCallback()
 	mObject->mObjectCB.MindRimColor = Vec3{ 0.5f, 0.f, 0.5f };
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(2.f, 0.006f);
 
-	mCircleIndicator.lock()->SetActive(false);
+	mIndicator.lock()->SetActive(false);
 	ParticleManager::I->Play("Ursacetus_Smash_Dust_Ring", mObject->FindFrame("Ursacetus_ L Toe0"));
 	ParticleManager::I->Play("Ursacetus_Smash_Dust_Spread", mObject->FindFrame("Ursacetus_ L Toe0"));
 }
@@ -122,7 +121,7 @@ void Script_Ursacetus::SpecialAttackCallback()
 void Script_Ursacetus::SpecialAttackStartCallback()
 {
 	if (mEnemyMgr->mController->GetParamValue<bool>("IsAttack")) {
-		mCircleIndicator.lock()->SetActive(true);
+		mIndicator.lock()->SetActive(true);
 	}
 }
 

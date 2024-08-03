@@ -48,6 +48,14 @@ void Scene::RenderLights()
 	}
 }
 
+void Scene::RenderForward()
+{
+	if (mRenderForwardCallback) {
+		CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mRenderForwardCallback();
+	}
+}
+
 void Scene::RenderUI()
 {
 	Canvas::I->Render();

@@ -2,33 +2,24 @@
 
 
 #pragma region Include
-#include "AbilityMgr.h"
+#include "Script_Ability.h"
 #include "PheroAbilityInterface.h"
 #pragma endregion
 
-
-#pragma region ClassForwardDecl
-class Camera;
 class Object;
-class GridObject;
-class Script_AimController;
 class Texture;
-#pragma endregion
-
+class Script_AimController;
 
 #pragma region Class
-class MindControlAbility : public RenderedAbility, public PheroAbilityInterface {
-	using base = RenderedAbility;
+class Script_Ability_MindControl : public Script_RenderedAbility, public PheroAbilityInterface {
+	COMPONENT(Script_Ability_MindControl, Script_RenderedAbility)
 
 private:
+	sptr<class Script_PheroPlayer> mPlayer{};
+
 	UINT mMaxControlledObjectCnt{};
 	UINT mCurrControlledObjectCnt{};
 
-	sptr<Camera> mCamera{};
-	
-	const float mWindowWidth{};
-	const float mWindowHeight{};
-	
 	// TODO : 여러 적을 움직이기 위해서는 배열로 관리해야함
 	Object* mPickedTarget{};
 	sptr<Script_AimController> mAimController{};
@@ -38,15 +29,15 @@ private:
 	sptr<Texture> mMindControlAimTexture{};
 
 public:
-	MindControlAbility();
+	virtual void Awake() override;
+	virtual void Start() override;
+	virtual void Update() override;
 
 public:
-	virtual void Update(float activeTime) override;
-	virtual void Activate() override;
-	virtual void DeActivate() override;
+	virtual void On() override;
+	virtual void Off() override;
 
 	void Click();
-	void Terminate();
 
 protected:
 	virtual bool ReducePheroAmount(bool checkOnly = false) override;

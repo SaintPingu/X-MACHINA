@@ -7,8 +7,7 @@
 #include "Component/Collider.h"
 #include "Component/Camera.h"
 
-#include "Script_AbilityHolder.h"
-#include "CircleIndicator.h"
+#include "Script_Ability_AttackIndicator.h"
 
 #include "AnimatorController.h"
 #include "AnimatorMotion.h"
@@ -30,8 +29,8 @@ void Script_MiningMech::Start()
 {
 	base::Start();
 
-	mRectangleIndicator = mObject->AddComponent<Script_AbilityHolder>();
-	mRectangleIndicator.lock()->SetAbility(std::make_shared<AttackIndicator>(1.8f, "RectangleIndicator"));
+	mIndicator = mObject->AddComponent<Script_Ability_AttackIndicator>();
+	mIndicator.lock()->Init(1.8f, "RectangleIndicator");
 }
 
 void Script_MiningMech::LateUpdate()
@@ -59,7 +58,7 @@ void Script_MiningMech::DrillAttackCallback()
 void Script_MiningMech::SmashAttackStartCallback()
 {
 	if (mEnemyMgr->mController->GetParamValue<bool>("IsAttack")) {
-		mRectangleIndicator.lock()->SetActive(true);
+		mIndicator.lock()->SetActive(true);
 	}
 }
 
@@ -74,7 +73,7 @@ void Script_MiningMech::SmashAttackEndCallback()
 void Script_MiningMech::AttackEndCallback()
 {
 	if (mCurrAttackCnt == static_cast<int>(AttackType::SmashAttack)) {
-		mRectangleIndicator.lock()->SetActive(false);
+		mIndicator.lock()->SetActive(false);
 	}
 	++mCurrAttackCnt;
 	mCurrAttackCnt %= AttackTypeCount;

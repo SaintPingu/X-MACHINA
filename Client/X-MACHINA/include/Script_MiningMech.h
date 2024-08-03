@@ -12,7 +12,7 @@ class GridObject;
 class Collider;
 class AnimatorController;
 class GameObject;
-class Script_AbilityHolder;
+class Script_Ability_AttackIndicator;
 #pragma endregion
 
 
@@ -20,7 +20,7 @@ class Script_AbilityHolder;
 class Script_MiningMech : public Script_Enemy {
 	COMPONENT(Script_MiningMech, Script_Enemy)
 
-	enum class AttackType {
+		enum class AttackType {
 		DiggerAttack = 0,
 		DrillAttack = 1,
 		SmashAttack = 2,
@@ -31,7 +31,7 @@ class Script_MiningMech : public Script_Enemy {
 
 private:
 	int mCurrAttackCnt{};
-	wptr<Script_AbilityHolder> mRectangleIndicator{};
+	wptr<Script_Ability_AttackIndicator> mIndicator{};
 
 public:
 	virtual void Awake() override;

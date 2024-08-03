@@ -15,12 +15,11 @@
 #include "Component/UI.h"
 
 
-void LobbyScene::RenderBegin()
-{
-}
 
 void LobbyScene::RenderShadow()
 {
+	base::RenderShadow();
+
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RESOURCE<Shader>("Shadow_Global")->Set();
@@ -42,23 +41,19 @@ void LobbyScene::RenderShadow()
 
 void LobbyScene::RenderDeferred()
 {
+	base::RenderDeferred();
+
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderObjects();
 }
 
-void LobbyScene::RenderCustomDepth()
-{
-}
-
 void LobbyScene::RenderForward()
 {
+	base::RenderForward();
+
 	RESOURCE<Shader>("SkyBox")->Set();
 	mSkyBox->Render();
-}
-
-void LobbyScene::ApplyDynamicContext()
-{
 }
 
 void LobbyScene::Update()
@@ -77,26 +72,21 @@ void LobbyScene::Update()
 
 void LobbyScene::Build()
 {
-	Scene::Build();
+	base::Build();
 
 	std::cout << "Load Lobby Scene...";
 	mLight->SetSceneBounds(15.f);
 
 	LoadSceneObjects();
-	BuildText();
 
 	Start();
 	std::cout << "OK\n";
 }
 
-void LobbyScene::BuildText()
-{
-
-}
-
 void LobbyScene::Release()
 {
-	Scene::Release();
+	base::Release();
+
 	mMeshObjects.clear();
 	mSkinMeshObjects.clear();
 	mObjectPools.clear();

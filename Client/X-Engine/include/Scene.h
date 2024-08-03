@@ -18,6 +18,9 @@ enum class SceneType {
 };
 
 class Scene abstract {
+private:
+	std::function<void()> mRenderForwardCallback{};
+
 protected:
 	sptr<Object> mManager{};
 	sptr<Light> mLight{};
@@ -35,17 +38,19 @@ public:
 
 	virtual void Build();
 	virtual void Release();
-	virtual void RenderBegin() abstract;
+	virtual void RenderBegin() {};
 
-	virtual void RenderShadow() abstract;
-	virtual void RenderDeferred() abstract;
+	virtual void RenderShadow() {};
+	virtual void RenderDeferred() {};
 	virtual void RenderLights();
-	virtual void RenderCustomDepth() abstract;
-	virtual void RenderForward() abstract;
+	virtual void RenderCustomDepth() {};
+
+	virtual void RenderForward();
+
 	virtual void RenderUI();
 	virtual void RenderText(RComPtr<struct ID2D1DeviceContext2> device);
 
-	virtual void ApplyDynamicContext() abstract;
+	virtual void ApplyDynamicContext() {};
 	virtual void RenderEnd() {}
 
 	virtual void UpdateShaderVars();
@@ -56,4 +61,6 @@ public:
 
 public:
 	Object* GetManager() const { return mManager.get(); }
+
+	void SetRenderForwardCallback(const std::function<void()>& callback) { mRenderForwardCallback = callback; }
 };

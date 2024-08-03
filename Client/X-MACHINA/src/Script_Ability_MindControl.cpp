@@ -1,75 +1,74 @@
 #include "stdafx.h"
-#include "MindControlAbility.h"
-
-#include "Object.h"
-#include "GameFramework.h"
-#include "Grid.h"
-#include "BattleScene.h"
-#include "InputMgr.h"
-#include "ResourceMgr.h"
-#include "Texture.h"
+#include "Script_Ability_MindControl.h"
 
 #include "Component/Camera.h"
+#include "ResourceMgr.h"
+#include "Object.h"
+#include "Texture.h"
 #include "Component/Collider.h"
-#include "Component/UI.h"
 
 #include "Script_Player.h"
-#include "Script_MainCamera.h"
 #include "Script_AimController.h"
 #include "Script_DefaultEnemyBT.h"
 #include "Script_MindControlledEnemyBT.h"
 #include "Script_BehaviorTree.h"
+#include "GameFramework.h"
 
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
 
-MindControlAbility::MindControlAbility()
-	:
-	RenderedAbility("MindControl", 10.f, 30.f),
-	PheroAbilityInterface(200.f),
-	mWindowWidth(static_cast<float>(GameFramework::I->GetWindowResolution().Width)),
-	mWindowHeight(static_cast<float>(GameFramework::I->GetWindowResolution().Height))
+void Script_Ability_MindControl::Awake()
 {
-	mCamera = MainCamera::I->GetCamera();
+	base::Awake();
+	base::Init("MindControl", 10.f, 30.f);
+	SetPheroCost(200.f);
+
 	mMaxControlledObjectCnt = 1;
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 	mMindControlAimTexture = RESOURCE<Texture>("MindControlAim");
 }
 
-void MindControlAbility::Update(float activeTime)
+void Script_Ability_MindControl::Start()
 {
-	base::Update(activeTime);
+	base::Start();
+
+	mPlayer = mObject->GetComponent<Script_PheroPlayer>();
+}
+
+void Script_Ability_MindControl::Update()
+{
+	base::Update();
 
 	if (KEY_TAP(VK_LBUTTON)) {
 		Click();
 	}
 }
 
-void MindControlAbility::Activate()
+void Script_Ability_MindControl::On()
 {
 	if (!ReducePheroAmount(true)) {
-		mTerminateCallback();
+		SetActive(false);
 		return;
 	}
 
-	RenderedAbility::Activate();
+	base::On();
 
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 
 	mAimController = mObject->GetComponent<Script_AimController>();
 	if (!mAimController) {
-		Terminate();
+		SetActive(false);
 		return;
 	}
 
 	ChangeAimToActive();
 }
 
-void MindControlAbility::DeActivate()
+void Script_Ability_MindControl::Off()
 {
-	base::DeActivate();
+	base::Off();
 
 	ChangeAimToOrigin();
 
@@ -78,30 +77,27 @@ void MindControlAbility::DeActivate()
 	}
 }
 
-bool MindControlAbility::ReducePheroAmount(bool checkOnly)
+bool Script_Ability_MindControl::ReducePheroAmount(bool checkOnly)
 {
-	sptr<Script_PheroPlayer> pheroPlayer = mObject->GetComponent<Script_PheroPlayer>();
-	if (pheroPlayer) {
-		return pheroPlayer->ReducePheroAmount(mPheroCost, checkOnly);
+	if (mPlayer) {
+		return mPlayer->ReducePheroAmount(mPheroCost, checkOnly);
 	}
 
 	return false;
 }
 
-Object* MindControlAbility::PickingObject(const Vec2& screenPos)
+Object* Script_Ability_MindControl::PickingObject(const Vec2& screenPos)
 {
-	// TODO : 추후에 또 사용될 수 있으므로 Picking을 엔진 코드로 옮겨야 한다.
-	if (!mCamera) {
-		return nullptr;
-	}
+	Matrix mtxProj = MAIN_CAMERA->GetProjMtx();
 
-	Matrix mtxProj = mCamera->GetProjMtx();
+	float windowWidth = GameFramework::I->GetWindowSize().x;
+	float windowHeight = GameFramework::I->GetWindowSize().y;
 
 	// 스크린 좌표계를 투영 좌표계로
-	float viewX = (2.f * screenPos.x / mWindowWidth - 1.f) / mtxProj(0, 0);
-	float viewY = (-2.f * screenPos.y / mWindowHeight + 1.f) / mtxProj(1, 1);
+	float viewX = (2.f * screenPos.x / windowWidth - 1.f) / mtxProj(0, 0);
+	float viewY = (-2.f * screenPos.y / windowHeight + 1.f) / mtxProj(1, 1);
 
-	Matrix mtxView = mCamera->GetViewMtx();
+	Matrix mtxView = MAIN_CAMERA->GetViewMtx();
 	Matrix mtxViewInv = mtxView.Invert();
 
 	float minDistance = FLT_MAX;
@@ -134,7 +130,7 @@ Object* MindControlAbility::PickingObject(const Vec2& screenPos)
 	return pickedObject;
 }
 
-void MindControlAbility::ActiveMindControlledEnemyBT()
+void Script_Ability_MindControl::ActiveMindControlledEnemyBT()
 {
 	if (!mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()) {
 		mPickedTarget->AddComponent<Script_MindControlledEnemyBT>();
@@ -152,7 +148,7 @@ void MindControlAbility::ActiveMindControlledEnemyBT()
 	mindControlledEnemyBT->SetInvoker(mObject);
 }
 
-void MindControlAbility::ActivePrevEnemyBT()
+void Script_Ability_MindControl::ActivePrevEnemyBT()
 {
 	sptr<Script_MindControlledEnemyBT> mindControlledEnemyBT;
 	if (mindControlledEnemyBT = mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()) {
@@ -171,7 +167,7 @@ void MindControlAbility::ActivePrevEnemyBT()
 	}
 }
 
-void MindControlAbility::Click()
+void Script_Ability_MindControl::Click()
 {
 	if (mCurrControlledObjectCnt > 0) {
 		return;
@@ -181,7 +177,7 @@ void MindControlAbility::Click()
 
 	if (mPickedTarget) {
 		if (!ReducePheroAmount()) {
-			Terminate();
+			SetActive(false);
 			return;
 		}
 
@@ -194,18 +190,12 @@ void MindControlAbility::Click()
 	}
 }
 
-void MindControlAbility::Terminate()
-{
-	ChangeAimToOrigin();
-	mTerminateCallback();
-}
-
-void MindControlAbility::ChangeAimToOrigin()
+void Script_Ability_MindControl::ChangeAimToOrigin()
 {
 	mAimController->ChangeAimTexture(mPrevAimTexture, mPrevAimScale);
 }
 
-void MindControlAbility::ChangeAimToActive()
+void Script_Ability_MindControl::ChangeAimToActive()
 {
 	mPrevAimTexture = mAimController->GetTexture();
 	mPrevAimScale = mAimController->GetTextureScale();

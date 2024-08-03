@@ -65,8 +65,11 @@ protected:
 	// 객체 활성화 시 호출된다.
 	virtual void OnEnable()
 	{
-		if (!mIsAwake) {
-			Awake();
+		if (!mIsStart) {
+			if (!mIsAwake) {
+				Awake();
+			}
+			Start();
 		}
 
 		mIsActive = true;
@@ -223,14 +226,15 @@ public:
 
 	// T component를 추가한다.
 	template<class T>
-	sptr<T> AddComponent(bool enable = true)
+	sptr<T> AddComponent(bool awake = true)
 	{
 		static_assert(!std::is_abstract<T>::value, "The component type must not be abstract when added.");
 
 		sptr<T> component = std::make_shared<T>((Object*)this);
 		mComponents.push_back(component);
-		if (enable && IsActive()) {
-			component->OnEnable();
+		if (awake && IsActive()) {
+			component->Awake();
+			component->mIsActive = true;
 		}
 
 		return component;

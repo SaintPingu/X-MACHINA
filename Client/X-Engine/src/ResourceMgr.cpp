@@ -1119,6 +1119,24 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("IRDetectorAbility", shader);
 	}
 #pragma endregion
+#pragma region NightVisionAbility
+	{
+		ShaderInfo info = {
+			ShaderType::HDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+		};
+
+		ShaderPath path = {
+			 "VShader_Tex.cso",
+			 "PShader_NightVisionAbility.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("NightVisionAbility", shader);
+	}
+#pragma endregion
 #pragma region MinimapAbility
 	{
 		ShaderInfo info = {

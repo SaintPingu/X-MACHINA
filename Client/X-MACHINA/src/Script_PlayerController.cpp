@@ -2,15 +2,13 @@
 #include "Script_PlayerController.h"
 
 #include "Script_Player.h"
-#include "Script_AbilityHolder.h"
 #include "Script_FootStepSound.h"
 #include "Script_AimController.h"
 
-#include "ShieldAbility.h"
-#include "IRDetectorAbility.h"
-#include "MinimapAbility.h"
-#include "MindControlAbility.h"
-#include "CloakingAbility.h"
+#include "Script_Ability_Shield.h"
+#include "Script_Ability_IRDetector.h"
+#include "Script_Ability_MindControl.h"
+#include "Script_Ability_Cloaking.h"
 
 
 #include "ChatBoxUI.h"
@@ -30,16 +28,10 @@ void Script_PlayerController::Awake()
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetUI(aimUI);
 
-	mAbilityShield = mObject->AddComponent<Script_CooldownAbilityHolder>();
-	mAbilityIRDetector = mObject->AddComponent<Script_AbilityHolder>();
-	mAbilityMindControl = mObject->AddComponent<Script_ToggleAbilityHolder>();
-	mAbilityCloaking = mObject->AddComponent<Script_ToggleAbilityHolder>();
-
-	mAbilityShield->SetAbility(std::make_shared<ShieldAbility>());
-	mAbilityIRDetector->SetAbility(std::make_shared<IRDetectorAbility>());
-	mAbilityMindControl->SetAbility(std::make_shared<MindControlAbility>());
-	mAbilityCloaking->SetAbility(std::make_shared<CloakingAbility>());
-
+	mAbilityShield = mObject->AddComponent<Script_Ability_Shield>(false);
+	mAbilityIRDetector = mObject->AddComponent<Script_Ability_IRDetector>(false);
+	mAbilityMindControl = mObject->AddComponent<Script_Ability_MindControl>(false);
+	mAbilityCloaking = mObject->AddComponent<Script_Ability_Cloaking>(false);
 }
 
 void Script_PlayerController::Start()

@@ -9,6 +9,7 @@
 #pragma region ClassForwardDecl
 class GameObject;
 class Script_MainCamera;
+class Script_AbilityManager;
 #pragma endregion
 
 
@@ -19,6 +20,7 @@ class Script_BattleManager : public Component {
 private:
 	sptr<Script_MainCamera> mMainCamera{};
 	std::vector<sptr<GameObject>> mObjects{};
+	sptr<Script_AbilityManager> mAbilityMgr{};
 
 public:
 	virtual void Awake() override;
@@ -27,6 +29,7 @@ public:
 	virtual void Reset() override;
 
 	rsptr<Script_MainCamera> GetCamera() const { return mMainCamera; }
+	rsptr<Script_AbilityManager> GetAbilityMgr() const { return mAbilityMgr; }
 
 private:
 	void InitSceneObjectScripts();

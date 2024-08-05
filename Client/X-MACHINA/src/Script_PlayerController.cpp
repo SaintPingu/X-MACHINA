@@ -71,10 +71,7 @@ bool Script_PlayerController::ProcessInput()
 		return false;
 	}
 
-	if (IsInAerialControl()) {
-		mAbilityAerialController->ProcessInput();
-	}
-	else {
+	if (!IsInAerialControl()) {
 		mScript->ProcessInput();
 	}
 
@@ -99,6 +96,10 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 	if (mChatBoxUI && mChatBoxUI->IsActive()) {
 		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
 		return true;
+	}
+
+	if (!IsInAerialControl()) {
+		mScript->ProcessKeyboardMsg(messageID, wParam, lParam);
 	}
 
 	switch (messageID) {
@@ -155,13 +156,6 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 		}
 	}
 	break;
-	}
-
-	if (IsInAerialControl()) {
-		mAbilityAerialController->ProcessMouseMsg(messageID, wParam, lParam);
-	}
-	else {
-		mScript->ProcessKeyboardMsg(messageID, wParam, lParam);
 	}
 
 	return true;

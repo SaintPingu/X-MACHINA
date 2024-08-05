@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Script_Ability_AerialController.h"
 
+#include "Airstrike.h"
 #include "Script_AerialCamera.h"
 #include "Script_AimController.h"
 
@@ -9,6 +10,7 @@
 
 #include "BattleScene.h"
 #include "ResourceMgr.h"
+#include "InputMgr.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -31,6 +33,9 @@ void Script_Ability_AerialController::Awake()
 
 	mAimUI = Canvas::I->CreateUI<UI>(0, "AerialAim");
 	mAimUI->SetActive(false);
+
+	mAirstrike = std::make_shared<Airstrike>();
+	mAirstrike->Init();
 }
 
 void Script_Ability_AerialController::Start()
@@ -41,18 +46,31 @@ void Script_Ability_AerialController::Start()
 	mAimController = mObject->GetComponent<Script_AimController>().get();
 }
 
-bool Script_Ability_AerialController::ProcessInput()
+void Script_Ability_AerialController::Update()
 {
-	return true;
+	base::Update();
+
+	mAirstrike->Update();
 }
 
 bool Script_Ability_AerialController::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	return true;
-}
+	switch (messageID) {
+	case WM_LBUTTONDOWN:
+	{
+		const Vec3 camPos = MAIN_CAMERA->GetPosition();
+		Vec3 firePos = camPos;
+		firePos.y -= 1.5f;
 
-bool Script_Ability_AerialController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
+		const Vec3 ray = MAIN_CAMERA->ScreenToWorldRay(InputMgr::I->GetMousePos());
+		const Vec3 hitPoint = Vector3::RayOnPoint(camPos, ray, 0);
+
+		const Vec3 fireDir = hitPoint - firePos;
+		mAirstrike->StartFire(firePos, fireDir);
+	}
+		break;
+	}
+
 	return true;
 }
 
@@ -62,6 +80,7 @@ void Script_Ability_AerialController::On()
 	BattleScene::I->SetFilterOptions(FilterOption::Custom);
 
 	mAerialCamera->SetActive(true);
+	mAirstrike->On();
 	ChangeAimToActive();
 }
 
@@ -88,4 +107,3 @@ void Script_Ability_AerialController::ChangeAimToActive()
 	mAimUI->SetActive(true);
 	mPrevAimUI->SetActive(false);
 }
-

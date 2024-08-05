@@ -29,7 +29,7 @@ void Script_Bullet::Update()
 	mObject->MoveForward(distance);
 
 	if (mCurDistance >= mMaxDistance) {
-		if (Math::IsEqual(mMaxDistance, mkMaxDistance)) {
+		if (Math::IsEqual(mMaxDistance, mEndDistance)) {
 			Disappear();
 		}
 		else {
@@ -47,7 +47,7 @@ void Script_Bullet::Init()
 	Reset();
 }
 
-void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
+void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 {
 	mObject->SetPosition(pos);
 	mObject->SetLook(dir);
@@ -97,10 +97,8 @@ void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 	PlayPSs(BulletPSType::Contrail);
 
 	mObject->SetLocalRotation(transform.GetRotation());
-	Vec3 dir = transform.GetLook();
-	dir = Vector3::Rotate(dir, err.y, err.x, 0.f);
-	mObject->Rotate(err.y, err.x, 0.f);
-	Fire(transform.GetPosition(), dir, transform.GetUp());
+	Vec3 dir = ApplyErr(transform.GetLook(), err);
+	Fire(transform.GetPosition(), dir);
 	StartFire();
 }
 
@@ -142,6 +140,12 @@ void Script_Bullet::Hit(Script_LiveObject* target)
 	}
 }
 
+Vec3 Script_Bullet::ApplyErr(const Vec3& dir, const Vec2& err)
+{
+	mObject->Rotate(err.y, err.x, 0.f);
+	return Vector3::Rotate(dir, err.y, err.x, 0.f);
+}
+
 void Script_Bullet::Disappear()
 {
 	Reset();
@@ -152,5 +156,5 @@ void Script_Bullet::Disappear()
 void Script_Bullet::Reset()
 {
 	mCurDistance = 0.f;
-	mMaxDistance = mkMaxDistance;
+	mMaxDistance = mEndDistance;
 }

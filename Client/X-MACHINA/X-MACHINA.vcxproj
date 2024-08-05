@@ -240,6 +240,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkWeapon.h" />
     <ClInclude Include="ClientNetwork\Contents\ServerSession.h" />
+    <ClInclude Include="include\Airstrike.h" />
     <ClInclude Include="include\ChatBoxUI.h" />
     <ClInclude Include="include\CheckMindDetectionRange.h" />
     <ClInclude Include="include\Script_Ability_AerialController.h" />
@@ -335,6 +336,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkWeapon.cpp" />
     <ClCompile Include="ClientNetwork\Contents\ServerSession.cpp" />
     <ClCompile Include="Script_Rapax.cpp" />
+    <ClCompile Include="src\Airstrike.cpp" />
     <ClCompile Include="src\ChatBoxUI.cpp" />
     <ClCompile Include="src\CheckMindDetectionRange.cpp" />
     <ClCompile Include="src\Script_Ability_AerialController.cpp" />

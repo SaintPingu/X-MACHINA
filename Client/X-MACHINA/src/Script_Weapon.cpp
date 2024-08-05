@@ -242,9 +242,9 @@ void Script_BulletWeapon::FireBullet()
 {
 	base::FireBullet();
 
-	auto& bullet = mBulletPool->Get(true);
+	const auto& bullet = mBulletPool->Get(true);
 	if (bullet) {
-		auto& bulletScript = bullet->GetComponent<Script_Bullet>();
+		const auto& bulletScript = bullet->GetComponent<Script_Bullet>();
 
 		Vec2 err = Vec2(Math::RandFloat(mErrX.x, mErrX.y), Math::RandFloat(mErrY.x, mErrY.y));
 		const float bulletSpeedErr = Math::RandFloat(0, mSpeerErr);

@@ -11,6 +11,16 @@
 #include "BattleScene.h"
 
 
+void Script_Missile::Update()
+{
+	if (mObject->GetPosition().y <= 0) {
+		Explode();
+		return;
+	}
+
+	base::Update();
+}
+
 void Script_Missile::OnCollisionEnter(Object& other)
 {
 	if (IsOwner(&other)) {
@@ -30,12 +40,18 @@ void Script_Missile::OnCollisionEnter(Object& other)
 	}
 }
 
-void Script_Missile::Fire(const Vec3& pos, const Vec3& dir, const Vec3& up)
+void Script_Missile::Fire(const Vec3& pos, const Vec3& dir)
 {
 	mObject->SetPosition(pos);
 	mObject->SetLook(dir);
 
 	SetDamage(GetDamage());
+}
+
+void Script_Missile::Fire(const Vec3& pos, const Vec3& dir, const Vec2& err)
+{
+	Fire(pos, dir);
+	ApplyErr(dir, err);
 }
 
 void Script_Missile::Init()
@@ -61,7 +77,7 @@ void Script_Missile::Explode()
 		}
 
 		if (object->GetTag() == ObjectTag::Enemy || object->GetTag() == ObjectTag::Player) {
-			object->GetComponent<Script_LiveObject>()->Hit(mExplosionDamage);
+			//object->GetComponent<Script_LiveObject>()->Hit(mExplosionDamage);
 		}
 	}
 

@@ -71,85 +71,44 @@ bool Script_PlayerController::ProcessInput()
 		return false;
 	}
 
-	mScript->ProcessInput();
+	if (IsInAerialControl()) {
+		mAbilityAerialController->ProcessInput();
+	}
+	else {
+		mScript->ProcessInput();
+	}
 
 	return true;
 }
 
 bool Script_PlayerController::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (messageID) {
-	case WM_LBUTTONDOWN:
-		mScript->StartFire();
-		break;
-
-	case WM_LBUTTONUP:
-		mScript->StopFire();
-		break;
-
-	case WM_RBUTTONDOWN:
-		mScript->OnAim();
-		break;
-
-	case WM_RBUTTONUP:
-		mScript->OffAim();
-		break;
-
-	default:
-		break;
+	if (IsInAerialControl()) {
+		mAbilityAerialController->ProcessMouseMsg(messageID, wParam, lParam);
 	}
+	else {
+		mScript->ProcessMouseMsg(messageID, wParam, lParam);
+	}
+
 
 	return true;
 }
 
 bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
-	if (!mChatBoxUI) {
+	if (mChatBoxUI && mChatBoxUI->IsActive()) {
+		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
 		return true;
 	}
 
 	switch (messageID) {
 	case WM_KEYDOWN:
+	{
 		switch (wParam)
 		{
 		case VK_RETURN:
 			mChatBoxUI->ToggleChatBox();
 			return false;
-
-			// weapons //
-		case 'R':
-			mScript->Reload();
-			break;
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		{
-			const int weaponNum = static_cast<int>(wParam - '0');
-			mScript->DrawWeapon(weaponNum);
-		}
-		break;
-
-		case '6':
-			mScript->AquireNewWeapon(WeaponName::SkyLine);
-			break;
-		case '7':
-			mScript->AquireNewWeapon(WeaponName::DBMS);
-			break;
-		case '8':
-			mScript->AquireNewWeapon(WeaponName::Burnout);
-			break;
-		case '9':
-			mScript->AquireNewWeapon(WeaponName::PipeLine);
-
-			// items //
-			break;
-		case 'E':
-			mScript->Interact();
-			break;
-		case 'G':
-			mScript->DropCrntWeapon();
-			break;
 
 			// phero skills //
 		case 'U':
@@ -172,6 +131,18 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 
 			// cheats //
+		case '6':
+			mScript->AquireNewWeapon(WeaponName::SkyLine);
+			break;
+		case '7':
+			mScript->AquireNewWeapon(WeaponName::DBMS);
+			break;
+		case '8':
+			mScript->AquireNewWeapon(WeaponName::Burnout);
+			break;
+		case '9':
+			mScript->AquireNewWeapon(WeaponName::PipeLine);
+
 		case'L':
 			mScript->AddPheroAmount(1000);
 			break;
@@ -181,20 +152,16 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 		case'H':
 			mScript->FillHP(1000);
 			break;
-
-		default:
-			break;
 		}
-		break;
-
-	default:
-		break;
+	}
+	break;
 	}
 
-
-	if (mChatBoxUI->IsActive()) {
-		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
-		return false;
+	if (IsInAerialControl()) {
+		mAbilityAerialController->ProcessMouseMsg(messageID, wParam, lParam);
+	}
+	else {
+		mScript->ProcessKeyboardMsg(messageID, wParam, lParam);
 	}
 
 	return true;
@@ -203,4 +170,9 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 void Script_PlayerController::Chat(const std::string& text)
 {
 	mChatBoxUI->AddChat(text, "other");
+}
+
+bool Script_PlayerController::IsInAerialControl()
+{
+	return mAbilityAerialController && mAbilityAerialController->IsActiveState();
 }

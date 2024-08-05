@@ -58,10 +58,6 @@ void Component::SetActive(bool isActive)
 {
 	if (isActive)
 	{
-		if (mIsActive) {
-			return;
-		}
-
 		OnEnable();
 	}
 	else {

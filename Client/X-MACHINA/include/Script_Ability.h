@@ -44,8 +44,13 @@ public:
 public:
 	const std::string& GetName() const { return mAbilityName; }
 	State GetState() const { return mState; }
+	bool IsActiveState() const { return mState == State::Active; }
 
 public:
+	virtual bool ProcessInput() { return true; }
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) { return true; }
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) { return true; }
+
 	void Toggle();
 
 protected:

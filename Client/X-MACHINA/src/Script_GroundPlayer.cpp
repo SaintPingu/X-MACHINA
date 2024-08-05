@@ -106,8 +106,6 @@ void Script_GroundPlayer::Update()
 {
 	base::Update();
 
-	mIsInteracted = false;
-
 	RecoverRecoil();
 }
 
@@ -149,7 +147,7 @@ void Script_GroundPlayer::UpdateParams(Dir dir, float v, float h, float rotAngle
 	if (mIsAim) { // In the aim state, play a different leg animation depending on the player's look direction.
 
 		const float rotAngleAbs = fabs(rotAngle);
-		// �̵� ���� //
+		// Rotating in a moving state //
 		if (!Math::IsZero(v) || !Math::IsZero(h)) {
 			const Vec3 movementDir = Transform::GetWorldDirection(dir);
 
@@ -245,6 +243,50 @@ void Script_GroundPlayer::ProcessInput()
 	if (KEY_PRESSED('O')) mCamera->ZoomOut();
 	if (KEY_PRESSED('P')) mCamera->ZoomIn();
 	if (KEY_PRESSED('I')) mCamera->ZoomReset();
+}
+
+bool Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
+		return false;
+	}
+
+	switch (messageID) {
+	case WM_RBUTTONDOWN:
+		OnAim();
+		break;
+
+	case WM_RBUTTONUP:
+		OffAim();
+		break;
+	}
+
+	return true;
+}
+
+bool Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
+		return false;
+	}
+
+	switch (messageID) {
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case 'G':
+			DropCrntWeapon();
+			break;
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return true;
 }
 
 
@@ -527,24 +569,6 @@ void Script_GroundPlayer::DropCrntWeapon()
 {
 	DropWeapon(GetCrntWeaponNum() - 1);
 }
-
-void Script_GroundPlayer::Interact()
-{
-	const auto& collisionObjects = mObject->GetCollisionObjects();
-	for (const auto& other : collisionObjects) {
-		switch (other->GetTag()) {
-		case ObjectTag::Crate:
-		case ObjectTag::Item:
-			if (!mIsInteracted) {
-				mIsInteracted = other->GetComponent<Script_Item>()->Interact(mObject);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-}
-
 
 void Script_GroundPlayer::DropWeapon(int weaponIdx)
 {

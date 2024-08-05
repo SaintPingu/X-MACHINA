@@ -47,4 +47,7 @@ public:
 
 public:
 	void Chat(const std::string& text);
+
+private:
+	bool IsInAerialControl();
 };

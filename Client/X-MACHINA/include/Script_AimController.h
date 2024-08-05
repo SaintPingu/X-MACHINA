@@ -22,12 +22,14 @@ public:
 	virtual void Awake() override;
 	virtual void Update() override;
 
+	UI* GetUI() const { return mUI; }
 	sptr<Texture> GetTexture() const;
 	Vec2 GetTextureScale() const;
 
 public:
 	void SetUI(UI* ui) { mUI = ui; }
 	void ChangeAimTexture(rsptr<Texture> newTexture, const Vec2& scale);
+	void ChangeAimUI(UI* newUI) { mUI = newUI; }
 
 private:
 	void UpdatePosText();

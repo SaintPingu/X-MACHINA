@@ -57,7 +57,7 @@ bool Script_Item_Weapon::Interact(Object* user)
 	const auto& player = user->GetComponent<Script_GroundPlayer>();
 	const auto& weapon = mObject->GetComponent<Script_Weapon>();
 
-	if (weapon) {
+	if (player && weapon) {
 		player->TakeWeapon(weapon);
 		mObject->SetTag(ObjectTag::Untagged);
 		mObject->SetActive(false);
@@ -65,7 +65,7 @@ bool Script_Item_Weapon::Interact(Object* user)
 		mObject->RemoveComponent<Script_Item_Weapon>();
 	}
 	else {
-		std::cout << "[ERROR] weapon item has no script\n";
+		std::cout << "[WARNING] (weapon item or player) has no script\n";
 		mObject->Destroy();
 	}
 

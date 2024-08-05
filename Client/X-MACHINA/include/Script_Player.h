@@ -21,23 +21,32 @@ class GridObject;
 class Script_Player abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Player, Script_LiveObject)
 
+private:
+	Matrix			mSpawnTransform{};	// 리스폰 지점
+	bool mIsInteracted{};
+
 protected:
 	Script_MainCamera* mCamera{};
 
-	Matrix			mSpawnTransform{};	// 리스폰 지점
+public:
+	virtual void Start() override;
+	virtual void Update() override;
 
 public:
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
 public:
-	virtual void Awake() override;
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) { return true; }
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
-public:
 	virtual void Rotate(float pitch, float yaw, float roll);
 
 	virtual void Dead() override;
 	virtual void Respawn();
+
+private:
+	virtual void Interact();
 };
 
 
@@ -63,6 +72,7 @@ protected:
 public:
 	virtual void OnDestroy() override;
 
+public:
 	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const { return mIsInDraw; }
 	bool IsInPutBack() const { return mIsInPutback; }
@@ -70,6 +80,9 @@ public:
 	virtual void BulletFired() {}
 
 public:
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+
 	virtual void StartFire();
 	virtual void StopFire();
 	virtual bool Reload();
@@ -142,9 +155,6 @@ private:
 	Vec3 mPrevDirVec{};
 	Vec3 mSlideVec{};
 
-	// others
-	bool mIsInteracted{};
-
 	// For Network
 	Vec3 mPrevPos{};
 	Vec3 mCurrPos{};
@@ -170,6 +180,8 @@ public:
 public:
 	void UpdateParams(Dir dir, float v, float h, float rotAngle);
 	void ProcessInput();
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 	// direction 방향으로 이동한다.
 	virtual void Move(Dir dir);
@@ -200,7 +212,6 @@ public:
 	void OffAim();
 
 	virtual void DropCrntWeapon();
-	void Interact();
 
 private:
 	virtual void DrawWeaponStart(int weaponNum, bool isDrawImmed) override;

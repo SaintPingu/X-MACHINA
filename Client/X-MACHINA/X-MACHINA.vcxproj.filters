@@ -433,6 +433,9 @@
     <ClInclude Include="include\Script_Ability_AerialController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_AerialCamera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -716,6 +719,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_Ability_AerialController.cpp">
       <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_AerialCamera.cpp">
+      <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

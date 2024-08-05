@@ -22,6 +22,57 @@ void Script_ShootingPlayer::OnDestroy()
 	}
 }
 
+bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	if (!base::ProcessMouseMsg(messageID, wParam, lParam)) {
+		return false;
+	}
+
+	switch (messageID) {
+	case WM_LBUTTONDOWN:
+		StartFire();
+		break;
+
+	case WM_LBUTTONUP:
+		StopFire();
+		break;
+	}
+
+	return true;
+}
+
+bool Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
+		return false;
+	}
+
+	switch (messageID) {
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+			// weapons //
+		case 'R':
+			Reload();
+			break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		{
+			const int weaponNum = static_cast<int>(wParam - '0');
+			DrawWeapon(weaponNum);
+		}
+		break;
+		}
+	}
+	break;
+	}
+
+	return true;
+}
+
 void Script_ShootingPlayer::StartFire()
 {
 	if (mWeaponScript) {

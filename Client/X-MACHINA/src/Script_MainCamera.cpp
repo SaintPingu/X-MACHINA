@@ -12,6 +12,11 @@
 #include "Component/Collider.h"
 
 
+namespace {
+	Vec3 kCameraOffset = Vec3(0.f, 14.f, -7.f);
+}
+
+
 void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 {
 	mMainOffset = offset;
@@ -43,6 +48,13 @@ void Script_MainCamera::Awake()
 void Script_MainCamera::Start()
 {
 	base::Start();
+
+	//Init();
+}
+
+void Script_MainCamera::OnEnable()
+{
+	base::OnEnable();
 
 	Init();
 }
@@ -89,7 +101,7 @@ void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
 		};
 
 	auto CalculateSpeed = [&](float dir, float extraOffset, float maxOffset) -> float {
-		// 반대 방향 이동시 기본 속도
+		// 반대 방향 이동시 기본 속도S
 		if (Math::Sign(extraOffset) != Math::Sign(dir)) {
 			return originSpeed;
 		}
@@ -152,14 +164,15 @@ void Script_MainCamera::ZoomOut()
 
 void Script_MainCamera::Init()
 {
+	constexpr float kMaxPlaneDistance = 500.f;
+
 	mTarget = GameFramework::I->GetPlayer();
 
-	constexpr float maxPlaneDistance = 200.f;
-	SetCameraOffset(Vec3(0.f, 14.f, -7.f));
+	SetCameraOffset(kCameraOffset);
 	mObject->SetPosition(mTarget->GetPosition() + mMainOffset);
 	LookTarget();
 
-	MAIN_CAMERA->SetProjMtx(0.01f, maxPlaneDistance, 60.f);
+	MAIN_CAMERA->SetProjMtx(0.01f, kMaxPlaneDistance, 60.f);
 }
 
 

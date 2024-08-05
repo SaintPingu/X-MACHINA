@@ -712,6 +712,9 @@ void BattleScene::UpdateRenderedObjects()
 					if (object->GetTag() == ObjectTag::Bound) {
 						continue;
 					}
+					if (!object->IsActive()) {
+						continue;
+					}
 
 					const auto& collider = object->GetCollider();
 					if (collider && MAIN_CAMERA->GetFrustumShadow().Intersects(collider->GetBS())) {
@@ -721,18 +724,9 @@ void BattleScene::UpdateRenderedObjects()
 			}
 		}
 
-		std::set<GridObject*> disabledObjects{};
 		for (auto& object : mRenderedObjects) {
 			if (object->GetTag() == ObjectTag::AfterSkinImage) {
 				mObjectsByShader[ObjectTag::AfterSkinImage].insert(object);
-				continue;
-			}
-			else if (object->GetTag() == ObjectTag::Bound) {
-				continue;
-			}
-
-			if (!object->IsActive()) {
-				disabledObjects.insert(object);
 				continue;
 			}
 
@@ -742,11 +736,6 @@ void BattleScene::UpdateRenderedObjects()
 			else {
 				mGridObjects.insert(object);
 			}
-		}
-		if (!disabledObjects.empty()) {
-			std::set<GridObject*> diff;
-			std::set_difference(mRenderedObjects.begin(), mRenderedObjects.end(), disabledObjects.begin(), disabledObjects.end(), std::inserter(diff, diff.begin()));
-			mRenderedObjects = std::move(diff);
 		}
 	}
 }

@@ -253,6 +253,7 @@
     <ClInclude Include="include\Script_Ability_MindControl.h" />
     <ClInclude Include="include\Script_Ability_NightVision.h" />
     <ClInclude Include="include\Script_Ability_Shield.h" />
+    <ClInclude Include="include\Script_AerialCamera.h" />
     <ClInclude Include="include\Script_AfterImageObject.h" />
     <ClInclude Include="include\Script_Anglerox.h" />
     <ClInclude Include="include\Script_Arack.h" />
@@ -347,6 +348,7 @@
     <ClCompile Include="src\Script_Ability_MindControl.cpp" />
     <ClCompile Include="src\Script_Ability_NightVision.cpp" />
     <ClCompile Include="src\Script_Ability_Shield.cpp" />
+    <ClCompile Include="src\Script_AerialCamera.cpp" />
     <ClCompile Include="src\Script_AfterImageObject.cpp" />
     <ClCompile Include="src\Script_Anglerox.cpp" />
     <ClCompile Include="src\Script_Arack.cpp" />

@@ -11,6 +11,7 @@ class Script_Ability;
 class Script_AimController;
 class ChatBoxUI;
 class SliderBarUI;
+class UI;
 
 
 class Script_PlayerController : public Component {
@@ -32,6 +33,9 @@ private:
 	sptr<SliderBarUI> mPheroBarUI{};
 	sptr<SliderBarUI> mHpBarUI{};
 
+	UI* mHurtUI{};
+	float mHurtUIdelta{};
+
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
@@ -47,7 +51,9 @@ public:
 
 public:
 	void Chat(const std::string& text);
+	void Hit();
 
 private:
 	bool IsInAerialControl();
+	void UpdateUI();
 };

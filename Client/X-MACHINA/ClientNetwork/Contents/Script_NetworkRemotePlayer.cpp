@@ -118,7 +118,7 @@ void Script_NetworkRemotePlayer::LateUpdate()
 		RotateTo(mObject, mCurrExtraPolated_Data.MoveDir, mRotationSpeed);
 	}
 	else {
-		if (fabs(mSpineAngle) > 1.f) {
+		if (fabs(mSpineAngle) > FLT_EPSILON) {
 			float crntAngle = Vector3::SignedAngle(Vector3::Forward, mSpine->GetUp().xz(), Vector3::Up);
 			mSpine->RotateGlobal(Vector3::Up, mSpineAngle - crntAngle);
 		}
@@ -324,7 +324,7 @@ float Script_NetworkRemotePlayer::GetYAngleFromQuaternion(const Vec4& rotationQu
 
 void Script_NetworkRemotePlayer::RotateTo(float yAngle, float ySpineAngle)
 {
-	if (yAngle < -10000) {
+	if (yAngle < -1000) {
 		mIsAim = false;
 		mSpineAngle = 0.f;
 		return;

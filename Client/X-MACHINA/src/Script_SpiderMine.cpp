@@ -15,9 +15,12 @@
 void Script_SpiderMine::Awake()
 {
 	base::Awake();
-	mMass = 0.3f;
+	mMass = 0.6f;
 	mDrag = 3.f;
 	mRotationSpeed = 90.f;
+	mRotationXSpeed = 10.f;
+	mRotationX = -45.f;
+	mPlantY = 0.5f;
 
 	SetExplosionTag(ObjectTag::Enemy);
 }
@@ -31,12 +34,7 @@ void Script_SpiderMine::Update()
 
 	base::Update();
 
-	mObject->MoveUp(-Math::kGravity * mMass * DeltaTime());
-	if (mObject->GetPosition().y <= 0.2f) {
-		Plant();
-	}
-
-	mSpeed -= Math::Sign(mSpeed) * DeltaTime() * mDrag;
+	Move();
 }
 
 void Script_SpiderMine::OnCollisionEnter(Object& other)
@@ -59,7 +57,7 @@ void Script_SpiderMine::Fire(const Vec3& pos, const Vec3& dir)
 {
 	mObject->SetPosition(pos);
 	mObject->SetLook(dir);
-	mObject->Rotate(-20, 0, 0);
+	mObject->Rotate(mRotationX, 0, 0);
 
 	SetDamage(GetDamage());
 }
@@ -69,9 +67,38 @@ void Script_SpiderMine::StartFire()
 	base::StartFire();
 }
 
+void Script_SpiderMine::Move()
+{
+	mObject->MoveUp(-Math::kGravity * mMass * DeltaTime());
+	if (mObject->GetPosition().y <= mPlantY) {
+		Plant();
+		return;
+	}
+
+	mSpeed -= Math::Sign(mSpeed) * DeltaTime() * mDrag;
+
+	if (mRotationX < 0) {
+		float rotationAmount = mRotationXSpeed * DeltaTime();
+		mRotationX += rotationAmount;
+		if (mRotationX >= 0) {
+			rotationAmount -= mRotationX;
+			mRotationX = 0;
+		}
+		mObject->Rotate(rotationAmount, 0, 0);
+	}
+}
+
 void Script_SpiderMine::Plant()
 {
+	auto collisionObjects = mObject->GetCollisionObjects(); // copy
+	for(const auto& object : collisionObjects) {
+		if (object->GetTag() == ObjectTag::Enemy) {
+			Explode();
+		}
+	}
+
 	mIsPlanted = true;
-	mObject->Rotate(20, 0, 0);
-	mObject->SetPositionY(0.2f);
+	mObject->Rotate(-mRotationX);
+	mObject->SetPositionY(mPlantY);
+
 }

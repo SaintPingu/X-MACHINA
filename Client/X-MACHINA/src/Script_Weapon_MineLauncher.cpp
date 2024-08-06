@@ -26,7 +26,7 @@ void Script_Weapon_MineLauncher::InitValues()
 
 	mMuzzle = mObject->FindFrame("FirePos");
 
-	//SetFireSound("Buronout Fire");
+	SetFireSound("MineLauncher Fire");
 }
 
 void Script_Weapon_MineLauncher::BulletInitFunc(rsptr<InstObject> bullet) const
@@ -34,7 +34,7 @@ void Script_Weapon_MineLauncher::BulletInitFunc(rsptr<InstObject> bullet) const
 	base::InitBullet(bullet, 0, mkMineSpeed, BulletType::Mine);
 	const auto& mine = bullet->GetComponent<Script_SpiderMine>();
 	mine->SetExplosionDamage(mkExplosionDamage);
-	mine->SetImpactSound("Burnout Impact");
+	mine->SetImpactSound("SpiderMine Impact");
 }
 
 void Script_Weapon_MineLauncher::SetParticleSystemNames()

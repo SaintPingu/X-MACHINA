@@ -782,6 +782,16 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 	return true;
 }
 
+bool FBsPacketFactory::Process_SPkt_Bullet_OnHitEnemy(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnHitEnemy& pkt)
+{
+	int  bullet_id = pkt.bullet_id();
+	int  gun_id = pkt.gun_id();
+	int  player_id = pkt.player_id();
+	Vec3& ray = GetVector3(pkt.ray());
+
+	return true;
+}
+
 bool FBsPacketFactory::Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
@@ -1133,6 +1143,18 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 ray)
 	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnShoot(builder, RayDir);
 	builder.Finish(ServerPacket);
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnShoot);
+	return sendBuffer;
+}
+
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 ray)
+{
+	flatbuffers::FlatBufferBuilder builder{};
+
+	auto RayDir = FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+
+	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnHitEnemy(builder, monster_id, RayDir);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnHitEnemy);
 	return sendBuffer;
 }
 

@@ -844,6 +844,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			break;
 		}
 		Script_NetworkEnemy* enemyNetwork = monster->AddComponent<Script_NetworkEnemy>().get();
+		//enemyNetwork->SetPheroInfo(monInfos[i].mPheros);
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
 		if (monInfos[i].Target_Player_Id == 0) {

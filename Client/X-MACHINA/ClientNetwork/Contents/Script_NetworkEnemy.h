@@ -9,6 +9,9 @@ class  Script_NetworkEnemy : public Script_NetworkLiveObject {
 	COMPONENT(Script_NetworkEnemy, Script_NetworkLiveObject)
 private:
 	Script_EnemyManager* mEnemyMgr;
+	float mDeathAccTime{};
+	float mDeathRemoveTime{};
+	//std::vector<PheroInfo> mPheros;
 
 public:
 	virtual void Awake() override;
@@ -25,9 +28,12 @@ public:
 	EnemyState GetState();
 
 	Vec3 GetPosition() { return mObject->GetPosition(); }
+	//void SetPheroInfo(std::vector<PheroInfo> pheros) { mPheros = pheros; }
 
 public:
 	void MoveToTarget();
 	void Attack();
+	void Idle();
+	void Death();
 };
 

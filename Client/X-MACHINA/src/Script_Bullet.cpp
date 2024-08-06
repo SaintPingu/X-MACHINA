@@ -74,6 +74,9 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			if (!other->GetCollider()->Intersects(ray, distance)) {
 				continue;
 			}
+			if (otherTag == ObjectTag::Enemy && other->GetComponent<Script_LiveObject>()->IsDead()) {
+				continue;
+			}
 
 			if (distance < mMaxDistance) {
 				mMaxDistance = distance;
@@ -89,7 +92,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			mParticleType = BulletPSType::Explosion;
 			if (mIsPlayerBullet) {
 				// TODO : send onhit packet here
-				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mObject->GetLook());
+				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitEnemy(enemy->GetObj()->GetID(), mObject->GetLook());
 				CLIENT_NETWORK->Send(cpkt);
 			}
 		}

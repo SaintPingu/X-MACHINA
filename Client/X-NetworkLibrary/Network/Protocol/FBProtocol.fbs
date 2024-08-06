@@ -392,6 +392,26 @@ table SPkt_Bullet_OnShoot
 	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
 }
 
+// +------------------------
+//	   BULLET ON HIT   
+// ------------------------+
+
+table CPkt_Bullet_OnHitEnemy
+{
+	monster_id : int;
+	ray : Vector3;
+}
+
+table SPkt_Bullet_OnHitEnemy
+{
+	player_id : uint; // 4 bytes - 어떤 플레이어가 
+	gun_id    : uint; // 4 bytes - 어떤 총이고 
+	bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
+
+	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
+}
+
+
 
 
 // +------------------------

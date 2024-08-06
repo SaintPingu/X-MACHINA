@@ -41,12 +41,13 @@ namespace NetworkEvent
 		namespace BulletType
 		{
 			constexpr UINT16 OnShoot = 17;
-			constexpr UINT16 OnCollision = 18;
+			constexpr UINT16 OnHitEnemy = 18;
+			constexpr UINT16 OnCollision = 19;
 		}
 
 		namespace ContentsType					  
 		{									  
-			constexpr UINT16 Chat = 19;
+			constexpr UINT16 Chat = 20;
 		}
 
 		/* EVENT DATA */
@@ -211,8 +212,11 @@ namespace NetworkEvent
 		/// +---------------------------------------------------------------------
 		///	EVENT ¢º¢º¢º¢º¢º BULLET  
 		/// ---------------------------------------------------------------------+
-		namespace Bullet {
+		namespace Event_Bullet {
+			struct OnHitEnemy : public EventData {
+				uint32_t Id;
 
+			};
 		}
 
 

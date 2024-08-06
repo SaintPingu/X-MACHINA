@@ -22,6 +22,10 @@ void Script_NetworkEnemy::Update()
 		MoveToTarget();
 	if (mEnemyMgr->mState == EnemyState::Attack)
 		Attack();
+	if (mEnemyMgr->mState == EnemyState::Idle)
+		Idle();
+	if (mEnemyMgr->mState == EnemyState::Death)
+		Death();
 }
 
 void Script_NetworkEnemy::SetPosition(const Vec3& pos)
@@ -157,4 +161,25 @@ void Script_NetworkEnemy::Attack()
 	mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.AttackRotationSpeed);
 	mEnemyMgr->mController->SetValue("Walk", false);
 	mEnemyMgr->mController->SetValue("Attack", true);
+}
+
+void Script_NetworkEnemy::Idle()
+{
+	mEnemyMgr->Reset();
+}
+
+void Script_NetworkEnemy::Death()
+{
+	mEnemyMgr->mState = EnemyState::Death;
+
+	mDeathAccTime += DeltaTime();
+
+	mEnemyMgr->RemoveAllAnimation();
+	mEnemyMgr->mController->SetValue("Death", true);
+
+	if (mDeathAccTime >= mDeathRemoveTime) {
+		mObject->mObjectCB.HitRimFactor = 0.7f;
+		mObject->Destroy();
+		CLIENT_NETWORK->EraseMonster(mObject->GetID());
+	}
 }

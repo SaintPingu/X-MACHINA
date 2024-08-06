@@ -78,6 +78,7 @@ private:
 
 	/* BULLET */
 	static bool Process_SPkt_Bullet_OnShoot(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnShoot& pkt);
+	static bool Process_SPkt_Bullet_OnHitEnemy(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnHitEnemy& pkt);
 	static bool Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt);
 
 public:
@@ -116,6 +117,7 @@ public:
 
 	/* BULLET */
 	SPtr_SendPktBuf CPkt_Bullet_OnShoot(Vec3 ray);
+	SPtr_SendPktBuf CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 ray);
 	SPtr_SendPktBuf CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID);
 
 private:

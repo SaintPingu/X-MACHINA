@@ -495,11 +495,8 @@ void Script_GroundPlayer::BulletFired()
 	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(objYAngle, spineYAngle);
 	CLIENT_NETWORK->Send(pkt);
 
-	WeaponType crntWeaponType = mWeaponScript->GetWeaponType();
-	if (crntWeaponType == WeaponType::MissileLauncher || crntWeaponType == WeaponType::MineLauncher) {
-		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
-		CLIENT_NETWORK->Send(cpkt);
-	}
+	auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
+	CLIENT_NETWORK->Send(cpkt);
 #endif
 }
 

@@ -1,7 +1,7 @@
 ﻿  pch.cpp
   ClientNetwork.cpp
-  Listener.cpp
 C:\Github\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(18,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  Listener.cpp
   (소스 파일 '/Network/ClientNetwork.cpp'을(를) 컴파일하는 중)
   
   Lock.cpp

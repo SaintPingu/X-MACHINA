@@ -25,6 +25,10 @@ BT::NodeState CheckDetectionRange::Evaluate()
 		mEnemyMgr->mTarget = mTarget;
 	}
 
+	if (!mEnemyMgr->mPath.empty()) {
+		return BT::NodeState::Failure;
+	}
+
 	const auto& ability = mEnemyMgr->mTarget->GetComponent<Script_Ability_Cloaking>();
 	if (ability && ability->GetState() == Script_Ability::State::Active) {
 		mEnemyMgr->mTarget = nullptr;

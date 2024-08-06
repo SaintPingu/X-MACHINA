@@ -5,7 +5,7 @@
 
 class Script_EnemyManager;
 
-class  Script_NetworkEnemy  : public Script_NetworkLiveObject {
+class  Script_NetworkEnemy : public Script_NetworkLiveObject {
 	COMPONENT(Script_NetworkEnemy, Script_NetworkLiveObject)
 private:
 	Script_EnemyManager* mEnemyMgr;
@@ -23,6 +23,8 @@ public:
 	void SetTarget(Object* target);
 	void SetActiveMyObject(bool isActive);
 	EnemyState GetState();
+
+	Vec3 GetPosition() { return mObject->GetPosition(); }
 
 public:
 	void MoveToTarget();

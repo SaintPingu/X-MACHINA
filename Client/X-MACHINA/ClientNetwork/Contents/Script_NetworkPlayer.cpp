@@ -97,7 +97,6 @@ void Script_NetworkPlayer::DoInput_Move()
 
 			}
 		}
-		//mMoveDir_Curr = mMoveDir_Key_Pressed;
 
 	}
 	mMoveDir_Curr = mMoveDir_Key_Pressed;
@@ -139,27 +138,42 @@ void Script_NetworkPlayer::DoInput_Move()
 
 void Script_NetworkPlayer::DoInput_Mouse()
 {
+	/// +--------------------------------------------------
+	///	>> ▶▶▶▶▶ [R] KEY PRESSED
+	/// --------------------------------------------------+
+
 	if (KEY_PRESSED(VK_RBUTTON)) {
 		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
 
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
-			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count() >= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
 		{
 			
 			float spineYAngle = Vector3::SignedAngle(Vector3::Forward, mSpineBone->GetUp().xz(), Vector3::Up);
-			Send_CPkt_AimRotation_Player(mObject->GetYAngle(), spineYAngle);
-			mMouseTimePoint_latest = currentTime;
+			float objYAngle   = mObject->GetYAngle();
+
+			if(mPrevAngle_y != objYAngle)
+			{
+				Send_CPkt_AimRotation_Player(objYAngle, spineYAngle);
+				LOG_MGR->Cout("Angle : ", mPrevAngle_y, " <-> ", objYAngle, '\n');
+				mPrevAngle_y = objYAngle;			
+				mMouseTimePoint_latest = currentTime;
+
+			}
+
+			
 		}
 	}
+
+
+	/// +--------------------------------------------------
+	///	>> ▶▶▶▶▶ [R] KEY AWAY  - 즉시 패킷을 보낸다.
+	/// --------------------------------------------------+
 	if (KEY_AWAY(VK_RBUTTON)) {
 		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
 
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count()
-			>= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
-		{
-			Send_CPkt_AimRotation_Player(-99999.f, 0.f);
-			mMouseTimePoint_latest = currentTime;
-		}
+		Send_CPkt_AimRotation_Player(-99999.f, 0.f);
+		mMouseTimePoint_latest = currentTime;
+
 	}
 }
 

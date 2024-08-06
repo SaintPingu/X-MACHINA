@@ -25,7 +25,7 @@
 
 
 #define CLIENT_NETWORK ClientNetworkManager::GetInst()
-struct NetSceneEventQueue 
+struct NetSceneEventQueue
 {
 	Concurrency::concurrent_queue<sptr<NetworkEvent::Game::EventData>> EventsQueue{};
 };
@@ -59,9 +59,9 @@ public:
 	void Init(std::wstring ip, UINT32 port);
 	void Launch(int ThreadNum);
 	void Stop();
-	
+
 	void ProcessEvents();
-	void SwapEventsQueue(); 
+	void SwapEventsQueue();
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 	std::string GetLocalIPv4Address();
 	GridObject* GetRemotePlayer(UINT32 id);
@@ -87,6 +87,7 @@ public:
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>			CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::WEAPON_TYPE weaponType);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot>			CreateEvent_UpdateOnShoot_RemotePlayer(uint32_t remID, int bullet_id, int weapon_id, Vec3 ray);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill>			CreateEvent_UpdateOnSkill_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_SKILL_TYPE skillType, float phero_amount, int mindControl_monster_id);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateState>			CreateEvent_UpdateState_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_STATE_TYPE state_Type, float hp, float phero);
 
 
 
@@ -114,6 +115,7 @@ public:
 	void ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data);
 	void ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data);
 	void ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data);
+	void ProcessEvent_RemotePlayer_UpdateState(NetworkEvent::Game::Event_RemotePlayer::UpdateState* data);
 
 	/// MONSTER 
 	void ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data);

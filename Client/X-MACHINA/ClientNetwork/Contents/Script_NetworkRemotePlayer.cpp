@@ -7,6 +7,7 @@
 #include "Script_Weapon_Shotgun.h"
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
+#include "Script_Weapon_MineLauncher.h"
 
 #include "Timer.h"
 #include "Object.h"
@@ -24,6 +25,7 @@ void Script_NetworkRemotePlayer::Awake()
 	{WeaponType::ShotGun, "RefPosShotgun_Action" },
 	{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
 	{WeaponType::Sniper, "RefPosSniper_Action" },
+	{WeaponType::MineLauncher, "RefPosLightningGun_Action" },
 	};
 
 	base::Awake();
@@ -31,7 +33,7 @@ void Script_NetworkRemotePlayer::Awake()
 	mSpine = mObject->FindFrame("Humanoid_ Spine1");
 
 	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
-		WeaponName weaponName = static_cast<WeaponName>(i + 1);
+		WeaponName weaponName = static_cast<WeaponName>(i);
 		std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
 
 		auto& weapon = mWeapons[weaponName] = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Untagged, false);
@@ -60,6 +62,9 @@ void Script_NetworkRemotePlayer::Awake()
 		case WeaponName::PipeLine:
 			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_PipeLine>();
 			ResetBoltActionMotionSpeed(weapon->GetComponent<Script_Weapon>());
+			break;
+		case WeaponName::MineLauncher:
+			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_MineLauncher>();
 			break;
 		default:
 			assert(0);

@@ -67,10 +67,6 @@ void Script_SpiderMine::Fire(const Vec3& pos, const Vec3& dir)
 void Script_SpiderMine::StartFire()
 {
 	base::StartFire();
-
-	for (const auto& light : mLights) {
-		light->SetActive(false);
-	}
 }
 
 void Script_SpiderMine::Plant()

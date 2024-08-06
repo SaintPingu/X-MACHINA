@@ -159,7 +159,6 @@ void Script_NetworkPlayer::DoInput_Mouse()
 
 			constexpr float kMinYAngle = 0.5f;
 			if (fabs(mPrevAngle_y - spineYAngle) >= kMinYAngle) {
-				LOG_MGR->Cout("Rotate Aim");
 				mPrevAngle_y = spineYAngle;
 
 				Send_CPkt_AimRotation_Player(objYAngle, spineYAngle);

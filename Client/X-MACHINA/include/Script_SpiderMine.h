@@ -19,6 +19,9 @@ private:
 	float mMass{};
 	float mDrag{};
 	float mRotationSpeed{};
+	float mRotationX{};
+	float mRotationXSpeed{};
+	float mPlantY{};
 	bool mIsPlanted{};
 
 public:
@@ -33,6 +36,7 @@ protected:
 	virtual void StartFire() override;
 
 private:
+	void Move();
 	void Plant();
 };
 #pragma endregion

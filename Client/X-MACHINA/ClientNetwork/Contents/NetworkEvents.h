@@ -14,32 +14,33 @@ namespace NetworkEvent
 	{
 		namespace RemotePlayerType
 		{
-			constexpr UINT16 Add              = 1; // 새로운 플레이어 생성
-			constexpr UINT16 Remove           = 2; // Remote 플레이어 제거 
-			constexpr UINT16 Move             = 3; // Remote 플레이어 이동 
-			constexpr UINT16 Extrapolate      = 4; // Remote 플레이어 위치 예측 
-			constexpr UINT16 UpdateAnimation  = 5; // Remote 플레이어 애니메이션 업데이트 
-			constexpr UINT16 AimRotation      = 6; // Remote 플레이어 마우스 커서에 의한 방향 전환 업데이트 
-			constexpr UINT16 UpdateWeapon	  = 7; // Remote 플레이어 Weapon 업데이트 
-			constexpr UINT16 OnShoot		  = 8; // Remote 플레이어 OnShoot 업데이트 
-			constexpr UINT16 OnSkill		  = 9; // Remote 플레이어 OnSkioll 업데이트 
-			
+			constexpr UINT16 Add = 1; // 새로운 플레이어 생성
+			constexpr UINT16 Remove = 2; // Remote 플레이어 제거 
+			constexpr UINT16 Move = 3; // Remote 플레이어 이동 
+			constexpr UINT16 Extrapolate = 4; // Remote 플레이어 위치 예측 
+			constexpr UINT16 UpdateAnimation = 5; // Remote 플레이어 애니메이션 업데이트 
+			constexpr UINT16 AimRotation = 6; // Remote 플레이어 마우스 커서에 의한 방향 전환 업데이트 
+			constexpr UINT16 UpdateWeapon = 7; // Remote 플레이어 Weapon 업데이트 
+			constexpr UINT16 OnShoot = 8; // Remote 플레이어 OnShoot 업데이트 
+			constexpr UINT16 OnSkill = 9; // Remote 플레이어 OnSkioll 업데이트 
+			constexpr UINT16 State = 10; // Remote 플레이어 State 업데이트 
+
 		}
 
 		namespace MonsterType
 		{
-			constexpr UINT16 Add         = 10;
-			constexpr UINT16 Remove      = 11;
-			constexpr UINT16 Move        = 12;
-			constexpr UINT16 UpdateHP    = 13;
-			constexpr UINT16 UpdateState = 14;
-			constexpr UINT16 Target		 = 15;
+			constexpr UINT16 Add = 11;
+			constexpr UINT16 Remove = 12;
+			constexpr UINT16 Move = 13;
+			constexpr UINT16 UpdateHP = 14;
+			constexpr UINT16 UpdateState = 15;
+			constexpr UINT16 Target = 16;
 		}
 
 		namespace BulletType
 		{
-			constexpr UINT16 OnShoot	 = 16;
-			constexpr UINT16 OnCollision = 17;
+			constexpr UINT16 OnShoot = 17;
+			constexpr UINT16 OnCollision = 18;
 		}
 
 		/* EVENT DATA */
@@ -54,19 +55,19 @@ namespace NetworkEvent
 		{
 			/// >> ADD 
 			struct Add : public EventData {
-				uint32_t	Id		 = {}; 
-				std::string Name		 = {};
+				uint32_t	Id = {};
+				std::string Name = {};
 
 				/* Transform Info */
-				Vec3		Pos       = {};
-				Vec4		Rot       = {};
+				Vec3		Pos = {};
+				Vec4		Rot = {};
 				Vec3		SpineLook = {};
 			};
 
 			/// >> MOVE 
 			struct Move : public EventData {
-				uint32_t			Id        = {};
-				Vec3				Pos       = {};
+				uint32_t			Id = {};
+				Vec3				Pos = {};
 				ExtData::MOVESTATE	MoveState = {};
 			};
 
@@ -78,20 +79,20 @@ namespace NetworkEvent
 
 			/// >> EXTRAPOLATE 
 			struct Extrapolate : public EventData {
-				uint32_t			Id			= {};
-				
-				ExtData::MOVESTATE	MoveState	= {};
+				uint32_t			Id = {};
 
-				long long			PingTime		= {};
-				float				Velocity		= {};
+				ExtData::MOVESTATE	MoveState = {};
 
-				Vec3				ExtMoveDir	= {};
+				long long			PingTime = {};
+				float				Velocity = {};
 
-				Vec3				ExtPos		= {};
-				Vec3				ExtRot		= {};
+				Vec3				ExtMoveDir = {};
 
-				float				animparam_h	= {};
-				float				animparam_v	= {};
+				Vec3				ExtPos = {};
+				Vec3				ExtRot = {};
+
+				float				animparam_h = {};
+				float				animparam_v = {};
 			};
 
 			/// >> UPDATE ANIMATION 
@@ -105,9 +106,9 @@ namespace NetworkEvent
 			};
 
 			struct UpdateAimRotation : public EventData {
-				uint32_t id             = {};
+				uint32_t id = {};
 				float	 aim_rotation_y = {};
-				float	 spine_angle    = {};
+				float	 spine_angle = {};
 			};
 			/// >> Update Weapon
 			struct UpdateWeapon : public EventData {
@@ -117,19 +118,29 @@ namespace NetworkEvent
 
 			/// >> Update On Shoot 
 			struct UpdateOnShoot : public EventData {
-				uint32_t	id			= {};
-				int			bullet_id	= {};
-				int			weapon_id	= {};
-				Vec3		ray			= {};
+				uint32_t	id = {};
+				int			bullet_id = {};
+				int			weapon_id = {};
+				Vec3		ray = {};
 			};
 
 			/// >> Update On SKill 
 			struct UpdateOnSkill : public EventData {
-				uint32_t	id								= {};
-				float		phero_amount					= {};
-				FBProtocol::PLAYER_SKILL_TYPE skill_type	= {};
-				int mindControl_monster_id					= -1;
+				uint32_t	id = {};
+				float		phero_amount = {};
+				FBProtocol::PLAYER_SKILL_TYPE skill_type = {};
+				int mindControl_monster_id = -1;
 			};
+
+			/// >> Update Player State 
+			struct UpdateState : public EventData {
+				uint32_t id = {};
+				float hp = {};
+				float phero = {};
+				FBProtocol::PLAYER_STATE_TYPE state_type = FBProtocol::PLAYER_STATE_TYPE::PLAYER_STATE_TYPE_NONE;
+
+			};
+
 		}
 
 

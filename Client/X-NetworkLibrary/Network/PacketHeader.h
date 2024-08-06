@@ -5,22 +5,22 @@
 
 namespace FBsProtocolID
 {
-	constexpr UINT16 CPkt_LogIn          = 1000;
-	constexpr UINT16 SPkt_LogIn          = 1001;
+    constexpr UINT16 CPkt_LogIn = 1000;
+    constexpr UINT16 SPkt_LogIn = 1001;
 
-	constexpr UINT16 CPkt_EnterGame      = 1002;
-	constexpr UINT16 SPkt_EnterGame      = 1003;
+    constexpr UINT16 CPkt_EnterGame = 1002;
+    constexpr UINT16 SPkt_EnterGame = 1003;
 
-	constexpr UINT16 CPkt_Chat           = 1004;
-	constexpr UINT16 SPkt_Chat           = 1005;
+    constexpr UINT16 CPkt_Chat = 1004;
+    constexpr UINT16 SPkt_Chat = 1005;
 
-	constexpr UINT16 CPkt_Transform      = 1006;
-	constexpr UINT16 SPkt_Transform      = 1007;
+    constexpr UINT16 CPkt_Transform = 1006;
+    constexpr UINT16 SPkt_Transform = 1007;
 
-	constexpr UINT16 CPkt_NetworkLatency = 1008;
-	constexpr UINT16 SPkt_NetworkLatency = 1009;
+    constexpr UINT16 CPkt_NetworkLatency = 1008;
+    constexpr UINT16 SPkt_NetworkLatency = 1009;
 
-	/* JUST FOR DEBUGGING NOT USE WITH TEST CLIENT PROTOCOL */
+    /* JUST FOR DEBUGGING NOT USE WITH TEST CLIENT PROTOCOL */
     /// +-----------------------------------------------------------------------
     ///  PLAYER PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
@@ -118,45 +118,49 @@ namespace FBsProtocolID
     constexpr UINT16 CPkt_Player_AimRotation = 1020;
     constexpr UINT16 SPkt_Player_AimRotation = 1021;
 
+    constexpr UINT16 CPkt_Player_State = 1022;
+    constexpr UINT16 SPkt_Player_State = 1023;
+
+
     /// +-----------------------------------------------------------------------
     ///  MONSTER PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_NewMonster            = 1022;
-    constexpr UINT16 SPkt_NewMonster            = 1023;
+    constexpr UINT16 CPkt_NewMonster = 1024;
+    constexpr UINT16 SPkt_NewMonster = 1025;
 
-    constexpr UINT16 CPkt_DeadMonster           = 1024;
-    constexpr UINT16 SPkt_DeadMonster           = 1025;
+    constexpr UINT16 CPkt_DeadMonster = 1026;
+    constexpr UINT16 SPkt_DeadMonster = 1027;
 
-    constexpr UINT16 CPkt_RemoveMonster         = 1026;
-    constexpr UINT16 SPkt_RemoveMonster         = 1027;
+    constexpr UINT16 CPkt_RemoveMonster = 1028;
+    constexpr UINT16 SPkt_RemoveMonster = 1029;
 
-    constexpr UINT16 CPkt_Monster_Transform     = 1028;
-    constexpr UINT16 SPkt_Monster_Transform     = 1029;
+    constexpr UINT16 CPkt_Monster_Transform = 1030;
+    constexpr UINT16 SPkt_Monster_Transform = 1031;
 
-    constexpr UINT16 CPkt_Monster_HP            = 1030;
-    constexpr UINT16 SPkt_Monster_HP            = 1031;
+    constexpr UINT16 CPkt_Monster_HP = 1032;
+    constexpr UINT16 SPkt_Monster_HP = 1033;
 
-    constexpr UINT16 CPkt_Monster_State         = 1032;
-    constexpr UINT16 SPkt_Monster_State         = 1033;    
-    
-    constexpr UINT16 CPkt_Monster_Target         = 1034;
-    constexpr UINT16 SPkt_Monster_Target         = 1035;
+    constexpr UINT16 CPkt_Monster_State = 1034;
+    constexpr UINT16 SPkt_Monster_State = 1035;
+
+    constexpr UINT16 CPkt_Monster_Target = 1036;
+    constexpr UINT16 SPkt_Monster_Target = 1037;
 
     /// +-----------------------------------------------------------------------
     ///  PHERO PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_GetPhero              = 1036;
-    constexpr UINT16 SPkt_GetPhero              = 1037;
+    constexpr UINT16 CPkt_GetPhero = 1038;
+    constexpr UINT16 SPkt_GetPhero = 1039;
 
     /// +-----------------------------------------------------------------------
     ///  BULLET PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_Bullet_OnShoot        = 1038;
-    constexpr UINT16 SPkt_Bullet_OnShoot        = 1039;
+    constexpr UINT16 CPkt_Bullet_OnShoot = 1040;
+    constexpr UINT16 SPkt_Bullet_OnShoot = 1041;
 
-    constexpr UINT16 CPkt_Bullet_OnCollision    = 1040;
-    constexpr UINT16 SPkt_Bullet_OnCollision    = 1041;
-};
+    constexpr UINT16 CPkt_Bullet_OnCollision = 1042;
+    constexpr UINT16 SPkt_Bullet_OnCollision = 1043;
+}
 
 
 #endif
@@ -164,7 +168,7 @@ namespace FBsProtocolID
 
 struct PacketHeader
 {
-	UINT16 PacketSize  = 0;
-	UINT16 ProtocolID  = 0;
+    UINT16 PacketSize = 0;
+    UINT16 ProtocolID = 0;
 };
 

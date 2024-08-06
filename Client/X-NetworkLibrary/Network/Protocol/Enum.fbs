@@ -80,6 +80,18 @@ enum PLAYER_MOTION_STATE_TYPE : ubyte {
 
 
 // +------------------------
+//    PLAYER MOTION STATE
+// ------------------------+
+enum PLAYER_STATE_TYPE : ubyte {
+	NONE,
+	DEACTIVE,
+	ACTIVE,
+	DEAD,
+	END,
+}
+
+
+// +------------------------
 //      SKILL TYPE
 // ------------------------+
 enum PLAYER_SKILL_TYPE : ubyte {

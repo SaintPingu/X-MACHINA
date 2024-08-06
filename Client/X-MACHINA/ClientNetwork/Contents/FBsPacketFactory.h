@@ -61,6 +61,9 @@ private:
 	static bool Process_SPkt_Player_Weapon(SPtr_Session session, const FBProtocol::SPkt_Player_Weapon& pkt);
 	static bool Process_SPkt_Player_OnSkill(SPtr_Session session, const FBProtocol::SPkt_PlayerOnSkill& pkt); // Ãß°¡
 	static bool Process_SPkt_Player_AimRotation(SPtr_Session session, const FBProtocol::SPkt_Player_AimRotation& pkt);
+	static bool Process_SPkt_Player_State(SPtr_Session session, const FBProtocol::SPkt_Player_State& pkt);
+
+
 	/* MONSTER */
 	static bool Process_SPkt_NewMonster(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt);
 	static bool Process_SPkt_RemoveMonster(SPtr_Session session, const FBProtocol::SPkt_RemoveMonster& pkt);
@@ -101,7 +104,7 @@ public:
 	/* MONSTER */
 	SPtr_SendPktBuf CPkt_NewMonster(uint32_t monster_id, FBProtocol::MONSTER_TYPE montser_type);
 	SPtr_SendPktBuf CPkt_RemoveMonster(uint32_t monsterID);
-	SPtr_SendPktBuf CPkt_DeadMonster(uint32_t monsterID, Vec2 deadPoint); 
+	SPtr_SendPktBuf CPkt_DeadMonster(uint32_t monsterID, Vec2 deadPoint);
 
 	SPtr_SendPktBuf CPkt_Monster_Transform(uint32_t monsterID, Vec3 Pos, Vec3 Rot);
 	SPtr_SendPktBuf CPkt_Monster_HP(uint32_t monsterID, float hp);

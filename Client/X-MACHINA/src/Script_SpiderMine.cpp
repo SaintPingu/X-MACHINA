@@ -71,6 +71,13 @@ void Script_SpiderMine::StartFire()
 
 void Script_SpiderMine::Plant()
 {
+	auto collisionObjects = mObject->GetCollisionObjects();
+	for(const auto& object : collisionObjects) {
+		if (object->GetTag() == ObjectTag::Enemy) {
+			Explode();
+		}
+	}
+
 	mIsPlanted = true;
 	mObject->Rotate(20, 0, 0);
 	mObject->SetPositionY(0.2f);

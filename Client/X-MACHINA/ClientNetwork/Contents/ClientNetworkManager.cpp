@@ -882,10 +882,11 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
-		if ((Pos - mRemoteMonsters[ID]->GetPosition()).Length() >= 1.f)
-			mRemoteMonsters[ID]->SetPosition(Pos);
+		/*if ((Pos - mRemoteMonsters[ID]->GetPosition()).Length() >= 1.f)
+			mRemoteMonsters[ID]->SetPosition(Pos);*/
+		mRemoteMonsters[ID]->SetPosition(Pos);
 
-		//mRemoteMonsters[ID]->SetRotation(Angle);
+		mRemoteMonsters[ID]->SetRotation(Angle);
 		//mRemoteMonsters[ID]->SetTarget(nullptr);
 		//mRemoteMonsters[ID]->SetState(EnemyState::Idle);
 	}

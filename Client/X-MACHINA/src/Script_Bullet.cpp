@@ -11,6 +11,9 @@
 
 #include "Component/Collider.h"
 #include "Component/ParticleSystem.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 
 void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames)
 {
@@ -42,7 +45,6 @@ void Script_Bullet::Update()
 void Script_Bullet::Init()
 {
 	mInstObject = mObject->GetObj<InstObject>();
-	mObject->SetTag(ObjectTag::Bullet);
 
 	Reset();
 }
@@ -85,6 +87,11 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			const auto& enemy = target->GetComponent<Script_Enemy>().get();
 			Hit(enemy);
 			mParticleType = BulletPSType::Explosion;
+			if (mIsPlayerBullet) {
+				// TODO : send onhit packet here
+				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mObject->GetLook());
+				CLIENT_NETWORK->Send(cpkt);
+			}
 		}
 		else {
 			mParticleType = BulletPSType::Building;

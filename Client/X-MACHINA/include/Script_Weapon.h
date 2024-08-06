@@ -26,6 +26,7 @@ private:
 	std::function<void()> updateFunc{ std::bind(&Script_Weapon::Update_Auto, this) };
 	bool mIsReload{};
 	Script_GroundPlayer* mOwner{};
+	bool mIsPlayerWeapon{};
 
 protected:
 	Transform* mMuzzle{};		// ÃÑ±¸
@@ -67,8 +68,9 @@ public:
 	float GetFireDelay() const { return mMaxFireDelay; }
 	bool IsReloading() const { return mIsReload || mIsBoltAction; }
 	bool IsShooting() const { return mIsShooting; }
+	bool IsPlayerWeapon() const { return mIsPlayerWeapon; }
 
-	void SetOwner(Script_GroundPlayer* owner) { mOwner = owner; }
+	void SetOwner(Script_GroundPlayer* owner);
 
 public:
 	void StartFire() { mIsShooting = true; }

@@ -31,6 +31,8 @@ private:
 
 	float mEndDistance{ 40.f };	// 비행 종료 길이
 
+	bool mIsPlayerBullet{};
+
 protected:
 	float mSpeed{};			// speed of bullet
 
@@ -42,6 +44,7 @@ public:
 	void SetEndDistance(float distance) { mEndDistance = distance; }
 	void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
 	void SetImpactSound(const std::string& sound) { mImpactSound = sound; }
+	void SetPlayerBullet() { mIsPlayerBullet = true; }
 
 public:
 	virtual void Update() override;

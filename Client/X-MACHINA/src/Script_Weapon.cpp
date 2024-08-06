@@ -9,6 +9,8 @@
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
 
+#include "GameFramework.h"
+
 #include "BattleScene.h"
 #include "Object.h"
 #include "ObjectPool.h"
@@ -95,6 +97,14 @@ void Script_Weapon::SetFiringMode(FiringMode firingMode)
 	default:
 		assert(0);
 		break;
+	}
+}
+
+void Script_Weapon::SetOwner(Script_GroundPlayer* owner)
+{
+	mOwner = owner;
+	if (mOwner->GetObj() == GameFramework::I->GetPlayer()) {
+		mIsPlayerWeapon = true;
 	}
 }
 
@@ -300,15 +310,20 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 		break;
 	case BulletType::Missile:
 		bulletScript = bullet->AddComponent<Script_Missile>();
+		bullet->SetTag(ObjectTag::Bullet);
 		break;
 	case BulletType::Mine:
 		bulletScript = bullet->AddComponent<Script_SpiderMine>();
+		bullet->SetTag(ObjectTag::Bullet);
 		break;
 	default:
 		assert(0);
 		break;
 	}
 	bulletScript->Init();
+	if (IsPlayerWeapon()) {
+		bulletScript->SetPlayerBullet();
+	}
 	bulletScript->SetDamage(damage);
 	bulletScript->SetSpeed(speed);
 

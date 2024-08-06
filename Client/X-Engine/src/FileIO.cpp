@@ -375,7 +375,7 @@ namespace {
 			sptr<Model> model = std::make_shared<Model>();
 			sptr<MeshLoadInfo> meshInfo{};
 
-			FileIO::ReadString(file, token);	// <Frame>:
+			FileIO::ReadString(file, token);	// <Name>:
 			model->SetName(FileIO::ReadString(file));
 
 			FileIO::ReadString(file, token);	// <TransformMatrix>:

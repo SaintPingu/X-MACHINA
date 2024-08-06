@@ -2,8 +2,7 @@
 
 #include "Script_NetworkLiveObject.h"
 
-class GridObject;
-class AnimatorController;
+class Script_GroundPlayer;
 
 namespace PlayerNetworkInfo
 {
@@ -22,6 +21,7 @@ private:
 	std::chrono::steady_clock::time_point mMouseTimePoint_latest   = {}; /* Mouse Interval Time */
 	std::chrono::steady_clock::time_point mLatencyTimePoint_latest = {};
 
+	Script_GroundPlayer* mPlayer{};
 	Transform* mSpineBone{};
 	Vec3			mPrevPos;
 	PlayerMotion	mMotion;	
@@ -48,6 +48,7 @@ private:
 
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void LateUpdate() override;
 	virtual void UpdateData(const void* data) override;
 

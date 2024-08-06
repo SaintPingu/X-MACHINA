@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Script_NetworkPlayer.h"
+
 #include "ClientNetworkManager.h"
 #include "FBsPacketFactory.h"
 
@@ -23,6 +24,13 @@ void Script_NetworkPlayer::Awake()
 	mLatencyTimePoint_latest = std::chrono::steady_clock::now();
 	mMouseTimePoint_latest = std::chrono::steady_clock::now();
 	SetClientCallback_ChangeAnimation();
+}
+
+void Script_NetworkPlayer::Start()
+{
+	base::Start();
+
+	mPlayer = mObject->GetComponent<Script_GroundPlayer>().get();
 }
 
 void Script_NetworkPlayer::LateUpdate()
@@ -66,7 +74,7 @@ void Script_NetworkPlayer::DoInput_Move()
 		bKeyEvent = true;
 
 		mMoveDir_Key_Pressed = GetMoveDirection_Key_Pressed();
-		mMovementSpeed       = mkRunSpeed;
+		mMovementSpeed       = mPlayer->GetMovementSpeed();;
 		/// +--------------------------------------------------------------------------------------------------------------------
 		///	♣ 이동방향이 바뀌었다면 즉시 패킷을 보낸다. 
 		/// _____________________________________________________________________________________________________________________
@@ -144,23 +152,19 @@ void Script_NetworkPlayer::DoInput_Mouse()
 
 	if (KEY_PRESSED(VK_RBUTTON)) {
 		auto currentTime = std::chrono::steady_clock::now(); // 현재 시간
-
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - mMouseTimePoint_latest).count() >= PlayerNetworkInfo::SendInterval_CPkt_MouseAimRotation * 1000)
 		{
-			
 			float spineYAngle = Vector3::SignedAngle(Vector3::Forward, mSpineBone->GetUp().xz(), Vector3::Up);
 			float objYAngle   = mObject->GetYAngle();
 
-			if(mPrevAngle_y != objYAngle)
-			{
+			constexpr float kMinYAngle = 0.5f;
+			if (fabs(mPrevAngle_y - spineYAngle) >= kMinYAngle) {
+				LOG_MGR->Cout("Rotate Aim");
+				mPrevAngle_y = spineYAngle;
+
 				Send_CPkt_AimRotation_Player(objYAngle, spineYAngle);
-				LOG_MGR->Cout("Angle : ", mPrevAngle_y, " <-> ", objYAngle, '\n');
-				mPrevAngle_y = objYAngle;			
 				mMouseTimePoint_latest = currentTime;
-
 			}
-
-			
 		}
 	}
 

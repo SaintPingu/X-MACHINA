@@ -442,6 +442,15 @@
     <ClInclude Include="include\Airstrike.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_SpiderMine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Weapon_MineLauncher.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_ExplosiveBullet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -731,6 +740,15 @@
     </ClCompile>
     <ClCompile Include="src\Airstrike.cpp">
       <Filter>Script\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_SpiderMine.cpp">
+      <Filter>Script\Weapon\Bulltet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Weapon_MineLauncher.cpp">
+      <Filter>Script\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_ExplosiveBullet.cpp">
+      <Filter>Script\Weapon\Bulltet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

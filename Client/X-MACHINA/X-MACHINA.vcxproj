@@ -270,7 +270,10 @@
     <ClInclude Include="include\Script_MiningMech.h" />
     <ClInclude Include="include\Script_PlayerController.h" />
     <ClInclude Include="include\Script_Rapax.h" />
+    <ClInclude Include="include\Script_SpiderMine.h" />
     <ClInclude Include="include\Script_StageNameUI.h" />
+    <ClInclude Include="include\Script_ExplosiveBullet.h" />
+    <ClInclude Include="include\Script_Weapon_MineLauncher.h" />
     <ClInclude Include="include\SliderBarUI.h" />
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h" />
     <ClInclude Include="include\XLManager.h" />
@@ -357,6 +360,7 @@
     <ClCompile Include="src\Script_Aranobot.cpp" />
     <ClCompile Include="src\Script_BattleUI.cpp" />
     <ClCompile Include="src\Script_Ceratoferox.cpp" />
+    <ClCompile Include="src\Script_ExplosiveBullet.cpp" />
     <ClCompile Include="src\Script_FootStepSound.cpp" />
     <ClCompile Include="src\Script_Gobbler.cpp" />
     <ClCompile Include="src\Script_Item_Weapon.cpp" />
@@ -368,7 +372,9 @@
     <ClCompile Include="src\Script_MiningMech.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
     <ClCompile Include="src\Script_PlayerController.cpp" />
+    <ClCompile Include="src\Script_SpiderMine.cpp" />
     <ClCompile Include="src\Script_StageNameUI.cpp" />
+    <ClCompile Include="src\Script_Weapon_MineLauncher.cpp" />
     <ClCompile Include="src\SliderBarUI.cpp" />
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp" />
     <ClCompile Include="src\XLManger.cpp" />

@@ -274,12 +274,11 @@ enum class WeaponType {
 	ShotGun,
 	MissileLauncher,
 	Sniper,
+	MineLauncher,
 	_count
 };
 
 enum class WeaponName {
-	None,
-	
 	// HandedGun
 	H_Lock,
 
@@ -295,7 +294,10 @@ enum class WeaponName {
 	// Sniper
 	PipeLine,
 
-	_count = PipeLine,
+	// MineLauncher
+	MineLauncher,
+
+	_count
 };
 
 enum class EnemyState : UINT8 {
@@ -318,6 +320,7 @@ static const std::unordered_map<unsigned int, WeaponName> gkWeaponNameMap{
 	{ Hash("SkyLine"), WeaponName::SkyLine },
 	{ Hash("Burnout"), WeaponName::Burnout },
 	{ Hash("PipeLine"), WeaponName::PipeLine },
+	{ Hash("MineLauncher"), WeaponName::MineLauncher},
 };
 
 static const std::unordered_map<WeaponName, WeaponType> gkWeaponTypeMap{
@@ -326,6 +329,7 @@ static const std::unordered_map<WeaponName, WeaponType> gkWeaponTypeMap{
 	{WeaponName::SkyLine, WeaponType::AssaultRifle },
 	{WeaponName::Burnout, WeaponType::MissileLauncher },
 	{WeaponName::PipeLine, WeaponType::Sniper },
+	{WeaponName::MineLauncher, WeaponType::MineLauncher},
 };
 #pragma endregion
 

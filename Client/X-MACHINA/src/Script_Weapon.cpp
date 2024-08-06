@@ -4,6 +4,7 @@
 #include "Script_Bullet.h"
 #include "Script_Missile.h"
 #include "Script_Player.h"
+#include "Script_SpiderMine.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/ParticleSystem.h"
@@ -192,6 +193,7 @@ std::string Script_Weapon::GetWeaponModelName(WeaponName weaponName)
 		{WeaponName::DBMS, "SM_SciFiShotgun" },
 		{WeaponName::Burnout, "SM_SciFiMissileLauncher" },
 		{WeaponName::PipeLine, "Sniper" },
+		{WeaponName::MineLauncher, "SM_SciFiLightingGun" },
 	};
 
 	assert(kWeaponMaps.count(weaponName));
@@ -210,6 +212,7 @@ int Script_Weapon::GetWeaponIdx(WeaponType weaponType)
 		break;
 	case WeaponType::MissileLauncher:
 	case WeaponType::Sniper:
+	case WeaponType::MineLauncher:
 		return 2;
 		break;
 	default:
@@ -297,6 +300,9 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 		break;
 	case BulletType::Missile:
 		bulletScript = bullet->AddComponent<Script_Missile>();
+		break;
+	case BulletType::Mine:
+		bulletScript = bullet->AddComponent<Script_SpiderMine>();
 		break;
 	default:
 		assert(0);

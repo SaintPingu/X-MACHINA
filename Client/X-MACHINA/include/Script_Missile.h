@@ -2,7 +2,7 @@
 
 
 #pragma region Include
-#include "Script_Bullet.h"
+#include "Script_ExplosiveBullet.h"
 #pragma endregion
 
 
@@ -13,34 +13,15 @@ class Script_MainCamera;
 
 
 #pragma region Class
-class Script_Missile : public Script_Bullet {
-	COMPONENT(Script_Missile, Script_Bullet)
-
-private:
-	const Object* mOwner{};
-	sptr<Script_MainCamera> mCamera{};
-	sptr<SphereCollider> mExplosionCollider{};
-	float mExplosionDamage{};
+class Script_Missile : public Script_ExplosiveBullet {
+	COMPONENT(Script_Missile, Script_ExplosiveBullet)
 
 public:
+	virtual void Awake() override;
 	virtual void Update() override;
-	virtual void OnCollisionEnter(Object& other) override;
-
-public:
-	bool IsOwner(const Object* object) { return mOwner == object; }
-
-	void SetExplosionDamage(float damage) { mExplosionDamage = damage; }
-
-	void SetOwner(const Object* owner) { mOwner = owner; }
 
 public:
 	virtual void Fire(const Vec3& pos, const Vec3& dir) override;
 	void Fire(const Vec3& pos, const Vec3& dir, const Vec2& err);
-
-	virtual void Init() override;
-	virtual void Explode() override;
-
-protected:
-	virtual void StartFire() override;
 };
 #pragma endregion

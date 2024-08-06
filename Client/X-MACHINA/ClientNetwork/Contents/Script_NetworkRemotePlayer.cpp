@@ -220,9 +220,7 @@ float Script_NetworkRemotePlayer::Distance(const Vec3& v1, const Vec3& v2)
 
 void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType)
 {
-	if (mCurrWeaponName != WeaponName::None) {
-		mWeapons[mCurrWeaponName]->SetActive(false);
-	}
+	mWeapons[mCurrWeaponName]->SetActive(false);
 
 	switch (weaponType)
 	{
@@ -242,7 +240,6 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 		mCurrWeaponName = WeaponName::SkyLine;
 		break;
 	default:
-		mCurrWeaponName = WeaponName::None;
 		mCrntWeapon = nullptr;
 		return;
 	}

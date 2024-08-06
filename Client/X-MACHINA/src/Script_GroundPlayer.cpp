@@ -11,6 +11,7 @@
 #include "Script_Weapon_Shotgun.h"
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
+#include "Script_Weapon_MineLauncher.h"
 #include "Script_Item.h"
 
 #include "Component/Rigidbody.h"
@@ -52,6 +53,7 @@ namespace {
 		{WeaponType::ShotGun, "RefPosShotgun_Action" },
 		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
 		{WeaponType::Sniper, "RefPosSniper_Action" },
+		{WeaponType::MineLauncher, "RefPosLightningGun_Action" },
 	};
 }
 #pragma endregion
@@ -87,6 +89,7 @@ void Script_GroundPlayer::Awake()
 	// weapons //
 	mWeapons.resize(3);
 	AquireNewWeapon(WeaponName::H_Lock);
+	AquireNewWeapon(WeaponName::MineLauncher);
 }
 
 void Script_GroundPlayer::Start()
@@ -373,6 +376,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 		{WeaponType::ShotGun, "ReloadShotgun" },
 		{WeaponType::MissileLauncher, "ReloadMissileLauncher"  },
 		{WeaponType::Sniper, "ReloadAssaultRifle" },
+		{WeaponType::MineLauncher, "ReloadOverheatBeamGun" },
 	};
 
 	static const std::unordered_map<WeaponType, std::string> kDrawMotions{
@@ -381,6 +385,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 		{WeaponType::ShotGun, "DrawShotgun" },
 		{WeaponType::MissileLauncher, "DrawMissileLauncher" },
 		{WeaponType::Sniper, "DrawAssaultRifle" },
+		{WeaponType::MineLauncher, "DrawBeamGun" },
 	};
 
 	static const std::unordered_map<WeaponType, std::string> kPutbackMotions{
@@ -389,6 +394,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 		{WeaponType::ShotGun, "PutBackShotgun" },
 		{WeaponType::MissileLauncher, "PutBackMissileLauncher" },
 		{WeaponType::Sniper, "PutBackAssaultRifle" },
+		{WeaponType::MineLauncher, "PutBackBeamGun" },
 	};
 
 	// animation callback functions //
@@ -416,7 +422,7 @@ void Script_GroundPlayer::InitWeaponAnimations()
 	constexpr int kPutbackFrame = 15;	// the hand is over the shoulder
 
 	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
-		WeaponName weaponName = static_cast<WeaponName>(i + 1);
+		WeaponName weaponName = static_cast<WeaponName>(i);
 		WeaponType weaponType = gkWeaponTypeMap.at(weaponName);
 
 		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponName)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
@@ -492,10 +498,6 @@ void Script_GroundPlayer::BulletFired()
 
 void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 {
-	if (weaponName == WeaponName::None) {
-		return;
-	}
-
 	GridObject* weapon = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Dynamic, false);
 
 	// add scripts //
@@ -515,6 +517,9 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 	case WeaponName::PipeLine:
 		weapon->AddComponent<Script_Weapon_PipeLine>();
 		ResetBoltActionMotionSpeed(weapon->GetComponent<Script_Weapon>());
+		break;
+	case WeaponName::MineLauncher:
+		weapon->AddComponent<Script_Weapon_MineLauncher>();
 		break;
 	default:
 		assert(0);
@@ -602,6 +607,9 @@ void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 	case WeaponType::AssaultRifle:
 		weaponIdx = 2;
 		break;
+	case WeaponType::MineLauncher:
+		weaponIdx = 3;
+		break;
 	case WeaponType::ShotGun:
 		weaponIdx = 5;
 		break;
@@ -610,6 +618,9 @@ void Script_GroundPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
 		break;
 	case WeaponType::Sniper:
 		weaponIdx = 7;
+		break;
+	default:
+		assert(0);
 		break;
 	}
 

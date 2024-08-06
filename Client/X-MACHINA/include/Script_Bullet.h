@@ -25,12 +25,14 @@ private:
 	std::array<std::vector<std::string>, BulletPSTypeCount> mPSNames;
 	std::array<std::queue<ParticleSystem*>, BulletPSTypeCount> mPSs;
 
-	float mSpeed{};			// speed of bullet
 	float mDamage{};		// damage of bullet
 	float mCurDistance{};	// 현재 비행 길이
 	float mMaxDistance{};	// 최대 비행 길이
 
 	float mEndDistance{ 40.f };	// 비행 종료 길이
+
+protected:
+	float mSpeed{};			// speed of bullet
 
 public:
 	float GetDamage() const { return mDamage; }

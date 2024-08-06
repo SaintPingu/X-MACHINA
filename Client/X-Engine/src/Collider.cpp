@@ -291,8 +291,21 @@ bool ObjectCollider::Intersects(const ObjectCollider* other) const
 		return false;
 	}
 
-	const auto& aColliders = mColliders;
-	const auto& bColliders = other->GetColliders();
+	std::vector<sptr<Collider>> aColliders{};
+	std::vector<sptr<Collider>> bColliders{};
+	aColliders.reserve(mColliders.size());
+	bColliders.reserve(other->GetColliders().size());
+
+	for (const auto& collider : mColliders) {
+		if (collider->IsActive()) {
+			aColliders.push_back(collider);
+		}
+	}
+	for (const auto& collider : other->GetColliders()) {
+		if (collider->IsActive()) {
+			bColliders.push_back(collider);
+		}
+	}
 
 	bool aHasCollider = !aColliders.empty();
 	bool bHasCollider = !bColliders.empty();

@@ -22,7 +22,7 @@ void Airstrike::Init()
 	mCntPerFire = 3;
 	mErrX = Vec2(-3, 3);
 	mErrY = Vec2(-3, 3);
-	SetFireSound("Buronout Fire");
+	SetFireSound("Airstrike Fire");
 
 	SetParticleSystemNames();
 	CreateMissilePool();

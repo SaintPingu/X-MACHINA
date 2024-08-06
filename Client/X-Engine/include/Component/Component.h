@@ -50,7 +50,7 @@ private:
 public:
 	Component(Object* object) { mObject = object; }
 	virtual ~Component() = default;
-
+	
 	bool IsAwake() const { return mIsAwake; }
 	bool IsStart() const { return mIsStart; }
 	bool IsActive() const { return mIsActive; }

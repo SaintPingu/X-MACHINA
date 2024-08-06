@@ -261,6 +261,16 @@ namespace Math {
 		return distribution(dre);
 	}
 
+	inline Vec2 RandVec2(int seed) {
+		std::default_random_engine dre(seed);
+		std::uniform_real_distribution<float> distribution(-4.f, 4.f);
+
+		Vec2 result;
+		result.x = distribution(dre);
+		result.y = distribution(dre);
+		return result;
+	}
+
 	inline int RandInt(int min = 0, int max = 1)
 	{
 		std::uniform_int_distribution<int> distribution(min, max);

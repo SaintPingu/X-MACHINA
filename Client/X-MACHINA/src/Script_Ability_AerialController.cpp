@@ -15,6 +15,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Object.h"
+#include "SoundMgr.h"
 
 void Script_Ability_AerialController::Awake()
 {
@@ -82,6 +83,7 @@ void Script_Ability_AerialController::On()
 	mAerialCamera->SetActive(true);
 	mAirstrike->On();
 	ChangeAimToActive();
+	SoundMgr::I->Play("Env", "AerialController");
 }
 
 void Script_Ability_AerialController::Off()
@@ -91,6 +93,7 @@ void Script_Ability_AerialController::Off()
 
 	mAerialCamera->SetActive(false);
 	ChangeAimToOrigin();
+	SoundMgr::I->Stop("Env");
 }
 
 void Script_Ability_AerialController::ChangeAimToOrigin()

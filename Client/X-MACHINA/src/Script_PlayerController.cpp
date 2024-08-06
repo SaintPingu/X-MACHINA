@@ -12,11 +12,12 @@
 #include "Script_Ability_NightVision.h"
 #include "Script_Ability_AerialController.h"
 
-
 #include "ChatBoxUI.h"
 #include "SliderBarUI.h"
 
 #include "Component/UI.h"
+
+#include "Timer.h"
 
 void Script_PlayerController::Awake()
 {
@@ -36,6 +37,10 @@ void Script_PlayerController::Awake()
 	mAbilityCloaking         = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
 	mAbilityNightVision      = mObject->AddComponent<Script_Ability_NightVision>(true, false);
 	mAbilityAerialController = mObject->AddComponent<Script_Ability_AerialController>(true, false);
+
+	mHurtUI = Canvas::I->CreateUI<UI>(0, "HurtUI");
+	mHurtUIdelta = 0.f;
+	mHurtUI->SetOpacity(0.f);
 }
 
 void Script_PlayerController::Start()
@@ -54,9 +59,7 @@ void Script_PlayerController::Update()
 
 	ProcessInput();
 
-	mChatBoxUI->Update();
-	mPheroBarUI->Update(mScript->GetCurPheroAmount());
-	mHpBarUI->Update(mScript->GetCrntHp());
+	UpdateUI();
 }
 
 
@@ -143,12 +146,14 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 		case '9':
 			mScript->AquireNewWeapon(WeaponName::PipeLine);
+			break;
 
 		case'L':
 			mScript->AddPheroAmount(1000);
 			break;
 		case'J':
 			mScript->Hit(100);
+			Hit();
 			break;
 		case'H':
 			mScript->FillHP(1000);
@@ -166,7 +171,27 @@ void Script_PlayerController::Chat(const std::string& text)
 	mChatBoxUI->AddChat(text, "other");
 }
 
+void Script_PlayerController::Hit()
+{
+	mHurtUIdelta = 1.f;
+}
+
 bool Script_PlayerController::IsInAerialControl()
 {
 	return mAbilityAerialController && mAbilityAerialController->IsActiveState();
+}
+
+void Script_PlayerController::UpdateUI()
+{
+	mChatBoxUI->Update();
+	mPheroBarUI->Update(mScript->GetCurPheroAmount());
+	mHpBarUI->Update(mScript->GetCrntHp());
+
+	if (mHurtUIdelta > 0.f) {
+		mHurtUIdelta -= DeltaTime() * 0.5f;
+		if (mHurtUIdelta <= 0.f) {
+			mHurtUIdelta = 0.f;
+		}
+		mHurtUI->SetOpacity(mHurtUIdelta);
+	}
 }

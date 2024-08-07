@@ -112,6 +112,9 @@
     <Filter Include="Script\Weapon\Bulltet">
       <UniqueIdentifier>{ce24021d-a205-446e-b773-3f3aa5980e32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ClientNetwork\Network\NetworkScript\Network Phero">
+      <UniqueIdentifier>{c9d588f6-ad4f-4bc4-a526-b6d3fe874f99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -451,6 +454,9 @@
     <ClInclude Include="include\Script_ExplosiveBullet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkPhero.h">
+      <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -749,6 +755,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_PlayerController.cpp">
       <Filter>Script\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkPhero.cpp">
+      <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

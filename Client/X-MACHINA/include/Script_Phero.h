@@ -57,6 +57,7 @@ private:
 	float mPickupRange{};
 	float mFllowSpeed{};
 	Vec3 mSpreadDest{};
+	Vec3 mSpreadStart{};
 
 public:
 	void Start() override;
@@ -65,10 +66,15 @@ public:
 
 public:
 	const PheroStat& GetPheroStat() { return mStat; }
+	UINT32 GetID() const { return mObject->GetID(); }
+
+public:
 	void SetPheroStat(int level);
+	void SetID(int monster_id, int phero_index);
 
 private:
 	bool IntersectTerrain();
+	bool SpreadAllDirections();
 	void FloatGently();
 	bool CheckPlayerRange();
 	void FollowToTarget();

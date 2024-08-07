@@ -32,6 +32,8 @@ struct NetSceneEventQueue
 
 
 class GridObject;
+class Script_NetworkEnemy;
+class Script_Phero;
 
 class ClientNetworkManager
 {
@@ -42,8 +44,9 @@ private:
 	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
 
-	std::unordered_map<UINT32, class Script_NetworkEnemy*> mRemoteMonsters{};
-	Concurrency::concurrent_unordered_map<uint32_t, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
+	std::unordered_map<UINT32, Script_NetworkEnemy*> mRemoteMonsters{};
+	std::unordered_map<UINT32, Script_Phero*> mRemotePheros{};
+	Concurrency::concurrent_unordered_map<UINT32, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
 	std::atomic_int	    mBackSceneEventIndex = 1;	// BACK SCENE EVENT QUEUE INDEX 
@@ -93,6 +96,7 @@ public:
 
 	sptr<NetworkEvent::Game::Event_Monster::Add>						CreateEvent_Add_Monster(std::vector<GameMonsterInfo> infos);
 	sptr<NetworkEvent::Game::Event_Monster::Remove>						CreateEvent_Remove_Monster(std::vector<uint32_t> Ids);
+	sptr<NetworkEvent::Game::Event_Monster::MonsterDead>				CreateEvent_Dead_Monster(uint32_t monster_id, Vec3 dead_point, std::string pheros);
 	sptr<NetworkEvent::Game::Event_Monster::Move>						CreateEvent_Move_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterMove> infos);
 	sptr<NetworkEvent::Game::Event_Monster::UpdateHP>					CreateEvent_UpdateHP_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterHP> infos);
 	sptr<NetworkEvent::Game::Event_Monster::UpdateState>				CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos);
@@ -120,6 +124,7 @@ public:
 	/// MONSTER 
 	void ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data);
 	void ProcessEvent_Monster_Remove(NetworkEvent::Game::Event_Monster::Remove* data);
+	void ProcessEvent_Monster_Dead(NetworkEvent::Game::Event_Monster::MonsterDead* data);
 	void ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data);
 	void ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data);
 	void ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data);

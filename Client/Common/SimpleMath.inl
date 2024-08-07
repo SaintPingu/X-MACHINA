@@ -716,6 +716,11 @@ inline void Vector2::TransformNormal(const Vector2* varray, size_t count, const 
     XMVector2TransformNormalStream(resultArray, sizeof(XMFLOAT2), varray, sizeof(XMFLOAT2), count, M);
 }
 
+inline Vector3 Vector2::xz() const noexcept
+{
+    return Vector3(x, 0, y);
+}
+
 
 /****************************************************************************
  *

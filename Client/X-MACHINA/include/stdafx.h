@@ -349,3 +349,11 @@ class PlayerMotion : public DwordOverloader<PlayerMotion> {
 	static PlayerMotion GetMotion(PlayerMotion movement) { return movement & 0xF0; }
 };
 #pragma endregion
+
+
+#pragma region Namespace
+namespace PheroDropInfo {
+	constexpr int gkMaxPheroDrop = 30;
+	constexpr int gkMaxLevel = 3;
+}
+#pragma endregion

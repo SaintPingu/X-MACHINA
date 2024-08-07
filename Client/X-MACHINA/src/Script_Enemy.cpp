@@ -24,8 +24,8 @@ void Script_Enemy::Awake()
 	mEnemyMgr = mObject->AddComponent<Script_EnemyManager>();
 	mEnemyMgr->mEnemy = this;
 	mObject->AddComponent<Script_GroundObject>();
-	mObject->AddComponent<Script_PheroObject>();
 #ifndef SERVER_COMMUNICATION
+	mObject->AddComponent<Script_PheroObject>();
 	mObject->AddComponent<Script_DefaultEnemyBT>();
 #endif
 

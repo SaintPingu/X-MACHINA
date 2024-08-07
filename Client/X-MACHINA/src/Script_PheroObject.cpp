@@ -9,6 +9,8 @@
 #include "Script_Phero.h"
 #include "Script_EnemyManager.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 
 void Script_PheroObject::Start()
 {
@@ -55,8 +57,14 @@ void Script_PheroObject::GenerateRandomPheroCount()
 
 void Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount)
 {
+	GeneratePheroPool(pheroLevel, pheroCount, mObject->GetPosition());
+}
+
+std::vector<Script_Phero*> Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount, const Vec3& position, int monsterID)
+{
+	std::vector<Script_Phero*> pheros;
 	if (pheroCount < 1 || pheroLevel < 1) {
-		return;
+		return pheros;
 	}
 
 	auto& pheroPool = BattleScene::I->CreateObjectPool("Level1Phero", pheroCount, [&](rsptr<InstObject> object) {
@@ -64,16 +72,22 @@ void Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount)
 		});
 
 	std::string modelName{};
+	int idx{};
 	for (auto& phero : pheroPool->GetMulti(pheroCount, true))
 	{
-		phero->SetPosition(mObject->GetPosition());
+		phero->SetPosition(position);
 		auto& script = phero->AddComponent<Script_Phero>();
 		script->SetPheroStat(pheroLevel);
+		script->SetID(monsterID, idx++);
+		pheros.emplace_back(script.get());
 
 		if (modelName.empty()) {
 			modelName = script->GetPheroStat().ModelName;
 		}
 	}
 
+
 	pheroPool->ChangeModel(modelName);
+
+	return pheros;
 }

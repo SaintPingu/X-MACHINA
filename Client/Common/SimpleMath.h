@@ -34,6 +34,7 @@ namespace DirectX
     namespace SimpleMath
     {
         struct Vector2;
+        struct Vector3;
         struct Vector4;
         struct Matrix;
         struct Quaternion;
@@ -197,6 +198,8 @@ namespace DirectX
             static void TransformNormal(const Vector2& v, const Matrix& m, Vector2& result) noexcept;
             static Vector2 TransformNormal(const Vector2& v, const Matrix& m) noexcept;
             static void TransformNormal(_In_reads_(count) const Vector2* varray, size_t count, const Matrix& m, _Out_writes_(count) Vector2* resultArray) noexcept;
+
+            Vector3 xz() const noexcept;
 
             // Constants
             static const Vector2 Zero;

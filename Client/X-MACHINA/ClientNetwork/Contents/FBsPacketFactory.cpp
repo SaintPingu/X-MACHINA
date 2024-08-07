@@ -148,6 +148,14 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_RemoveMonster(session, *packet);
 	}
 	break;
+	case FBsProtocolID::SPkt_DeadMonster:
+	{
+		const FBProtocol::SPkt_DeadMonster* packet = flatbuffers::GetRoot<FBProtocol::SPkt_DeadMonster>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_DeadMonster(session, *packet);
+	}
+	break;
+
 	case FBsProtocolID::SPkt_Monster_Transform:
 	{
 		const FBProtocol::SPkt_Monster_Transform* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Monster_Transform>(DataPtr);
@@ -732,9 +740,12 @@ bool FBsPacketFactory::Process_SPkt_Monster_Target(SPtr_Session session, const F
 
 bool FBsPacketFactory::Process_SPkt_DeadMonster(SPtr_Session session, const FBProtocol::SPkt_DeadMonster& pkt)
 {
-	Vec3		monster_DeadPoint = pkt.dead_point();
+	Vec3		monster_DeadPoint = GetPosition_Vec2(pkt.dead_point());
 	uint32_t	monster_id        = pkt.id();
-	std::string pheros			  = pkt.pheros();
+	std::string pheros			  = pkt.pheros()->c_str();
+
+	sptr<NetworkEvent::Game::Event_Monster::MonsterDead> Ext_EventData = CLIENT_NETWORK->CreateEvent_Dead_Monster(monster_id, monster_DeadPoint, pheros);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 
 	return true;
 }
@@ -1208,7 +1219,6 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 	info.Pos		= GetPosition_Vec2(monster->pos_2());
 	float rot_y		= monster->rot_y();
 	info.Rot		= GetRot_y(rot_y);
-	info.InitPheros(pheros);
 
 	info.Target_Player_Id = monster->target_player_id();
 

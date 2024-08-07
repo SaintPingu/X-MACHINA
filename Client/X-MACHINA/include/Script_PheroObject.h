@@ -48,6 +48,9 @@ public:
 	virtual void Start() override;
 	virtual void OnDestroy() override;
 
+public:
+	static std::vector<class Script_Phero*> GeneratePheroPool(int pheroLevel, int pheroCount, const Vec3& position, int monsterID = 0);
+
 private:
 	void GenerateRandomPheroCount();
 	void GeneratePheroPool(int pheroLevel, int pheroCount);

@@ -20,6 +20,8 @@
 #include "Script_EnemyManager.h"
 #include "Script_Player.h"
 #include "Script_PlayerController.h"
+#include "Script_PheroObject.h"
+#include "Script_Phero.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -251,6 +253,13 @@ void ClientNetworkManager::ProcessEvents()
 			ProcessEvent_Monster_Remove(data);
 		}
 		break;
+		case NetworkEvent::Game::MonsterType::Dead:
+		{
+			NetworkEvent::Game::Event_Monster::MonsterDead* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterDead*>(EventData.get());
+			ProcessEvent_Monster_Dead(data);
+		}
+		break;
+
 		case NetworkEvent::Game::MonsterType::Move:
 		{
 			NetworkEvent::Game::Event_Monster::Move* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Move*>(EventData.get());
@@ -358,9 +367,6 @@ void ClientNetworkManager::Send(SPtr_PacketSendBuf pkt)
 	mClientNetwork->Broadcast(pkt);
 }
 
-/// +---------------------------------------------------------------------------
-/// >> ¢º¢º¢º¢º¢º CREATE EVENT 
-/// ---------------------------------------------------------------------------+
 sptr<NetworkEvent::Game::Event_RemotePlayer::Add> ClientNetworkManager::CreateEvent_Add_RemotePlayer(GamePlayerInfo info)
 {
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::Add>();
@@ -518,6 +524,17 @@ sptr<NetworkEvent::Game::Event_Monster::Remove> ClientNetworkManager::CreateEven
 	sptr<NetworkEvent::Game::Event_Monster::Remove> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::Remove>();
 	Event->type = NetworkEvent::Game::MonsterType::Remove;
 	Event->IDs = Ids;
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Monster::MonsterDead> ClientNetworkManager::CreateEvent_Dead_Monster(uint32_t monster_id, Vec3 dead_point, std::string pheros)
+{
+	sptr<NetworkEvent::Game::Event_Monster::MonsterDead> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Monster::MonsterDead>();
+	Event->type					= NetworkEvent::Game::MonsterType::Dead;
+	Event->monster_id			= monster_id;
+	Event->monster_dead_point	= dead_point;
+	Event->pheros				= pheros;
+
 	return Event;
 }
 
@@ -870,6 +887,24 @@ void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event
 		}
 
 		mRemoteMonsters[id]->SetActiveMyObject(false);
+	}
+}
+
+void ClientNetworkManager::ProcessEvent_Monster_Dead(NetworkEvent::Game::Event_Monster::MonsterDead* data)
+{
+	const Vec3 deadPoint = data->monster_dead_point;
+	const int monsterId = data->monster_id;
+	const std::string pheros = data->pheros;
+
+	std::vector<int> pheroCounts(PheroDropInfo::gkMaxLevel + 1);
+	for (char phero : pheros) {
+		pheroCounts[phero - '0']++;
+	}
+
+	for (int level = 1; level <= PheroDropInfo::gkMaxLevel; ++level) {
+		for (auto& phero : Script_PheroObject::GeneratePheroPool(level, pheroCounts[level], deadPoint, monsterId)) {
+			mRemotePheros.insert({phero->GetID(), phero});
+		}
 	}
 }
 

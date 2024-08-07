@@ -235,6 +235,7 @@
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkEnemy.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_Network.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkLiveObject.h" />
+    <ClInclude Include="ClientNetwork\Contents\Script_NetworkPhero.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkPlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.h" />
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.h" />
@@ -333,6 +334,7 @@
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkEnemy.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_Network.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkLiveObject.cpp" />
+    <ClCompile Include="ClientNetwork\Contents\Script_NetworkPhero.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkPlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkRemotePlayer.cpp" />
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkShootingPlayer.cpp" />

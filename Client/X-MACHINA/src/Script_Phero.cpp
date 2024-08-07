@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "Script_Phero.h"
 
@@ -23,10 +22,13 @@ void Script_Phero::Start()
 	mPickupRange = 1.5f; // 추후에 업그레이드 느낌으로 플레이어가 들고 있어도 됨
 
 	mState = PheroState::Spread;
-	mRigid = mObject->AddComponent<Rigidbody>();
-	mRigid->AddForce(Vec3{Math::RandFloat(-1.f, 1.f), 1.5f, Math::RandFloat(-1.f, 1.f)}, Math::RandFloat(8.f, 10.f), ForceMode::Impulse);
-	mRigid->SetGravity(true);
-	mRigid->SetMass(2.f);
+	//mRigid = mObject->AddComponent<Rigidbody>();
+	//mRigid->AddForce(Vec3{Math::RandFloat(-1.f, 1.f), 1.5f, Math::RandFloat(-1.f, 1.f)}, Math::RandFloat(8.f, 10.f), ForceMode::Impulse);
+	//mRigid->SetGravity(true);
+	//mRigid->SetMass(2.f);
+
+	mSpreadStart = mObject->GetPosition();
+	mSpreadDest = mSpreadStart + Math::RandVec2(GetID()).xz();
 }
 
 
@@ -37,9 +39,9 @@ void Script_Phero::Update()
 	switch (mState)
 	{
 	case PheroState::Spread:
-		if (IntersectTerrain()) {
+		if (SpreadAllDirections()) {
 			mState = PheroState::Idle;
-			mObject->RemoveComponent<Rigidbody>();
+			//mObject->RemoveComponent<Rigidbody>();
 		}
 		break;
 	case PheroState::Idle:
@@ -55,6 +57,7 @@ void Script_Phero::Update()
 		break;
 	}
 }
+
 
 void Script_Phero::LateUpdate()
 {
@@ -80,6 +83,11 @@ void Script_Phero::SetPheroStat(int level)
 	XLManager::I->Set(level, mStat);
 }
 
+void Script_Phero::SetID(int monster_id, int phero_index)
+{
+	mObject->SetID((monster_id - 1) * (PheroDropInfo::gkMaxPheroDrop + 1) + phero_index);
+}
+
 bool Script_Phero::IntersectTerrain()
 {
 	if (mRigid->GetVelocity().y > 0.f) {
@@ -93,6 +101,26 @@ bool Script_Phero::IntersectTerrain()
 
 	if (pos.y <= terrainHeight + kAdjHeight) {
 		mSpreadDest = pos;
+		return true;
+	}
+
+	return false;
+}
+
+bool Script_Phero::SpreadAllDirections()
+{
+	const float spreadTime = mCurrTime * 2.f;
+
+	const Vec3 center = (mSpreadStart + mSpreadDest) / 2.f;
+	const Vec3 dist = mSpreadStart - center;
+
+	const Vec3 cp1 = (mSpreadStart - dist) + Vec3{ 0.f, -10.f, 0.f };
+	const Vec3 cp4 = (mSpreadDest + dist) + Vec3{ 0.f, -10.f, 0.f };
+
+	const Vec3 res = Vec3::CatmullRom(cp1, mSpreadStart, mSpreadDest, cp4, spreadTime);
+	mObject->SetPosition(res);
+
+	if (spreadTime >= 1.f) {
 		return true;
 	}
 

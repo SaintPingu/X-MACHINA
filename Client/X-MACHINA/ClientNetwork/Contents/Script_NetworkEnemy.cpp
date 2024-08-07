@@ -20,11 +20,11 @@ void Script_NetworkEnemy::Update()
 
 	if (mEnemyMgr->mState == EnemyState::MoveToTarget)
 		MoveToTarget();
-	if (mEnemyMgr->mState == EnemyState::Attack)
+	else if (mEnemyMgr->mState == EnemyState::Attack)
 		Attack();
-	if (mEnemyMgr->mState == EnemyState::Idle)
+	else if (mEnemyMgr->mState == EnemyState::Idle)
 		Idle();
-	if (mEnemyMgr->mState == EnemyState::Death)
+	else if (mEnemyMgr->mState == EnemyState::Death)
 		Death();
 }
 

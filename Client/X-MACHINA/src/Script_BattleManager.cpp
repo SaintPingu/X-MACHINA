@@ -68,10 +68,6 @@ void Script_BattleManager::Start()
 void Script_BattleManager::Update()
 {
 	base::Update();
-
-	if (KEY_TAP('Q')) {
-		Engine::I->LoadScene(SceneType::Lobby);
-	}
 }
 
 void Script_BattleManager::Reset()

@@ -153,6 +153,9 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 				mEditingText.pop_back();
 			}
 		}
+		else if (wParam == VK_RETURN) {
+			ToggleChatBox();
+		}
 	}
 	break;
 	case WM_CHAR: // english

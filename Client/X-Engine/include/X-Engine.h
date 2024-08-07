@@ -7,8 +7,8 @@ class Engine : public Singleton<Engine> {
 	friend Singleton;
 
 private:
-	short mWindowWidth{ 780 };
-	short mWindowHeight{ 600 };
+	short mWindowWidth{ 2560 };
+	short mWindowHeight{ 1440 };
 	bool mIsWindowFocused{ true };
 	std::wstring mTitle{};	// 윈도우 타이틀 문자열
 

@@ -12,6 +12,7 @@ void Script_NetworkEnemy::Awake()
 	base::Awake();
 
 	mEnemyMgr = mObject->GetComponent<Script_EnemyManager>().get();
+	mDeathRemoveTime = 4.f;
 }
 
 void Script_NetworkEnemy::Update()
@@ -48,35 +49,35 @@ void Script_NetworkEnemy::SetState(EnemyState state)
 {
 	mEnemyMgr->mState = state;
 
-	switch (mEnemyMgr->mState)
-	{
-	case EnemyState::Idle:
-		std::cout << "Idle" << std::endl;
-		break;
-	case EnemyState::Walk:
-		std::cout << "Walk" << std::endl;
-		break;
-	case EnemyState::GetHit:
-		std::cout << "GetHit" << std::endl;
-		break;
-	case EnemyState::Attack:
-		std::cout << "Attack" << std::endl;
-		break;
-	case EnemyState::Death:
-		std::cout << "Death" << std::endl;
-		break;
-	case EnemyState::MoveToTarget:
-		std::cout << "MoveToTarget" << std::endl;
-		break;
-	case EnemyState::MoveToPath:
-		std::cout << "MoveToPath" << std::endl;
-		break;
-	case EnemyState::Patrol:
-		std::cout << "Patrol" << std::endl;
-		break;
-	default:
-		break;
-	}
+	//switch (mEnemyMgr->mState)
+	//{
+	//case EnemyState::Idle:
+	//	std::cout << "Idle" << std::endl;
+	//	break;
+	//case EnemyState::Walk:
+	//	std::cout << "Walk" << std::endl;
+	//	break;
+	//case EnemyState::GetHit:
+	//	std::cout << "GetHit" << std::endl;
+	//	break;
+	//case EnemyState::Attack:
+	//	std::cout << "Attack" << std::endl;
+	//	break;
+	//case EnemyState::Death:
+	//	std::cout << "Death" << std::endl;
+	//	break;
+	//case EnemyState::MoveToTarget:
+	//	std::cout << "MoveToTarget" << std::endl;
+	//	break;
+	//case EnemyState::MoveToPath:
+	//	std::cout << "MoveToPath" << std::endl;
+	//	break;
+	//case EnemyState::Patrol:
+	//	std::cout << "Patrol" << std::endl;
+	//	break;
+	//default:
+	//	break;
+	//}
 }
 
 void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType)

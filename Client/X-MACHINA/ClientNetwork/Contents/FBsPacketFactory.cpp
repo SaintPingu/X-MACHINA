@@ -765,6 +765,13 @@ bool FBsPacketFactory::Process_SPkt_GetPhero(SPtr_Session session, const FBProto
 	/// > 
 	/// > }
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
+	
+	int phero_id	= pkt.phero_id();
+	int player_id	= pkt.player_id();
+
+	sptr<NetworkEvent::Game::Event_Phero::GetPhero> Ext_EventData = CLIENT_NETWORK->CreateEvent_GetPhero(player_id, phero_id);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
 	return true;
 }
 

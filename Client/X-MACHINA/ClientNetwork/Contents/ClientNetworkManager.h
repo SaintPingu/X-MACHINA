@@ -102,6 +102,8 @@ public:
 	sptr<NetworkEvent::Game::Event_Monster::UpdateState>				CreateEvent_UpdateState_Monster(std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos);
 
 	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate>		CreateEvent_Monster_Target(std::vector<NetworkEvent::Game::Event_Monster::MonsterTarget> infos);
+	
+	sptr<NetworkEvent::Game::Event_Phero::GetPhero>						CreateEvent_GetPhero(uint32_t player_id, uint32_t phero_id);
 
 	sptr<NetworkEvent::Game::Event_Contents::Chat>						CreateEvent_Chat(uint32_t Id, std::string chat);
 
@@ -129,6 +131,10 @@ public:
 	void ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Event_Monster::UpdateHP* data);
 	void ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data);
 	void ProcessEvent_Monster_Target(NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data);
+
+	/// Phero
+	void ProcessEvent_Phero_Get(NetworkEvent::Game::Event_Phero::GetPhero* data);
+
 
 	/// Chat 
 	void ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_Contents::Chat* data);

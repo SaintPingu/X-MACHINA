@@ -56,8 +56,10 @@ private:
 	float mCurrTime{};
 	float mPickupRange{};
 	float mFllowSpeed{};
+	float mSpreadHeight{};
 	Vec3 mSpreadDest{};
 	Vec3 mSpreadStart{};
+	
 
 public:
 	void Start() override;
@@ -71,11 +73,13 @@ public:
 public:
 	void SetPheroStat(int level);
 	void SetID(int monster_id, int phero_index);
+	void SetTarget(Object* target) { mTarget = target; }
 
 private:
 	bool IntersectTerrain();
 	bool SpreadAllDirections();
 	void FloatGently();
+	bool CheckTarget();
 	bool CheckPlayerRange();
 	void FollowToTarget();
 };

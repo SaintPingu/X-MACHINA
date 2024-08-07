@@ -284,7 +284,15 @@ void ClientNetworkManager::ProcessEvents()
 			ProcessEvent_Monster_Target(data);
 		}
 		break;
-
+		/// +---------------------------------------------------------------------------
+		/// >> ¢º¢º¢º¢º¢º PROCESS EVENT Phero
+		/// ---------------------------------------------------------------------------+
+		case NetworkEvent::Game::PheroType::GetPhero:
+		{
+			NetworkEvent::Game::Event_Phero::GetPhero* data = reinterpret_cast<NetworkEvent::Game::Event_Phero::GetPhero*>(EventData.get());
+			ProcessEvent_Phero_Get(data);
+		}
+		break;
 		/// +---------------------------------------------------------------------------
 		/// >> ¢º¢º¢º¢º¢º PROCESS EVENT Contents
 		/// ---------------------------------------------------------------------------+
@@ -574,6 +582,17 @@ sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> ClientNetworkManage
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_Phero::GetPhero> ClientNetworkManager::CreateEvent_GetPhero(uint32_t player_id, uint32_t phero_id)
+{
+	sptr<NetworkEvent::Game::Event_Phero::GetPhero> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Phero::GetPhero>();
+	Event->type = NetworkEvent::Game::PheroType::GetPhero;
+	
+	Event->phero_id		= phero_id;
+	Event->player_id	= player_id;
+	
+	return Event;
+}
+
 sptr<NetworkEvent::Game::Event_Contents::Chat> ClientNetworkManager::CreateEvent_Chat(uint32_t Id, std::string chat)
 {
 	sptr<NetworkEvent::Game::Event_Contents::Chat> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Contents::Chat>();
@@ -607,7 +626,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 	remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
 
 	mRemotePlayers[static_cast<UINT32>(data->Id)] = remotePlayer;
-	std::cout << "Process Event : Add_RemotePlayer - " << remotePlayer << std::endl;
+	//std::cout << "Process Event : Add_RemotePlayer - " << remotePlayer << std::endl;
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data)
@@ -874,7 +893,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
 		mRemoteMonsters[monsterID]->SetState(monBtType);
 
-		std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
+		//std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
 	}
 
 
@@ -901,8 +920,9 @@ void ClientNetworkManager::ProcessEvent_Monster_Dead(NetworkEvent::Game::Event_M
 		pheroCounts[phero - '0']++;
 	}
 
+	int pheroIdx{};
 	for (int level = 1; level <= PheroDropInfo::gkMaxLevel; ++level) {
-		for (auto& phero : Script_PheroObject::GeneratePheroPool(level, pheroCounts[level], deadPoint, monsterId)) {
+		for (auto& phero : Script_PheroObject::GeneratePheroPool(level, pheroCounts[level], deadPoint, monsterId, pheroIdx)) {
 			mRemotePheros.insert({phero->GetID(), phero});
 		}
 	}
@@ -961,7 +981,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 		if (!mRemotePlayers.count(target_player_id))
 			continue;
 
-		std::cout << "target : " << target_player_id << "\n";
+		//std::cout << "target : " << target_player_id << "\n";
 		if (target_player_id == 0) {
 			mRemoteMonsters[monster_id]->SetTarget(nullptr);
 		}
@@ -969,6 +989,26 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 			mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
 		}
 	}
+}
+
+void ClientNetworkManager::ProcessEvent_Phero_Get(NetworkEvent::Game::Event_Phero::GetPhero* data)
+{
+	UINT32 pheroID = data->phero_id;
+	UINT32 playerID = data->player_id;
+
+	if (!mRemotePheros.count(pheroID)) {
+		std::cout << "No pheroID : " << pheroID << ", ";
+		return;
+	}
+
+	if (!mRemotePlayers.count(playerID)) {
+		return;
+	}
+
+	std::cout << "pheroID : " << pheroID << ", ";
+	std::cout << "targetID : " << playerID << "\n";
+
+	mRemotePheros[pheroID]->SetTarget(mRemotePlayers[playerID]);
 }
 
 void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_Contents::Chat* data)

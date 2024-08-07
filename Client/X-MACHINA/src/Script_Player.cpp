@@ -79,6 +79,9 @@ void Script_Player::Interact()
 		case ObjectTag::Item:
 			if (!mIsInteracted) {
 				mIsInteracted = other->GetComponent<Script_Item>()->Interact(mObject);
+				if (mIsInteracted) {
+					return;
+				}
 			}
 			break;
 		default:

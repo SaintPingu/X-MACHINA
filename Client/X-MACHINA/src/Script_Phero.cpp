@@ -19,16 +19,16 @@ void Script_Phero::Start()
 		object->SetUseShadow(false);
 	}
 
-	mPickupRange = 1.5f; // 추후에 업그레이드 느낌으로 플레이어가 들고 있어도 됨
-
-	mState = PheroState::Spread;
 	//mRigid = mObject->AddComponent<Rigidbody>();
 	//mRigid->AddForce(Vec3{Math::RandFloat(-1.f, 1.f), 1.5f, Math::RandFloat(-1.f, 1.f)}, Math::RandFloat(8.f, 10.f), ForceMode::Impulse);
 	//mRigid->SetGravity(true);
 	//mRigid->SetMass(2.f);
 
+	mState = PheroState::Spread;
+	mPickupRange = 1.5f;
 	mSpreadStart = mObject->GetPosition();
 	mSpreadDest = mSpreadStart + Math::RandVec2(GetID()).xz();
+	mSpreadHeight = 20.f;
 }
 
 
@@ -39,14 +39,14 @@ void Script_Phero::Update()
 	switch (mState)
 	{
 	case PheroState::Spread:
-		if (SpreadAllDirections()) {
+		if (SpreadAllDirections() /*IntersectTerrain()*/) {
 			mState = PheroState::Idle;
 			//mObject->RemoveComponent<Rigidbody>();
 		}
 		break;
 	case PheroState::Idle:
 		FloatGently();
-		if (CheckPlayerRange()) {
+		if (CheckTarget() /*CheckPlayerRange()*/) {
 			mState = PheroState::Follow;
 		}
 		break;
@@ -114,8 +114,8 @@ bool Script_Phero::SpreadAllDirections()
 	const Vec3 center = (mSpreadStart + mSpreadDest) / 2.f;
 	const Vec3 dist = mSpreadStart - center;
 
-	const Vec3 cp1 = (mSpreadStart - dist) + Vec3{ 0.f, -10.f, 0.f };
-	const Vec3 cp4 = (mSpreadDest + dist) + Vec3{ 0.f, -10.f, 0.f };
+	const Vec3 cp1 = (mSpreadStart - dist) + Vec3{ 0.f, -mSpreadHeight, 0.f };
+	const Vec3 cp4 = (mSpreadDest + dist) + Vec3{ 0.f, -mSpreadHeight, 0.f };
 
 	const Vec3 res = Vec3::CatmullRom(cp1, mSpreadStart, mSpreadDest, cp4, spreadTime);
 	mObject->SetPosition(res);
@@ -137,6 +137,15 @@ void Script_Phero::FloatGently()
 	pos.y = (sinf(mCurrTime * kFloatSpeed) + kAdjValue) * kFloatRange;
 
 	mObject->SetPosition(pos);
+}
+
+bool Script_Phero::CheckTarget()
+{
+	if (nullptr == mTarget) {
+		return false;
+	}
+
+	return true;
 }
 
 bool Script_Phero::CheckPlayerRange()

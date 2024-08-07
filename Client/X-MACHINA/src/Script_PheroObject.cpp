@@ -57,10 +57,10 @@ void Script_PheroObject::GenerateRandomPheroCount()
 
 void Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount)
 {
-	GeneratePheroPool(pheroLevel, pheroCount, mObject->GetPosition());
+	//GeneratePheroPool(pheroLevel, pheroCount, mObject->GetPosition());
 }
 
-std::vector<Script_Phero*> Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount, const Vec3& position, int monsterID)
+std::vector<Script_Phero*> Script_PheroObject::GeneratePheroPool(int pheroLevel, int pheroCount, const Vec3& position, int monsterID, int& pheroIdx)
 {
 	std::vector<Script_Phero*> pheros;
 	if (pheroCount < 1 || pheroLevel < 1) {
@@ -72,14 +72,13 @@ std::vector<Script_Phero*> Script_PheroObject::GeneratePheroPool(int pheroLevel,
 		});
 
 	std::string modelName{};
-	int idx{};
 	for (auto& phero : pheroPool->GetMulti(pheroCount, true))
 	{
-		phero->SetPosition(position);
 		auto& script = phero->AddComponent<Script_Phero>();
 		script->SetPheroStat(pheroLevel);
-		script->SetID(monsterID, idx++);
+		script->SetID(monsterID, pheroIdx++);
 		pheros.emplace_back(script.get());
+		phero->SetPosition(position);
 
 		if (modelName.empty()) {
 			modelName = script->GetPheroStat().ModelName;

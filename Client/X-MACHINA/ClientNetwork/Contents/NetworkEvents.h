@@ -46,9 +46,14 @@ namespace NetworkEvent
 			constexpr UINT16 OnCollision = 20;
 		}
 
+		namespace PheroType
+		{
+			constexpr UINT16 GetPhero = 21;
+		}
+
 		namespace ContentsType					  
 		{									  
-			constexpr UINT16 Chat = 21;
+			constexpr UINT16 Chat = 22;
 		}
 
 		/* EVENT DATA */
@@ -227,7 +232,12 @@ namespace NetworkEvent
 			};
 		}
 
-
+		namespace Event_Phero {
+			struct GetPhero : public EventData {
+				uint32_t player_id;
+				uint32_t phero_id;
+			};
+		}
 
 		/// +---------------------------------------------------------------------
 		///	EVENT ¢º¢º¢º¢º¢º MONSTER  

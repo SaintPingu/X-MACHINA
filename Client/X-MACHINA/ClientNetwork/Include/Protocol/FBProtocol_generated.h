@@ -1624,7 +1624,8 @@ struct SPkt_DeadMonster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_DeadMonsterBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
-    VT_DEAD_POINT = 6
+    VT_DEAD_POINT = 6,
+    VT_PHEROS = 8
   };
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
@@ -1632,11 +1633,16 @@ struct SPkt_DeadMonster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const FBProtocol::Position_Vec2 *dead_point() const {
     return GetPointer<const FBProtocol::Position_Vec2 *>(VT_DEAD_POINT);
   }
+  const ::flatbuffers::String *pheros() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PHEROS);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_ID, 4) &&
            VerifyOffset(verifier, VT_DEAD_POINT) &&
            verifier.VerifyTable(dead_point()) &&
+           VerifyOffset(verifier, VT_PHEROS) &&
+           verifier.VerifyString(pheros()) &&
            verifier.EndTable();
   }
 };
@@ -1650,6 +1656,9 @@ struct SPkt_DeadMonsterBuilder {
   }
   void add_dead_point(::flatbuffers::Offset<FBProtocol::Position_Vec2> dead_point) {
     fbb_.AddOffset(SPkt_DeadMonster::VT_DEAD_POINT, dead_point);
+  }
+  void add_pheros(::flatbuffers::Offset<::flatbuffers::String> pheros) {
+    fbb_.AddOffset(SPkt_DeadMonster::VT_PHEROS, pheros);
   }
   explicit SPkt_DeadMonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1665,11 +1674,26 @@ struct SPkt_DeadMonsterBuilder {
 inline ::flatbuffers::Offset<SPkt_DeadMonster> CreateSPkt_DeadMonster(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
-    ::flatbuffers::Offset<FBProtocol::Position_Vec2> dead_point = 0) {
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> dead_point = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> pheros = 0) {
   SPkt_DeadMonsterBuilder builder_(_fbb);
+  builder_.add_pheros(pheros);
   builder_.add_dead_point(dead_point);
   builder_.add_id(id);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<SPkt_DeadMonster> CreateSPkt_DeadMonsterDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    ::flatbuffers::Offset<FBProtocol::Position_Vec2> dead_point = 0,
+    const char *pheros = nullptr) {
+  auto pheros__ = pheros ? _fbb.CreateString(pheros) : 0;
+  return FBProtocol::CreateSPkt_DeadMonster(
+      _fbb,
+      id,
+      dead_point,
+      pheros__);
 }
 
 struct CPkt_MonsterTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

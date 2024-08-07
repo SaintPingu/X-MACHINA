@@ -36,18 +36,19 @@ namespace NetworkEvent
 			constexpr UINT16 UpdateHP = 14;
 			constexpr UINT16 UpdateState = 15;
 			constexpr UINT16 Target = 16;
+			constexpr UINT16 Dead = 17;
 		}
 
 		namespace BulletType
 		{
-			constexpr UINT16 OnShoot = 17;
-			constexpr UINT16 OnHitEnemy = 18;
-			constexpr UINT16 OnCollision = 19;
+			constexpr UINT16 OnShoot = 18;
+			constexpr UINT16 OnHitEnemy = 19;
+			constexpr UINT16 OnCollision = 20;
 		}
 
 		namespace ContentsType					  
 		{									  
-			constexpr UINT16 Chat = 20;
+			constexpr UINT16 Chat = 21;
 		}
 
 		/* EVENT DATA */
@@ -203,6 +204,13 @@ namespace NetworkEvent
 
 			struct MonsterTargetUpdate : public EventData {
 				std::vector<MonsterTarget> Mons;
+			};
+
+			/// >> UPDATE DEAD  
+			struct MonsterDead : public EventData {
+				int			monster_id;
+				Vec3		monster_dead_point;
+				std::string pheros;
 			};
 
 		}

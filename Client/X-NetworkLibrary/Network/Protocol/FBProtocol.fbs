@@ -273,6 +273,7 @@ table SPkt_DeadMonster
 {
 	id			 : uint;
 	dead_point   : Position_Vec2;
+	pheros		 : string;
 }
 
 

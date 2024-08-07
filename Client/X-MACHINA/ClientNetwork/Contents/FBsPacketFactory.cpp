@@ -732,6 +732,10 @@ bool FBsPacketFactory::Process_SPkt_Monster_Target(SPtr_Session session, const F
 
 bool FBsPacketFactory::Process_SPkt_DeadMonster(SPtr_Session session, const FBProtocol::SPkt_DeadMonster& pkt)
 {
+	Vec3		monster_DeadPoint = pkt.dead_point();
+	uint32_t	monster_id        = pkt.id();
+	std::string pheros			  = pkt.pheros();
+
 	return true;
 }
 
@@ -1197,14 +1201,13 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 {
 	GameMonsterInfo info = {};
 
-	info.Id = monster->id();
-	info.Type = monster->type();
-	info.bt_type = monster->bt_type();
+	info.Id			= monster->id();
+	info.Type		= monster->type();
+	info.bt_type	= monster->bt_type();
 
-	info.Pos = GetPosition_Vec2(monster->pos_2());
-	float rot_y = monster->rot_y();
-	info.Rot = GetRot_y(rot_y);
-	std::string pheros = monster->pheros()->c_str();
+	info.Pos		= GetPosition_Vec2(monster->pos_2());
+	float rot_y		= monster->rot_y();
+	info.Rot		= GetRot_y(rot_y);
 	info.InitPheros(pheros);
 
 	info.Target_Player_Id = monster->target_player_id();

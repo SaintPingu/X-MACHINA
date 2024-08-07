@@ -451,6 +451,9 @@
     <ClInclude Include="include\Script_ExplosiveBullet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\WeaponUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -702,6 +705,9 @@
     <ClCompile Include="src\Script_StageNameUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_PlayerController.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
     <ClCompile Include="src\Script_Ability.cpp">
       <Filter>Script\Abilities</Filter>
     </ClCompile>
@@ -747,8 +753,8 @@
     <ClCompile Include="src\Script_ExplosiveBullet.cpp">
       <Filter>Script\Weapon\Bulltet</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_PlayerController.cpp">
-      <Filter>Script\Player</Filter>
+    <ClCompile Include="src\WeaponUI.cpp">
+      <Filter>Script\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

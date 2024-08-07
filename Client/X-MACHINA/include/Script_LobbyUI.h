@@ -20,7 +20,7 @@ private:
 	sptr<PopupUI> mPopupQuit{};
 
 public:
-	virtual void Start() override;
+	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
 

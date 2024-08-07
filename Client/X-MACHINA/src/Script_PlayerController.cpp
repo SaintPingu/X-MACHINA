@@ -49,8 +49,8 @@ void Script_PlayerController::Start()
 
 	mScript = mObject->GetComponent<Script_PheroPlayer>();
 
-	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -425.f }, Vec2{ 1000.f, 15.f }, mScript->GetMaxHp());
-	mPheroBarUI = std::make_shared<SliderBarUI>("BackgroundPheroBar", "EaseBar", "FillPheroBar", Vec2{ 0.f, -450.f }, Vec2{ 1000.f, 15.f }, mScript->GetMaxPheroAmount());
+	mHpBarUI = std::make_shared<SliderBarUI>("BackgroundHpBar", "EaseBar", "FillHpBar", Vec2{ 0.f, -450.f }, Vec2{ 1000.f, 15.f }, mScript->GetMaxHp());
+	mPheroBarUI = std::make_shared<SliderBarUI>("BackgroundPheroBar", "EaseBar", "FillPheroBar", Vec2{ 0.f, -468.f }, Vec2{ 1000.f, 15.f }, mScript->GetMaxPheroAmount());
 }
 
 void Script_PlayerController::Update()

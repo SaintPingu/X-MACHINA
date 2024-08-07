@@ -270,9 +270,6 @@
     <ClCompile Include="src\SobelFilter.cpp">
       <Filter>소스 파일\PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
     <ClCompile Include="src\DXGIMgr.cpp">
       <Filter>소스 파일\Framework\Device</Filter>
     </ClCompile>
@@ -287,6 +284,9 @@
     </ClCompile>
     <ClCompile Include="src\SoundMgr.cpp">
       <Filter>소스 파일\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>소스 파일\Framework\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

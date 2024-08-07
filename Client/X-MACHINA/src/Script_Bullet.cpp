@@ -74,8 +74,11 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			if (!other->GetCollider()->Intersects(ray, distance)) {
 				continue;
 			}
-			if (otherTag == ObjectTag::Enemy && other->GetComponent<Script_LiveObject>()->IsDead()) {
-				continue;
+			if (otherTag == ObjectTag::Enemy) {
+				const auto& script = other->GetComponent<Script_LiveObject>();
+				if (!script || script->IsDead()) {
+					continue;
+				}
 			}
 
 			if (distance < mMaxDistance) {

@@ -3,8 +3,12 @@
 
 #include "Script_Weapon.h"
 #include "Script_Item.h"
+#include "Script_BattleManager.h"
+#include "Script_BattleUI.h"
 
+#include "BattleScene.h"
 #include "Object.h"
+
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
@@ -108,6 +112,8 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mWeapon->SetActive(true);
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
 		mMuzzle = mWeaponScript->GetMuzzle();
+
+		BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI()->SetWeapon(0, mWeaponScript);
 
 #ifdef SERVER_COMMUNICATION
 		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());

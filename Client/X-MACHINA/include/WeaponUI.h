@@ -5,16 +5,19 @@ class Script_Weapon;
 
 class WeaponUI {
 private:
-	Vec2			mPos{};
-	Script_Weapon*  mWeapon{};
-	UI*				mBackgroundUI{};
-	UI*				mWeaponUI{};
+	wptr<Script_Weapon>  mWeapon{};
+	Vec2 mPos{};
+	UI*	 mBackgroundUI{};
+	UI*	 mWeaponUI{};
 
 public:
 	WeaponUI(const Vec2& position);
 	
 public:
-	void SetWeapon(Script_Weapon* weapon);
+	void SetWeapon(rsptr<Script_Weapon> weapon);
 	void Update();
+
+private:
+	void Reset();
 };
 

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Script_BattleUI.h"
 
+#include "Script_Weapon.h"
+
 #include "WeaponUI.h"
 
 void Script_BattleUI::Awake()
@@ -17,4 +19,13 @@ void Script_BattleUI::Update()
 	for (const auto& weaponUI : mWeaponUIs) {
 		weaponUI->Update();
 	}
+}
+
+void Script_BattleUI::SetWeapon(int idx, rsptr<Script_Weapon> weapon) const
+{
+	if (mWeaponUIs.size() <= idx) {
+		return;
+	}
+
+	mWeaponUIs.at(idx)->SetWeapon(weapon);
 }

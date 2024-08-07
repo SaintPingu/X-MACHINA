@@ -47,7 +47,7 @@ void Script_BattleManager::Awake()
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
 
-	mObject->AddComponent<Script_BattleUI>();
+	mUI = mObject->AddComponent<Script_BattleUI>().get();
 	mObject->AddComponent<Script_AbilityManager>();
 }
 

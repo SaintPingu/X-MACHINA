@@ -145,7 +145,7 @@ void Script_Enemy::SetEnemyStat(const std::string& modelName)
 void Script_Enemy::SetCurrAttackCnt(int attackCnt)
 {
 	mCurrAttackCnt = attackCnt;
-	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
+	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
 }
 
 void Script_Enemy::AttackCallback()

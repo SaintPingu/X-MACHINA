@@ -9,7 +9,7 @@ void Script_BattleUI::Awake()
 {
 	base::Awake();
 
-	mWeaponUIs.emplace_back(std::make_shared<WeaponUI>(Vec2(-700, -350)));
+	mWeaponUIs.emplace_back(std::make_shared<WeaponUI>(Vec2(-700, -350), Vec3(0.8f, 0.8f, 0.2f), "TestPlayer"));
 }
 
 void Script_BattleUI::Update()

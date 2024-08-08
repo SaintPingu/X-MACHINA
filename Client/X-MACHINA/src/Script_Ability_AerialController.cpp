@@ -61,7 +61,7 @@ bool Script_Ability_AerialController::ProcessMouseMsg(UINT messageID, WPARAM wPa
 	{
 		const Vec3 camPos = MAIN_CAMERA->GetPosition();
 		Vec3 firePos = camPos;
-		firePos.y -= 1.5f;
+		firePos.x -= 1.0f;
 
 		const Vec3 ray = MAIN_CAMERA->ScreenToWorldRay(InputMgr::I->GetMousePos());
 		const Vec3 hitPoint = Vector3::RayOnPoint(camPos, ray, 0);

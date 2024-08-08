@@ -13,7 +13,7 @@ float4 PSCanvas(VSOutput_Tex input) : SV_TARGET
 
     if (gObjectCB.UseOutline)
     {
-        color += float4(gObjectCB.HitRimColor, 1.f);
+        color.rgb += color.a * float4(gObjectCB.HitRimColor, 1.f);
     }
     color.a *= gObjectCB.AlphaIntensity;
     

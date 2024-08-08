@@ -109,10 +109,7 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
 		mMuzzle = mWeaponScript->GetMuzzle();
 
-#ifdef SERVER_COMMUNICATION
-		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
-		CLIENT_NETWORK->Send(cpkt); 
-#endif
+		SendCrntWeapon();
 	}
 }
 
@@ -152,6 +149,14 @@ void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 	else {
 		DrawWeaponStart(weaponNum, false);
 	}
+}
+
+void Script_ShootingPlayer::SendCrntWeapon()
+{
+#ifdef SERVER_COMMUNICATION
+	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
+	CLIENT_NETWORK->Send(cpkt);
+#endif
 }
 
 void Script_ShootingPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)

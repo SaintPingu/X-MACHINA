@@ -113,6 +113,7 @@ void SoundMgr::Stop(const std::string& channelName)
 
 	auto& channel = mChannels[channelName];
 	channel->stop();
+	channel->setVolume(0.f);
 }
 
 bool SoundMgr::CheckChannelName(const std::string& channelName)

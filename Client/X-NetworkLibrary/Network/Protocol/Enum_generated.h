@@ -61,12 +61,13 @@ enum WEAPON_TYPE : uint8_t {
   WEAPON_TYPE_BURNOUT = 6,
   WEAPON_TYPE_DIRECT_DRAIN = 7,
   WEAPON_TYPE_SKYLINE = 8,
-  WEAPON_TYPE_END = 9,
+  WEAPON_TYPE_AIR_STRIKE = 9,
+  WEAPON_TYPE_END = 10,
   WEAPON_TYPE_MIN = WEAPON_TYPE_H_LOOK,
   WEAPON_TYPE_MAX = WEAPON_TYPE_END
 };
 
-inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[10] {
+inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[11] {
   static const WEAPON_TYPE values[] = {
     WEAPON_TYPE_H_LOOK,
     WEAPON_TYPE_DBMS,
@@ -77,13 +78,14 @@ inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[10] {
     WEAPON_TYPE_BURNOUT,
     WEAPON_TYPE_DIRECT_DRAIN,
     WEAPON_TYPE_SKYLINE,
+    WEAPON_TYPE_AIR_STRIKE,
     WEAPON_TYPE_END
   };
   return values;
 }
 
 inline const char * const *EnumNamesWEAPON_TYPE() {
-  static const char * const names[11] = {
+  static const char * const names[12] = {
     "H_LOOK",
     "DBMS",
     "STUART",
@@ -93,6 +95,7 @@ inline const char * const *EnumNamesWEAPON_TYPE() {
     "BURNOUT",
     "DIRECT_DRAIN",
     "SKYLINE",
+    "AIR_STRIKE",
     "END",
     nullptr
   };

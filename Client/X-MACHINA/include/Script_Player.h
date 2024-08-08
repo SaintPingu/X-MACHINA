@@ -89,6 +89,8 @@ public:
 
 	virtual void DrawWeapon(int weaponNum);
 
+	void SendCrntWeapon();
+
 protected:
 	int GetCrntWeaponIdx() const { return mCrntWeaponNum - 1; }
 	int GetCrntWeaponNum() const { return mCrntWeaponNum; }

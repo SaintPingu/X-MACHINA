@@ -795,12 +795,13 @@ bool FBsPacketFactory::Process_SPkt_Bullet_OnShoot(SPtr_Session session, const F
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 
 	int  bullet_id = pkt.bullet_id();
-	int  gun_id = pkt.gun_id();
+	int  gun_id    = pkt.gun_id();
 	int  player_id = pkt.player_id();
-	Vec3& ray = GetVector3(pkt.ray());
+	Vec3& ray      = GetVector3(pkt.ray());
+	Vec3& firePos  = GetVector3(pkt.fire_pos());
 
 	std::cout << "Client : ON SHOOT(" << player_id << ") ray : " << ray.x << ", " << ray.y << ", " << ray.z << "\n";
-	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateOnShoot_RemotePlayer(player_id, bullet_id, gun_id, ray);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateOnShoot_RemotePlayer(player_id, bullet_id, gun_id, firePos, ray);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
 
 	return true;
@@ -1152,7 +1153,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_GetPhero(uint32_t phero_id, uint32_t play
 	return SPtr_SendPktBuf();
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 ray)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 pos, Vec3 ray)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	/// table CPkt_Bullet_OnShoot
@@ -1162,9 +1163,10 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 ray)
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	flatbuffers::FlatBufferBuilder builder{};
 
-	auto RayDir = FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+	auto RayDir			= FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+	auto position		= FBProtocol::CreateVector3(builder, pos.x, pos.y, pos.z);
+	auto ServerPacket	= FBProtocol::CreateCPkt_Bullet_OnShoot(builder, position, RayDir);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnShoot(builder, RayDir);
 	builder.Finish(ServerPacket);
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnShoot);
 	return sendBuffer;

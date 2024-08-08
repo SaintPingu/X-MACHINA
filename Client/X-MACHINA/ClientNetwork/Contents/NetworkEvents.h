@@ -114,14 +114,14 @@ namespace NetworkEvent
 
 				int32_t		animation_upper_index = {};
 				int32_t		animation_lower_index = {};
-				float		animation_param_h = {};
-				float		animation_param_v = {};
+				float		animation_param_h     = {};
+				float		animation_param_v     = {};
 			};
 
 			struct UpdateAimRotation : public EventData {
-				uint32_t id = {};
+				uint32_t id             = {};
 				float	 aim_rotation_y = {};
-				float	 spine_angle = {};
+				float	 spine_angle    = {};
 			};
 			/// >> Update Weapon
 			struct UpdateWeapon : public EventData {
@@ -131,25 +131,26 @@ namespace NetworkEvent
 
 			/// >> Update On Shoot 
 			struct UpdateOnShoot : public EventData {
-				uint32_t	id = {};
+				uint32_t	id        = {};
 				int			bullet_id = {};
 				int			weapon_id = {};
-				Vec3		ray = {};
+				Vec3		ray       = {};
+				Vec3		fire_pos  = {};
 			};
 
 			/// >> Update On SKill 
 			struct UpdateOnSkill : public EventData {
-				uint32_t	id = {};
-				float		phero_amount = {};
+				uint32_t	id                           = {};
+				float		phero_amount                 = {};
 				FBProtocol::PLAYER_SKILL_TYPE skill_type = {};
-				int mindControl_monster_id = -1;
+				int mindControl_monster_id               = -1;
 			};
 
 			/// >> Update Player State 
 			struct UpdateState : public EventData {
-				uint32_t id = {};
-				float hp = {};
-				float phero = {};
+				uint32_t id                              = {};
+				float hp                                 = {};
+				float phero                              = {};
 				FBProtocol::PLAYER_STATE_TYPE state_type = FBProtocol::PLAYER_STATE_TYPE::PLAYER_STATE_TYPE_NONE;
 
 			};

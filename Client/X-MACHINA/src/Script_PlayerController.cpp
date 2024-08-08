@@ -132,6 +132,9 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			break;
 		case 'M':
 			mAbilityAerialController->Toggle();
+			if (!mAbilityAerialController->IsActiveState()) {
+				mScript->SendCrntWeapon();
+			}
 			break;
 
 			// cheats //

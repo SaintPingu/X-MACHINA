@@ -10,6 +10,7 @@ class Transform;
 class GridObject;
 class AnimatorController;
 class AnimatorMotion;
+class Airstrike;
 
 
 /// +-------------------------------------------------
@@ -78,6 +79,7 @@ private:
 	std::unordered_map<WeaponName, GridObject*> mWeapons{};
 	std::unordered_map<GridObject*, sptr<Script_Weapon>> mWeaponScripts{};
 	GridObject* mCrntWeapon{};
+	sptr<Airstrike> mAirstrike{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
@@ -128,7 +130,7 @@ public:
 	void UpdateParams();
 	void UpdateParam(float val, float& param);
 
-	void FireBullet();
+	void FireBullet(const Vec3& firePos, const Vec3& look);
 	
 
 	/// +-------------------------------------------------

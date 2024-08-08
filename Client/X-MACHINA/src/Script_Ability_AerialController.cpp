@@ -16,7 +16,8 @@
 #include "Texture.h"
 #include "Object.h"
 #include "SoundMgr.h"
-
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
 void Script_Ability_AerialController::Awake()
 {
 	base::Awake();
@@ -83,7 +84,12 @@ void Script_Ability_AerialController::On()
 	mAerialCamera->SetActive(true);
 	mAirstrike->On();
 	ChangeAimToActive();
-	SoundMgr::I->Play("Env", "AerialController");
+	SoundMgr::I->Play("Ability", "AerialController");
+
+#ifdef SERVER_COMMUNICATION
+	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE_AIR_STRIKE);
+	CLIENT_NETWORK->Send(cpkt);
+#endif
 }
 
 void Script_Ability_AerialController::Off()
@@ -93,7 +99,7 @@ void Script_Ability_AerialController::Off()
 
 	mAerialCamera->SetActive(false);
 	ChangeAimToOrigin();
-	SoundMgr::I->Stop("Env");
+	SoundMgr::I->Stop("Ability");
 }
 
 void Script_Ability_AerialController::ChangeAimToOrigin()

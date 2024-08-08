@@ -11,6 +11,9 @@
 #include "SoundMgr.h"
 #include "Timer.h"
 
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 
 void Airstrike::Init()
 {
@@ -81,6 +84,15 @@ void Airstrike::StartFire(const Vec3& pos, const Vec3& dir)
 	mCurFireDelay = 0;
 }
 
+void Airstrike::Fire(const Vec3& pos, const Vec3& dir)
+{
+	const auto& missile = mMissilePool->Get(true);
+	if (missile) {
+		auto& missileScript = missile->GetComponent<Script_Missile>();
+		missileScript->Fire(pos, dir);
+	}
+}
+
 
 void Airstrike::CreateMissilePool()
 {
@@ -99,6 +111,11 @@ void Airstrike::Fire()
 		if (mFireSound != "") {
 			SoundMgr::I->Play("Gun", mFireSound);
 		}
+
+#ifdef SERVER_COMMUNICATION
+		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(missile->GetPosition(), missile->GetLook());
+		CLIENT_NETWORK->Send(cpkt);
+#endif
 	}
 }
 

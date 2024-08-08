@@ -426,6 +426,10 @@ void Script_GroundPlayer::InitWeaponAnimations()
 		WeaponName weaponName = static_cast<WeaponName>(i);
 		WeaponType weaponType = gkWeaponTypeMap.at(weaponName);
 
+		if (!kReloadMotions.count(weaponType)) {
+			continue;
+		}
+
 		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponName)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
 		const auto& drawMotion = mController->FindMotionByName(kDrawMotions.at(weaponType), "Body");
 		const auto& putbackMotion = mController->FindMotionByName(kPutbackMotions.at(weaponType), "Body");
@@ -495,9 +499,6 @@ void Script_GroundPlayer::BulletFired()
 
 	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(objYAngle, spineYAngle);
 	CLIENT_NETWORK->Send(pkt);
-
-	auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(mMuzzle->GetLook());
-	CLIENT_NETWORK->Send(cpkt);
 #endif
 }
 

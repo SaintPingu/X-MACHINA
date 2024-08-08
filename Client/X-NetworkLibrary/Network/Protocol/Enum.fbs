@@ -26,6 +26,7 @@ enum WEAPON_TYPE : ubyte {
 	BURNOUT,
 	DIRECT_DRAIN,
 	SKYLINE,
+	AIR_STRIKE,
 	END
 }
 

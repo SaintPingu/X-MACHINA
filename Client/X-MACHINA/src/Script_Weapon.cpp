@@ -206,7 +206,9 @@ std::string Script_Weapon::GetWeaponModelName(WeaponName weaponName)
 		{WeaponName::MineLauncher, "SM_SciFiLightingGun" },
 	};
 
-	assert(kWeaponMaps.count(weaponName));
+	if (!kWeaponMaps.count(weaponName)) {
+		return "";
+	}
 
 	return kWeaponMaps.at(weaponName);
 }
@@ -268,6 +270,13 @@ void Script_BulletWeapon::FireBullet()
 		if (mFireSound != "") {
 			SoundMgr::I->Play("Gun", mFireSound);
 		}
+
+#ifdef SERVER_COMMUNICATION
+		if (IsPlayerWeapon()) {
+			auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(bullet->GetPosition(), bullet->GetLook());
+			CLIENT_NETWORK->Send(cpkt);
+		}
+#endif
 	}
 }
 

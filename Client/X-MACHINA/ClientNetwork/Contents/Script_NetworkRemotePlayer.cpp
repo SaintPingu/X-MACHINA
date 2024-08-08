@@ -8,6 +8,7 @@
 #include "Script_Weapon_Sniper.h"
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_Weapon_MineLauncher.h"
+#include "Airstrike.h"
 
 #include "Timer.h"
 #include "Object.h"
@@ -34,7 +35,11 @@ void Script_NetworkRemotePlayer::Awake()
 
 	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
 		WeaponName weaponName = static_cast<WeaponName>(i);
-		std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
+		const std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
+
+		if (weaponModelName == "") {
+			continue;
+		}
 
 		auto& weapon = mWeapons[weaponName] = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Untagged, false);
 
@@ -71,6 +76,9 @@ void Script_NetworkRemotePlayer::Awake()
 			break;
 		}
 	}
+
+	mAirstrike = std::make_shared<Airstrike>();
+	mAirstrike->Init();
 }
 
 void Script_NetworkRemotePlayer::Update()
@@ -225,7 +233,9 @@ float Script_NetworkRemotePlayer::Distance(const Vec3& v1, const Vec3& v2)
 
 void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType)
 {
-	mWeapons[mCurrWeaponName]->SetActive(false);
+	if (mCrntWeapon) {
+		mCrntWeapon->SetActive(false);
+	}
 
 	switch (weaponType)
 	{
@@ -244,13 +254,18 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 	case FBProtocol::WEAPON_TYPE_SKYLINE:
 		mCurrWeaponName = WeaponName::SkyLine;
 		break;
+	case FBProtocol::WEAPON_TYPE_AIR_STRIKE:
+		mCurrWeaponName = WeaponName::Airstrike;
+		break;
 	default:
 		mCrntWeapon = nullptr;
 		return;
 	}
 
-	mCrntWeapon = mWeapons[mCurrWeaponName];
-	mCrntWeapon->SetActive(true);
+	if (mWeapons.count(mCurrWeaponName)) {
+		mCrntWeapon = mWeapons[mCurrWeaponName];
+		mCrntWeapon->SetActive(true);
+	}
 }
 
 
@@ -425,13 +440,20 @@ void Script_NetworkRemotePlayer::UpdateParam(float val, float& param)
 	param = std::clamp(param, -1.f, 1.f);		// -1 ~ 1 ���̷� ����
 }
 
-void Script_NetworkRemotePlayer::FireBullet()
+void Script_NetworkRemotePlayer::FireBullet(const Vec3& firePos, const Vec3& look)
 {
 	if (!mCrntWeapon) {
 		return;
 	}
 
-	++mFireCnt;
+	if (mCurrWeaponName == WeaponName::Airstrike) {
+		if (mAirstrike) {
+			mAirstrike->Fire(firePos, look);
+		}
+	}
+	else {
+		++mFireCnt;
+	}
 }
 
 void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon)

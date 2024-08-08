@@ -39,6 +39,7 @@ public:
 	void On();
 
 	void StartFire(const Vec3& pos, const Vec3& dir);
+	void Fire(const Vec3& pos, const Vec3& dir); // for remote player
 
 private:
 	void CreateMissilePool();

@@ -2206,13 +2206,19 @@ inline ::flatbuffers::Offset<SPkt_GetPhero> CreateSPkt_GetPhero(
 struct CPkt_Bullet_OnShoot FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_Bullet_OnShootBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_RAY = 4
+    VT_POS = 4,
+    VT_RAY = 6
   };
+  const FBProtocol::Vector3 *pos() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_POS);
+  }
   const FBProtocol::Vector3 *ray() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_RAY);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_POS) &&
+           verifier.VerifyTable(pos()) &&
            VerifyOffset(verifier, VT_RAY) &&
            verifier.VerifyTable(ray()) &&
            verifier.EndTable();
@@ -2223,6 +2229,9 @@ struct CPkt_Bullet_OnShootBuilder {
   typedef CPkt_Bullet_OnShoot Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_pos(::flatbuffers::Offset<FBProtocol::Vector3> pos) {
+    fbb_.AddOffset(CPkt_Bullet_OnShoot::VT_POS, pos);
+  }
   void add_ray(::flatbuffers::Offset<FBProtocol::Vector3> ray) {
     fbb_.AddOffset(CPkt_Bullet_OnShoot::VT_RAY, ray);
   }
@@ -2239,9 +2248,11 @@ struct CPkt_Bullet_OnShootBuilder {
 
 inline ::flatbuffers::Offset<CPkt_Bullet_OnShoot> CreateCPkt_Bullet_OnShoot(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<FBProtocol::Vector3> pos = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> ray = 0) {
   CPkt_Bullet_OnShootBuilder builder_(_fbb);
   builder_.add_ray(ray);
+  builder_.add_pos(pos);
   return builder_.Finish();
 }
 
@@ -2251,7 +2262,8 @@ struct SPkt_Bullet_OnShoot FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     VT_PLAYER_ID = 4,
     VT_GUN_ID = 6,
     VT_BULLET_ID = 8,
-    VT_RAY = 10
+    VT_FIRE_POS = 10,
+    VT_RAY = 12
   };
   uint32_t player_id() const {
     return GetField<uint32_t>(VT_PLAYER_ID, 0);
@@ -2262,6 +2274,9 @@ struct SPkt_Bullet_OnShoot FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   uint32_t bullet_id() const {
     return GetField<uint32_t>(VT_BULLET_ID, 0);
   }
+  const FBProtocol::Vector3 *fire_pos() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_FIRE_POS);
+  }
   const FBProtocol::Vector3 *ray() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_RAY);
   }
@@ -2270,6 +2285,8 @@ struct SPkt_Bullet_OnShoot FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
            VerifyField<uint32_t>(verifier, VT_PLAYER_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_GUN_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_BULLET_ID, 4) &&
+           VerifyOffset(verifier, VT_FIRE_POS) &&
+           verifier.VerifyTable(fire_pos()) &&
            VerifyOffset(verifier, VT_RAY) &&
            verifier.VerifyTable(ray()) &&
            verifier.EndTable();
@@ -2288,6 +2305,9 @@ struct SPkt_Bullet_OnShootBuilder {
   }
   void add_bullet_id(uint32_t bullet_id) {
     fbb_.AddElement<uint32_t>(SPkt_Bullet_OnShoot::VT_BULLET_ID, bullet_id, 0);
+  }
+  void add_fire_pos(::flatbuffers::Offset<FBProtocol::Vector3> fire_pos) {
+    fbb_.AddOffset(SPkt_Bullet_OnShoot::VT_FIRE_POS, fire_pos);
   }
   void add_ray(::flatbuffers::Offset<FBProtocol::Vector3> ray) {
     fbb_.AddOffset(SPkt_Bullet_OnShoot::VT_RAY, ray);
@@ -2308,9 +2328,11 @@ inline ::flatbuffers::Offset<SPkt_Bullet_OnShoot> CreateSPkt_Bullet_OnShoot(
     uint32_t player_id = 0,
     uint32_t gun_id = 0,
     uint32_t bullet_id = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> fire_pos = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> ray = 0) {
   SPkt_Bullet_OnShootBuilder builder_(_fbb);
   builder_.add_ray(ray);
+  builder_.add_fire_pos(fire_pos);
   builder_.add_bullet_id(bullet_id);
   builder_.add_gun_id(gun_id);
   builder_.add_player_id(player_id);
@@ -2321,10 +2343,14 @@ struct CPkt_Bullet_OnHitEnemy FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   typedef CPkt_Bullet_OnHitEnemyBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MONSTER_ID = 4,
-    VT_RAY = 6
+    VT_FIRE_POS = 6,
+    VT_RAY = 8
   };
   int32_t monster_id() const {
     return GetField<int32_t>(VT_MONSTER_ID, 0);
+  }
+  const FBProtocol::Vector3 *fire_pos() const {
+    return GetPointer<const FBProtocol::Vector3 *>(VT_FIRE_POS);
   }
   const FBProtocol::Vector3 *ray() const {
     return GetPointer<const FBProtocol::Vector3 *>(VT_RAY);
@@ -2332,6 +2358,8 @@ struct CPkt_Bullet_OnHitEnemy FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_MONSTER_ID, 4) &&
+           VerifyOffset(verifier, VT_FIRE_POS) &&
+           verifier.VerifyTable(fire_pos()) &&
            VerifyOffset(verifier, VT_RAY) &&
            verifier.VerifyTable(ray()) &&
            verifier.EndTable();
@@ -2344,6 +2372,9 @@ struct CPkt_Bullet_OnHitEnemyBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_monster_id(int32_t monster_id) {
     fbb_.AddElement<int32_t>(CPkt_Bullet_OnHitEnemy::VT_MONSTER_ID, monster_id, 0);
+  }
+  void add_fire_pos(::flatbuffers::Offset<FBProtocol::Vector3> fire_pos) {
+    fbb_.AddOffset(CPkt_Bullet_OnHitEnemy::VT_FIRE_POS, fire_pos);
   }
   void add_ray(::flatbuffers::Offset<FBProtocol::Vector3> ray) {
     fbb_.AddOffset(CPkt_Bullet_OnHitEnemy::VT_RAY, ray);
@@ -2362,9 +2393,11 @@ struct CPkt_Bullet_OnHitEnemyBuilder {
 inline ::flatbuffers::Offset<CPkt_Bullet_OnHitEnemy> CreateCPkt_Bullet_OnHitEnemy(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t monster_id = 0,
+    ::flatbuffers::Offset<FBProtocol::Vector3> fire_pos = 0,
     ::flatbuffers::Offset<FBProtocol::Vector3> ray = 0) {
   CPkt_Bullet_OnHitEnemyBuilder builder_(_fbb);
   builder_.add_ray(ray);
+  builder_.add_fire_pos(fire_pos);
   builder_.add_monster_id(monster_id);
   return builder_.Finish();
 }

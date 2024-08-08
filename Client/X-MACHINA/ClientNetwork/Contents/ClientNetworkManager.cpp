@@ -473,16 +473,17 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> ClientNetworkManager:
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> ClientNetworkManager::CreateEvent_UpdateOnShoot_RemotePlayer(uint32_t remID, int bullet_id, int weapon_id, Vec3 ray)
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> ClientNetworkManager::CreateEvent_UpdateOnShoot_RemotePlayer(uint32_t remID, int bullet_id, int weapon_id, Vec3 fire_pos, Vec3 ray)
 {
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot>();
 
 	Event->type = NetworkEvent::Game::RemotePlayerType::OnShoot;
 
-	Event->id = remID;
+	Event->id        = remID;
 	Event->bullet_id = bullet_id;
 	Event->weapon_id = weapon_id;
-	Event->ray = ray;
+	Event->ray       = ray;
+	Event->fire_pos  = fire_pos;
 
 	return Event;
 }
@@ -731,6 +732,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent:
 	uint32_t	player_id = data->id;
 	int			bullet_id = data->bullet_id;
 	int			weapon_id = data->weapon_id;
+	Vec3		firePos = data->fire_pos; // Remote Player 가 발사한 총알 방향  
 	Vec3		ray = data->ray; // Remote Player 가 발사한 총알 방향  
 
 	GridObject* player = mRemotePlayers[player_id];
@@ -739,7 +741,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent:
 
 		// 현재 RemotePlayer 가 들고 있는 무기 이름 
 		WeaponName currWeaponName = script_NRP->GetCurrWeaponName();
-		script_NRP->FireBullet();
+		script_NRP->FireBullet(firePos, ray);
 	}
 	// TODO: Remote PLayer 가 총을 쏘게 한다
 }

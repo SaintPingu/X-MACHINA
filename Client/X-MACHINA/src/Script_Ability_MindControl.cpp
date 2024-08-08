@@ -181,6 +181,9 @@ void Script_Ability_MindControl::Click()
 			return;
 		}
 
+		// TODO : send
+		
+
 		ActiveMindControlledEnemyBT();
 		mCurrControlledObjectCnt--;
 	}

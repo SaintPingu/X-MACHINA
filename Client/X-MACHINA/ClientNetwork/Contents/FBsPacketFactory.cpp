@@ -1172,13 +1172,15 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 pos, Vec3 ray)
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 ray)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 fire_pos, Vec3 ray)
 {
 	flatbuffers::FlatBufferBuilder builder{};
 
 	auto RayDir = FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+	auto firePos = FBProtocol::CreateVector3(builder, fire_pos.x, fire_pos.y, fire_pos.z);
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnHitEnemy(builder, monster_id, RayDir);
+
+	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnHitEnemy(builder, monster_id, firePos, RayDir);
 	builder.Finish(ServerPacket);
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnHitEnemy);
 	return sendBuffer;

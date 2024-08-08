@@ -92,7 +92,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			mParticleType = BulletPSType::Explosion;
 			if (mIsPlayerBullet) {
 				// TODO : send onhit packet here
-				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitEnemy(enemy->GetObj()->GetID(), mObject->GetLook());
+				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitEnemy(enemy->GetObj()->GetID(), mObject->GetPosition(), mObject->GetLook());
 				CLIENT_NETWORK->Send(cpkt);
 			}
 		}

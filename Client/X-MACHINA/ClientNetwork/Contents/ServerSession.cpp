@@ -44,6 +44,8 @@ void ServerSession::OnDisconnected()
 
 void ServerSession::OnSend(UINT32 len)
 {
+	int i = 0;
+
 }
 
 UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)

@@ -985,7 +985,6 @@ void ClientNetworkManager::ProcessEvent_Phero_Get(NetworkEvent::Game::Event_Pher
 	UINT32 playerID = data->player_id;
 
 	if (!mRemotePheros.count(pheroID)) {
-		assert(0);
 		return;
 	}
 

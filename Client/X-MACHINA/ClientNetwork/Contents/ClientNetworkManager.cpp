@@ -167,7 +167,6 @@ void ClientNetworkManager::ProcessEvents()
 
 		mSceneEvnetQueue[FrontIdx].EventsQueue.try_pop(EventData);
 		if (EventData == nullptr) continue;
-		//LOG_MGR->Cout("EVENT TYPE : (1-Add) (2-Mov) (3-Rem)", EventData->type, "\n");
 
 		switch (EventData->type)
 		{
@@ -626,13 +625,10 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 	remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
 
 	mRemotePlayers[static_cast<UINT32>(data->Id)] = remotePlayer;
-	//std::cout << "Process Event : Add_RemotePlayer - " << remotePlayer << std::endl;
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data)
 {
-	std::cout << "RemoveOtherPlayer \n";
-
 	if (!mRemotePlayers.count(data->Id)) {
 		return;
 	}
@@ -646,10 +642,6 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Ev
 	if (mRemotePlayers.count(data->Id)) {
 		GridObject* player = mRemotePlayers[data->Id];
 		player->GetComponent<Script_NetworkRemotePlayer>()->SetPacketPos(data->Pos);
-		//player->SetPosition(data->RemoteP_Pos);
-	}
-	else {
-		LOG_MGR->Cout("Player - ", data->Id, "Not Existed\n");
 	}
 }
 
@@ -750,11 +742,6 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent:
 		script_NRP->FireBullet();
 	}
 	// TODO: Remote PLayer 가 총을 쏘게 한다
-
-	LOG_MGR->Cout(player_id, " OnShoot : ", ray.x, " ", ray.y, " ", ray.z, '\n');
-
-
-
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data)
@@ -802,7 +789,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		// 몬스터가 이미 생성된 적이 있다면 
 		if (mRemoteMonsters.count(monsterID)) {
 			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
-			mRemoteMonsters[monsterID]->SetState(monBtType);
+			//mRemoteMonsters[monsterID]->SetState(monBtType);
 			mRemoteMonsters[monsterID]->SetPosition(position);
 			mRemoteMonsters[monsterID]->SetLocalRotation(Rotation);
 
@@ -891,9 +878,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		}
 
 		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
-		mRemoteMonsters[monsterID]->SetState(monBtType);
-
-		//std::cout << "MONSTER ADD ! " << static_cast<uint8_t>(monInfos[i].Type) << " \n";
+		//mRemoteMonsters[monsterID]->SetState(monBtType);
 	}
 
 
@@ -938,11 +923,12 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
-		/*if ((Pos - mRemoteMonsters[ID]->GetPosition()).Length() >= 1.f)
-			mRemoteMonsters[ID]->SetPosition(Pos);*/
-		mRemoteMonsters[ID]->SetPosition(Pos);
+		if ((Pos - mRemoteMonsters[ID]->GetPosition()).Length() >= 1.f) {
+			mRemoteMonsters[ID]->SetPosition(Pos);
+			mRemoteMonsters[ID]->SetRotation(Angle);
+		}
+		//mRemoteMonsters[ID]->SetPosition(Pos);
 
-		mRemoteMonsters[ID]->SetRotation(Angle);
 		//mRemoteMonsters[ID]->SetTarget(nullptr);
 		//mRemoteMonsters[ID]->SetState(EnemyState::Idle);
 	}
@@ -956,6 +942,7 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 	for (int i = 0; i < data->Mons.size(); ++i) {
 		uint32_t					ID = data->Mons[i].Id;
 		FBProtocol::MONSTER_BT_TYPE type = data->Mons[i].state;
+		int32_t bt_step = data->Mons[i].step;
 
 		if (!mRemoteMonsters.count(ID))
 			continue;
@@ -964,7 +951,7 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 			continue;
 		}
 
-		mRemoteMonsters[ID]->SetState(type);
+		mRemoteMonsters[ID]->SetState(type, bt_step);
 	}
 }
 
@@ -981,7 +968,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 		if (!mRemotePlayers.count(target_player_id))
 			continue;
 
-		//std::cout << "target : " << target_player_id << "\n";
 		if (target_player_id == 0) {
 			mRemoteMonsters[monster_id]->SetTarget(nullptr);
 		}
@@ -997,16 +983,13 @@ void ClientNetworkManager::ProcessEvent_Phero_Get(NetworkEvent::Game::Event_Pher
 	UINT32 playerID = data->player_id;
 
 	if (!mRemotePheros.count(pheroID)) {
-		std::cout << "No pheroID : " << pheroID << ", ";
+		assert(0);
 		return;
 	}
 
 	if (!mRemotePlayers.count(playerID)) {
 		return;
 	}
-
-	std::cout << "pheroID : " << pheroID << ", ";
-	std::cout << "targetID : " << playerID << "\n";
 
 	mRemotePheros[pheroID]->SetTarget(mRemotePlayers[playerID]);
 }

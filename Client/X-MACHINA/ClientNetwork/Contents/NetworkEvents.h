@@ -195,6 +195,7 @@ namespace NetworkEvent
 			struct MonsterUpdateState {
 				uint32_t Id;
 				FBProtocol::MONSTER_BT_TYPE state;
+				int32_t step;
 			};
 			struct UpdateState : public EventData {
 				std::vector<MonsterUpdateState> Mons;

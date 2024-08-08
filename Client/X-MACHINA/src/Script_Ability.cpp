@@ -50,7 +50,9 @@ void Script_Ability::Toggle()
 		SetActive(true);
 		break;
 	case State::Active:
-		SetActive(false);
+		if (mType != Type::Cooldown) {
+			SetActive(false);
+		}
 		break;
 	case State::Cooldown:
 		break;
@@ -198,7 +200,7 @@ void Script_RenderedAbility::Render()
 void Script_RenderedAbility::UpdateAbilityCB(float activeTime)
 {
 	mAbilityCB.ActiveTime = mMaxActiveTime;
-	mAbilityCB.AccTime = mCurActiveTime;
+	mAbilityCB.AccTime = mMaxActiveTime - mCurActiveTime;
 
 	BattleScene::I->UpdateAbilityCB(mAbilityCBIdx, mAbilityCB);
 }

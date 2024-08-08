@@ -77,6 +77,7 @@ void BattleScene::Build()
 
 	// load models
 	LoadSceneObjects();
+	auto a = RESOURCE<Texture>("T_Tech_Hex_Tile_M");
 
 	// build settings
 	BuildTerrain();

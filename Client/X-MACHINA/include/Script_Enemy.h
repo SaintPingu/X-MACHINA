@@ -17,6 +17,15 @@ class Script_EnemyManager;
 class Script_Enemy abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Enemy, Script_LiveObject)
 
+protected:
+	struct AttackType {
+		static constexpr int None = 0;
+		static constexpr int BasicAttack = 1;
+
+		static constexpr int _count = 2;
+	};
+	int mCurrAttackCnt{};
+
 private:
 	std::string mAttackSound{};
 	std::string mDeathSound{};
@@ -33,6 +42,7 @@ public:
 	virtual void OnDestroy() override;
 
 public:
+	virtual void StartAttack();
 	virtual void Attack();
 	virtual void Dead() override;
 	virtual void Detect();
@@ -40,6 +50,7 @@ public:
 
 public:
 	void SetEnemyStat(const std::string& modelName);
+	void SetCurrAttackCnt(int attackCnt);
 
 	void SetAttackSound(const std::string& sound) { mAttackSound = sound; }
 	void SetDeathSound(const std::string& sound) { mDeathSound = sound; }

@@ -72,7 +72,6 @@ void Script_Enemy::Update()
 
 void Script_Enemy::OnDestroy()
 {
-	CLIENT_NETWORK->EraseMonster(mObject->GetID());
 	mObject->mObjectCB.HitRimFactor = std::max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
 
 	if (mNoTarget) {
@@ -88,10 +87,19 @@ void Script_Enemy::OnDestroy()
 	}
 }
 
+void Script_Enemy::StartAttack()
+{
+	if (mCurrAttackCnt == AttackType::None) {
+		mCurrAttackCnt = AttackType::BasicAttack;
+	}
+
+	mEnemyMgr->RemoveAllAnimation();
+	mEnemyMgr->mState = EnemyState::Attack;
+	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
+}
+
 void Script_Enemy::Attack()
 {
-	mEnemyMgr->RemoveAllAnimation();
-	mEnemyMgr->mController->SetValue("Attack", true);
 }
 
 void Script_Enemy::Dead()
@@ -134,6 +142,12 @@ void Script_Enemy::SetEnemyStat(const std::string& modelName)
 	XLManager::I->Set(modelName, mEnemyMgr->mStat);
 }
 
+void Script_Enemy::SetCurrAttackCnt(int attackCnt)
+{
+	mCurrAttackCnt = attackCnt;
+	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
+}
+
 void Script_Enemy::AttackCallback()
 {
 	if (!mEnemyMgr->mTarget) {
@@ -154,8 +168,6 @@ void Script_Enemy::AttackCallback()
 
 void Script_Enemy::AttackEndCallback()
 {
-	//mEnemyMgr->mController->SetValue("Attack", false);
-	//mEnemyMgr->mState = EnemyState::Idle;
 }
 
 void Script_Enemy::DeathEndCallback()

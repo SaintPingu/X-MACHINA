@@ -36,15 +36,12 @@ void Script_MiningMech::Start()
 void Script_MiningMech::LateUpdate()
 {
 	base::LateUpdate();
-
-	mEnemyMgr->mController->SetValue("IsAttack", false);
 }
 
 void Script_MiningMech::Attack()
 {
 	mEnemyMgr->RemoveAllAnimation();
 	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
-	mEnemyMgr->mController->SetValue("IsAttack", true);
 }
 
 void Script_MiningMech::DiggerAttackCallback()
@@ -57,9 +54,7 @@ void Script_MiningMech::DrillAttackCallback()
 
 void Script_MiningMech::SmashAttackStartCallback()
 {
-	if (mEnemyMgr->mController->GetParamValue<bool>("IsAttack")) {
-		mIndicator.lock()->SetActive(true);
-	}
+	mIndicator.lock()->SetActive(true);
 }
 
 void Script_MiningMech::SmashAttackCallback()
@@ -79,6 +74,5 @@ void Script_MiningMech::AttackEndCallback()
 	mCurrAttackCnt %= AttackTypeCount;
 
 	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
-	mEnemyMgr->mController->SetValue("IsAttack", false);
 	mEnemyMgr->mState = EnemyState::Idle;
 }

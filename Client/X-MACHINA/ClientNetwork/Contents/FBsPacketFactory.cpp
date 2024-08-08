@@ -700,15 +700,17 @@ bool FBsPacketFactory::Process_SPkt_Monster_State(SPtr_Session session, const FB
 	/// > }
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 
-	uint32_t						monster_id = pkt.monster_id();
-	FBProtocol::MONSTER_BT_TYPE		state_type = pkt.monster_bt_type();
+	uint32_t						monster_id	= pkt.monster_id();
+	FBProtocol::MONSTER_BT_TYPE		state_type	= pkt.monster_bt_type();
+	int32_t							bt_step		= pkt.monster_bt_step();
 
-	LOG_MGR->Cout(monster_id, " - ", "Process SPkt Monster State : ", static_cast<int>(state_type), "\n");
+	//LOG_MGR->Cout(monster_id, " - ", "Process SPkt Monster State : ", static_cast<int>(state_type), "\n");
 
 	std::vector<NetworkEvent::Game::Event_Monster::MonsterUpdateState> infos;
 	NetworkEvent::Game::Event_Monster::MonsterUpdateState info;
 	info.Id = monster_id;
 	info.state = state_type;
+	info.step = bt_step;
 	infos.push_back(info);
 
 	sptr<NetworkEvent::Game::Event_Monster::UpdateState> Ext_EventData = CLIENT_NETWORK->CreateEvent_UpdateState_Monster(infos);

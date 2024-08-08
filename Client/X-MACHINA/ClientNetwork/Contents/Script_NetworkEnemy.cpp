@@ -2,31 +2,16 @@
 #include "Script_NetworkEnemy.h"
 #include "Timer.h"
 #include "Script_EnemyManager.h"
+#include "Script_Enemy.h"
 #include "GameFramework.h"
 #include "Object.h"
 #include "ClientNetworkManager.h"
 #include "AnimatorController.h"
 
-void Script_NetworkEnemy::Awake()
+
+EnemyState Script_NetworkEnemy::GetState()
 {
-	base::Awake();
-
-	mEnemyMgr = mObject->GetComponent<Script_EnemyManager>().get();
-	mDeathRemoveTime = 4.f;
-}
-
-void Script_NetworkEnemy::Update()
-{
-	base::Update();
-
-	if (mEnemyMgr->mState == EnemyState::MoveToTarget)
-		MoveToTarget();
-	else if (mEnemyMgr->mState == EnemyState::Attack)
-		Attack();
-	else if (mEnemyMgr->mState == EnemyState::Idle)
-		Idle();
-	else if (mEnemyMgr->mState == EnemyState::Death)
-		Death();
+	return mEnemyMgr->mState;
 }
 
 void Script_NetworkEnemy::SetPosition(const Vec3& pos)
@@ -45,65 +30,70 @@ void Script_NetworkEnemy::SetLocalRotation(const Quat& quat)
 	mObject->SetLocalRotation(quat);
 }
 
-void Script_NetworkEnemy::SetState(EnemyState state)
+void Script_NetworkEnemy::SetState(EnemyState state, int attackCnt)
 {
 	mEnemyMgr->mState = state;
+	SetCurrAttackCnt(attackCnt);
 
-	//switch (mEnemyMgr->mState)
-	//{
-	//case EnemyState::Idle:
-	//	std::cout << "Idle" << std::endl;
-	//	break;
-	//case EnemyState::Walk:
-	//	std::cout << "Walk" << std::endl;
-	//	break;
-	//case EnemyState::GetHit:
-	//	std::cout << "GetHit" << std::endl;
-	//	break;
-	//case EnemyState::Attack:
-	//	std::cout << "Attack" << std::endl;
-	//	break;
-	//case EnemyState::Death:
-	//	std::cout << "Death" << std::endl;
-	//	break;
-	//case EnemyState::MoveToTarget:
-	//	std::cout << "MoveToTarget" << std::endl;
-	//	break;
-	//case EnemyState::MoveToPath:
-	//	std::cout << "MoveToPath" << std::endl;
-	//	break;
-	//case EnemyState::Patrol:
-	//	std::cout << "Patrol" << std::endl;
-	//	break;
-	//default:
-	//	break;
-	//}
+	switch (mEnemyMgr->mState)
+	{
+	case EnemyState::Idle:
+		std::cout << "Idle" << std::endl;
+		break;
+	case EnemyState::Walk:
+		std::cout << "Walk" << std::endl;
+		break;
+	case EnemyState::GetHit:
+		std::cout << "GetHit" << std::endl;
+		break;
+	case EnemyState::Attack:
+		std::cout << "Attack" << std::endl;
+		break;
+	case EnemyState::Death:
+		std::cout << "Death" << std::endl;
+		break;
+	case EnemyState::MoveToTarget:
+		std::cout << "MoveToTarget" << std::endl;
+		break;
+	case EnemyState::MoveToPath:
+		std::cout << "MoveToPath" << std::endl;
+		break;
+	case EnemyState::Patrol:
+		std::cout << "Patrol" << std::endl;
+		break;
+	default:
+		break;
+	}
 }
 
-void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType)
+void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType, int attackCnt)
 {
 	switch (btType)
 	{
 	case FBProtocol::MONSTER_BT_TYPE_DEATH:
-		SetState(EnemyState::Death);
+		SetState(EnemyState::Death, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_ATTACK:
-		SetState(EnemyState::Attack);
+		mEnemy->StartAttack();
+		SetState(EnemyState::Attack, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_GETHIT:
-		SetState(EnemyState::GetHit);
+		SetState(EnemyState::GetHit, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_TARGET:
-		SetState(EnemyState::MoveToTarget);
+		mEnemyMgr->mController->SetValue("Walk", true);
+		SetState(EnemyState::MoveToTarget, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_PATH:
-		SetState(EnemyState::MoveToPath);
+		mEnemyMgr->mController->SetValue("Walk", true);
+		SetState(EnemyState::MoveToPath, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_PATROL:
-		SetState(EnemyState::Patrol);
+		mEnemyMgr->mController->SetValue("Walk", true);
+		SetState(EnemyState::Patrol, attackCnt);
 		break;
 	default:
-		SetState(EnemyState::Idle);
+		SetState(EnemyState::Idle, attackCnt);
 		break;
 	}
 }
@@ -113,14 +103,38 @@ void Script_NetworkEnemy::SetTarget(Object* target)
 	mEnemyMgr->mTarget = target;
 }
 
+void Script_NetworkEnemy::SetCurrAttackCnt(int attackCnt)
+{
+	mEnemy->SetCurrAttackCnt(attackCnt);
+}
+
 void Script_NetworkEnemy::SetActiveMyObject(bool isActive)
 {
 	mObject->SetActive(isActive);
 }
 
-EnemyState Script_NetworkEnemy::GetState()
+void Script_NetworkEnemy::Awake()
 {
-	return mEnemyMgr->mState;
+	base::Awake();
+
+	mEnemyMgr = mObject->GetComponent<Script_EnemyManager>().get();
+	mEnemy = mObject->GetComponent<Script_Enemy>().get();
+
+	mDeathRemoveTime = 4.f;
+}
+
+void Script_NetworkEnemy::Update()
+{
+	base::Update();
+
+	if (mEnemyMgr->mState == EnemyState::MoveToTarget)
+		MoveToTarget();
+	else if (mEnemyMgr->mState == EnemyState::Attack)
+		Attack();
+	else if (mEnemyMgr->mState == EnemyState::Idle)
+		Idle();
+	else if (mEnemyMgr->mState == EnemyState::Death)
+		Death();
 }
 
 void Script_NetworkEnemy::MoveToTarget()
@@ -148,9 +162,6 @@ void Script_NetworkEnemy::MoveToTarget()
 		mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.RotationSpeed);
 		mObject->Translate(mObject->GetLook(), mEnemyMgr->mStat.MoveSpeed * DeltaTime());
 	}
-
-	mEnemyMgr->mController->SetValue("Attack", false);
-	mEnemyMgr->mController->SetValue("Walk", true);
 }
 
 void Script_NetworkEnemy::Attack()
@@ -160,8 +171,12 @@ void Script_NetworkEnemy::Attack()
 	}
 
 	mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.AttackRotationSpeed);
-	mEnemyMgr->mController->SetValue("Walk", false);
-	mEnemyMgr->mController->SetValue("Attack", true);
+
+	mEnemy->Attack();
+
+	//mEnemyMgr->mController->SetValue("Walk", false);
+	//mEnemyMgr->mController->SetValue("Attack", true);
+	//mEnemyMgr->mController->SetValue("IsAttack", true);
 }
 
 void Script_NetworkEnemy::Idle()

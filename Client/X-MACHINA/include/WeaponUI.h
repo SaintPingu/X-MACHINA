@@ -10,6 +10,8 @@ private:
 	UI*	 mBackgroundUI{};
 	UI*	 mBackgroundDecoUI{};
 	UI*	 mWeaponUI{};
+	UI*	 mWeaponMagUI{};
+	UI*	 mWeaponMagOutlineUI{};
 
 	std::string mPlayerName{};
 

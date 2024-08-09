@@ -167,7 +167,6 @@ struct ObjectConstants {
 	int     MatIndex{};
 	int     LightIndex{};
 	float	DeathElapsed{};
-	float	SliderValue{};
 
 	float	HitRimFactor{};
 	Vec3	HitRimColor{ 1.f, 0.f, 0.f };
@@ -182,8 +181,8 @@ struct ObjectConstants {
 
 	int		IsSkinMesh{};
 	int		IsHide{};
-	int		Padding1{};
-	int		Padding2{};
+	float	SliderValueX{};
+	float	SliderValueY{};
 };
 
 struct MinimapConstants {

@@ -53,6 +53,7 @@ public:
 
 	void SetScale(const Vec2& scale);
 
+	void RemoveColor();
 	void SetColor(const Vec3& color);
 	virtual void SetHover(bool val);
 	void SetHoverable(bool val) { mIsHoverable = val; }

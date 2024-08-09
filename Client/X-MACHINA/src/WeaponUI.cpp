@@ -19,12 +19,12 @@ WeaponUI::WeaponUI(const Vec2& position, const Vec3& color, const std::string& p
 
 	mPlayerName = playerName;
 	{
-		static constexpr Vec2 kNameUIOffset{ -160, 45 };
+		static constexpr Vec2 kNameUIOffset{ -150, 40 };
 		TextOption textOption{};
 		//textOption.Font = "";
-		textOption.FontSize = 25.f;
+		textOption.FontSize = 18.f;
 		textOption.FontStretch = TextFontStretch::EXTRA_EXPANDED;
-		textOption.FontColor = TextFontColor::Type::White;
+		textOption.FontColor = TextFontColor::Type::Gray;
 		textOption.FontWeight = TextFontWeight::HEAVY;
 		textOption.VAlignment = TextParagraphAlign::Center;
 		textOption.HAlignment = TextAlignType::Leading;
@@ -44,12 +44,22 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 		{ WeaponName::MineLauncher, "WeaponUI_MineLauncher"},
 	};
 
-	static constexpr Vec2 kWeaponUIPosOffset{ -10, -20 };
+	static const std::unordered_map<WeaponName, std::string> kWeaponMagUIMap{
+		{ WeaponName::H_Lock, "WeaponMagUI_H_Lock"},	
+		{ WeaponName::SkyLine, "WeaponMagUI_Skyline"},
+		{ WeaponName::DBMS, "WeaponMagUI_DBMS"},
+		{ WeaponName::Burnout, "WeaponMagUI_Burnout"},
+		{ WeaponName::PipeLine, "WeaponMagUI_PipeLine"},
+		{ WeaponName::MineLauncher, "WeaponMagUI_MineLauncher"},
+	};
+
+	static constexpr Vec2 kWeaponUIPosOffset{ -30, -20 };
+	static constexpr Vec2 kWeaponMagUIPosOffset{ 100, -20 };
 
 	Reset();
 
 	WeaponName weaponName = weapon->GetWeaponName();
-
+	// weapon //
 	if(!kWeaponUIMap.count(weaponName)) {
 		return;
 	}
@@ -57,12 +67,33 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	mWeapon = weapon;
 
 	const std::string& weaponUIName = kWeaponUIMap.at(weaponName);
-	const Vec2 weaponUIPos = mPos + kWeaponUIPosOffset;
-	mWeaponUI = Canvas::I->CreateUI<UI>(1, weaponUIName, weaponUIPos, Vec2(190, 90) * 0.9f);
+	mWeaponUI = Canvas::I->CreateUI<UI>(1, weaponUIName, mPos + kWeaponUIPosOffset, Vec2(190, 90) * 0.9f);
+
+	// mag //
+	if (!kWeaponMagUIMap.count(weaponName)) {
+		return;
+	}
+
+	const std::string& weaponMagUIName = kWeaponMagUIMap.at(weaponName);
+	mWeaponMagUI = Canvas::I->CreateUI<UI>(1, weaponMagUIName, mPos + kWeaponMagUIPosOffset);
+	const std::string outlineName = weaponMagUIName + "_outline";
+	mWeaponMagOutlineUI = Canvas::I->CreateUI<UI>(2, outlineName, mPos + kWeaponMagUIPosOffset);
+	
+	Update();
 }
 
 void WeaponUI::Update()
 {
+	if (mWeaponMagUI) {
+		const auto& weapon = mWeapon.lock();
+		mWeaponMagUI->mObjectCB.SliderValueY = (float)weapon->GetCurBulletCnt() / weapon->GetMaxBulletCnt();
+		if (mWeaponMagUI->mObjectCB.SliderValueY < 0.2f) {
+			mWeaponMagOutlineUI->SetColor(Vec3(1.0f, 0, 0));
+		}
+		else {
+			mWeaponMagOutlineUI->RemoveColor();
+		}
+	}
 }
 
 void WeaponUI::Reset()
@@ -71,5 +102,14 @@ void WeaponUI::Reset()
 	if (mWeaponUI) {
 		mWeaponUI->Remove();
 		mWeaponUI = nullptr;
+	}
+
+	if (mWeaponMagUI) {
+		mWeaponMagUI->Remove();
+		mWeaponMagUI = nullptr;
+	}
+	if (mWeaponMagOutlineUI) {
+		mWeaponMagOutlineUI->Remove();
+		mWeaponMagOutlineUI = nullptr;
 	}
 }

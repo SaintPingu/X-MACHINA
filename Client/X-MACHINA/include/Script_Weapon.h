@@ -66,6 +66,8 @@ public:
 	Transform* GetMuzzle() const { return mMuzzle; }
 	float GetReloadTime() const { return mMaxReloadTime; }
 	float GetFireDelay() const { return mMaxFireDelay; }
+	int GetMaxBulletCnt() const { return mBulletCntPerMag; }
+	int GetCurBulletCnt() const { return mCurBulletCnt; }
 	bool IsReloading() const { return mIsReload || mIsBoltAction; }
 	bool IsShooting() const { return mIsShooting; }
 	bool IsPlayerWeapon() const { return mIsPlayerWeapon; }

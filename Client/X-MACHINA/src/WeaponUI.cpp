@@ -6,30 +6,44 @@
 
 #include "GameFramework.h"
 #include "TextMgr.h"
+#include "InputMgr.h"
+#include "Timer.h"
 
 #include "Component/UI.h"
 
-WeaponUI::WeaponUI(const Vec2& position, const Vec3& color, const std::string& playerName)
+WeaponUI::WeaponUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel)
 {
 	mPos = position;
 	mBackgroundUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background", mPos);
 
-	mBackgroundDecoUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background_deco", mPos);
+
+	static constexpr Vec2 kDecoUIOffset{ -127, -0.5f };
+	mBackgroundDecoUI = Canvas::I->CreateUI<UI>(1, "WeaponUI_Background_deco", mPos + kDecoUIOffset);
 	mBackgroundDecoUI->SetColor(color);
 
-	mPlayerName = playerName;
 	{
-		static constexpr Vec2 kNameUIOffset{ -150, 40 };
+		static constexpr Vec2 kNameUIOffset{ -80, 30 };
 		TextOption textOption{};
-		//textOption.Font = "";
+		textOption.Font = "Malgun Gothic";
 		textOption.FontSize = 18.f;
-		textOption.FontStretch = TextFontStretch::EXTRA_EXPANDED;
 		textOption.FontColor = TextFontColor::Type::Gray;
-		textOption.FontWeight = TextFontWeight::HEAVY;
-		textOption.VAlignment = TextParagraphAlign::Center;
+		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
 		textOption.HAlignment = TextAlignType::Leading;
 
-		TextMgr::I->CreateText(mPlayerName, mPos + kNameUIOffset + Vec2(GameFramework::I->GetWindowSize().x / 2.f, 0), textOption);
+		TextMgr::I->CreateText(WstringToString(playerName), mPos + kNameUIOffset + Vec2(GameFramework::I->GetWindowSize().x / 2.f, 0), textOption);
+	}
+
+	{
+		static constexpr Vec2 kLevelUIOffset{ -100, 33 };
+		TextOption textOption{};
+		textOption.Font = "Malgun Gothic";
+		textOption.FontSize = 25.f;
+		textOption.FontColor = TextFontColor::Type::DarkGoldenrod;
+		textOption.FontWeight = TextFontWeight::EXTRA_BOLD;
+		textOption.HAlignment = TextAlignType::Center;
+
+		const std::string levelText = std::to_string(playerLevel);
+		TextMgr::I->CreateText(levelText, mPos + kLevelUIOffset, textOption);
 	}
 }
 
@@ -53,10 +67,14 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 		{ WeaponName::MineLauncher, "WeaponMagUI_MineLauncher"},
 	};
 
-	static constexpr Vec2 kWeaponUIPosOffset{ -30, -20 };
-	static constexpr Vec2 kWeaponMagUIPosOffset{ 100, -20 };
+	static constexpr Vec2 kWeaponUIPosOffset{ -15, -20 };
+	static constexpr Vec2 kWeaponMagUIPosOffset{ 90, -20 };
 
 	Reset();
+
+	if (!weapon) {
+		return;
+	}
 
 	WeaponName weaponName = weapon->GetWeaponName();
 	// weapon //
@@ -67,7 +85,7 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	mWeapon = weapon;
 
 	const std::string& weaponUIName = kWeaponUIMap.at(weaponName);
-	mWeaponUI = Canvas::I->CreateUI<UI>(1, weaponUIName, mPos + kWeaponUIPosOffset, Vec2(190, 90) * 0.9f);
+	mWeaponUI = Canvas::I->CreateUI<UI>(1, weaponUIName, mPos + kWeaponUIPosOffset);
 
 	// mag //
 	if (!kWeaponMagUIMap.count(weaponName)) {
@@ -84,16 +102,33 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 
 void WeaponUI::Update()
 {
+	constexpr float kOutOfMag_t = 0.2f;
+	constexpr float kMidMag_t = 0.5f;
+	constexpr Vec3 kOutOfMagColor = Vec3(1.f, 0.f, 0.f);
+	constexpr Vec3 kMidMagColor = Vec3(1.f, 0.5f, 0.2f);
+
 	if (mWeaponMagUI) {
 		const auto& weapon = mWeapon.lock();
 		mWeaponMagUI->mObjectCB.SliderValueY = (float)weapon->GetCurBulletCnt() / weapon->GetMaxBulletCnt();
-		if (mWeaponMagUI->mObjectCB.SliderValueY < 0.2f) {
-			mWeaponMagOutlineUI->SetColor(Vec3(1.0f, 0, 0));
+		if (mWeaponMagUI->mObjectCB.SliderValueY <= kOutOfMag_t) {
+			mWeaponMagOutlineUI->SetColor(kOutOfMagColor);
+		}
+		else if (mWeaponMagUI->mObjectCB.SliderValueY <= kMidMag_t) {
+			mWeaponMagOutlineUI->SetColor(kMidMagColor);
 		}
 		else {
 			mWeaponMagOutlineUI->RemoveColor();
 		}
 	}
+}
+
+void WeaponUI::Test()
+{
+	Vec3 color{};
+	color.x = Math::RandFloat(0, 1);
+	color.y = Math::RandFloat(0, 1);
+	color.z = Math::RandFloat(0, 1);
+	mBackgroundDecoUI->SetColor(color);
 }
 
 void WeaponUI::Reset()

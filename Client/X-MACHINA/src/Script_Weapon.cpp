@@ -134,7 +134,7 @@ void Script_Weapon::EndReload()
 
 bool Script_Weapon::InitReload()
 {
-	mCurBulletCnt = mCurBulletCnt > 0 ? 1 : 0;  // 약실 -> 1발 장전 상태
+	mCurBulletCnt = 0;
 	mCurReloadTime = 0.f;
 	mIsReload = true;
 

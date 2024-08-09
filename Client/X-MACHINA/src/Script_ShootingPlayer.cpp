@@ -14,6 +14,14 @@
 
 
 
+void Script_ShootingPlayer::Start()
+{
+	base::Start();
+
+	mBattleUI = BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI();
+	mPlayerIdx = mBattleUI->CreateWeaponUI();
+}
+
 void Script_ShootingPlayer::OnDestroy()
 {
 	base::OnDestroy();
@@ -24,6 +32,11 @@ void Script_ShootingPlayer::OnDestroy()
 			BattleScene::I->RemoveDynamicObject(weapon);
 		}
 	}
+}
+
+void Script_ShootingPlayer::BulletFired()
+{
+	UpdateWeaponUI();
 }
 
 bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -113,7 +126,9 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mWeaponScript = mWeapon->GetComponent<Script_Weapon>();
 		mMuzzle = mWeaponScript->GetMuzzle();
 
-		BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI()->SetWeapon(0, mWeaponScript);
+		if (mBattleUI) {
+			mBattleUI->SetWeapon(mPlayerIdx, mWeaponScript);
+		}
 
 #ifdef SERVER_COMMUNICATION
 		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
@@ -157,6 +172,20 @@ void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 	}
 	else {
 		DrawWeaponStart(weaponNum, false);
+	}
+}
+
+void Script_ShootingPlayer::RemoveWeaponUI() const
+{
+	if (mBattleUI) {
+		mBattleUI->SetWeapon(mPlayerIdx, nullptr);
+	}
+}
+
+void Script_ShootingPlayer::UpdateWeaponUI() const
+{
+	if (mBattleUI) {
+		mBattleUI->UpdateWeapon(mPlayerIdx);
 	}
 }
 
@@ -229,7 +258,7 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 	auto& weapon = mWeapons[weaponIdx];
 	if (weapon) {
 		weapon->DetachParent(false);
-		weapon->SetLocalRotation(Quat::Identity);
+		weapon->SetLocalRotation(Vec3(0, 90, 0));
 		weapon->SetTag(ObjectTag::Item);
 
 		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
@@ -247,5 +276,7 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 		mIsInDraw = false;
 		mIsInPutback = false;
+
+		RemoveWeaponUI();
 	}
 }

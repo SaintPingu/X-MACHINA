@@ -13,6 +13,7 @@
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_Weapon_MineLauncher.h"
 #include "Script_Item.h"
+#include "Script_BattleUI.h"
 
 #include "Component/Rigidbody.h"
 #include "Component/Camera.h"
@@ -267,32 +268,6 @@ bool Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM 
 	return true;
 }
 
-bool Script_GroundPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-	if (!base::ProcessKeyboardMsg(messageID, wParam, lParam)) {
-		return false;
-	}
-
-	switch (messageID) {
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case 'G':
-			DropCrntWeapon();
-			break;
-		default:
-			break;
-		}
-		break;
-
-	default:
-		break;
-	}
-
-	return true;
-}
-
-
 void Script_GroundPlayer::Move(Dir dir)
 {
 	if (mCurrPos.Length() == 0)
@@ -449,6 +424,8 @@ void Script_GroundPlayer::StartReload()
 	if (mController) {
 		mController->SetValue("Reload", true);
 	}
+
+	UpdateWeaponUI();
 }
 
 void Script_GroundPlayer::BoltAction()
@@ -475,10 +452,14 @@ void Script_GroundPlayer::EndReload()
 	if (mController) {
 		mController->SetValue("Reload", false);
 	}
+
+	UpdateWeaponUI();
 }
 
 void Script_GroundPlayer::BulletFired()
 {
+	base::BulletFired();
+
 	constexpr float recoilAmount = 5.f;
 	mCurRecoil += recoilAmount;
 	if (fabs(mCurRecoil) >= mMaxRecoil) {
@@ -1169,6 +1150,10 @@ void Script_GroundPlayer::RecoverRecoil()
 
 void Script_GroundPlayer::MoveCamera(Dir dir)
 {
+	if (!mCamera) {
+		return;
+	}
+
 	// In the aiming state, set [offset_t] larger as the mouse's position approaches the boundary. (Max = 1)
 	if (mIsAim) {
 		const Vec2 mousePos = InputMgr::I->GetMousePos() * 2.f;

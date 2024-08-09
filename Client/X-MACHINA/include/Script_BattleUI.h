@@ -18,10 +18,11 @@ private:
 
 public:
 	virtual void Awake() override;
-	virtual void Update() override;
 
 public:
+	void UpdateWeapon(int idx) const;
 	void SetWeapon(int idx, rsptr<Script_Weapon> weapon) const;
+	int CreateWeaponUI();
 };
 
 #pragma endregion

@@ -18,16 +18,16 @@ ChatBoxUI::ChatBoxUI(const Vec2& position, const Vec2& extent, const std::string
 	mChatName(StringToWstring(chatName))
 {
 	// ChatTitle
-	{
-		TextOption textOption;
-		textOption.FontSize   = 30.f;
-		textOption.FontWeight = TextFontWeight::HEAVY;
-		textOption.HAlignment = TextAlignType::Justified;
-		textOption.VAlignment = TextParagraphAlign::Near;
-		textOption.BoxExtent  = extent;
+	//{
+	//	TextOption textOption;
+	//	textOption.FontSize   = 30.f;
+	//	textOption.FontWeight = TextFontWeight::HEAVY;
+	//	textOption.HAlignment = TextAlignType::Justified;
+	//	textOption.VAlignment = TextParagraphAlign::Near;
+	//	textOption.BoxExtent  = extent;
 
-		mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y + 50), textOption);
-	}
+	//	mChatTitle = TextMgr::I->CreateText("CHATTING", Vec2(position.x, position.y + 50), textOption);
+	//}
 
 	// ChatMain
 	{

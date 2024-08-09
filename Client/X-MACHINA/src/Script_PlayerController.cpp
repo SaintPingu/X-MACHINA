@@ -23,7 +23,7 @@ void Script_PlayerController::Awake()
 {
 	base::Awake();
 
-	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -750.f, -200.f }, Vec2{ 300.f, 150.f }, "Name");
+	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -775.f, -380.f }, Vec2{ 300.f, 200.f }, "Name");
 
 	mObject->AddComponent<Script_FootStepSound>();
 
@@ -113,6 +113,11 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 		case VK_RETURN:
 			mChatBoxUI->ToggleChatBox();
 			return false;
+
+			// weapons //
+		case 'G':
+			mScript->DropCrntWeapon();
+			break;
 
 			// phero skills //
 		case 'U':

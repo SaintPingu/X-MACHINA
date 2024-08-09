@@ -13,15 +13,13 @@ private:
 	UI*	 mWeaponMagUI{};
 	UI*	 mWeaponMagOutlineUI{};
 
-	std::string mPlayerName{};
-
 public:
-	WeaponUI(const Vec2& position, const Vec3& color, const std::string& playerName);
+	WeaponUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel);
 	
 public:
 	void SetWeapon(rsptr<Script_Weapon> weapon);
 	void Update();
-
+	void Test();
 private:
 	void Reset();
 };

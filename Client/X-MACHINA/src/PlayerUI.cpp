@@ -13,16 +13,13 @@
 
 PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel)
 {
-	mPos = position;
-	mBackgroundUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background", mPos);
+	mBackgroundUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background");
 
 
-	static constexpr Vec2 kDecoUIOffset{ -127, -0.5f };
-	mBackgroundDecoUI = Canvas::I->CreateUI<UI>(1, "WeaponUI_Background_deco", mPos + kDecoUIOffset);
+	mBackgroundDecoUI = Canvas::I->CreateUI<UI>(1, "WeaponUI_Background_deco");
 	mBackgroundDecoUI->SetColor(color);
 
 	{
-		static constexpr Vec2 kNameUIOffset{ -80, 30 };
 		TextOption textOption{};
 		textOption.Font = "Malgun Gothic";
 		textOption.FontSize = 18.f;
@@ -30,11 +27,10 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& 
 		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
 		textOption.HAlignment = TextAlignType::Leading;
 
-		TextMgr::I->CreateText(WstringToString(playerName), mPos + kNameUIOffset + Vec2(GameFramework::I->GetWindowSize().x / 2.f, 0), textOption);
+		mNameText = TextMgr::I->CreateText(WstringToString(playerName), Vec2::Zero, textOption);
 	}
 
 	{
-		static constexpr Vec2 kLevelUIOffset{ -100, 33 };
 		TextOption textOption{};
 		textOption.Font = "Malgun Gothic";
 		textOption.FontSize = 25.f;
@@ -43,8 +39,10 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& 
 		textOption.HAlignment = TextAlignType::Center;
 
 		const std::string levelText = std::to_string(playerLevel);
-		TextMgr::I->CreateText(levelText, mPos + kLevelUIOffset, textOption);
+		mLevelText = TextMgr::I->CreateText(levelText, Vec2::Zero, textOption);
 	}
+
+	SetPosition(position);
 }
 
 void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
@@ -98,6 +96,26 @@ void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	mWeaponMagOutlineUI = Canvas::I->CreateUI<UI>(2, outlineName, mPos + kWeaponMagUIPosOffset);
 
 	Update();
+}
+
+void PlayerUI::SetPosition(const Vec2& position)
+{
+	mPos = position;
+	mBackgroundUI->SetPosition(mPos);
+
+	static constexpr Vec2 kDecoUIOffset{ -127, -0.5f };
+	mBackgroundDecoUI->SetPosition(mPos + kDecoUIOffset);
+
+	static constexpr Vec2 kNameUIOffset{ -80, 30 };
+	mNameText->SetPosition(mPos + kNameUIOffset + Vec2(GameFramework::I->GetWindowSize().x / 2.f, 0));
+
+	static constexpr Vec2 kLevelUIOffset{ -100, 33 };
+	mLevelText->SetPosition(mPos + kLevelUIOffset);
+}
+
+void PlayerUI::SetColor(const Vec3& color)
+{
+	mBackgroundDecoUI->SetColor(color);
 }
 
 void PlayerUI::Update()

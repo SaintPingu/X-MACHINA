@@ -10,6 +10,8 @@
 class PlayerUI;
 class Script_Weapon;
 class Script_ShootingPlayer;
+class Script_NetworkRemotePlayer;
+class Object;
 
 class Script_BattleUI : public Component {
 	COMPONENT(Script_BattleUI, Component)
@@ -23,20 +25,22 @@ private:
 	};
 
 private:
-	std::unordered_map<const Script_ShootingPlayer*, int> mPlayers{};
+	std::unordered_map<const Object*, int> mPlayers{};
 	std::vector<sptr<PlayerUI>> mPlayerUIs{};
 
 public:
 	virtual void Awake() override;
 
 public:
-	void RemovePlayer(const Script_ShootingPlayer* player);
-	void UpdateWeapon(const Script_ShootingPlayer* player) const;
-	void SetWeapon(const Script_ShootingPlayer* player) const;
+	void RemovePlayer(const Object* player);
+	void UpdateWeapon(const Object* player) const;
+	void SetWeapon(const Object* player, rsptr<Script_Weapon> weapon) const;
 	void CreatePlayerUI(const Script_ShootingPlayer* player);
+	void CreatePlayerUI(const Script_NetworkRemotePlayer* player);
 
 private:
-	bool IsValidPlayer(const Script_ShootingPlayer* player) const { return mPlayers.count(player); }
+	void CreatePlayerUI(const Object* player, const std::wstring& playerName, int playerLevel);
+	bool IsValidPlayer(const Object* player) const { return mPlayers.count(player); }
 };
 
 #pragma endregion

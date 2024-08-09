@@ -33,7 +33,7 @@ void Script_ShootingPlayer::OnDestroy()
 		}
 	}
 
-	mBattleUI->RemovePlayer(this);
+	mBattleUI->RemovePlayer(mObject);
 }
 
 void Script_ShootingPlayer::BulletFired()
@@ -129,7 +129,7 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mMuzzle = mWeaponScript->GetMuzzle();
 
 		if (mBattleUI) {
-			mBattleUI->SetWeapon(this);
+			mBattleUI->SetWeapon(mObject, mWeaponScript);
 		}
 
 #ifdef SERVER_COMMUNICATION
@@ -180,14 +180,14 @@ void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 void Script_ShootingPlayer::RemoveWeaponUI() const
 {
 	if (mBattleUI) {
-		mBattleUI->SetWeapon(this);
+		mBattleUI->SetWeapon(mObject, nullptr);
 	}
 }
 
 void Script_ShootingPlayer::UpdateWeaponUI() const
 {
 	if (mBattleUI) {
-		mBattleUI->UpdateWeapon(this);
+		mBattleUI->UpdateWeapon(mObject);
 	}
 }
 

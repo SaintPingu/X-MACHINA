@@ -10,6 +10,7 @@ class Transform;
 class GridObject;
 class AnimatorController;
 class AnimatorMotion;
+class Script_BattleUI;
 
 
 /// +-------------------------------------------------
@@ -84,9 +85,13 @@ private:
 	/// -------------------------------------------------+
 	WeaponName	       mCurrWeaponName			= {};
 
+	Script_BattleUI* mBattleUI{};
+	std::wstring mName{ L"Remote_Unknown" };
+	int mLevel{};
 	
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
 	virtual void LateUpdate() override;
@@ -94,6 +99,13 @@ public:
 
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+
+public:
+	const std::wstring& GetName() const { return mName; }
+	int GetLevel() const { return mLevel; }
+
+	void SetName(const std::wstring& name) { mName = name; }
+	void SetLevel(int level) { mLevel = level; }
 
 	/// +-------------------------------------------------
 	///		Extrapolate 
@@ -138,6 +150,8 @@ public:
 	void		SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType);
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
+	void EndReloadCallback();
+
 private:
 	void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);
 	void Script_NetworkRemotePlayer::SetMotionSpeed(AnimatorMotion* motion, float time);

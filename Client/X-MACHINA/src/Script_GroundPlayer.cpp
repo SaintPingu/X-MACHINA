@@ -1097,18 +1097,8 @@ void Script_GroundPlayer::StopReloadCallback()
 
 void Script_GroundPlayer::ChangeReloadCallback()
 {
-	const auto& motion = mController->GetCrntMotion("Body");
-	float ratio = motion->GetLength() / motion->GetMaxLength();
-
-	// Reloading completion if motion change during reload has progressed more than [kAllowRatio]
-	constexpr float kAllowRatio = 0.8f;
-	if (ratio > kAllowRatio && IsReloading()) {
-		EndReload();
-	}
-	else {
-		if (mWeaponScript) {
-			mWeaponScript->StopReload();
-		}
+	if (mWeaponScript) {
+		mWeaponScript->StopReload();
 	}
 }
 

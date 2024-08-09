@@ -75,15 +75,13 @@ void Script_Weapon::OnDisable()
 
 void Script_Weapon::FireBullet()
 {
-	if (!mOwner) {
-		return;
-	}
-
 	--mCurBulletCnt;
 	ParticleManager::I->Play("WFX_Muzzle_Flash", mMuzzle);
 	ParticleManager::I->Play("WFX_Muzzle_Smoke", mMuzzle);
 
-	mOwner->BulletFired();
+	if (mOwner) {
+		mOwner->BulletFired();
+	}
 }
 
 void Script_Weapon::SetFiringMode(FiringMode firingMode)

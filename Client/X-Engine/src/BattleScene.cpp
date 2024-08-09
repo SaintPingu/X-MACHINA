@@ -88,8 +88,6 @@ void BattleScene::Build()
 
 void BattleScene::Release()
 {
-	base::Release();
-
 	ProcessAllObjects([](sptr<Object> object) {
 		object->Destroy();
 		});
@@ -113,6 +111,8 @@ void BattleScene::Release()
 	mClosedList.clear();
 
 	mTerrain = nullptr;
+
+	base::Release();
 }
 
 void BattleScene::BuildTerrain()

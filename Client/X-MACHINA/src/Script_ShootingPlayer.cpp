@@ -19,7 +19,7 @@ void Script_ShootingPlayer::Start()
 	base::Start();
 
 	mBattleUI = BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI();
-	mPlayerIdx = mBattleUI->CreateWeaponUI();
+	mBattleUI->CreatePlayerUI(this);
 }
 
 void Script_ShootingPlayer::OnDestroy()
@@ -32,6 +32,8 @@ void Script_ShootingPlayer::OnDestroy()
 			BattleScene::I->RemoveDynamicObject(weapon);
 		}
 	}
+
+	mBattleUI->RemovePlayer(this);
 }
 
 void Script_ShootingPlayer::BulletFired()
@@ -127,7 +129,7 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mMuzzle = mWeaponScript->GetMuzzle();
 
 		if (mBattleUI) {
-			mBattleUI->SetWeapon(mPlayerIdx, mWeaponScript);
+			mBattleUI->SetWeapon(this);
 		}
 
 #ifdef SERVER_COMMUNICATION
@@ -178,14 +180,14 @@ void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 void Script_ShootingPlayer::RemoveWeaponUI() const
 {
 	if (mBattleUI) {
-		mBattleUI->SetWeapon(mPlayerIdx, nullptr);
+		mBattleUI->SetWeapon(this);
 	}
 }
 
 void Script_ShootingPlayer::UpdateWeaponUI() const
 {
 	if (mBattleUI) {
-		mBattleUI->UpdateWeapon(mPlayerIdx);
+		mBattleUI->UpdateWeapon(this);
 	}
 }
 

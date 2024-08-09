@@ -23,6 +23,9 @@ class Script_Player abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Player, Script_LiveObject)
 
 private:
+	int mLevel{};
+	std::wstring mName{ L"Unknown" };
+
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 	bool mIsInteracted{};
 
@@ -34,6 +37,12 @@ public:
 	virtual void Update() override;
 
 public:
+	const std::wstring& GetName() const { return mName; }
+	int GetLevel() const { return mLevel; }
+
+	void SetName(const std::wstring& name) { mName = name; }
+	void SetLevel(int level) { mLevel = level; }
+
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -77,6 +86,8 @@ public:
 	virtual void OnDestroy() override;
 
 public:
+	rsptr<Script_Weapon> GetCrntWeapon() const { return mWeaponScript; }
+
 	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const { return mIsInDraw; }
 	bool IsInPutBack() const { return mIsInPutback; }

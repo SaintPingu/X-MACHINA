@@ -451,7 +451,7 @@
     <ClInclude Include="include\Script_ExplosiveBullet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\WeaponUI.h">
+    <ClInclude Include="include\PlayerUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -753,7 +753,7 @@
     <ClCompile Include="src\Script_ExplosiveBullet.cpp">
       <Filter>Script\Weapon\Bulltet</Filter>
     </ClCompile>
-    <ClCompile Include="src\WeaponUI.cpp">
+    <ClCompile Include="src\PlayerUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
   </ItemGroup>

@@ -85,11 +85,11 @@ void LobbyScene::Build()
 
 void LobbyScene::Release()
 {
-	base::Release();
-
 	mMeshObjects.clear();
 	mSkinMeshObjects.clear();
 	mObjectPools.clear();
+
+	base::Release();
 }
 
 GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& pos)

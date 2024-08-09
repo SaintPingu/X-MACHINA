@@ -276,7 +276,7 @@
     <ClInclude Include="include\Script_Weapon_MineLauncher.h" />
     <ClInclude Include="include\SliderBarUI.h" />
     <ClInclude Include="include\TaskMoveToMindControlInvoker.h" />
-    <ClInclude Include="include\WeaponUI.h" />
+    <ClInclude Include="include\PlayerUI.h" />
     <ClInclude Include="include\XLManager.h" />
     <ClInclude Include="include\Script_Item.h" />
     <ClInclude Include="include\MinimapAbility.h" />
@@ -378,7 +378,7 @@
     <ClCompile Include="src\Script_Weapon_MineLauncher.cpp" />
     <ClCompile Include="src\SliderBarUI.cpp" />
     <ClCompile Include="src\TaskMoveToMindControlInvoker.cpp" />
-    <ClCompile Include="src\WeaponUI.cpp" />
+    <ClCompile Include="src\PlayerUI.cpp" />
     <ClCompile Include="src\XLManger.cpp" />
     <ClCompile Include="src\Script_Item.cpp" />
     <ClCompile Include="src\MinimapAbility.cpp" />

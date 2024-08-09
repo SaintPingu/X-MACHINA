@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "WeaponUI.h"
+#include "PlayerUI.h"
 
 #include "Script_Player.h"
 #include "Script_Weapon.h"
@@ -11,7 +11,7 @@
 
 #include "Component/UI.h"
 
-WeaponUI::WeaponUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel)
+PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel)
 {
 	mPos = position;
 	mBackgroundUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background", mPos);
@@ -47,7 +47,7 @@ WeaponUI::WeaponUI(const Vec2& position, const Vec3& color, const std::wstring& 
 	}
 }
 
-void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
+void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
 {
 	static const std::unordered_map<WeaponName, std::string> kWeaponUIMap{
 		{ WeaponName::H_Lock, "WeaponUI_H_Lock"},
@@ -59,7 +59,7 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	};
 
 	static const std::unordered_map<WeaponName, std::string> kWeaponMagUIMap{
-		{ WeaponName::H_Lock, "WeaponMagUI_H_Lock"},	
+		{ WeaponName::H_Lock, "WeaponMagUI_H_Lock"},
 		{ WeaponName::SkyLine, "WeaponMagUI_Skyline"},
 		{ WeaponName::DBMS, "WeaponMagUI_DBMS"},
 		{ WeaponName::Burnout, "WeaponMagUI_Burnout"},
@@ -78,7 +78,7 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 
 	WeaponName weaponName = weapon->GetWeaponName();
 	// weapon //
-	if(!kWeaponUIMap.count(weaponName)) {
+	if (!kWeaponUIMap.count(weaponName)) {
 		return;
 	}
 
@@ -96,11 +96,11 @@ void WeaponUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	mWeaponMagUI = Canvas::I->CreateUI<UI>(1, weaponMagUIName, mPos + kWeaponMagUIPosOffset);
 	const std::string outlineName = weaponMagUIName + "_outline";
 	mWeaponMagOutlineUI = Canvas::I->CreateUI<UI>(2, outlineName, mPos + kWeaponMagUIPosOffset);
-	
+
 	Update();
 }
 
-void WeaponUI::Update()
+void PlayerUI::Update()
 {
 	constexpr float kOutOfMag_t = 0.2f;
 	constexpr float kMidMag_t = 0.5f;
@@ -122,16 +122,7 @@ void WeaponUI::Update()
 	}
 }
 
-void WeaponUI::Test()
-{
-	Vec3 color{};
-	color.x = Math::RandFloat(0, 1);
-	color.y = Math::RandFloat(0, 1);
-	color.z = Math::RandFloat(0, 1);
-	mBackgroundDecoUI->SetColor(color);
-}
-
-void WeaponUI::Reset()
+void PlayerUI::Reset()
 {
 	mWeapon.reset();
 	if (mWeaponUI) {

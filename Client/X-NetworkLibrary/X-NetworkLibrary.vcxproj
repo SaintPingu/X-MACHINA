@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(ProjectDir)\Network\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(ProjectDir)\Network\;$(ProjectDir)\Network\Protocol\;$(ProjectDir)\;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)X-NetworkLibrary\Executable\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\ClientNetwork\Lib\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(ProjectDir)\Network\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(ProjectDir)\Network\;$(ProjectDir)\Network\Protocol\;$(ProjectDir)\;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)X-NetworkLibrary\Executable\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\ClientNetwork\Lib\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)\Network\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(ProjectDir)\Network\;$(ProjectDir)\Network\Protocol\;$(ProjectDir)\;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)X-NetworkLibrary\Executable\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\ClientNetwork\Lib\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\Network\Protocol\FlatBuffers\flatbuffers-24.3.7\include\;$(ProjectDir)\Network\;$(ProjectDir)\Network\Protocol\;$(ProjectDir)\;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)X-NetworkLibrary\Executable\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)X-MACHINA\ClientNetwork\Lib\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

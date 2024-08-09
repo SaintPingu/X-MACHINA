@@ -14,9 +14,9 @@
 #include "Script_BehaviorTree.h"
 #include "GameFramework.h"
 
+#include "ClientNetwork/Contents/Script_NetworkEnemy.h"
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
-
 
 
 void Script_Ability_MindControl::Awake()
@@ -28,6 +28,7 @@ void Script_Ability_MindControl::Awake()
 	mMaxControlledObjectCnt = 1;
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 	mMindControlAimTexture = RESOURCE<Texture>("MindControlAim");
+	SetType(Type::Cooldown);
 }
 
 void Script_Ability_MindControl::Start()
@@ -72,9 +73,6 @@ void Script_Ability_MindControl::Off()
 
 	ChangeAimToOrigin();
 
-	if (mPickedTarget) {
-		ActivePrevEnemyBT();
-	}
 }
 
 bool Script_Ability_MindControl::ReducePheroAmount(bool checkOnly)
@@ -88,88 +86,34 @@ bool Script_Ability_MindControl::ReducePheroAmount(bool checkOnly)
 
 Object* Script_Ability_MindControl::PickingObject(const Vec2& screenPos)
 {
-	Matrix mtxProj = MAIN_CAMERA->GetProjMtx();
-
-	float windowWidth = GameFramework::I->GetWindowSize().x;
-	float windowHeight = GameFramework::I->GetWindowSize().y;
-
-	// 스크린 좌표계를 투영 좌표계로
-	float viewX = (2.f * screenPos.x / windowWidth - 1.f) / mtxProj(0, 0);
-	float viewY = (-2.f * screenPos.y / windowHeight + 1.f) / mtxProj(1, 1);
-
-	Matrix mtxView = MAIN_CAMERA->GetViewMtx();
-	Matrix mtxViewInv = mtxView.Invert();
-
 	float minDistance = FLT_MAX;
 	Object* pickedObject = nullptr;
 
 	// 주변 그리드 내 모든 적 객체
-	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
-	for (const auto& grid : grids) {
-		for (const auto& object : grid->GetObjectsFromTag(ObjectTag::Enemy)) {
-			Ray ray(Vec3{ 0.f, 0.f, 0.f }, Vec3{ viewX, viewY, 1.f });
+	for (const auto& [id, enemyScript] : CLIENT_NETWORK->GetRemoteMonsters()) {
+		const Vec3 dir = MAIN_CAMERA->ScreenToWorldRay(InputMgr::I->GetMousePos());
+		const Vec3 pos = MAIN_CAMERA->GetPosition();
+		Ray ray{ pos, dir };
 
-			// 뷰 좌표계를 월드 좌표계로
-			ray.Position = XMVector3TransformCoord(ray.Position, mtxViewInv);
-			ray.Direction = XMVector3TransformNormal(ray.Direction, mtxViewInv);
-			ray.Direction.Normalize();
+		// 월드 좌표계에서 레이와 바운딩 스피어의 충돌 검사
+		float distance = 0.f;
+		GridObject* enemy = static_cast<GridObject*>(enemyScript->GetObj());
+		if (ray.Intersects(enemy->GetCollider()->GetBS(), distance) == false)
+			continue;
 
-			// 월드 좌표계에서 레이와 바운딩 스피어의 충돌 검사
-			float distance = 0.f;
-			if (ray.Intersects(object->GetCollider()->GetBS(), distance) == false)
-				continue;
-
-			// 거리가 가장 짧은 객체 픽킹 선별
-			if (distance < minDistance) {
-				minDistance = distance;
-				pickedObject = object;
-			}
+		// 거리가 가장 짧은 객체 픽킹 선별
+		if (distance < minDistance) {
+			minDistance = distance;
+			pickedObject = enemy;
 		}
 	}
 
 	return pickedObject;
 }
 
-void Script_Ability_MindControl::ActiveMindControlledEnemyBT()
-{
-	if (!mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()) {
-		mPickedTarget->AddComponent<Script_MindControlledEnemyBT>();
-	}
-
-	for (const auto& component : mPickedTarget->GetAllComponents()) {
-		if (std::dynamic_pointer_cast<Script_BehaviorTree>(component)) {
-			component->SetActive(false);
-			break;
-		}
-	}
-
-	auto mindControlledEnemyBT = mPickedTarget->GetComponent<Script_MindControlledEnemyBT>();
-	mindControlledEnemyBT->SetActive(true);
-	mindControlledEnemyBT->SetInvoker(mObject);
-}
-
-void Script_Ability_MindControl::ActivePrevEnemyBT()
-{
-	sptr<Script_MindControlledEnemyBT> mindControlledEnemyBT;
-	if (mindControlledEnemyBT = mPickedTarget->GetComponent<Script_MindControlledEnemyBT>()) {
-		mindControlledEnemyBT->SetActive(false);
-	}
-
-	for (const auto& component : mPickedTarget->GetAllComponents()) {
-		if (component == mindControlledEnemyBT) {
-			continue;
-		}
-
-		if (std::dynamic_pointer_cast<Script_BehaviorTree>(component)) {
-			component->SetActive(true);
-			break;
-		}
-	}
-}
-
 void Script_Ability_MindControl::Click()
 {
-	if (mCurrControlledObjectCnt > 0) {
+	if (mCurrControlledObjectCnt <= 0) {
 		return;
 	}
 
@@ -181,10 +125,11 @@ void Script_Ability_MindControl::Click()
 			return;
 		}
 
-		// TODO : send
-		
+		auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_MIND_CONTROL, mPickedTarget->GetID());
+		CLIENT_NETWORK->Send(cpkt);
 
-		ActiveMindControlledEnemyBT();
+		mPickedTarget->mObjectCB.MindRimFactor = 1.f;
+
 		mCurrControlledObjectCnt--;
 	}
 

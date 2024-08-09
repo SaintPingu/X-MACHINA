@@ -44,8 +44,8 @@ private:
 	Lock::SRWLock mSRWLock{};
 	SPtr_ClientNetwork  mClientNetwork{};
 
-	std::unordered_map<UINT32, Script_NetworkEnemy*> mRemoteMonsters{};
-	std::unordered_map<UINT32, Script_Phero*> mRemotePheros{};
+	std::map<UINT32, Script_NetworkEnemy*> mRemoteMonsters{};
+	std::map<UINT32, Script_Phero*> mRemotePheros{};
 	Concurrency::concurrent_unordered_map<UINT32, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
@@ -66,9 +66,11 @@ public:
 	void ProcessEvents();
 	void SwapEventsQueue();
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
+
 	std::string GetLocalIPv4Address();
 	GridObject* GetRemotePlayer(UINT32 id);
 	const auto& GetRemotePlayers() const { return mRemotePlayers; }
+	const auto& GetRemoteMonsters() const { return mRemoteMonsters; }
 
 	void EraseMonster(UINT32 id) { mRemoteMonsters.erase(id); }
 

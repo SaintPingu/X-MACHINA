@@ -45,10 +45,6 @@ protected:
 private:
 	Object* PickingObject(const Vec2& screenPos);
 
-	// 행동트리 변경
-	void ActiveMindControlledEnemyBT();
-	void ActivePrevEnemyBT();
-
 	void ChangeAimToOrigin();
 	void ChangeAimToActive();
 };

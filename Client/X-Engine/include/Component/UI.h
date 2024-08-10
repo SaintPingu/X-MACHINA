@@ -57,6 +57,7 @@ public:
 	virtual void SetHover(bool val);
 	void SetHoverable(bool val) { mIsHoverable = val; }
 	void SetOpacity(float val);
+	void SetShader(sptr<Shader> shader) { mShader = shader; }
 
 public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }

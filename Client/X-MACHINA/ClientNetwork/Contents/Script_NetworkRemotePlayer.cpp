@@ -17,6 +17,7 @@
 #include "AnimatorMotion.h"
 #include "BattleScene.h"
 #include "ClientNetwork/Include/LogManager.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 #include "Script_Ability_Shield.h"
 #include "Script_Ability_Cloaking.h"
@@ -276,32 +277,25 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 	}
 }
 
-void Script_NetworkRemotePlayer::RemoteOnShield()
+void Script_NetworkRemotePlayer::ToggleAbilityShield()
 {
 	mRemoteAbilityShield->Toggle();
 }
 
-void Script_NetworkRemotePlayer::RemoteOffShield()
-{
-}
-
-void Script_NetworkRemotePlayer::RemoteOnCloaking()
+void Script_NetworkRemotePlayer::ToggleAbilityCloaking()
 {
 	mRemoteAbilityCloaking->Toggle();
 }
 
-void Script_NetworkRemotePlayer::RemoteOffCloaking()
+void Script_NetworkRemotePlayer::ToggleAbilityMindControl(Object* pickedTarget)
 {
-}
-
-void Script_NetworkRemotePlayer::RemoteOnMindControl(Object* pickedTarget)
-{
-	mRemoteAbilityMindControl->SetPickingObject(pickedTarget);
-	mRemoteAbilityMindControl->Toggle();
-}
-
-void Script_NetworkRemotePlayer::RemoteOffMindControl(Object* pickedTarget)
-{
+	// 마인드 컨트롤 상태라면 
+	if (pickedTarget->mObjectCB.MindRimFactor > 0.f) {
+		pickedTarget->mObjectCB.MindRimFactor = 0.f;
+	}
+	else {
+		pickedTarget->mObjectCB.MindRimFactor = 1.f;
+	}
 }
 
 Vec3 Script_NetworkRemotePlayer::GetDirection(Vec3 dir)

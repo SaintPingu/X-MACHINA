@@ -71,7 +71,7 @@ void Script_LobbyUI::Start()
 	mCursorClick->SetActive(false);
 
 	mAimController = mObject->AddComponent<Script_AimController>();
-	mAimController->SetUI(mCursorNormal);
+	mAimController->SetIconUI(mCursorNormal);
 }
 
 void Script_LobbyUI::Update()
@@ -83,12 +83,12 @@ void Script_LobbyUI::Update()
 
 		mCursorNormal->SetActive(false);
 		mCursorClick->SetActive(true);
-		mAimController->SetUI(mCursorClick);
+		mAimController->SetIconUI(mCursorClick);
 	}
 	else if (KEY_AWAY(VK_LBUTTON)) {
 		mCursorNormal->SetActive(true);
 		mCursorClick->SetActive(false);
-		mAimController->SetUI(mCursorNormal);
+		mAimController->SetIconUI(mCursorNormal);
 	}
 }
 

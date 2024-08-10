@@ -9,9 +9,10 @@
 class Object;
 class Texture;
 class Script_AimController;
+class CooldownCircleUI;
 
 #pragma region Class
-class Script_Ability_MindControl : public Script_RenderedAbility, public PheroAbilityInterface {
+class Script_Ability_MindControl : public Script_RenderedAbility, public PheroAbilityInterface, public IconAbilityInterface{
 	COMPONENT(Script_Ability_MindControl, Script_RenderedAbility)
 
 protected:
@@ -24,6 +25,7 @@ private:
 	UINT mCurrControlledObjectCnt{};
 
 	sptr<Script_AimController> mAimController{};
+	sptr<CooldownCircleUI> mRemainActiveTimeUI{};
 
 	Vec2 mPrevAimScale{};
 	sptr<Texture> mPrevAimTexture{};
@@ -53,9 +55,6 @@ private:
 
 class Script_Remote_Ability_MindControl : public Script_Ability_MindControl {
 	COMPONENT(Script_Remote_Ability_MindControl, Script_Ability_MindControl)
-
-public:
-	void SetPickingObject(Object* target);
 
 public:
 	virtual void On() override;

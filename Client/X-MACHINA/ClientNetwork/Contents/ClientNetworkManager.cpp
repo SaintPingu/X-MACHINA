@@ -765,15 +765,17 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent:
 	switch (skill_type)
 	{
 	case FBProtocol::PLAYER_SKILL_TYPE_CLOACKING:
-		script_NRP->RemoteOnCloaking();
+		script_NRP->ToggleAbilityCloaking();
 		break;
 	case FBProtocol::PLAYER_SKILL_TYPE_IR_DETECTOR:
 		break;
 	case FBProtocol::PLAYER_SKILL_TYPE_MIND_CONTROL:
-		script_NRP->RemoteOnMindControl(mRemoteMonsters[mindControl_monster_id]->GetObj());
+		if (mRemoteMonsters.count(mindControl_monster_id)) {
+			script_NRP->ToggleAbilityMindControl(mRemoteMonsters[mindControl_monster_id]->GetObj());
+		}
 		break;
 	case FBProtocol::PLAYER_SKILL_TYPE_SHIELD:
-		script_NRP->RemoteOnShield();
+		script_NRP->ToggleAbilityShield();
 		break;
 	default:
 		break;

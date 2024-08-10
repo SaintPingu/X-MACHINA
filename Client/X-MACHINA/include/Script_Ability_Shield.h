@@ -9,7 +9,7 @@
 class Script_PheroPlayer;
 
 #pragma region Class
-class Script_Ability_Shield : public Script_RenderedAbility, public PheroAbilityInterface {
+class Script_Ability_Shield : public Script_RenderedAbility, public PheroAbilityInterface, public IconAbilityInterface {
 	COMPONENT(Script_Ability_Shield, Script_RenderedAbility)
 
 private:
@@ -33,6 +33,7 @@ class Script_Remote_Ability_Shield : public Script_Ability_Shield {
 	COMPONENT(Script_Remote_Ability_Shield, Script_Ability_Shield)
 
 public:
+	virtual void Update() override;
 	virtual void On() override;
 	virtual void Off() override;
 };

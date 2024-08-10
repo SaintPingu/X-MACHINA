@@ -26,6 +26,7 @@ void Script_Ability_Shield::Awake()
 
 	Init("Shield", 2.f, 4.5f);
 	SetPheroCost(100.f);
+	SetIconUI("Icon_B_Shield", "Icon_F_Shield", Vec2{ -70.f, 100.f }, Vec2{ 50.f }, mMaxCooldownTime);
 
 	mLayer = 1;
 	mAbilityCB.Duration = 4.f;
@@ -48,7 +49,9 @@ void Script_Ability_Shield::Update()
 {
 	base::Update();
 
-	const Vec3 playerPos = mObject->GetPosition() + Vec3{ 0.f, 0.85f, 0.f };
+	UpdateCooldownBarUI(mMaxCooldownTime, mCurCooldownTime);
+
+	const Vec3 playerPos = mObject->GetPosition() + Vec3{ 0.f, 1.5f, 0.f };
 	mRenderedObject->SetPosition(playerPos);
 }
 
@@ -92,9 +95,18 @@ bool Script_Ability_Shield::ReducePheroAmount(bool checkOnly)
 
 
 
+
 /// +-------------------------------------------------
 ///		Script_Remote_Ability_Shield 
 /// -------------------------------------------------+
+ void Script_Remote_Ability_Shield::Update()
+{
+	 Script_RenderedAbility::Update();
+
+	 const Vec3 playerPos = mObject->GetPosition() + Vec3{ 0.f, 1.5f, 0.f };
+	 mRenderedObject->SetPosition(playerPos);
+}
+
 void Script_Remote_Ability_Shield::On()
 {
 	Script_RenderedAbility::On();

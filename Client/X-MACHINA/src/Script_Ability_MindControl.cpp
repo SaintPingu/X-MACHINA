@@ -13,6 +13,7 @@
 #include "Script_MindControlledEnemyBT.h"
 #include "Script_BehaviorTree.h"
 #include "GameFramework.h"
+#include "CooldownCircleUI.h"
 
 #include "ClientNetwork/Contents/Script_NetworkEnemy.h"
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
@@ -28,12 +29,15 @@
 void Script_Ability_MindControl::Awake()
 {
 	base::Awake();
-	Init("MindControl", 10.f, 30.f);
+	Init("MindControl", 10.f, 10.f);
 	SetPheroCost(200.f);
+	SetIconUI("Icon_B_MindControl", "Icon_F_MindControl", Vec2{ 0.f, 100.f }, Vec2{ 50.f }, mMaxCooldownTime);
 
 	mMaxControlledObjectCnt = 1;
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 	mMindControlAimTexture = RESOURCE<Texture>("MindControlAim");
+	mRemainActiveTimeUI = std::make_shared<CooldownCircleUI>("MindControlRemainUI", Vec2{}, Vec2{ 294.f, 294.f }, mMaxActiveTime);
+
 	SetType(Type::Cooldown);
 }
 
@@ -47,6 +51,10 @@ void Script_Ability_MindControl::Start()
 void Script_Ability_MindControl::Update()
 {
 	base::Update();
+
+	UpdateCooldownBarUI(mMaxCooldownTime, mCurCooldownTime);
+
+	mRemainActiveTimeUI->Update(mCurActiveTime, InputMgr::I->GetMousePos());
 }
 
 bool Script_Ability_MindControl::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -66,10 +74,12 @@ void Script_Ability_MindControl::On()
 	}
 
 	base::On();
+	mRemainActiveTimeUI->On();
 
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 
 	mAimController = mObject->GetComponent<Script_AimController>();
+
 	if (!mAimController) {
 		SetActive(false);
 		return;
@@ -81,10 +91,9 @@ void Script_Ability_MindControl::On()
 void Script_Ability_MindControl::Off()
 {
 	base::Off();
+	mRemainActiveTimeUI->Off();
 
 	ChangeAimToOrigin();
-
-	mPickedTarget = nullptr;
 }
 
 bool Script_Ability_MindControl::ReducePheroAmount(bool checkOnly)
@@ -147,6 +156,7 @@ void Script_Ability_MindControl::Click()
 	}
 
 	if (mCurrControlledObjectCnt <= 0) {
+		SetActive(false);
 		ChangeAimToOrigin();
 	}
 }
@@ -170,22 +180,12 @@ void Script_Ability_MindControl::ChangeAimToActive()
 /// +-------------------------------------------------
 ///		Script_Remote_Ability_MindControl 
 /// -------------------------------------------------+
-void Script_Remote_Ability_MindControl::SetPickingObject(Object* target)
-{
-	if (target) {
-		mPickedTarget = target;
-	}
-}
-
 void Script_Remote_Ability_MindControl::On()
 {
 	Script_RenderedAbility::On();
-	mPickedTarget->mObjectCB.MindRimFactor = 1.f;
 }
 
 void Script_Remote_Ability_MindControl::Off()
 {
 	Script_RenderedAbility::Off();
-	mPickedTarget->mObjectCB.MindRimFactor = 0.f;
-	mPickedTarget = nullptr;
 }

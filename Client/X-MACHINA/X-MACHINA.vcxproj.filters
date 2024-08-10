@@ -457,6 +457,9 @@
     <ClInclude Include="ClientNetwork\Contents\Script_NetworkPhero.h">
       <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>
     </ClInclude>
+    <ClInclude Include="include\CooldownCircleUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -758,6 +761,9 @@
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkPhero.cpp">
       <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CooldownCircleUI.cpp">
+      <Filter>Script\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

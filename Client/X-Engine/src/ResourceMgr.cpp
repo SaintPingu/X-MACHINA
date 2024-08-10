@@ -970,6 +970,25 @@ void ResourceMgr::LoadShaders()
 		Add<Shader>("Canvas", shader);
 	}
 #pragma endregion
+#pragma region CooldownCircle
+	{
+		ShaderInfo info = {
+			ShaderType::LDR,
+			RasterizerType::Cull_Back,
+			DepthStencilType::No_DepthTest_No_Write,
+			BlendType::Alpha_Blend,
+		};
+
+		ShaderPath path = {
+			 "VShader_Canvas.cso",
+			 "PShader_CooldownCircle.cso",
+		};
+
+		sptr<Shader> shader = std::make_shared<Shader>();
+		shader->Load(info, path);
+		Add<Shader>("CooldownCircle", shader);
+	}
+#pragma endregion
 #pragma region Wire
 	{
 		ShaderInfo info = {

@@ -8,7 +8,7 @@
 
 
 
-class Script_Ability_Cloaking : public Script_RenderedAbility, public PheroAbilityInterface {
+class Script_Ability_Cloaking : public Script_RenderedAbility, public PheroAbilityInterface, public IconAbilityInterface {
 	COMPONENT(Script_Ability_Cloaking, Script_RenderedAbility)
 
 public:

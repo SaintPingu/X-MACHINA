@@ -29,7 +29,7 @@ void Script_PlayerController::Awake()
 
 	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(30, 30));
 	mAimController = mObject->AddComponent<Script_AimController>();
-	mAimController->SetUI(aimUI);
+	mAimController->SetIconUI(aimUI);
 
 	mAbilityShield           = mObject->AddComponent<Script_Ability_Shield>(true, false);
 	mAbilityIRDetector       = mObject->AddComponent<Script_Ability_IRDetector>(true, false);

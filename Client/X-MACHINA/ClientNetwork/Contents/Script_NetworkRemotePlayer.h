@@ -148,14 +148,9 @@ public:
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
 public:
-	void RemoteOnShield();
-	void RemoteOffShield();
-
-	void RemoteOnCloaking();
-	void RemoteOffCloaking();
-
-	void RemoteOnMindControl(Object* pickedTarget);
-	void RemoteOffMindControl(Object* pickedTarget);
+	void ToggleAbilityShield();
+	void ToggleAbilityCloaking();
+	void ToggleAbilityMindControl(Object* pickedTarget);
 
 private:
 	void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);

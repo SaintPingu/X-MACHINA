@@ -6,7 +6,7 @@ class SliderUI;
 class UI;
 #pragma endregion
 
-// 슬라이더바 UI
+
 class SliderBarUI {
 private:
 	float mDisplayFillValue{};

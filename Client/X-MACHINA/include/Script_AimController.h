@@ -27,7 +27,7 @@ public:
 	Vec2 GetTextureScale() const;
 
 public:
-	void SetUI(UI* ui) { mUI = ui; }
+	void SetIconUI(UI* ui) { mUI = ui; }
 	void ChangeAimTexture(rsptr<Texture> newTexture, const Vec2& scale);
 	void ChangeAimUI(UI* newUI) { mUI = newUI; }
 

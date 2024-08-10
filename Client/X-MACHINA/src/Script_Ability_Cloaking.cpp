@@ -11,6 +11,12 @@
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
+
+
+
+/// +-------------------------------------------------
+///		Script_Ability_Cloaking 
+/// -------------------------------------------------+
 void Script_Ability_Cloaking::Awake()
 {
 	base::Awake();
@@ -42,8 +48,6 @@ void Script_Ability_Cloaking::Update()
 		SetActive(false);
 	}
 }
-
-
 
 void Script_Ability_Cloaking::On()
 {
@@ -82,4 +86,38 @@ bool Script_Ability_Cloaking::ReducePheroAmount(bool checkOnly)
 	}
 
 	return false;
+}
+
+
+
+
+
+
+/// +-------------------------------------------------
+///		Script_Remote_Ability_Cloaking 
+/// -------------------------------------------------+
+void Script_Remote_Ability_Cloaking::Update()
+{
+	Script_RenderedAbility::Update();
+}
+
+void Script_Remote_Ability_Cloaking::On()
+{
+	Script_RenderedAbility::On();
+	mBuffPS = ParticleManager::I->Play("MagicCircle_Dot", mObject);
+	mObject->mObjectCB.HitRimFactor = 1.f;
+	mAfterImage->SetActiveUpdate(true);
+	mObject->SetTag(ObjectTag::AfterSkinImage);
+}
+
+void Script_Remote_Ability_Cloaking::Off()
+{
+	Script_RenderedAbility::Off();
+	if (mBuffPS) {
+		mBuffPS->Stop();
+	}
+
+	mObject->mObjectCB.HitRimFactor = 0.f;
+	mAfterImage->SetActiveUpdate(false);
+	mObject->SetTag(mPrevInvokerTag);
 }

@@ -28,5 +28,14 @@ public:
 
 protected:
 	virtual bool ReducePheroAmount(bool checkOnly = false) override;
-
 };
+
+class Script_Remote_Ability_Cloaking : public Script_Ability_Cloaking {
+	COMPONENT(Script_Remote_Ability_Cloaking, Script_Ability_Cloaking)
+
+public:
+	virtual void Update() override;
+	virtual void On() override;
+	virtual void Off() override;
+};
+

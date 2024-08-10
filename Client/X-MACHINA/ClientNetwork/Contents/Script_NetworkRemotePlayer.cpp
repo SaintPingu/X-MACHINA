@@ -18,6 +18,8 @@
 #include "BattleScene.h"
 #include "ClientNetwork/Include/LogManager.h"
 
+#include "Script_Ability_Shield.h"
+#include "Script_Ability_Cloaking.h"
 #include "Script_Ability_MindControl.h"
 
 void Script_NetworkRemotePlayer::Awake()
@@ -82,6 +84,8 @@ void Script_NetworkRemotePlayer::Awake()
 	mAirstrike = std::make_shared<Airstrike>();
 	mAirstrike->Init();
 
+	mRemoteAbilityShield = mObject->AddComponent<Script_Remote_Ability_Shield>(true, false);
+	mRemoteAbilityCloaking = mObject->AddComponent<Script_Remote_Ability_Cloaking>(true, false);
 	mRemoteAbilityMindControl = mObject->AddComponent<Script_Remote_Ability_MindControl>(true, false);
 }
 
@@ -272,15 +276,32 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 	}
 }
 
+void Script_NetworkRemotePlayer::RemoteOnShield()
+{
+	mRemoteAbilityShield->Toggle();
+}
+
+void Script_NetworkRemotePlayer::RemoteOffShield()
+{
+}
+
+void Script_NetworkRemotePlayer::RemoteOnCloaking()
+{
+	mRemoteAbilityCloaking->Toggle();
+}
+
+void Script_NetworkRemotePlayer::RemoteOffCloaking()
+{
+}
+
 void Script_NetworkRemotePlayer::RemoteOnMindControl(Object* pickedTarget)
 {
 	mRemoteAbilityMindControl->SetPickingObject(pickedTarget);
-	mRemoteAbilityMindControl->On();
+	mRemoteAbilityMindControl->Toggle();
 }
 
 void Script_NetworkRemotePlayer::RemoteOffMindControl(Object* pickedTarget)
 {
-	mRemoteAbilityMindControl->Off();
 }
 
 Vec3 Script_NetworkRemotePlayer::GetDirection(Vec3 dir)

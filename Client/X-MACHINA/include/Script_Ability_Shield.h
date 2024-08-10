@@ -28,5 +28,14 @@ public:
 protected:
 	virtual bool ReducePheroAmount(bool checkOnly = false) override;
 };
+
+class Script_Remote_Ability_Shield : public Script_Ability_Shield {
+	COMPONENT(Script_Remote_Ability_Shield, Script_Ability_Shield)
+
+public:
+	virtual void On() override;
+	virtual void Off() override;
+};
+
 #pragma endregion
 

@@ -11,6 +11,8 @@ class GridObject;
 class AnimatorController;
 class AnimatorMotion;
 class Airstrike;
+class Script_Remote_Ability_Shield;
+class Script_Remote_Ability_Cloaking;
 class Script_Remote_Ability_MindControl;
 
 
@@ -82,6 +84,8 @@ private:
 	GridObject* mCrntWeapon{};
 	sptr<Airstrike> mAirstrike{};
 
+	sptr<Script_Remote_Ability_Shield> mRemoteAbilityShield{};
+	sptr<Script_Remote_Ability_Cloaking> mRemoteAbilityCloaking{};
 	sptr<Script_Remote_Ability_MindControl> mRemoteAbilityMindControl{};
 
 	/// +-------------------------------------------------
@@ -144,6 +148,12 @@ public:
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
 public:
+	void RemoteOnShield();
+	void RemoteOffShield();
+
+	void RemoteOnCloaking();
+	void RemoteOffCloaking();
+
 	void RemoteOnMindControl(Object* pickedTarget);
 	void RemoteOffMindControl(Object* pickedTarget);
 

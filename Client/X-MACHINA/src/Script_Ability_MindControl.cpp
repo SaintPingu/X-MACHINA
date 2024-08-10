@@ -19,6 +19,12 @@
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
+
+
+
+/// +-------------------------------------------------
+///		Script_Ability_MindControl 
+/// -------------------------------------------------+
 void Script_Ability_MindControl::Awake()
 {
 	base::Awake();
@@ -157,6 +163,13 @@ void Script_Ability_MindControl::ChangeAimToActive()
 	mAimController->ChangeAimTexture(mMindControlAimTexture, Vec2(300.f, 300.f));
 }
 
+
+
+
+
+/// +-------------------------------------------------
+///		Script_Remote_Ability_MindControl 
+/// -------------------------------------------------+
 void Script_Remote_Ability_MindControl::SetPickingObject(Object* target)
 {
 	if (target) {

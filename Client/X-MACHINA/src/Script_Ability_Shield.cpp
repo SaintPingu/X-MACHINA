@@ -14,6 +14,12 @@
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
+
+
+
+/// +-------------------------------------------------
+///		Script_Ability_Shield 
+/// -------------------------------------------------+
 void Script_Ability_Shield::Awake()
 {
 	base::Awake();
@@ -80,4 +86,21 @@ bool Script_Ability_Shield::ReducePheroAmount(bool checkOnly)
 	}
 
 	return false;
+}
+
+
+
+
+
+/// +-------------------------------------------------
+///		Script_Remote_Ability_Shield 
+/// -------------------------------------------------+
+void Script_Remote_Ability_Shield::On()
+{
+	Script_RenderedAbility::On();
+}
+
+void Script_Remote_Ability_Shield::Off()
+{
+	Script_RenderedAbility::Off();
 }

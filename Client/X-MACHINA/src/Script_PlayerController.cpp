@@ -33,7 +33,7 @@ void Script_PlayerController::Awake()
 
 	mAbilityShield           = mObject->AddComponent<Script_Ability_Shield>(true, false);
 	mAbilityIRDetector       = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
-	mAbilityMindControl      = mObject->AddComponent<Script_Ability_MindControl>(true, false);
+	mRemoteAbilityMindControl      = mObject->AddComponent<Script_Ability_MindControl>(true, false);
 	mAbilityCloaking         = mObject->AddComponent<Script_Ability_Cloaking>(true, false);
 	mAbilityNightVision      = mObject->AddComponent<Script_Ability_NightVision>(true, false);
 	mAbilityAerialController = mObject->AddComponent<Script_Ability_AerialController>(true, false);
@@ -74,7 +74,7 @@ bool Script_PlayerController::ProcessInput()
 		return false;
 	}
 
-	if (!IsInAerialControl()) {
+	if (!IsInAerialControl() || !IsInMindControl()) {
 		mScript->ProcessInput();
 	}
 
@@ -85,6 +85,9 @@ bool Script_PlayerController::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPA
 {
 	if (IsInAerialControl()) {
 		mAbilityAerialController->ProcessMouseMsg(messageID, wParam, lParam);
+	}
+	else if (IsInMindControl()) {
+		mRemoteAbilityMindControl->ProcessMouseMsg(messageID, wParam, lParam);
 	}
 	else {
 		mScript->ProcessMouseMsg(messageID, wParam, lParam);
@@ -116,7 +119,7 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 
 			// phero skills //
 		case 'U':
-			mAbilityMindControl->Toggle();
+			mRemoteAbilityMindControl->Toggle();
 			break;
 		case 'T':
 			mAbilityShield->Toggle();
@@ -182,6 +185,11 @@ void Script_PlayerController::Hit()
 bool Script_PlayerController::IsInAerialControl()
 {
 	return mAbilityAerialController && mAbilityAerialController->IsActiveState();
+}
+
+bool Script_PlayerController::IsInMindControl()
+{
+	return mRemoteAbilityMindControl && mRemoteAbilityMindControl->IsActiveState();
 }
 
 void Script_PlayerController::UpdateUI()

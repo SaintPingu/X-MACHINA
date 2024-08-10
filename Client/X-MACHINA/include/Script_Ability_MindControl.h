@@ -14,14 +14,15 @@ class Script_AimController;
 class Script_Ability_MindControl : public Script_RenderedAbility, public PheroAbilityInterface {
 	COMPONENT(Script_Ability_MindControl, Script_RenderedAbility)
 
+protected:
+	Object* mPickedTarget{};
+
 private:
 	sptr<class Script_PheroPlayer> mPlayer{};
 
 	UINT mMaxControlledObjectCnt{};
 	UINT mCurrControlledObjectCnt{};
 
-	// TODO : 여러 적을 움직이기 위해서는 배열로 관리해야함
-	Object* mPickedTarget{};
 	sptr<Script_AimController> mAimController{};
 
 	Vec2 mPrevAimScale{};
@@ -34,19 +35,31 @@ public:
 	virtual void Update() override;
 
 public:
+	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
+
+public:
 	virtual void On() override;
 	virtual void Off() override;
-
-	void Click();
 
 protected:
 	virtual bool ReducePheroAmount(bool checkOnly = false) override;
 
 private:
 	Object* PickingObject(const Vec2& screenPos);
-
+	void Click();
 	void ChangeAimToOrigin();
 	void ChangeAimToActive();
+};
+
+class Script_Remote_Ability_MindControl : public Script_Ability_MindControl {
+	COMPONENT(Script_Remote_Ability_MindControl, Script_Ability_MindControl)
+
+public:
+	void SetPickingObject(Object* target);
+
+public:
+	virtual void On() override;
+	virtual void Off() override;
 };
 #pragma endregion
 

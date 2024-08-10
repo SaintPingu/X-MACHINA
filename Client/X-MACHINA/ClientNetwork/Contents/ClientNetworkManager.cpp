@@ -755,6 +755,27 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent:
 
 	LOG_MGR->Cout(player_id, " OnSkill : ", static_cast<int>(skill_type), '\n');
 
+	if (!mRemotePlayers.count(player_id)) {
+		return;
+	}
+
+	GridObject* player = mRemotePlayers[player_id];
+	const auto& script_NRP = player->GetComponent<Script_NetworkRemotePlayer>();
+
+	switch (skill_type)
+	{
+	case FBProtocol::PLAYER_SKILL_TYPE_CLOACKING:
+		break;
+	case FBProtocol::PLAYER_SKILL_TYPE_IR_DETECTOR:
+		break;
+	case FBProtocol::PLAYER_SKILL_TYPE_MIND_CONTROL:
+		script_NRP->RemoteOnMindControl(mRemoteMonsters[mindControl_monster_id]->GetObj());
+		break;
+	case FBProtocol::PLAYER_SKILL_TYPE_SHIELD:
+		break;
+	default:
+		break;
+	}
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateState(NetworkEvent::Game::Event_RemotePlayer::UpdateState* data)
@@ -763,7 +784,6 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateState(NetworkEvent::G
 	data->hp;
 	data->phero;
 	data->state_type;
-
 }
 
 void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Monster::Add* data)
@@ -964,17 +984,25 @@ void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event
 		int monster_id = data->Mons[i].id;
 		int target_monster_id = data->Mons[i].target_monster_id;
 		int target_player_id = data->Mons[i].target_player_id;
-		if (!mRemoteMonsters.count(monster_id))
-			continue;
 
-		if (!mRemotePlayers.count(target_player_id))
+		if (!mRemoteMonsters.count(monster_id)) {
 			continue;
+		}
 
-		if (target_player_id == 0) {
+		if (target_player_id == 0 && target_monster_id == 0) {
 			mRemoteMonsters[monster_id]->SetTarget(nullptr);
 		}
-		else {
+		else if (target_player_id != 0) {
+			if (!mRemotePlayers.count(target_player_id)) {
+				continue;
+			}
 			mRemoteMonsters[monster_id]->SetTarget(mRemotePlayers[target_player_id]);
+		}
+		else if (target_monster_id != 0) {
+			if (!mRemoteMonsters.count(target_monster_id)) {
+				continue;
+			}
+			mRemoteMonsters[monster_id]->SetTarget(mRemoteMonsters[target_monster_id]->GetObj());
 		}
 	}
 }

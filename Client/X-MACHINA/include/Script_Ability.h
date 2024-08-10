@@ -35,7 +35,6 @@ protected:
 	std::string mAbilityName{};
 
 	State	mState{};
-
 public:
 	virtual void Update() override;
 	virtual void OnEnable() override;
@@ -90,7 +89,6 @@ public:
 public:
 	virtual void On() override;
 	virtual void Off() override;
-
 	virtual void Render();
 
 private:

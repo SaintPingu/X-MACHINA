@@ -25,7 +25,7 @@ private:
 
 	sptr<Script_Ability> mAbilityShield{};
 	sptr<Script_Ability> mAbilityIRDetector{};
-	sptr<Script_Ability> mAbilityMindControl{};
+	sptr<Script_Ability> mRemoteAbilityMindControl{};
 	sptr<Script_Ability> mAbilityCloaking{};
 	sptr<Script_Ability> mAbilityNightVision{};
 	sptr<Script_Ability> mAbilityAerialController{};
@@ -55,5 +55,6 @@ public:
 
 private:
 	bool IsInAerialControl();
+	bool IsInMindControl();
 	void UpdateUI();
 };

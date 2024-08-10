@@ -25,7 +25,6 @@ public:
 	virtual void On() override;
 	virtual void Off() override;
 
-
 protected:
 	virtual bool ReducePheroAmount(bool checkOnly = false) override;
 };

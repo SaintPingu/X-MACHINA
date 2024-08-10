@@ -18,6 +18,8 @@
 #include "BattleScene.h"
 #include "ClientNetwork/Include/LogManager.h"
 
+#include "Script_Ability_MindControl.h"
+
 void Script_NetworkRemotePlayer::Awake()
 {
 	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
@@ -79,6 +81,8 @@ void Script_NetworkRemotePlayer::Awake()
 
 	mAirstrike = std::make_shared<Airstrike>();
 	mAirstrike->Init();
+
+	mRemoteAbilityMindControl = mObject->AddComponent<Script_Remote_Ability_MindControl>(true, false);
 }
 
 void Script_NetworkRemotePlayer::Update()
@@ -268,6 +272,16 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 	}
 }
 
+void Script_NetworkRemotePlayer::RemoteOnMindControl(Object* pickedTarget)
+{
+	mRemoteAbilityMindControl->SetPickingObject(pickedTarget);
+	mRemoteAbilityMindControl->On();
+}
+
+void Script_NetworkRemotePlayer::RemoteOffMindControl(Object* pickedTarget)
+{
+	mRemoteAbilityMindControl->Off();
+}
 
 Vec3 Script_NetworkRemotePlayer::GetDirection(Vec3 dir)
 {

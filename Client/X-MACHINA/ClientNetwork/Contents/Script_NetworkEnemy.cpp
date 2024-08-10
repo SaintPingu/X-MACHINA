@@ -131,10 +131,10 @@ void Script_NetworkEnemy::Update()
 		MoveToTarget();
 	else if (mEnemyMgr->mState == EnemyState::Attack)
 		Attack();
-	else if (mEnemyMgr->mState == EnemyState::Idle)
-		Idle();
 	else if (mEnemyMgr->mState == EnemyState::Death)
 		Death();
+	else if (mEnemyMgr->mState == EnemyState::Idle)
+		Idle();
 }
 
 void Script_NetworkEnemy::MoveToTarget()
@@ -173,21 +173,15 @@ void Script_NetworkEnemy::Attack()
 	mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.AttackRotationSpeed);
 
 	mEnemy->Attack();
-
-	//mEnemyMgr->mController->SetValue("Walk", false);
-	//mEnemyMgr->mController->SetValue("Attack", true);
-	//mEnemyMgr->mController->SetValue("IsAttack", true);
 }
 
 void Script_NetworkEnemy::Idle()
 {
-	mEnemyMgr->Reset();
+	mEnemyMgr->RemoveAllAnimation();
 }
 
 void Script_NetworkEnemy::Death()
 {
-	mEnemyMgr->mState = EnemyState::Death;
-
 	mDeathAccTime += DeltaTime();
 
 	mEnemyMgr->RemoveAllAnimation();

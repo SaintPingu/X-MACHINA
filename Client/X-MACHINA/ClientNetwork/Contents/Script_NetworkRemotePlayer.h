@@ -11,6 +11,7 @@ class GridObject;
 class AnimatorController;
 class AnimatorMotion;
 class Airstrike;
+class Script_Remote_Ability_MindControl;
 
 
 /// +-------------------------------------------------
@@ -81,6 +82,8 @@ private:
 	GridObject* mCrntWeapon{};
 	sptr<Airstrike> mAirstrike{};
 
+	sptr<Script_Remote_Ability_MindControl> mRemoteAbilityMindControl{};
+
 	/// +-------------------------------------------------
 	///		WEAPON 
 	/// -------------------------------------------------+
@@ -140,6 +143,10 @@ public:
 	void		SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType);
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
+public:
+	void RemoteOnMindControl(Object* pickedTarget);
+	void RemoteOffMindControl(Object* pickedTarget);
+
 private:
 	void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);
 	void Script_NetworkRemotePlayer::SetMotionSpeed(AnimatorMotion* motion, float time);

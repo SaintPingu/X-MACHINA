@@ -41,10 +41,15 @@ void Script_Ability_MindControl::Start()
 void Script_Ability_MindControl::Update()
 {
 	base::Update();
+}
 
-	if (KEY_TAP(VK_LBUTTON)) {
+bool Script_Ability_MindControl::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+{
+	if (messageID == WM_LBUTTONDOWN) {
 		Click();
 	}
+
+	return true;
 }
 
 void Script_Ability_MindControl::On()
@@ -73,6 +78,7 @@ void Script_Ability_MindControl::Off()
 
 	ChangeAimToOrigin();
 
+	mPickedTarget = nullptr;
 }
 
 bool Script_Ability_MindControl::ReducePheroAmount(bool checkOnly)
@@ -94,6 +100,7 @@ Object* Script_Ability_MindControl::PickingObject(const Vec2& screenPos)
 		const Vec3 dir = MAIN_CAMERA->ScreenToWorldRay(InputMgr::I->GetMousePos());
 		const Vec3 pos = MAIN_CAMERA->GetPosition();
 		Ray ray{ pos, dir };
+		ray.Direction.Normalize();
 
 		// 월드 좌표계에서 레이와 바운딩 스피어의 충돌 검사
 		float distance = 0.f;
@@ -148,4 +155,24 @@ void Script_Ability_MindControl::ChangeAimToActive()
 	mPrevAimTexture = mAimController->GetTexture();
 	mPrevAimScale = mAimController->GetTextureScale();
 	mAimController->ChangeAimTexture(mMindControlAimTexture, Vec2(300.f, 300.f));
+}
+
+void Script_Remote_Ability_MindControl::SetPickingObject(Object* target)
+{
+	if (target) {
+		mPickedTarget = target;
+	}
+}
+
+void Script_Remote_Ability_MindControl::On()
+{
+	Script_RenderedAbility::On();
+	mPickedTarget->mObjectCB.MindRimFactor = 1.f;
+}
+
+void Script_Remote_Ability_MindControl::Off()
+{
+	Script_RenderedAbility::Off();
+	mPickedTarget->mObjectCB.MindRimFactor = 0.f;
+	mPickedTarget = nullptr;
 }

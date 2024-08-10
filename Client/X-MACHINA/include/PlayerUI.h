@@ -19,6 +19,7 @@ private:
 
 public:
 	PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel);
+	~PlayerUI();
 	
 public:
 	void SetWeapon(rsptr<Script_Weapon> weapon);
@@ -29,4 +30,5 @@ public:
 
 private:
 	void Reset();
+	void UpdateWeaponUIPos();
 };

@@ -45,6 +45,16 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& 
 	SetPosition(position);
 }
 
+PlayerUI::~PlayerUI()
+{
+	Reset();
+
+	mBackgroundDecoUI->Remove();
+	mBackgroundUI->Remove();
+	TextMgr::I->RemoveTextBox(mNameText);
+	TextMgr::I->RemoveTextBox(mLevelText);
+}
+
 void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
 {
 	static const std::unordered_map<WeaponName, std::string> kWeaponUIMap{
@@ -65,9 +75,6 @@ void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
 		{ WeaponName::MineLauncher, "WeaponMagUI_MineLauncher"},
 	};
 
-	static constexpr Vec2 kWeaponUIPosOffset{ -15, -20 };
-	static constexpr Vec2 kWeaponMagUIPosOffset{ 90, -20 };
-
 	Reset();
 
 	if (!weapon) {
@@ -83,7 +90,7 @@ void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	mWeapon = weapon;
 
 	const std::string& weaponUIName = kWeaponUIMap.at(weaponName);
-	mWeaponUI = Canvas::I->CreateUI<UI>(1, weaponUIName, mPos + kWeaponUIPosOffset);
+	mWeaponUI = Canvas::I->CreateUI<UI>(1, weaponUIName);
 
 	// mag //
 	if (!kWeaponMagUIMap.count(weaponName)) {
@@ -91,10 +98,11 @@ void PlayerUI::SetWeapon(rsptr<Script_Weapon> weapon)
 	}
 
 	const std::string& weaponMagUIName = kWeaponMagUIMap.at(weaponName);
-	mWeaponMagUI = Canvas::I->CreateUI<UI>(1, weaponMagUIName, mPos + kWeaponMagUIPosOffset);
+	mWeaponMagUI = Canvas::I->CreateUI<UI>(1, weaponMagUIName);
 	const std::string outlineName = weaponMagUIName + "_outline";
-	mWeaponMagOutlineUI = Canvas::I->CreateUI<UI>(2, outlineName, mPos + kWeaponMagUIPosOffset);
+	mWeaponMagOutlineUI = Canvas::I->CreateUI<UI>(2, outlineName);
 
+	UpdateWeaponUIPos();
 	Update();
 }
 
@@ -111,6 +119,8 @@ void PlayerUI::SetPosition(const Vec2& position)
 
 	static constexpr Vec2 kLevelUIOffset{ -100, 33 };
 	mLevelText->SetPosition(mPos + kLevelUIOffset);
+
+	UpdateWeaponUIPos();
 }
 
 void PlayerUI::SetColor(const Vec3& color)
@@ -155,5 +165,22 @@ void PlayerUI::Reset()
 	if (mWeaponMagOutlineUI) {
 		mWeaponMagOutlineUI->Remove();
 		mWeaponMagOutlineUI = nullptr;
+	}
+}
+
+void PlayerUI::UpdateWeaponUIPos()
+{
+	static constexpr Vec2 kWeaponUIPosOffset{ -15, -20 };
+	static constexpr Vec2 kWeaponMagUIPosOffset{ 90, -20 };
+
+	if (mWeaponUI) {
+		mWeaponUI->SetPosition(mPos + kWeaponUIPosOffset);
+	}
+
+	if (mWeaponMagUI) {
+		mWeaponMagUI->SetPosition(mPos + kWeaponMagUIPosOffset);
+	}
+	if (mWeaponMagOutlineUI) {
+		mWeaponMagOutlineUI->SetPosition(mPos + kWeaponMagUIPosOffset);
 	}
 }

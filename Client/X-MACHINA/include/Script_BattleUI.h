@@ -25,7 +25,10 @@ private:
 	};
 
 private:
-	std::unordered_map<const Object*, int> mPlayers{};
+	static constexpr int mkMaxIdx = 3;
+	int mLastIdx = -1;
+
+	std::map<const Object*, int> mPlayerIndices{};
 	std::vector<sptr<PlayerUI>> mPlayerUIs{};
 
 public:
@@ -40,7 +43,11 @@ public:
 
 private:
 	void CreatePlayerUI(const Object* player, const std::wstring& playerName, int playerLevel);
-	bool IsValidPlayer(const Object* player) const { return mPlayers.count(player); }
+	bool IsValidPlayer(const Object* player) const { return mPlayerIndices.count(player); }
+
+	Vec2 GetPos(int idx) const;
+	const Vec3& GetColor(int idx) const { return mkUIColors.at(idx); }
+	int GetIdx(const Object* player) const { return mPlayerIndices.at(player); }
 };
 
 #pragma endregion

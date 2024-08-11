@@ -23,7 +23,7 @@ void Script_Ability_Cloaking::Awake()
 
 	Init("Cloaking", 3.f);
 	SetPheroCost(30.f);
-	SetIconUI("Icon_B_Cloaking", "Icon_F_Cloaking", Vec2{ 70.f, 100.f }, Vec2{ 50.f }, mMaxCooldownTime);
+	SetIconUI("Icon_B_Cloaking", "Icon_F_Cloaking", Vec2{ 70.f, -400.f }, Vec2{ 50.f }, mMaxCooldownTime);
 
 	mAfterImage = mObject->AddComponent<Script_AfterImageObject>();
 	mAfterImage->SetAfterImage(10, 1.f);

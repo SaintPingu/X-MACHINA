@@ -48,6 +48,9 @@ public:
 	void Remove(const std::string& key);
 
 	template<typename T>
+	void RemoveAll();
+
+	template<typename T>
 	void ProcessFunc(std::function<void(sptr<T>)> processFunc);
 
 	template<typename T>
@@ -63,6 +66,7 @@ public:
 
 	sptr<ModelObjectMesh> LoadRectangleMesh();
 	sptr<ModelObjectMesh> LoadPointMesh();
+	void ReloadParticles() { LoadParticleSystemCPUData(); }
 
 private:
 	void LoadTextures();
@@ -140,6 +144,15 @@ inline void ResourceMgr::Remove(const std::string& key)
 	if (findIt != keyResMap.end()) {
 		mResources[static_cast<UINT8>(resourceType)].erase(key);
 	}
+}
+
+template<typename T>
+inline void ResourceMgr::RemoveAll()
+{
+	ResourceType resourceType = GetResourceType<T>();
+	KeyResMap& keyResMap = mResources[static_cast<UINT8>(resourceType)];
+
+	keyResMap.clear();
 }
 
 template<typename T>

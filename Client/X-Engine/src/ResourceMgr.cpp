@@ -559,6 +559,31 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.Position = Vec3{ 0.f, 0.f, 0.f };
 		ParticleSystem::SavePSCD(pscd);
 	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_Missile_Explosion_Smoke";
+		pscd.Duration = 1.5f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 10.f, 15.f };
+		pscd.StartSpeed = Vec2{ 0.1f, 0.1f };
+		pscd.StartSize = Vec2{ 3.f, 3.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.5f;
+		pscd.MaxParticles = 20;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 2.5f, 2.7f, 3.0 }, { 0.f, 0.1f, 1.f });
+		pscd.Emission.SetBurst(20);
+		pscd.Shape.SetCone(0.f, 2.0f, 0.1f, true);
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 1.f, 1.f });
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 0.35f, 0.35f, 0.35f }, Vec3{ 0.5f, 0.5f, 0.5f }, Vec3{ 0.65f, 0.65f, 0.65f }, Vec3{ 0.8f, 0.8f, 0.8f } }, { 0.f, 0.5f, 0.8f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.8f, 0.5f, 0.3f, 0.f }, { 0.f, 0.3f, 0.6f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
 }
 
 sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()
@@ -1475,6 +1500,8 @@ void ResourceMgr::LoadParticleSystemCPUData()
 {
 	const std::string rootFolder = "Import/ParticleSystems/";
 
+	ResourceMgr::I->RemoveAll<ParticleSystemCPUData>();
+	ResourceMgr::I->RemoveAll<ParticleSystemGPULoadData>();
 	for (const auto& file : std::filesystem::directory_iterator(rootFolder)) {
 		const std::string fileName = file.path().filename().string();
 		const std::string resName = FileIO::RemoveExtension(fileName);

@@ -29,6 +29,7 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "ResourceMgr.h"
 #include "SoundMgr.h"
 #include "TextMgr.h"
 #include "InputMgr.h"
@@ -62,6 +63,8 @@ void Script_BattleManager::Start()
 	mObject->AddComponent<Script_StageNameUI>();
 
 	GameFramework::I->ConnectServer();
+
+	//ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
 }
 
 
@@ -71,6 +74,10 @@ void Script_BattleManager::Update()
 
 	if (KEY_TAP('Q')) {
 		Engine::I->LoadScene(SceneType::Lobby);
+	}
+
+	if (KEY_TAP('P')) {
+		ResourceMgr::I->ReloadParticles();
 	}
 }
 

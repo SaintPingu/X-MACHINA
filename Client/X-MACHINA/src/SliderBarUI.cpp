@@ -48,20 +48,25 @@ void SliderBarUI::Update(float currPheroAmount)
 
 void SliderBarUI::AddDisplayValue(float currPheroAmount)
 {
-	constexpr float lerpSpeed = 0.01f;
+	constexpr float lerpSpeed = 0.25f;
 
-	// 증가시 보간을 통해 부드럽게 페로 증가
+	// 보간을 통해 부드럽게 증가
 	mDisplayFillValue = Math::LerpFloat(mDisplayFillValue, currPheroAmount, lerpSpeed);
 	if ((currPheroAmount - mDisplayFillValue) <= 0.01f) {
 		mDisplayFillValue = currPheroAmount;
 	}
 }
 
+void SliderBarUI::SetDissolve(const Vec3& color)
+{
+	mFillBarUI->SetDissolve(color);
+}
+
 void SliderBarUI::ReduceDisplayValue(float currPheroAmount)
 {
 	constexpr float lerpSpeed = 0.05f;
 
-	// 감소시 바로 페로 감소
+	// 바로 감소
 	mDisplayFillValue = currPheroAmount;
 
 	mDisplayEaseValue = Math::LerpFloat(mDisplayEaseValue, currPheroAmount, lerpSpeed);

@@ -184,6 +184,13 @@ SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 {
 }
 
+void SliderUI::SetDissolve(const Vec3& color)
+{
+	mObjectCB.LightIndex = RESOURCE<Texture>("BarDissolve")->GetSrvIdx();
+	mObjectCB.UseRefract = true;
+	mObjectCB.MindRimColor = color;
+}
+
 void SliderUI::UpdateShaderVars(rsptr<Texture> texture)
 {
 	mObjectCB.SliderValueX = mValue;

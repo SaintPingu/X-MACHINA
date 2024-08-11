@@ -29,6 +29,7 @@ public:
 	virtual ~SliderBarUI();
 
 public:
+	void SetDissolve(const Vec3& color);
 
 public:
 	void Update(float currValue);

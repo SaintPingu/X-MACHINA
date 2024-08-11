@@ -14,7 +14,7 @@
 
 
 #pragma region Define
-#define SERVER_COMMUNICATION
+//#define SERVER_COMMUNICATION
 
 #define _MATRIX(x)	XMLoadFloat4x4(&x)
 #define _VECTOR4(x)	XMLoadFloat4(&x)
@@ -167,22 +167,23 @@ struct ObjectConstants {
 	int     MatIndex{};
 	int     LightIndex{};
 	float	DeathElapsed{};
-
 	float	HitRimFactor{};
+
 	Vec3	HitRimColor{ 1.f, 0.f, 0.f };
-
 	float	MindRimFactor{};
-	Vec3	MindRimColor{ 0.5f, 0.f, 0.5f};
 
+	Vec3	MindRimColor{ 0.5f, 0.f, 0.5f};
 	int		UseRefract{};
+
 	int		UseOutline{};
 	int		DynamicEnvironmentMapIndex = -1;
 	float	AlphaIntensity = 1.f;
-
 	int		IsSkinMesh{};
-	int		IsHide{};
+
 	float	SliderValueX{};
 	float	SliderValueY{};
+	int		Padding1{};
+	int		Padding2{};
 };
 
 struct MinimapConstants {

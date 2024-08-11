@@ -80,6 +80,7 @@ void Script_BattleManager::Reset()
 
 	MainCamera::I->RemoveComponent<Script_MainCamera>();
 	mObject->RemoveComponent<Script_BattleUI>();
+	mObject->RemoveComponent<Script_StageNameUI>();
 
 	GameFramework::I->DisconnectServer();
 	mMainCamera = nullptr;

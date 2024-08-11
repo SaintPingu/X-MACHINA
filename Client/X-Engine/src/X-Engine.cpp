@@ -148,6 +148,8 @@ void Engine::LoadScene()
 
 	FRAME_RESOURCE_MGR->WaitForGpuComplete();
 
+	mCrntScene->Release();
+	ParticleManager::I->Clear();
 	Canvas::I->Clear();
 	TextMgr::I->Clear();
 
@@ -158,9 +160,6 @@ void Engine::LoadScene()
 		DXGIMgr::I->RenderScene();
 		DXGIMgr::I->Update();
 	}
-
-	ParticleManager::I->Clear();
-	mCrntScene->Release();
 
 	SceneType sceneType = static_cast<SceneType>(mNextSceneType);
 	switch (sceneType) {

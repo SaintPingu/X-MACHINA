@@ -45,13 +45,6 @@ void Script_MainCamera::Awake()
 	mMaxOffset.y = mMaxOffset.y > maxOffset.y ? maxOffset.y : mMaxOffset.y;
 }
 
-void Script_MainCamera::Start()
-{
-	base::Start();
-
-	//Init();
-}
-
 void Script_MainCamera::OnEnable()
 {
 	base::OnEnable();
@@ -75,13 +68,6 @@ void Script_MainCamera::Update()
 
 		RecoverExtraOffset();
 	}
-}
-
-void Script_MainCamera::LateUpdate()
-{
-	base::LateUpdate();
-
-	//HideObstacles();
 }
 
 void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
@@ -219,31 +205,4 @@ void Script_MainCamera::Shake()
 	mShakeOffset.x = std::clamp(mShakeOffset.x, -0.05f, 0.05f);
 	mShakeOffset.y = std::clamp(mShakeOffset.y, -0.05f, 0.05f);
 	mShakeOffset.z = std::clamp(mShakeOffset.z, -0.05f, 0.05f);
-}
-
-void Script_MainCamera::HideObstacles()
-{
-	Vec3 rayDir = MAIN_CAMERA->ScreenToWorldRay(Vec2::One);
-	rayDir.Normalize();
-	Ray rayCenter{};
-	rayCenter.Position = mObject->GetPosition();
-	rayCenter.Direction = rayDir;
-
-	constexpr float kSideWidth = 2.f;
-	const Ray rayLeft = { mObject->GetPosition() + Vec3(-kSideWidth, 0, 0), rayDir};
-	const Ray rayRight = { mObject->GetPosition() + Vec3(kSideWidth, 0, 0), rayDir};
-
-	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(mObject->GetPosition()), true);
-	for (const auto& grid : grids) {
-		for (const auto& object : grid->GetObjectsFromTag(ObjectTag::Building)) {
-			const auto& collider = object->GetCollider();
-
-			float dist = 0.f;
-			if (collider->Intersects(rayCenter, dist)) {
-				if (collider->Intersects(rayLeft, dist) || collider->Intersects(rayRight, dist)) {
-					object->Hide();
-				}
-			}
-		}
-	}
 }

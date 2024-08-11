@@ -43,7 +43,8 @@ void Script_NetworkRemotePlayer::Awake()
 	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 	mSpine = mObject->FindFrame("Humanoid_ Spine1");
 
-	const std::function<void()>& reloadCallback = std::bind(&Script_NetworkRemotePlayer::EndReloadCallback, this);
+	const std::function<void()>& endReloadCallback = std::bind(&Script_NetworkRemotePlayer::EndReloadCallback, this);
+	const std::function<void()>& startReloadCallback = std::bind(&Script_NetworkRemotePlayer::StartReloadCallback, this);
 	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
 		WeaponName weaponName = static_cast<WeaponName>(i);
 		std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
@@ -54,8 +55,9 @@ void Script_NetworkRemotePlayer::Awake()
 		Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
 		transform->SetChild(weapon->GetShared());
 
-		const auto& realodMotion = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
-		realodMotion->AddCallback(reloadCallback, realodMotion->GetMaxFrameRate() - 10); // for smooth animation, reload complete before [10] frame
+		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponName)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
+		realodMotion->AddCallback(endReloadCallback, realodMotion->GetMaxFrameRate() - 14);
+		realodMotion->AddStartCallback(startReloadCallback);
 	}
 	mCurrWeaponName = WeaponName::H_Lock;
 	mCrntWeapon = mWeapons[mCurrWeaponName];
@@ -86,15 +88,13 @@ void Script_NetworkRemotePlayer::Awake()
 			assert(0);
 			break;
 		}
-	}
-}
 
-void Script_NetworkRemotePlayer::Start()
-{
-	base::Start();
+		mWeaponScripts[weapon]->Awake();
+	}
 
 	mBattleUI = BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI();
 	mBattleUI->CreatePlayerUI(this);
+	mBattleUI->SetWeapon(mObject, mWeaponScripts[mCrntWeapon]);
 }
 
 void Script_NetworkRemotePlayer::Update()
@@ -285,6 +285,24 @@ void Script_NetworkRemotePlayer::EndReloadCallback()
 {
 	if (mWeaponScripts[mCrntWeapon]) {
 		mWeaponScripts[mCrntWeapon]->EndReload();
+	}
+
+	mBattleUI->UpdateWeapon(mObject);
+	mIsReloading = false;
+}
+
+void Script_NetworkRemotePlayer::StartReloadCallback()
+{
+	if (mIsReloading) {
+		return;
+	}
+	mIsReloading = true;
+
+	if (mWeaponScripts[mCrntWeapon]) {
+		mWeaponScripts[mCrntWeapon]->CheckReload();
+
+		auto motion = mReloadMotions[static_cast<int>(mCurrWeaponName)];
+		SetMotionSpeed(motion, mWeaponScripts[mCrntWeapon]->GetReloadTime());
 	}
 
 	mBattleUI->UpdateWeapon(mObject);
@@ -480,7 +498,7 @@ void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon>
 	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 	// motion speed
-	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
+	constexpr float decTime = 0.1f;
 	const float fireDelay = weapon->GetFireDelay();
 	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 }

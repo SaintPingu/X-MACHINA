@@ -273,12 +273,12 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 			mWeaponScript = nullptr;
 			mMuzzle = nullptr;
 			mCrntWeaponNum = 0;
+
+			RemoveWeaponUI();
 		}
 		weapon = nullptr;
 
 		mIsInDraw = false;
 		mIsInPutback = false;
-
-		RemoveWeaponUI();
 	}
 }

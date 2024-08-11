@@ -79,6 +79,8 @@ private:
 	std::unordered_map<WeaponName, GridObject*> mWeapons{};
 	std::unordered_map<GridObject*, sptr<Script_Weapon>> mWeaponScripts{};
 	GridObject* mCrntWeapon{};
+	std::unordered_map<int, AnimatorMotion*> mReloadMotions;
+	bool mIsReloading{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
@@ -91,7 +93,6 @@ private:
 	
 public:
 	virtual void Awake() override;
-	virtual void Start() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
 	virtual void LateUpdate() override;
@@ -151,6 +152,7 @@ public:
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
 	void EndReloadCallback();
+	void StartReloadCallback();
 
 private:
 	void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);

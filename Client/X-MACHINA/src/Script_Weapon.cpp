@@ -33,16 +33,10 @@ void Script_Weapon::Awake()
 
 	InitValues();
 	mMaxMag = 100; // TODO : for demo
-	CreateBulletPool();
-}
-
-void Script_Weapon::Start()
-{
-	base::Start();
-
 	mCurMag = mMaxMag;
 	mCurBulletCnt = mBulletCntPerMag;
 	mCurFireDelay = mMaxFireDelay;
+	CreateBulletPool();
 }
 
 void Script_Weapon::Update()

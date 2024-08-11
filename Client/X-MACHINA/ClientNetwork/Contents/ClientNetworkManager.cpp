@@ -770,9 +770,10 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnSkill(NetworkEvent:
 	case FBProtocol::PLAYER_SKILL_TYPE_IR_DETECTOR:
 		break;
 	case FBProtocol::PLAYER_SKILL_TYPE_MIND_CONTROL:
-		if (mRemoteMonsters.count(mindControl_monster_id)) {
-			script_NRP->ToggleAbilityMindControl(mRemoteMonsters[mindControl_monster_id]->GetObj());
+		if (!mRemoteMonsters.count(mindControl_monster_id)) {
+			break;
 		}
+		script_NRP->ToggleAbilityMindControl(mRemoteMonsters[mindControl_monster_id]->GetObj());
 		break;
 	case FBProtocol::PLAYER_SKILL_TYPE_SHIELD:
 		script_NRP->ToggleAbilityShield();
@@ -818,7 +819,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		// 몬스터가 이미 생성된 적이 있다면 
 		if (mRemoteMonsters.count(monsterID)) {
 			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
-			//mRemoteMonsters[monsterID]->SetState(monBtType);
 			mRemoteMonsters[monsterID]->SetPosition(position);
 			mRemoteMonsters[monsterID]->SetLocalRotation(Rotation);
 

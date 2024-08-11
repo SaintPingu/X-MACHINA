@@ -188,15 +188,15 @@ void Script_NetworkEnemy::Death()
 			script->Dead();
 		}
 
+		CLIENT_NETWORK->EraseMonster(mObject->GetID());
+
 		mEnemyMgr->RemoveAllAnimation();
 		mEnemyMgr->mController->SetValue("Death", true);
 	}
 
 	mDeathAccTime += DeltaTime();
 	if (mDeathAccTime >= mDeathRemoveTime) {
-
 		mObject->mObjectCB.HitRimFactor = 0.7f;
 		mObject->Destroy();
-		CLIENT_NETWORK->EraseMonster(mObject->GetID());
 	}
 }

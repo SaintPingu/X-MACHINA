@@ -64,7 +64,7 @@ void Script_BattleManager::Start()
 
 	GameFramework::I->ConnectServer();
 
-	//ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
+	ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
 }
 
 
@@ -78,6 +78,10 @@ void Script_BattleManager::Update()
 
 	if (KEY_TAP('P')) {
 		ResourceMgr::I->ReloadParticles();
+	}
+
+	if (KEY_TAP('L')) {
+		ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
 	}
 }
 

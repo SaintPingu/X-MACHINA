@@ -584,6 +584,33 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
 		ParticleSystem::SavePSCD(pscd);
 	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "Scene Dust";
+		pscd.Looping = true;
+		pscd.StartSpeed = Vec2{ 0.f, 0.f };
+		pscd.Position = Vec3{ 0.f, 0.5f, 0.f };
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 10.f, 15.f };
+		pscd.StartSize = Vec2{ 3.5f, 3.5f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.5f;
+		pscd.MaxParticles = 1000;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 3.5f, 5.f, 3.5f}, { 0.f, 0.5f, 1.f });
+		pscd.MaxAddCount = 5;
+		pscd.Emission.RateOverTime = 10;
+		pscd.Shape.SetCone(0.f, 40.f, 0.1f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ 1.f, 0.f, -1.f, 0.f }, Vec4{ 6.f, 2.f, 1.f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 1.f, 1.f });
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 0.7f, 0.7f, 0.7f }, Vec3{ 0.8f, 0.8f, 0.8f }, Vec3{ 0.9f, 0.9f, 0.9f }, Vec3{ 0.95f, 0.95f, 0.95f } }, { 0.f, 0.5f, 0.8f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.f, 0.3f, 0.1f, 0.f }, { 0.f, 0.5f, 0.8f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
 }
 
 sptr<ModelObjectMesh> ResourceMgr::LoadRectangleMesh()

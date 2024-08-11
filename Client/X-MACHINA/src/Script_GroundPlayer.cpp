@@ -98,7 +98,8 @@ void Script_GroundPlayer::Start()
 
 	mRotationSpeed = 360.f;
 
-	constexpr Vec3 kSpawnPoint = Vec3(100, 0, 220);
+	//constexpr Vec3 kSpawnPoint = Vec3(456, 0, 250);
+	constexpr Vec3 kSpawnPoint = Vec3(100, 0, 210); // ursacetus
 	//constexpr Vec3 kSpawnPoint = Vec3(250, 0, 210); // ursacetus
 	//constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230); // base camp
 

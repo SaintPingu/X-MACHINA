@@ -7,7 +7,7 @@
 #include "Object.h"
 #include "ClientNetworkManager.h"
 #include "AnimatorController.h"
-
+#include "Script_LiveObject.h"
 
 EnemyState Script_NetworkEnemy::GetState()
 {
@@ -182,12 +182,19 @@ void Script_NetworkEnemy::Idle()
 
 void Script_NetworkEnemy::Death()
 {
+	if (!mIsDeath) {
+		mIsDeath = true;
+		if (auto& script = mObject->GetComponent<Script_LiveObject>()) {
+			script->Dead();
+		}
+
+		mEnemyMgr->RemoveAllAnimation();
+		mEnemyMgr->mController->SetValue("Death", true);
+	}
+
 	mDeathAccTime += DeltaTime();
-
-	mEnemyMgr->RemoveAllAnimation();
-	mEnemyMgr->mController->SetValue("Death", true);
-
 	if (mDeathAccTime >= mDeathRemoveTime) {
+
 		mObject->mObjectCB.HitRimFactor = 0.7f;
 		mObject->Destroy();
 		CLIENT_NETWORK->EraseMonster(mObject->GetID());

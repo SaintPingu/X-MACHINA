@@ -617,14 +617,13 @@ bool FBsPacketFactory::Process_SPkt_Player_State(SPtr_Session session, const FBP
 
 bool FBsPacketFactory::Process_SPkt_NewMonster(SPtr_Session session, const FBProtocol::SPkt_NewMonster& pkt)
 {
-	std::cout << "PROCESS MONSTER NEW \n";
 	auto monsters = pkt.new_monsters();
 
 	std::vector<GameMonsterInfo> infos;
 	int newMonstersCnt = pkt.new_monsters()->size();
 	for (UINT16 i = 0; i < newMonstersCnt; ++i) {
 		auto info = GetMonsterInfo(pkt.new_monsters()->Get(i));
-		std::cout << info.Id << " \n";
+		std::cout << "Packet New Monster" << info.Id << "\n";
 		infos.push_back(info);
 	}
 

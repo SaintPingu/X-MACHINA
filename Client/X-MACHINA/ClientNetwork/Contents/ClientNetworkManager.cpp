@@ -812,6 +812,9 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		Vec3						SpineDir = monInfos[i].SDir;
 
 
+		LOG_MGR->Cout("[", monsterID, "] Add New Monster\n");
+
+
 		// 몬스터가 이미 생성된 적이 있다면 
 		if (mRemoteMonsters.count(monsterID)) {
 			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
@@ -893,7 +896,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			break;
 		}
 		Script_NetworkEnemy* enemyNetwork = monster->AddComponent<Script_NetworkEnemy>().get();
-		//enemyNetwork->SetPheroInfo(monInfos[i].mPheros);
 
 		// 들어온 몬스터를 관리하기 위해 mRemoteMonsters 에 집어 넣는다. 
 		if (monInfos[i].Target_Player_Id == 0) {
@@ -904,7 +906,6 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		}
 
 		mRemoteMonsters.insert(std::make_pair(monInfos[i].Id, enemyNetwork));
-		//mRemoteMonsters[monsterID]->SetState(monBtType);
 	}
 
 
@@ -915,6 +916,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Remove(NetworkEvent::Game::Event
 		if (!mRemoteMonsters.count(id)) {
 			continue;
 		}
+		LOG_MGR->Cout("[", id, "] Remove Monster\n");
 
 		mRemoteMonsters[id]->SetActiveMyObject(false);
 	}
@@ -937,6 +939,8 @@ void ClientNetworkManager::ProcessEvent_Monster_Dead(NetworkEvent::Game::Event_M
 			mRemotePheros.insert({phero->GetID(), phero});
 		}
 	}
+
+	LOG_MGR->Cout("[", monsterId, "] Dead\n");
 }
 
 void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data)
@@ -949,12 +953,11 @@ void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_M
 		if (!mRemoteMonsters.count(ID))
 			continue;
 
-		if ((Pos - mRemoteMonsters[ID]->GetPosition()).Length() >= 1.f) {
+		if ((Pos - mRemoteMonsters[ID]->GetPosition()).Length() >= 3.f) {
 			mRemoteMonsters[ID]->SetPosition(Pos);
 			mRemoteMonsters[ID]->SetRotation(Angle);
 		}
 		//mRemoteMonsters[ID]->SetPosition(Pos);
-
 		//mRemoteMonsters[ID]->SetTarget(nullptr);
 		//mRemoteMonsters[ID]->SetState(EnemyState::Idle);
 	}

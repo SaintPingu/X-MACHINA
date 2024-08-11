@@ -70,23 +70,6 @@ void Script_Enemy::Update()
 	}
 }
 
-void Script_Enemy::OnDestroy()
-{
-	mObject->mObjectCB.HitRimFactor = std::max(mObject->mObjectCB.HitRimFactor - DeltaTime(), 0.f);
-
-	if (mNoTarget) {
-		if (mEnemyMgr->mTarget) {
-			mNoTarget = false;
-			Detect();
-		}
-	}
-	else {
-		if (!mEnemyMgr->mTarget) {
-			mNoTarget = true;
-		}
-	}
-}
-
 void Script_Enemy::StartAttack()
 {
 	if (mCurrAttackCnt == AttackType::None) {

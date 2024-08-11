@@ -95,10 +95,16 @@ bool Script_Ability_Shield::ReducePheroAmount(bool checkOnly)
 
 
 
-
 /// +-------------------------------------------------
 ///		Script_Remote_Ability_Shield 
 /// -------------------------------------------------+
+void Script_Remote_Ability_Shield::Awake()
+{
+	base::Awake();
+
+	Init("RemoteShield", 0.f, 4.5f);
+}
+
  void Script_Remote_Ability_Shield::Update()
 {
 	 Script_RenderedAbility::Update();

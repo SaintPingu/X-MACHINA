@@ -39,7 +39,6 @@ protected:
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
-	virtual void OnDestroy() override;
 
 public:
 	virtual void StartAttack();

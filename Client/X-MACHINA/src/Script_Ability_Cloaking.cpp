@@ -62,9 +62,6 @@ void Script_Ability_Cloaking::On()
 	mObject->SetTag(ObjectTag::AfterSkinImage);
 
 #ifdef SERVER_COMMUNICATION
-	/// +-------------------------------
-	///		SKILLPACKET BROADCAST
-	/// -------------------------------+
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
 	CLIENT_NETWORK->Send(cpkt);
 #endif
@@ -80,6 +77,11 @@ void Script_Ability_Cloaking::Off()
 	mObject->mObjectCB.HitRimFactor = 0.f;
 	mAfterImage->SetActiveUpdate(false);
 	mObject->SetTag(mPrevInvokerTag);
+
+#ifdef SERVER_COMMUNICATION
+	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
+	CLIENT_NETWORK->Send(cpkt);
+#endif
 }
 
 bool Script_Ability_Cloaking::ReducePheroAmount(bool checkOnly)
@@ -99,6 +101,14 @@ bool Script_Ability_Cloaking::ReducePheroAmount(bool checkOnly)
 /// +-------------------------------------------------
 ///		Script_Remote_Ability_Cloaking 
 /// -------------------------------------------------+
+void Script_Remote_Ability_Cloaking::Awake()
+{
+	base::Awake();
+
+	Init("RemoteCloaking", 0.f);
+	SetType(Type::Toggle);
+}
+ 
 void Script_Remote_Ability_Cloaking::Update()
 {
 	Script_RenderedAbility::Update();

@@ -21,9 +21,9 @@ class Script_MiningMech : public Script_Enemy {
 	COMPONENT(Script_MiningMech, Script_Enemy)
 
 		enum class AttackType {
-		DiggerAttack = 0,
-		DrillAttack = 1,
-		SmashAttack = 2,
+		DiggerAttack = 1,
+		DrillAttack = 2,
+		SmashAttack = 3,
 
 		_count,
 	};

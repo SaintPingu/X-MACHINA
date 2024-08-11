@@ -33,6 +33,7 @@ class Script_Remote_Ability_Shield : public Script_Ability_Shield {
 	COMPONENT(Script_Remote_Ability_Shield, Script_Ability_Shield)
 
 public:
+	virtual void Awake() override;
 	virtual void Update() override;
 	virtual void On() override;
 	virtual void Off() override;

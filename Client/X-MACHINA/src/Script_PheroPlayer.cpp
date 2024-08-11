@@ -23,7 +23,7 @@ void Script_PheroPlayer::Update()
 {
 	base::Update();
 
-	AddPheroAmount(DeltaTime() * mPheroRegenRate);
+	//AddPheroAmount(DeltaTime() * mPheroRegenRate);
 }
 
 void Script_PheroPlayer::Respawn()

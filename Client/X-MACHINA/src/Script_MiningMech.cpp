@@ -28,6 +28,7 @@ void Script_MiningMech::Awake()
 void Script_MiningMech::Start()
 {
 	base::Start();
+	//mCurrAttackCnt = static_cast<int>(AttackType::BasicAttack);
 
 	mIndicator = mObject->AddComponent<Script_Ability_AttackIndicator>();
 	mIndicator.lock()->Init(1.8f, "RectangleIndicator");

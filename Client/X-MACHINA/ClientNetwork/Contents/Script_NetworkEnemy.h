@@ -15,6 +15,7 @@ private:
 
 	float mDeathAccTime{};
 	float mDeathRemoveTime{};
+	bool mIsDeath{};
 
 public:
 	EnemyState GetState();

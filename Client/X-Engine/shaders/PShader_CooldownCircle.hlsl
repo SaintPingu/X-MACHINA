@@ -21,7 +21,7 @@ float4 PSCooldownCircle(VSOutput_Tex input) : SV_TARGET
     float normalizedAngle = angle / (2.f * 3.141592f);
     normalizedAngle = frac(0.75f - normalizedAngle);
     
-    if (normalizedAngle > gObjectCB.SliderValue) {
+    if (normalizedAngle > gObjectCB.SliderValueX) {
         discard;
     }
     

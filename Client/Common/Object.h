@@ -107,9 +107,6 @@ public:
 public:
 	virtual void SetTag(ObjectTag tag) override;
 
-	void Hide();
-	void Show();
-
 protected:
 	virtual void Awake() override;
 	virtual void Update() override;

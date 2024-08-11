@@ -33,16 +33,10 @@ void Script_Weapon::Awake()
 
 	InitValues();
 	mMaxMag = 100; // TODO : for demo
-	CreateBulletPool();
-}
-
-void Script_Weapon::Start()
-{
-	base::Start();
-
 	mCurMag = mMaxMag;
 	mCurBulletCnt = mBulletCntPerMag;
 	mCurFireDelay = mMaxFireDelay;
+	CreateBulletPool();
 }
 
 void Script_Weapon::Update()
@@ -62,6 +56,10 @@ void Script_Weapon::Update()
 void Script_Weapon::OnEnable()
 {
 	base::OnEnable();
+
+	if (IsPlayerWeapon()) {
+
+	}
 }
 
 void Script_Weapon::OnDisable()
@@ -71,15 +69,13 @@ void Script_Weapon::OnDisable()
 
 void Script_Weapon::FireBullet()
 {
-	if (!mOwner) {
-		return;
-	}
-
 	--mCurBulletCnt;
 	ParticleManager::I->Play("WFX_Muzzle_Flash", mMuzzle);
 	ParticleManager::I->Play("WFX_Muzzle_Smoke", mMuzzle);
 
-	mOwner->BulletFired();
+	if (mOwner) {
+		mOwner->BulletFired();
+	}
 }
 
 void Script_Weapon::SetFiringMode(FiringMode firingMode)
@@ -130,7 +126,7 @@ void Script_Weapon::EndReload()
 
 bool Script_Weapon::InitReload()
 {
-	mCurBulletCnt = mCurBulletCnt > 0 ? 1 : 0;  // 약실 -> 1발 장전 상태
+	mCurBulletCnt = 0;
 	mCurReloadTime = 0.f;
 	mIsReload = true;
 

@@ -82,7 +82,7 @@ void TextBox::CreateBrush()
 		option.FontStyle,
 		option.FontStretch,
 		option.FontSize,
-		L"en-us",
+		L"ko-kr",
 		&mTextFormat)
 	);
 

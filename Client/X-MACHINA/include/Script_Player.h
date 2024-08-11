@@ -13,6 +13,7 @@ class AnimatorMotion;
 class AnimatorController;
 class Script_Weapon;
 class Script_MainCamera;
+class Script_BattleUI;
 class GridObject;
 #pragma endregion
 
@@ -22,6 +23,9 @@ class Script_Player abstract : public Script_LiveObject {
 	COMPONENT_ABSTRACT(Script_Player, Script_LiveObject)
 
 private:
+	int mLevel{};
+	std::wstring mName{ L"Unknown" };
+
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 	bool mIsInteracted{};
 
@@ -33,6 +37,12 @@ public:
 	virtual void Update() override;
 
 public:
+	const std::wstring& GetName() const { return mName; }
+	int GetLevel() const { return mLevel; }
+
+	void SetName(const std::wstring& name) { mName = name; }
+	void SetLevel(int level) { mLevel = level; }
+
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.
 	void SetSpawn(const Vec3& pos);
 
@@ -62,24 +72,29 @@ private:
 	int mNextWeaponNum{};
 	bool mIsInDraw{};
 	bool mIsInPutback{};
+	int mPlayerIdx{};
 
 protected:
+	Script_BattleUI* mBattleUI{};
 	GridObject* mWeapon{};
 	sptr<Script_Weapon> mWeaponScript{};
 	std::vector<GridObject*> mWeapons{};
 	Transform* mMuzzle{};
 
 public:
+	virtual void Start() override;
 	virtual void OnDestroy() override;
 
 public:
+	rsptr<Script_Weapon> GetCrntWeapon() const { return mWeaponScript; }
+
 	bool IsInGunChangeMotion() const { return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const { return mIsInDraw; }
 	bool IsInPutBack() const { return mIsInPutback; }
 
-	virtual void BulletFired() {}
-
 public:
+	virtual void BulletFired();
+
 	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
@@ -90,6 +105,8 @@ public:
 	virtual void DrawWeapon(int weaponNum);
 
 	void SendCrntWeapon();
+	void RemoveWeaponUI() const;
+	void UpdateWeaponUI() const;
 
 protected:
 	int GetCrntWeaponIdx() const { return mCrntWeaponNum - 1; }
@@ -183,7 +200,6 @@ public:
 	void UpdateParams(Dir dir, float v, float h, float rotAngle);
 	void ProcessInput();
 	virtual bool ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
-	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam) override;
 
 	// direction 방향으로 이동한다.
 	virtual void Move(Dir dir);

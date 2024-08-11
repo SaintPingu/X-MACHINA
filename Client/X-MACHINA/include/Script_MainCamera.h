@@ -8,6 +8,7 @@
 
 #pragma region ClassForwardDecl
 class GameObject;
+class GridObject;
 #pragma endregion
 
 
@@ -32,16 +33,16 @@ private:
 	float				mShakeAmount{};
 	bool				mIsMoved{};
 
+	std::set<GridObject*> mHiddenBuildings{};
+
 public:
 	void SetCameraOffset(const Vec3& offset);
 	void SetCameraTarget(GameObject* target);
 
 public:
 	virtual void Awake() override;
-	virtual void Start() override;
 	virtual void OnEnable() override;
 	virtual void Update() override;
-	virtual void LateUpdate() override;
 
 
 	// [weight]      : 각 방향에 얼마나 가중치를 둘 것인가(0~1)
@@ -64,7 +65,5 @@ private:
 	void RecoverExtraOffset();
 
 	void Shake();
-
-	void HideObstacles();
 };
 #pragma endregion

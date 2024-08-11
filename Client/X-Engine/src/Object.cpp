@@ -118,16 +118,6 @@ void GridObject::SetTag(ObjectTag tag)
 	BattleScene::I->UpdateTag(this, beforeTag);
 }
 
-void GridObject::Hide()
-{
-	mObjectCB.IsHide = true;
-}
-
-void GridObject::Show()
-{
-	mObjectCB.IsHide = false;
-}
-
 void GridObject::Awake()
 {
 	mCollider = AddComponent<ObjectCollider>().get();
@@ -148,7 +138,6 @@ void GridObject::Update()
 {
 	base::Update();
 
-	Show();
 	if (IsActive()) {
 		UpdateGrid();
 	}

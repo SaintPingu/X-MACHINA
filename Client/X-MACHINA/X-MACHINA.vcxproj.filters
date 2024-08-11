@@ -458,6 +458,9 @@
       <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>
     </ClInclude>
     <ClInclude Include="include\CooldownCircleUI.h">
+    <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PlayerUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -711,6 +714,9 @@
     <ClCompile Include="src\Script_StageNameUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
+    <ClCompile Include="src\Script_PlayerController.cpp">
+      <Filter>Script\Player</Filter>
+    </ClCompile>
     <ClCompile Include="src\Script_Ability.cpp">
       <Filter>Script\Abilities</Filter>
     </ClCompile>
@@ -756,8 +762,8 @@
     <ClCompile Include="src\Script_ExplosiveBullet.cpp">
       <Filter>Script\Weapon\Bulltet</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_PlayerController.cpp">
-      <Filter>Script\Player</Filter>
+    <ClCompile Include="src\PlayerUI.cpp">
+      <Filter>Script\UI</Filter>
     </ClCompile>
     <ClCompile Include="ClientNetwork\Contents\Script_NetworkPhero.cpp">
       <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>

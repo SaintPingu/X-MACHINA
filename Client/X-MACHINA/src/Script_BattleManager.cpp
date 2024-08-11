@@ -29,6 +29,7 @@
 #include "BattleScene.h"
 #include "Object.h"
 #include "ScriptExporter.h"
+#include "ResourceMgr.h"
 #include "SoundMgr.h"
 #include "TextMgr.h"
 #include "InputMgr.h"
@@ -47,7 +48,7 @@ void Script_BattleManager::Awake()
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
 
-	mObject->AddComponent<Script_BattleUI>();
+	mUI = mObject->AddComponent<Script_BattleUI>().get();
 	mObject->AddComponent<Script_AbilityManager>();
 }
 
@@ -62,12 +63,18 @@ void Script_BattleManager::Start()
 	mObject->AddComponent<Script_StageNameUI>();
 
 	GameFramework::I->ConnectServer();
+
+	ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
 }
 
 
 void Script_BattleManager::Update()
 {
 	base::Update();
+	
+	if (KEY_TAP('P')) {
+		ResourceMgr::I->ReloadParticles();
+	}
 }
 
 void Script_BattleManager::Reset()
@@ -76,6 +83,7 @@ void Script_BattleManager::Reset()
 
 	MainCamera::I->RemoveComponent<Script_MainCamera>();
 	mObject->RemoveComponent<Script_BattleUI>();
+	mObject->RemoveComponent<Script_StageNameUI>();
 
 	GameFramework::I->DisconnectServer();
 	mMainCamera = nullptr;

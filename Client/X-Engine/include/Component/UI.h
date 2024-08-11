@@ -53,6 +53,7 @@ public:
 
 	void SetScale(const Vec2& scale);
 
+	void RemoveColor();
 	void SetColor(const Vec3& color);
 	virtual void SetHover(bool val);
 	void SetHoverable(bool val) { mIsHoverable = val; }
@@ -86,6 +87,7 @@ public:
 public:
 	void SetMinMaxValue(float min = 0.f, float max = 1.f) { mMinValue = min, mMaxValue = max; }
 	void SetValue(float value) { mValue = value / mMaxValue; }
+	void SetDissolve(const Vec3& color);
 
 protected:
 	virtual void UpdateShaderVars(rsptr<Texture> texture) override;

@@ -3,12 +3,24 @@
 
 #include "Script_Weapon.h"
 #include "Script_Item.h"
+#include "Script_BattleManager.h"
+#include "Script_BattleUI.h"
 
+#include "BattleScene.h"
 #include "Object.h"
+
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
+
+void Script_ShootingPlayer::Start()
+{
+	base::Start();
+
+	mBattleUI = BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI();
+	mBattleUI->CreatePlayerUI(this);
+}
 
 void Script_ShootingPlayer::OnDestroy()
 {
@@ -20,6 +32,13 @@ void Script_ShootingPlayer::OnDestroy()
 			BattleScene::I->RemoveDynamicObject(weapon);
 		}
 	}
+
+	mBattleUI->RemovePlayer(mObject);
+}
+
+void Script_ShootingPlayer::BulletFired()
+{
+	UpdateWeaponUI();
 }
 
 bool Script_ShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
@@ -110,6 +129,14 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		mMuzzle = mWeaponScript->GetMuzzle();
 
 		SendCrntWeapon();
+		if (mBattleUI) {
+			mBattleUI->SetWeapon(mObject, mWeaponScript);
+		}
+
+#ifdef SERVER_COMMUNICATION
+		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
+		CLIENT_NETWORK->Send(cpkt); 
+#endif
 	}
 }
 
@@ -157,6 +184,20 @@ void Script_ShootingPlayer::SendCrntWeapon()
 	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
 	CLIENT_NETWORK->Send(cpkt);
 #endif
+}
+
+void Script_ShootingPlayer::RemoveWeaponUI() const
+{
+	if (mBattleUI) {
+		mBattleUI->SetWeapon(mObject, nullptr);
+	}
+}
+
+void Script_ShootingPlayer::UpdateWeaponUI() const
+{
+	if (mBattleUI) {
+		mBattleUI->UpdateWeapon(mObject);
+	}
 }
 
 void Script_ShootingPlayer::DrawWeaponStart(int weaponNum, bool isDrawImmed)
@@ -228,7 +269,7 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 	auto& weapon = mWeapons[weaponIdx];
 	if (weapon) {
 		weapon->DetachParent(false);
-		weapon->SetLocalRotation(Quat::Identity);
+		weapon->SetLocalRotation(Vec3(0, 90, 0));
 		weapon->SetTag(ObjectTag::Item);
 
 		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
@@ -241,6 +282,8 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 			mWeaponScript = nullptr;
 			mMuzzle = nullptr;
 			mCrntWeaponNum = 0;
+
+			RemoveWeaponUI();
 		}
 		weapon = nullptr;
 

@@ -111,26 +111,25 @@ struct ParticleInfo
 struct ObjectInfo {
     matrix  MtxWorld;
     matrix  MtxSprite;
+    
     int     MatIndex;
     int     LightIndex;
     float   DeathElapsed;
-    float   SliderValue;
-    
     float   HitRimFactor;
+    
     float3  HitRimColor;
-    
     float   MindRimFactor;
-    float3  MindRimColor;
     
+    float3  MindRimColor;
     uint    UseRefract;
+    
     uint    UseOutline;
 	int		DynamicEnvironmentMapIndex;
     float   AlphaIntensity;
-    
     uint    IsSkinMesh;
-    uint    IsHide;
-    uint    Padding1;
-    uint    Padding2;
+    
+    float   SliderValueX;
+    float   SliderValueY;
 };
 
 struct PassInfo {

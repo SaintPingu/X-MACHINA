@@ -14,6 +14,7 @@ class Airstrike;
 class Script_Remote_Ability_Shield;
 class Script_Remote_Ability_Cloaking;
 class Script_Remote_Ability_MindControl;
+class Script_BattleUI;
 
 
 /// +-------------------------------------------------
@@ -87,12 +88,17 @@ private:
 	sptr<Script_Remote_Ability_Shield> mRemoteAbilityShield{};
 	sptr<Script_Remote_Ability_Cloaking> mRemoteAbilityCloaking{};
 	sptr<Script_Remote_Ability_MindControl> mRemoteAbilityMindControl{};
+	std::unordered_map<int, AnimatorMotion*> mReloadMotions;
+	bool mIsReloading{};
 
 	/// +-------------------------------------------------
 	///		WEAPON 
 	/// -------------------------------------------------+
 	WeaponName	       mCurrWeaponName			= {};
 
+	Script_BattleUI* mBattleUI{};
+	std::wstring mName{ L"Remote_Unknown" };
+	int mLevel{};
 	
 public:
 	virtual void Awake() override;
@@ -103,6 +109,13 @@ public:
 
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+
+public:
+	const std::wstring& GetName() const { return mName; }
+	int GetLevel() const { return mLevel; }
+
+	void SetName(const std::wstring& name) { mName = name; }
+	void SetLevel(int level) { mLevel = level; }
 
 	/// +-------------------------------------------------
 	///		Extrapolate 
@@ -151,6 +164,8 @@ public:
 	void ToggleAbilityShield();
 	void ToggleAbilityCloaking();
 	void ToggleAbilityMindControl(Object* pickedTarget);
+	void EndReloadCallback();
+	void StartReloadCallback();
 
 private:
 	void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon> weapon);

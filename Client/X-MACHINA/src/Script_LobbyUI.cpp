@@ -11,9 +11,9 @@
 #include "TextMgr.h"
 #include "SoundMgr.h"
 
-void Script_LobbyUI::Start()
+void Script_LobbyUI::Awake()
 {
-	base::Start();
+	base::Awake();
 
 	// Panels
 	{

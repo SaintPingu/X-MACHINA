@@ -22,7 +22,8 @@ UI::UI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	Object()
 {
 	mTexture = RESOURCE<Texture>(textureName);
-	mObjectCB.SliderValue = 1.f;
+	mObjectCB.SliderValueX = 1.f;
+	mObjectCB.SliderValueY = 1.f;
 
 	// The object constant buffer usage flag can be set directly.
 	SetUseObjCB(true);
@@ -153,6 +154,11 @@ void UI::SetHover(bool val)
 	}
 }
 
+void UI::RemoveColor()
+{
+	mObjectCB.UseOutline = false;
+}
+
 void UI::SetColor(const Vec3& color)
 {
 	mObjectCB.UseOutline = true;
@@ -178,9 +184,16 @@ SliderUI::SliderUI(const std::string& textureName, const Vec2& pos, Vec2 scale)
 {
 }
 
+void SliderUI::SetDissolve(const Vec3& color)
+{
+	mObjectCB.LightIndex = RESOURCE<Texture>("BarDissolve")->GetSrvIdx();
+	mObjectCB.UseRefract = true;
+	mObjectCB.MindRimColor = color;
+}
+
 void SliderUI::UpdateShaderVars(rsptr<Texture> texture)
 {
-	mObjectCB.SliderValue = mValue;
+	mObjectCB.SliderValueX = mValue;
 
 	UI::UpdateShaderVars(mTexture);
 }

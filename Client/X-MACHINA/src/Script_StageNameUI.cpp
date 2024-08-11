@@ -15,13 +15,13 @@ void Script_StageNameUI::Awake()
 	mT = 0.f;
 
 	Vec2 pos(5, 350);
-	mStageUIs.emplace_back(0, Canvas::I->CreateUI<UI>(0, "BaseCampName", pos));
-	mStageUIs.emplace_back(110, Canvas::I->CreateUI<UI>(0, "Stage1Name", pos));
-	mStageUIs.emplace_back(240, Canvas::I->CreateUI<UI>(0, "UrsacetusName", pos));
-	mStageUIs.emplace_back(300, Canvas::I->CreateUI<UI>(0, "Stage2Name", pos));
-	mStageUIs.emplace_back(440, Canvas::I->CreateUI<UI>(0, "TutelarisName", pos));
-	mStageUIs.emplace_back(510, Canvas::I->CreateUI<UI>(0, "Stage3Name", pos));
-	mStageUIs.emplace_back(620, Canvas::I->CreateUI<UI>(0, "DeusName", pos));
+	mStageUIs.emplace_back(0, Canvas::I->CreateUI<UI>(9, "BaseCampName", pos));
+	mStageUIs.emplace_back(110, Canvas::I->CreateUI<UI>(9, "Stage1Name", pos));
+	mStageUIs.emplace_back(240, Canvas::I->CreateUI<UI>(9, "UrsacetusName", pos));
+	mStageUIs.emplace_back(300, Canvas::I->CreateUI<UI>(9, "Stage2Name", pos));
+	mStageUIs.emplace_back(440, Canvas::I->CreateUI<UI>(9, "TutelarisName", pos));
+	mStageUIs.emplace_back(510, Canvas::I->CreateUI<UI>(9, "Stage3Name", pos));
+	mStageUIs.emplace_back(620, Canvas::I->CreateUI<UI>(9, "DeusName", pos));
 
 	for (const auto& ui : mStageUIs) {
 		ui.mUI->SetActive(false);

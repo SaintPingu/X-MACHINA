@@ -54,7 +54,7 @@ public:
 	bool IsAwake() const { return mIsAwake; }
 	bool IsStart() const { return mIsStart; }
 	bool IsActive() const { return mIsActive; }
-	Object* GetObj() { return mObject; }
+	Object* GetObj() const { return mObject; }
 
 	void SetActive(bool isActive);
 

@@ -9,6 +9,8 @@
 #include "Script_Weapon_MissileLauncher.h"
 #include "Script_Weapon_MineLauncher.h"
 #include "Airstrike.h"
+#include "Script_BattleManager.h"
+#include "Script_BattleUI.h"
 
 #include "Timer.h"
 #include "Object.h"
@@ -25,19 +27,30 @@
 
 void Script_NetworkRemotePlayer::Awake()
 {
+	static const std::unordered_map<WeaponType, std::string> kReloadMotions{
+		{WeaponType::HandedGun, "Reload2HandedGun" },
+		{WeaponType::AssaultRifle, "ReloadAssaultRifle" },
+		{WeaponType::ShotGun, "ReloadShotgun" },
+		{WeaponType::MissileLauncher, "ReloadMissileLauncher"  },
+		{WeaponType::Sniper, "ReloadAssaultRifle" },
+		{WeaponType::MineLauncher, "ReloadOverheatBeamGun" },
+	};
+
 	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
-	{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
-	{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
-	{WeaponType::ShotGun, "RefPosShotgun_Action" },
-	{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
-	{WeaponType::Sniper, "RefPosSniper_Action" },
-	{WeaponType::MineLauncher, "RefPosLightningGun_Action" },
+		{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
+		{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
+		{WeaponType::ShotGun, "RefPosShotgun_Action" },
+		{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+		{WeaponType::Sniper, "RefPosSniper_Action" },
+		{WeaponType::MineLauncher, "RefPosLightningGun_Action" },
 	};
 
 	base::Awake();
 	mController = mObject->GetObj<GameObject>()->GetAnimator()->GetController();
 	mSpine = mObject->FindFrame("Humanoid_ Spine1");
 
+	const std::function<void()>& endReloadCallback = std::bind(&Script_NetworkRemotePlayer::EndReloadCallback, this);
+	const std::function<void()>& startReloadCallback = std::bind(&Script_NetworkRemotePlayer::StartReloadCallback, this);
 	for (int i = 0; i < static_cast<int>(WeaponName::_count); ++i) {
 		WeaponName weaponName = static_cast<WeaponName>(i);
 		const std::string weaponModelName = Script_Weapon::GetWeaponModelName(weaponName);
@@ -51,8 +64,13 @@ void Script_NetworkRemotePlayer::Awake()
 		WeaponType weaponType = gkWeaponTypeMap.at(weaponName);
 		Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType));
 		transform->SetChild(weapon->GetShared());
+
+		const auto& realodMotion = mReloadMotions[static_cast<int>(weaponName)] = mController->FindMotionByName(kReloadMotions.at(weaponType), "Body");
+		realodMotion->AddCallback(endReloadCallback, realodMotion->GetMaxFrameRate() - 14);
+		realodMotion->AddStartCallback(startReloadCallback);
 	}
-	mCrntWeapon = mWeapons[WeaponName::H_Lock];
+	mCurrWeaponName = WeaponName::H_Lock;
+	mCrntWeapon = mWeapons[mCurrWeaponName];
 	mCrntWeapon->SetActive(true);
 
 	for (const auto& [weaponName, weapon] : mWeapons) {
@@ -80,6 +98,8 @@ void Script_NetworkRemotePlayer::Awake()
 			assert(0);
 			break;
 		}
+
+		mWeaponScripts[weapon]->Awake();
 	}
 
 	mAirstrike = std::make_shared<Airstrike>();
@@ -88,6 +108,10 @@ void Script_NetworkRemotePlayer::Awake()
 	mRemoteAbilityShield = mObject->AddComponent<Script_Remote_Ability_Shield>(true, false);
 	mRemoteAbilityCloaking = mObject->AddComponent<Script_Remote_Ability_Cloaking>(true, false);
 	mRemoteAbilityMindControl = mObject->AddComponent<Script_Remote_Ability_MindControl>(true, false);
+	
+	mBattleUI = BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI();
+	mBattleUI->CreatePlayerUI(this);
+	mBattleUI->SetWeapon(mObject, mWeaponScripts[mCrntWeapon]);
 }
 
 void Script_NetworkRemotePlayer::Update()
@@ -101,6 +125,7 @@ void Script_NetworkRemotePlayer::Update()
 	if (mFireCnt > 0) {
 		--mFireCnt;
 		mWeaponScripts.at(mCrntWeapon)->FireBullet_Force();
+		mBattleUI->UpdateWeapon(mObject);
 	}
 }
 
@@ -112,6 +137,8 @@ void Script_NetworkRemotePlayer::OnDestroy()
 		weapon->mParent = nullptr;
 		BattleScene::I->RemoveDynamicObject(weapon);
 	}
+
+	mBattleUI->RemovePlayer(mObject);
 }
 
 void Script_NetworkRemotePlayer::LateUpdate()
@@ -274,7 +301,35 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 	if (mWeapons.count(mCurrWeaponName)) {
 		mCrntWeapon = mWeapons[mCurrWeaponName];
 		mCrntWeapon->SetActive(true);
+		mBattleUI->SetWeapon(mObject, mWeaponScripts[mCrntWeapon]);
 	}
+}
+
+void Script_NetworkRemotePlayer::EndReloadCallback()
+{
+	if (mWeaponScripts[mCrntWeapon]) {
+		mWeaponScripts[mCrntWeapon]->EndReload();
+	}
+
+	mBattleUI->UpdateWeapon(mObject);
+	mIsReloading = false;
+}
+
+void Script_NetworkRemotePlayer::StartReloadCallback()
+{
+	if (mIsReloading) {
+		return;
+	}
+	mIsReloading = true;
+
+	if (mWeaponScripts[mCrntWeapon]) {
+		mWeaponScripts[mCrntWeapon]->CheckReload();
+
+		auto motion = mReloadMotions[static_cast<int>(mCurrWeaponName)];
+		SetMotionSpeed(motion, mWeaponScripts[mCrntWeapon]->GetReloadTime());
+	}
+
+	mBattleUI->UpdateWeapon(mObject);
 }
 
 void Script_NetworkRemotePlayer::ToggleAbilityShield()
@@ -494,7 +549,7 @@ void Script_NetworkRemotePlayer::ResetBoltActionMotionSpeed(rsptr<Script_Weapon>
 	auto boltActionMotion = mController->FindMotionByName("BoltActionSniper", "Body");
 
 	// motion speed
-	constexpr float decTime = 0.1f; // [decTime]�� ��ŭ �ִϸ��̼��� �� ���� ����Ѵ�??.
+	constexpr float decTime = 0.1f;
 	const float fireDelay = weapon->GetFireDelay();
 	SetMotionSpeed(boltActionMotion, fireDelay - decTime);
 }

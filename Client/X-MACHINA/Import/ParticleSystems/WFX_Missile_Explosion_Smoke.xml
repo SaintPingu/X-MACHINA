@@ -6,7 +6,7 @@
 	<MaxAddCount>0</MaxAddCount>
 	<Position class_id="1" tracking_level="0" version="0">
 		<s.x>0.000000000e+00</s.x>
-		<s.y>0.000000000e+00</s.y>
+		<s.y>5.000000000e-01</s.y>
 		<s.z>0.000000000e+00</s.z>
 	</Position>
 	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
@@ -19,8 +19,8 @@
 		<s.y>1.500000000e+01</s.y>
 	</StartLifeTime>
 	<StartSpeed>
-		<s.x>1.000000015e-01</s.x>
-		<s.y>1.000000015e-01</s.y>
+		<s.x>2.000000030e-01</s.x>
+		<s.y>1.000000000e+00</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="3" tracking_level="0" version="0">
 		<s.x>1.000000000e+00</s.x>
@@ -123,29 +123,29 @@
 		</Bursts>
 	</Emission>
 	<Shape class_id="10" tracking_level="0" version="0">
-		<ShapeType>3</ShapeType>
-		<Angle>0.000000000e+00</Angle>
-		<Radius>2.000000000e+00</Radius>
-		<RadiusThickness>1.000000015e-01</RadiusThickness>
-		<Arc>1.000000000e+00</Arc>
+		<ShapeType>2</ShapeType>
+		<Angle>2.500000000e+01</Angle>
+		<Radius>1.000000000e+00</Radius>
+		<RadiusThickness>1.000000000e+00</RadiusThickness>
+		<Arc>0.000000000e+00</Arc>
 	</Shape>
 	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
-		<Option>0</Option>
-		<IsOn>0</IsOn>
-		<Param1>0.000000000e+00</Param1>
+		<Option>2</Option>
+		<IsOn>1</IsOn>
+		<Param1>1.000000000e+00</Param1>
 		<Param2>0.000000000e+00</Param2>
 		<Vals>
 			<elems>
 				<count>4</count>
 				<item>
 					<s.x>0.000000000e+00</s.x>
-					<s.y>0.000000000e+00</s.y>
+					<s.y>1.000000000e+00</s.y>
 					<s.z>0.000000000e+00</s.z>
 					<s.w>0.000000000e+00</s.w>
 				</item>
 				<item>
 					<s.x>0.000000000e+00</s.x>
-					<s.y>0.000000000e+00</s.y>
+					<s.y>3.000000000e+00</s.y>
 					<s.z>0.000000000e+00</s.z>
 					<s.w>0.000000000e+00</s.w>
 				</item>
@@ -229,8 +229,8 @@
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
-				<item>3.000000119e-01</item>
-				<item>6.000000238e-01</item>
+				<item>2.000000030e-01</item>
+				<item>4.000000060e-01</item>
 				<item>1.000000000e+00</item>
 			</elems>
 		</AlphaKeys>

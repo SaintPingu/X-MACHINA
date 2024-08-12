@@ -44,13 +44,10 @@ class Script_Item_WeaponCrate : public Script_Item, SceneScript {
 	COMPONENT(Script_Item_WeaponCrate, Script_Item)
 
 public:
-	WeaponName mWeaponName;
 	Transform* mCap{};
 
 	float mCapPitch{};
 	bool mIsOpend{};
-
-	GameObject* mWeapon{};
 
 public:
 	virtual void Awake() override;

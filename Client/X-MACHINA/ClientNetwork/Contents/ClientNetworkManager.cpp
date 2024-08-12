@@ -460,7 +460,7 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation> ClientNetworkMan
 	return Event;
 }
 
-sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> ClientNetworkManager::CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::WEAPON_TYPE weaponType)
+sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> ClientNetworkManager::CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::ITEM_TYPE weaponType)
 {
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>();
 
@@ -605,6 +605,34 @@ sptr<NetworkEvent::Game::Event_Contents::Chat> ClientNetworkManager::CreateEvent
 	return Event;
 }
 
+sptr<NetworkEvent::Game::Event_Item::Item_Interact> ClientNetworkManager::CreateEvent_Item_Interact(uint32_t player_id, uint32_t item_id, FBProtocol::ITEM_TYPE item_type, Vec3 drop_Pos)
+{
+	sptr<NetworkEvent::Game::Event_Item::Item_Interact> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Item::Item_Interact>();
+
+	Event->type = NetworkEvent::Game::ItemType::Item_Interact;
+
+	Event->player_id = player_id;
+	Event->item_id   = item_id;
+	Event->drop_Pos  = drop_Pos;
+	Event->item_type = item_type;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway> ClientNetworkManager::CreateEvent_Item_ThrowAway(uint32_t player_id, uint32_t item_id, FBProtocol::ITEM_TYPE item_type, Vec3 drop_Pos)
+{
+	sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Item::Item_ThrowAway>();
+	
+	Event->type = NetworkEvent::Game::ItemType::Item_ThrowAway;
+
+	Event->player_id = player_id;
+	Event->item_id   = item_id;
+	Event->drop_Pos  = drop_Pos;
+	Event->item_type = item_type;
+
+	return Event;
+}
+
 
 /// +---------------------------------------------------------------------------
 /// >> ▶▶▶▶▶ PROCESS EVENT 
@@ -695,7 +723,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_AimRotation(NetworkEvent::G
 void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data)
 {
 	uint32_t				player_id = data->Id;
-	FBProtocol::WEAPON_TYPE weapon_Type = data->weapon_type;
+	FBProtocol::ITEM_TYPE weapon_Type = data->weapon_type;
 
 	if (!mRemotePlayers.count(data->Id)) {
 		return;
@@ -710,6 +738,8 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateWeapon(NetworkEvent::
 	//  TODO: Remote PLayer 가 무기를 들게 한다. 
 
 }
+
+
 
 std::string ClientNetworkManager::GetServerIPFromtxt(const std::string& filePath)
 {
@@ -1038,6 +1068,15 @@ void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_
 	GameFramework::I->GetPlayerScript()->Chat(chat);
 }
 
+void ClientNetworkManager::ProcessEvent_Item_Interact(NetworkEvent::Game::Event_Item::Item_Interact* data)
+{
+
+}
+
+void ClientNetworkManager::ProcessEvent_Item_ThrowAway(NetworkEvent::Game::Event_Item::Item_ThrowAway* data)
+{
+
+}
 
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()
 {

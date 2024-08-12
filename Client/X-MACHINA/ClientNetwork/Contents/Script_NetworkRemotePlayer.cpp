@@ -267,7 +267,7 @@ float Script_NetworkRemotePlayer::Distance(const Vec3& v1, const Vec3& v2)
 		(v1.z - v2.z) * (v1.z - v2.z));
 }
 
-void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType)
+void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponType)
 {
 	if (mCrntWeapon) {
 		mCrntWeapon->SetActive(false);
@@ -275,22 +275,22 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 
 	switch (weaponType)
 	{
-	case FBProtocol::WEAPON_TYPE_H_LOOK:
+	case FBProtocol::ITEM_TYPE_WEAPON_H_LOOK:
 		mCurrWeaponName = WeaponName::H_Lock;
 		break;
-	case FBProtocol::WEAPON_TYPE_DBMS:
+	case FBProtocol::ITEM_TYPE_WEAPON_DBMS:
 		mCurrWeaponName = WeaponName::DBMS;
 		break;
-	case FBProtocol::WEAPON_TYPE_PIPELINE:
+	case FBProtocol::ITEM_TYPE_WEAPON_PIPELINE:
 		mCurrWeaponName = WeaponName::PipeLine;
 		break;
-	case FBProtocol::WEAPON_TYPE_BURNOUT:
+	case FBProtocol::ITEM_TYPE_WEAPON_BURNOUT:
 		mCurrWeaponName = WeaponName::Burnout;
 		break;
-	case FBProtocol::WEAPON_TYPE_SKYLINE:
+	case FBProtocol::ITEM_TYPE_WEAPON_SKYLINE:
 		mCurrWeaponName = WeaponName::SkyLine;
 		break;
-	case FBProtocol::WEAPON_TYPE_AIR_STRIKE:
+	case FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE:
 		mCurrWeaponName = WeaponName::Airstrike;
 		break;
 	default:

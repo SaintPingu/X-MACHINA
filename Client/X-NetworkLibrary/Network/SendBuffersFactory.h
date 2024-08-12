@@ -31,6 +31,7 @@ namespace SendPktInfo {
 		BYTES_256,
 		BYTES_512,
 	};
+
 	/* Fixed */
 	enum class Fix : UINT8 {
 		LogIn,

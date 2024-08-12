@@ -157,7 +157,7 @@ public:
 	///		WEAPON 
 	/// -------------------------------------------------+
 public:
-	void		SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType);
+	void		SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponType);
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	
 public:

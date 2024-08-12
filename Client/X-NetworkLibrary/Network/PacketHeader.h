@@ -143,8 +143,8 @@ namespace FBsProtocolID
     constexpr UINT16 CPkt_Monster_State         = 1034;
     constexpr UINT16 SPkt_Monster_State         = 1035;    
     
-    constexpr UINT16 CPkt_Monster_Target         = 1036;
-    constexpr UINT16 SPkt_Monster_Target         = 1037;
+    constexpr UINT16 CPkt_Monster_Target        = 1036;
+    constexpr UINT16 SPkt_Monster_Target        = 1037;
 
     /// +-----------------------------------------------------------------------
     ///  PHERO PACKET HEADER PROTOCOL TYPE
@@ -163,6 +163,16 @@ namespace FBsProtocolID
 
     constexpr UINT16 CPkt_Bullet_OnCollision    = 1043;
     constexpr UINT16 SPkt_Bullet_OnCollision    = 1044;
+
+    /// +-----------------------------------------------------------------------
+    ///  ITEM PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+    constexpr UINT16 CPkt_Item_Interact         = 1045;
+    constexpr UINT16 SPkt_Item_Interact         = 1046;
+
+    constexpr UINT16 CPkt_Item_ThrowAway        = 1047;
+    constexpr UINT16 SPkt_Item_ThrowAway        = 1048;
+
 }
 
 

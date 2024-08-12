@@ -89,7 +89,7 @@ public:
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>			CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation>		CreateEvent_UpdateAnimation_RemotePlayer(uint32_t remID, int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation>		CreateEvent_UpdateAimRotation_RemotePlayer(uint32_t remID, float aim_rotation_y, float spine_angle);
-	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>			CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::WEAPON_TYPE weaponType);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon>			CreateEvent_UpdateWeapon_RemotePlayer(uint32_t remID, FBProtocol::ITEM_TYPE weaponType);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot>			CreateEvent_UpdateOnShoot_RemotePlayer(uint32_t remID, int bullet_id, int weapon_id, Vec3 fire_pos, Vec3 ray);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill>			CreateEvent_UpdateOnSkill_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_SKILL_TYPE skillType, float phero_amount, int mindControl_monster_id);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateState>			CreateEvent_UpdateState_RemotePlayer(uint32_t remID, FBProtocol::PLAYER_STATE_TYPE state_Type, float hp, float phero);
@@ -109,7 +109,9 @@ public:
 
 	sptr<NetworkEvent::Game::Event_Contents::Chat>						CreateEvent_Chat(uint32_t Id, std::string chat);
 
-	
+	sptr<NetworkEvent::Game::Event_Item::Item_Interact>					CreateEvent_Item_Interact(uint32_t player_id, uint32_t item_id, FBProtocol::ITEM_TYPE item_type, Vec3 drop_Pos);
+	sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway>				CreateEvent_Item_ThrowAway(uint32_t player_id, uint32_t item_id, FBProtocol::ITEM_TYPE item_type, Vec3 drop_Pos);
+
 	/// +---------------------------------------------------------------------------
 	/// >> PROCESS EVENT 
 	/// ---------------------------------------------------------------------------+
@@ -140,6 +142,11 @@ public:
 
 	/// Chat 
 	void ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_Contents::Chat* data);
+
+
+	/// ITem 
+	void ProcessEvent_Item_Interact(NetworkEvent::Game::Event_Item::Item_Interact* data);
+	void ProcessEvent_Item_ThrowAway(NetworkEvent::Game::Event_Item::Item_ThrowAway* data);
 
 
 	long long GetCurrentTimeMilliseconds();

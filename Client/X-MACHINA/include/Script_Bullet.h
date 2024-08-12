@@ -18,6 +18,7 @@ class Script_Bullet : public Component {
 	COMPONENT(Script_Bullet, Component)
 
 private:
+	Vec3 mBeforePos{};
 	InstObject*		mInstObject{};	// self GameObject
 	BulletPSType    mParticleType{};
 	std::string		mImpactSound{};
@@ -69,5 +70,7 @@ protected:
 private:
 	void Disappear();
 	void Reset();
+
+	void PlayTrailParticles();
 };
 #pragma endregion

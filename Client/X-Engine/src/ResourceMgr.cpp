@@ -258,21 +258,23 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.Looping = true;
 		pscd.Prewarm = false;
 		pscd.StartDelay = 0.f;
-		pscd.MaxAddCount = 1;
-		pscd.StartLifeTime = Vec2{ 0.3f };
+		pscd.StartLifeTime = Vec2{ 1.2f, 2.2f };
 		pscd.StartSpeed = Vec2{ 0.2f, 0.4f };
-		pscd.StartSize = Vec2{ 1.f, 1.5f };
+		pscd.StartSize = Vec2{ 0.6f, 0.9f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.5f, 0.5f, 0.5f, 0.5f } });
 		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.f;
-		pscd.MaxParticles = 100;
+		pscd.MaxParticles = 500;
 		pscd.Emission.RateOverTime = 100;
 		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.4f, 1.f }, { 0.f, 1.f });
-		pscd.Shape.SetSphere(0.3f, 1.f, 360.f, false);
+		pscd.Shape.SetLine();
 		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.5f, 0.5f, 0.5f, 1.f }, Vec4{ 0.0f, 0.0f, 0.0f, 0.f } }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.1f, 0.2f, 0.1f, 0.f }, { 0.f, 0.4f, 0.8f, 1.f });
 		pscd.Renderer.BlendType = BlendType::Additive_Soft_Blend;
 		pscd.Renderer.TextureName = "Explosion_Smoke";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.LengthScale = 2.5f;
 		ParticleSystem::SavePSCD(pscd);
 	}
 
@@ -583,6 +585,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.ColorOverLifetime.SetAlphas({ 0.8f, 0.5f, 0.3f, 0.f }, { 0.f, 0.2f, 0.4f, 1.f });
 		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
 		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.LengthScale = 2.5f;
 		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
 		ParticleSystem::SavePSCD(pscd);
 	}

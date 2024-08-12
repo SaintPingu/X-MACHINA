@@ -30,7 +30,7 @@ void Script_Bullet::Update()
 
 	mCurDistance += distance;
 	mObject->MoveForward(distance);
-
+	
 	if (mCurDistance >= mMaxDistance) {
 		if (Math::IsEqual(mMaxDistance, mEndDistance)) {
 			Disappear();
@@ -51,6 +51,7 @@ void Script_Bullet::Init()
 
 void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 {
+	mBeforePos = pos;
 	mObject->SetPosition(pos);
 	mObject->SetLook(dir);
 
@@ -107,12 +108,12 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 
 void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 {
-	PlayPSs(BulletPSType::Contrail);
-
 	mObject->SetLocalRotation(transform.GetRotation());
 	Vec3 dir = ApplyErr(transform.GetLook(), err);
 	Fire(transform.GetPosition(), dir);
 	StartFire();
+
+	PlayPSs(BulletPSType::Contrail);
 }
 
 void Script_Bullet::Explode()

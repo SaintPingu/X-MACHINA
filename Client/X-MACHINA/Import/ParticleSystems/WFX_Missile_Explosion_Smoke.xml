@@ -287,7 +287,7 @@
 		<TextureName>WFX_SmokeLoopAlpha</TextureName>
 		<RenderMode>1</RenderMode>
 		<BlendType>8</BlendType>
-		<LengthScale>1.000000000e+00</LengthScale>
+		<LengthScale>2.500000000e+00</LengthScale>
 	</Renderer>
 </pscd>
 </boost_serialization>

@@ -15,6 +15,7 @@
 #define PSShape_HemiSphere  2
 #define PSShape_Cone        3
 #define PSShape_Box         4
+#define PSShape_Line        5
 
 #define CruveCount 4
 
@@ -173,6 +174,18 @@ void SetBoxStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 p
     
 }
 
+void SetLineStartPosDir(float3 startPos, float3 endPos, inout NumberGenerator rand, inout float3 pos, inout float3 dir)
+{
+    float3 vec = endPos - startPos;
+    dir = normalize(vec);
+    
+    float t = rand.GetRandomFloat(-1.f, 0.f);
+
+    pos = (vec * t);
+    pos.xyz += rand.GetRandomFloat3(-0.1f, 0.1f);
+
+}
+
 void SetStartPosDir(PSShape shape, inout NumberGenerator rand, inout float3 pos, inout float3 dir)
 {
     switch (shape.ShapeType)
@@ -280,7 +293,14 @@ void CSParticle(int3 threadID : SV_DispatchThreadID)
             gOutputParticles[threadID.x].StartSize = (ps.StartSize3D.w == 0.f) ? rand.GetRandomFloat(ps.StartSize.x, ps.StartSize.y) : float2(ps.StartSize3D.x, ps.StartSize3D.y);
             gOutputParticles[threadID.x].StartRotation = (ps.StartRotation3D.w == 0.f) ? float3(0.f, rand.GetRandomFloat(ps.StartRotation.x, ps.StartRotation.y), 0.f) : ps.StartRotation3D.xyz;
             gOutputParticles[threadID.x].StartColor = SetStartColor(ps.StartColor, ps.TotalTime, ps.Duration, rand.GetCurrentFloat());
-            SetStartPosDir(ps.Shape, rand, gOutputParticles[threadID.x].LocalPos, gOutputParticles[threadID.x].WorldDir);
+            if (ps.Shape.ShapeType == PSShape_Line)
+            {
+                SetLineStartPosDir(ps.StartRotation3D.xyz, ps.StartSize3D.xyz, rand, gOutputParticles[threadID.x].LocalPos, gOutputParticles[threadID.x].WorldDir);
+            }
+            else
+            {
+                SetStartPosDir(ps.Shape, rand, gOutputParticles[threadID.x].LocalPos, gOutputParticles[threadID.x].WorldDir);
+            }
             
             if (ps.VelocityOverLifetime.Option == PSVal_Constant)
                 gOutputParticles[threadID.x].VelocityOverLifetime.xyz = ps.VelocityOverLifetime.Vals[0].xyz;

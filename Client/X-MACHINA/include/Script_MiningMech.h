@@ -20,14 +20,14 @@ class Script_Ability_AttackIndicator;
 class Script_MiningMech : public Script_Enemy {
 	COMPONENT(Script_MiningMech, Script_Enemy)
 
-		enum class AttackType {
-		DiggerAttack = 1,
-		DrillAttack = 2,
-		SmashAttack = 3,
+protected:
+	struct MiningMechAttackType : AttackType {
+		static constexpr int DiggerAttack = 1;
+		static constexpr int DrillAttack = 2;
+		static constexpr int SmashAttack = 3;
 
-		_count,
+		static constexpr int _count = 4;
 	};
-	enum { AttackTypeCount = static_cast<UINT8>(AttackType::_count) };
 
 private:
 	int mCurrAttackCnt{};
@@ -37,7 +37,6 @@ public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void LateUpdate() override;
-	virtual void Attack() override;
 
 protected:
 	void DiggerAttackCallback();

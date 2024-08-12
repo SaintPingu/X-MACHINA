@@ -38,12 +38,12 @@ void Script_MiningMech::LateUpdate()
 {
 	base::LateUpdate();
 }
-
-void Script_MiningMech::Attack()
-{
-	mEnemyMgr->RemoveAllAnimation();
-	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
-}
+//
+//void Script_MiningMech::Attack()
+//{
+//	mEnemyMgr->RemoveAllAnimation();
+//	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
+//}
 
 void Script_MiningMech::DiggerAttackCallback()
 {
@@ -68,12 +68,16 @@ void Script_MiningMech::SmashAttackEndCallback()
 
 void Script_MiningMech::AttackEndCallback()
 {
-	if (mCurrAttackCnt == static_cast<int>(AttackType::SmashAttack)) {
-		mIndicator.lock()->SetActive(false);
+	if (mEnemyMgr->mState != EnemyState::Attack) {
+		mEnemyMgr->mController->SetValue("Attack", MiningMechAttackType::None);
+		return;
 	}
-	++mCurrAttackCnt;
-	mCurrAttackCnt %= AttackTypeCount;
 
-	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
-	mEnemyMgr->mState = EnemyState::Idle;
+	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
+	std::cout << mCurrAttackCnt << std::endl;
+
+	if (mCurrAttackCnt >= MiningMechAttackType::BasicAttack) {
+		mEnemyMgr->mController->SetValue("Attack", MiningMechAttackType::None);
+		mEnemyMgr->mState = EnemyState::Idle;
+	}
 }

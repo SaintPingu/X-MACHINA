@@ -458,9 +458,12 @@
       <Filter>ClientNetwork\Network\NetworkScript\Network Phero</Filter>
     </ClInclude>
     <ClInclude Include="include\CooldownCircleUI.h">
-    <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\PlayerUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Deus_Phase_1.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -770,6 +773,9 @@
     </ClCompile>
     <ClCompile Include="src\CooldownCircleUI.cpp">
       <Filter>Script\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Deus_Phase_1.cpp">
+      <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

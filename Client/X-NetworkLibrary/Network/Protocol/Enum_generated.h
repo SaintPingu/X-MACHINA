@@ -120,12 +120,14 @@ enum MONSTER_TYPE : uint8_t {
   MONSTER_TYPE_ONYSCIDUS = 8,
   MONSTER_TYPE_URSACETUS = 9,
   MONSTER_TYPE_RAPAX = 10,
-  MONSTER_TYPE_END = 11,
+  MONSTER_TYPE_DEUS_PHASE_1 = 11,
+  MONSTER_TYPE_DEUS_PHASE_2 = 12,
+  MONSTER_TYPE_END = 13,
   MONSTER_TYPE_MIN = MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
   MONSTER_TYPE_MAX = MONSTER_TYPE_END
 };
 
-inline const MONSTER_TYPE (&EnumValuesMONSTER_TYPE())[12] {
+inline const MONSTER_TYPE (&EnumValuesMONSTER_TYPE())[14] {
   static const MONSTER_TYPE values[] = {
     MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
     MONSTER_TYPE_ANGLEROX,
@@ -138,13 +140,15 @@ inline const MONSTER_TYPE (&EnumValuesMONSTER_TYPE())[12] {
     MONSTER_TYPE_ONYSCIDUS,
     MONSTER_TYPE_URSACETUS,
     MONSTER_TYPE_RAPAX,
+    MONSTER_TYPE_DEUS_PHASE_1,
+    MONSTER_TYPE_DEUS_PHASE_2,
     MONSTER_TYPE_END
   };
   return values;
 }
 
 inline const char * const *EnumNamesMONSTER_TYPE() {
-  static const char * const names[13] = {
+  static const char * const names[15] = {
     "ADVANCED_COMBAT_DROIR_5",
     "ANGLEROX",
     "ARACK",
@@ -156,6 +160,8 @@ inline const char * const *EnumNamesMONSTER_TYPE() {
     "ONYSCIDUS",
     "URSACETUS",
     "RAPAX",
+    "DEUS_PHASE_1",
+    "DEUS_PHASE_2",
     "END",
     nullptr
   };

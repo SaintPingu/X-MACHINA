@@ -22,6 +22,8 @@
 #include "Script_PlayerController.h"
 #include "Script_PheroObject.h"
 #include "Script_Phero.h"
+#include "Script_Deus_Phase_1.h"
+//#include "Script_Deus_Phase_2.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -844,7 +846,9 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 					"MiningMech",
 					"Onyscidus",
 					"Ursacetus",
-					"Rapax"
+					"Rapax",
+					"Deus_Phase_1",
+					"Deus_Phase_2",
 		};
 
 
@@ -890,6 +894,12 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			break;
 		case FBProtocol::MONSTER_TYPE_RAPAX:
 			monster->AddComponent<Script_Rapax>();
+			break;
+		case FBProtocol::MONSTER_TYPE_DEUS_PHASE_1:
+			monster->AddComponent<Script_Deus_Phase_1>();
+			break;
+		case FBProtocol::MONSTER_TYPE_DEUS_PHASE_2:
+			monster->AddComponent<Script_Deus_Phase_1>();
 			break;
 		default:
 			assert(0);

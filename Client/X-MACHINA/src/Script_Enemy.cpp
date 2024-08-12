@@ -33,7 +33,7 @@ void Script_Enemy::Awake()
 	SetMaxHP(mEnemyMgr->mStat.MaxHp);
 
 	if (mEnemyMgr->mStat.Attack1AnimName != "None") {
-		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddEndCallback(std::bind(&Script_Enemy::AttackEndCallback, this));
+ 		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddEndCallback(std::bind(&Script_Enemy::AttackEndCallback, this));
 	}
 	if (mEnemyMgr->mStat.Attack2AnimName != "None") {
 		mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack2AnimName)->AddEndCallback(std::bind(&Script_Enemy::AttackEndCallback, this));
@@ -128,7 +128,7 @@ void Script_Enemy::SetEnemyStat(const std::string& modelName)
 void Script_Enemy::SetCurrAttackCnt(int attackCnt)
 {
 	mCurrAttackCnt = attackCnt;
-	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt, true);
+	mEnemyMgr->mController->SetValue("Attack", mCurrAttackCnt);
 }
 
 void Script_Enemy::AttackCallback()

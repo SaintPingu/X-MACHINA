@@ -15,8 +15,8 @@
 	<Prewarm>0</Prewarm>
 	<StartDelay>0.000000000e+00</StartDelay>
 	<StartLifeTime class_id="2" tracking_level="0" version="0">
-		<s.x>3.000000119e-01</s.x>
-		<s.y>3.000000119e-01</s.y>
+		<s.x>5.300000191e+00</s.x>
+		<s.y>5.300000191e+00</s.y>
 	</StartLifeTime>
 	<StartSpeed>
 		<s.x>2.000000030e-01</s.x>
@@ -108,7 +108,7 @@
 	<SimulationSpace>1</SimulationSpace>
 	<SimulationSpeed>1.000000000e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>100</MaxParticles>
+	<MaxParticles>1000</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>100</RateOverTime>

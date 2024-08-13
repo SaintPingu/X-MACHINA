@@ -59,6 +59,7 @@ void AnimatorMotion::SetLength(float length)
 
 void AnimatorMotion::Reset()
 {
+	mIsStarted = false;
 	mCrntLength = 0.f;
 	mWeight     = 1.f;
 	mCrntSpeed  = mOriginSpeed;
@@ -81,7 +82,11 @@ bool AnimatorMotion::IsSameStateMachine(const AnimatorMotion* other) const
 bool AnimatorMotion::Animate()
 {
 	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
-
+	
+	if (!mIsStarted && mCallbackStart) {
+		mIsStarted = true;
+		mCallbackStart->Callback();
+	}
 	if (mCallbackAnimate) {
 		mCallbackAnimate->Callback();
 	}
@@ -131,7 +136,7 @@ void AnimatorMotion::DelCallback(int frame)
 
 void AnimatorMotion::AddStartCallback(const std::function<void()>& callback)
 {
-	AddCallback(callback, 0);
+	mCallbackStart = std::make_shared<MotionCallback>(callback);
 }
 
 void AnimatorMotion::AddEndCallback(const std::function<void()>& callback)

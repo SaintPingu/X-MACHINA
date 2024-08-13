@@ -12,7 +12,7 @@ class Script_Deus_Phase_1 : public Script_Enemy {
 	COMPONENT(Script_Deus_Phase_1, Script_Enemy)
 
 protected:
-	struct ScriptDeusPhase1AttackType : AttackType {
+	struct DeusPhase1AttackType : AttackType {
 		static constexpr int MeleeAttack = 1;
 		static constexpr int RangeAttack = 2;
 		static constexpr int ExplodeAttack = 3;
@@ -21,13 +21,10 @@ protected:
 
 public:
 	virtual void Awake() override;
-	virtual void Start() override;
 
 protected:
 	void MeleeAttackCallback();
 	void RangeAttackCallback();
 	void ExplodeAttackCallback();
-
-	virtual void AttackEndCallback() override;
 };
 #pragma endregion

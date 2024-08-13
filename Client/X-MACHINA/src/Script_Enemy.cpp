@@ -151,6 +151,7 @@ void Script_Enemy::AttackCallback()
 
 void Script_Enemy::AttackEndCallback()
 {
+
 }
 
 void Script_Enemy::DeathEndCallback()

@@ -32,8 +32,14 @@ void Script_NetworkEnemy::SetLocalRotation(const Quat& quat)
 
 void Script_NetworkEnemy::SetState(EnemyState state, int attackCnt)
 {
+	//if (state == EnemyState::Attack && mEnemyMgr->mState == EnemyState::Attack) {
+	//	if (mEnemyMgr->mEnemy->GetCurrAttackCnt() == attackCnt) {
+	//		mEnemyMgr->mEnemy->IgnoreAttackEndCallback();
+	//	}
+	//}
 	mEnemyMgr->mState = state;
 	SetCurrAttackCnt(attackCnt);
+	std::cout << attackCnt << std::endl;
 
 	switch (mEnemyMgr->mState)
 	{
@@ -74,8 +80,8 @@ void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType, int attac
 		SetState(EnemyState::Death, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_ATTACK:
-		mEnemy->StartAttack();
 		SetState(EnemyState::Attack, attackCnt);
+		mEnemy->StartAttack();
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_GETHIT:
 		SetState(EnemyState::GetHit, attackCnt);
@@ -150,10 +156,6 @@ void Script_NetworkEnemy::MoveToTarget()
 	// 오브젝트로부터 타겟까지의 벡터
 	Vec3 toTarget = targetAdjPos - objectAdjPos;
 
-	if (toTarget.Length() < mEnemyMgr->mStat.AttackRange) {
-		return;
-	}
-
 	// 오브젝트로부터 타겟까지의 벡터
 	const float kMinDistance = 0.1f;
 
@@ -169,8 +171,6 @@ void Script_NetworkEnemy::Attack()
 	if (!mEnemyMgr->mTarget) {
 		return;
 	}
-
-	mObject->RotateTargetAxisY(mEnemyMgr->mTarget->GetPosition(), mEnemyMgr->mStat.AttackRotationSpeed);
 
 	mEnemy->Attack();
 }

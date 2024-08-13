@@ -38,7 +38,7 @@ BT::NodeState CheckAttackRange::Evaluate()
 	if (distance < mEnemyMgr->mStat.AttackRange) {
 		const Vec3 toTargetDir = Vector3::Normalized(mEnemyMgr->mTarget->GetPosition() - mObject->GetPosition());
 		const float angle = Vector3::Angle(mObject->GetLook(), toTargetDir);
-		if (minDistance < 1.f || angle < 80.f) {
+		if (minDistance < 1.f && angle < 80.f) {
 			mEnemyMgr->mState = EnemyState::Attack;
 			return BT::NodeState::Success;
 		}

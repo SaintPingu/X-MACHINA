@@ -25,6 +25,7 @@ protected:
 		static constexpr int _count = 2;
 	};
 	int mCurrAttackCnt{};
+	bool mIgnoreAttackEndCallback{};
 
 private:
 	std::string mAttackSound{};
@@ -46,6 +47,10 @@ public:
 	virtual void Dead() override;
 	virtual void Detect();
 	virtual bool Hit(float damage, Object* instigator = nullptr) override;
+	void IgnoreAttackEndCallback() { mIgnoreAttackEndCallback = true; }
+
+public:
+	int GetCurrAttackCnt() const { return mCurrAttackCnt; }
 
 public:
 	void SetEnemyStat(const std::string& modelName);

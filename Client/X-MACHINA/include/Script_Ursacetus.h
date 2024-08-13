@@ -39,10 +39,7 @@ public:
 
 protected:
 	void RoarAttackCallback();
-	
 	void SpecialAttackCallback();
 	void SpecialAttackStartCallback();
-
-	virtual void AttackEndCallback() override;
 };
 #pragma endregion

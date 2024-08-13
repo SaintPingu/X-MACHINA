@@ -35,6 +35,7 @@ private:
 
 	static constexpr float mkTransitionSpeed = 4.5f;
 
+	bool    mIsStarted{};
 	float   mOriginSpeed{};
 	float 	mCrntSpeed{};
 
@@ -50,6 +51,7 @@ private:
 	const AnimatorStateMachine* mStateMachine{};
 
 	std::multimap<float, MotionCallback> mCallbacks;
+	sptr<MotionCallback> mCallbackStart;
 	sptr<MotionCallback> mCallbackStop;
 	sptr<MotionCallback> mCallbackChange;
 	sptr<MotionCallback> mCallbackAnimate;

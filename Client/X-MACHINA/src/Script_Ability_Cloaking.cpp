@@ -23,7 +23,7 @@ void Script_Ability_Cloaking::Awake()
 
 	Init("Cloaking", 3.f);
 	SetPheroCost(30.f);
-	SetIconUI("Icon_B_Cloaking", "Icon_F_Cloaking", Vec2{ 70.f, -400.f }, Vec2{ 50.f }, mMaxCooldownTime);
+	SetIconUI("Icon_B_Cloaking", "Icon_F_Cloaking", Vec2{ 70.f, -430.f }, Vec2{ 50.f }, mMaxCooldownTime);
 
 	mAfterImage = mObject->AddComponent<Script_AfterImageObject>();
 	mAfterImage->SetAfterImage(10, 1.f);
@@ -60,6 +60,7 @@ void Script_Ability_Cloaking::On()
 	mObject->mObjectCB.HitRimFactor = 1.f;
 	mAfterImage->SetActiveUpdate(true);
 	mObject->SetTag(ObjectTag::AfterSkinImage);
+	ActiveIcon(true);
 
 #ifdef SERVER_COMMUNICATION
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
@@ -77,6 +78,7 @@ void Script_Ability_Cloaking::Off()
 	mObject->mObjectCB.HitRimFactor = 0.f;
 	mAfterImage->SetActiveUpdate(false);
 	mObject->SetTag(mPrevInvokerTag);
+	ActiveIcon(false);
 
 #ifdef SERVER_COMMUNICATION
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);

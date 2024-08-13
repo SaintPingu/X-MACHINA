@@ -31,7 +31,7 @@ void Script_Ability_MindControl::Awake()
 	base::Awake();
 	Init("MindControl", 10.f, 10.f);
 	SetPheroCost(200.f);
-	SetIconUI("Icon_B_MindControl", "Icon_F_MindControl", Vec2{ 0.f, -400.f }, Vec2{ 50.f }, mMaxCooldownTime);
+	SetIconUI("Icon_B_MindControl", "Icon_F_MindControl", Vec2{ 0.f, -430.f }, Vec2{ 50.f }, mMaxCooldownTime);
 
 	mMaxControlledObjectCnt = 1;
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
@@ -75,6 +75,7 @@ void Script_Ability_MindControl::On()
 
 	base::On();
 	mRemainActiveTimeUI->On();
+	ActiveIcon(true);
 
 	mCurrControlledObjectCnt = mMaxControlledObjectCnt;
 
@@ -92,6 +93,7 @@ void Script_Ability_MindControl::Off()
 {
 	base::Off();
 	mRemainActiveTimeUI->Off();
+	ActiveIcon(false);
 
 	ChangeAimToOrigin();
 }

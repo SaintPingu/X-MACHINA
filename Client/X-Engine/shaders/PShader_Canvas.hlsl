@@ -30,7 +30,7 @@ float4 PSCanvas(VSOutput_Tex input) : SV_TARGET
     {
         //float t = (sin(gPassCB.TotalTime) + 1.5f) * 0.5f;
         
-        float2 uv = float2(input.UV.x - gPassCB.TotalTime * 0.03f, input.UV.y);
+        float2 uv = float2(input.UV.x - gPassCB.TotalTime * gObjectCB.DeathElapsed, input.UV.y);
         float dissolve = GammaEncoding(gTextureMaps[gObjectCB.LightIndex].Sample(gsamAnisotropicWrap, uv)).x;
         color.rgb = color.a * (dissolve * gObjectCB.MindRimColor);
     }

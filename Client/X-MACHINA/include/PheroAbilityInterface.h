@@ -18,9 +18,12 @@ protected:
 class IconAbilityInterface {
 protected:
 	UI* mAbilityIconUI{};
+	UI* mActiveIconUI{};
 	SliderUI* mCooldownUI{};
 
 protected:
+	void ActiveIcon(bool active);
+
 	void SetIconUI(const std::string& background, const std::string& cooldown, const Vec2& pos, const Vec2& size, float maxValue);
 	void UpdateCooldownBarUI(float maxValue, float currValue);
 };

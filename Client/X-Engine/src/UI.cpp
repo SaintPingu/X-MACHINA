@@ -189,6 +189,7 @@ void SliderUI::SetDissolve(const Vec3& color)
 	mObjectCB.LightIndex = RESOURCE<Texture>("BarDissolve")->GetSrvIdx();
 	mObjectCB.UseRefract = true;
 	mObjectCB.MindRimColor = color;
+	mObjectCB.DeathElapsed = 0.03f;
 }
 
 void SliderUI::UpdateShaderVars(rsptr<Texture> texture)

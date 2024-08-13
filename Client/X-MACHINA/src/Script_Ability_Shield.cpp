@@ -26,7 +26,7 @@ void Script_Ability_Shield::Awake()
 
 	Init("Shield", 2.f, 4.5f);
 	SetPheroCost(100.f);
-	SetIconUI("Icon_B_Shield", "Icon_F_Shield", Vec2{ -70.f, -400.f }, Vec2{ 50.f }, mMaxCooldownTime);
+	SetIconUI("Icon_B_Shield", "Icon_F_Shield", Vec2{ -70.f, -430.f }, Vec2{ 50.f }, mMaxCooldownTime);
 
 	mLayer = 1;
 	mAbilityCB.Duration = 4.f;
@@ -63,7 +63,7 @@ void Script_Ability_Shield::On()
 	}
 
 	base::On();
-
+	ActiveIcon(true);
 	mPlayer->SetShield(mShieldAmount);
 
 #ifdef SERVER_COMMUNICATION
@@ -78,7 +78,7 @@ void Script_Ability_Shield::On()
 void Script_Ability_Shield::Off()
 {
 	base::Off();
-
+	ActiveIcon(false);
 	mPlayer->SetShield(0.f);
 }
 

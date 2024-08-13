@@ -93,7 +93,7 @@ void Script_BattleUI::CreatePlayerUI(const Object* player, const std::wstring& p
 
 Vec2 Script_BattleUI::GetPos(int idx) const
 {
-	static constexpr Vec2 kStartOffset = Vec2(-450, -350);
+	static constexpr Vec2 kStartOffset = Vec2(-450, -330);
 	static constexpr Vec2 kGap = Vec2(300, 0);
 
 	return kStartOffset + (kGap * static_cast<float>(idx));

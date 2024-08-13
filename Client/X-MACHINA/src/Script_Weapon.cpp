@@ -230,6 +230,8 @@ uint8_t Script_Weapon::GetWeaponItemType(WeaponName weaponName)
 		return FBProtocol::ITEM_TYPE_WEAPON_BURNOUT;
 	case WeaponName::PipeLine:
 		return FBProtocol::ITEM_TYPE_WEAPON_PIPELINE;
+	case WeaponName::MineLauncher:
+		return FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER;
 	default:
 		assert(0);
 		break;

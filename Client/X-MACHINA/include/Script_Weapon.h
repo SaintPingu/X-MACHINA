@@ -56,8 +56,6 @@ protected:
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
-	virtual void OnEnable() override;
-	virtual void OnDisable() override;
 
 public:
 	virtual WeaponType GetWeaponType() const abstract;

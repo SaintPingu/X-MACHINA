@@ -278,6 +278,9 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponT
 	case FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE:
 		mCurrWeaponName = WeaponName::Airstrike;
 		break;
+	case FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER:
+		mCurrWeaponName = WeaponName::MineLauncher;
+		break;
 	default:
 		mCrntWeapon = nullptr;
 		return;

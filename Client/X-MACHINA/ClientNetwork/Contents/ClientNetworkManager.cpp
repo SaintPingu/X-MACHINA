@@ -787,6 +787,8 @@ WeaponName ClientNetworkManager::GetWeaponName(FBProtocol::ITEM_TYPE type)
 		return WeaponName::Burnout;
 	case FBProtocol::ITEM_TYPE_WEAPON_SKYLINE:
 		return WeaponName::SkyLine;
+	case FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER:
+		return WeaponName::MineLauncher;
 	case FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE:
 		return WeaponName::Airstrike;
 	default:

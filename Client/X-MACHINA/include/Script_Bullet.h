@@ -38,6 +38,7 @@ protected:
 
 public:
 	float GetDamage() const { return mDamage; }
+	bool IsPlayerBullet() const { return mIsPlayerBullet; }
 
 	void SetDamage(float damage) { mDamage = damage; }
 	void SetSpeed(float speed) { mSpeed = speed; }

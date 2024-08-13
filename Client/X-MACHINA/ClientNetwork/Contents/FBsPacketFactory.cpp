@@ -1088,6 +1088,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(WeaponName weaponName)
 		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_BURNOUT);
 	case WeaponName::PipeLine:
 		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_PIPELINE);
+	case WeaponName::MineLauncher:
+		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER);
 	default:
 		break;
 	}

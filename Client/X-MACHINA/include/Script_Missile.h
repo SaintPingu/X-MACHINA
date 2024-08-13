@@ -9,12 +9,16 @@
 #pragma region ClassForwardDecl
 class SphereCollider;
 class Script_MainCamera;
+class ParticleSystem;
 #pragma endregion
 
 
 #pragma region Class
 class Script_Missile : public Script_ExplosiveBullet {
 	COMPONENT(Script_Missile, Script_ExplosiveBullet)
+
+private:
+	ParticleSystem* mContrail{};
 
 public:
 	virtual void Awake() override;

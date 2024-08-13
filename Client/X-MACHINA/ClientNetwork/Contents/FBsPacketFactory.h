@@ -124,6 +124,7 @@ public:
 	/* BULLET */
 	SPtr_SendPktBuf CPkt_Bullet_OnShoot(Vec3 pos, Vec3 ray);
 	SPtr_SendPktBuf CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 fire_pos, Vec3 ray);
+	SPtr_SendPktBuf CPkt_Bullet_OnHitExpEnemy(int32_t monster_id);
 	SPtr_SendPktBuf CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID);
 
 	SPtr_SendPktBuf CPkt_Item_ThrowAway(uint32_t item_id, FBProtocol::ITEM_TYPE item_type);

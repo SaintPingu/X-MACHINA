@@ -161,17 +161,20 @@ namespace FBsProtocolID
     constexpr UINT16 CPkt_Bullet_OnHitEnemy     = 1041;
     constexpr UINT16 SPkt_Bullet_OnHitEnemy     = 1042;
 
-    constexpr UINT16 CPkt_Bullet_OnCollision    = 1043;
-    constexpr UINT16 SPkt_Bullet_OnCollision    = 1044;
+    constexpr UINT16 CPkt_Bullet_OnHitExpEnemy  = 1043;
+    constexpr UINT16 SPkt_Bullet_OnHitExpEnemy  = 1044;
+
+    constexpr UINT16 CPkt_Bullet_OnCollision    = 1045;
+    constexpr UINT16 SPkt_Bullet_OnCollision    = 1046;
 
     /// +-----------------------------------------------------------------------
     ///  ITEM PACKET HEADER PROTOCOL TYPE
     /// -----------------------------------------------------------------------+
-    constexpr UINT16 CPkt_Item_Interact         = 1045;
-    constexpr UINT16 SPkt_Item_Interact         = 1046;
+    constexpr UINT16 CPkt_Item_Interact         = 1047;
+    constexpr UINT16 SPkt_Item_Interact         = 1048;
 
-    constexpr UINT16 CPkt_Item_ThrowAway        = 1047;
-    constexpr UINT16 SPkt_Item_ThrowAway        = 1048;
+    constexpr UINT16 CPkt_Item_ThrowAway        = 1049;
+    constexpr UINT16 SPkt_Item_ThrowAway        = 1050;
 
 }
 

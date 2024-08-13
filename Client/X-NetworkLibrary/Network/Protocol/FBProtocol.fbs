@@ -415,8 +415,18 @@ table SPkt_Bullet_OnHitEnemy
 	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
 }
 
+// +------------------------
+//	   BULLET ON Explode   
+// ------------------------+
 
+table CPkt_Bullet_OnHitExpEnemy
+{
+	monster_id	: int;
+}
 
+table SPkt_Bullet_OnHitExpEnemy
+{
+}
 
 // +------------------------
 //	   BULLET ON COLLISION   

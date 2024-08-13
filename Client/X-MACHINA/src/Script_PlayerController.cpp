@@ -100,6 +100,8 @@ bool Script_PlayerController::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPA
 	return true;
 }
 
+#include "Component/ParticleSystem.h"
+
 bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	if (mChatBoxUI && mChatBoxUI->IsActive()) {

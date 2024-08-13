@@ -10,6 +10,8 @@
 #include "Object.h"
 #include "BattleScene.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
 
 void Script_ExplosiveBullet::OnCollisionEnter(Object& other)
 {
@@ -42,8 +44,12 @@ void Script_ExplosiveBullet::Explode()
 			continue;
 		}
 
-		if (object->GetTag() == ObjectTag::Enemy || object->GetTag() == ObjectTag::Player) {
-			//object->GetComponent<Script_LiveObject>()->Hit(mExplosionDamage);
+		if (object->GetTag() == ObjectTag::Enemy) {
+			if (IsPlayerBullet()) {
+				// TODO : send onhit packet here
+				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitExpEnemy(object->GetID());
+				CLIENT_NETWORK->Send(cpkt);
+			}
 		}
 	}
 

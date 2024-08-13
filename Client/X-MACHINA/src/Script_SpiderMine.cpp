@@ -18,8 +18,7 @@ void Script_SpiderMine::Awake()
 	mMass = 0.6f;
 	mDrag = 3.f;
 	mRotationSpeed = 90.f;
-	mRotationXSpeed = 10.f;
-	mRotationX = -45.f;
+	mUpSpeed = 10.f;
 	mPlantY = 0.5f;
 
 	SetExplosionTag(ObjectTag::Enemy);
@@ -57,7 +56,6 @@ void Script_SpiderMine::Fire(const Vec3& pos, const Vec3& dir)
 {
 	mObject->SetPosition(pos);
 	mObject->SetLook(dir);
-	mObject->Rotate(mRotationX, 0, 0);
 
 	SetDamage(GetDamage());
 }
@@ -69,6 +67,10 @@ void Script_SpiderMine::StartFire()
 
 void Script_SpiderMine::Move()
 {
+	if (mUpSpeed > 0) {
+		mObject->MoveUp(mUpSpeed * DeltaTime());
+		mUpSpeed -= DeltaTime() * 10.f;
+	}
 	mObject->MoveUp(-Math::kGravity * mMass * DeltaTime());
 	if (mObject->GetPosition().y <= mPlantY) {
 		Plant();
@@ -76,16 +78,6 @@ void Script_SpiderMine::Move()
 	}
 
 	mSpeed -= Math::Sign(mSpeed) * DeltaTime() * mDrag;
-
-	if (mRotationX < 0) {
-		float rotationAmount = mRotationXSpeed * DeltaTime();
-		mRotationX += rotationAmount;
-		if (mRotationX >= 0) {
-			rotationAmount -= mRotationX;
-			mRotationX = 0;
-		}
-		mObject->Rotate(rotationAmount, 0, 0);
-	}
 }
 
 void Script_SpiderMine::Plant()
@@ -98,7 +90,6 @@ void Script_SpiderMine::Plant()
 	}
 
 	mIsPlanted = true;
-	mObject->Rotate(-mRotationX);
 	mObject->SetPositionY(mPlantY);
 
 	if (IsPlayerBullet()) {

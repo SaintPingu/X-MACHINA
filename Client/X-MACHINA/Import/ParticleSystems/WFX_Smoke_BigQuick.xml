@@ -29,8 +29,8 @@
 		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
-		<s.x>3.200000048e+00</s.x>
-		<s.y>4.000000000e+00</s.y>
+		<s.x>1.200000048e+00</s.x>
+		<s.y>1.000000000e+00</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -229,8 +229,8 @@
 		<Alphas>
 			<elems>
 				<count>4</count>
-				<item>0.000000000e+00</item>
-				<item>3.000000119e-01</item>
+				<item>2.000000030e-01</item>
+				<item>4.000000060e-01</item>
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>

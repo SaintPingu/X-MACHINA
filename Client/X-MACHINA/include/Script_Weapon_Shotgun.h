@@ -29,7 +29,7 @@ class Script_Weapon_DBMS : public Script_Weapon_Shotgun {
 	COMPONENT(Script_Weapon_DBMS, Script_Weapon_Shotgun)
 
 private:
-	static constexpr int mkBulletCntPerShot  = 15;
+	static constexpr int mkBulletCntPerShot  = 8;
 	static constexpr float mkBulletDamage    = 62.6f / mkBulletCntPerShot;
 	static constexpr float mkRPM             = 200.f;
 

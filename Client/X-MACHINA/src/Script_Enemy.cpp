@@ -113,9 +113,9 @@ bool Script_Enemy::Hit(float damage, Object* instigator)
 
 	mObject->mObjectCB.HitRimFactor = 0.7f;
 	
-	if (nullptr != instigator) {
-		mEnemyMgr->mTarget = instigator;
-	}
+	//if (nullptr != instigator) {
+	//	mEnemyMgr->mTarget = instigator;
+	//}
 
 	return res;
 }

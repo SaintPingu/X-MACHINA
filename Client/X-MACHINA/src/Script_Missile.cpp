@@ -16,10 +16,6 @@ void Script_Missile::Update()
 {
 	if (mObject->GetPosition().y <= 0) {
 		Explode();
-		if (mContrail) {
-			mContrail->Stop();
-			mContrail = nullptr;
-		}
 		return;
 	}
 
@@ -40,4 +36,14 @@ void Script_Missile::Fire(const Vec3& pos, const Vec3& dir, const Vec2& err)
 	ApplyErr(dir, err);
 
 	mContrail = ParticleManager::I->Play("WFX_Bullet", mObject);
+}
+
+void Script_Missile::Explode()
+{
+	base::Explode();
+
+	if (mContrail) {
+		mContrail->Stop();
+		mContrail = nullptr;
+	}
 }

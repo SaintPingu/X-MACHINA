@@ -23,10 +23,10 @@
 		<s.y>2.500000000e+00</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="3" tracking_level="0" version="0">
-		<s.x>5.500000000e+00</s.x>
-		<s.y>5.500000000e+00</s.y>
-		<s.z>5.500000000e+00</s.z>
-		<s.w>1.000000000e+00</s.w>
+		<s.x>1.000000000e+00</s.x>
+		<s.y>1.000000000e+00</s.y>
+		<s.z>1.000000000e+00</s.z>
+		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
 		<s.x>1.000000000e+00</s.x>
@@ -108,7 +108,7 @@
 	<SimulationSpace>1</SimulationSpace>
 	<SimulationSpeed>1.000000000e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>150</MaxParticles>
+	<MaxParticles>500</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>

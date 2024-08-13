@@ -92,7 +92,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 	if (target) {
 		if (target->GetTag() == ObjectTag::Enemy) {
 			const auto& enemy = target->GetComponent<Script_Enemy>().get();
-
+			Hit(enemy);
 			mParticleType = BulletPSType::Explosion;
 			if (mIsPlayerBullet) {
 				// TODO : send onhit packet here

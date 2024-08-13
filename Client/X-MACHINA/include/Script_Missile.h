@@ -27,5 +27,7 @@ public:
 public:
 	virtual void Fire(const Vec3& pos, const Vec3& dir) override;
 	void Fire(const Vec3& pos, const Vec3& dir, const Vec2& err);
+
+	virtual void Explode() override;
 };
 #pragma endregion

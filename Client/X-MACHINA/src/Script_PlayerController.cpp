@@ -150,19 +150,19 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			}
 			break;
 
-			// cheats //
-		case '6':
-			mScript->AquireNewWeapon(WeaponName::SkyLine);
-			break;
-		case '7':
-			mScript->AquireNewWeapon(WeaponName::DBMS);
-			break;
-		case '8':
-			mScript->AquireNewWeapon(WeaponName::Burnout);
-			break;
-		case '9':
-			mScript->AquireNewWeapon(WeaponName::PipeLine);
-			break;
+		//	// cheats //
+		//case '6':
+		//	mScript->AquireNewWeapon(WeaponName::SkyLine);
+		//	break;
+		//case '7':
+		//	mScript->AquireNewWeapon(WeaponName::DBMS);
+		//	break;
+		//case '8':
+		//	mScript->AquireNewWeapon(WeaponName::Burnout);
+		//	break;
+		//case '9':
+		//	mScript->AquireNewWeapon(WeaponName::PipeLine);
+		//	break;
 
 		case'L':
 			mScript->AddPheroAmount(1000);

@@ -51,63 +51,6 @@ inline const char *EnumNameOBJECT_TYPE(OBJECT_TYPE e) {
   return EnumNamesOBJECT_TYPE()[index];
 }
 
-enum WEAPON_TYPE : uint8_t {
-  WEAPON_TYPE_H_LOOK = 0,
-  WEAPON_TYPE_DBMS = 1,
-  WEAPON_TYPE_STUART = 2,
-  WEAPON_TYPE_DESCRIPTOR = 3,
-  WEAPON_TYPE_T_12 = 4,
-  WEAPON_TYPE_PIPELINE = 5,
-  WEAPON_TYPE_BURNOUT = 6,
-  WEAPON_TYPE_DIRECT_DRAIN = 7,
-  WEAPON_TYPE_SKYLINE = 8,
-  WEAPON_TYPE_AIR_STRIKE = 9,
-  WEAPON_TYPE_END = 10,
-  WEAPON_TYPE_MIN = WEAPON_TYPE_H_LOOK,
-  WEAPON_TYPE_MAX = WEAPON_TYPE_END
-};
-
-inline const WEAPON_TYPE (&EnumValuesWEAPON_TYPE())[11] {
-  static const WEAPON_TYPE values[] = {
-    WEAPON_TYPE_H_LOOK,
-    WEAPON_TYPE_DBMS,
-    WEAPON_TYPE_STUART,
-    WEAPON_TYPE_DESCRIPTOR,
-    WEAPON_TYPE_T_12,
-    WEAPON_TYPE_PIPELINE,
-    WEAPON_TYPE_BURNOUT,
-    WEAPON_TYPE_DIRECT_DRAIN,
-    WEAPON_TYPE_SKYLINE,
-    WEAPON_TYPE_AIR_STRIKE,
-    WEAPON_TYPE_END
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesWEAPON_TYPE() {
-  static const char * const names[12] = {
-    "H_LOOK",
-    "DBMS",
-    "STUART",
-    "DESCRIPTOR",
-    "T_12",
-    "PIPELINE",
-    "BURNOUT",
-    "DIRECT_DRAIN",
-    "SKYLINE",
-    "AIR_STRIKE",
-    "END",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameWEAPON_TYPE(WEAPON_TYPE e) {
-  if (::flatbuffers::IsOutRange(e, WEAPON_TYPE_H_LOOK, WEAPON_TYPE_END)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesWEAPON_TYPE()[index];
-}
-
 enum MONSTER_TYPE : uint8_t {
   MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5 = 0,
   MONSTER_TYPE_ANGLEROX = 1,
@@ -183,12 +126,13 @@ enum MONSTER_BT_TYPE : uint8_t {
   MONSTER_BT_TYPE_MOVE_TO_PATH = 5,
   MONSTER_BT_TYPE_MOVE_TO_MIND_TARGET = 6,
   MONSTER_BT_TYPE_PATROL = 7,
-  MONSTER_BT_TYPE_END = 8,
+  MONSTER_BT_TYPE_CHANGE_BT = 8,
+  MONSTER_BT_TYPE_END = 9,
   MONSTER_BT_TYPE_MIN = MONSTER_BT_TYPE_IDLE,
   MONSTER_BT_TYPE_MAX = MONSTER_BT_TYPE_END
 };
 
-inline const MONSTER_BT_TYPE (&EnumValuesMONSTER_BT_TYPE())[9] {
+inline const MONSTER_BT_TYPE (&EnumValuesMONSTER_BT_TYPE())[10] {
   static const MONSTER_BT_TYPE values[] = {
     MONSTER_BT_TYPE_IDLE,
     MONSTER_BT_TYPE_DEATH,
@@ -198,13 +142,14 @@ inline const MONSTER_BT_TYPE (&EnumValuesMONSTER_BT_TYPE())[9] {
     MONSTER_BT_TYPE_MOVE_TO_PATH,
     MONSTER_BT_TYPE_MOVE_TO_MIND_TARGET,
     MONSTER_BT_TYPE_PATROL,
+    MONSTER_BT_TYPE_CHANGE_BT,
     MONSTER_BT_TYPE_END
   };
   return values;
 }
 
 inline const char * const *EnumNamesMONSTER_BT_TYPE() {
-  static const char * const names[10] = {
+  static const char * const names[11] = {
     "IDLE",
     "DEATH",
     "ATTACK",
@@ -213,6 +158,7 @@ inline const char * const *EnumNamesMONSTER_BT_TYPE() {
     "MOVE_TO_PATH",
     "MOVE_TO_MIND_TARGET",
     "PATROL",
+    "CHANGE_BT",
     "END",
     nullptr
   };
@@ -349,6 +295,75 @@ inline const char *EnumNamePLAYER_SKILL_TYPE(PLAYER_SKILL_TYPE e) {
   if (::flatbuffers::IsOutRange(e, PLAYER_SKILL_TYPE_IMPOSSIBLE, PLAYER_SKILL_TYPE_END)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPLAYER_SKILL_TYPE()[index];
+}
+
+enum ITEM_TYPE : uint8_t {
+  ITEM_TYPE_NONE = 0,
+  ITEM_TYPE_STATIC_ITEM = 1,
+  ITEM_TYPE_DYNAMIC_ITEM = 2,
+  ITEM_TYPE_STATIC_ITEM_CRATE = 3,
+  ITEM_TYPE_WEAPON_H_LOOK = 4,
+  ITEM_TYPE_WEAPON_DBMS = 5,
+  ITEM_TYPE_WEAPON_STUART = 6,
+  ITEM_TYPE_WEAPON_DESCRIPTOR = 7,
+  ITEM_TYPE_WEAPON_T_12 = 8,
+  ITEM_TYPE_WEAPON_PIPELINE = 9,
+  ITEM_TYPE_WEAPON_BURNOUT = 10,
+  ITEM_TYPE_WEAPON_DIRECT_DRAIN = 11,
+  ITEM_TYPE_WEAPON_MINE_LAUNCHER = 12,
+  ITEM_TYPE_WEAPON_SKYLINE = 13,
+  ITEM_TYPE_WEAPON_AIR_STRIKE = 14,
+  ITEM_TYPE_MIN = ITEM_TYPE_NONE,
+  ITEM_TYPE_MAX = ITEM_TYPE_WEAPON_AIR_STRIKE
+};
+
+inline const ITEM_TYPE (&EnumValuesITEM_TYPE())[15] {
+  static const ITEM_TYPE values[] = {
+    ITEM_TYPE_NONE,
+    ITEM_TYPE_STATIC_ITEM,
+    ITEM_TYPE_DYNAMIC_ITEM,
+    ITEM_TYPE_STATIC_ITEM_CRATE,
+    ITEM_TYPE_WEAPON_H_LOOK,
+    ITEM_TYPE_WEAPON_DBMS,
+    ITEM_TYPE_WEAPON_STUART,
+    ITEM_TYPE_WEAPON_DESCRIPTOR,
+    ITEM_TYPE_WEAPON_T_12,
+    ITEM_TYPE_WEAPON_PIPELINE,
+    ITEM_TYPE_WEAPON_BURNOUT,
+    ITEM_TYPE_WEAPON_DIRECT_DRAIN,
+    ITEM_TYPE_WEAPON_MINE_LAUNCHER,
+    ITEM_TYPE_WEAPON_SKYLINE,
+    ITEM_TYPE_WEAPON_AIR_STRIKE
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesITEM_TYPE() {
+  static const char * const names[16] = {
+    "NONE",
+    "STATIC_ITEM",
+    "DYNAMIC_ITEM",
+    "STATIC_ITEM_CRATE",
+    "WEAPON_H_LOOK",
+    "WEAPON_DBMS",
+    "WEAPON_STUART",
+    "WEAPON_DESCRIPTOR",
+    "WEAPON_T_12",
+    "WEAPON_PIPELINE",
+    "WEAPON_BURNOUT",
+    "WEAPON_DIRECT_DRAIN",
+    "WEAPON_MINE_LAUNCHER",
+    "WEAPON_SKYLINE",
+    "WEAPON_AIR_STRIKE",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameITEM_TYPE(ITEM_TYPE e) {
+  if (::flatbuffers::IsOutRange(e, ITEM_TYPE_NONE, ITEM_TYPE_WEAPON_AIR_STRIKE)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesITEM_TYPE()[index];
 }
 
 }  // namespace FBProtocol

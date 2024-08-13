@@ -157,8 +157,12 @@ public:
 	///		WEAPON 
 	/// -------------------------------------------------+
 public:
-	void		SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType);
+	void		SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponType);
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
+	void TakeWeapon(rsptr<Script_Weapon> weapon);
+	void DropWeapon(WeaponName weaponName);
+	void SetWeapon(WeaponName weaponName);
+	void SetWeaponChild(GridObject* weapon);
 	
 public:
 	void ToggleAbilityShield();

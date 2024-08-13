@@ -13,22 +13,6 @@ enum OBJECT_TYPE : ubyte {
 }
 
 
-// +------------------------
-//		 WEAPON TYPE 
-// ------------------------+
-enum WEAPON_TYPE : ubyte {
-	H_LOOK,
-	DBMS,
-	STUART,
-	DESCRIPTOR,
-	T_12,
-	PIPELINE,
-	BURNOUT,
-	DIRECT_DRAIN,
-	SKYLINE,
-	AIR_STRIKE,
-	END
-}
 
 // +------------------------
 //		 MONSTER_TYPE 
@@ -63,6 +47,9 @@ enum MONSTER_BT_TYPE : ubyte {
 	MOVE_TO_PATH,
 	MOVE_TO_MIND_TARGET,
 	PATROL,
+
+	CHANGE_BT,
+
 	END
 }
 
@@ -107,4 +94,28 @@ enum PLAYER_SKILL_TYPE : ubyte {
 	MIND_CONTROL,
 	SHIELD,
 	END
+}
+
+// +------------------------
+//      ITEM TYPE
+// ------------------------+
+enum ITEM_TYPE : ubyte{
+	NONE,
+	STATIC_ITEM,
+	DYNAMIC_ITEM,
+
+	STATIC_ITEM_CRATE,
+
+	WEAPON_H_LOOK,
+	WEAPON_DBMS,
+	WEAPON_STUART,
+	WEAPON_DESCRIPTOR,
+	WEAPON_T_12,
+	WEAPON_PIPELINE,
+	WEAPON_BURNOUT,
+	WEAPON_DIRECT_DRAIN,
+	WEAPON_MINE_LAUNCHER,
+	WEAPON_SKYLINE,
+	WEAPON_AIR_STRIKE,
+	
 }

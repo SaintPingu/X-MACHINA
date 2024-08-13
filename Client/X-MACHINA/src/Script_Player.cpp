@@ -13,6 +13,10 @@
 #include "SliderBarUI.h"
 #include "ChatBoxUI.h"
 
+
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 void Script_Player::Start()
 {
 	base::Start();
@@ -23,8 +27,6 @@ void Script_Player::Start()
 void Script_Player::Update()
 {
 	base::Update();
-
-	mIsInteracted = false;
 }
 
 void Script_Player::SetSpawn(const Vec3& pos)
@@ -72,20 +74,28 @@ void Script_Player::Respawn()
 
 void Script_Player::Interact()
 {
+	Script_Item* interactedItem{};
 	const auto& collisionObjects = mObject->GetCollisionObjects();
 	for (const auto& other : collisionObjects) {
 		switch (other->GetTag()) {
 		case ObjectTag::Crate:
 		case ObjectTag::Item:
-			if (!mIsInteracted) {
-				mIsInteracted = other->GetComponent<Script_Item>()->Interact(mObject);
-				if (mIsInteracted) {
-					return;
+			if (!interactedItem) {
+				interactedItem = other->GetComponent<Script_Item>().get();
+				if (interactedItem->Interact()) {
+					goto label_end;
 				}
+				interactedItem = nullptr;
 			}
 			break;
 		default:
 			break;
 		}
+	}
+label_end:
+	if (interactedItem) {
+		auto itemType = FBS_FACTORY->GetItemType(interactedItem->GetItemType());
+		auto cpkt = FBS_FACTORY->CPkt_Item_Interact(interactedItem->GetObj()->GetID(), itemType);
+		CLIENT_NETWORK->Send(cpkt);
 	}
 }

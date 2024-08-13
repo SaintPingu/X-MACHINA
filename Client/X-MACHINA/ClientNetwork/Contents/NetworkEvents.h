@@ -56,6 +56,12 @@ namespace NetworkEvent
 			constexpr UINT16 Chat = 22;
 		}
 
+		namespace ItemType
+		{
+			constexpr UINT16 Item_Interact = 23;
+			constexpr UINT16 Item_ThrowAway = 24;
+		}
+
 		/* EVENT DATA */
 		struct EventData {
 			UINT16 type = {};
@@ -126,7 +132,7 @@ namespace NetworkEvent
 			/// >> Update Weapon
 			struct UpdateWeapon : public EventData {
 				uint32_t Id = {};
-				FBProtocol::WEAPON_TYPE weapon_type = {};
+				FBProtocol::ITEM_TYPE weapon_type = {};
 			};
 
 			/// >> Update On Shoot 
@@ -242,7 +248,7 @@ namespace NetworkEvent
 		}
 
 		/// +---------------------------------------------------------------------
-		///	EVENT ¢º¢º¢º¢º¢º MONSTER  
+		///	EVENT ¢º¢º¢º¢º¢º Contents  
 		/// ---------------------------------------------------------------------+
 		namespace Event_Contents {
 			struct Chat : public EventData {
@@ -250,6 +256,25 @@ namespace NetworkEvent
 				std::string		chat;
 			};
 		
+		}
+		/// +---------------------------------------------------------------------
+		///	EVENT ¢º¢º¢º¢º¢º Contents  
+		/// ---------------------------------------------------------------------+
+		namespace Event_Item {
+			struct Item_Interact : public EventData {
+				uint32_t				player_id;
+				uint32_t				item_id;
+				Vec3					drop_Pos;
+				FBProtocol::ITEM_TYPE	item_type;
+			};
+
+			struct Item_ThrowAway : public EventData {
+				uint32_t				player_id;
+				uint32_t				item_id;
+				Vec3					drop_Pos;
+				FBProtocol::ITEM_TYPE	item_type;
+			};
+
 		}
 	}
 }

@@ -25,6 +25,17 @@
 #include "Script_Ability_Cloaking.h"
 #include "Script_Ability_MindControl.h"
 
+namespace {
+	static const std::unordered_map<WeaponType, std::string> kDefaultTransforms{
+	{WeaponType::HandedGun, "RefPos2HandedGun_Action" },
+	{WeaponType::AssaultRifle, "RefPosAssaultRifle_Action" },
+	{WeaponType::ShotGun, "RefPosShotgun_Action" },
+	{WeaponType::MissileLauncher, "RefPosMissileLauncher_Action" },
+	{WeaponType::Sniper, "RefPosSniper_Action" },
+	{WeaponType::MineLauncher, "RefPosLightningGun_Action" },
+	};
+}
+
 void Script_NetworkRemotePlayer::Awake()
 {
 	static const std::unordered_map<WeaponType, std::string> kReloadMotions{
@@ -69,38 +80,12 @@ void Script_NetworkRemotePlayer::Awake()
 		realodMotion->AddCallback(endReloadCallback, realodMotion->GetMaxFrameRate() - 14);
 		realodMotion->AddStartCallback(startReloadCallback);
 	}
+
 	mCurrWeaponName = WeaponName::H_Lock;
 	mCrntWeapon = mWeapons[mCurrWeaponName];
 	mCrntWeapon->SetActive(true);
-
-	for (const auto& [weaponName, weapon] : mWeapons) {
-		switch (weaponName) {
-		case WeaponName::H_Lock:
-			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Pistol>();
-			break;
-		case WeaponName::DBMS:
-			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_DBMS>();
-			break;
-		case WeaponName::SkyLine:
-			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Skyline>();
-			break;
-		case WeaponName::Burnout:
-			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_Burnout>();
-			break;
-		case WeaponName::PipeLine:
-			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_PipeLine>();
-			ResetBoltActionMotionSpeed(weapon->GetComponent<Script_Weapon>());
-			break;
-		case WeaponName::MineLauncher:
-			mWeaponScripts[weapon] = weapon->AddComponent<Script_Weapon_MineLauncher>();
-			break;
-		default:
-			assert(0);
-			break;
-		}
-
-		mWeaponScripts[weapon]->Awake();
-	}
+	mWeaponScripts[mCrntWeapon] = mCrntWeapon->AddComponent<Script_Weapon_Pistol>();
+	mWeaponScripts[mCrntWeapon]->Awake();
 
 	mAirstrike = std::make_shared<Airstrike>();
 	mAirstrike->Init();
@@ -267,7 +252,7 @@ float Script_NetworkRemotePlayer::Distance(const Vec3& v1, const Vec3& v2)
 		(v1.z - v2.z) * (v1.z - v2.z));
 }
 
-void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weaponType)
+void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponType)
 {
 	if (mCrntWeapon) {
 		mCrntWeapon->SetActive(false);
@@ -275,35 +260,77 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::WEAPON_TYPE weapo
 
 	switch (weaponType)
 	{
-	case FBProtocol::WEAPON_TYPE_H_LOOK:
+	case FBProtocol::ITEM_TYPE_WEAPON_H_LOOK:
 		mCurrWeaponName = WeaponName::H_Lock;
 		break;
-	case FBProtocol::WEAPON_TYPE_DBMS:
+	case FBProtocol::ITEM_TYPE_WEAPON_DBMS:
 		mCurrWeaponName = WeaponName::DBMS;
 		break;
-	case FBProtocol::WEAPON_TYPE_PIPELINE:
+	case FBProtocol::ITEM_TYPE_WEAPON_PIPELINE:
 		mCurrWeaponName = WeaponName::PipeLine;
 		break;
-	case FBProtocol::WEAPON_TYPE_BURNOUT:
+	case FBProtocol::ITEM_TYPE_WEAPON_BURNOUT:
 		mCurrWeaponName = WeaponName::Burnout;
 		break;
-	case FBProtocol::WEAPON_TYPE_SKYLINE:
+	case FBProtocol::ITEM_TYPE_WEAPON_SKYLINE:
 		mCurrWeaponName = WeaponName::SkyLine;
 		break;
-	case FBProtocol::WEAPON_TYPE_AIR_STRIKE:
+	case FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE:
 		mCurrWeaponName = WeaponName::Airstrike;
+		break;
+	case FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER:
+		mCurrWeaponName = WeaponName::MineLauncher;
 		break;
 	default:
 		mCrntWeapon = nullptr;
 		return;
 	}
 
+	SetWeapon(mCurrWeaponName);
+}
+
+void Script_NetworkRemotePlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
+{
+	GridObject* gameObject = weapon->GetObj()->GetObj<GridObject>();
+	WeaponName weaponName = weapon->GetWeaponName();
+
+	if (Script_Weapon::GetWeaponIdx(weapon->GetWeaponType()) == Script_Weapon::GetWeaponIdx(mWeaponScripts[mCrntWeapon]->GetWeaponType())) {
+		DropWeapon(mWeaponScripts[mCrntWeapon]->GetWeaponName());
+		mCrntWeapon = nullptr;
+	}
+
+	mWeapons[weaponName] = gameObject;
+	mWeaponScripts[gameObject] = weapon;
+	weapon->SetPlayerWeapon(false);
+
+	SetWeaponChild(gameObject);
+}
+
+void Script_NetworkRemotePlayer::DropWeapon(WeaponName weaponName)
+{
+	mWeaponScripts.erase(mWeapons[weaponName]);
+	mWeapons.erase(weaponName);
+}
+
+void Script_NetworkRemotePlayer::SetWeapon(WeaponName weaponName)
+{
 	if (mWeapons.count(mCurrWeaponName)) {
 		mCrntWeapon = mWeapons[mCurrWeaponName];
 		mCrntWeapon->SetActive(true);
 		mBattleUI->SetWeapon(mObject, mWeaponScripts[mCrntWeapon]);
 	}
 }
+
+void Script_NetworkRemotePlayer::SetWeaponChild(GridObject* weapon)
+{
+	const auto& weaponScript = weapon->GetComponent<Script_Weapon>(true);
+	WeaponType weaponType = weaponScript->GetWeaponType();
+
+	Transform* transform = mObject->FindFrame(kDefaultTransforms.at(weaponType), true);
+	transform->SetChild(weapon->GetShared());
+	weapon->SetLocalTransform(Matrix::Identity);
+}
+
 
 void Script_NetworkRemotePlayer::EndReloadCallback()
 {

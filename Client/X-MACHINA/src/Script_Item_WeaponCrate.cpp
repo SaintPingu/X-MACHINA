@@ -13,6 +13,9 @@
 #include "Timer.h"
 #include "Object.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
+
 void Script_Item_WeaponCrate::Awake()
 {
 	base::Awake();
@@ -54,9 +57,12 @@ void Script_Item_WeaponCrate::OnCollisionEnter(Object& other)
 void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 {
 	std::string weaponName;
+	int id{};
 	exporter->GetData("Name", weaponName);
 	int id;
 	exporter->GetData("ID", id);
+	mObject->SetID(id);
+	CLIENT_NETWORK->AddItem(id, this);
 }
 
 void Script_Item_WeaponCrate::DisableInteract()
@@ -64,12 +70,11 @@ void Script_Item_WeaponCrate::DisableInteract()
 	base::DisableInteract();
 }
 
-bool Script_Item_WeaponCrate::Interact(Object* user)
+bool Script_Item_WeaponCrate::Interact()
 {
 	if (mIsOpend) {
 		return false;
 	}
-	mIsOpend = true;
 	DisableInteract();
 
 	return true;

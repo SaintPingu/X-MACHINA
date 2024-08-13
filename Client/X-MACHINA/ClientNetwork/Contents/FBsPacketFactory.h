@@ -17,6 +17,7 @@
 #include "GameMonster.h"
 
 #include "InputMgr.h"
+#include "Script_Item.h"
 
 namespace PLAYER_MOVE_STATE
 {
@@ -79,7 +80,12 @@ private:
 	/* BULLET */
 	static bool Process_SPkt_Bullet_OnShoot(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnShoot& pkt);
 	static bool Process_SPkt_Bullet_OnHitEnemy(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnHitEnemy& pkt);
-	static bool Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt);
+	static bool Process_SPkt_Bullet_OnCollision(SPtr_Session session, const FBProtocol::SPkt_Bullet_OnCollision& pkt);	
+	
+	/* ITEM */
+	static bool Process_SPkt_Item_Interact(SPtr_Session session, const FBProtocol::SPkt_Item_Interact& pkt);
+	static bool Process_SPkt_Item_ThrowAway(SPtr_Session session, const FBProtocol::SPkt_Item_ThrowAway& pkt);
+
 
 public:
 	/// +------------------------
@@ -97,7 +103,7 @@ public:
 
 	SPtr_SendPktBuf CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v);
 	SPtr_SendPktBuf CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
-	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::WEAPON_TYPE weaponType);
+	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::ITEM_TYPE weaponType);
 	SPtr_SendPktBuf CPkt_Player_AimRotation(float aim_rotation_y, float spine_angle);
 	SPtr_SendPktBuf CPkt_Player_Weapon(WeaponName weaponName);
 	SPtr_SendPktBuf CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType, int mindcontrol_monster_id = -1); // Ãß°¡
@@ -120,6 +126,10 @@ public:
 	SPtr_SendPktBuf CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 fire_pos, Vec3 ray);
 	SPtr_SendPktBuf CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID);
 
+	SPtr_SendPktBuf CPkt_Item_ThrowAway(uint32_t item_id, FBProtocol::ITEM_TYPE item_type);
+	SPtr_SendPktBuf CPkt_Item_Interact(uint32_t item_id, FBProtocol::ITEM_TYPE item_type);
+
+
 private:
 	/// +------------------------
 	///	         UTILITY 
@@ -135,5 +145,9 @@ private:
 
 	static Vec3 CalculateDirection(float yAngleRadian);
 	static Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
+
+public:
+	FBProtocol::ITEM_TYPE GetItemType(ItemType type);
+
 };
 

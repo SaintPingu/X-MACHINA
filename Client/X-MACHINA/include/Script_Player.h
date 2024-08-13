@@ -27,7 +27,6 @@ private:
 	std::wstring mName{ L"Unknown" };
 
 	Matrix			mSpawnTransform{};	// 리스폰 지점
-	bool mIsInteracted{};
 
 protected:
 	Script_MainCamera* mCamera{};

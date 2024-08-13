@@ -268,13 +268,10 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 	auto& weapon = mWeapons[weaponIdx];
 	if (weapon) {
-		weapon->DetachParent(false);
-		weapon->SetLocalRotation(Vec3(0, 90, 0));
-		weapon->SetTag(ObjectTag::Item);
-
-		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
-		weaponItem->StartDrop();
-		weapon->SetActive(true);
+		const auto& weaponScript = weapon->GetComponent<Script_Weapon>();
+		if (weaponScript->GetWeaponName() == WeaponName::H_Lock) {
+			return;
+		}
 
 		if (weapon == mWeapon) {
 			mWeapon = nullptr;
@@ -285,9 +282,16 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 			RemoveWeaponUI();
 		}
-		weapon = nullptr;
-
 		mIsInDraw = false;
 		mIsInPutback = false;
+
+	/// +-------------------------------------------------------------------
+	///		Send OnShoot Packet
+	/// -------------------------------------------------------------------+
+		const auto& itemType = static_cast<FBProtocol::ITEM_TYPE>(Script_Weapon::GetWeaponItemType(weaponScript->GetWeaponName()));
+		auto pkt = FBS_FACTORY->CPkt_Item_ThrowAway(weapon->GetID(), itemType);
+		CLIENT_NETWORK->Send(pkt);
+
+		weapon = nullptr;
 	}
 }

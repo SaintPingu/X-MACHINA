@@ -101,4 +101,7 @@ void Script_SpiderMine::Plant()
 	mObject->Rotate(-mRotationX);
 	mObject->SetPositionY(mPlantY);
 
+	if (IsPlayerBullet()) {
+		// send here
+	}
 }

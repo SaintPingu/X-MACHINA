@@ -23,6 +23,9 @@ private:
 	UI* mUI{};
 	bool mCanInteract{};
 
+protected:
+	int mItemID{};
+
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
@@ -31,7 +34,8 @@ public:
 	virtual void OnCollisionExit(Object& other) override;
 
 public:
-	virtual bool Interact(Object* user) abstract;
+	virtual bool Interact() { return true; }
+	virtual bool InteractOK(Object* user) abstract;
 	virtual ItemType GetItemType() abstract;
 
 protected:
@@ -55,7 +59,8 @@ public:
 	virtual void OnCollisionEnter(Object& other) override;
 
 public:
-	virtual bool Interact(Object* user) override;
+	virtual bool Interact() override;
+	virtual bool InteractOK(Object* user) override { mIsOpend = true; return true; }
 	virtual ItemType GetItemType() override { return ItemType::WeaponCrate; }
 
 	virtual void LoadData(rsptr<ScriptExporter> exporter) override;
@@ -70,7 +75,6 @@ class Script_Item_Weapon : public Script_Item {
 	COMPONENT_ABSTRACT(Script_Item_Weapon, Script_Item)
 
 private:
-	sptr<Rigidbody> mRigid{};
 	Vec3 mDir{};
 
 	bool mDroped{ false };
@@ -84,8 +88,10 @@ public:
 	virtual void Animate() override;
 
 public:
-	virtual bool Interact(Object* user) override;
+	void SetWeapon(WeaponName weaponName);
+	virtual bool InteractOK(Object* user) override;
 	virtual ItemType GetItemType() override { return ItemType::Weapon; }
+	void Throw(const Vec3& pos);
 
 public:
 	virtual void StartOpen();

@@ -310,13 +310,14 @@ enum ITEM_TYPE : uint8_t {
   ITEM_TYPE_WEAPON_PIPELINE = 9,
   ITEM_TYPE_WEAPON_BURNOUT = 10,
   ITEM_TYPE_WEAPON_DIRECT_DRAIN = 11,
-  ITEM_TYPE_WEAPON_SKYLINE = 12,
-  ITEM_TYPE_WEAPON_AIR_STRIKE = 13,
+  ITEM_TYPE_WEAPON_MINE_LAUNCHER = 12,
+  ITEM_TYPE_WEAPON_SKYLINE = 13,
+  ITEM_TYPE_WEAPON_AIR_STRIKE = 14,
   ITEM_TYPE_MIN = ITEM_TYPE_NONE,
   ITEM_TYPE_MAX = ITEM_TYPE_WEAPON_AIR_STRIKE
 };
 
-inline const ITEM_TYPE (&EnumValuesITEM_TYPE())[14] {
+inline const ITEM_TYPE (&EnumValuesITEM_TYPE())[15] {
   static const ITEM_TYPE values[] = {
     ITEM_TYPE_NONE,
     ITEM_TYPE_STATIC_ITEM,
@@ -330,6 +331,7 @@ inline const ITEM_TYPE (&EnumValuesITEM_TYPE())[14] {
     ITEM_TYPE_WEAPON_PIPELINE,
     ITEM_TYPE_WEAPON_BURNOUT,
     ITEM_TYPE_WEAPON_DIRECT_DRAIN,
+    ITEM_TYPE_WEAPON_MINE_LAUNCHER,
     ITEM_TYPE_WEAPON_SKYLINE,
     ITEM_TYPE_WEAPON_AIR_STRIKE
   };
@@ -337,7 +339,7 @@ inline const ITEM_TYPE (&EnumValuesITEM_TYPE())[14] {
 }
 
 inline const char * const *EnumNamesITEM_TYPE() {
-  static const char * const names[15] = {
+  static const char * const names[16] = {
     "NONE",
     "STATIC_ITEM",
     "DYNAMIC_ITEM",
@@ -350,6 +352,7 @@ inline const char * const *EnumNamesITEM_TYPE() {
     "WEAPON_PIPELINE",
     "WEAPON_BURNOUT",
     "WEAPON_DIRECT_DRAIN",
+    "WEAPON_MINE_LAUNCHER",
     "WEAPON_SKYLINE",
     "WEAPON_AIR_STRIKE",
     nullptr

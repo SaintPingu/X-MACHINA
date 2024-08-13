@@ -90,7 +90,6 @@ void Script_GroundPlayer::Awake()
 	// weapons //
 	mWeapons.resize(3);
 	AquireNewWeapon(WeaponName::H_Lock);
-	AquireNewWeapon(WeaponName::MineLauncher);
 }
 
 void Script_GroundPlayer::Start()
@@ -516,7 +515,10 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 		assert(0);
 		break;
 	}
-	weapon->GetComponent<Script_Weapon>()->SetOwner(this);
+	const auto& weaponScript = weapon->GetComponent<Script_Weapon>();
+	weaponScript->Awake();
+	weaponScript->SetOwner(this);
+	weaponScript->SetPlayerWeapon(true);
 
 	SwitchWeapon(weapon);
 	SetWeaponChild(weapon);
@@ -527,6 +529,8 @@ void Script_GroundPlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 	GridObject* gameObject = weapon->GetObj()->GetObj<GridObject>();
 	SwitchWeapon(gameObject);
 	SetWeaponChild(gameObject);
+	weapon->SetOwner(this);
+	weapon->SetPlayerWeapon(true);
 	gameObject->GetComponent<Script_Weapon>()->SetOwner(this);
 
 	if (weapon->GetWeaponType() == WeaponType::Sniper) {

@@ -268,6 +268,11 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 	auto& weapon = mWeapons[weaponIdx];
 	if (weapon) {
+		const auto& weaponScript = weapon->GetComponent<Script_Weapon>();
+		if (weaponScript->GetWeaponName() == WeaponName::H_Lock) {
+			return;
+		}
+
 		if (weapon == mWeapon) {
 			mWeapon = nullptr;
 			mWeaponScript->StopFire();
@@ -277,10 +282,16 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 			RemoveWeaponUI();
 		}
-
 		mIsInDraw = false;
 		mIsInPutback = false;
 
-		// send here...
+	/// +-------------------------------------------------------------------
+	///		Send OnShoot Packet
+	/// -------------------------------------------------------------------+
+		const auto& itemType = static_cast<FBProtocol::ITEM_TYPE>(Script_Weapon::GetWeaponItemType(weaponScript->GetWeaponName()));
+		auto pkt = FBS_FACTORY->CPkt_Item_ThrowAway(weapon->GetID(), itemType);
+		CLIENT_NETWORK->Send(pkt);
+
+		weapon = nullptr;
 	}
 }

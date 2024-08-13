@@ -289,8 +289,24 @@ void Script_NetworkRemotePlayer::SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponT
 void Script_NetworkRemotePlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 {
 	GridObject* gameObject = weapon->GetObj()->GetObj<GridObject>();
-	SwitchWeapon(gameObject);
+	WeaponName weaponName = weapon->GetWeaponName();
+
+	if (Script_Weapon::GetWeaponIdx(weapon->GetWeaponType()) == Script_Weapon::GetWeaponIdx(mWeaponScripts[mCrntWeapon]->GetWeaponType())) {
+		DropWeapon(mWeaponScripts[mCrntWeapon]->GetWeaponName());
+		mCrntWeapon = nullptr;
+	}
+
+	mWeapons[weaponName] = gameObject;
+	mWeaponScripts[gameObject] = weapon;
+	weapon->SetPlayerWeapon(false);
+
 	SetWeaponChild(gameObject);
+}
+
+void Script_NetworkRemotePlayer::DropWeapon(WeaponName weaponName)
+{
+	mWeaponScripts.erase(mWeapons[weaponName]);
+	mWeapons.erase(weaponName);
 }
 
 void Script_NetworkRemotePlayer::SetWeapon(WeaponName weaponName)
@@ -300,14 +316,6 @@ void Script_NetworkRemotePlayer::SetWeapon(WeaponName weaponName)
 		mCrntWeapon->SetActive(true);
 		mBattleUI->SetWeapon(mObject, mWeaponScripts[mCrntWeapon]);
 	}
-}
-
-void Script_NetworkRemotePlayer::SwitchWeapon(GridObject* weapon)
-{
-	WeaponName weaponName = weapon->GetComponent<Script_Weapon>(true)->GetWeaponName();
-
-	mWeapons[weaponName] = weapon;
-	SetWeapon(weaponName);
 }
 
 void Script_NetworkRemotePlayer::SetWeaponChild(GridObject* weapon)

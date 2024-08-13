@@ -96,11 +96,21 @@ void Script_Weapon::SetFiringMode(FiringMode firingMode)
 	}
 }
 
+void Script_Weapon::SetPlayerWeapon(bool val)
+{
+	mBulletPool->DoAllObjects([&](rsptr<InstObject> bullet) {
+		bullet->GetComponent<Script_Bullet>()->SetPlayerBullet(mIsPlayerWeapon);
+		});
+}
+
 void Script_Weapon::SetOwner(Script_GroundPlayer* owner)
 {
 	mOwner = owner;
-	if (mOwner->GetObj() == GameFramework::I->GetPlayer()) {
+	if (mOwner && mOwner->GetObj() == GameFramework::I->GetPlayer()) {
 		mIsPlayerWeapon = true;
+	}
+	else {
+		mIsPlayerWeapon = false;
 	}
 }
 
@@ -208,6 +218,26 @@ std::string Script_Weapon::GetWeaponModelName(WeaponName weaponName)
 
 	return kWeaponMaps.at(weaponName);
 }
+
+uint8_t Script_Weapon::GetWeaponItemType(WeaponName weaponName)
+{
+	switch (weaponName) {
+	case WeaponName::SkyLine:
+		return FBProtocol::ITEM_TYPE_WEAPON_SKYLINE;
+	case WeaponName::DBMS:
+		return FBProtocol::ITEM_TYPE_WEAPON_DBMS;
+	case WeaponName::Burnout:
+		return FBProtocol::ITEM_TYPE_WEAPON_BURNOUT;
+	case WeaponName::PipeLine:
+		return FBProtocol::ITEM_TYPE_WEAPON_PIPELINE;
+	default:
+		assert(0);
+		break;
+	}
+
+	return 0;
+}
+
 int Script_Weapon::GetWeaponIdx(WeaponType weaponType)
 {
 	switch (weaponType) {
@@ -326,9 +356,6 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 		break;
 	}
 	bulletScript->Init();
-	if (IsPlayerWeapon()) {
-		bulletScript->SetPlayerBullet();
-	}
 	bulletScript->SetDamage(damage);
 	bulletScript->SetSpeed(speed);
 

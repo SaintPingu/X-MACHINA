@@ -44,7 +44,7 @@ public:
 	void SetEndDistance(float distance) { mEndDistance = distance; }
 	void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
 	void SetImpactSound(const std::string& sound) { mImpactSound = sound; }
-	void SetPlayerBullet() { mIsPlayerBullet = true; }
+	void SetPlayerBullet(bool val) { mIsPlayerBullet = val; }
 
 public:
 	virtual void Update() override;

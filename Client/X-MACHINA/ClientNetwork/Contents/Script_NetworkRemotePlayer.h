@@ -160,8 +160,8 @@ public:
 	void		SetCurrWeaponName(FBProtocol::ITEM_TYPE weaponType);
 	WeaponName	GetCurrWeaponName() { return mCurrWeaponName; }
 	void TakeWeapon(rsptr<Script_Weapon> weapon);
+	void DropWeapon(WeaponName weaponName);
 	void SetWeapon(WeaponName weaponName);
-	void SwitchWeapon(GridObject* weapon);
 	void SetWeaponChild(GridObject* weapon);
 	
 public:

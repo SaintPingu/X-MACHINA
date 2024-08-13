@@ -1113,7 +1113,12 @@ void ClientNetworkManager::ProcessEvent_Item_Interact(NetworkEvent::Game::Event_
 	data->item_id;
 	data->item_type;
 
-	mItems[data->item_id]->InteractOK(mRemotePlayers[data->player_id]);
+	ItemType itemType = mItems[data->item_id]->GetItemType();
+	if (mItems[data->item_id]->InteractOK(mRemotePlayers[data->player_id])) {
+		if (itemType == ItemType::WeaponCrate) {
+			mItems.erase(data->item_id);
+		}
+	}
 }
 
 void ClientNetworkManager::ProcessEvent_Item_ThrowAway(NetworkEvent::Game::Event_Item::Item_ThrowAway* data)
@@ -1123,15 +1128,22 @@ void ClientNetworkManager::ProcessEvent_Item_ThrowAway(NetworkEvent::Game::Event
 	data->item_id;
 	data->item_type;
 
-	if (mItems.count(data->item_id)) {
-		return;
-	}
-
 	WeaponName weaponName = GetWeaponName(data->item_type);
-	
-	GridObject* object = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Item);
-	object->SetPosition(data->drop_Pos);
-	Script_Item_Weapon* itemScript = object->AddComponent<Script_Item_Weapon>().get();
+
+	if (!mItems.count(data->item_id)) { // new
+		GridObject* object = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Item);
+		object->SetID(data->item_id);
+		Script_Item_Weapon* itemScript = object->AddComponent<Script_Item_Weapon>().get();
+		itemScript->SetWeapon(GetWeaponName(data->item_type));
+
+		mItems[data->item_id] = itemScript;
+		itemScript->Throw(data->drop_Pos);
+	}
+	else {
+		if (mItems[data->item_id]->GetItemType() == ItemType::Weapon) {
+			((Script_Item_Weapon*)mItems[data->item_id])->Throw(data->drop_Pos);
+		}
+	}
 }
 
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()

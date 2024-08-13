@@ -3,6 +3,12 @@
 
 #include "Script_Player.h"
 #include "Script_Weapon.h"
+#include "Script_Weapon_Pistol.h"
+#include "Script_Weapon_Rifle.h"
+#include "Script_Weapon_Shotgun.h"
+#include "Script_Weapon_Sniper.h"
+#include "Script_Weapon_MissileLauncher.h"
+#include "Script_Weapon_MineLauncher.h"
 
 #include "Component/Rigidbody.h"
 
@@ -16,22 +22,15 @@ void Script_Item_Weapon::Awake()
 {
 	base::Awake();
 
-	mRigid = mObject->AddComponent<Rigidbody>();
 	mMaxFloatingSpeed = 0.25f;
-	mObject->mObjectCB.UseOutline = true;
-}
-
-void Script_Item_Weapon::Start()
-{
-	mObject->DetachParent(false);
-	mObject->SetLocalRotation(Vec3(0, 90, 0));
-	mObject->SetTag(ObjectTag::Item);
-
-	StartDrop();
 }
 
 void Script_Item_Weapon::Animate()
 {
+	if (!mDroped) {
+		return;
+	}
+
 	base::Animate();
 
 	float floatingSpeed = mMaxFloatingSpeed * sin(mDeltaTime * XM_PI);
@@ -48,24 +47,48 @@ void Script_Item_Weapon::Animate()
 
 void Script_Item_Weapon::StartOpen()
 {
-	//mRigid->AddForce(Vector3::Up * 1.5f, ForceMode::Impulse);
 }
 
 void Script_Item_Weapon::StartDrop()
 {
+	mDroped = true;
+
 	mObject->SetPositionY(0.5f);
+	mObject->mObjectCB.UseOutline = true;
 }
 
-bool Script_Item_Weapon::Interact()
+void Script_Item_Weapon::SetWeapon(WeaponName weaponName)
 {
-	if (mDroped) {
-		return false;
+	if (mObject->GetComponent<Script_Weapon>()) {
+		return;
 	}
 
-	return true;
+	switch (weaponName) {
+	case WeaponName::H_Lock:
+		mObject->AddComponent<Script_Weapon_Pistol>();
+		break;
+	case WeaponName::SkyLine:
+		mObject->AddComponent<Script_Weapon_Skyline>();
+		break;
+	case WeaponName::DBMS:
+		mObject->AddComponent<Script_Weapon_DBMS>();
+		break;
+	case WeaponName::Burnout:
+		mObject->AddComponent<Script_Weapon_Burnout>();
+		break;
+	case WeaponName::PipeLine:
+		mObject->AddComponent<Script_Weapon_PipeLine>();
+		break;
+	case WeaponName::MineLauncher:
+		mObject->AddComponent<Script_Weapon_MineLauncher>();
+		break;
+	default:
+		assert(0);
+		break;
+	}
 }
 
-void Script_Item_Weapon::InteractOK(Object* user)
+bool Script_Item_Weapon::InteractOK(Object* user)
 {
 	const auto& weapon = mObject->GetComponent<Script_Weapon>();
 
@@ -73,25 +96,43 @@ void Script_Item_Weapon::InteractOK(Object* user)
 		mObject->SetTag(ObjectTag::Untagged);
 		mObject->SetActive(false);
 		mObject->mObjectCB.UseOutline = false;
-		mObject->RemoveComponent<Script_Item_Weapon>();
 	}
 	else {
 		std::cout << "[WARNING] (weapon item or player) has no script\n";
 		mObject->Destroy();
+		return true;
 	}
 
 
 	const auto& player = user->GetComponent<Script_GroundPlayer>();
 	if (player) {
-		if (player) {
-			player->TakeWeapon(weapon);
-			
-		}
-		else {
-			const auto& removeplayer = user->GetComponent<Script_NetworkRemotePlayer>();
-			if (removeplayer) {
-				removeplayer->TakeWeapon(weapon);
-			}
+		player->TakeWeapon(weapon);
+	}
+	else {
+		const auto& removeplayer = user->GetComponent<Script_NetworkRemotePlayer>();
+		if (removeplayer) {
+			removeplayer->TakeWeapon(weapon);
 		}
 	}
+
+	mDroped = false;
+
+	return true;
+}
+
+void Script_Item_Weapon::Throw(const Vec3& pos)
+{
+	mObject->DetachParent(false);
+	mObject->SetPosition(pos);
+	mObject->SetLocalRotation(Vec3(0, 90, 0));
+	mObject->SetTag(ObjectTag::Item);
+
+	const auto& weapon = mObject->GetComponent<Script_Weapon>();
+	if (weapon) {
+		weapon->StopFire();
+		weapon->SetOwner(nullptr);
+	}
+
+	StartDrop();
+	mObject->SetActive(true);
 }

@@ -75,7 +75,7 @@ public:
 	const auto& GetRemoteMonsters() const { return mRemoteMonsters; }
 
 	void EraseMonster(UINT32 id) { mRemoteMonsters.erase(id); }
-	void AddItem(UINT32 id, Script_Item* item) { mItems[id]= item; }
+	void AddItem(UINT32 id, Script_Item* item) { mItems[id] = item; }
 
 public:
 	/* Send Client Packet */

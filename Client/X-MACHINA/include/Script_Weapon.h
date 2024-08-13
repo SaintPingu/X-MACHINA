@@ -70,6 +70,7 @@ public:
 	bool IsReloading() const { return mIsReload || mIsBoltAction; }
 	bool IsShooting() const { return mIsShooting; }
 	bool IsPlayerWeapon() const { return mIsPlayerWeapon; }
+	void SetPlayerWeapon(bool val);
 
 	void SetOwner(Script_GroundPlayer* owner);
 
@@ -110,6 +111,7 @@ private:
 
 public:
 	static std::string GetWeaponModelName(WeaponName weaponName);
+	static uint8_t GetWeaponItemType(WeaponName weaponName);
 	static int GetWeaponIdx(WeaponType weaponType);
 };
 

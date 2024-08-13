@@ -8,6 +8,9 @@
 
 #include "SoundMgr.h"
 
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
 void Script_Weapon_Shotgun::Awake()
 {
 	base::Awake();
@@ -32,6 +35,11 @@ void Script_Weapon_Shotgun::FireBullet()
 
 		bulletScript->SetSpeed(mkBulletSpeed - bulletSpeedErr);
 		bulletScript->Fire(*mMuzzle, err);
+	}
+
+	if (IsPlayerWeapon()) {
+		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(bullets.front()->GetPosition(), bullets.front()->GetLook());
+		CLIENT_NETWORK->Send(cpkt);
 	}
 }
 

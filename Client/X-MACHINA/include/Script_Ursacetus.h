@@ -38,6 +38,7 @@ public:
 	virtual void Start() override;
 
 protected:
+	void BasicAttackCallback();
 	void RoarAttackCallback();
 	void SpecialAttackCallback();
 	void SpecialAttackStartCallback();

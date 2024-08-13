@@ -36,7 +36,6 @@ private:
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
-	virtual void LateUpdate() override;
 
 protected:
 	void DiggerAttackCallback();
@@ -45,8 +44,6 @@ protected:
 	void SmashAttackStartCallback();
 	void SmashAttackCallback();
 	void SmashAttackEndCallback();
-
-	void AttackEndCallback();
 };
 #pragma endregion
 

@@ -274,6 +274,7 @@ void DXGIMgr::RenderScene()
 	GetMRT(GroupType::GBuffer)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::Lighting)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::OffScreen)->ClearRenderTargetView(0, 1.f);
+	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 
 #ifdef RENDER_FOR_SERVER
 
@@ -316,7 +317,6 @@ void DXGIMgr::RenderShadow()
 
 	CMD_LIST->SetGraphicsRootConstantBufferView(GetGraphicsRootParamIndex(RootParam::Pass), FRAME_RESOURCE_MGR->GetPassCBGpuAddr(1));
 
-	GetMRT(GroupType::Shadow)->ClearRenderTargetView(1.f);
 	GetMRT(GroupType::Shadow)->OMSetRenderTargets(0, 0);
 	mCrntScene->RenderShadow();
 	GetMRT(GroupType::Shadow)->WaitTargetToResource();

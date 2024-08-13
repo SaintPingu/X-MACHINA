@@ -13,13 +13,14 @@
 
 void Script_Ability_AttackIndicator::Init(float activeTime, const std::string& indicatorShape)
 {
-	base::Init("IRDetector", 0.f, activeTime);
+	base::Init("AttackIndicator", 0.f, activeTime);
 
 	mLayer = 0;
 	mRenderedObject = std::make_shared<GameObject>();
 	mRenderedObject->SetModel(indicatorShape);
 
 	mShader = RESOURCE<Shader>("CircleIndicator");
+	SetType(Type::Toggle);
 }
 
 

@@ -59,7 +59,6 @@ void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 	std::string weaponName;
 	int id{};
 	exporter->GetData("Name", weaponName);
-	int id;
 	exporter->GetData("ID", id);
 	mObject->SetID(id);
 	CLIENT_NETWORK->AddItem(id, this);

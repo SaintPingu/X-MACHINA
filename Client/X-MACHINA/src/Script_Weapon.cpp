@@ -53,20 +53,6 @@ void Script_Weapon::Update()
 	}
 }
 
-void Script_Weapon::OnEnable()
-{
-	base::OnEnable();
-
-	if (IsPlayerWeapon()) {
-
-	}
-}
-
-void Script_Weapon::OnDisable()
-{
-	base::OnDisable();
-}
-
 void Script_Weapon::FireBullet()
 {
 	--mCurBulletCnt;

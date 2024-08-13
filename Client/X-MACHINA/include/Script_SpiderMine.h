@@ -19,8 +19,7 @@ private:
 	float mMass{};
 	float mDrag{};
 	float mRotationSpeed{};
-	float mRotationX{};
-	float mRotationXSpeed{};
+	float mUpSpeed{};
 	float mPlantY{};
 	bool mIsPlanted{};
 

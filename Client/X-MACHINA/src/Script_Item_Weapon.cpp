@@ -9,6 +9,7 @@
 #include "Timer.h"
 #include "Object.h"
 
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 
 
 void Script_Item_Weapon::Awake()
@@ -20,13 +21,18 @@ void Script_Item_Weapon::Awake()
 	mObject->mObjectCB.UseOutline = true;
 }
 
+void Script_Item_Weapon::Start()
+{
+	mObject->DetachParent(false);
+	mObject->SetLocalRotation(Vec3(0, 90, 0));
+	mObject->SetTag(ObjectTag::Item);
+
+	StartDrop();
+}
+
 void Script_Item_Weapon::Animate()
 {
 	base::Animate();
-
-	if (!mDroped) {
-		return;
-	}
 
 	float floatingSpeed = mMaxFloatingSpeed * sin(mDeltaTime * XM_PI);
 
@@ -42,23 +48,28 @@ void Script_Item_Weapon::Animate()
 
 void Script_Item_Weapon::StartOpen()
 {
-	mDroped = true;
-	mRigid->AddForce(Vector3::Up * 1.5f, ForceMode::Impulse);
+	//mRigid->AddForce(Vector3::Up * 1.5f, ForceMode::Impulse);
 }
 
 void Script_Item_Weapon::StartDrop()
 {
 	mObject->SetPositionY(0.5f);
-	mDroped = true;
 }
 
-bool Script_Item_Weapon::Interact(Object* user)
+bool Script_Item_Weapon::Interact()
 {
-	const auto& player = user->GetComponent<Script_GroundPlayer>();
+	if (mDroped) {
+		return false;
+	}
+
+	return true;
+}
+
+void Script_Item_Weapon::InteractOK(Object* user)
+{
 	const auto& weapon = mObject->GetComponent<Script_Weapon>();
 
-	if (player && weapon) {
-		player->TakeWeapon(weapon);
+	if (weapon) {
 		mObject->SetTag(ObjectTag::Untagged);
 		mObject->SetActive(false);
 		mObject->mObjectCB.UseOutline = false;
@@ -69,5 +80,18 @@ bool Script_Item_Weapon::Interact(Object* user)
 		mObject->Destroy();
 	}
 
-	return true;
+
+	const auto& player = user->GetComponent<Script_GroundPlayer>();
+	if (player) {
+		if (player) {
+			player->TakeWeapon(weapon);
+			
+		}
+		else {
+			const auto& removeplayer = user->GetComponent<Script_NetworkRemotePlayer>();
+			if (removeplayer) {
+				removeplayer->TakeWeapon(weapon);
+			}
+		}
+	}
 }

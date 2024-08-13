@@ -34,6 +34,7 @@ struct NetSceneEventQueue
 class GridObject;
 class Script_NetworkEnemy;
 class Script_Phero;
+class Script_Item;
 
 class ClientNetworkManager
 {
@@ -46,6 +47,7 @@ private:
 
 	std::map<UINT32, Script_NetworkEnemy*> mRemoteMonsters{};
 	std::map<UINT32, Script_Phero*> mRemotePheros{};
+	std::map<UINT32, Script_Item*> mItems{};
 	Concurrency::concurrent_unordered_map<UINT32, GridObject*> mRemotePlayers{}; /* sessionID, RemotePlayer */
 	NetSceneEventQueue	mSceneEvnetQueue[2];		// FRONT <-> BACK 
 	std::atomic_int	    mFrontSceneEventIndex = 0;	// FRONT SCENE EVENT QUEUE INDEX 
@@ -73,7 +75,7 @@ public:
 	const auto& GetRemoteMonsters() const { return mRemoteMonsters; }
 
 	void EraseMonster(UINT32 id) { mRemoteMonsters.erase(id); }
-
+	void AddItem(UINT32 id, Script_Item* item) { mItems[id]= item; }
 
 public:
 	/* Send Client Packet */
@@ -153,6 +155,7 @@ public:
 	long long GetTimeStamp();
 
 	std::string GetServerIPFromtxt(const std::string& filePath);
+	WeaponName GetWeaponName(FBProtocol::ITEM_TYPE type);
 
 };
 

@@ -268,14 +268,6 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 	auto& weapon = mWeapons[weaponIdx];
 	if (weapon) {
-		weapon->DetachParent(false);
-		weapon->SetLocalRotation(Vec3(0, 90, 0));
-		weapon->SetTag(ObjectTag::Item);
-
-		const auto& weaponItem = weapon->AddComponent<Script_Item_Weapon>();
-		weaponItem->StartDrop();
-		weapon->SetActive(true);
-
 		if (weapon == mWeapon) {
 			mWeapon = nullptr;
 			mWeaponScript->StopFire();
@@ -285,9 +277,10 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 
 			RemoveWeaponUI();
 		}
-		weapon = nullptr;
 
 		mIsInDraw = false;
 		mIsInPutback = false;
+
+		// send here...
 	}
 }

@@ -214,6 +214,25 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Bullet_OnCollision(session, *packet);
 	}
 	break;
+
+	/// ________________________________________________________________________________
+/// Bullet 
+/// ________________________________________________________________________________ 
+	case FBsProtocolID::SPkt_Item_Interact:
+	{
+		const FBProtocol::SPkt_Item_Interact* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Item_Interact>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Item_Interact(session, *packet);
+	}
+	break;
+	case FBsProtocolID::SPkt_Item_ThrowAway:
+	{
+		const FBProtocol::SPkt_Item_ThrowAway* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Item_ThrowAway>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Item_ThrowAway(session, *packet);
+	}
+	break;
+
 	default:
 	{
 
@@ -837,6 +856,7 @@ bool FBsPacketFactory::Process_SPkt_Item_Interact(SPtr_Session session, const FB
 	FBProtocol::ITEM_TYPE item_type = pkt.item_type();
 	Vec3 drop_pos					= GetVector3(pkt.drop_pos());
 
+	LOG_MGR->Cout("Process_SPkt_Item_Interact :", player_id, " -- ", item_id, " -- ", static_cast<int>(item_type), "\n");
 
 	sptr<NetworkEvent::Game::Event_Item::Item_Interact> Ext_EventData = CLIENT_NETWORK->CreateEvent_Item_Interact(player_id,item_id, item_type, drop_pos);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
@@ -849,6 +869,8 @@ bool FBsPacketFactory::Process_SPkt_Item_ThrowAway(SPtr_Session session, const F
 	uint32_t item_id                = pkt.item_id();
 	FBProtocol::ITEM_TYPE item_type = pkt.item_type();
 	Vec3 drop_pos                   = GetVector3(pkt.drop_pos());
+
+	LOG_MGR->Cout("Process_SPkt_Item_ThrowAway :", player_id, " -- ", item_id, " -- ", static_cast<int>(item_type), "\n");
 
 
 	sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway> Ext_EventData = CLIENT_NETWORK->CreateEvent_Item_ThrowAway(player_id, item_id, item_type, drop_pos);
@@ -1229,7 +1251,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_ThrowAway(uint32_t item_id, FBProtoc
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Item_ThrowAway(builder, item_id, item_type);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnHitEnemy);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Item_ThrowAway);
 	return sendBuffer;
 }
 
@@ -1239,7 +1261,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_Interact(uint32_t item_id, FBProtoco
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Item_Interact(builder, item_id, item_type);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnHitEnemy);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Item_Interact);
 	return sendBuffer;
 }
 
@@ -1282,7 +1304,27 @@ GameMonsterInfo FBsPacketFactory::GetMonsterInfo(const FBProtocol::Monster* mons
 	info.Target_Player_Id = monster->target_player_id();
 
 
+
+
 	return info;
+}
+
+FBProtocol::ITEM_TYPE FBsPacketFactory::GetItemType(ItemType type)
+{
+	switch (type)
+	{
+	case ItemType::None:
+		break;
+	case ItemType::WeaponCrate:
+		return FBProtocol::ITEM_TYPE_STATIC_ITEM_CRATE;
+		break;
+	case ItemType::Weapon:
+		break;
+	default:
+		break;
+	}
+
+	
 }
 
 Vec3 FBsPacketFactory::GetVector3(const FBProtocol::Vector3* vec3)

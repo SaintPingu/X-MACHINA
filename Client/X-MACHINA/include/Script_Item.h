@@ -23,6 +23,9 @@ private:
 	UI* mUI{};
 	bool mCanInteract{};
 
+protected:
+	int mItemID{};
+
 public:
 	virtual void Awake() override;
 	virtual void Update() override;
@@ -31,7 +34,8 @@ public:
 	virtual void OnCollisionExit(Object& other) override;
 
 public:
-	virtual bool Interact(Object* user) abstract;
+	virtual bool Interact() abstract;
+	virtual void InteractOK(Object* user) abstract;
 	virtual ItemType GetItemType() abstract;
 
 protected:
@@ -44,13 +48,10 @@ class Script_Item_WeaponCrate : public Script_Item, SceneScript {
 	COMPONENT(Script_Item_WeaponCrate, Script_Item)
 
 public:
-	WeaponName mWeaponName;
 	Transform* mCap{};
 
 	float mCapPitch{};
 	bool mIsOpend{};
-
-	GameObject* mWeapon{};
 
 public:
 	virtual void Awake() override;
@@ -58,7 +59,8 @@ public:
 	virtual void OnCollisionEnter(Object& other) override;
 
 public:
-	virtual bool Interact(Object* user) override;
+	virtual bool Interact() override;
+	virtual void InteractOK(Object* user) override { mIsOpend = true; }
 	virtual ItemType GetItemType() override { return ItemType::WeaponCrate; }
 
 	virtual void LoadData(rsptr<ScriptExporter> exporter) override;
@@ -84,10 +86,12 @@ private:
 
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void Animate() override;
 
 public:
-	virtual bool Interact(Object* user) override;
+	virtual bool Interact() override;
+	virtual void InteractOK(Object* user) override;
 	virtual ItemType GetItemType() override { return ItemType::Weapon; }
 
 public:

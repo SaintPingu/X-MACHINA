@@ -13,6 +13,9 @@
 #include "Timer.h"
 #include "Object.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
+
 void Script_Item_WeaponCrate::Awake()
 {
 	base::Awake();
@@ -54,35 +57,11 @@ void Script_Item_WeaponCrate::OnCollisionEnter(Object& other)
 void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 {
 	std::string weaponName;
+	int id{};
 	exporter->GetData("Name", weaponName);
-	mWeaponName = gkWeaponNameMap.at(Hash(weaponName));
-
-	// create weapon from name
-	std::string weaponModelName = Script_Weapon::GetWeaponModelName(mWeaponName);
-	mWeapon = BattleScene::I->Instantiate(weaponModelName, ObjectTag::Item, false);
-	mWeapon->SetWorldTransform(mObject->GetWorldTransform());
-	mWeapon->AddComponent<Script_Item_Weapon>();
-	
-	switch(mWeaponName) {
-	case WeaponName::H_Lock:
-		mWeapon->AddComponent<Script_Weapon_Pistol>();
-		break;
-	case WeaponName::SkyLine:
-		mWeapon->AddComponent<Script_Weapon_Skyline>();
-		break;
-	case WeaponName::DBMS:
-		mWeapon->AddComponent<Script_Weapon_DBMS>();
-		break;
-	case WeaponName::Burnout:
-		mWeapon->AddComponent<Script_Weapon_Burnout>();
-		break;
-	case WeaponName::PipeLine:
-		mWeapon->AddComponent<Script_Weapon_PipeLine>();
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	exporter->GetData("ID", id);
+	mObject->SetID(id);
+	CLIENT_NETWORK->AddItem(id, this);
 }
 
 void Script_Item_WeaponCrate::DisableInteract()
@@ -90,18 +69,12 @@ void Script_Item_WeaponCrate::DisableInteract()
 	base::DisableInteract();
 }
 
-bool Script_Item_WeaponCrate::Interact(Object* user)
+bool Script_Item_WeaponCrate::Interact()
 {
 	if (mIsOpend) {
 		return false;
 	}
-	mIsOpend = true;
 	DisableInteract();
-
-	if (mWeapon) {
-		mWeapon->SetActive(true);
-		mWeapon->GetComponent<Script_Item_Weapon>()->StartOpen();
-	}
 
 	return true;
 }

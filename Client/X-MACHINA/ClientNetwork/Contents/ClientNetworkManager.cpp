@@ -301,6 +301,23 @@ void ClientNetworkManager::ProcessEvents()
 			ProcessEvent_Contents_Chat(data);
 		}
 		break;
+
+		/// +---------------------------------------------------------------------------
+		/// >> ▶▶▶▶▶ PROCESS EVENT Item
+		/// ---------------------------------------------------------------------------+
+		case NetworkEvent::Game::ItemType::Item_Interact:
+		{
+			NetworkEvent::Game::Event_Item::Item_Interact* data = reinterpret_cast<NetworkEvent::Game::Event_Item::Item_Interact*>(EventData.get());
+			ProcessEvent_Item_Interact(data);
+		}
+		break;
+		case NetworkEvent::Game::ItemType::Item_ThrowAway:
+		{
+			NetworkEvent::Game::Event_Item::Item_ThrowAway* data = reinterpret_cast<NetworkEvent::Game::Event_Item::Item_ThrowAway*>(EventData.get());
+			ProcessEvent_Item_ThrowAway(data);
+		}
+		break;
+
 		}
 	}
 }
@@ -757,6 +774,27 @@ std::string ClientNetworkManager::GetServerIPFromtxt(const std::string& filePath
 	return buffer.str(); // 문자열 반환
 }
 
+WeaponName ClientNetworkManager::GetWeaponName(FBProtocol::ITEM_TYPE type)
+{
+	switch (type) {
+	case FBProtocol::ITEM_TYPE_WEAPON_H_LOOK:
+		return WeaponName::H_Lock;
+	case FBProtocol::ITEM_TYPE_WEAPON_DBMS:
+		return WeaponName::DBMS;
+	case FBProtocol::ITEM_TYPE_WEAPON_PIPELINE:
+		return WeaponName::PipeLine;
+	case FBProtocol::ITEM_TYPE_WEAPON_BURNOUT:
+		return WeaponName::Burnout;
+	case FBProtocol::ITEM_TYPE_WEAPON_SKYLINE:
+		return WeaponName::SkyLine;
+	case FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE:
+		return WeaponName::Airstrike;
+	default:
+		assert(0);
+		return WeaponName::H_Lock;
+	}
+}
+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_UpdateOnShoot(NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data)
 {
 	uint32_t	player_id = data->id;
@@ -1070,12 +1108,30 @@ void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_
 
 void ClientNetworkManager::ProcessEvent_Item_Interact(NetworkEvent::Game::Event_Item::Item_Interact* data)
 {
+	data->player_id;
+	data->drop_Pos;
+	data->item_id;
+	data->item_type;
 
+	mItems[data->item_id]->InteractOK(mRemotePlayers[data->player_id]);
 }
 
 void ClientNetworkManager::ProcessEvent_Item_ThrowAway(NetworkEvent::Game::Event_Item::Item_ThrowAway* data)
 {
+	data->player_id;
+	data->drop_Pos;
+	data->item_id;
+	data->item_type;
 
+	if (mItems.count(data->item_id)) {
+		return;
+	}
+
+	WeaponName weaponName = GetWeaponName(data->item_type);
+	
+	GridObject* object = BattleScene::I->Instantiate(Script_Weapon::GetWeaponModelName(weaponName), ObjectTag::Item);
+	object->SetPosition(data->drop_Pos);
+	Script_Item_Weapon* itemScript = object->AddComponent<Script_Item_Weapon>().get();
 }
 
 long long ClientNetworkManager::GetCurrentTimeMilliseconds()

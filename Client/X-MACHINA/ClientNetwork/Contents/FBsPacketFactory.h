@@ -17,6 +17,7 @@
 #include "GameMonster.h"
 
 #include "InputMgr.h"
+#include "Script_Item.h"
 
 namespace PLAYER_MOVE_STATE
 {
@@ -85,6 +86,7 @@ private:
 	static bool Process_SPkt_Item_Interact(SPtr_Session session, const FBProtocol::SPkt_Item_Interact& pkt);
 	static bool Process_SPkt_Item_ThrowAway(SPtr_Session session, const FBProtocol::SPkt_Item_ThrowAway& pkt);
 
+
 public:
 	/// +------------------------
 	///	  CREATE CLIENT PACKET  
@@ -143,5 +145,9 @@ private:
 
 	static Vec3 CalculateDirection(float yAngleRadian);
 	static Vec3 lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam);
+
+public:
+	FBProtocol::ITEM_TYPE GetItemType(ItemType type);
+
 };
 

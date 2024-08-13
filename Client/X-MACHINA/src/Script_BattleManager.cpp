@@ -72,7 +72,7 @@ void Script_BattleManager::Update()
 {
 	base::Update();
 	
-	if (KEY_TAP('P')) {
+	if (KEY_TAP('Z')) {
 		ResourceMgr::I->ReloadParticles();
 	}
 }
@@ -109,7 +109,6 @@ void Script_BattleManager::ProcessSceneObjectScript(sptr<Object> object)
 
 	switch (Hash(exporter->GetName())) {
 	case Hash("WeaponCrate"):
-	case Hash("WeaponCrate2"):
 		object->AddComponent<Script_Item_WeaponCrate>()->LoadData(exporter);
 		break;
 	case Hash("Bound"):

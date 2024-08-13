@@ -30,7 +30,7 @@ ParticleSystem* ParticleSystem::Play(rsptr<ParticleSystemCPUData> pscd, Transfor
 	mPSCD = pscd;
 	ParticleSystemGPUData* psgd = RESOURCE<ParticleSystemGPULoadData>(pscd->mName).get();
 	std::memcpy(mPSGD.get(), psgd, sizeof(ParticleSystemGPUData));
-
+	assert(mIsUse == false);
 	mIsUse = true;
 	mIsRunning = false;
 	mIsStopCreation = false;
@@ -53,7 +53,8 @@ ParticleSystem* ParticleSystem::Play(rsptr<ParticleSystemCPUData> pscd, Transfor
 	}
 
 	mTarget = target;
-	mPSGD->WorldPos = target->GetPosition() + mPSCD->Position;
+	mBeforePos = mTarget->GetPosition();
+	mPSGD->WorldPos = mBeforePos + mPSCD->Position;
 
 	return this;
 }
@@ -113,6 +114,31 @@ bool ParticleSystem::Update()
 		}
 	}
 
+	if (mPSCD->Shape.ShapeType == PSShapeType::Line) {
+		if (mIsStopCreation && mPSGD->AddCount == 0) {
+			FRAME_RESOURCE_MGR->CopyData(mPSIdx, *mPSGD.get());
+			return false;
+		}
+
+		const Vec3 crntPos = mTarget->GetPosition();
+		float distance = (crntPos - mBeforePos).Length();
+		if (distance <= FLT_EPSILON) {
+			return false;
+		}
+
+		mPSGD->AddCount = distance * 20.f;
+		mPSGD->StartRotation3D = mBeforePos;
+		mPSGD->StartSize3D = mTarget->GetPosition();
+
+		FRAME_RESOURCE_MGR->CopyData(mPSIdx, *mPSGD.get());
+		mBeforePos = mTarget->GetPosition();
+
+		if (mIsStopCreation) {
+			mPSGD->AddCount = 0;
+		}
+		return false;
+	}
+
 	// 이미션이 켜 있는 경우에만 파티클을 추가한다.
 	mPSGD->AddCount = 0;
 	const float createInterval = 1.f / mPSCD->Emission.RateOverTime;
@@ -149,6 +175,7 @@ bool ParticleSystem::Update()
 void ParticleSystem::Stop()
 {
 	mIsStopCreation = true;
+	mPSGD->AddCount = 0;
 }
 
 void ParticleSystem::Compute() const

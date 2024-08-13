@@ -224,9 +224,9 @@
 		<Alphas>
 			<elems>
 				<count>4</count>
-				<item>0.000000000e+00</item>
-				<item>1.000000000e+00</item>
-				<item>1.000000000e+00</item>
+				<item>4.000000060e-01</item>
+				<item>8.000000119e-01</item>
+				<item>2.000000030e-01</item>
 				<item>0.000000000e+00</item>
 			</elems>
 		</Alphas>
@@ -248,8 +248,8 @@
 		<Vals>
 			<elems>
 				<count>4</count>
-				<item>0.000000000e+00</item>
-				<item>1.000000000e+00</item>
+				<item>5.000000000e-01</item>
+				<item>8.000000119e-01</item>
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>

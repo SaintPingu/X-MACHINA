@@ -46,6 +46,7 @@ enum class PSShapeType : UINT32 {
 	HemiSphere,
 	Cone,
 	Box,
+	Line,
 };
 #pragma endregion
 
@@ -208,6 +209,9 @@ struct PSShape {
 	}
 	void SetBox() {
 		ShapeType = PSShapeType::Box;
+	}
+	void SetLine() {
+		ShapeType = PSShapeType::Line;
 	}
 
 	template<class Archive>
@@ -400,6 +404,7 @@ private:
 	uptr<ParticleSystemGPUData>	mPSGD{};			// 모든 파티클에 개별적으로 적용되는 GPU 데이터
 
 	uptr<UploadBuffer<ParticleData>> mParticles;	// 개별 파티클에 특수적으로 적용되는 GPU 데이터
+	Vec3 mBeforePos{};
 
 public:
 	ParticleSystem() = default;

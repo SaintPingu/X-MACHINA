@@ -2,7 +2,7 @@
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="20">
 <pscd class_id="0" tracking_level="0" version="0">
-	<mName>WFX_Explosion</mName>
+	<mName>WFX_Airstrike_Dot_Sparkles</mName>
 	<MaxAddCount>0</MaxAddCount>
 	<Position class_id="1" tracking_level="0" version="0">
 		<s.x>0.000000000e+00</s.x>
@@ -10,17 +10,17 @@
 		<s.z>0.000000000e+00</s.z>
 	</Position>
 	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
-	<Duration>5.000000075e-02</Duration>
+	<Duration>5.000000000e+00</Duration>
 	<Looping>0</Looping>
 	<Prewarm>0</Prewarm>
-	<StartDelay>0.000000000e+00</StartDelay>
+	<StartDelay>5.000000075e-02</StartDelay>
 	<StartLifeTime class_id="2" tracking_level="0" version="0">
-		<s.x>1.299999952e-01</s.x>
-		<s.y>1.299999952e-01</s.y>
+		<s.x>2.000000000e+00</s.x>
+		<s.y>3.000000000e+00</s.y>
 	</StartLifeTime>
 	<StartSpeed>
-		<s.x>1.000000000e+00</s.x>
-		<s.y>1.000000000e+00</s.y>
+		<s.x>5.000000000e+00</s.x>
+		<s.y>5.000000000e+00</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="3" tracking_level="0" version="0">
 		<s.x>1.000000000e+00</s.x>
@@ -29,8 +29,8 @@
 		<s.w>0.000000000e+00</s.w>
 	</StartSize3D>
 	<StartSize>
-		<s.x>8.000000119e-01</s.x>
-		<s.y>8.000000119e-01</s.y>
+		<s.x>3.000000119e-01</s.x>
+		<s.y>3.000000119e-01</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -51,8 +51,8 @@
 			<elems>
 				<count>4</count>
 				<item>
-					<s.x>2.000000000e+00</s.x>
-					<s.y>1.399999976e+00</s.y>
+					<s.x>1.000000000e+00</s.x>
+					<s.y>1.000000000e+00</s.y>
 					<s.z>1.000000000e+00</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
@@ -104,11 +104,11 @@
 			</elems>
 		</AlphaKeys>
 	</StartColor>
-	<GravityModifier>0.000000000e+00</GravityModifier>
+	<GravityModifier>1.899999976e+00</GravityModifier>
 	<SimulationSpace>1</SimulationSpace>
-	<SimulationSpeed>8.000000119e-01</SimulationSpeed>
+	<SimulationSpeed>1.000000000e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>11</MaxParticles>
+	<MaxParticles>200</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>
@@ -116,17 +116,17 @@
 			<count>1</count>
 			<item_version>0</item_version>
 			<item class_id="9" tracking_level="0" version="0">
-				<Count>1</Count>
+				<Count>200</Count>
 				<Time>0.000000000e+00</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 		</Bursts>
 	</Emission>
 	<Shape class_id="10" tracking_level="0" version="0">
-		<ShapeType>0</ShapeType>
+		<ShapeType>2</ShapeType>
 		<Angle>2.500000000e+01</Angle>
-		<Radius>1.000000000e+00</Radius>
-		<RadiusThickness>1.000000000e+00</RadiusThickness>
+		<Radius>1.000000015e-01</Radius>
+		<RadiusThickness>1.000000015e-01</RadiusThickness>
 		<Arc>3.600000000e+02</Arc>
 	</Shape>
 	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
@@ -183,26 +183,26 @@
 				<count>4</count>
 				<item>
 					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
-					<s.w>1.000000000e+00</s.w>
-				</item>
-				<item>
-					<s.x>2.000000030e-01</s.x>
-					<s.y>5.000000075e-02</s.y>
-					<s.z>5.000000075e-02</s.z>
+					<s.y>8.999999762e-01</s.y>
+					<s.z>4.699999988e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
 					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.y>6.200000048e-01</s.y>
+					<s.z>4.499999881e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
 					<s.x>1.000000000e+00</s.x>
-					<s.y>1.000000000e+00</s.y>
-					<s.z>1.000000000e+00</s.z>
+					<s.y>6.999999881e-01</s.y>
+					<s.z>4.000000060e-01</s.z>
+					<s.w>1.000000000e+00</s.w>
+				</item>
+				<item>
+					<s.x>1.000000015e-01</s.x>
+					<s.y>1.000000015e-01</s.y>
+					<s.z>0.000000000e+00</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 			</elems>
@@ -211,17 +211,17 @@
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
+				<item>4.000000060e-01</item>
+				<item>6.000000238e-01</item>
 				<item>1.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
 			</elems>
 		</ValKeys>
 		<Alphas>
 			<elems>
 				<count>4</count>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
+				<item>1.000000000e+00</item>
+				<item>8.000000119e-01</item>
+				<item>6.000000238e-01</item>
 				<item>0.000000000e+00</item>
 			</elems>
 		</Alphas>
@@ -229,9 +229,9 @@
 			<elems>
 				<count>4</count>
 				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
+				<item>2.000000030e-01</item>
+				<item>8.000000119e-01</item>
+				<item>1.000000000e+00</item>
 			</elems>
 		</AlphaKeys>
 	</ColorOverLifetime>
@@ -284,10 +284,10 @@
 		</ValKeys>
 	</RotationOverLifetime>
 	<Renderer class_id="13" tracking_level="0" version="0">
-		<TextureName>Explosion_DoubleFlame</TextureName>
-		<RenderMode>1</RenderMode>
-		<BlendType>10</BlendType>
-		<LengthScale>1.000000000e+00</LengthScale>
+		<TextureName>Explosion_Dot</TextureName>
+		<RenderMode>2</RenderMode>
+		<BlendType>11</BlendType>
+		<LengthScale>5.000000000e+00</LengthScale>
 	</Renderer>
 </pscd>
 </boost_serialization>

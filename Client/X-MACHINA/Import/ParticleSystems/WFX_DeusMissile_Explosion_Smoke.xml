@@ -123,11 +123,11 @@
 		</Bursts>
 	</Emission>
 	<Shape class_id="10" tracking_level="0" version="0">
-		<ShapeType>3</ShapeType>
-		<Angle>1.000000000e+00</Angle>
+		<ShapeType>2</ShapeType>
+		<Angle>2.500000000e+01</Angle>
 		<Radius>1.000000000e+00</Radius>
-		<RadiusThickness>0.000000000e+00</RadiusThickness>
-		<Arc>1.000000000e+00</Arc>
+		<RadiusThickness>1.000000000e+00</RadiusThickness>
+		<Arc>0.000000000e+00</Arc>
 	</Shape>
 	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
 		<Option>2</Option>

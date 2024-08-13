@@ -524,21 +524,46 @@ void ResourceMgr::CreateParticleSystemCPUData()
 
 	{
 		ParticleSystemCPUData pscd;
-		pscd.mName = "Ursacetus_Smash_Dust_Ring";
+		pscd.mName = "Ursacetus_Smash_Dust";
 		pscd.StartDelay = 0.f;
-		pscd.StartLifeTime = Vec2{ 1.5f, 3.f };
-		pscd.StartSize = Vec2{ 1.f, 3.5f };
+		pscd.StartLifeTime = Vec2{ 7.5f, 11.f };
+		pscd.StartSize = Vec2{ 1.f, 6.5f };
+		pscd.StartSpeed = Vec2{ 0.5f, 2.5f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 1.f;
 		pscd.MaxParticles = 500;
 		pscd.Emission.SetBurst(500, 0.f);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.67f, 0.56f, 0.45f, 1.f }, Vec4{ 0.7f, 0.6f, 0.5f, 1.f } }, { 0.f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.8f, 0.5f, 0.f }, { 0.f, 0.2f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.BlendType = BlendType::Alpha_Stretched_Blend;
+		pscd.Shape.SetCone(1.f, 0.1f, 0.1f, true);
+		pscd.Position = Vec3{ 0.f, 1.f, 0.f };
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "Ursacetus_Smash_Dust_Ring";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 3.5f, 5.f };
+		pscd.StartSize = Vec2{ 3.f, 5.5f };
+		pscd.StartSpeed = Vec2{ 0.5f, 8.0f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.f;
+		pscd.MaxParticles = 500;
+		pscd.Emission.SetBurst(500, 0.1f);
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 1.0f, 3.5f }, { 0.f, 1.f }).SetParam(1.f);
 		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.87f, 0.75f, 0.63f, 1.f }, Vec4{ 0.87f, 0.75f, 0.63f, 1.f } }, { 0.f, 1.f });
-		pscd.ColorOverLifetime.SetAlphas({ 0.f, 0.1f, 0.f }, { 0.f, 0.2f, 1.f });
-		pscd.Renderer.TextureName = "WFX_NukeFlames";
+		pscd.ColorOverLifetime.SetAlphas({ 0.f, 0.3f, 0.f }, { 0.f, 0.2f, 1.f });
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 10.f, 30.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
 		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
 		pscd.Shape.SetCone(0.f, 4.5f, 0.1f, true);
-		pscd.Position = Vec3{ 0.f, 2.f, 0.f };
+		pscd.Position = Vec3{ 0.f, 1.f, 0.f };
 		ParticleSystem::SavePSCD(pscd);
 	}
 
@@ -548,7 +573,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartDelay = 0.f;
 		pscd.StartSpeed = Vec2{ 6.f, 7.f };
 		pscd.StartLifeTime = Vec2{ 1.5f, 3.f };
-		pscd.StartSize = Vec2{ 0.2f, 0.3f };
+		pscd.StartSize = Vec2{ 0.5f, 0.5f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.SimulationSpace = PSSimulationSpace::World;
 		pscd.SimulationSpeed = 2.f;

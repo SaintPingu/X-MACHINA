@@ -6,7 +6,7 @@
 	<MaxAddCount>0</MaxAddCount>
 	<Position class_id="1" tracking_level="0" version="0">
 		<s.x>0.000000000e+00</s.x>
-		<s.y>2.000000000e+00</s.y>
+		<s.y>1.000000000e+00</s.y>
 		<s.z>0.000000000e+00</s.z>
 	</Position>
 	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
@@ -15,12 +15,12 @@
 	<Prewarm>0</Prewarm>
 	<StartDelay>0.000000000e+00</StartDelay>
 	<StartLifeTime class_id="2" tracking_level="0" version="0">
-		<s.x>1.500000000e+00</s.x>
-		<s.y>3.000000000e+00</s.y>
+		<s.x>7.500000000e+00</s.x>
+		<s.y>1.100000000e+01</s.y>
 	</StartLifeTime>
 	<StartSpeed>
-		<s.x>1.000000000e+00</s.x>
-		<s.y>1.000000000e+00</s.y>
+		<s.x>5.000000000e-01</s.x>
+		<s.y>2.500000000e+00</s.y>
 	</StartSpeed>
 	<StartSize3D class_id="3" tracking_level="0" version="0">
 		<s.x>1.000000000e+00</s.x>
@@ -30,7 +30,7 @@
 	</StartSize3D>
 	<StartSize>
 		<s.x>1.000000000e+00</s.x>
-		<s.y>3.500000000e+00</s.y>
+		<s.y>6.500000000e+00</s.y>
 	</StartSize>
 	<StartRotation3D>
 		<s.x>0.000000000e+00</s.x>
@@ -116,7 +116,7 @@
 			<count>1</count>
 			<item_version>0</item_version>
 			<item class_id="9" tracking_level="0" version="0">
-				<Count>300</Count>
+				<Count>500</Count>
 				<Time>0.000000000e+00</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
@@ -124,8 +124,8 @@
 	</Emission>
 	<Shape class_id="10" tracking_level="0" version="0">
 		<ShapeType>3</ShapeType>
-		<Angle>0.000000000e+00</Angle>
-		<Radius>2.000000000e+00</Radius>
+		<Angle>1.000000000e+00</Angle>
+		<Radius>1.000000015e-01</Radius>
 		<RadiusThickness>1.000000015e-01</RadiusThickness>
 		<Arc>1.000000000e+00</Arc>
 	</Shape>
@@ -182,15 +182,15 @@
 			<elems>
 				<count>4</count>
 				<item>
-					<s.x>8.700000048e-01</s.x>
-					<s.y>7.500000000e-01</s.y>
-					<s.z>6.299999952e-01</s.z>
+					<s.x>6.700000167e-01</s.x>
+					<s.y>5.600000024e-01</s.y>
+					<s.z>4.499999881e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
-					<s.x>8.700000048e-01</s.x>
-					<s.y>7.500000000e-01</s.y>
-					<s.z>6.299999952e-01</s.z>
+					<s.x>6.999999881e-01</s.x>
+					<s.y>6.000000238e-01</s.y>
+					<s.z>5.000000000e-01</s.z>
 					<s.w>1.000000000e+00</s.w>
 				</item>
 				<item>
@@ -219,8 +219,8 @@
 		<Alphas>
 			<elems>
 				<count>4</count>
-				<item>0.000000000e+00</item>
-				<item>1.000000015e-01</item>
+				<item>8.000000119e-01</item>
+				<item>5.000000000e-01</item>
 				<item>0.000000000e+00</item>
 				<item>0.000000000e+00</item>
 			</elems>
@@ -284,9 +284,9 @@
 		</ValKeys>
 	</RotationOverLifetime>
 	<Renderer class_id="13" tracking_level="0" version="0">
-		<TextureName>WFX_NukeFlames</TextureName>
+		<TextureName>WFX_SmokeLoopAlpha</TextureName>
 		<RenderMode>1</RenderMode>
-		<BlendType>8</BlendType>
+		<BlendType>9</BlendType>
 		<LengthScale>1.000000000e+00</LengthScale>
 	</Renderer>
 </pscd>

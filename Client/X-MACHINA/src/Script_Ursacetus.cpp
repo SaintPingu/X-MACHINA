@@ -60,6 +60,7 @@ void Script_Ursacetus::SpecialAttackCallback()
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(2.f, 0.006f);
 
 	mIndicator.lock()->SetActive(false);
+	ParticleManager::I->Play("Ursacetus_Smash_Dust", mObject->FindFrame("Ursacetus_ L Toe0"));
 	ParticleManager::I->Play("Ursacetus_Smash_Dust_Ring", mObject->FindFrame("Ursacetus_ L Toe0"));
 	ParticleManager::I->Play("Ursacetus_Smash_Dust_Spread", mObject->FindFrame("Ursacetus_ L Toe0"));
 }

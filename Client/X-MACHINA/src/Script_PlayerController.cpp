@@ -122,11 +122,6 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 			mChatBoxUI->ToggleChatBox();
 			return false;
 
-		case 'B':
-			ParticleManager::I->Play("Ursacetus_Smash_Dust", mObject);
-			ParticleManager::I->Play("Ursacetus_Smash_Dust_Ring", mObject);
-			ParticleManager::I->Play("Ursacetus_Smash_Dust_Spread", mObject);
-			break;
 			// weapons //
 		case 'G':
 			mScript->DropCrntWeapon();

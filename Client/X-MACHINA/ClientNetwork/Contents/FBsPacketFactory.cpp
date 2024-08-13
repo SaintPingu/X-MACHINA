@@ -1236,10 +1236,20 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec
 	return sendBuffer;
 }
 
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitExpEnemy(int32_t monster_id)
+{
+	flatbuffers::FlatBufferBuilder builder{};
+
+	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnHitEnemy(builder, monster_id);
+	builder.Finish(ServerPacket);
+	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBsProtocolID::CPkt_Bullet_OnHitExpEnemy);
+	return sendBuffer;
+}
+
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
-	/// table CPkt_Bullet_OnCollision
+	/// table CPkt_Bullet_OnCollisio
 	/// {
 	/// 
 	/// }

@@ -151,6 +151,12 @@ struct CPkt_Bullet_OnHitEnemyBuilder;
 struct SPkt_Bullet_OnHitEnemy;
 struct SPkt_Bullet_OnHitEnemyBuilder;
 
+struct CPkt_Bullet_OnHitExpEnemy;
+struct CPkt_Bullet_OnHitExpEnemyBuilder;
+
+struct SPkt_Bullet_OnHitExpEnemy;
+struct SPkt_Bullet_OnHitExpEnemyBuilder;
+
 struct CPkt_Bullet_OnCollision;
 struct CPkt_Bullet_OnCollisionBuilder;
 
@@ -2483,6 +2489,76 @@ inline ::flatbuffers::Offset<SPkt_Bullet_OnHitEnemy> CreateSPkt_Bullet_OnHitEnem
   builder_.add_bullet_id(bullet_id);
   builder_.add_gun_id(gun_id);
   builder_.add_player_id(player_id);
+  return builder_.Finish();
+}
+
+struct CPkt_Bullet_OnHitExpEnemy FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CPkt_Bullet_OnHitExpEnemyBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MONSTER_ID = 4
+  };
+  int32_t monster_id() const {
+    return GetField<int32_t>(VT_MONSTER_ID, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_MONSTER_ID, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct CPkt_Bullet_OnHitExpEnemyBuilder {
+  typedef CPkt_Bullet_OnHitExpEnemy Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_monster_id(int32_t monster_id) {
+    fbb_.AddElement<int32_t>(CPkt_Bullet_OnHitExpEnemy::VT_MONSTER_ID, monster_id, 0);
+  }
+  explicit CPkt_Bullet_OnHitExpEnemyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CPkt_Bullet_OnHitExpEnemy> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CPkt_Bullet_OnHitExpEnemy>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CPkt_Bullet_OnHitExpEnemy> CreateCPkt_Bullet_OnHitExpEnemy(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t monster_id = 0) {
+  CPkt_Bullet_OnHitExpEnemyBuilder builder_(_fbb);
+  builder_.add_monster_id(monster_id);
+  return builder_.Finish();
+}
+
+struct SPkt_Bullet_OnHitExpEnemy FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPkt_Bullet_OnHitExpEnemyBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct SPkt_Bullet_OnHitExpEnemyBuilder {
+  typedef SPkt_Bullet_OnHitExpEnemy Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit SPkt_Bullet_OnHitExpEnemyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPkt_Bullet_OnHitExpEnemy> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPkt_Bullet_OnHitExpEnemy>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPkt_Bullet_OnHitExpEnemy> CreateSPkt_Bullet_OnHitExpEnemy(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  SPkt_Bullet_OnHitExpEnemyBuilder builder_(_fbb);
   return builder_.Finish();
 }
 

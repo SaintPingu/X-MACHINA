@@ -2,7 +2,7 @@
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="20">
 <pscd class_id="0" tracking_level="0" version="0">
-	<mName>WFX_Airstrike_Explosion_Add</mName>
+	<mName>WFX_DeusMissile_Explosion_Add</mName>
 	<MaxAddCount>0</MaxAddCount>
 	<Position class_id="1" tracking_level="0" version="0">
 		<s.x>0.000000000e+00</s.x>
@@ -108,26 +108,41 @@
 	<SimulationSpace>1</SimulationSpace>
 	<SimulationSpeed>3.665999889e+00</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
-	<MaxParticles>50</MaxParticles>
+	<MaxParticles>200</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">
 		<IsOn>1</IsOn>
 		<RateOverTime>0</RateOverTime>
 		<Bursts class_id="8" tracking_level="0" version="0">
-			<count>1</count>
+			<count>4</count>
 			<item_version>0</item_version>
 			<item class_id="9" tracking_level="0" version="0">
-				<Count>50</Count>
+				<Count>140</Count>
 				<Time>0.000000000e+00</Time>
+				<BurstElapsed>0.000000000e+00</BurstElapsed>
+			</item>
+			<item>
+				<Count>50</Count>
+				<Time>1.500000060e-01</Time>
+				<BurstElapsed>0.000000000e+00</BurstElapsed>
+			</item>
+			<item>
+				<Count>20</Count>
+				<Time>3.000000119e-01</Time>
+				<BurstElapsed>0.000000000e+00</BurstElapsed>
+			</item>
+			<item>
+				<Count>10</Count>
+				<Time>4.499999881e-01</Time>
 				<BurstElapsed>0.000000000e+00</BurstElapsed>
 			</item>
 		</Bursts>
 	</Emission>
 	<Shape class_id="10" tracking_level="0" version="0">
-		<ShapeType>2</ShapeType>
-		<Angle>2.500000000e+01</Angle>
+		<ShapeType>3</ShapeType>
+		<Angle>1.000000000e+00</Angle>
 		<Radius>1.000000000e+00</Radius>
-		<RadiusThickness>1.000000000e+00</RadiusThickness>
-		<Arc>3.600000000e+02</Arc>
+		<RadiusThickness>3.600000000e+02</RadiusThickness>
+		<Arc>1.000000000e+00</Arc>
 	</Shape>
 	<VelocityOverLifetime class_id="11" tracking_level="0" version="0">
 		<Option>0</Option>

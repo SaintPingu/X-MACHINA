@@ -67,13 +67,13 @@ void Script_Weapon_Burnout::BulletInitFunc(rsptr<InstObject> bullet) const
 
 void Script_Weapon_Burnout::SetParticleSystemNames()
 {
-	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Missile_Explosion_Smoke");
-	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Missile_Explosion_Add");
-	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Missile_Dot_Sparkles");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_DeusMissile_Explosion_Smoke");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_DeusMissile_Explosion_Add");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_DeusMissile_Dot_Sparkles");
 
-	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Missile_Explosion_Smoke");
-	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Missile_Explosion_Add");
-	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Missile_Dot_Sparkles");
+	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_DeusMissile_Explosion_Smoke");
+	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_DeusMissile_Explosion_Add");
+	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_DeusMissile_Dot_Sparkles");
 
 	mPSNames[static_cast<UINT8>(BulletPSType::Contrail)].push_back("WFX_Bullet");
 }

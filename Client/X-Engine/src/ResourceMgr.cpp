@@ -731,7 +731,85 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.StartDelay = 0.f;
 		pscd.StartLifeTime = Vec2{ 6.f, 8.f };
 		pscd.StartSpeed = Vec2{ 0.6f };
-		pscd.StartSize = Vec2{ 3.f, 3.f };
+		pscd.StartSize = Vec2{ 1.f, 1.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.97f, 0.56f, 0.44f, 1.f  } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 3.666f;
+		pscd.MaxParticles = 50;
+		pscd.Emission.SetBurst(50, 0.f);
+		pscd.Shape.SetSphere(1.f, 1.f, 360.f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 0.1f, 0.f, 0.f } }).SetParam(0.8f);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.f, 0.f, 0.f, 1.f }, Vec4{ 1.f, 0.52f, 0.35f, 1.f }, Vec4{ 0.05f, 0.05f, 0.05f, 1.f }, Vec4{ 0.f, 0.f, 0.f, 1.f } }, { 0.f, 0.05f, 0.1f, 1.f });
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { -60.f, 60.f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.35f, 1.f, 0.f }, { 0.f, 0.2f, 1.f });
+		pscd.Renderer.TextureName = "WFX_NukeFlames";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
+	
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_DeusMissile_Explosion_Smoke";
+		pscd.Duration = 1.5f;
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 0.2f, 2.f };
+		pscd.StartSpeed = Vec2{ 0.2f, 1.f };
+		pscd.Position = Vec3{ 0.f, 0.2f, 0.f };
+		pscd.StartSize = Vec2{ 1.f, 1.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.5f;
+		pscd.MaxParticles = 20;
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 2.5f, 2.7f, 3.0 }, { 0.f, 0.1f, 1.f });
+		pscd.Emission.SetBurst(20);
+		pscd.Shape.SetSphere(1.f, 1.0f, 0.f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { Vec4{ 0.f, 1.f, 0.f, 0.f }, Vec4{ 0.f, 3.f, 0.f, 0.f } }).SetParam(1.f);
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { 1.f, 1.f });
+		pscd.ColorOverLifetime.SetColors(PSValOp::Curve, { Vec3{ 0.35f, 0.35f, 0.35f }, Vec3{ 0.5f, 0.5f, 0.5f }, Vec3{ 0.65f, 0.65f, 0.65f }, Vec3{ 0.8f, 0.8f, 0.8f } }, { 0.f, 0.5f, 0.8f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 0.8f, 0.5f, 0.3f, 0.f }, { 0.f, 0.2f, 0.4f, 1.f });
+		pscd.Renderer.TextureName = "WFX_SmokeLoopAlpha";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.LengthScale = 2.5f;
+		pscd.Renderer.BlendType = BlendType::Alpha_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_DeusMissile_Dot_Sparkles";
+		pscd.Duration = 5.f;
+		pscd.GravityModifier = 1.f;
+		pscd.StartDelay = 0.05f;
+		pscd.StartLifeTime = Vec2{ 2.f, 3.f };
+		pscd.StartSpeed = Vec2{ 5.f, 5.f };
+		pscd.StartSize = Vec2{ 0.3f, 0.3f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f  } });
+		pscd.GravityModifier = 1.9f;
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 1.f;
+		pscd.MaxParticles = 50;
+		pscd.Emission.SetBurst(50);
+		pscd.Shape.SetSphere(0.1f, 0.1f, 360.f, true);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 1.f, 0.9f, 0.47f, 1.f }, Vec4{ 1.f, 0.62f, 0.45f, 1.f }, Vec4{ 1.f, 0.7f, 0.4f, 1.f }, Vec4{ 0.1f, 0.1f, 0.f, 1.f } }, { 0.f, 0.4f, 0.6f, 1.f });
+		pscd.ColorOverLifetime.SetAlphas({ 1.f, 0.8f, 0.6f, 0.f }, { 0.f, 0.2f, 0.8f, 1.f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.5f, 1.f }, { 0.f, 1.f });
+		pscd.Renderer.TextureName = "Explosion_Dot";
+		pscd.Renderer.RenderMode = PSRenderMode::StretchedBillboard;
+		pscd.Renderer.LengthScale = 5.f;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_DeusMissile_Explosion_Add";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 6.f, 8.f };
+		pscd.StartSpeed = Vec2{ 0.6f };
+		pscd.StartSize = Vec2{ 1.f, 1.f };
 		pscd.StartRotation = Vec2{ 0.f, 360.f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.97f, 0.56f, 0.44f, 1.f  } });
 		pscd.SimulationSpace = PSSimulationSpace::World;

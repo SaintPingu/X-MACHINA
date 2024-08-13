@@ -288,9 +288,11 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 	/// +-------------------------------------------------------------------
 	///		Send OnShoot Packet
 	/// -------------------------------------------------------------------+
+#ifdef SERVER_COMMUNICATION
 		const auto& itemType = static_cast<FBProtocol::ITEM_TYPE>(Script_Weapon::GetWeaponItemType(weaponScript->GetWeaponName()));
 		auto pkt = FBS_FACTORY->CPkt_Item_ThrowAway(weapon->GetID(), itemType);
 		CLIENT_NETWORK->Send(pkt);
+#endif
 
 		weapon = nullptr;
 	}

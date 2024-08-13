@@ -117,6 +117,7 @@ void Airstrike::Fire()
 		CLIENT_NETWORK->Send(cpkt);
 #endif
 	}
+
 }
 
 
@@ -146,6 +147,4 @@ void Airstrike::SetParticleSystemNames()
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Airstrike_Explosion_Smoke");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Airstrike_Explosion_Add");
 	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_Airstrike_Dot_Sparkles");
-
-	mPSNames[static_cast<UINT8>(BulletPSType::Contrail)].push_back("WFX_Bullet");
 }

@@ -18,7 +18,9 @@ void Script_ExplosiveBullet::OnCollisionEnter(Object& other)
 	base::OnCollisionEnter(other);
 
 	if (other.GetTag() & mExplosionTag) {
-		Explode();
+		if (!mIsNoCollisionEnemy) {
+			Explode();
+		}
 	}
 }
 

@@ -93,6 +93,13 @@ void Airstrike::Fire(const Vec3& pos, const Vec3& dir)
 	}
 }
 
+void Airstrike::SetPlayerBullet()
+{
+	mMissilePool->DoAllObjects([](rsptr<InstObject> bullet) {
+		bullet->GetComponent<Script_Bullet>()->SetPlayerBullet(true);
+		});
+}
+
 
 void Airstrike::CreateMissilePool()
 {
@@ -131,6 +138,7 @@ void Airstrike::MissileInitFunc(rsptr<InstObject> missile) const
 	missileScript->SetExplosionDamage(mExpDamage);
 	missileScript->SetImpactSound("Burnout Impact");
 	missileScript->SetEndDistance(100.f);
+	missileScript->NoCollisionEnemy();
 
 	for (int bulletType = 0; bulletType < BulletPSTypeCount; ++bulletType)
 		missileScript->SetParticleSystems(static_cast<BulletPSType>(bulletType), mPSNames[bulletType]);

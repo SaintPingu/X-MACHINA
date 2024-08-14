@@ -40,10 +40,10 @@ bool Script_LiveObject::Hit(float damage, Object* instigator)
 	}
 
 	if (mShieldAmount > 0) {
-		//mShieldAmount -= damage;
+		mShieldAmount -= damage;
 	}
 	else {
-		//mCrntHP -= damage;
+		mCrntHP -= damage;
 	}
 
 	if (mCrntHP <= 0) {

@@ -27,6 +27,9 @@ public:
 	void SetExplosionTag(ObjectTag tag) { mExplosionTag = tag; }
 	void SetExplosionDamage(float damage) { mExplosionDamage = damage; }
 
+	bool mIsNoCollisionEnemy{};
+	void NoCollisionEnemy() { mIsNoCollisionEnemy = true; }
+
 public:
 	virtual void Init() override;
 	virtual void Explode() override;

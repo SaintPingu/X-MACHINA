@@ -71,7 +71,5 @@ protected:
 private:
 	void Disappear();
 	void Reset();
-
-	void PlayTrailParticles();
 };
 #pragma endregion

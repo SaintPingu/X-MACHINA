@@ -67,7 +67,7 @@ void Script_BattleManager::Start()
 	GameFramework::I->ConnectServer();
 	BattleScene::I->GetLight()->SetSunlightDir(Vec3(1, -2, 2));
 
-	//ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
+	ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
 }
 
 

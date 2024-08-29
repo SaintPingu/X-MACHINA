@@ -64,21 +64,21 @@ void Script_CinematicCamera::Start()
 	
 #ifdef TAKE_03
 	Matrix take03 = {
-		-0.00266407,
-		0.0523604,
-		-0.998624,
+		-0.878255,
+		-0.0067093,
+		-0.478119,
 		0,
-		0.799918,
-		0.599395,
-		0.0292934,
+		0.446953,
+		0.343827,
+		-0.825823,
 		0,
-		0.600104,
-		-0.798738,
-		-0.0434807,
+		0.169932,
+		-0.938993,
+		-0.298976,
 		0,
-		242.089,
-		12.9673,
-		234.032,
+		241.963,
+		15.32,
+		206.028,
 		1,
 	};
 	mObject->SetWorldTransform(take03);
@@ -127,6 +127,8 @@ void Script_CinematicCamera::Start()
 	};
 	mObject->SetWorldTransform(take05);
 #endif
+
+	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(100.f, 0.003f);
 }
 
 void Script_CinematicCamera::Update()
@@ -147,15 +149,21 @@ void Script_CinematicCamera::Update()
 #endif
 
 #ifdef TAKE_03
-	{
-		if (mCrntShakeTime > 0.f) {
-			if (Vector3::IsZero(mOrigin)) {
-				mOrigin = mObject->GetPosition();
+	static float offset{};
+	if (mIsPlaying) {
+		offset += 1.5f * DeltaTime();
+
+		{
+			if (mCrntShakeTime > 0.f) {
+				if (Vector3::IsZero(mOrigin)) {
+					mOrigin = mObject->GetPosition();
+				}
+				mObject->SetPosition(mOrigin + mShakeOffset);
+				mObject->MoveForward(-offset);
 			}
-			mObject->SetPosition(mOrigin + mShakeOffset);
-		}
-		else {
-			mOrigin = Vector3::Zero;
+			else {
+				mOrigin = Vector3::Zero;
+			}
 		}
 	}
 #endif

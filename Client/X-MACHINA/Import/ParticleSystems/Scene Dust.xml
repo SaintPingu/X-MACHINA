@@ -6,7 +6,7 @@
 	<MaxAddCount>5</MaxAddCount>
 	<Position class_id="1" tracking_level="0" version="0">
 		<s.x>0.000000000e+00</s.x>
-		<s.y>5.000000000e-01</s.y>
+		<s.y>-1.000000000e+01</s.y>
 		<s.z>0.000000000e+00</s.z>
 	</Position>
 	<PlayMaxTime>5.000000000e+00</PlayMaxTime>
@@ -106,7 +106,7 @@
 	</StartColor>
 	<GravityModifier>0.000000000e+00</GravityModifier>
 	<SimulationSpace>1</SimulationSpace>
-	<SimulationSpeed>1.500000000e+00</SimulationSpeed>
+	<SimulationSpeed>5.000000000e-01</SimulationSpeed>
 	<PlayOnAwake>0</PlayOnAwake>
 	<MaxParticles>1000</MaxParticles>
 	<Emission class_id="7" tracking_level="0" version="0">

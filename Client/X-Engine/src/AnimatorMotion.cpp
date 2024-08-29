@@ -83,8 +83,9 @@ bool AnimatorMotion::IsSameStateMachine(const AnimatorMotion* other) const
 
 bool AnimatorMotion::Animate()
 {
-	float take05MotionSpeed = 0.2f;
-	mCrntLength += (take05MotionSpeed * mIsReverse) * DeltaTime();
+	//float take05MotionSpeed = 0.2f;
+	//mCrntLength += (take05MotionSpeed * mIsReverse) * DeltaTime();
+	mCrntLength += (0.75f * mIsReverse) * DeltaTime();
 	
 	if (!mIsStarted && mCallbackStart) {
 		mIsStarted = true;

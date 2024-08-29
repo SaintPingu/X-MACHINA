@@ -81,6 +81,7 @@ void BattleScene::Build()
 
 	// build settings
 	BuildTerrain();
+	mLight->SetSceneBounds(5.f);
 
 	std::cout << "OK\n";
 
@@ -718,9 +719,9 @@ void BattleScene::UpdateRenderedObjects()
 					}
 
 					// take 01~04
-					/*if (object->GetTag() == ObjectTag::Player) {
-						continue;
-					}*/
+					//if (object->GetTag() == ObjectTag::Player) {
+					//	continue;
+					//}
 
 					if (!object->IsActive()) {
 						continue;

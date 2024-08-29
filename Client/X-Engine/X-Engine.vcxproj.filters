@@ -377,9 +377,6 @@
     <ClInclude Include="Imgui\ImguiCode\imstb_truetype.h">
       <Filter>Imgui\ImguiCode</Filter>
     </ClInclude>
-    <ClInclude Include="include\FrameResource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="include\UploadBuffer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -496,6 +493,9 @@
     </ClInclude>
     <ClInclude Include="include\SoundMgr.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FrameResource.h">
+      <Filter>소스 파일\Framework\Device</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

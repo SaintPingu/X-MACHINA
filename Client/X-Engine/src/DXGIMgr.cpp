@@ -702,7 +702,7 @@ void DXGIMgr::CreateDSV()
 	CreateDepthStencilView(mDefaultDs.get());
 	CreateShaderResourceView(mDefaultDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 
-	mShadowDs = ResourceMgr::I->CreateTexture("ShadowDepthStencil", mWindow.Width * 4, mWindow.Height * 4,
+	mShadowDs = ResourceMgr::I->CreateTexture("ShadowDepthStencil", mWindow.Width * 6, mWindow.Height * 6,
 		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, Vec4{ 1.f });
 	CreateDepthStencilView(mShadowDs.get());
 	CreateShaderResourceView(mShadowDs.get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS);

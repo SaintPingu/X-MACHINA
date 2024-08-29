@@ -130,7 +130,7 @@ void Script_GroundPlayer::LateUpdate()
 	RotateMuzzleToAim();
 
 	// take 01~04
-	//mObject->SetPosition(mCamera->GetObj()->GetPosition());
+	mObject->SetPosition(mCamera->GetObj()->GetPosition());
 }
 
 void Script_GroundPlayer::OnDestroy() 

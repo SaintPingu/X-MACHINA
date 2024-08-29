@@ -860,7 +860,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.mName = "Scene Dust";
 		pscd.Looping = true;
 		pscd.StartSpeed = Vec2{ 0.f, 0.f };
-		pscd.Position = Vec3{ 0.f, -10.0f, 0.f };
+		pscd.Position = Vec3{ 0.f, 0.0f, 0.f };
 		pscd.StartDelay = 0.f;
 		pscd.StartLifeTime = Vec2{ 10.f, 15.f };
 		pscd.StartSize = Vec2{ 3.5f, 3.5f };

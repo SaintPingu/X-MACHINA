@@ -6,7 +6,7 @@
 #include "Timer.h"
 #include "Component/Camera.h"
 
-#define TAKE_05
+#define TAKE_07
 
 void Script_CinematicCamera::InitCameraTarget()
 {
@@ -82,6 +82,7 @@ void Script_CinematicCamera::Start()
 		1,
 	};
 	mObject->SetWorldTransform(take03);
+	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(100.f, 0.003f);
 #endif
 
 #ifdef TAKE_04
@@ -128,7 +129,31 @@ void Script_CinematicCamera::Start()
 	mObject->SetWorldTransform(take05);
 #endif
 
-	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(100.f, 0.003f);
+#ifdef TAKE_06
+	Matrix take06 = {
+		0.119564,
+		0.260097,
+		-0.958108,
+		0,
+		-0.987124,
+		0.13408,
+		-0.0867937,
+		0,
+		0.105895,
+		0.956185,
+		0.272789,
+		0,
+		245.813,
+		-0.541756,
+		232.742,
+		1,
+	};
+	mObject->SetWorldTransform(take06);
+#endif
+
+#ifdef TAKE_07
+	mObject->SetPosition(620.013, 7.23645, 331.673);
+#endif
 }
 
 void Script_CinematicCamera::Update()
@@ -173,6 +198,13 @@ void Script_CinematicCamera::Update()
 	{
 		float speed = 0.5f;
 		mObject->MoveForward(-speed * DeltaTime());
+	}
+#endif
+#ifdef TAKE_07
+	if (mIsPlaying) {
+		static float speed = 1.f;
+		mObject->MoveForward(-speed * DeltaTime());
+		speed -= DeltaTime() / 3;
 	}
 #endif
 

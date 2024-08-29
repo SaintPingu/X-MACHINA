@@ -81,7 +81,7 @@ void BattleScene::Build()
 
 	// build settings
 	BuildTerrain();
-	mLight->SetSceneBounds(5.f);
+	mLight->SetSceneBounds(15.f);
 
 	std::cout << "OK\n";
 
@@ -350,8 +350,8 @@ void BattleScene::RenderForward()
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	base::RenderForward();
 
-	RESOURCE<Shader>("SkyBox")->Set();
-	mSkyBox->Render();
+	//RESOURCE<Shader>("SkyBox")->Set();
+	//mSkyBox->Render();
 }
 
 void BattleScene::RenderUI()
@@ -722,6 +722,11 @@ void BattleScene::UpdateRenderedObjects()
 					//if (object->GetTag() == ObjectTag::Player) {
 					//	continue;
 					//}
+
+					// take 07
+					if (object->GetTag() != ObjectTag::Enemy) {
+						continue;
+					}
 
 					if (!object->IsActive()) {
 						continue;

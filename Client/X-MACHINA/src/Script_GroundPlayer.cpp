@@ -90,6 +90,8 @@ void Script_GroundPlayer::Awake()
 	// weapons //
 	mWeapons.resize(3);
 	AquireNewWeapon(WeaponName::H_Lock);
+	AquireNewWeapon(WeaponName::SkyLine);
+	AquireNewWeapon(WeaponName::PipeLine);
 }
 
 void Script_GroundPlayer::Start()
@@ -101,11 +103,12 @@ void Script_GroundPlayer::Start()
 	//constexpr Vec3 kSpawnPoint = Vec3(450, 0, 240); // mining mech
 	//constexpr Vec3 kSpawnPoint = Vec3(100, 0, 210); // start
 	//constexpr Vec3 kSpawnPoint = Vec3(250, 0, 210); // ursacetus
-	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230); // base camp
+	constexpr Vec3 kSpawnPoint = Vec3(35, 0, 223); // base camp
 	//constexpr Vec3 kSpawnPoint = Vec3(640, 0, 340); // deus
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);
+	mObject->Rotate(0, -74.4134f, 0);
 }
 
 
@@ -114,6 +117,10 @@ void Script_GroundPlayer::Update()
 	base::Update();
 
 	RecoverRecoil();
+
+	if (KEY_TAP('V')) {
+		std::cout << mObject->GetLocalRotation().ToEuler().y << std::endl;
+	}
 }
 
 void Script_GroundPlayer::LateUpdate()
@@ -121,9 +128,12 @@ void Script_GroundPlayer::LateUpdate()
 	base::LateUpdate();
 
 	RotateMuzzleToAim();
+
+	// take 01~04
+	//mObject->SetPosition(mCamera->GetObj()->GetPosition());
 }
 
-void Script_GroundPlayer::OnDestroy()
+void Script_GroundPlayer::OnDestroy() 
 {
 	base::OnDestroy();
 
@@ -217,10 +227,10 @@ void Script_GroundPlayer::ProcessInput()
 {
 	Dir dir{};
 	float v{}, h{};
-	if (KEY_PRESSED('W')) { v += 1; }
+	/*if (KEY_PRESSED('W')) { v += 1; }
 	if (KEY_PRESSED('S')) { v -= 1; }
 	if (KEY_PRESSED('A')) { h -= 1; }
-	if (KEY_PRESSED('D')) { h += 1; }
+	if (KEY_PRESSED('D')) { h += 1; }*/
 
 	dir |= Math::IsZero(v) ? Dir::None : (v > 0) ? Dir::Front : Dir::Back;
 	dir |= Math::IsZero(h) ? Dir::None : (h > 0) ? Dir::Right : Dir::Left;
@@ -247,9 +257,9 @@ void Script_GroundPlayer::ProcessInput()
 		mController->SetValueOnly("Horizontal", fabs(mParamH) > 0.1f ? mParamH : 0.f);
 	}
 
-	if (KEY_PRESSED('O')) mCamera->ZoomOut();
-	if (KEY_PRESSED('P')) mCamera->ZoomIn();
-	if (KEY_PRESSED('I')) mCamera->ZoomReset();
+	//if (KEY_PRESSED('O')) mCamera->ZoomOut();
+	//if (KEY_PRESSED('P')) mCamera->ZoomIn();
+	//if (KEY_PRESSED('I')) mCamera->ZoomReset();
 }
 
 bool Script_GroundPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)

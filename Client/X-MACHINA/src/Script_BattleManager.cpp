@@ -14,7 +14,8 @@
 #include "Script_LightBipedMech.h"
 
 #include "Script_AbilityManager.h"
-#include "Script_MainCamera.h"
+//#include "Script_MainCamera.h"
+#include "Script_CinematicCamera.h"
 #include "Script_Item.h"
 
 #include "Script_BattleUI.h"
@@ -35,6 +36,7 @@
 #include "InputMgr.h"
 #include "X-Engine.h"
 #include "Component/UI.h"
+#include "Light.h"
 
 
 
@@ -42,7 +44,7 @@ void Script_BattleManager::Awake()
 {
 	base::Awake();
 
-	MainCamera::I->AddComponent<Script_MainCamera>();
+	MainCamera::I->AddComponent<Script_CinematicCamera>();
 	GameFramework::I->InitPlayer();
 
 	InitSceneObjectScripts();
@@ -56,22 +58,23 @@ void Script_BattleManager::Start()
 {
 	base::Start();
 
-	mMainCamera = MainCamera::I->GetComponent<Script_MainCamera>();
+	mMainCamera = MainCamera::I->GetComponent<Script_CinematicCamera>();
 
 	SoundMgr::I->Play("BGM", "Battle_Stage1", 1.0f, true);
 
 	mObject->AddComponent<Script_StageNameUI>();
 
 	GameFramework::I->ConnectServer();
+	BattleScene::I->GetLight()->SetSunlightDir(Vec3(1, -2, 2));
 
-	ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
+	//ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
 }
 
 
 void Script_BattleManager::Update()
 {
 	base::Update();
-	
+
 	if (KEY_TAP('Z')) {
 		ResourceMgr::I->ReloadParticles();
 	}
@@ -81,7 +84,7 @@ void Script_BattleManager::Reset()
 {
 	base::Reset();
 
-	MainCamera::I->RemoveComponent<Script_MainCamera>();
+	MainCamera::I->RemoveComponent<Script_CinematicCamera>();
 	mObject->RemoveComponent<Script_BattleUI>();
 	mObject->RemoveComponent<Script_StageNameUI>();
 

@@ -466,6 +466,9 @@
     <ClInclude Include="include\Script_Deus_Phase_1.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_CinematicCamera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -776,6 +779,9 @@
     </ClCompile>
     <ClCompile Include="src\Script_Deus_Phase_1.cpp">
       <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_CinematicCamera.cpp">
+      <Filter>Script\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

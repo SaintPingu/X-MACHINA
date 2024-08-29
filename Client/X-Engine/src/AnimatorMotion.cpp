@@ -60,6 +60,8 @@ void AnimatorMotion::SetLength(float length)
 void AnimatorMotion::Reset()
 {
 	mIsStarted = false;
+	// take 01~04
+	//mCrntLength = 0.5f * (rand() % 10);
 	mCrntLength = 0.f;
 	mWeight     = 1.f;
 	mCrntSpeed  = mOriginSpeed;
@@ -81,7 +83,8 @@ bool AnimatorMotion::IsSameStateMachine(const AnimatorMotion* other) const
 
 bool AnimatorMotion::Animate()
 {
-	mCrntLength += (mCrntSpeed * mIsReverse) * DeltaTime();
+	float take05MotionSpeed = 0.2f;
+	mCrntLength += (take05MotionSpeed * mIsReverse) * DeltaTime();
 	
 	if (!mIsStarted && mCallbackStart) {
 		mIsStarted = true;

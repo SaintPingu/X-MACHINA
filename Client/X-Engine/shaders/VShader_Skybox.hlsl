@@ -18,6 +18,7 @@ VSOutput_Skybox VSSkyBox(VSInput_Skybox vin)
 	float4 posW = mul(float4(vin.PosL, 1.0f), gObjectCB.MtxWorld);
     
 	posW.xyz += gPassCB.CameraPos;
+    //posW.xyz += float3(0.f, 0.15f, 0.1f);
     
     vout.PosH = mul(mul(posW, gPassCB.MtxView), gPassCB.MtxProj).xyww;
     

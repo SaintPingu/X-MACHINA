@@ -65,7 +65,7 @@ void Script_Ursacetus::RoarAttackCallback()
 {
 	mObject->mObjectCB.MindRimFactor = 1.f;
 	mObject->mObjectCB.MindRimColor = Vec3{ 1.f, 0.f, 0.f };
-	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(1.f, 0.003f);
+	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(3.f, 0.01f);
 }
 
 void Script_Ursacetus::SpecialAttackCallback()

@@ -23,8 +23,9 @@ void Script_MainCamera::SetCameraOffset(const Vec3& offset)
 	MAIN_CAMERA->SetOffset(mMainOffset);
 }
 
-void Script_MainCamera::SetCameraTarget(GameObject* target)
+void Script_MainCamera::InitCameraTarget()
 {
+	GameObject* target = GameFramework::I->GetPlayer();
 	if (target) {
 		mTarget = target;
 	}
@@ -72,6 +73,7 @@ void Script_MainCamera::Update()
 
 void Script_MainCamera::Move(Vec2 dir, Vec2 weight, float maxOffset_t)
 {
+	return;
 	maxOffset_t = std::clamp(maxOffset_t, 0.f, 1.f);
 	const Vec2 maxOffset = mMaxOffset * maxOffset_t;
 
@@ -152,10 +154,12 @@ void Script_MainCamera::Init()
 {
 	constexpr float kMaxPlaneDistance = 500.f;
 
-	mTarget = GameFramework::I->GetPlayer();
+	InitCameraTarget();
+	if (mTarget) {
+		mObject->SetPosition(mTarget->GetPosition() + mMainOffset);
+	}
 
 	SetCameraOffset(kCameraOffset);
-	mObject->SetPosition(mTarget->GetPosition() + mMainOffset);
 	LookTarget();
 
 	MAIN_CAMERA->SetProjMtx(0.01f, kMaxPlaneDistance, 60.f);

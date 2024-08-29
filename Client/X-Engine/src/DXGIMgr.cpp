@@ -301,7 +301,7 @@ void DXGIMgr::RenderScene()
 
 	RenderEnd();
 
-	RenderText();
+	//RenderText();
 
 	mSwapChain->Present(1, 0);
 

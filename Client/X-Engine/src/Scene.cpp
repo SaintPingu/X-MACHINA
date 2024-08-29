@@ -114,9 +114,18 @@ void Scene::UpdateMainPassCB()
 	passCB.BuildingDissolveIndex = RESOURCE<Texture>("Dissolve_01_05")->GetSrvIdx();
 
 	passCB.LightCount = mLight->GetLightCount();
-	passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
-	passCB.ShadowIntensity = 0.0f;
+
+	// take 01~03
+	{
+		passCB.GlobalAmbient = Vec4(0.4f, 0.4f, 0.4f, 1.f);
+		passCB.ShadowIntensity = 0.0f;
+	}
+	// take 04
+	{
+		/*passCB.GlobalAmbient = Vec4(0.6f, 0.6f, 0.6f, 1.f);
+		passCB.ShadowIntensity = 0.2f;*/
+	}
 	passCB.FogColor = Colors::Gray;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
 

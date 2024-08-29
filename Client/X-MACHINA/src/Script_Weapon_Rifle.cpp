@@ -13,7 +13,7 @@ void Script_Weapon_Rifle::Awake()
 {
 	base::Awake();
 
-	SetFiringMode(FiringMode::Auto);
+	SetFiringMode(FiringMode::BoltAction);
 }
 
 void Script_Weapon_Rifle::Update()

@@ -348,13 +348,16 @@ void BattleScene::RenderForward()
 
 	CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	base::RenderForward();
+
+	RESOURCE<Shader>("SkyBox")->Set();
+	mSkyBox->Render();
 }
 
 void BattleScene::RenderUI()
 {
-	base::RenderUI();
+	//base::RenderUI();
 
-	RenderBounds();
+	//RenderBounds();
 }
 
 void BattleScene::ApplyDynamicContext()
@@ -713,14 +716,21 @@ void BattleScene::UpdateRenderedObjects()
 					if (object->GetTag() == ObjectTag::Bound) {
 						continue;
 					}
+
+					// take 01~04
+					/*if (object->GetTag() == ObjectTag::Player) {
+						continue;
+					}*/
+
 					if (!object->IsActive()) {
 						continue;
 					}
 
 					const auto& collider = object->GetCollider();
-					if (collider && MAIN_CAMERA->GetFrustumShadow().Intersects(collider->GetBS())) {
+					mRenderedObjects.insert(object);
+					/*if (collider && MAIN_CAMERA->GetFrustumShadow().Intersects(collider->GetBS())) {
 						mRenderedObjects.insert(object);
-					}
+					}*/
 				}
 			}
 		}

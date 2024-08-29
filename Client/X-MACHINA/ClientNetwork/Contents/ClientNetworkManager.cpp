@@ -1025,6 +1025,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Dead(NetworkEvent::Game::Event_M
 
 void ClientNetworkManager::ProcessEvent_Monster_Move(NetworkEvent::Game::Event_Monster::Move* data)
 {
+	return;
 	for (int i = 0; i < data->Mons.size(); ++i) {
 		int		ID = data->Mons[i].Id;
 		Vec3	Pos = data->Mons[i].Pos;
@@ -1048,6 +1049,7 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateHP(NetworkEvent::Game::Eve
 }
 void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::Event_Monster::UpdateState* data)
 {
+	return;
 	for (int i = 0; i < data->Mons.size(); ++i) {
 		uint32_t					ID = data->Mons[i].Id;
 		FBProtocol::MONSTER_BT_TYPE type = data->Mons[i].state;
@@ -1066,6 +1068,7 @@ void ClientNetworkManager::ProcessEvent_Monster_UpdateState(NetworkEvent::Game::
 
 void ClientNetworkManager::ProcessEvent_Monster_Target(NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data)
 {
+	return;
 	for (int i = 0; i < data->Mons.size(); ++i) {
 
 		int monster_id = data->Mons[i].id;

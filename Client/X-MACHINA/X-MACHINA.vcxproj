@@ -263,6 +263,7 @@
     <ClInclude Include="include\Script_Aranobot.h" />
     <ClInclude Include="include\Script_BattleUI.h" />
     <ClInclude Include="include\Script_Ceratoferox.h" />
+    <ClInclude Include="include\Script_CinematicCamera.h" />
     <ClInclude Include="include\Script_Deus_Phase_1.h" />
     <ClInclude Include="include\Script_FootStepSound.h" />
     <ClInclude Include="include\Script_Gobbler.h" />
@@ -366,6 +367,7 @@
     <ClCompile Include="src\Script_Aranobot.cpp" />
     <ClCompile Include="src\Script_BattleUI.cpp" />
     <ClCompile Include="src\Script_Ceratoferox.cpp" />
+    <ClCompile Include="src\Script_CinematicCamera.cpp" />
     <ClCompile Include="src\Script_Deus_Phase_1.cpp" />
     <ClCompile Include="src\Script_ExplosiveBullet.cpp" />
     <ClCompile Include="src\Script_FootStepSound.cpp" />

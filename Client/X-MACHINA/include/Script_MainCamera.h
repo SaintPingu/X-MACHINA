@@ -21,23 +21,25 @@ private:
 	static constexpr float mkMaxZoomIn  = 0.25f;
 	static constexpr float mkMaxZoomOut = 10.f;
 
-	GameObject*			mTarget{};
 	Vec3				mMainOffset{};
 	Vec2				mExtraOffset{};
 	Vec2				mMaxOffset{};
-	Vec3				mShakeOffset{};
 
 	float				mSpeed{};
 	float				mZoomAmount{ 1.f };
-	float				mCrntShakeTime{};
 	float				mShakeAmount{};
 	bool				mIsMoved{};
 
 	std::set<GridObject*> mHiddenBuildings{};
 
+protected:
+	GameObject* mTarget{};
+	Vec3				mShakeOffset{};
+	float				mCrntShakeTime{};
+
 public:
 	void SetCameraOffset(const Vec3& offset);
-	void SetCameraTarget(GameObject* target);
+	virtual void InitCameraTarget();
 
 public:
 	virtual void Awake() override;
@@ -56,10 +58,12 @@ public:
 
 	void StartShake(float shakeTime, float amount = 0.002f) { mCrntShakeTime = shakeTime; mShakeAmount = amount; }
 
+protected:
+	// 타겟을 바라보도록 한다.
+	virtual void LookTarget();
+
 private:
 	void Init();
-	// 플레이어를 바라보도록 한다.
-	void LookTarget();
 
 	// 천천히 중앙을 바라보도록 한다.
 	void RecoverExtraOffset();

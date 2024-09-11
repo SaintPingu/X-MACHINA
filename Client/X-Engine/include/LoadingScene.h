@@ -13,12 +13,10 @@ class LoadingScene : public Singleton<LoadingScene>, public Scene {
 	using base = Scene;
 
 private:
-	UI*		mBackground{};
 	Scene*	mNextScene{};
 
 public:
 	virtual void Build() override;
-	virtual void Release() override;
 	virtual void RenderBegin() override {}
 
 	virtual void RenderShadow() override {}

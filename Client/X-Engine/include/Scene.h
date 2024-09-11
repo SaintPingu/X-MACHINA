@@ -12,6 +12,7 @@ enum class RenderType : UINT8 {
 };
 
 enum class SceneType {
+	Login,
 	Lobby,
 	Battle,
 	Loading
@@ -22,6 +23,7 @@ private:
 	std::function<void()> mRenderForwardCallback{};
 
 protected:
+	std::string mName{};
 	sptr<Object> mManager{};
 	sptr<Light> mLight{};
 	sptr<SkyBox> mSkyBox{};
@@ -33,8 +35,7 @@ public:
 	Light* GetLight() const { return mLight.get(); }
 
 public:
-	virtual void Init() {}
-	virtual void Update() {}
+	virtual void Update();
 
 	virtual void Build();
 	virtual void Release();

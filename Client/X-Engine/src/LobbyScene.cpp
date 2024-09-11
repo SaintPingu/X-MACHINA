@@ -15,6 +15,10 @@
 #include "Component/UI.h"
 
 
+LobbyScene::LobbyScene()
+{
+	mName = "Lobby";
+}
 
 void LobbyScene::RenderShadow()
 {
@@ -58,6 +62,8 @@ void LobbyScene::RenderForward()
 
 void LobbyScene::Update()
 {
+	base::Update();
+
 	//ParticleManager::I->Update();
 	UpdateObjects();
 	mLight->Update();
@@ -66,21 +72,31 @@ void LobbyScene::Update()
 	Canvas::I->Update();
 
 	UpdateShaderVars();
-
-	mManager->Update();
 }
 
 void LobbyScene::Build()
 {
 	base::Build();
 
-	std::cout << "Load Lobby Scene...";
 	mLight->SetSceneBounds(15.f);
 
 	LoadSceneObjects();
 
 	Start();
-	std::cout << "OK\n";
+}
+
+void LobbyScene::Start()
+{
+	ProcessAllObjects([](sptr<Object> object) {
+		object->Awake();
+		});
+	mManager->Awake();
+
+	MainCamera::I->SetActive(true);
+	ProcessAllObjects([](sptr<Object> object) {
+		object->SetActive(true);
+		});
+	mManager->SetActive(true);
 }
 
 void LobbyScene::Release()
@@ -111,21 +127,6 @@ GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& po
 	}
 
 	return instance.get();
-}
-
-
-void LobbyScene::Start()
-{
-	ProcessAllObjects([](sptr<Object> object) {
-		object->Awake();
-		});
-	mManager->Awake();
-
-	MainCamera::I->SetActive(true);
-	ProcessAllObjects([](sptr<Object> object) {
-		object->SetActive(true);
-		});
-	mManager->SetActive(true);
 }
 
 void LobbyScene::UpdateObjects()

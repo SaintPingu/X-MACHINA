@@ -288,6 +288,9 @@
     <ClCompile Include="src\Scene.cpp">
       <Filter>소스 파일\Framework\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\LoginScene.cpp">
+      <Filter>소스 파일\Framework\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DDSTextureLoader12.h">
@@ -495,6 +498,9 @@
       <Filter>Common\Component</Filter>
     </ClInclude>
     <ClInclude Include="include\SoundMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LoginScene.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

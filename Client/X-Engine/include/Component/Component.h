@@ -269,12 +269,23 @@ public:
 			});
 	}
 
+	// 객체가 보유한 모든 Component를 제거한다.
 	void RemoveWholeComponents()
 	{
 		for (auto& component : mComponents) {
 			component->OnDestroy();
 		}
 		mComponents.clear();
+	}
+
+	// 첫 번째 Component를 제외한 모든 Component를 제거한다.
+	void RemainFirstComponent()
+	{
+		const size_t size = mComponents.size();
+		for (int i = 1; i < size; ++i) {
+			mComponents[i]->OnDestroy();
+		}
+		mComponents.resize(1);
 	}
 
 

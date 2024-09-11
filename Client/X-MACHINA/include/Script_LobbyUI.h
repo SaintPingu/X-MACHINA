@@ -14,15 +14,10 @@ class Script_LobbyUI : public Component {
 	COMPONENT(Script_LobbyUI, Component)
 
 private:
-	sptr<Script_AimController> mAimController{};
-	UI* mCursorNormal{};
-	UI* mCursorClick{};
 	sptr<PopupUI> mPopupQuit{};
 
 public:
 	virtual void Awake() override;
-	virtual void Update() override;
-	virtual void OnDestroy() override;
 
 private:
 	void PlayButton() const;

@@ -330,7 +330,8 @@ void Object::OnCollisionExit(Object& other)
 		});
 }
 
-void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc) {
+void Object::ProcessComponents(std::function<void(rsptr<Component>)> processFunc)
+{
 	std::vector<sptr<Component>> components = mComponents;
 	for (auto& component : components) {
 		if (component) {

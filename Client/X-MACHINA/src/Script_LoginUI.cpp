@@ -15,5 +15,5 @@ void Script_LoginUI::Awake()
 
 	constexpr int kLoginSceneCnt = 6;
 	int idx = rand() % kLoginSceneCnt;
-	Canvas::I->CreateUI<UI>(0, "LoginBackground" + std::to_string(idx), Vec2::Zero, Vec2(Canvas::I->GetWidth(), Canvas::I->GetHeight()));
+	const auto& background = Canvas::I->CreateUI<UI>(0, "LoginBackground" + std::to_string(idx), Vec2::Zero, Vec2(Canvas::I->GetWidth(), Canvas::I->GetHeight()));
 }

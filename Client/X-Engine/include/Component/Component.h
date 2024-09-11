@@ -33,7 +33,7 @@ ObjectType GetObjectType(ObjectTag tag);
 
 
 #pragma region Class
-class Component {
+class Component : public std::enable_shared_from_this<Component> {
 	friend Object;
 
 protected:
@@ -57,6 +57,9 @@ public:
 	Object* GetObj() const { return mObject; }
 
 	void SetActive(bool isActive);
+
+public:
+	virtual bool ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam) { return true; }
 
 protected:
 	// 최초 한 번 호출된다.

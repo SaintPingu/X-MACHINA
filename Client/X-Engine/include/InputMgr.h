@@ -8,6 +8,8 @@
 #pragma endregion
 
 
+class Component;
+
 
 namespace GameKeyInfo
 {
@@ -67,6 +69,7 @@ private:
 	std::unordered_map<int, KeyState> mKeys{};
 	std::stack<KeyState*> mTapKeys{};
 	std::stack<KeyState*> mAwayKeys{}; 
+	//std::unordered_set<rsptr<Component>> mComponents{};
 
 	POINT mClientCenter{};
 	Vec2 mMousePos{};				// 현재 마우스 위치
@@ -99,6 +102,10 @@ public:
 	void WindowFocusOff();
 
 	void WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	void RegisterKeyboardMsg(rsptr<Component> component);
+	void RemoveKeyboardMsg(rsptr<Component> component);
+	void ClearRegisteredKeyboardMsg();
 
 private:
 	void SetCursorCenter();

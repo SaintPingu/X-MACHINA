@@ -291,6 +291,15 @@
     <ClCompile Include="src\LoginScene.cpp">
       <Filter>소스 파일\Framework\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\InputField.cpp">
+      <Filter>소스 파일\Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SliderUI.cpp">
+      <Filter>소스 파일\Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Button.cpp">
+      <Filter>소스 파일\Component\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DDSTextureLoader12.h">

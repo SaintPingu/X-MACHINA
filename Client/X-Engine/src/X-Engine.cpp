@@ -153,6 +153,7 @@ void Engine::LoadScene()
 	ParticleManager::I->Clear();
 	Canvas::I->Clear();
 	TextMgr::I->Clear();
+	InputMgr::I->ClearRegisteredKeyboardMsg();
 
 	if(mCrntScene != LoginScene::I.get())
 	{

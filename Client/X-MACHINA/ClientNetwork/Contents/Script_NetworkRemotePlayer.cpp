@@ -191,15 +191,6 @@ void Script_NetworkRemotePlayer::UpdateData(const void* data)
 {
 }
 
-void Script_NetworkRemotePlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-}
-
-void Script_NetworkRemotePlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-}
-
-
 
 // 3차원 베지어 곡선 생성 
 Vec3 Script_NetworkRemotePlayer::Bezier_Curve_3(Vec3 currpos, Vec3 targetpos, float t)

@@ -22,7 +22,7 @@ protected:
 		
 public:
 	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
+	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsInGunChangeMotion() const	{ return IsInDraw() || IsInPutBack(); }
 	bool IsInDraw() const				{ return mIsInDraw; }

@@ -55,12 +55,21 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		if (!packet) return false;
 		Process_SPkt_EnterLobby(session, *packet);
 	}
-	break;	case FBProtocol::FBsProtocolID::FBsProtocolID_SPkt_EnterGame:
+	break;	
+	case FBProtocol::FBsProtocolID::FBsProtocolID_SPkt_EnterGame:
 	{
 		LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ FBsProtocolID_SPkt_EnterGame ]\n");
 		const FBProtocol::SPkt_EnterGame* packet = flatbuffers::GetRoot<FBProtocol::SPkt_EnterGame>(DataPtr);
 		if (!packet) return false;
 		Process_SPkt_EnterGame(session, *packet);
+	}
+	break;
+	case FBProtocol::FBsProtocolID::FBsProtocolID_SPkt_PlayGame:
+	{
+		LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ FBsProtocolID_SPkt_PlayGame ]\n");
+		const FBProtocol::SPkt_PlayGame* packet = flatbuffers::GetRoot<FBProtocol::SPkt_PlayGame>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_PlayGame(session, *packet);
 	}
 	break;
 	case FBProtocol::FBsProtocolID::FBsProtocolID_SPkt_Chat:
@@ -357,7 +366,6 @@ bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBPro
 	LOG_MGR->SetColor(TextColor::BrightCyan);
 	LOG_MGR->Cout("PROCESS ENTER LOBBY PACKET\n ");
 	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
-	GameFramework::I->Login(static_cast<int>(MyInfo.Id));
 
 	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 	LOG_MGR->SetColor(TextColor::BrightGreen);
@@ -388,7 +396,18 @@ bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBPro
 	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 
 
+	// TODO : 나중에 PlayGame 버튼 누르면 보내는 걸로 바꾸기 
+	auto cpkt = FBS_FACTORY->CPkt_PlayGame();
+	session->Send(cpkt);
+
 	return true;
+}
+
+bool FBsPacketFactory::Process_SPkt_PlayGame(SPtr_Session session, const FBProtocol::SPkt_PlayGame& pkt)
+{
+	auto cpkt = FBS_FACTORY->CPkt_EnterGame(session->GetID());
+	session->Send(cpkt);
+
 	return false;
 }
 
@@ -1022,6 +1041,16 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
 
 	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_EnterGame);
 
+}
+
+SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayGame()
+{
+	flatbuffers::FlatBufferBuilder builder;
+
+	auto cpkt = FBProtocol::CreateCPkt_PlayGame(builder);
+	builder.Finish(cpkt);
+
+	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_PlayGame);
 }
 
 /// ★---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

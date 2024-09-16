@@ -291,6 +291,7 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 	else if (IsLogInSuccess == true) {
 		std::string name = pkt.name()->c_str();
 		LOG_MGR->Cout(session->GetID(), " NAME : ", name, "\n");
+		session->SetName(name);
 
 		// 로그인이 허가 되었으니 서버에 EnterGame 요청 
 		auto cpkt = FBS_FACTORY->CPkt_EnterLobby(serverSession->GetID());
@@ -351,7 +352,7 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 
 bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBProtocol::SPkt_EnterLobby& pkt)
 {
-	int player_order = pkt.
+	int player_order = pkt.order();
 
 	LOG_MGR->SetColor(TextColor::BrightCyan);
 	LOG_MGR->Cout("PROCESS ENTER LOBBY PACKET\n ");

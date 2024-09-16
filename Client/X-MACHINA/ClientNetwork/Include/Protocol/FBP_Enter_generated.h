@@ -81,9 +81,13 @@ inline ::flatbuffers::Offset<CPkt_EnterLobby> CreateCPkt_EnterLobby(
 struct SPkt_EnterLobby FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SPkt_EnterLobbyBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MYINFO = 4,
-    VT_PLAYERS = 6
+    VT_ORDER = 4,
+    VT_MYINFO = 6,
+    VT_PLAYERS = 8
   };
+  int32_t order() const {
+    return GetField<int32_t>(VT_ORDER, 0);
+  }
   const FBProtocol::Player *myinfo() const {
     return GetPointer<const FBProtocol::Player *>(VT_MYINFO);
   }
@@ -92,6 +96,7 @@ struct SPkt_EnterLobby FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_ORDER, 4) &&
            VerifyOffset(verifier, VT_MYINFO) &&
            verifier.VerifyTable(myinfo()) &&
            VerifyOffset(verifier, VT_PLAYERS) &&
@@ -105,6 +110,9 @@ struct SPkt_EnterLobbyBuilder {
   typedef SPkt_EnterLobby Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_order(int32_t order) {
+    fbb_.AddElement<int32_t>(SPkt_EnterLobby::VT_ORDER, order, 0);
+  }
   void add_myinfo(::flatbuffers::Offset<FBProtocol::Player> myinfo) {
     fbb_.AddOffset(SPkt_EnterLobby::VT_MYINFO, myinfo);
   }
@@ -124,21 +132,25 @@ struct SPkt_EnterLobbyBuilder {
 
 inline ::flatbuffers::Offset<SPkt_EnterLobby> CreateSPkt_EnterLobby(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t order = 0,
     ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<FBProtocol::Player>>> players = 0) {
   SPkt_EnterLobbyBuilder builder_(_fbb);
   builder_.add_players(players);
   builder_.add_myinfo(myinfo);
+  builder_.add_order(order);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<SPkt_EnterLobby> CreateSPkt_EnterLobbyDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t order = 0,
     ::flatbuffers::Offset<FBProtocol::Player> myinfo = 0,
     const std::vector<::flatbuffers::Offset<FBProtocol::Player>> *players = nullptr) {
   auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<FBProtocol::Player>>(*players) : 0;
   return FBProtocol::CreateSPkt_EnterLobby(
       _fbb,
+      order,
       myinfo,
       players__);
 }

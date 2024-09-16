@@ -1,0 +1,166 @@
+
+
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+// +------------------------
+//		  NEW PLAYER 
+// ------------------------+
+namespace FBProtocol;
+
+table CPkt_NewPlayer
+{
+
+}
+
+table SPkt_NewPlayer
+{
+	newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
+}
+
+// +------------------------
+//		 REMOVE PLAYER 
+// ------------------------+
+table CPkt_RemovePlayer
+{
+
+}
+
+table SPkt_RemovePlayer
+{
+	player_id : uint; // 4 bytes // 삭제할 플레이어의 아이디 
+}
+
+
+// +------------------------
+//		PLAYER SKILL 
+// ------------------------+
+table CPkt_PlayerOnSkill
+{
+	skill_type : PLAYER_SKILL_TYPE;
+	mindcontrol_monster_id : int;
+}
+
+table SPkt_PlayerOnSkill
+{
+	player_id	 : uint; // 4 bytes // 삭제할 플레이어의 아이디 
+	skill_type	 : PLAYER_SKILL_TYPE;
+	phero_amount : float;
+	mindcontrol_monster_id : int;
+
+}
+
+
+// +------------------------
+//	   PLAYER TRANSFORM
+// ------------------------+
+table CPkt_Player_Transform
+{
+	move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
+	
+	latency     : long;						// 8 bytes
+	velocity    : float;					// 4 bytes
+	movedir     : Vector3;					// 12 bytes (3 * 4 bytes)
+	trans	    : Transform;				// 24 bytes (Vector3 * 2)
+
+	spine_look	: Vector3;					// 12 bytes (3 * 4 bytes)
+	animparam_h : float;					// 4 bytes
+	animparam_v : float;					// 4 bytes
+}
+
+table SPkt_Player_Transform
+{
+	player_id	: uint;					// 8 bytes				// uint64
+
+	move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
+
+	latency     : long;						// 8 bytes
+	velocity    : float;					// 4 bytes
+	movedir     : Vector3;					// 12 bytes (3 * 4 bytes)
+	trans	    : Transform;				// 24 bytes (Vector3 * 2)
+
+
+	spine_look	: Vector3;					// 12 bytes (3 * 4 bytes)
+	animparam_h : float;					// 4 bytes
+	animparam_v : float;					// 4 bytes
+
+}
+
+// +------------------------
+//	   PALYER Aim  Rotation
+// ------------------------+
+
+table CPkt_Player_AimRotation
+{
+
+	aim_rotation			: float; // Y rotation Euler
+	spine_angle				: float; // Spine Angle;
+}
+
+table SPkt_Player_AimRotation
+{
+	player_id				: uint;	// 8 bytes
+
+	aim_rotation		    : float; // Y rotation Euler
+	spine_angle				: float; // Spine Angle;
+
+}
+
+
+// +------------------------
+//	   PALYER ANIMATION 
+// ------------------------+
+
+table CPkt_Player_Animation
+{
+	animation_upper_index   : int;		// 4 bytes
+	animation_lower_index   : int;		// 4 bytes
+	animation_param_h		: float;	// 4 bytes
+	animation_param_v       : float;	// 4 bytes
+}
+
+table SPkt_Player_Animation
+{
+	player_id				: uint;	// 8 bytes
+
+	animation_upper_index   : int;		// 4 bytes
+	animation_lower_index   : int;		// 4 bytes
+	animation_param_h		: float;	// 4 bytes
+	animation_param_v       : float;	// 4 bytes
+}
+
+
+// +------------------------
+//	   PALYER WEAPON 
+// ------------------------+
+
+table CPkt_Player_Weapon
+{
+	weapon_type : ITEM_TYPE;	// 1 byte
+}
+
+table SPkt_Player_Weapon
+{
+	player_id	: uint;			// 8 bytes
+	weapon_type : ITEM_TYPE;	// 1 byte
+}
+
+
+// +------------------------
+//	   PALYER STATE 
+// ------------------------+
+
+table CPkt_Player_State
+{
+	state_type : PLAYER_STATE_TYPE;	// 1 byte
+}
+
+table SPkt_Player_State
+{
+	player_id	: uint;			// 8 bytes
+	hp			: float;
+	phero		: float;
+	state_type  : PLAYER_STATE_TYPE;	// 1 byte
+}

@@ -38,7 +38,7 @@ table Monster{
 	bt_type				:  MONSTER_BT_TYPE;
 	pos_2				:  Position_Vec2;
 	rot_y				:  float;				// y
-	
+
 	target_player_id	: int;
 	target_monster_id	: int;
 

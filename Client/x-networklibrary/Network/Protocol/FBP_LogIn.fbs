@@ -1,0 +1,38 @@
+﻿
+
+// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//	��	LOG IN / LOG OUT ( BROADCAST NEW PLAYER / REMOVE PLAYER ) 
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+// +------------------------
+//		   LOG IN
+// ------------------------+
+
+namespace FBProtocol;
+
+table CPkt_LogIn
+{
+	id : string;
+	password : string;
+}
+
+table SPkt_LogIn
+{
+	name	: string;
+	success : bool;			// 1 byte
+}
+
+table CPkt_SignUp
+{
+	name		: string;
+
+	id			: string;
+	password	: string;
+}
+
+table SPkt_SignUp
+{
+	name		: string;
+
+	id			: string;
+	password	: string;
+}

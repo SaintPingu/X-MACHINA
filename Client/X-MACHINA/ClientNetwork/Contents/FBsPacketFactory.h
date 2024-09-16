@@ -51,6 +51,7 @@ private:
 	static bool Process_SPkt_Invalid(SPtr_Session session, BYTE* packetBuf, UINT32 Datalen);
 	static bool Process_SPkt_LogIn(SPtr_Session session, const FBProtocol::SPkt_LogIn& pkt);
 	static bool Process_SPkt_EnterGame(SPtr_Session session, const FBProtocol::SPkt_EnterGame& pkt);
+	static bool Process_SPkt_EnterLobby(SPtr_Session session, const FBProtocol::SPkt_EnterLobby& pkt);
 	static bool Process_SPkt_NetworkLatency(SPtr_Session session, const FBProtocol::SPkt_NetworkLatency& pkt);
 	static bool Process_SPkt_Chat(SPtr_Session session, const FBProtocol::SPkt_Chat& pkt);
 
@@ -92,7 +93,8 @@ public:
 	///	  CREATE CLIENT PACKET  
 	/// ------------------------+
 	/* LOGIN, ENTER GAME, LATENCY, CHAT */
-	SPtr_SendPktBuf CPkt_LogIn();
+	SPtr_SendPktBuf CPkt_LogIn(std::string id, std::string password);
+	SPtr_SendPktBuf CPkt_EnterLobby(uint32_t player_id);
 	SPtr_SendPktBuf CPkt_EnterGame(uint32_t player_id);
 	SPtr_SendPktBuf CPkt_Chat(UINT32 sessionID, std::string msg);
 	SPtr_SendPktBuf CPkt_NetworkLatency(long long timestamp);

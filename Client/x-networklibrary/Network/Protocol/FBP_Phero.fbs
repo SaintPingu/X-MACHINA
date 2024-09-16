@@ -1,0 +1,19 @@
+
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+namespace FBProtocol;
+
+table CPkt_GetPhero
+{
+
+}
+
+table SPkt_GetPhero
+{
+	phero_id  : uint;
+	player_id : uint;
+
+}

@@ -40,6 +40,9 @@
     <Filter Include="NetworkLib\Protocol\bat">
       <UniqueIdentifier>{8a686876-ce97-4bfc-8d85-42c6edb63355}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetworkLib\Protocol\PacketProtocol">
+      <UniqueIdentifier>{2b37733b-a54a-4488-bca3-0dbd2379a0c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NetworkPch.h">
@@ -108,10 +111,10 @@
     <ClInclude Include="Network\UtilityMacro.h">
       <Filter>NetworkLib\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Network\Protocol\Enum_generated.h">
-      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    <ClInclude Include="Network\LogManager.h">
+      <Filter>NetworkLib\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Network\Protocol\FBProtocol_generated.h">
+    <ClInclude Include="Network\Protocol\Enum_generated.h">
       <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
     </ClInclude>
     <ClInclude Include="Network\Protocol\Struct_generated.h">
@@ -120,8 +123,35 @@
     <ClInclude Include="Network\Protocol\Transform_generated.h">
       <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
     </ClInclude>
-    <ClInclude Include="Network\LogManager.h">
-      <Filter>NetworkLib\Utils</Filter>
+    <ClInclude Include="Network\Protocol\FBP_Bullet_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Chat_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Enemy_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Enter_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Item_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_NetworkLatency_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Phero_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Player_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_LogIn_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Protocol\FBProtocol_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -187,10 +217,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Network\Protocol\Enum.fbs">
-      <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
+    <None Include="Network\Protocol\GenFlatBuffersHeader.bat">
+      <Filter>NetworkLib\Protocol\bat</Filter>
     </None>
-    <None Include="Network\Protocol\FBProtocol.fbs">
+    <None Include="Network\Protocol\Enum.fbs">
       <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
     </None>
     <None Include="Network\Protocol\Struct.fbs">
@@ -199,8 +229,35 @@
     <None Include="Network\Protocol\Transform.fbs">
       <Filter>NetworkLib\Protocol\FlatBuffers</Filter>
     </None>
-    <None Include="Network\Protocol\GenFlatBuffersHeader.bat">
-      <Filter>NetworkLib\Protocol\bat</Filter>
+    <None Include="Network\Protocol\FBP_Bullet.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Chat.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Enemy.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Enter.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Item.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_NetworkLatency.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Phero.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Player.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_LogIn.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBProtocol.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
     </None>
   </ItemGroup>
 </Project>

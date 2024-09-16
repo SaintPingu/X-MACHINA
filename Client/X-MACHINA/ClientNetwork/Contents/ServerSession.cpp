@@ -14,28 +14,23 @@ ServerSession::~ServerSession()
 
 void ServerSession::OnConnected()
 {
+	// ID, Password 입력
+	std::string ID;
+	std::string Password;
+
+	LOG_MGR->SetColor(TextColor::BrightWhite);
+	LOG_MGR->Cout("ID : ");
+	std::cin >> ID;
+	LOG_MGR->Cout("Password : ");
+	std::cin >> Password;
+	LOG_MGR->SetColor(TextColor::Default);
+
 
 	/* SEND LOGIN PACKET */
-	auto CPktBuf = FBS_FACTORY->CPkt_LogIn();
+	auto CPktBuf = FBS_FACTORY->CPkt_LogIn(ID, Password);
 	Send(CPktBuf);
 
 }
-//void ServerSession::OnRecvPacket(BYTE* buffer, int32 len)
-//{
-//	//PacketSessionRef session = GetPacketSessionRef();
-//	//PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
-//
-//	//// TODO : packetId 대역 체크
-//	////ServerPacketHandler::HandlePacket(session, buffer, len);
-//	//ServerFBsPktFactory::ProcessFBsPkt(session, buffer, len);
-//
-//}
-
-//void ServerSession::OnSend(INT32 len)
-//{
-//	//cout << "OnSend Len = " << len << endl;
-//}
-
 
 void ServerSession::OnDisconnected()
 {

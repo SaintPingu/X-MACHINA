@@ -1,0 +1,43 @@
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+// +------------------------
+//	 ITEM - PLAYER GET ITEM 
+// ------------------------+
+namespace FBProtocol;
+
+table CPkt_Item_Interact
+{
+	item_id   : uint;			// 나 아이템 먹을 수 있을까요?
+	item_type : ITEM_TYPE;		// 어떤 아이템 인지.
+}
+
+table SPkt_Item_Interact
+{
+	player_id	: uint;			// 4 bytes - 어떤 플레이어가 
+	item_id		: uint;			// 어떤 아이템을 먹었는가?
+	item_type	: ITEM_TYPE;	// 어떤 아이템이랑 상호작용했는지.
+	drop_pos	: Vector3;		// 드랍된 위치 
+
+}
+
+
+// +------------------------
+//	 ITEM - PLAYER 
+// ------------------------+
+table CPkt_Item_ThrowAway
+{
+	item_id		: uint;			// 나 이아이템 버리겠습니다?
+	item_type	: ITEM_TYPE;	// 어떤 아이템 인지.
+}
+
+table SPkt_Item_ThrowAway
+{
+	player_id	: uint;			// 4 bytes - 어떤 플레이어가 
+	item_id		: uint;			// 어떤 아이템을 버렸는가?
+	item_type	: ITEM_TYPE;	// 어떤 아이템 타입을 버린건가. 
+	drop_pos	: Vector3;		// 드랍된 위치 
+}
+

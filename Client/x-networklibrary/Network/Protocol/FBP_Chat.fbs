@@ -1,0 +1,16 @@
+// +------------------------
+//		     CHAT 
+// ------------------------+
+
+namespace FBProtocol;
+
+table CPkt_Chat
+{
+	message    : string;	// 가변 크기
+}
+
+table SPkt_Chat
+{
+	player_id  : uint;		// uint64
+	message    : string;	// 가변 크기
+}

@@ -8,481 +8,123 @@ include "Enum.fbs";
 include "Struct.fbs";
 include "Transform.fbs";
 
+
+include "FBP_Bullet.fbs";
+include "FBP_Chat.fbs";
+include "FBP_Enemy.fbs";
+include "FBP_Enter.fbs";
+include "FBP_Item.fbs";
+include "FBP_LogIn.fbs";
+include "FBP_NetworkLatency.fbs";
+include "FBP_Phero.fbs";
+include "FBP_Player.fbs";
+
 namespace FBProtocol;
 
+enum FBsProtocolID : ubyte {
+	None,
 
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶	LOG IN / LOG OUT ( BROADCAST NEW PLAYER / REMOVE PLAYER ) 
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-// +------------------------
-//		   LOG IN
-// ------------------------+
-table CPkt_LogIn
-{
+	CPkt_LogIn,          
+	SPkt_LogIn,   
 
-}
-
-table SPkt_LogIn
-{
-	success : bool;			// 1 byte
-
-}
-
-
-// +------------------------
-//		     CHAT 
-// ------------------------+
-table CPkt_Chat
-{
-	message    : string;	// 가변 크기
-}
-
-table SPkt_Chat
-{
-	player_id  : uint;		// uint64
-	message    : string;	// 가변 크기
-}
-
-// +--------------------
-// LATENCY CHECK PACKET 
-// --------------------+
-table CPkt_NetworkLatency
-{
-	timestamp : long;	// 8 bytes
-}
-
-table SPkt_NetworkLatency
-{
-	timestamp : long;	// 8 bytes
-}
-
-
-
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶	ENTER GAME 
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-
-// +------------------------
-//		  ENTER GAME 
-// ------------------------+
-table CPkt_EnterGame
-{
-	player_id: uint;	// 8 bytes
-}
-
-table SPkt_EnterGame
-{
-	myinfo  : Player;		// 나의 정보 
-	players : [Player];		// 나를 포함한 Room안의 모든 player 정보 
-}
-
-
-
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶▶▶▶▶	PLAYER 
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-
-// +------------------------
-//		  NEW PLAYER 
-// ------------------------+
-table CPkt_NewPlayer
-{
-
-}
-
-table SPkt_NewPlayer
-{
-	newplayer : Player; // 새로운 플레이어가 접속했음을 기존의 세션들에게 알린다. 
-}
-
-// +------------------------
-//		 REMOVE PLAYER 
-// ------------------------+
-table CPkt_RemovePlayer
-{
-
-}
-
-table SPkt_RemovePlayer
-{
-	player_id : uint; // 4 bytes // 삭제할 플레이어의 아이디 
-}
-
-
-// +------------------------
-//		PLAYER SKILL 
-// ------------------------+
-table CPkt_PlayerOnSkill
-{
-	skill_type : PLAYER_SKILL_TYPE;
-	mindcontrol_monster_id : int;
-}
-
-table SPkt_PlayerOnSkill
-{
-	player_id	 : uint; // 4 bytes // 삭제할 플레이어의 아이디 
-	skill_type	 : PLAYER_SKILL_TYPE;
-	phero_amount : float;
-	mindcontrol_monster_id : int;
-
-}
-
-
-// +------------------------
-//	   PLAYER TRANSFORM
-// ------------------------+
-table CPkt_Player_Transform
-{
-	move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
+	CPkt_SignUp,
+	SPkt_SignUp,
 	
-	latency     : long;						// 8 bytes
-	velocity    : float;					// 4 bytes
-	movedir     : Vector3;					// 12 bytes (3 * 4 bytes)
-	trans	    : Transform;				// 24 bytes (Vector3 * 2)
-
-	spine_look	: Vector3;					// 12 bytes (3 * 4 bytes)
-	animparam_h : float;					// 4 bytes
-	animparam_v : float;					// 4 bytes
-}
-
-table SPkt_Player_Transform
-{
-	player_id	: uint;					// 8 bytes				// uint64
-
-	move_state  : PLAYER_MOTION_STATE_TYPE; // 1 byte
-
-	latency     : long;						// 8 bytes
-	velocity    : float;					// 4 bytes
-	movedir     : Vector3;					// 12 bytes (3 * 4 bytes)
-	trans	    : Transform;				// 24 bytes (Vector3 * 2)
-
-
-	spine_look	: Vector3;					// 12 bytes (3 * 4 bytes)
-	animparam_h : float;					// 4 bytes
-	animparam_v : float;					// 4 bytes
-
-}
-
-// +------------------------
-//	   PALYER Aim  Rotation
-// ------------------------+
-
-table CPkt_Player_AimRotation
-{
-
-	aim_rotation			: float; // Y rotation Euler
-	spine_angle				: float; // Spine Angle;
-}
-
-table SPkt_Player_AimRotation
-{
-	player_id				: uint;	// 8 bytes
-
-	aim_rotation		    : float; // Y rotation Euler
-	spine_angle				: float; // Spine Angle;
-
-}
-
-
-// +------------------------
-//	   PALYER ANIMATION 
-// ------------------------+
-
-table CPkt_Player_Animation
-{
-	animation_upper_index   : int;		// 4 bytes
-	animation_lower_index   : int;		// 4 bytes
-	animation_param_h		: float;	// 4 bytes
-	animation_param_v       : float;	// 4 bytes
-}
-
-table SPkt_Player_Animation
-{
-	player_id				: uint;	// 8 bytes
-
-	animation_upper_index   : int;		// 4 bytes
-	animation_lower_index   : int;		// 4 bytes
-	animation_param_h		: float;	// 4 bytes
-	animation_param_v       : float;	// 4 bytes
-}
-
-
-// +------------------------
-//	   PALYER WEAPON 
-// ------------------------+
-
-table CPkt_Player_Weapon
-{
-	weapon_type : ITEM_TYPE;	// 1 byte
-}
-
-table SPkt_Player_Weapon
-{
-	player_id	: uint;			// 8 bytes
-	weapon_type : ITEM_TYPE;	// 1 byte
-}
-
-
-// +------------------------
-//	   PALYER STATE 
-// ------------------------+
-
-table CPkt_Player_State
-{
-	state_type : PLAYER_STATE_TYPE;	// 1 byte
-}
-
-table SPkt_Player_State
-{
-	player_id	: uint;			// 8 bytes
-	hp			: float;
-	phero		: float;
-	state_type  : PLAYER_STATE_TYPE;	// 1 byte
-}
-
-
-
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶▶▶▶▶	MONSTER 
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-// +------------------------
-//	   NEW MONSTER   
-// ------------------------+
-table CPkt_NewMonster
-{
-
-}
-
-table SPkt_NewMonster
-{
-	new_monsters : [Monster];	// 가변 크기 // Created New Monster Infos 
-}
-
-// +------------------------
-//	   Dead MONSTER   
-// ------------------------+
-table CPkt_DeadMonster
-{
-
-}
-
-table SPkt_DeadMonster
-{
-	monster_id	 : uint;
-	dead_point   : Position_Vec2;
-	pheros		 : string;
-}
-
-
-// +------------------------
-//	   MONSTER TARGET  
-// ------------------------+
-table CPkt_MonsterTarget
-{
-
-}
-
-table SPkt_MonsterTarget
-{
-	monster_id			: int;
-	target_player_id	: int;
-	target_montser_id	: int;
-}
-
-
-
-// +------------------------
-//	   REMOVE MONSTER   
-// ------------------------+
-table CPkt_RemoveMonster
-{
-
-}
-
-table SPkt_RemoveMonster
-{
-	monster_id : uint;	// 4 bytes
-}
-
-
-// +------------------------
-//	  MONSTER TRANSFORM  
-// ------------------------+
-table CPkt_Monster_Transform
-{
-
-}
-
-table SPkt_Monster_Transform
-{
-	monster_id	: uint;	// 4 bytes
-
-	pos_2				:  Position_Vec2;
-	rot_y				:  float;				
-}
-
-
-// +------------------------
-//	  MONSTER HP  
-// ------------------------+
-table CPkt_Monster_HP
-{
+	CPkt_Chat,             
+	SPkt_Chat,       
 	
-}
-
-table SPkt_Monster_HP
-{
-	monster_id : uint;		// 4 bytes
-	hp		   : float;		// 4 bytes
-}
-
-// +------------------------
-//	  MONSTER STATE  
-// ------------------------+
-table CPkt_Monster_State
-{
+	CPkt_NetworkLatency,   
+	SPkt_NetworkLatency, 
 	
+	CPkt_EnterLobby,
+	SPkt_EnterLobby,
+
+	CPkt_PlayGame,
+	SPkt_PlayGame,
+
+	CPkt_EnterGame,        
+	SPkt_EnterGame, 
+	
+    /// +-----------------------------------------------------------------------
+    ///  PLAYER PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+	CPkt_NewPlayer,           
+	SPkt_NewPlayer, 
+	
+	CPkt_RemovePlayer,        
+	SPkt_RemovePlayer,  
+	
+	CPkt_PlayerOnSkill,       
+	SPkt_PlayerOnSkill,  
+	
+	CPkt_Player_Transform,    
+	SPkt_Player_Transform, 
+	
+	CPkt_Player_Animation,    
+	SPkt_Player_Animation, 
+	
+	CPkt_Player_Weapon,       
+	SPkt_Player_Weapon,   
+	
+	CPkt_Player_AimRotation,  
+	SPkt_Player_AimRotation,  
+
+	CPkt_Player_State,        
+	SPkt_Player_State,
+	
+	
+    /// +-----------------------------------------------------------------------
+    ///  MONSTER PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+	CPkt_NewMonster,      
+	SPkt_NewMonster,      
+
+	CPkt_DeadMonster,    
+	SPkt_DeadMonster,    
+
+	CPkt_RemoveMonster,   
+	SPkt_RemoveMonster,   
+
+	CPkt_Monster_Transform,
+	SPkt_Monster_Transform,
+
+	CPkt_Monster_HP,      
+	SPkt_Monster_HP,      
+
+	CPkt_Monster_State,  
+	SPkt_Monster_State, 
+	
+	CPkt_Monster_Target, 
+	SPkt_Monster_Target, 
+	
+    /// +-----------------------------------------------------------------------
+    ///  PHERO PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+	CPkt_GetPhero, 
+	SPkt_GetPhero, 
+	
+    /// +-----------------------------------------------------------------------
+    ///  BULLET PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+	CPkt_Bullet_OnShoot,    
+	SPkt_Bullet_OnShoot,    
+	
+	CPkt_Bullet_OnHitEnemy,   
+	SPkt_Bullet_OnHitEnemy,   
+	
+	CPkt_Bullet_OnHitExpEnemy,
+	SPkt_Bullet_OnHitExpEnemy,
+	
+	CPkt_Bullet_OnCollision, 
+	SPkt_Bullet_OnCollision, 
+
+	
+    /// +-----------------------------------------------------------------------
+    ///  ITEM PACKET HEADER PROTOCOL TYPE
+    /// -----------------------------------------------------------------------+
+	CPkt_Item_Interact, 
+	SPkt_Item_Interact,
+	
+	CPkt_Item_ThrowAway,
+	SPkt_Item_ThrowAway,
 }
-
-table SPkt_Monster_State
-{
-	monster_id		: uint;					// 4 bytes
-	monster_bt_type	: MONSTER_BT_TYPE;		// 1 byte
-	monster_bt_step : int;
-}
-
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶▶▶▶▶	PHERO 
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-table CPkt_GetPhero
-{
-
-}
-
-table SPkt_GetPhero
-{
-	phero_id  : uint;
-	player_id : uint;
-
-}
-
-
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶▶▶▶▶	BULLET 
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-
-// +------------------------
-//	   BULLET ON SHOOT   
-// ------------------------+
-
-table CPkt_Bullet_OnShoot
-{
-	pos : Vector3;
-	ray : Vector3;
-}
-
-table SPkt_Bullet_OnShoot
-{
-	player_id : uint; // 4 bytes - 어떤 플레이어가 
-	gun_id    : uint; // 4 bytes - 어떤 총이고 
-	bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
-
-	fire_pos  : Vector3;
-	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
-}
-
-// +------------------------
-//	   BULLET ON HIT   
-// ------------------------+
-
-table CPkt_Bullet_OnHitEnemy
-{
-	monster_id	: int;
-	fire_pos	: Vector3;
-	ray			: Vector3;
-}
-
-table SPkt_Bullet_OnHitEnemy
-{
-	player_id : uint; // 4 bytes - 어떤 플레이어가 
-	gun_id    : uint; // 4 bytes - 어떤 총이고 
-	bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
-
-	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
-}
-
-// +------------------------
-//	   BULLET ON Explode   
-// ------------------------+
-
-table CPkt_Bullet_OnHitExpEnemy
-{
-	monster_id	: int;
-}
-
-table SPkt_Bullet_OnHitExpEnemy
-{
-}
-
-// +------------------------
-//	   BULLET ON COLLISION   
-// ------------------------+
-
-table CPkt_Bullet_OnCollision
-{
-
-}
-
-table SPkt_Bullet_OnCollision
-{
-	player_id : uint; // 4 bytes - 어떤 플레이어가 
-	gun_id    : ITEM_TYPE; // 4 bytes - 어떤 총이고 
-	bullet_id : uint; // 4 bytes - 어떤 총알이 충돌했는가?
-}
-
-
-
-/// +-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-///	▶▶▶▶▶	ITEM  
-/// -------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-// +------------------------
-//	 ITEM - PLAYER GET ITEM 
-// ------------------------+
-table CPkt_Item_Interact
-{
-	item_id   : uint;			// 나 아이템 먹을 수 있을까요?
-	item_type : ITEM_TYPE;		// 어떤 아이템 인지.
-}
-
-table SPkt_Item_Interact
-{
-	player_id	: uint;			// 4 bytes - 어떤 플레이어가 
-	item_id		: uint;			// 어떤 아이템을 먹었는가?
-	item_type	: ITEM_TYPE;	// 어떤 아이템이랑 상호작용했는지.
-	drop_pos	: Vector3;		// 드랍된 위치 
-
-}
-
-
-// +------------------------
-//	 ITEM - PLAYER 
-// ------------------------+
-table CPkt_Item_ThrowAway
-{
-	item_id		: uint;			// 나 이아이템 버리겠습니다?
-	item_type	: ITEM_TYPE;	// 어떤 아이템 인지.
-}
-
-table SPkt_Item_ThrowAway
-{
-	player_id	: uint;			// 4 bytes - 어떤 플레이어가 
-	item_id		: uint;			// 어떤 아이템을 버렸는가?
-	item_type	: ITEM_TYPE;	// 어떤 아이템 타입을 버린건가. 
-	drop_pos	: Vector3;		// 드랍된 위치 
-}
-

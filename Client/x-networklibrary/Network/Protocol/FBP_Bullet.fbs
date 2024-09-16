@@ -1,0 +1,77 @@
+
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+// +------------------------
+//	   BULLET ON SHOOT   
+// ------------------------+
+
+namespace FBProtocol;
+
+table CPkt_Bullet_OnShoot
+{
+	fire_pos : Vector3;
+	fire_dir : Vector3;
+}
+
+table SPkt_Bullet_OnShoot
+{
+	player_id : uint; // 4 bytes - 어떤 플레이어가 
+	gun_id    : uint; // 4 bytes - 어떤 총이고 
+	bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
+
+	fire_pos  : Vector3;
+	fire_dir  : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
+}
+
+// +------------------------
+//	   BULLET ON HIT   
+// ------------------------+
+
+table CPkt_Bullet_OnHitEnemy
+{
+	monster_id	: int;
+	fire_pos	: Vector3;
+	ray			: Vector3;
+}
+
+table SPkt_Bullet_OnHitEnemy
+{
+	player_id : uint; // 4 bytes - 어떤 플레이어가 
+	gun_id    : uint; // 4 bytes - 어떤 총이고 
+	bullet_id : uint; // 4 bytes - 어떤 총알을 쐈는가
+
+	ray       : Vector3; // 12 bytes (4bytes * 3) - 총구 방향은 어떠한가? 
+}
+
+// +------------------------
+//	   BULLET ON Explode   
+// ------------------------+
+
+table CPkt_Bullet_OnHitExpEnemy
+{
+	monster_id	: int;
+}
+
+table SPkt_Bullet_OnHitExpEnemy
+{
+}
+
+// +------------------------
+//	   BULLET ON COLLISION   
+// ------------------------+
+
+table CPkt_Bullet_OnCollision
+{
+
+}
+
+table SPkt_Bullet_OnCollision
+{
+	player_id : uint; // 4 bytes - 어떤 플레이어가 
+	gun_id    : ITEM_TYPE; // 4 bytes - 어떤 총이고 
+	bullet_id : uint; // 4 bytes - 어떤 총알이 충돌했는가?
+}
+

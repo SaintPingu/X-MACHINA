@@ -1,0 +1,16 @@
+
+
+// +--------------------
+// LATENCY CHECK PACKET 
+// --------------------+
+namespace FBProtocol;
+
+table CPkt_NetworkLatency
+{
+	timestamp : long;	// 8 bytes
+}
+
+table SPkt_NetworkLatency
+{
+	timestamp : long;	// 8 bytes
+}

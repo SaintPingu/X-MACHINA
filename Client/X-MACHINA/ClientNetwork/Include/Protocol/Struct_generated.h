@@ -275,8 +275,8 @@ struct MonsterBuilder {
 inline ::flatbuffers::Offset<Monster> CreateMonster(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
-    FBProtocol::MONSTER_TYPE type = FBProtocol::MONSTER_TYPE_ADVANCED_COMBAT_DROIR_5,
-    FBProtocol::MONSTER_BT_TYPE bt_type = FBProtocol::MONSTER_BT_TYPE_IDLE,
+    FBProtocol::MONSTER_TYPE type = FBProtocol::MONSTER_TYPE_NONE,
+    FBProtocol::MONSTER_BT_TYPE bt_type = FBProtocol::MONSTER_BT_TYPE_NONE,
     ::flatbuffers::Offset<FBProtocol::Position_Vec2> pos_2 = 0,
     float rot_y = 0.0f,
     int32_t target_player_id = 0,

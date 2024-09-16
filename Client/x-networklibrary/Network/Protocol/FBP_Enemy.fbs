@@ -1,0 +1,112 @@
+
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+// +------------------------
+//	   NEW MONSTER   
+// ------------------------+
+namespace FBProtocol;
+
+table CPkt_NewMonster
+{
+
+}
+
+table SPkt_NewMonster
+{
+	new_monsters : [Monster];	// 가변 크기 // Created New Monster Infos 
+}
+
+// +------------------------
+//	   Dead MONSTER   
+// ------------------------+
+table CPkt_DeadMonster
+{
+
+}
+
+table SPkt_DeadMonster
+{
+	monster_id	 : uint;
+	dead_point   : Position_Vec2;
+	pheros		 : string;
+}
+
+
+// +------------------------
+//	   MONSTER TARGET  
+// ------------------------+
+table CPkt_MonsterTarget
+{
+
+}
+
+table SPkt_MonsterTarget
+{
+	monster_id			: int;
+	target_player_id	: int;
+	target_montser_id	: int;
+}
+
+
+
+// +------------------------
+//	   REMOVE MONSTER   
+// ------------------------+
+table CPkt_RemoveMonster
+{
+
+}
+
+table SPkt_RemoveMonster
+{
+	monster_id : uint;	// 4 bytes
+}
+
+
+// +------------------------
+//	  MONSTER TRANSFORM  
+// ------------------------+
+table CPkt_Monster_Transform
+{
+
+}
+
+table SPkt_Monster_Transform
+{
+	monster_id	: uint;	// 4 bytes
+
+	pos_2				:  Position_Vec2;
+	rot_y				:  float;				
+}
+
+
+// +------------------------
+//	  MONSTER HP  
+// ------------------------+
+table CPkt_Monster_HP
+{
+	
+}
+
+table SPkt_Monster_HP
+{
+	monster_id : uint;		// 4 bytes
+	hp		   : float;		// 4 bytes
+}
+
+// +------------------------
+//	  MONSTER STATE  
+// ------------------------+
+table CPkt_Monster_State
+{
+	
+}
+
+table SPkt_Monster_State
+{
+	monster_id		: uint;					// 4 bytes
+	monster_bt_type	: MONSTER_BT_TYPE;		// 1 byte
+	monster_bt_step : int;
+}

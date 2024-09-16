@@ -906,6 +906,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 
 		// Monster »ý¼º! 
 		std::string MonsterTypeNames[FBProtocol::MONSTER_TYPE_MAX + 1] = {
+					"None",
 					"AdvancedCombatDroid",
 					"Anglerox",
 					"Arack",

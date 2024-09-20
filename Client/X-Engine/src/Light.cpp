@@ -74,7 +74,7 @@ void Light::SetSunlightColor(const Vec3& color)
 void Light::SetSunlight()
 {
 	auto& sunlight = mLights->Lights[gkSunLightIdx];
-	sunlight.Strength = Vec3(0.3f, 0.3f, 0.3f);
+	sunlight.Strength = Vec3(0.52f, 0.52f, 0.52f);
 	sunlight.FalloffStart = 1.f;
 	sunlight.Direction = Vec3(1, -2, -2);
 	sunlight.Position = Vector3::Zero;

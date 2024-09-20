@@ -34,9 +34,10 @@ void Script_LobbyManager::Awake()
 
 	MainCamera::I->Awake();
 	MAIN_CAMERA->SetOffset(Vec3(9.88f, 1.86f, 6.93f));
-	MainCamera::I->SetPosition(Vec3(9.88f, 1.86f, 6.93f));
-	MainCamera::I->SetLocalRotation(Vec3(8.25f, -124.f, 0.f));
-	MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
+	MainCamera::I->SetPosition(Vec3(9.88f, 2.16f, 6.93f));
+	MainCamera::I->SetLocalRotation(Vec3(15.25f, -124.f, 0.f));
+	//MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
+	MainCamera::I->MoveForward(1.f);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 60.f);
 
 	mObject->AddComponent<Script_LobbyUI>();
@@ -50,8 +51,8 @@ void Script_LobbyManager::Start()
 	trooper->SetPosition(7.4f, 0, 5.27f);
 	trooper->SetLocalRotation(Vec3(0.f, 53.41f, 0.f));
 
-	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-1, -2, -2));
-	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.12f);
+	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-0.3f, -0.6f, -0.6));
+	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.52f);
 
 	SoundMgr::I->Play("BGM", "Lobby", 1.0f, true);
 }

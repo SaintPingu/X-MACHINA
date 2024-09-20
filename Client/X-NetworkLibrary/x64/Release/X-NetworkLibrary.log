@@ -1,27 +1,4 @@
-﻿  pch.cpp
-  ClientNetwork.cpp
-  Listener.cpp
-C:\Users\MDH\Desktop\DirectX12_Project\Client\X-NetworkLibrary\Network\ClientNetwork.cpp(18,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-  (소스 파일 '/Network/ClientNetwork.cpp'을(를) 컴파일하는 중)
+﻿  SendBuffersFactory.cpp
+C:\Users\MDH\Desktop\DirectX12_Project\Client\X-NetworkLibrary\Network\SendBuffersFactory.cpp(1,1): error C2859: C:\Users\MDH\Desktop\DirectX12_Project\Client\X-MACHINA\ClientNetwork\Lib\Release\X-NetworkLibrary.pdb은(는) 이 미리 컴파일된 헤더가 만들어졌을 때 사용된 pdb 파일이 아닙니다. 미리 컴파일된 헤더를 다시 만드십시오.
+  (소스 파일 '/Network/SendBuffersFactory.cpp'을(를) 컴파일하는 중)
   
-  Lock.cpp
-  LogManager.cpp
-  MemoryManager.cpp
-  NetworkInterface.cpp
-  NetworkManager.cpp
-  NetworkObject.cpp
-  OverlappedObject.cpp
-  PacketHeader.cpp
-  PacketRecvBuf.cpp
-  PacketSendBuf.cpp
-  SendBuffersFactory.cpp
-  ServerNetwork.cpp
-  Session.cpp
-  SessionController.cpp
-C:\Users\MDH\Desktop\DirectX12_Project\Client\X-NetworkLibrary\Network\SessionController.cpp(33,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-  (소스 파일 '/Network/SessionController.cpp'을(를) 컴파일하는 중)
-  
-  SListMemoryPool.cpp
-  SocketData.cpp
-  ThreadManager.cpp
-  X-NetworkLibrary.vcxproj -> C:\Users\MDH\Desktop\DirectX12_Project\Client\X-MACHINA\ClientNetwork\Lib\Release\X-NetworkLibrary.lib

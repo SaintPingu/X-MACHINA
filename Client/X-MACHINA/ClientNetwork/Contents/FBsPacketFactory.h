@@ -107,9 +107,9 @@ public:
 
 	SPtr_SendPktBuf CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int32_t movestate, Vec3 movedir, float velocity, Vec3 SpineLookDir, long long latency, float animparam_h, float animparam_v);
 	SPtr_SendPktBuf CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v);
-	SPtr_SendPktBuf CPkt_Player_Weapon(FBProtocol::ITEM_TYPE weaponType);
+	SPtr_SendPktBuf CPkt_Player_Weapon(uint32_t item_id, FBProtocol::ITEM_TYPE weaponType);
 	SPtr_SendPktBuf CPkt_Player_AimRotation(float aim_rotation_y, float spine_angle);
-	SPtr_SendPktBuf CPkt_Player_Weapon(WeaponName weaponName);
+	SPtr_SendPktBuf CPkt_Player_Weapon(uint32_t item_id, WeaponName weaponName);
 	SPtr_SendPktBuf CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE skillType, int mindcontrol_monster_id = -1); // Ãß°¡
 
 	/* MONSTER */

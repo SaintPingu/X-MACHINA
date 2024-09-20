@@ -134,7 +134,7 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 		}
 
 #ifdef SERVER_COMMUNICATION
-		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
+		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeapon->GetID(), mWeaponScript->GetWeaponName());
 		CLIENT_NETWORK->Send(cpkt); 
 #endif
 	}
@@ -181,7 +181,7 @@ void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 void Script_ShootingPlayer::SendCrntWeapon()
 {
 #ifdef SERVER_COMMUNICATION
-	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeaponScript->GetWeaponName());
+	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeapon->GetID(), mWeaponScript->GetWeaponName());
 	CLIENT_NETWORK->Send(cpkt);
 #endif
 }

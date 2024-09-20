@@ -1150,7 +1150,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Animation(int anim_upper_idx, int 
 
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::ITEM_TYPE weaponType)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(uint32_t item_id, FBProtocol::ITEM_TYPE weaponType)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	/// > table CPkt_Player_Weapon
@@ -1161,28 +1161,28 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(FBProtocol::ITEM_TYPE weapo
 	flatbuffers::FlatBufferBuilder builder{};
 
 
-	auto ServerPacket = FBProtocol::CreateCPkt_Player_Weapon(builder, weaponType);
+	auto ServerPacket = FBProtocol::CreateCPkt_Player_Weapon(builder, item_id, weaponType);
 	builder.Finish(ServerPacket);
 	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Weapon);
 	return sendBuffer;
 }
 
-SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(WeaponName weaponName)
+SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(uint32_t item_id, WeaponName weaponName)
 {
 	switch (weaponName)
 	{
 	case WeaponName::H_Lock:
-		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_H_LOOK);
+		return CPkt_Player_Weapon(item_id ,FBProtocol::ITEM_TYPE_WEAPON_H_LOOK);
 	case WeaponName::DBMS:
-		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_DBMS);
+		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_DBMS);
 	case WeaponName::SkyLine:
-		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_SKYLINE);
+		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_SKYLINE);
 	case WeaponName::Burnout:
-		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_BURNOUT);
+		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_BURNOUT);
 	case WeaponName::PipeLine:
-		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_PIPELINE);
+		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_PIPELINE);
 	case WeaponName::MineLauncher:
-		return CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER);
+		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_MINE_LAUNCHER);
 	default:
 		break;
 	}

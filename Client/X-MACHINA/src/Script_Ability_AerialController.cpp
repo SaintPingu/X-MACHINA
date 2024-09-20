@@ -88,7 +88,7 @@ void Script_Ability_AerialController::On()
 	SoundMgr::I->Play("Ability", "AerialController");
 
 #ifdef SERVER_COMMUNICATION
-	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE);
+	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mObject->GetID(), FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE);
 	CLIENT_NETWORK->Send(cpkt);
 #endif
 }

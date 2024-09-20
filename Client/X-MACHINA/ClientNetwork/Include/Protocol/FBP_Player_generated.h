@@ -835,13 +835,18 @@ inline ::flatbuffers::Offset<SPkt_Player_Animation> CreateSPkt_Player_Animation(
 struct CPkt_Player_Weapon FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CPkt_Player_WeaponBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_WEAPON_TYPE = 4
+    VT_ITEM_ID = 4,
+    VT_WEAPON_TYPE = 6
   };
+  uint32_t item_id() const {
+    return GetField<uint32_t>(VT_ITEM_ID, 0);
+  }
   FBProtocol::ITEM_TYPE weapon_type() const {
     return static_cast<FBProtocol::ITEM_TYPE>(GetField<uint8_t>(VT_WEAPON_TYPE, 0));
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_WEAPON_TYPE, 1) &&
            verifier.EndTable();
   }
@@ -851,6 +856,9 @@ struct CPkt_Player_WeaponBuilder {
   typedef CPkt_Player_Weapon Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_item_id(uint32_t item_id) {
+    fbb_.AddElement<uint32_t>(CPkt_Player_Weapon::VT_ITEM_ID, item_id, 0);
+  }
   void add_weapon_type(FBProtocol::ITEM_TYPE weapon_type) {
     fbb_.AddElement<uint8_t>(CPkt_Player_Weapon::VT_WEAPON_TYPE, static_cast<uint8_t>(weapon_type), 0);
   }
@@ -867,8 +875,10 @@ struct CPkt_Player_WeaponBuilder {
 
 inline ::flatbuffers::Offset<CPkt_Player_Weapon> CreateCPkt_Player_Weapon(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t item_id = 0,
     FBProtocol::ITEM_TYPE weapon_type = FBProtocol::ITEM_TYPE_NONE) {
   CPkt_Player_WeaponBuilder builder_(_fbb);
+  builder_.add_item_id(item_id);
   builder_.add_weapon_type(weapon_type);
   return builder_.Finish();
 }

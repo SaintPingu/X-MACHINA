@@ -138,6 +138,7 @@ table SPkt_Player_Animation
 
 table CPkt_Player_Weapon
 {
+	item_id     : uint;
 	weapon_type : ITEM_TYPE;	// 1 byte
 }
 

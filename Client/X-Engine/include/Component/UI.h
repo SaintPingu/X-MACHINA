@@ -64,10 +64,13 @@ public:
 	void ChangeTexture(rsptr<Texture> texture) { mTexture = texture; }
 	bool CheckHover() const;
 	virtual void OnClick();
+	virtual void OffClick() {}
 
 	void SetClickCallback(const std::function<void()> callback) { mClickCallback = callback; }
 	void SetClickSound(const std::string& sound) { mClickSound = sound; }
 	void SetHoverSound(const std::string& sound) { mHoverSound = sound; }
+
+	virtual void ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam) {}
 
 protected:
 	virtual void UpdateShaderVars(rsptr<Texture> texture);
@@ -123,6 +126,25 @@ private:
 	virtual void OnClick() override;
 };
 
+class InputField : public UI {
+	using base = UI;
+
+private:
+	bool mClicked{};
+
+	std::wstring	mText{};
+	std::wstring	mImeCompositionString = L"";
+
+	std::size_t		mLastChatIdx{};
+
+public:
+	virtual void ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam) override;
+
+private:
+	virtual void OnClick() override;
+	virtual void OffClick() override;
+};
+
 // Canvas 위에 UI를 그리도록 한다.
 class Canvas : public Singleton<Canvas> {
 	friend Singleton;
@@ -174,5 +196,7 @@ public:
 
 	void ProcessActiveUI(std::function<void(sptr<UI>)> processFunc, bool isReverse = false) const;
 	void ProcessAllUI(std::function<void(sptr<UI>)> processFunc, bool isReverse = false) const;
+
+	void ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam);
 };
 #pragma endregion

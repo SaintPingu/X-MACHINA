@@ -33,7 +33,7 @@ ObjectType GetObjectType(ObjectTag tag);
 
 
 #pragma region Class
-class Component {
+class Component : public std::enable_shared_from_this<Component> {
 	friend Object;
 
 protected:
@@ -57,6 +57,9 @@ public:
 	Object* GetObj() const { return mObject; }
 
 	void SetActive(bool isActive);
+
+public:
+	virtual bool ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam) { return true; }
 
 protected:
 	// 최초 한 번 호출된다.
@@ -269,12 +272,23 @@ public:
 			});
 	}
 
+	// 객체가 보유한 모든 Component를 제거한다.
 	void RemoveWholeComponents()
 	{
 		for (auto& component : mComponents) {
 			component->OnDestroy();
 		}
 		mComponents.clear();
+	}
+
+	// 첫 번째 Component를 제외한 모든 Component를 제거한다.
+	void RemainFirstComponent()
+	{
+		const size_t size = mComponents.size();
+		for (int i = 1; i < size; ++i) {
+			mComponents[i]->OnDestroy();
+		}
+		mComponents.resize(1);
 	}
 
 

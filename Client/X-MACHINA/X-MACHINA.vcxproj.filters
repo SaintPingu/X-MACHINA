@@ -115,6 +115,9 @@
     <Filter Include="ClientNetwork\Network\NetworkScript\Network Phero">
       <UniqueIdentifier>{c9d588f6-ad4f-4bc4-a526-b6d3fe874f99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script\Manager\Scene">
+      <UniqueIdentifier>{589a0b2b-6882-4f36-a0e5-4b83d71584e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="X-MACHINA.rc">
@@ -466,6 +469,15 @@
     <ClInclude Include="include\Script_Deus_Phase_1.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_LoginManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_LoginUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Script_Cursor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -488,9 +500,6 @@
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <Filter>PCH</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Script_BattleManager.cpp">
-      <Filter>Script\Manager</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_LiveObject.cpp">
       <Filter>Script\Object</Filter>
@@ -666,9 +675,6 @@
     <ClCompile Include="src\Script_Gobbler.cpp">
       <Filter>Script\Enemy\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Script_LobbyManager.cpp">
-      <Filter>Script\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="src\Script_LobbyUI.cpp">
       <Filter>Script\UI</Filter>
     </ClCompile>
@@ -776,6 +782,21 @@
     </ClCompile>
     <ClCompile Include="src\Script_Deus_Phase_1.cpp">
       <Filter>Script\Enemy\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_LoginUI.cpp">
+      <Filter>Script\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_Cursor.cpp">
+      <Filter>Script\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_LobbyManager.cpp">
+      <Filter>Script\Manager\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_LoginManager.cpp">
+      <Filter>Script\Manager\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_BattleManager.cpp">
+      <Filter>Script\Manager\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

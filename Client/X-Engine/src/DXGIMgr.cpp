@@ -125,9 +125,9 @@ void DXGIMgr::SetGraphicsRootShaderResourceView(RootParam param, D3D12_GPU_VIRTU
 	CMD_LIST->SetGraphicsRootShaderResourceView(GetGraphicsRootParamIndex(param), gpuAddr);
 }
 
-void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window)
+void DXGIMgr::Init(HINSTANCE hInstance, const WindowInfo& window, Scene* scene)
 {
-	mCrntScene = LobbyScene::I.get();
+	mCrntScene = scene;
 
 	mInstance = hInstance;
 	mWindow = window;

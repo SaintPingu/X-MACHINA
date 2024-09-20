@@ -72,7 +72,7 @@ private:
 
 private:
 #pragma region C/Dtor
-	BattleScene() = default;
+	BattleScene();
 	virtual ~BattleScene() = default;
 
 #pragma endregion
@@ -178,7 +178,7 @@ private:
 #pragma region Update
 public:
 	void Start();
-	void Update();
+	virtual void Update() override;
 
 private:
 	void ProcessCollisions();

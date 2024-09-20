@@ -23,6 +23,7 @@ void Script_LobbyManager::Awake()
 {
 	base::Awake();
 
+	MainCamera::I->Awake();
 	MAIN_CAMERA->SetOffset(Vec3(9.88f, 1.86f, 6.93f));
 	MainCamera::I->SetPosition(Vec3(9.88f, 1.86f, 6.93f));
 	MainCamera::I->SetLocalRotation(Vec3(8.25f, -124.f, 0.f));
@@ -53,13 +54,6 @@ void Script_LobbyManager::Update()
 	if (KEY_TAP('Q')) {
 		ChangeToBattleScene();
 	}
-}
-
-void Script_LobbyManager::Reset()
-{
-	base::Reset();
-
-	mObject->RemoveComponent<Script_LobbyUI>();
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

@@ -52,9 +52,6 @@ public:
 	virtual void LateUpdate() override;
 	virtual void UpdateData(const void* data) override;
 
-	virtual void ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-	virtual void ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
-
 private:
 
 	

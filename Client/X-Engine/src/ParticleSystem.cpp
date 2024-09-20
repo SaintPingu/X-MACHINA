@@ -126,7 +126,7 @@ bool ParticleSystem::Update()
 			return false;
 		}
 
-		mPSGD->AddCount = distance * 20.f;
+		mPSGD->AddCount = static_cast<int>(distance * 20.f);
 		mPSGD->StartRotation3D = mBeforePos;
 		mPSGD->StartSize3D = mTarget->GetPosition();
 

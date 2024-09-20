@@ -5,6 +5,8 @@
 #include "BattleScene.h"
 
 #include "../Imgui/ImGuiMgr.h"
+#include "Component/Component.h"
+#include "Component/UI.h"
 
 
 InputMgr::InputMgr()
@@ -136,6 +138,21 @@ void InputMgr::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
+void InputMgr::RegisterKeyboardMsg(rsptr<Component> component)
+{
+	//mComponents.insert(component);
+}
+
+void InputMgr::RemoveKeyboardMsg(rsptr<Component> component)
+{
+	//mComponents.erase(component);
+}
+
+void InputMgr::ClearRegisteredKeyboardMsg()
+{
+	mComponents.clear();
+}
+
 Vec2 InputMgr::GetMouseNDCPos() const
 {
 	return Vec2(mMousePos.x / (DXGIMgr::I->GetWindowWidth() * 0.5f), mMousePos.y / (DXGIMgr::I->GetWindowHeight() * 0.5f));
@@ -164,6 +181,11 @@ void InputMgr::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			mAwayKeys.push(&state);
 		}
 	}
+
+	Canvas::I->ProcessKeyboardMsg(message, wParam, lParam);
+	//for (const auto& component : mComponents) {
+	//	component->ProcessKeyboardMsg(message, wParam, lParam);
+	//}
 }
 
 void InputMgr::ProcessMouseMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

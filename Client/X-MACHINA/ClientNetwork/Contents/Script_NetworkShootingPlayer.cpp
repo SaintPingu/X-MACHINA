@@ -23,7 +23,7 @@ void Script_NetworkShootingPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam
 	}
 }
 
-void Script_NetworkShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
+bool Script_NetworkShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
 	base::ProcessKeyboardMsg(messageID, wParam, lParam);
 
@@ -46,6 +46,8 @@ void Script_NetworkShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wPa
 	default:
 		break;
 	}
+
+	return true;
 }
 
 void Script_NetworkShootingPlayer::StartFire()

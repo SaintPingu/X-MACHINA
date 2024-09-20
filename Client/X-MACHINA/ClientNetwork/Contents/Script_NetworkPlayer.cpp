@@ -51,14 +51,6 @@ void Script_NetworkPlayer::UpdateData(const void* data)
 
 }
 
-void Script_NetworkPlayer::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-}
-
-void Script_NetworkPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
-{
-}
-
 #include <math.h>
 void Script_NetworkPlayer::DoInput_Move()
 {

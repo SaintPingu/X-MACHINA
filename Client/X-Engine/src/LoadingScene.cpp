@@ -7,16 +7,10 @@
 
 void LoadingScene::Build()
 {
-	//base::Build();
+	base::Build();
 
-	mBackground = Canvas::I->CreateUI<UI>(0, "LoadingBackground", Vec2::Zero, Vec2(DXGIMgr::I->GetWindowWidth(), DXGIMgr::I->GetWindowHeight()));
-}
-
-void LoadingScene::Release()
-{
-	//base::Release();
-
-	Canvas::I->RemoveUI(0, mBackground);
+	mName = "Loading";
+	Canvas::I->CreateUI<UI>(0, "LoadingBackground", Vec2::Zero, Vec2(Canvas::I->GetWidth(), Canvas::I->GetHeight()));
 }
 
 void LoadingScene::RenderDeferred()

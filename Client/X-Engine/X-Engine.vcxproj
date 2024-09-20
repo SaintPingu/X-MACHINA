@@ -221,6 +221,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Button.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\Component.cpp" />
@@ -236,10 +237,12 @@
     <ClCompile Include="src\FileIO.cpp" />
     <ClCompile Include="src\FrameResource.cpp" />
     <ClCompile Include="src\Grid.cpp" />
+    <ClCompile Include="src\InputField.cpp" />
     <ClCompile Include="src\InputMgr.cpp" />
     <ClCompile Include="src\Light.cpp" />
     <ClCompile Include="src\LoadingScene.cpp" />
     <ClCompile Include="src\LobbyScene.cpp" />
+    <ClCompile Include="src\LoginScene.cpp" />
     <ClCompile Include="src\LUTFilter.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\MeshRenderer.cpp" />
@@ -263,6 +266,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\SkyBox.cpp" />
+    <ClCompile Include="src\SliderUI.cpp" />
     <ClCompile Include="src\SobelFilter.cpp" />
     <ClCompile Include="src\SoundMgr.cpp" />
     <ClCompile Include="src\Ssao.cpp" />
@@ -320,6 +324,7 @@
     <ClInclude Include="include\Light.h" />
     <ClInclude Include="include\LoadingScene.h" />
     <ClInclude Include="include\LobbyScene.h" />
+    <ClInclude Include="include\LoginScene.h" />
     <ClInclude Include="include\LUTFilter.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\MeshRenderer.h" />

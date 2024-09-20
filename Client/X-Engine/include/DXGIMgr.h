@@ -177,7 +177,7 @@ public:
 #pragma endregion
 
 public:
-	void Init(HINSTANCE hInstance, const WindowInfo& window);
+	void Init(HINSTANCE hInstance, const WindowInfo& window, Scene* scene);
 	void Release();
 
 	// buffer(DepthStencil, ...)의 SRV 리소스를 생성한다.

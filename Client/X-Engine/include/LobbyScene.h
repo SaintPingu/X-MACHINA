@@ -18,11 +18,15 @@ public:
 	std::vector<sptr<ObjectPool>> mObjectPools{};
 
 public:
+	LobbyScene();
+	~LobbyScene() = default;
+
+public:
 	virtual void RenderShadow() override;
 	virtual void RenderDeferred() override;
 	virtual void RenderForward() override;
 
-	void Update();
+	virtual void Update() override;
 	virtual void Build() override;
 	virtual void Release() override;
 

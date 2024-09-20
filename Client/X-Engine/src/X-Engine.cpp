@@ -10,6 +10,7 @@
 #include "Timer.h"
 #include "BattleScene.h"
 #include "LobbyScene.h"
+#include "LoginScene.h"
 #include "LoadingScene.h"
 #include "Object.h"
 #include "FrameResource.h"
@@ -34,11 +35,11 @@ void Engine::Init(HINSTANCE hInstance, HWND hWnd)
 	InputMgr::I->Init();
 
 	WindowInfo windowInfo{ hWnd, Engine::I->GetWindowWidth(), Engine::I->GetWindowHeight() };
-	DXGIMgr::I->Init(hInstance, windowInfo);
+
+	mCrntScene = LoginScene::I.get();
+	DXGIMgr::I->Init(hInstance, windowInfo, mCrntScene);
 
 	ResourceMemoryLeakChecker::I->SetActive(true);
-	mCrntScene = LobbyScene::I.get();
-	mCrntScene->Init();
 
 #pragma region Imgui - 장재문 - 
 	ImGuiMgr::I->Init();
@@ -152,7 +153,9 @@ void Engine::LoadScene()
 	ParticleManager::I->Clear();
 	Canvas::I->Clear();
 	TextMgr::I->Clear();
+	InputMgr::I->ClearRegisteredKeyboardMsg();
 
+	if(mCrntScene != LoginScene::I.get())
 	{
 		DXGIMgr::I->SwitchScene(SceneType::Loading);
 		LoadingScene::I->Build();
@@ -163,6 +166,9 @@ void Engine::LoadScene()
 
 	SceneType sceneType = static_cast<SceneType>(mNextSceneType);
 	switch (sceneType) {
+	case SceneType::Login:
+		mCrntScene = LoginScene::I.get();
+		break;
 	case SceneType::Lobby:
 		mCrntScene = LobbyScene::I.get();
 		break;
@@ -177,6 +183,7 @@ void Engine::LoadScene()
 	ResourceMemoryLeakChecker::I->Report();
 
 	LoadingScene::I->Release();
+	Canvas::I->Clear();
 	mCrntScene->Build();
 
 	DXGIMgr::I->SwitchScene(sceneType);

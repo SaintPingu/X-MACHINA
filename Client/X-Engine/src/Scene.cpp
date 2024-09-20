@@ -23,6 +23,11 @@ Scene::Scene()
 	mManager = std::make_shared<Object>();
 }
 
+void Scene::Update()
+{
+	mManager->Update();
+}
+
 void Scene::Build()
 {
 	constexpr float kDefaultSceneBoundRadius = 30.f;
@@ -30,13 +35,20 @@ void Scene::Build()
 	mLight = std::make_shared<Light>();
 	mLight->SetSceneBounds(kDefaultSceneBoundRadius);
 	mSkyBox = std::make_shared<SkyBox>();
+	
+	std::cout << "Load " + mName + " Scene...\n";
 }
 
 void Scene::Release()
 {
-	mLight = nullptr;
-	mSkyBox = nullptr;
+	if (mLight) {
+		mLight = nullptr;
+	}
+	if (mSkyBox) {
+		mSkyBox = nullptr;
+	}
 	if (mManager) {
+		mManager->RemainFirstComponent();
 		mManager->ResetComponents();
 	}
 }

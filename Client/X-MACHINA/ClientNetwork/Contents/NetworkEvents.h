@@ -12,19 +12,19 @@ namespace NetworkEvent
 {
 	namespace Game
 	{
-
 		namespace RemotePlayerType
 		{
-			constexpr UINT16 Add = 1; // 새로운 플레이어 생성
-			constexpr UINT16 Remove = 2; // Remote 플레이어 제거 
-			constexpr UINT16 Move = 3; // Remote 플레이어 이동 
-			constexpr UINT16 Extrapolate = 4; // Remote 플레이어 위치 예측 
-			constexpr UINT16 UpdateAnimation = 5; // Remote 플레이어 애니메이션 업데이트 
-			constexpr UINT16 AimRotation = 6; // Remote 플레이어 마우스 커서에 의한 방향 전환 업데이트 
-			constexpr UINT16 UpdateWeapon = 7; // Remote 플레이어 Weapon 업데이트 
-			constexpr UINT16 OnShoot = 8; // Remote 플레이어 OnShoot 업데이트 
-			constexpr UINT16 OnSkill = 9; // Remote 플레이어 OnSkioll 업데이트 
-			constexpr UINT16 State = 10; // Remote 플레이어 State 업데이트 
+			constexpr UINT16 Register = 0;
+			constexpr UINT16 Add = 1;				// 새로운 플레이어 생성
+			constexpr UINT16 Remove = 2;			// Remote 플레이어 제거 
+			constexpr UINT16 Move = 3;				// Remote 플레이어 이동 
+			constexpr UINT16 Extrapolate = 4;		// Remote 플레이어 위치 예측 
+			constexpr UINT16 UpdateAnimation = 5;	// Remote 플레이어 애니메이션 업데이트 
+			constexpr UINT16 AimRotation = 6;		// Remote 플레이어 마우스 커서에 의한 방향 전환 업데이트 
+			constexpr UINT16 UpdateWeapon = 7;		// Remote 플레이어 Weapon 업데이트 
+			constexpr UINT16 OnShoot = 8;			// Remote 플레이어 OnShoot 업데이트 
+			constexpr UINT16 OnSkill = 9;			// Remote 플레이어 OnSkioll 업데이트 
+			constexpr UINT16 State = 10;			// Remote 플레이어 State 업데이트 
 
 		}
 
@@ -67,11 +67,17 @@ namespace NetworkEvent
 			UINT16 type = {};
 		};
 
+
 		/// +---------------------------------------------------------------------
 		///	EVENT ▶▶▶▶▶ REMOTE PLAYER 
 		/// ---------------------------------------------------------------------+
 		namespace Event_RemotePlayer // RP
 		{
+			/// >> ADD 
+			struct AddBattlePlayer : public EventData {
+				GridObject* battlePlayer = nullptr;
+			};
+
 			/// >> ADD 
 			struct Add : public EventData {
 				uint32_t	Id = {};

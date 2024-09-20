@@ -24,6 +24,8 @@
 #include "Script_Phero.h"
 #include "Script_Deus_Phase_1.h"
 //#include "Script_Deus_Phase_2.h"
+#include "Script_SceneManager.h"
+#include "Script_LobbyManager.h"
 
 #include "Object.h"
 #include "BattleScene.h"
@@ -175,6 +177,12 @@ void ClientNetworkManager::ProcessEvents()
 			/// +---------------------------------------------------------------------------
 			/// >> ▶▶▶▶▶ PROCESS EVENT REMOTE PLAYER 
 			/// ---------------------------------------------------------------------------+
+		case NetworkEvent::Game::RemotePlayerType::Register:
+		{
+			NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer*>(EventData.get());
+			ProcessEvent_RemotePlayer_AddBattlePlayer(data);
+		}
+		break;
 		case NetworkEvent::Game::RemotePlayerType::Add:
 		{
 			NetworkEvent::Game::Event_RemotePlayer::Add* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Add*>(EventData.get());
@@ -404,6 +412,18 @@ sptr<NetworkEvent::Game::Event_RemotePlayer::Add> ClientNetworkManager::CreateEv
 	Event->Pos = info.Pos;
 	Event->Rot = info.Rot;
 	Event->SpineLook = info.SDir;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer> ClientNetworkManager::CreateEvent_Add_BattlePlayer(GridObject* battlePlayer)
+{
+
+	sptr<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer>();
+
+	Event->type = NetworkEvent::Game::RemotePlayerType::Register;
+
+	Event->battlePlayer = battlePlayer;
 
 	return Event;
 }
@@ -653,36 +673,50 @@ sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway> ClientNetworkManager::Creat
 }
 
 
+void ClientNetworkManager::ProcessEvent_RemotePlayer_AddBattlePlayer(NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer* data)
+{
+	data->battlePlayer;
+	
+	// battle Player Add 
+	mRemotePlayers.insert({ data->battlePlayer->GetID(), data->battlePlayer });
+
+}
+
 /// +---------------------------------------------------------------------------
 /// >> ▶▶▶▶▶ PROCESS EVENT 
 /// ---------------------------------------------------------------------------+
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data)
 {
-	if (data->Name == "MyPlayer") {
-		mRemotePlayers[static_cast<UINT32>(data->Id)] = GameFramework::I->GetPlayer();
-		return;
-	}
+	LobbyPlayerInfo info{};
+	info.ID = data->Id;
+	info.Name = data->Name;
+	Script_SceneManager::I->LobbyManager()->AddPlayer(info);
 
-	GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
-	remotePlayer->GetAnimator()->GetController()->SetRemotePlayer();
-	remotePlayer->SetName(data->Name);
-	remotePlayer->SetID(static_cast<UINT32>(data->Id));
-	remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
-	LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
+	//if (data->Name == "MyPlayer") {
+	//	mRemotePlayers[static_cast<UINT32>(data->Id)] = GameFramework::I->GetPlayer();
+	//	return;
+	//}
 
-	remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
+	//GridObject* remotePlayer = BattleScene::I->Instantiate("EliteTrooper");
+	//remotePlayer->GetAnimator()->GetController()->SetRemotePlayer();
+	//remotePlayer->SetName(data->Name);
+	//remotePlayer->SetID(static_cast<UINT32>(data->Id));
+	//remotePlayer->SetPosition(data->Pos.x, data->Pos.y, data->Pos.z); /* Position이 이상하면 vector 에러가 날것이다 왜냐? GetHeightTerrain에서 터지기 떄문.. */
+	//LOG_MGR->Cout("ID : ", data->Id, " POS : ", data->Pos.x, " ", data->Pos.y, " ", data->Pos.z, '\n');
 
-	mRemotePlayers[static_cast<UINT32>(data->Id)] = remotePlayer;
+	//remotePlayer->AddComponent<Script_NetworkRemotePlayer>();
+
+	//mRemotePlayers[static_cast<UINT32>(data->Id)] = remotePlayer;
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data)
 {
-	if (!mRemotePlayers.count(data->Id)) {
-		return;
-	}
+	//if (!mRemotePlayers.count(data->Id)) {
+	//	return;
+	//}
 
-	BattleScene::I->RemoveDynamicObject(mRemotePlayers[data->Id]);
-	mRemotePlayers.unsafe_erase(data->Id);
+	//BattleScene::I->RemoveDynamicObject(mRemotePlayers[data->Id]);
+	//mRemotePlayers.unsafe_erase(data->Id);
 }
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Event_RemotePlayer::Move* data)

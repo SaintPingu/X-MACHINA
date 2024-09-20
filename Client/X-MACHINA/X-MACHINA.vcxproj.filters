@@ -478,6 +478,9 @@
     <ClInclude Include="include\Script_Cursor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="include\Script_SceneManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\X-MACHINA.cpp">
@@ -796,6 +799,9 @@
       <Filter>Script\Manager\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Script_BattleManager.cpp">
+      <Filter>Script\Manager\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Script_SceneManager.cpp">
       <Filter>Script\Manager\Scene</Filter>
     </ClCompile>
   </ItemGroup>

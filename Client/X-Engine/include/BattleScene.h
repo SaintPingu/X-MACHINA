@@ -8,6 +8,7 @@
 
 
 #pragma region ClassForwardDecl
+
 class Camera;
 class Object;
 class GameObject;
@@ -114,6 +115,7 @@ public:
 
 private:
 	/* Object */
+	void InitPlayers();
 	void BuildTerrain();
 
 	/* Grid */

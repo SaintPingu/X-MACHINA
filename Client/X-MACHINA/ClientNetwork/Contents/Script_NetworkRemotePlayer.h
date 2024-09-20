@@ -102,6 +102,7 @@ private:
 	
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void Update() override;
 	virtual void OnDestroy() override;
 	virtual void LateUpdate() override;

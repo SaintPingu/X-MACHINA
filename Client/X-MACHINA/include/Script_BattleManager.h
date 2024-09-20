@@ -19,6 +19,7 @@ class Script_BattleManager : public Component {
 	COMPONENT(Script_BattleManager, Component)
 
 private:
+	GameObject* mPlayer{};
 	sptr<Script_MainCamera> mMainCamera{};
 	std::vector<sptr<GameObject>> mObjects{};
 	sptr<Script_AbilityManager> mAbilityMgr{};
@@ -35,6 +36,8 @@ public:
 	rsptr<Script_AbilityManager> GetAbilityMgr() const { return mAbilityMgr; }
 
 private:
+	void InitComponents();
+	void InitPlayers();
 	void InitSceneObjectScripts();
 	void InitCustomObjectScripts();
 

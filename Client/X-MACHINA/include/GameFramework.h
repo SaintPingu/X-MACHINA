@@ -25,11 +25,13 @@ private:
 	Script_PlayerController* mPlayerScript{};
 	GridObject* mPlayer{};
 	volatile bool mIsLogin{};
+	UINT mPlayerID{};
 
 private:
 	RESOLUTION			mResolution{};				// ÇØ»óµµ	
 	static HINSTANCE	mhInst;
 	static HWND			mhWnd;
+
 
 public:
 	GameFramework();
@@ -37,8 +39,12 @@ public:
 
 	RESOLUTION GetWindowResolution() const { return mResolution; }
 	Vec2 GetWindowSize() const { return Vec2(static_cast<float>(mResolution.Width), static_cast<float>(mResolution.Height)); }
+	UINT GetMyPlayerID() const { return mPlayerID; }
 	GridObject* GetPlayer() const { return mPlayer; }
 	Script_PlayerController* GetPlayerScript() const { return mPlayerScript; }
+
+	void SetPlayer(GridObject* player) { mPlayer = player; }
+	void SetPlayerScript(Script_PlayerController* script) { mPlayerScript = script; }
 
 public:
 	void Init(HINSTANCE hInstance);
@@ -63,7 +69,7 @@ public:
 	void ConnectServer() const;
 	void DisconnectServer();
 
-	void InitPlayer();
+	void CreatePlayer();
 	void Login(int sessionID);
 	void ResetPlayer();
 };

@@ -120,13 +120,20 @@ GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& po
 	instance->SetModel(model);
 
 	if (instance->IsSkinMesh()) {
- 		mSkinMeshObjects.push_back(instance);
+		mSkinMeshObjects.push_back(instance);
 	}
 	else {
 		mMeshObjects.push_back(instance);
 	}
 
 	return instance.get();
+}
+
+void LobbyScene::RemoveSkinMeshObject(GameObject* target)
+{
+	std::erase_if(mSkinMeshObjects, [&](rsptr<GameObject> object) {
+		return object.get() == target;
+		});
 }
 
 void LobbyScene::UpdateObjects()
@@ -289,3 +296,4 @@ void LobbyScene::ProcessActiveObjects(const std::function<void(sptr<GameObject>)
 		object->DoActiveObjects(processFunc);
 	}
 }
+

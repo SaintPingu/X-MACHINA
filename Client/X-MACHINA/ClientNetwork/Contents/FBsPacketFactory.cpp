@@ -11,6 +11,8 @@
 #include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 #include "ClientNetwork/Contents/ServerSession.h"
 
+#include "Script_SceneManager.h"
+#include "Script_LobbyManager.h"
 
 #include "Object.h"
 #include "ServerSession.h"
@@ -321,40 +323,7 @@ bool FBsPacketFactory::Process_SPkt_EnterGame(SPtr_Session session, const FBProt
 
 	/// ○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○○
 
-	/// ________________________________________________________________________________
-	/// My Player Info 
-	/// ________________________________________________________________________________ 
-	GamePlayerInfo MyInfo = GetPlayerInfo(pkt.myinfo());
-	GameFramework::I->Login(static_cast<int>(MyInfo.Id));
-
-	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-	LOG_MGR->SetColor(TextColor::BrightGreen);
-	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
-	LOG_MGR->SetColor(TextColor::Default);
-
-	MyInfo.Name = "MyPlayer";
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(MyInfo);
-	CLIENT_NETWORK->RegisterEvent(EventData);
-
-	/// ________________________________________________________________________________
-	/// Remote Player infos ( Range : Same Room ) 
-	/// ________________________________________________________________________________ 
-
-
-	int PlayersCnt = pkt.players()->size();
-	for (UINT16 i = 0; i < PlayersCnt; ++i) {
-		GamePlayerInfo RemoteInfo = GetPlayerInfo(pkt.players()->Get(i));
-
-		if (RemoteInfo.Id == MyInfo.Id) continue;
-		LOG_MGR->SetColor(TextColor::BrightGreen);
-		LOG_MGR->Cout("[REMOTE] NAME : ", RemoteInfo.Name, " ", " SESSION ID : ", RemoteInfo.Id, '\n');
-		LOG_MGR->SetColor(TextColor::Default);
-
-		sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(RemoteInfo);
-		CLIENT_NETWORK->RegisterEvent(EventData);
-	}
-	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-
+	Script_SceneManager::I->LobbyManager()->ChangeToBattleScene();
 
 	return true;
 }
@@ -395,10 +364,7 @@ bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBPro
 	}
 	LOG_MGR->Cout("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 
-
-	// TODO : 나중에 PlayGame 버튼 누르면 보내는 걸로 바꾸기 
-	auto cpkt = FBS_FACTORY->CPkt_PlayGame();
-	session->Send(cpkt);
+	GameFramework::I->Login(MyInfo.Id);
 
 	return true;
 }

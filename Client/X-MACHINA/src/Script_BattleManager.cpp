@@ -13,12 +13,20 @@
 #include "Script_Rapax.h"
 #include "Script_LightBipedMech.h"
 
+#include "Script_Player.h"
 #include "Script_AbilityManager.h"
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
+#include "Script_PlayerController.h"
 
 #include "Script_BattleUI.h"
 #include "Script_StageNameUI.h"
+
+#include "Script_SceneManager.h"
+#include "Script_LobbyManager.h"
+
+#include "ClientNetwork/Contents/Script_NetworkPlayer.h"
+#include "ClientNetwork/Contents/Script_NetworkRemotePlayer.h"
 
 #include "Component/ParticleSystem.h"
 #include "Component/Camera.h"
@@ -28,6 +36,8 @@
 
 #include "BattleScene.h"
 #include "Object.h"
+#include "Animator.h"
+#include "AnimatorController.h"
 #include "ScriptExporter.h"
 #include "ResourceMgr.h"
 #include "SoundMgr.h"
@@ -35,6 +45,7 @@
 #include "InputMgr.h"
 #include "X-Engine.h"
 #include "Component/UI.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
 
 
 
@@ -42,14 +53,10 @@ void Script_BattleManager::Awake()
 {
 	base::Awake();
 
-	MainCamera::I->AddComponent<Script_MainCamera>();
-	GameFramework::I->InitPlayer();
-
+	InitComponents();
+	InitPlayers();
 	InitSceneObjectScripts();
 	InitCustomObjectScripts();
-
-	mUI = mObject->AddComponent<Script_BattleUI>().get();
-	mObject->AddComponent<Script_AbilityManager>();
 }
 
 void Script_BattleManager::Start()
@@ -62,9 +69,7 @@ void Script_BattleManager::Start()
 
 	mObject->AddComponent<Script_StageNameUI>();
 
-	GameFramework::I->ConnectServer();
-
-	ParticleManager::I->Play("Scene Dust", GameFramework::I->GetPlayer());
+	ParticleManager::I->Play("Scene Dust", mPlayer);
 }
 
 
@@ -84,6 +89,45 @@ void Script_BattleManager::Reset()
 	GameFramework::I->DisconnectServer();
 	mMainCamera = nullptr;
 	GameFramework::I->ResetPlayer();
+}
+
+void Script_BattleManager::InitComponents()
+{
+	MainCamera::I->AddComponent<Script_MainCamera>();
+	mUI = mObject->AddComponent<Script_BattleUI>().get();
+	mObject->AddComponent<Script_AbilityManager>();
+}
+
+void Script_BattleManager::InitPlayers()
+{
+	const auto& lobbyManager = Script_SceneManager::I->LobbyManager();
+	const auto& lobbyPlayers = lobbyManager->GetPlayers();
+	for (const auto& [id, lobbyPlayer] : lobbyPlayers) {
+		GridObject* player{};
+
+		if (id == GameFramework::I->GetMyPlayerID()) {
+			player = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
+			mPlayer = player;
+			player->AddComponent<Script_PheroPlayer>();
+			GameFramework::I->SetPlayer(player);
+			GameFramework::I->SetPlayerScript(player->AddComponent<Script_PlayerController>().get());
+
+#ifdef SERVER_COMMUNICATION
+			player->AddComponent<Script_NetworkPlayer>();
+#endif
+		}
+		else {
+			player = BattleScene::I->Instantiate("EliteTrooper");
+			player->AddComponent<Script_NetworkRemotePlayer>();
+			player->GetAnimator()->GetController()->SetRemotePlayer();
+		}
+
+		player->SetName(lobbyPlayer->GetName());
+		player->SetID(id);
+
+		auto event_data = CLIENT_NETWORK->CreateEvent_Add_BattlePlayer(player);
+		CLIENT_NETWORK->RegisterEvent(event_data);
+	}
 }
 
 void Script_BattleManager::InitSceneObjectScripts()

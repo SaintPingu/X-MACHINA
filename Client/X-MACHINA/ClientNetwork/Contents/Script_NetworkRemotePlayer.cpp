@@ -93,7 +93,10 @@ void Script_NetworkRemotePlayer::Awake()
 	mRemoteAbilityShield = mObject->AddComponent<Script_Remote_Ability_Shield>(true, false);
 	mRemoteAbilityCloaking = mObject->AddComponent<Script_Remote_Ability_Cloaking>(true, false);
 	mRemoteAbilityMindControl = mObject->AddComponent<Script_Remote_Ability_MindControl>(true, false);
-	
+}
+
+void Script_NetworkRemotePlayer::Start()
+{
 	mBattleUI = BattleScene::I->GetManager()->GetComponent<Script_BattleManager>()->GetUI();
 	mBattleUI->CreatePlayerUI(this);
 	mBattleUI->SetWeapon(mObject, mWeaponScripts[mCrntWeapon]);

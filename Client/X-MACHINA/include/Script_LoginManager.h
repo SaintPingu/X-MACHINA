@@ -12,6 +12,7 @@ class Script_LoginManager : public Component {
 
 public:
 	virtual void Awake() override;
+	virtual void Start() override;
 	virtual void Update() override;
 
 public:

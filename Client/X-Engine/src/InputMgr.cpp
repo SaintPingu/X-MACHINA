@@ -150,7 +150,7 @@ void InputMgr::RemoveKeyboardMsg(rsptr<Component> component)
 
 void InputMgr::ClearRegisteredKeyboardMsg()
 {
-	mComponents.clear();
+	//mComponents.clear();
 }
 
 Vec2 InputMgr::GetMouseNDCPos() const

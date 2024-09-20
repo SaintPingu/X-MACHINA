@@ -73,7 +73,7 @@ bool Script_PlayerController::IsActiveChatBox() const
 
 bool Script_PlayerController::ProcessInput()
 {
-	if (mChatBoxUI->IsActive()) {
+	if (!mScript || mChatBoxUI->IsActive()) {
 		return false;
 	}
 
@@ -86,6 +86,10 @@ bool Script_PlayerController::ProcessInput()
 
 bool Script_PlayerController::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	if (!mScript) {
+		return false;
+	}
+
 	if (IsInAerialControl()) {
 		mAbilityAerialController->ProcessMouseMsg(messageID, wParam, lParam);
 	}
@@ -104,6 +108,10 @@ bool Script_PlayerController::ProcessMouseMsg(UINT messageID, WPARAM wParam, LPA
 
 bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 {
+	if (!mScript) {
+		return false;
+	}
+
 	if (mChatBoxUI && mChatBoxUI->IsActive()) {
 		mChatBoxUI->ProcessKeyboardMsg(messageID, wParam, lParam);
 		return true;

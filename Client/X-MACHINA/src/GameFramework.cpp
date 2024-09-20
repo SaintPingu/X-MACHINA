@@ -23,10 +23,12 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Player.h"
-#include "Script_BattleManager.h"
-#include "Script_LobbyManager.h"
-#include "Script_LoginManager.h"
 #include "Script_PlayerController.h"
+
+#include "Script_SceneManager.h"
+#include "Script_LoginManager.h"
+#include "Script_LobbyManager.h"
+#include "Script_BattleManager.h"
 
 
 #include "InputMgr.h"
@@ -76,9 +78,11 @@ void GameFramework::Release()
 
 int GameFramework::GameLoop()
 {
-	BattleScene::I->GetManager()->AddComponent<Script_BattleManager>();
-	LobbyScene::I->GetManager()->AddComponent<Script_LobbyManager>();
-	LoginScene::I->GetManager()->AddComponent<Script_LoginManager>();
+	Script_SceneManager::I->SetLoginManager(LoginScene::I->GetManager()->AddComponent<Script_LoginManager>());
+	Script_SceneManager::I->SetLobbyManager(LobbyScene::I->GetManager()->AddComponent<Script_LobbyManager>());
+	Script_SceneManager::I->SetBattleManager(BattleScene::I->GetManager()->AddComponent<Script_BattleManager>());
+
+
 
 	static HACCEL hAccelTable = LoadAccelerators(mhInst, MAKEINTRESOURCE(IDC_XMACHINA));
 	static MSG msg{};
@@ -350,22 +354,9 @@ void GameFramework::DisconnectServer()
 }
 
 
-
-void GameFramework::InitPlayer()
-{
-	mPlayer = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
-	mPlayerScript = mPlayer->AddComponent<Script_PlayerController>().get();
-	mPlayer->AddComponent<Script_PheroPlayer>();
-
-#ifdef SERVER_COMMUNICATION
-	auto& networkScript = mPlayer->AddComponent<Script_NetworkPlayer>();
-#endif
-}
-
 void GameFramework::Login(int sessionID)
 {
-	assert(mPlayer);
-	mPlayer->SetID(sessionID);
+	mPlayerID = sessionID;
 	mIsLogin = true;
 }
 

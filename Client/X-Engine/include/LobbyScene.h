@@ -31,7 +31,7 @@ public:
 	virtual void Release() override;
 
 	GameObject* Instantiate(const std::string& modelName, const Vec3& pos = Vector3::Zero);
-
+	void RemoveSkinMeshObject(GameObject* target);
 
 private:
 	void Start();

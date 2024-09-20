@@ -85,7 +85,9 @@ public:
 	/// +---------------------------------------------------------------------------
 	/// >> CREATE EVENT 
 	/// ---------------------------------------------------------------------------+
+
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Add>					CreateEvent_Add_RemotePlayer(GamePlayerInfo info);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer>		CreateEvent_Add_BattlePlayer(GridObject* battlePlayer);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Remove>				CreateEvent_Remove_RemotePlayer(uint32_t remID);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Move>					CreateEvent_Move_RemotePlayer(uint32_t remID, Vec3 remotePos, ExtData::MOVESTATE movestate);
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Extrapolate>			CreateEvent_Extrapolate_RemotePlayer(uint32_t remID, ExtData extdata);
@@ -118,6 +120,7 @@ public:
 	/// >> PROCESS EVENT 
 	/// ---------------------------------------------------------------------------+
 	/// REMOTE PLAYER 
+	void ProcessEvent_RemotePlayer_AddBattlePlayer(NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer* data);
 	void ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Event_RemotePlayer::Add* data);
 	void ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data);
 	void ProcessEvent_RemotePlayer_Move(NetworkEvent::Game::Event_RemotePlayer::Move* data);

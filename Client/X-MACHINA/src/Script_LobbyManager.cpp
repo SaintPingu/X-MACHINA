@@ -7,7 +7,7 @@
 #include "InputMgr.h"
 #include "SoundMgr.h"
 #include "Timer.h"
-#include "Scene.h"
+#include "LobbyScene.h"
 #include "Light.h"
 #include "Object.h"
 #include "LobbyScene.h"
@@ -16,6 +16,15 @@
 #include "AnimatorController.h"
 
 #include "Component/Camera.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+
+
+LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info)
+	: mInfo(info)
+{
+	mObject = LobbyScene::I->Instantiate("EliteTrooper");
+}
 
 
 
@@ -52,8 +61,30 @@ void Script_LobbyManager::Update()
 	base::Update();
 
 	if (KEY_TAP('Q')) {
-		ChangeToBattleScene();
+		auto cpkt = FBS_FACTORY->CPkt_PlayGame();
+		CLIENT_NETWORK->Send(cpkt);
 	}
+}
+
+
+void Script_LobbyManager::AddPlayer(const LobbyPlayerInfo& info)
+{
+	if (mLobbyPlayers.count(info.ID)) {
+		return;
+	}
+
+	mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info);
+}
+
+void Script_LobbyManager::RemovePlayer(UINT32 id)
+{
+	if (!mLobbyPlayers.count(id)) {
+		return;
+	}
+
+	GameObject* target = mLobbyPlayers[id]->GetObj();
+	mLobbyPlayers[id] = nullptr;
+	LobbyScene::I->RemoveSkinMeshObject(target);
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

@@ -276,6 +276,7 @@
     <ClInclude Include="include\Script_MiningMech.h" />
     <ClInclude Include="include\Script_PlayerController.h" />
     <ClInclude Include="include\Script_Rapax.h" />
+    <ClInclude Include="include\Script_SceneManager.h" />
     <ClInclude Include="include\Script_SpiderMine.h" />
     <ClInclude Include="include\Script_StageNameUI.h" />
     <ClInclude Include="include\Script_ExplosiveBullet.h" />
@@ -385,6 +386,7 @@
     <ClCompile Include="src\Script_MiningMech.cpp" />
     <ClCompile Include="src\Script_PheroPlayer.cpp" />
     <ClCompile Include="src\Script_PlayerController.cpp" />
+    <ClCompile Include="src\Script_SceneManager.cpp" />
     <ClCompile Include="src\Script_SpiderMine.cpp" />
     <ClCompile Include="src\Script_StageNameUI.cpp" />
     <ClCompile Include="src\Script_Weapon_MineLauncher.cpp" />

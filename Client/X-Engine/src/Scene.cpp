@@ -44,9 +44,9 @@ void Scene::Release()
 	if (mLight) {
 		mLight = nullptr;
 	}
-	if (mSkyBox) {
-		mSkyBox = nullptr;
-	}
+	//if (mSkyBox) {
+	//	mSkyBox = nullptr;
+	//}
 	if (mManager) {
 		mManager->RemainFirstComponent();
 		mManager->ResetComponents();

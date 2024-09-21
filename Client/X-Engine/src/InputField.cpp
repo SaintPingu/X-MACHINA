@@ -2,6 +2,25 @@
 #include "Component/UI.h"
 
 #include "DXGIMgr.h"
+#include "TextMgr.h"
+
+InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 scale)
+	: UI(textureName, pos, scale)
+{
+	SetHoverable(true);
+
+	{
+		TextOption textOption;
+		textOption.FontSize = 20.f;
+		textOption.FontColor = TextFontColor::Type::Black;
+		textOption.FontWeight = TextFontWeight::LIGHT;
+		textOption.HAlignment = TextAlignType::Leading;
+		textOption.VAlignment = TextParagraphAlign::Far;
+		textOption.BoxExtent = scale;
+
+		mTextBox = TextMgr::I->CreateText("", pos, textOption);
+	}
+}
 
 void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -18,7 +37,7 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 			mText.pop_back();
 		}
 		else if (wParam == VK_RETURN) {
-			//Toggle();
+			OffClick();
 		}
 	}
 	break;
@@ -55,19 +74,19 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	mLastChatIdx = mText.size();
-	//mChat->SetText(mText + mImeCompositionString);
+	mTextBox->SetText(mText + mImeCompositionString);
 }
 
 void InputField::OnClick()
 {
 	base::OnClick();
-
+	std::cout << "ON\n";
 	mClicked = true;
 }
 
 void InputField::OffClick()
 {
 	base::OffClick();
-
+	std::cout << "OFF\n";
 	mClicked = false;
 }

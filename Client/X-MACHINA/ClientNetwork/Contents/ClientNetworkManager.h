@@ -61,7 +61,7 @@ public:
 
 
 public:
-	void Init(std::wstring ip, UINT32 port);
+	void Init(UINT32 port);
 	void Launch(int ThreadNum);
 	void Stop();
 

@@ -124,6 +124,13 @@ LRESULT Engine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (!mIsWindowFocused) {
 			::SetFocus(hWnd);
 		}
+
+	case WM_CHAR:
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+	case WM_IME_COMPOSITION:
+		Canvas::I->ProcessKeyboardMsg(msg, wParam, lParam);
+		break;
 	break;
 	default:
 		break;

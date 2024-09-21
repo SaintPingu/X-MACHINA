@@ -18,7 +18,7 @@ void InputMgr::Init()
 {
 	std::wcout.imbue(std::locale("korean"));
 
-	// 사용할 키들 목록ss
+	// 사용할 키들 목록
 	constexpr int kKeyList[] =
 	{
 		// KEYBOARD //
@@ -182,7 +182,6 @@ void InputMgr::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		}
 	}
 
-	Canvas::I->ProcessKeyboardMsg(message, wParam, lParam);
 	//for (const auto& component : mComponents) {
 	//	component->ProcessKeyboardMsg(message, wParam, lParam);
 	//}

@@ -22,9 +22,6 @@
     <Filter Include="소스 파일\Framework">
       <UniqueIdentifier>{c4f4bbc7-2b5d-485d-a601-55fb83f6945a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Framework\Device">
-      <UniqueIdentifier>{cb88bfd6-56a0-4ba6-b000-cb27e2dfadb2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\GameObject">
       <UniqueIdentifier>{0c90e4ba-4fea-427d-b951-335ad274ea07}</UniqueIdentifier>
     </Filter>
@@ -99,6 +96,9 @@
     </Filter>
     <Filter Include="소스 파일\Framework\Scene">
       <UniqueIdentifier>{f7eac2d4-910c-4384-9e11-176a40d46d60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Framework\Device">
+      <UniqueIdentifier>{cb88bfd6-56a0-4ba6-b000-cb27e2dfadb2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

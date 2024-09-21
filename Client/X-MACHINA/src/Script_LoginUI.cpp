@@ -16,4 +16,6 @@ void Script_LoginUI::Awake()
 	constexpr int kLoginSceneCnt = 6;
 	int idx = rand() % kLoginSceneCnt;
 	const auto& background = Canvas::I->CreateUI<UI>(0, "LoginBackground" + std::to_string(idx), Vec2::Zero, Vec2(Canvas::I->GetWidth(), Canvas::I->GetHeight()));
+
+	Canvas::I->CreateUI<InputField>(1, "Image", Vec2(0, -250), Vec2(300, 20));
 }

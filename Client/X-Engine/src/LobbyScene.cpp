@@ -69,7 +69,6 @@ void LobbyScene::Update()
 	mLight->Update();
 
 	MainCamera::I->Update();
-	Canvas::I->Update();
 
 	UpdateShaderVars();
 }

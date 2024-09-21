@@ -330,10 +330,7 @@ void GameFramework::ConnectServer() const
 {
 #ifdef SERVER_COMMUNICATION
 	// Communication //
-	//std::cout << "IP : ";
-	std::wstring ip;
-	//std::wcin >> ip;
-	CLIENT_NETWORK->Init(ip, 7777);
+	CLIENT_NETWORK->Init(7777);
 
 	/* Network Thread */
 	CLIENT_NETWORK->Launch(2);

@@ -26,10 +26,6 @@ void Script_LoginManager::Update()
 {
 	base::Update();
 
-	if (KEY_TAP('Q')) {
-		ChangeToLobbyScene();
-	}
-
 	if (KEY_TAP(VK_RETURN)) {
 		GameFramework::I->ConnectServer();
 		ChangeToLobbyScene();

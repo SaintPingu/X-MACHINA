@@ -265,6 +265,7 @@
     <ClInclude Include="include\Script_Ceratoferox.h" />
     <ClInclude Include="include\Script_Cursor.h" />
     <ClInclude Include="include\Script_Deus_Phase_1.h" />
+    <ClInclude Include="include\Script_Deus_Phase_2.h" />
     <ClInclude Include="include\Script_FootStepSound.h" />
     <ClInclude Include="include\Script_Gobbler.h" />
     <ClInclude Include="include\Script_LightBipedMech.h" />
@@ -372,6 +373,7 @@
     <ClCompile Include="src\Script_Ceratoferox.cpp" />
     <ClCompile Include="src\Script_Cursor.cpp" />
     <ClCompile Include="src\Script_Deus_Phase_1.cpp" />
+    <ClCompile Include="src\Script_Deus_Phase_2.cpp" />
     <ClCompile Include="src\Script_ExplosiveBullet.cpp" />
     <ClCompile Include="src\Script_FootStepSound.cpp" />
     <ClCompile Include="src\Script_Gobbler.cpp" />

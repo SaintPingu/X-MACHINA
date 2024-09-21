@@ -23,7 +23,7 @@
 #include "Script_PheroObject.h"
 #include "Script_Phero.h"
 #include "Script_Deus_Phase_1.h"
-//#include "Script_Deus_Phase_2.h"
+#include "Script_Deus_Phase_2.h"
 #include "Script_SceneManager.h"
 #include "Script_LobbyManager.h"
 
@@ -1004,7 +1004,7 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 			monster->AddComponent<Script_Deus_Phase_1>();
 			break;
 		case FBProtocol::MONSTER_TYPE_DEUS_PHASE_2:
-			monster->AddComponent<Script_Deus_Phase_1>();
+			monster->AddComponent<Script_Deus_Phase_2>();
 			break;
 		default:
 			assert(0);

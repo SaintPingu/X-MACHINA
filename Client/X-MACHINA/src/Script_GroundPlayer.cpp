@@ -101,8 +101,8 @@ void Script_GroundPlayer::Start()
 	//constexpr Vec3 kSpawnPoint = Vec3(450, 0, 240); // mining mech
 	//constexpr Vec3 kSpawnPoint = Vec3(100, 0, 210); // start
 	//constexpr Vec3 kSpawnPoint = Vec3(250, 0, 210); // ursacetus
-	constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230); // base camp
-	//constexpr Vec3 kSpawnPoint = Vec3(640, 0, 340); // deus
+	//constexpr Vec3 kSpawnPoint = Vec3(47, 0, 230); // base camp
+	constexpr Vec3 kSpawnPoint = Vec3(630, 0, 315); // deus
 
 	SetSpawn(kSpawnPoint);
 	mObject->SetPosition(kSpawnPoint);

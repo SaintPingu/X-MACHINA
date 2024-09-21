@@ -3,6 +3,7 @@
 
 #include "DXGIMgr.h"
 #include "TextMgr.h"
+#include "Timer.h"
 
 InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 scale)
 	: UI(textureName, pos, scale)
@@ -11,7 +12,7 @@ InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 sca
 
 	{
 		TextOption textOption;
-		textOption.FontSize = 20.f;
+		textOption.FontSize = scale.y;
 		textOption.FontColor = TextFontColor::Type::Black;
 		textOption.FontWeight = TextFontWeight::LIGHT;
 		textOption.HAlignment = TextAlignType::Leading;
@@ -20,6 +21,26 @@ InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 sca
 
 		mTextBox = TextMgr::I->CreateText("", pos, textOption);
 	}
+}
+
+std::string InputField::GetText()
+{
+	return WstringToString(mText + mImeCompositionString);
+}
+
+void InputField::Update()
+{
+	base::Update();
+
+	if (mClicked) {
+		mCurBlinkDelay += DeltaTime();
+		if (mCurBlinkDelay >= mkMaxBlinkDelay) {
+			mCurBlinkDelay = 0.f;
+			mIsBlink = !mIsBlink;
+		}
+	}
+
+	UpdateText();
 }
 
 void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
@@ -33,11 +54,16 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message) {
 	case WM_KEYDOWN:
 	{
-		if (wParam == VK_BACK && !mText.empty()) {
-			mText.pop_back();
-		}
-		else if (wParam == VK_RETURN) {
+		switch (wParam) {
+		case VK_BACK:
+			if (!mText.empty()) {
+				mText.pop_back();
+			}
+			break;
+		case VK_RETURN:
+		case VK_ESCAPE:
 			OffClick();
+			break;
 		}
 	}
 	break;
@@ -47,7 +73,7 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		else {
-			mText += static_cast<wchar_t>(wParam);
+			AddText(static_cast<wchar_t>(wParam));
 		}
 	}
 	break;
@@ -63,7 +89,7 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 			DWORD dwSize = ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, nullptr, 0);
 			std::wstring resultStr(dwSize / sizeof(wchar_t), 0);
 			ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, &resultStr[0], dwSize);
-			mText += resultStr;
+			AddText(resultStr);
 			mImeCompositionString.clear();
 		}
 		ImmReleaseContext(DXGIMgr::I->GetHwnd(), hIMC);
@@ -73,20 +99,51 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	mLastChatIdx = mText.size();
-	mTextBox->SetText(mText + mImeCompositionString);
+	UpdateText();
+}
+
+void InputField::UpdateText()
+{
+	std::wstring text = mText + mImeCompositionString;
+	if (mIsSecured) {
+		size_t size = text.size();
+		text.clear();
+		text.resize(size, '*');
+	}
+	if (mIsBlink) {
+		text += L'|';
+	}
+
+	mTextBox->SetText(text);
+}
+
+void InputField::AddText(wchar_t text)
+{
+	std::wstring t{};
+	t += text;
+	AddText(t);
+}
+
+void InputField::AddText(const std::wstring& text)
+{
+	mIsBlink = true;
+	mCurBlinkDelay = 0.f;
+	mText += text;
 }
 
 void InputField::OnClick()
 {
 	base::OnClick();
-	std::cout << "ON\n";
+
 	mClicked = true;
 }
 
 void InputField::OffClick()
 {
 	base::OffClick();
-	std::cout << "OFF\n";
+
 	mClicked = false;
+
+	mIsBlink = false;
+	mCurBlinkDelay = mkMaxBlinkDelay;
 }

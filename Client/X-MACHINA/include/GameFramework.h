@@ -42,6 +42,7 @@ public:
 	UINT GetMyPlayerID() const { return mPlayerID; }
 	GridObject* GetPlayer() const { return mPlayer; }
 	Script_PlayerController* GetPlayerScript() const { return mPlayerScript; }
+	bool IsLogin() const { return mIsLogin; }
 
 	void SetPlayer(GridObject* player) { mPlayer = player; }
 	void SetPlayerScript(Script_PlayerController* script) { mPlayerScript = script; }

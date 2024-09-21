@@ -335,9 +335,9 @@ void GameFramework::ConnectServer() const
 	/* Network Thread */
 	CLIENT_NETWORK->Launch(2);
 
-	while (!mIsLogin) {
-		CLIENT_NETWORK->ProcessEvents();
-	}
+	//while (!mIsLogin) {
+	//	CLIENT_NETWORK->ProcessEvents();
+	//}
 #endif
 }
 

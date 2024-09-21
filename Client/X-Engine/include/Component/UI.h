@@ -132,20 +132,33 @@ class InputField : public UI {
 
 private:
 	bool mClicked{};
+	bool mIsSecured{};
 
 	TextBox* mTextBox{};
 	std::wstring	mText{};
 	std::wstring	mImeCompositionString = L"";
 
-	std::size_t		mLastChatIdx{};
+	static constexpr float mkMaxBlinkDelay{ 0.6f };
+	float mCurBlinkDelay{ mkMaxBlinkDelay };
+	bool mIsBlink{};
 
 public:
 	InputField(const std::string& textureName, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero);
 
 public:
+	TextBox* GetTextBox() const { return mTextBox; }
+	std::string GetText();
+
+	void SetSecure() { mIsSecured = true; }
+
+public:
+	virtual void Update() override;
 	virtual void ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam) override;
 
 private:
+	void UpdateText();
+	void AddText(wchar_t text);
+	void AddText(const std::wstring& text);
 	virtual void OnClick() override;
 	virtual void OffClick() override;
 };

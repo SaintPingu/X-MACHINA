@@ -300,6 +300,9 @@ public:
 	void SetText(const std::wstring& text);
 	void AddAlpha(float alpha);
 
+    const std::wstring& GetTextW() const { return mText; }
+    std::string GetText() const;
+
 public:
 	void Render(RComPtr<struct ID2D1DeviceContext2> device) const;
     void Reset();

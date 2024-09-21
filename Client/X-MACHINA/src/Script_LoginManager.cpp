@@ -9,6 +9,7 @@
 #include "Scene.h"
 #include "X-Engine.h"
 #include "InputMgr.h"
+#include "TextMgr.h"
 
 void Script_LoginManager::Awake()
 {
@@ -20,14 +21,17 @@ void Script_LoginManager::Awake()
 void Script_LoginManager::Start()
 {
 	base::Start();
+
+#ifdef SERVER_COMMUNICATION
+	GameFramework::I->ConnectServer();
+#endif
 }
 
 void Script_LoginManager::Update()
 {
 	base::Update();
 
-	if (KEY_TAP(VK_RETURN)) {
-		GameFramework::I->ConnectServer();
+	if (GameFramework::I->IsLogin()) {
 		ChangeToLobbyScene();
 	}
 }

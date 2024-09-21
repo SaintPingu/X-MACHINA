@@ -5,7 +5,6 @@
 #include "Component/Component.h"
 #pragma endregion
 
-
 #pragma region Class
 class Script_LoginManager : public Component {
 	COMPONENT(Script_LoginManager, Component)

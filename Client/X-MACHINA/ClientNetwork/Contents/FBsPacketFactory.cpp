@@ -291,8 +291,6 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 	///	 ( X )	FAIL - LOGIN 
 	/// ------------------------------------------------------------------------------+
 	if (IsLogInSuccess == false) {
-		/* 아이디와 패스워드를 다시 입력한 후 로그인 재요청해야함 */
-		serverSession->OnConnected();
 		return true;
 	}
 

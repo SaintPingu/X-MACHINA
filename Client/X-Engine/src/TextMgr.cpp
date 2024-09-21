@@ -181,6 +181,11 @@ void TextBox::AddAlpha(float alpha)
 	mTextBrush->SetOpacity(newAlpha);
 }
 
+std::string TextBox::GetText() const
+{
+	return WstringToString(mText);
+}
+
 void TextBox::Render(RComPtr<ID2D1DeviceContext2> device) const
 {
 	device->SetTransform(CopyMatrix(mMtxFinal));

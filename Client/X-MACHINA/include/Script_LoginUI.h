@@ -5,17 +5,17 @@
 #include "Component/Component.h"
 #pragma endregion
 
-class UI;
 class PopupUI;
 class Button;
 class InputField;
-class Script_AimController;
-
+;
 #pragma region Class
 class Script_LoginUI : public Component {
 	COMPONENT(Script_LoginUI, Component)
 
 private:
+	sptr<PopupUI> mLoginFailPopup{};
+
 	Button* mLoginButton{};
 	InputField* mInput_ID{};
 	InputField* mInput_PW{};
@@ -23,8 +23,12 @@ private:
 public:
 	virtual void Awake() override;
 
+public:
+	void FailLogin();
+
 private:
 	void SendLoginPacket();
+	void CloseLoginFailPopupCallback();
 };
 
 #pragma endregion

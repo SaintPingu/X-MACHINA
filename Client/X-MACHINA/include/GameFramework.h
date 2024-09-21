@@ -71,6 +71,7 @@ public:
 	void DisconnectServer();
 
 	void CreatePlayer();
+	void FailLogin();
 	void Login(int sessionID);
 	void ResetPlayer();
 };

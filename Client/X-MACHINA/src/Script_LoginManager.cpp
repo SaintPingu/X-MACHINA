@@ -15,7 +15,7 @@ void Script_LoginManager::Awake()
 {
 	base::Awake();
 
-	mObject->AddComponent<Script_LoginUI>();
+	mLoginUI = mObject->AddComponent<Script_LoginUI>();
 }
 
 void Script_LoginManager::Start()
@@ -34,6 +34,11 @@ void Script_LoginManager::Update()
 	if (GameFramework::I->IsLogin()) {
 		ChangeToLobbyScene();
 	}
+}
+
+void Script_LoginManager::FailLogin()
+{
+	mLoginUI->FailLogin();
 }
 
 void Script_LoginManager::ChangeToLobbyScene()

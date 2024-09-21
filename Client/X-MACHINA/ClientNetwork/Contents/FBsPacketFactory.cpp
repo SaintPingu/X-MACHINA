@@ -291,6 +291,7 @@ bool FBsPacketFactory::Process_SPkt_LogIn(SPtr_Session session, const FBProtocol
 	///	 ( X )	FAIL - LOGIN 
 	/// ------------------------------------------------------------------------------+
 	if (IsLogInSuccess == false) {
+		GameFramework::I->FailLogin();
 		return true;
 	}
 

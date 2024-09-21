@@ -351,6 +351,11 @@ void GameFramework::DisconnectServer()
 }
 
 
+void GameFramework::FailLogin()
+{
+	Script_SceneManager::I->LoginManager()->FailLogin();
+}
+
 void GameFramework::Login(int sessionID)
 {
 	mPlayerID = sessionID;

@@ -4,6 +4,9 @@
 #include "Script_Cursor.h"
 #include "Script_LoginManager.h"
 
+#include "TextMgr.h"
+#include "PopupUI.h"
+
 #include "Component/UI.h"
 
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
@@ -25,6 +28,23 @@ void Script_LoginUI::Awake()
 	mInput_ID = Canvas::I->CreateUI<InputField>(1, "Image", Vec2(0, -250), Vec2(300, 30));
 	mInput_PW = Canvas::I->CreateUI<InputField>(1, "Image", Vec2(0, -250 - 35), Vec2(300, 30));
 	mInput_PW->SetSecure();
+	
+	mLoginFailPopup = std::make_shared<PopupUI>("QuitPopup");
+	const auto& okButton = Canvas::I->CreateUI<Button>(7, "YesButton", Vec2(-70, -70));
+	okButton->SetHighlightTexture("YesHButton");
+	okButton->SetClickCallback(std::bind(&Script_LoginUI::CloseLoginFailPopupCallback, this));
+	mLoginFailPopup->AddUI(okButton);
+	mLoginFailPopup->SetActive(false);
+
+	{
+		mInput_ID->SetText(L"Player1");
+		mInput_PW->SetText(L"Test1234");
+	}
+}
+
+void Script_LoginUI::FailLogin()
+{
+	mLoginFailPopup->SetActive(true);
 }
 
 void Script_LoginUI::SendLoginPacket()
@@ -36,4 +56,9 @@ void Script_LoginUI::SendLoginPacket()
 	/* SEND LOGIN PACKET */
 	auto CPktBuf = FBS_FACTORY->CPkt_LogIn(ID, Password);
 	CLIENT_NETWORK->Send(CPktBuf);
+}
+
+void Script_LoginUI::CloseLoginFailPopupCallback()
+{
+	mLoginFailPopup->SetActive(false);
 }

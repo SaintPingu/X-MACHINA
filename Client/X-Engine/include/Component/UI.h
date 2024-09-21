@@ -149,6 +149,7 @@ public:
 	TextBox* GetTextBox() const { return mTextBox; }
 	std::string GetText();
 
+	void SetText(const std::wstring& text);
 	void SetSecure() { mIsSecured = true; }
 
 public:

@@ -23,6 +23,13 @@ InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 sca
 	}
 }
 
+void InputField::SetText(const std::wstring& text)
+{
+	mText = text + mImeCompositionString;
+	mImeCompositionString.clear();
+	UpdateText();
+}
+
 std::string InputField::GetText()
 {
 	return WstringToString(mText + mImeCompositionString);

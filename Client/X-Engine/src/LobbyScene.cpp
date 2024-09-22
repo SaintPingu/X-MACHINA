@@ -13,6 +13,7 @@
 
 #include "Component/Camera.h"
 #include "Component/UI.h"
+#include "Component/ParticleSystem.h"
 
 
 LobbyScene::LobbyScene()
@@ -58,13 +59,17 @@ void LobbyScene::RenderForward()
 
 	RESOURCE<Shader>("SkyBox")->Set();
 	mSkyBox->Render();
+
+
+	CMD_LIST->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
+	ParticleManager::I->Render();
 }
 
 void LobbyScene::Update()
 {
 	base::Update();
 
-	//ParticleManager::I->Update();
+	ParticleManager::I->Update();
 	UpdateObjects();
 	mLight->Update();
 

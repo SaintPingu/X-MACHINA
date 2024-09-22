@@ -19,6 +19,7 @@
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
+#include "Component/ParticleSystem.h"
 
 LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info)
 	: mInfo(info)
@@ -50,6 +51,7 @@ void Script_LobbyManager::Start()
 		const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
 		trooper->SetPosition(3.33f, 0, 20.223f);
 		trooper->SetLocalRotation(Vec3(0.f, 35.823f, 0.f));
+		ParticleManager::I->Play("Scene Dust", trooper);
 	}
 
 	{
@@ -78,6 +80,7 @@ void Script_LobbyManager::Update()
 		auto cpkt = FBS_FACTORY->CPkt_PlayGame();
 		CLIENT_NETWORK->Send(cpkt);
 	}
+
 }
 
 

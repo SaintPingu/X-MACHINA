@@ -25,20 +25,20 @@ void Script_LoginUI::Awake()
 	Canvas::I->CreateUI<UI>(1, "LoginBackground_Default", Vec2(0, 100));
 
 	{
-		mLoginButton = Canvas::I->CreateUI<Button>(1, "LoginButton", Vec2(0, -300), Vec2(350, 49));
+		mLoginButton = Canvas::I->CreateUI<Button>(1, "LoginButton", Vec2(-10, -300), Vec2(350, 49));
 		mLoginButton->SetClickCallback(std::bind(&Script_LoginUI::SendLoginPacket, this));
 		mLoginButton->SetHighlightTexture("LoginButton_H");
 	}
 	{
-		mInput_ID = Canvas::I->CreateUI<InputField>(1, "InputField", Vec2(0, -50), Vec2(300, 30));
+		mInput_ID = Canvas::I->CreateUI<InputField>(1, "InputField", Vec2(-10, -50), Vec2(276, 40));
 		mInput_ID->GetTextBox()->SetColor(TextFontColor::Type::White);
-		mInput_ID->SetMaxLength(18);
+		mInput_ID->SetMaxLength(10);
 		mInput_ID->SetOnlyEnglish();
 	}
 	{
-		mInput_PW = Canvas::I->CreateUI<InputField>(1, "InputField", Vec2(0, -140), Vec2(300, 30));
+		mInput_PW = Canvas::I->CreateUI<InputField>(1, "InputField", Vec2(-10, -140), Vec2(276, 40));
 		mInput_PW->GetTextBox()->SetColor(TextFontColor::Type::White);
-		mInput_PW->SetMaxLength(18);
+		mInput_PW->SetMaxLength(12);
 		mInput_PW->SetOnlyEnglish();
 		mInput_PW->SetSecure();
 	}

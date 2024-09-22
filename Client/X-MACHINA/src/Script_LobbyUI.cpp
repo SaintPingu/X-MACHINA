@@ -17,15 +17,14 @@ void Script_LobbyUI::Awake()
 
 	// Panels
 	{
-		const auto& top = Canvas::I->CreateUI<UI>(0, "Logo", Vec2(-800, 450));
-		const auto& bottm = Canvas::I->CreateUI<UI>(0, "BottomPanel", Vec2(0, -480));
+		const auto& top = Canvas::I->CreateUI<UI>(0, "LobbyLogo", Vec2(-500, 250));
 	}
 
 	// Buttons
 	{
-		constexpr float x    = -720;
-		constexpr float y    = -165;
-		constexpr float yGap = -65;
+		constexpr float x    = -500;
+		constexpr float y    = 100;
+		constexpr float yGap = -125;
 				
 		const auto& playButton    = Canvas::I->CreateUI<Button>(1, "PlayButton", Vec2(x, y));
 		playButton->SetHighlightTexture("PlayHButton");

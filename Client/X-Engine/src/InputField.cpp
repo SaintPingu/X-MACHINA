@@ -6,20 +6,21 @@
 #include "Timer.h"
 
 InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 scale)
-	: UI(textureName, pos, scale)
+	: UI(textureName, pos, scale),
+	mMaxLength(256)
 {
 	SetHoverable(true);
 
 	{
 		TextOption textOption;
-		textOption.FontSize = scale.y;
+		textOption.FontSize = scale.y * 0.8f;
 		textOption.FontColor = TextFontColor::Type::Black;
 		textOption.FontWeight = TextFontWeight::LIGHT;
 		textOption.HAlignment = TextAlignType::Leading;
 		textOption.VAlignment = TextParagraphAlign::Far;
 		textOption.BoxExtent = scale;
 
-		mTextBox = TextMgr::I->CreateText("", pos, textOption);
+		mTextBox = TextMgr::I->CreateText("", Vec2(pos.x + 5.f, pos.y), textOption);
 	}
 }
 
@@ -86,6 +87,9 @@ void InputField::ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_IME_COMPOSITION: // korean
 	{
+		if (mIsEnglish) {
+			return;
+		}
 		if (lParam & GCS_COMPSTR) {
 			DWORD dwSize = ImmGetCompositionStringW(hIMC, GCS_COMPSTR, nullptr, 0);
 			std::wstring compStr(dwSize / sizeof(wchar_t), 0);
@@ -115,7 +119,7 @@ void InputField::UpdateText()
 	if (mIsSecured) {
 		size_t size = text.size();
 		text.clear();
-		text.resize(size, '*');
+		text.resize(size, L'●');
 	}
 	if (mIsBlink) {
 		text += L'|';
@@ -126,6 +130,10 @@ void InputField::UpdateText()
 
 void InputField::AddText(wchar_t text)
 {
+	if (mText.length() >= mMaxLength) {
+		return;
+	}
+
 	std::wstring t{};
 	t += text;
 	AddText(t);
@@ -133,6 +141,10 @@ void InputField::AddText(wchar_t text)
 
 void InputField::AddText(const std::wstring& text)
 {
+	if (mText.length() >= mMaxLength) {
+		return;
+	}
+
 	mIsBlink = true;
 	mCurBlinkDelay = 0.f;
 	mText += text;

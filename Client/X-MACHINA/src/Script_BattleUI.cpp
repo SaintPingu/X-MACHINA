@@ -15,6 +15,17 @@ void Script_BattleUI::Awake()
 	mPlayerUIs.resize(mkMaxIdx + 1);
 }
 
+void Script_BattleUI::Update()
+{
+	base::Update();
+
+	for (auto& playerUI : mPlayerUIs) {
+		if (playerUI) {
+			playerUI->UpdateSimple();
+		}
+	}
+}
+
 void Script_BattleUI::RemovePlayer(const Object* player)
 {
 	if (!IsValidPlayer(player)) {
@@ -85,7 +96,7 @@ void Script_BattleUI::CreatePlayerUI(const Object* player, const std::wstring& p
 	}
 	++mLastIdx;
 
-	sptr<PlayerUI> playerUI = std::make_shared<PlayerUI>(GetPos(mLastIdx), GetColor(mLastIdx), playerName, playerLevel);
+	sptr<PlayerUI> playerUI = std::make_shared<PlayerUI>(GetPos(mLastIdx), GetColor(mLastIdx), player, playerName, playerLevel);
 	mPlayerUIs[mLastIdx] = playerUI;
 
 	mPlayerIndices[player] = mLastIdx;

@@ -133,6 +133,7 @@ class InputField : public UI {
 private:
 	bool mClicked{};
 	bool mIsSecured{};
+	bool mIsEnglish{};
 
 	TextBox* mTextBox{};
 	std::wstring	mText{};
@@ -141,6 +142,7 @@ private:
 	static constexpr float mkMaxBlinkDelay{ 0.6f };
 	float mCurBlinkDelay{ mkMaxBlinkDelay };
 	bool mIsBlink{};
+	unsigned short mMaxLength{};
 
 public:
 	InputField(const std::string& textureName, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero);
@@ -149,6 +151,8 @@ public:
 	TextBox* GetTextBox() const { return mTextBox; }
 	std::string GetText();
 
+	void SetOnlyEnglish() { mIsEnglish = true; }
+	void SetMaxLength(unsigned short length) { mMaxLength = length; }
 	void SetText(const std::wstring& text);
 	void SetSecure() { mIsSecured = true; }
 

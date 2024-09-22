@@ -56,7 +56,7 @@ ClientNetworkManager::~ClientNetworkManager()
 {
 }
 
-void ClientNetworkManager::Init(std::wstring ip, UINT32 port)
+void ClientNetworkManager::Init(UINT32 port)
 {
 
 

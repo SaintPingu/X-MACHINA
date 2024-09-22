@@ -330,17 +330,14 @@ void GameFramework::ConnectServer() const
 {
 #ifdef SERVER_COMMUNICATION
 	// Communication //
-	//std::cout << "IP : ";
-	std::wstring ip;
-	//std::wcin >> ip;
-	CLIENT_NETWORK->Init(ip, 7777);
+	CLIENT_NETWORK->Init(7777);
 
 	/* Network Thread */
 	CLIENT_NETWORK->Launch(2);
 
-	while (!mIsLogin) {
-		CLIENT_NETWORK->ProcessEvents();
-	}
+	//while (!mIsLogin) {
+	//	CLIENT_NETWORK->ProcessEvents();
+	//}
 #endif
 }
 
@@ -353,6 +350,11 @@ void GameFramework::DisconnectServer()
 #endif
 }
 
+
+void GameFramework::FailLogin()
+{
+	Script_SceneManager::I->LoginManager()->FailLogin();
+}
 
 void GameFramework::Login(int sessionID)
 {

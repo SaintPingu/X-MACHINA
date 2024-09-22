@@ -11,6 +11,7 @@ class Button;
 class Texture;
 class Shader;
 class ModelObjectMesh;
+class TextBox;
 #pragma endregion
 
 
@@ -131,16 +132,38 @@ class InputField : public UI {
 
 private:
 	bool mClicked{};
+	bool mIsSecured{};
+	bool mIsEnglish{};
 
+	TextBox* mTextBox{};
 	std::wstring	mText{};
 	std::wstring	mImeCompositionString = L"";
 
-	std::size_t		mLastChatIdx{};
+	static constexpr float mkMaxBlinkDelay{ 0.6f };
+	float mCurBlinkDelay{ mkMaxBlinkDelay };
+	bool mIsBlink{};
+	unsigned short mMaxLength{};
 
 public:
+	InputField(const std::string& textureName, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero);
+
+public:
+	TextBox* GetTextBox() const { return mTextBox; }
+	std::string GetText();
+
+	void SetOnlyEnglish() { mIsEnglish = true; }
+	void SetMaxLength(unsigned short length) { mMaxLength = length; }
+	void SetText(const std::wstring& text);
+	void SetSecure() { mIsSecured = true; }
+
+public:
+	virtual void Update() override;
 	virtual void ProcessKeyboardMsg(UINT message, WPARAM wParam, LPARAM lParam) override;
 
 private:
+	void UpdateText();
+	void AddText(wchar_t text);
+	void AddText(const std::wstring& text);
 	virtual void OnClick() override;
 	virtual void OffClick() override;
 };
@@ -151,7 +174,7 @@ class Canvas : public Singleton<Canvas> {
 	using Layer = int;
 
 	template <typename T>
-	static constexpr bool is_valid_ui_type = (std::is_same<T, UI>::value || std::is_same<T, SliderUI>::value || std::is_same<T, Button>::value);
+	static constexpr bool is_valid_ui_type = (std::is_same<T, UI>::value || std::is_same<T, SliderUI>::value || std::is_same<T, Button>::value || std::is_same<T, InputField>::value);
 
 private:
 	static constexpr UINT8 mkLayerCnt = 10;
@@ -175,8 +198,9 @@ public:
 	void Render() const;
 	void Clear();
 
+	// layer = 0~mkLayerCnt(9)
 	template<class T, typename std::enable_if<is_valid_ui_type<T>>::type* = nullptr>
-	T* CreateUI(Layer layer, const std::string& texture, const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero)
+	T* CreateUI(Layer layer, const std::string& texture = "Image", const Vec2& pos = Vec2::Zero, Vec2 scale = Vec2::Zero)
 	{
 		if (layer > (mkLayerCnt - 1))
 			return nullptr;

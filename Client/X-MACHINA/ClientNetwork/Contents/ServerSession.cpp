@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "ServerSession.h"
 
+#include "Script_LoginUI.h"
+
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Include/Protocol/FBProtocol_generated.h"
 
@@ -10,26 +12,6 @@ ServerSession::ServerSession()
 
 ServerSession::~ServerSession()
 {
-}
-
-void ServerSession::OnConnected()
-{
-	// ID, Password ют╥б
-	std::string ID;
-	std::string Password;
-
-	LOG_MGR->SetColor(TextColor::BrightWhite);
-	LOG_MGR->Cout("ID : ");
-	std::cin >> ID;
-	LOG_MGR->Cout("Password : ");
-	std::cin >> Password;
-	LOG_MGR->SetColor(TextColor::Default);
-
-
-	/* SEND LOGIN PACKET */
-	auto CPktBuf = FBS_FACTORY->CPkt_LogIn(ID, Password);
-	Send(CPktBuf);
-
 }
 
 void ServerSession::OnDisconnected()

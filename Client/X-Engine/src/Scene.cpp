@@ -26,6 +26,7 @@ Scene::Scene()
 void Scene::Update()
 {
 	mManager->Update();
+	Canvas::I->Update();
 }
 
 void Scene::Build()

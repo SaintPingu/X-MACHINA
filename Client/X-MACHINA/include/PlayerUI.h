@@ -1,6 +1,7 @@
 #pragma once
 
 class UI;
+class Object;
 class Script_Weapon;
 class TextBox;
 
@@ -14,11 +15,13 @@ private:
 	UI*	 mWeaponMagUI{};
 	UI*	 mWeaponMagOutlineUI{};
 
+	const Object* mPlayer{};
+	TextBox* mNameUI{};
 	TextBox* mNameText{};
 	TextBox* mLevelText{};
 
 public:
-	PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel);
+	PlayerUI(const Vec2& position, const Vec3& color, const Object* player, const std::wstring& playerName, int playerLevel);
 	~PlayerUI();
 	
 public:
@@ -27,6 +30,7 @@ public:
 	void SetColor(const Vec3& color);
 
 	void Update();
+	void UpdateSimple();
 
 private:
 	void Reset();

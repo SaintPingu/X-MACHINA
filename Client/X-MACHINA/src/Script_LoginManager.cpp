@@ -9,31 +9,36 @@
 #include "Scene.h"
 #include "X-Engine.h"
 #include "InputMgr.h"
+#include "TextMgr.h"
 
 void Script_LoginManager::Awake()
 {
 	base::Awake();
 
-	mObject->AddComponent<Script_LoginUI>();
+	mLoginUI = mObject->AddComponent<Script_LoginUI>();
 }
 
 void Script_LoginManager::Start()
 {
 	base::Start();
+
+#ifdef SERVER_COMMUNICATION
+	GameFramework::I->ConnectServer();
+#endif
 }
 
 void Script_LoginManager::Update()
 {
 	base::Update();
 
-	if (KEY_TAP('Q')) {
+	if (GameFramework::I->IsLogin()) {
 		ChangeToLobbyScene();
 	}
+}
 
-	if (KEY_TAP(VK_RETURN)) {
-		GameFramework::I->ConnectServer();
-		ChangeToLobbyScene();
-	}
+void Script_LoginManager::FailLogin()
+{
+	mLoginUI->FailLogin();
 }
 
 void Script_LoginManager::ChangeToLobbyScene()

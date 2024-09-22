@@ -10,8 +10,10 @@
 #include "Timer.h"
 
 #include "Component/UI.h"
+#include "Component/Camera.h"
 
-PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& playerName, int playerLevel)
+PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player, const std::wstring& playerName, int playerLevel)
+	: mPlayer(player)
 {
 	mBackgroundUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background");
 
@@ -42,12 +44,27 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const std::wstring& 
 		mLevelText = TextMgr::I->CreateText(levelText, Vec2::Zero, textOption);
 	}
 
+	{
+		TextOption textOption{};
+		textOption.Font = "Malgun Gothic";
+		textOption.FontSize = 8.f;
+		textOption.FontColor = TextFontColor::Type::GhostWhite;
+		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
+
+		mNameUI = TextMgr::I->CreateText(WstringToString(playerName), Vec2::Zero, textOption);
+	}
+
 	SetPosition(position);
 }
 
 PlayerUI::~PlayerUI()
 {
 	Reset();
+
+	if (mNameUI) {
+		TextMgr::I->RemoveTextBox(mNameUI);
+		mNameUI = nullptr;
+	}
 
 	mBackgroundDecoUI->Remove();
 	mBackgroundUI->Remove();
@@ -147,6 +164,13 @@ void PlayerUI::Update()
 		else {
 			mWeaponMagOutlineUI->RemoveColor();
 		}
+	}
+}
+
+void PlayerUI::UpdateSimple()
+{
+	if (mNameUI) {
+		mNameUI->SetPosition(MAIN_CAMERA->WorldToScreenPoint(mPlayer->GetPosition()));
 	}
 }
 

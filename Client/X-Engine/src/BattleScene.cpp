@@ -625,6 +625,8 @@ void BattleScene::Start()
 
 void BattleScene::Update()
 {
+	base::Update();
+
 	// rendering //
 	UpdateRenderedObjects();
 	
@@ -633,14 +635,12 @@ void BattleScene::Update()
 
 	// update objects //
 	UpdateObjects();
-	base::Update();
 	mLight->Update();
 	UpdateSurroundGrids();
 
 	// update singletons //
 	ParticleManager::I->Update();
 	MainCamera::I->Update();
-	Canvas::I->Update();
 	MainCamera::I->LateUpdate();
 
 	UpdateShaderVars();

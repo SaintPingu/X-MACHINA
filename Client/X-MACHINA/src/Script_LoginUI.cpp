@@ -54,7 +54,7 @@ void Script_LoginUI::Awake()
 
 	{
 		mInput_ID->SetText(L"Player1");
-		mInput_PW->SetText(L"Test1234");
+		mInput_PW->SetText(L"test1234");
 	}
 }
 

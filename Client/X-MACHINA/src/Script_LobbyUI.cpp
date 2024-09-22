@@ -11,6 +11,9 @@
 #include "TextMgr.h"
 #include "SoundMgr.h"
 
+#include "ClientNetwork/Contents/ClientNetworkManager.h"
+#include "ClientNetwork/Contents/FBsPacketFactory.h"
+
 void Script_LobbyUI::Awake()
 {
 	base::Awake();
@@ -69,7 +72,8 @@ void Script_LobbyUI::Awake()
 
 void Script_LobbyUI::PlayButton() const
 {
-	Script_LobbyManager::ChangeToBattleScene();
+	auto cpkt = FBS_FACTORY->CPkt_PlayGame();
+	CLIENT_NETWORK->Send(cpkt);
 }
 
 void Script_LobbyUI::QuitGame() const

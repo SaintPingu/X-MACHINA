@@ -75,12 +75,6 @@ void Script_LobbyManager::Start()
 void Script_LobbyManager::Update()
 {
 	base::Update();
-
-	if (KEY_TAP('Q')) {
-		auto cpkt = FBS_FACTORY->CPkt_PlayGame();
-		CLIENT_NETWORK->Send(cpkt);
-	}
-
 }
 
 

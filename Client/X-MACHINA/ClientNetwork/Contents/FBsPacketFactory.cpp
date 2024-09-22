@@ -254,7 +254,7 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 
 	default:
 	{
-
+		assert(0);
 	}
 	break;
 	}

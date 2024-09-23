@@ -19,7 +19,7 @@ void Script_Deus_Phase_1::Awake()
 
 	auto weapon = BattleScene::I->Instantiate("Deus_Phase_1_Rifle_Rust");
 	weapon->SetLocalTransform(Matrix::Identity);
-	mObject->FindFrame("RefPosGun")->SetChild(weapon->GetObj<Transform>()->GetShared());
+	mObject->FindFrame("RefPosGun_R")->SetChild(weapon->GetObj<Transform>()->GetShared());
 }
 
 void Script_Deus_Phase_1::MeleeAttackCallback()

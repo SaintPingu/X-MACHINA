@@ -21,7 +21,7 @@ private:
 	GameObject* mObject{};
 
 public:
-	LobbyPlayer(const LobbyPlayerInfo& info);
+	LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx);
 
 	UINT32 GetID() const { return mInfo.ID; }
 	const std::string GetName() const { return mInfo.Name; }
@@ -36,7 +36,8 @@ class Script_LobbyManager : public Component {
 
 private:
 	std::unordered_map<UINT32, sptr<LobbyPlayer>> mLobbyPlayers{};
-	
+	int mCurPlayerSize{};
+
 public:
 	virtual void Awake() override;
 	virtual void Start() override;

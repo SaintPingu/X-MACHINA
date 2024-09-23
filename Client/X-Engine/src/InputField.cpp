@@ -13,7 +13,7 @@ InputField::InputField(const std::string& textureName, const Vec2& pos, Vec2 sca
 
 	{
 		TextOption textOption;
-		textOption.FontSize = scale.y * 0.8f;
+		textOption.FontSize = scale.y * 0.7f;
 		textOption.FontColor = TextFontColor::Type::Black;
 		textOption.FontWeight = TextFontWeight::LIGHT;
 		textOption.HAlignment = TextAlignType::Leading;

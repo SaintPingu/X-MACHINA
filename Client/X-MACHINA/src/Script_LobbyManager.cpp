@@ -14,19 +14,31 @@
 #include "GameFramework.h"
 #include "Animator.h"
 #include "AnimatorController.h"
-#include "ResourceMgr.h"
-#include "Texture.h"
 
 #include "Component/Camera.h"
+#include "Component/ParticleSystem.h"
+
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Contents/ClientNetworkManager.h"
 
-#include "Component/ParticleSystem.h"
 
-LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info)
+LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx)
 	: mInfo(info)
 {
-	mObject = LobbyScene::I->Instantiate("EliteTrooper");
+	// <pos, rot>
+	static const std::array<std::pair<Vec3, float>, 3> kTransforms {
+		std::make_pair(Vec3(3.33f, 0, 20.223f), 35.823f),
+		std::make_pair(Vec3(4.021297f, 0, 18.21149f), 18.933f),
+		std::make_pair(Vec3(1.720729f, 0, 19.2602f), 24.906f),
+	};
+
+	if (idx >= kTransforms.size()) {
+		return;
+	}
+
+	const auto& transform = kTransforms[idx];
+	mObject = LobbyScene::I->Instantiate("EliteTrooper", transform.first);
+	mObject->SetLocalRotation(Vec3(0, transform.second, 0));
 }
 
 
@@ -37,8 +49,7 @@ void Script_LobbyManager::Awake()
 
 	MainCamera::I->Awake();
 	MainCamera::I->SetPosition(Vec3(3.960061f, 1.980184f, 23.99316f));
-	MainCamera::I->SetLocalRotation(Vec3(4.813f, 173.318f, 0.f));
-	//MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
+	MainCamera::I->SetLocalRotation(Vec3(4.813f, 173.318, 0.f));
 	MainCamera::I->MoveForward(1.f);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 70.f);
 
@@ -48,26 +59,6 @@ void Script_LobbyManager::Awake()
 void Script_LobbyManager::Start()
 {
 	base::Start();
-
-	{
-		const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
-		trooper->SetPosition(3.33f, 0, 20.223f);
-		trooper->SetLocalRotation(Vec3(0.f, 35.823f, 0.f));
-		trooper->FindFrame("SK_EliteTrooper")->SetTexture(RESOURCE<Texture>("T_EliteTrooper_ForestCamo_BaseColor"));
-		ParticleManager::I->Play("Scene Dust", trooper);
-	}
-
-	{
-		const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
-		trooper->SetPosition(4.021297f, 0, 18.21149f);
-		trooper->SetLocalRotation(Vec3(0.f, 18.933f, 0.f));
-	}
-
-	{
-		const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
-		trooper->SetPosition(1.720729f, 0, 19.2602f);
-		trooper->SetLocalRotation(Vec3(0.f, 24.906f, 0.f));
-	}
 
 	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-0.3f, -0.6f, -0.6));
 	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.52f);
@@ -87,7 +78,11 @@ void Script_LobbyManager::AddPlayer(const LobbyPlayerInfo& info)
 		return;
 	}
 
-	mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info);
+	mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, mCurPlayerSize++);
+
+	if (info.ID == GameFramework::I->GetMyPlayerID()) {
+		ParticleManager::I->Play("Scene Dust", mLobbyPlayers[info.ID]->GetObj());
+	}
 }
 
 void Script_LobbyManager::RemovePlayer(UINT32 id)
@@ -99,6 +94,8 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 	GameObject* target = mLobbyPlayers[id]->GetObj();
 	mLobbyPlayers[id] = nullptr;
 	LobbyScene::I->RemoveSkinMeshObject(target);
+
+	--mCurPlayerSize;
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

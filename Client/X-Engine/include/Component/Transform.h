@@ -1,5 +1,7 @@
 #pragma once
 
+class Texture;
+
 // position, rotation of an object.
 // every object in a Scene has a Transform.
 // it's used to store and manipulate the position, rotation of the object.
@@ -18,6 +20,7 @@ private:
 	Vec3 mLook	   = Vector3::Forward;	// look(z)  axis in local space
 
 	void* mObject{};	// self Object
+	int mMatIndex{ -1 };
 
 protected:
 	mutable bool				mUseObjCB{};		// 오브젝트 상수 버퍼 사용 플래그
@@ -88,6 +91,8 @@ public:
 	bool GetUseObjCB() const				{ return mUseObjCB; }
 	int GetObjCBIndex(int index = 0) const	{ return mObjCBIndices[index]; }
 
+	int GetMatIndex() const { return mMatIndex; }
+
 #pragma endregion
 
 #pragma region Setter
@@ -133,6 +138,8 @@ public:
 	// 상수 버퍼 인덱스를 한 번이라도 설정 하였다면 오브젝트 카운트는 최소 1이다.
 	void SetObjCBIndex(int val, int index = 0) const { mObjCBIndices[index] = val; SetUseObjCB(true); }
 	void SetUseObjCB(bool val) const { mUseObjCB = val; mObjCBCount = 1; }
+
+	void SetTexture(rsptr<Texture> texture);
 #pragma endregion
 
 public:
@@ -220,7 +227,7 @@ public:
 
 	void BeforeUpdateTransform();
 
-	virtual void UpdateShaderVars(const ObjectConstants& objectCB, const int cnt = 0) const;
+	virtual void UpdateShaderVars(ObjectConstants& objectCB, const int cnt = 0) const;
 	virtual void UpdateShaderVars(const int cnt = 0, const int matIndex = 0) const;
 
 	void NormalizeAxis();

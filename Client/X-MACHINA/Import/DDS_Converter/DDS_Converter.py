@@ -15,6 +15,12 @@ OUTPUT_PATH_BC3 = 'Output_BC3/'
 OUTPUT_PATH_BC7 = 'Output_BC7/'
 OUTPUT_PATH_UI = 'Output_UI/'
 
+os.makedirs(INPUT_CONVERTED_PATH_BC1, exist_ok=True)
+os.makedirs(INPUT_CONVERTED_PATH_BC3, exist_ok=True)
+os.makedirs(INPUT_CONVERTED_PATH_BC7, exist_ok=True)
+os.makedirs(INPUT_CONVERTED_PATH_UI, exist_ok=True)
+
+
 def get_files(input_path, output_path):
     if not os.path.isdir(input_path):
         os.makedirs(input_path)

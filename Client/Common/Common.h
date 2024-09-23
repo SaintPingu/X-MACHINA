@@ -182,7 +182,7 @@ struct ObjectConstants {
 
 	float	SliderValueX{};
 	float	SliderValueY{};
-	int		Padding1{};
+	int		AltDiffuseTextureIndex{ -1 };
 	int		Padding2{};
 };
 

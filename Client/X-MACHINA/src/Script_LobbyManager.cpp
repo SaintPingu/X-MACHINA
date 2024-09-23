@@ -14,6 +14,8 @@
 #include "GameFramework.h"
 #include "Animator.h"
 #include "AnimatorController.h"
+#include "ResourceMgr.h"
+#include "Texture.h"
 
 #include "Component/Camera.h"
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
@@ -35,7 +37,7 @@ void Script_LobbyManager::Awake()
 
 	MainCamera::I->Awake();
 	MainCamera::I->SetPosition(Vec3(3.960061f, 1.980184f, 23.99316f));
-	MainCamera::I->SetLocalRotation(Vec3(4.813f, 173.318, 0.f));
+	MainCamera::I->SetLocalRotation(Vec3(4.813f, 173.318f, 0.f));
 	//MainCamera::I->LookAt({ 0, 1, 0 }, Vector3::Up);
 	MainCamera::I->MoveForward(1.f);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 70.f);
@@ -51,6 +53,7 @@ void Script_LobbyManager::Start()
 		const auto& trooper = LobbyScene::I->Instantiate("EliteTrooper");
 		trooper->SetPosition(3.33f, 0, 20.223f);
 		trooper->SetLocalRotation(Vec3(0.f, 35.823f, 0.f));
+		trooper->FindFrame("SK_EliteTrooper")->SetTexture(RESOURCE<Texture>("T_EliteTrooper_ForestCamo_BaseColor"));
 		ParticleManager::I->Play("Scene Dust", trooper);
 	}
 

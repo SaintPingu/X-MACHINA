@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "DXGIMgr.h"
 #include "FrameResource.h"
+#include "Texture.h"
 
 #pragma region Getter
 Quat Transform::GetLocalRotation() const
@@ -220,6 +221,12 @@ void Transform::SetLocalTransform(const Matrix& transform, bool isComputeWorldTr
 	mLocalTransform = transform;
 	mPrevTransform = transform;
 	UpdateAxis(isComputeWorldTransform);
+}
+void Transform::SetTexture(rsptr<Texture> texture)
+{
+	if (texture) {
+		mMatIndex = texture->GetSrvIdx();
+	}
 }
 #pragma endregion
 
@@ -541,7 +548,7 @@ void Transform::BeforeUpdateTransform()
 	XMStoreFloat4x4(&mPrevTransform, _MATRIX(mLocalTransform));
 }
 
-void Transform::UpdateShaderVars(const ObjectConstants& objectCB, const int cnt) const
+void Transform::UpdateShaderVars(ObjectConstants& objectCB, const int cnt) const
 {
 	if (mObjCBIndices.size() <= cnt) {
 		return;
@@ -550,6 +557,10 @@ void Transform::UpdateShaderVars(const ObjectConstants& objectCB, const int cnt)
 	// 실제 사용 횟수를 저장한다.
 	if (mObjCBCount <= cnt) {
 		mObjCBCount = cnt + 1;
+	}
+
+	if (mMatIndex >= 0) {
+		objectCB.AltDiffuseTextureIndex = mMatIndex;
 	}
 
 	FRAME_RESOURCE_MGR->CopyData(mObjCBIndices[cnt], objectCB);

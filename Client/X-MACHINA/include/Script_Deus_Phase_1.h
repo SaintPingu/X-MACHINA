@@ -35,6 +35,5 @@ protected:
 
 private:
 	void FireMissille();
-
 };
 #pragma endregion

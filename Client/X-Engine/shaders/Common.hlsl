@@ -130,6 +130,7 @@ struct ObjectInfo {
     
     float   SliderValueX;
     float   SliderValueY;
+    int     AltDiffuseTextureIndex;
 };
 
 struct PassInfo {

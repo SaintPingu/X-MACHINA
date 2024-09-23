@@ -46,7 +46,6 @@ void PacketRecvBuf::Clean()
 		mRead_Idx = mWrite_Idx = 0;
 	}
 	else {
-
 		// 여유 공간이 버퍼 1개 크기 미만이면, 데이터를 앞으로 땅긴다.
 		// 여유 버퍼 크기 < 단일 버퍼 크기
 		if (GetFreeSize() < mBufferSize) {

@@ -47,7 +47,7 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player
 	{
 		TextOption textOption{};
 		textOption.Font = "Malgun Gothic";
-		textOption.FontSize = 8.f;
+		textOption.FontSize = 16.f;
 		textOption.FontColor = TextFontColor::Type::GhostWhite;
 		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
 
@@ -170,7 +170,11 @@ void PlayerUI::Update()
 void PlayerUI::UpdateSimple()
 {
 	if (mNameUI) {
-		mNameUI->SetPosition(MAIN_CAMERA->WorldToScreenPoint(mPlayer->GetPosition()));
+		Vec2 pos = MAIN_CAMERA->WorldToScreenPoint(mPlayer->GetPosition());
+		static constexpr int yOffset = 87;
+		pos.y += yOffset;
+
+		mNameUI->SetPosition(pos);
 	}
 }
 

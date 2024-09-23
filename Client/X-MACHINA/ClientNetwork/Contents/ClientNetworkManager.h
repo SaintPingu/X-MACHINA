@@ -112,6 +112,7 @@ public:
 	sptr<NetworkEvent::Game::Event_Phero::GetPhero>						CreateEvent_GetPhero(uint32_t player_id, uint32_t phero_id);
 
 	sptr<NetworkEvent::Game::Event_Contents::Chat>						CreateEvent_Chat(uint32_t Id, std::string chat);
+	sptr<NetworkEvent::Game::Event_Contents::Custom>					CreateEvent_Custom(uint32_t Id, std::string trooperskin);
 
 	sptr<NetworkEvent::Game::Event_Item::Item_Interact>					CreateEvent_Item_Interact(uint32_t player_id, uint32_t item_id, FBProtocol::ITEM_TYPE item_type, Vec3 drop_Pos);
 	sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway>				CreateEvent_Item_ThrowAway(uint32_t player_id, uint32_t item_id, FBProtocol::ITEM_TYPE item_type, Vec3 drop_Pos);
@@ -147,6 +148,7 @@ public:
 
 	/// Chat 
 	void ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_Contents::Chat* data);
+	void ProcessEvent_Contents_Custom(NetworkEvent::Game::Event_Contents::Custom* data);
 
 
 	/// ITem 

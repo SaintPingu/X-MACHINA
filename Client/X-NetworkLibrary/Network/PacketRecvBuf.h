@@ -11,8 +11,8 @@ class PacketRecvBuf
 {
 public:
 	enum class Info {
-		bufferCount = 10,
-		Size        = 0x10'000 // 64kb
+		bufferCount = 100,
+		Size        = 0x100'000 // 64kb
 	};
 
 private:
@@ -39,5 +39,6 @@ public:
 	UINT32	GetDataSize() { return mWrite_Idx - mRead_Idx; }
 	UINT32	GetFreeSize() { return mCapacity - mWrite_Idx; }
 
+	BYTE* GetStartPos() { return &mBuffer[0]; }
 };
 

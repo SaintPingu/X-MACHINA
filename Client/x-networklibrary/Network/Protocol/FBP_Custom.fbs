@@ -1,0 +1,17 @@
+include "Enum.fbs";
+include "Struct.fbs";
+include "Transform.fbs";
+
+namespace FBProtocol;
+
+table SPkt_Custom
+{
+	player_id   : int;
+	trooperskin : string;
+}
+
+table CPkt_Custom
+{
+	trooperskin : string;
+}
+

@@ -54,12 +54,14 @@ namespace NetworkEvent
 		namespace ContentsType					  
 		{									  
 			constexpr UINT16 Chat = 22;
+			constexpr UINT16 Custom = 23;
+
 		}
 
 		namespace ItemType
 		{
-			constexpr UINT16 Item_Interact = 23;
-			constexpr UINT16 Item_ThrowAway = 24;
+			constexpr UINT16 Item_Interact = 24;
+			constexpr UINT16 Item_ThrowAway = 25;
 		}
 
 		/* EVENT DATA */
@@ -260,6 +262,11 @@ namespace NetworkEvent
 			struct Chat : public EventData {
 				uint32_t		Id;
 				std::string		chat;
+			};
+
+			struct Custom : public EventData {
+				uint32_t	player_id;
+				std::string trooperskin;
 			};
 		
 		}

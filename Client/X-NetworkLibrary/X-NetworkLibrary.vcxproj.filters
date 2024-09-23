@@ -153,6 +153,9 @@
     <ClInclude Include="Network\Protocol\FBProtocol_generated.h">
       <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
     </ClInclude>
+    <ClInclude Include="Network\Protocol\FBP_Custom_generated.h">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -257,6 +260,9 @@
       <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
     </None>
     <None Include="Network\Protocol\FBProtocol.fbs">
+      <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
+    </None>
+    <None Include="Network\Protocol\FBP_Custom.fbs">
       <Filter>NetworkLib\Protocol\PacketProtocol</Filter>
     </None>
   </ItemGroup>

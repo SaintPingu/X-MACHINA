@@ -6,6 +6,9 @@
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
 #include "ClientNetwork/Include/Protocol/FBProtocol_generated.h"
 
+#include "ClientNetwork/Include/Session.h"
+#include "ClientNetwork/Include/PacketRecvBuf.h"
+
 ServerSession::ServerSession()
 {
 }
@@ -31,7 +34,7 @@ UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)
 	UINT32 ProcessDataSize = 0;
 
 	// 기존 남은 데이터를 고려하여 전체 크기를 계산
-	UINT32 TotalSize = len + mRemainDataSize;
+	UINT32 TotalSize = len;
 
 	while (ProcessDataSize < TotalSize) {
 		UINT32 RemainSize = TotalSize - ProcessDataSize;
@@ -40,9 +43,9 @@ UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)
 		if (RemainSize < sizeof(PacketHeader)) {
 			break;
 		}
-
+		
 		// 패킷 헤더를 파싱 
-		BYTE* startBufferPtr = buffer + ProcessDataSize - mRemainDataSize;
+		BYTE* startBufferPtr = buffer + ProcessDataSize;
 		PacketHeader* packet = reinterpret_cast<PacketHeader*>(startBufferPtr);
 
 		// 남은 데이터가 패킷 전체 크기보다 적으면 다음 번 수신에서 처리 
@@ -60,6 +63,6 @@ UINT32 ServerSession::OnRecv(BYTE* buffer, UINT32 len)
 	// 남은 데이터 크기 갱신 
 	mRemainDataSize = TotalSize - ProcessDataSize;
 
-	return len;
+	return ProcessDataSize;
 }
 

@@ -177,6 +177,7 @@
     <ClInclude Include="Network\Protocol\FBProtocol_generated.h" />
     <ClInclude Include="Network\Protocol\FBP_Bullet_generated.h" />
     <ClInclude Include="Network\Protocol\FBP_Chat_generated.h" />
+    <ClInclude Include="Network\Protocol\FBP_Custom_generated.h" />
     <ClInclude Include="Network\Protocol\FBP_Enemy_generated.h" />
     <ClInclude Include="Network\Protocol\FBP_Enter_generated.h" />
     <ClInclude Include="Network\Protocol\FBP_Item_generated.h" />
@@ -228,6 +229,7 @@
     <None Include="Network\Protocol\FBProtocol.fbs" />
     <None Include="Network\Protocol\FBP_Bullet.fbs" />
     <None Include="Network\Protocol\FBP_Chat.fbs" />
+    <None Include="Network\Protocol\FBP_Custom.fbs" />
     <None Include="Network\Protocol\FBP_Enemy.fbs" />
     <None Include="Network\Protocol\FBP_Enter.fbs" />
     <None Include="Network\Protocol\FBP_Item.fbs" />

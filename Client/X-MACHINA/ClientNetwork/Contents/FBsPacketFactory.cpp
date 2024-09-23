@@ -397,6 +397,17 @@ bool FBsPacketFactory::Process_SPkt_Chat(SPtr_Session session, const FBProtocol:
 	return true;
 }
 
+bool FBsPacketFactory::Process_SPkt_Custom(SPtr_Session session, const FBProtocol::SPkt_Custom& pkt)
+{
+	int				player_id   = pkt.player_id();
+	std::string		trooperskin = pkt.trooperskin()->c_str();
+
+	sptr<NetworkEvent::Game::Event_Contents::Custom> EventData = CLIENT_NETWORK->CreateEvent_Custom(id, trooperskin);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+
+	return true;
+}
+
 bool FBsPacketFactory::Process_SPkt_NetworkLatency(SPtr_Session session, const FBProtocol::SPkt_NetworkLatency& pkt)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
@@ -625,7 +636,7 @@ bool FBsPacketFactory::Process_SPkt_Player_OnSkill(SPtr_Session session, const F
 	float							phero_amount = pkt.phero_amount();
 	FBProtocol::PLAYER_SKILL_TYPE	skill_type = pkt.skill_type();
 	int mindcontrol_monster_id = pkt.mindcontrol_monster_id();
-
+	`
 	sptr<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill> EventData = CLIENT_NETWORK->CreateEvent_UpdateOnSkill_RemotePlayer(player_id, skill_type, phero_amount, mindcontrol_monster_id);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
@@ -785,6 +796,8 @@ bool FBsPacketFactory::Process_SPkt_Monster_Target(SPtr_Session session, const F
 	info.target_monster_id = target_monster_id;
 	info.target_player_id = target_player_id;
 	infos.push_back(info);
+
+	LOG_MGR->Cout("Target : ", info.id, " - ", info.target_monster_id, " - ", info.target_player_id, "\n");
 
 	sptr<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate> Ext_EventData = CLIENT_NETWORK->CreateEvent_Monster_Target(infos);
 	CLIENT_NETWORK->RegisterEvent(Ext_EventData);

@@ -84,7 +84,7 @@ void Script_LobbyManager::Awake()
 	MainCamera::I->MoveForward(1.f);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 70.f);
 
-	mObject->AddComponent<Script_LobbyUI>();
+	mObject->AddComponent<Script_LobbyUI>()->SetLobbyManager(this);
 }
 
 void Script_LobbyManager::Start()
@@ -100,14 +100,6 @@ void Script_LobbyManager::Start()
 void Script_LobbyManager::Update()
 {
 	base::Update();
-
-	static int skinIdx = 0;
-	if (KEY_TAP('0')) {
-		if (++skinIdx > 5) {
-			skinIdx = 0;
-		}
-		mLobbyPlayers.begin()->second->SetSkin(static_cast<TrooperSkin>(skinIdx));
-	}
 }
 
 
@@ -135,6 +127,24 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 	LobbyScene::I->RemoveSkinMeshObject(target);
 
 	--mCurPlayerSize;
+}
+
+void Script_LobbyManager::ChagneToNextSkin()
+{
+	if (++mCurSkinIdx > 5) {
+		mCurSkinIdx = 0;
+	}
+	
+	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
+}
+
+void Script_LobbyManager::ChagneToPrevSkin()
+{
+	if (--mCurSkinIdx < 0) {
+		mCurSkinIdx = 5;
+	}
+
+	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
 }
 
 void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)

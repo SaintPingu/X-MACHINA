@@ -109,15 +109,9 @@ bool Script_Enemy::Hit(float damage, Object* instigator)
 		return false;
 	}
 
-	bool res = base::Hit(damage, instigator);
-
 	mObject->mObjectCB.HitRimFactor = 0.7f;
 	
-	//if (nullptr != instigator) {
-	//	mEnemyMgr->mTarget = instigator;
-	//}
-
-	return res;
+	return false;
 }
 
 void Script_Enemy::SetEnemyStat(const std::string& modelName)

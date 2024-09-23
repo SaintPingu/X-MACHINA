@@ -28,6 +28,8 @@ public:
 public:
 	void SetLobbyManager(Script_LobbyManager* manager) { mLobbyManager = manager; }
 
+	bool IsInCustom() const { return mIsInCustom; }
+
 private:
 	void PlayButton() const;
 	void QuitGame() const;

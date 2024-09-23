@@ -5,8 +5,10 @@
 #include "Component/Component.h"
 #pragma endregion
 
+class UI;
 class GameObject;
 class AnimatorController;
+class Script_LobbyUI;
 
 
 #pragma region Class
@@ -54,6 +56,11 @@ private:
 	std::unordered_map<UINT32, sptr<LobbyPlayer>> mLobbyPlayers{};
 	int mCurSkinIdx{};
 	int mCurPlayerSize{};
+
+	Script_LobbyUI* mLobbyUI{};
+	bool mIsInPlayerRotation{};
+	float mPlayerRortationMouseStartX{};
+	UI* mPlayerRotationBound{};
 
 public:
 	virtual void Awake() override;

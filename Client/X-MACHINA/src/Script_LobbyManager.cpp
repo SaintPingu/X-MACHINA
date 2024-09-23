@@ -18,6 +18,7 @@
 #include "ResourceMgr.h"
 #include "Texture.h"
 
+#include "Component/UI.h"
 #include "Component/Camera.h"
 #include "Component/ParticleSystem.h"
 
@@ -106,7 +107,11 @@ void Script_LobbyManager::Awake()
 	MainCamera::I->MoveForward(1.f);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 70.f);
 
-	mObject->AddComponent<Script_LobbyUI>()->SetLobbyManager(this);
+	mLobbyUI = mObject->AddComponent<Script_LobbyUI>().get();
+	mLobbyUI->SetLobbyManager(this);
+
+	mPlayerRotationBound = Canvas::I->CreateUI<Button>(0, "Image", Vec2(310, -220), Vec2(270, 560));
+	mPlayerRotationBound->SetOpacity(0.f);
 }
 
 void Script_LobbyManager::Start()
@@ -125,6 +130,25 @@ void Script_LobbyManager::Update()
 
 	for (const auto& [id, lobbyPlayer] : mLobbyPlayers) {
 		lobbyPlayer->Update();
+	}
+
+	if (mLobbyUI->IsInCustom()) {
+		if (mPlayerRotationBound->IsHover()) {
+			if (KEY_TAP(VK_LBUTTON)) {
+				mIsInPlayerRotation = true;
+				mPlayerRortationMouseStartX = InputMgr::I->GetMousePos().x;
+			}
+		}
+	}
+
+	if (mIsInPlayerRotation) {
+		if (KEY_AWAY(VK_LBUTTON)) {
+			mIsInPlayerRotation = false;
+		}
+		else {
+			constexpr float kRotationSpeed = 0.01f;
+			mLobbyPlayers[GameFramework::I->GetMyPlayerID()]->GetObj()->Rotate(0, (mPlayerRortationMouseStartX - InputMgr::I->GetMousePos().x) * kRotationSpeed, 0);
+		}
 	}
 }
 

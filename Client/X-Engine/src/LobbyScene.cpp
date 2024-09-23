@@ -120,8 +120,8 @@ GameObject* LobbyScene::Instantiate(const std::string& modelName, const Vec3& po
 	}
 
 	sptr<GameObject> instance = std::make_shared<GameObject>();
-	instance->SetPosition(Vector3::Zero);
 	instance->SetModel(model);
+	instance->SetPosition(pos);
 
 	if (instance->IsSkinMesh()) {
 		mSkinMeshObjects.push_back(instance);

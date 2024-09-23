@@ -6,6 +6,7 @@
 #pragma endregion
 
 class GameObject;
+class AnimatorController;
 
 
 #pragma region Class
@@ -24,6 +25,9 @@ class LobbyPlayer {
 private:
 	LobbyPlayerInfo mInfo{};
 	GameObject* mObject{};
+	AnimatorController* mController{};
+	float mCurLookAroundDelay{};
+	const float mMaxLookAroundDelay{};
 
 public:
 	LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx);
@@ -34,6 +38,12 @@ public:
 
 	void SetObject(GameObject* object) { mObject = object; }
 	void SetSkin(TrooperSkin skin);
+
+public:
+	void Update();
+
+private:
+	void LookAroundEndCallback();
 };
 
 

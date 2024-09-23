@@ -14,6 +14,7 @@
 #include "GameFramework.h"
 #include "Animator.h"
 #include "AnimatorController.h"
+#include "AnimatorMotion.h"
 #include "ResourceMgr.h"
 #include "Texture.h"
 
@@ -25,13 +26,15 @@
 
 
 LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx)
-	: mInfo(info)
+	:
+	mInfo(info),
+	mMaxLookAroundDelay(5.f)
 {
 	// <pos, rot>
 	static const std::array<std::pair<Vec3, float>, 3> kTransforms {
-		std::make_pair(Vec3(3.33f, 0, 20.223f), 35.823f),
-		std::make_pair(Vec3(4.021297f, 0, 18.21149f), 18.933f),
-		std::make_pair(Vec3(1.720729f, 0, 19.2602f), 24.906f),
+		std::make_pair(Vec3(3.33f, 0.02f, 20.223f), 35.823f),
+		std::make_pair(Vec3(4.021297f, 0.02f, 18.21149f), 18.933f),
+		std::make_pair(Vec3(1.720729f, 0.02f, 19.2602f), 24.906f),
 	};
 
 	if (idx >= kTransforms.size()) {
@@ -41,6 +44,9 @@ LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx)
 	const auto& transform = kTransforms[idx];
 	mObject = LobbyScene::I->Instantiate("EliteTrooper", transform.first);
 	mObject->SetLocalRotation(Vec3(0, transform.second, 0));
+	mController = mObject->GetAnimator()->GetController();
+	const auto& motion = mController->FindMotionByName("IdleLookAroundUnarmed", "Body");
+	motion->AddCallback(std::bind(&LobbyPlayer::LookAroundEndCallback, this), 150);
 }
 
 void LobbyPlayer::SetSkin(TrooperSkin skin)
@@ -72,6 +78,22 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 	}
 }
 
+void LobbyPlayer::Update()
+{
+	mCurLookAroundDelay += DeltaTime();
+	if (mCurLookAroundDelay >= mMaxLookAroundDelay) {
+		mCurLookAroundDelay = 0.f;
+		if (rand() % 2) {
+			mController->SetValue("LookAround", true);
+		}
+	}
+}
+
+void LobbyPlayer::LookAroundEndCallback()
+{
+	mController->SetValue("LookAround", false);
+}
+
 
 
 void Script_LobbyManager::Awake()
@@ -100,6 +122,10 @@ void Script_LobbyManager::Start()
 void Script_LobbyManager::Update()
 {
 	base::Update();
+
+	for (const auto& [id, lobbyPlayer] : mLobbyPlayers) {
+		lobbyPlayer->Update();
+	}
 }
 
 

@@ -47,3 +47,10 @@ void Script_Missile::Explode()
 		mContrail = nullptr;
 	}
 }
+
+void Script_DeusMissile::Awake()
+{
+	base::Awake();
+
+	SetExplosionTag(ObjectTag::Player | ObjectTag::Bound | ObjectTag::Building | ObjectTag::DissolveBuilding);
+}

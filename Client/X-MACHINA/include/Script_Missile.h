@@ -30,4 +30,12 @@ public:
 
 	virtual void Explode() override;
 };
+
+class Script_DeusMissile : public Script_Missile {
+	COMPONENT(Script_DeusMissile, Script_Missile)
+
+public:
+	virtual void Awake() override;
+};
+
 #pragma endregion

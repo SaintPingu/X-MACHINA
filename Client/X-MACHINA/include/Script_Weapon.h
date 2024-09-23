@@ -118,7 +118,7 @@ class Script_BulletWeapon abstract : public Script_Weapon {
 	COMPONENT_ABSTRACT(Script_BulletWeapon, Script_Weapon)
 
 public:
-	enum class BulletType { Bullet, Missile, Mine };
+	enum class BulletType { Bullet, Missile, Mine, DeusMissile };
 
 protected:
 	std::string mFireSound{};

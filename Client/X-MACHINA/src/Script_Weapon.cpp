@@ -339,6 +339,10 @@ void Script_BulletWeapon::InitBullet(rsptr<InstObject> bullet, float damage, flo
 		bulletScript = bullet->AddComponent<Script_SpiderMine>();
 		bullet->SetTag(ObjectTag::Bullet);
 		break;
+	case BulletType::DeusMissile:
+		bulletScript = bullet->AddComponent<Script_DeusMissile>();
+		bullet->SetTag(ObjectTag::Bullet);
+		break;
 	default:
 		assert(0);
 		break;

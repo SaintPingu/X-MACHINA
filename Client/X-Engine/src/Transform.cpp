@@ -406,7 +406,7 @@ void Transform::LookTo(const Vec3& lookTo, const Vec3& up)
 
 void Transform::LookAt(const Vec3& lookAt, const Vec3& up)
 {
-	SetAxis(Matrix4x4::LookAtLH(GetPosition(), lookAt, up, false));
+	SetAxis(Matrix4x4::LookAtLH(mPosition, lookAt, up, false));
 }
 
 void Transform::LookToWorld(const Vec3& lookTo, const Vec3& up)

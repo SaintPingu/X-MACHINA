@@ -809,7 +809,7 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.GravityModifier = 1.f;
 		pscd.StartDelay = 0.05f;
 		pscd.StartLifeTime = Vec2{ 2.f, 3.f };
-		pscd.StartSpeed = Vec2{ 5.f, 5.f };
+		pscd.StartSpeed = Vec2{ 2.f, 3.f };
 		pscd.StartSize = Vec2{ 0.3f, 0.3f };
 		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 1.f, 1.f, 1.f, 1.f  } });
 		pscd.GravityModifier = 1.9f;
@@ -847,6 +847,33 @@ void ResourceMgr::CreateParticleSystemCPUData()
 		pscd.Shape.SetSphere(1.f, 1.f, 360.f, true);
 		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 0.1f, 0.f, 0.f } }).SetParam(0.8f);
 		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.f, 0.f, 0.f, 1.f }, Vec4{ 1.f, 0.52f, 0.35f, 1.f }, Vec4{ 0.05f, 0.05f, 0.05f, 1.f }, Vec4{ 0.f, 0.f, 0.f, 1.f } }, { 0.f, 0.05f, 0.1f, 1.f });
+		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { -60.f, 60.f });
+		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.35f, 1.f, 0.f }, { 0.f, 0.2f, 1.f });
+		pscd.Renderer.TextureName = "WFX_NukeFlames";
+		pscd.Renderer.RenderMode = PSRenderMode::Billboard;
+		pscd.Renderer.BlendType = BlendType::Additive_Soft_Stretched_Blend;
+		ParticleSystem::SavePSCD(pscd);
+	}
+
+	{
+		ParticleSystemCPUData pscd;
+		pscd.mName = "WFX_DeusMissile_Explosion_Add2";
+		pscd.StartDelay = 0.f;
+		pscd.StartLifeTime = Vec2{ 3.f, 4.f };
+		pscd.StartSpeed = Vec2{ 0.3f };
+		pscd.StartSize = Vec2{ 1.f, 1.f };
+		pscd.StartRotation = Vec2{ 0.f, 360.f };
+		pscd.StartColor.Set(PSValOp::Constant, { Vec4{ 0.97f, 0.56f, 0.44f, 1.f  } });
+		pscd.SimulationSpace = PSSimulationSpace::World;
+		pscd.SimulationSpeed = 3.666f;
+		pscd.MaxParticles = 200;
+		pscd.Emission.SetBurst(140, 0.f);
+		pscd.Emission.SetBurst(50, 0.15f);
+		pscd.Emission.SetBurst(20, 0.3f);
+		pscd.Emission.SetBurst(10, 0.45f);
+		pscd.Shape.SetSphere(1.f, 1.f, 360.f, true);
+		pscd.VelocityOverLifetime.Set(PSValOp::Constant, { Vec4{ 0.f, 0.1f, 0.f, 0.f } }).SetParam(0.8f);
+		pscd.ColorOverLifetime.Set(PSValOp::Curve, { Vec4{ 0.f, 0.f, 0.f, 1.f }, Vec4{ 1.f, 0.52f, 0.35f, 1.f }, Vec4{ 0.05f, 0.05f, 0.05f, 1.f }, Vec4{ 0.f, 0.f, 0.f, 1.f } }, { 0.f, 0.1f, 0.2f, 1.f });
 		pscd.RotationOverLifetime.Set(PSValOp::RandomBetweenTwoConstants, { -60.f, 60.f });
 		pscd.SizeOverLifetime.Set(PSValOp::Curve, { 0.35f, 1.f, 0.f }, { 0.f, 0.2f, 1.f });
 		pscd.Renderer.TextureName = "WFX_NukeFlames";

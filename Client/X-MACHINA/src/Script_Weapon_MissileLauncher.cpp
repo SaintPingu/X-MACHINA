@@ -77,3 +77,55 @@ void Script_Weapon_Burnout::SetParticleSystemNames()
 
 	mPSNames[static_cast<UINT8>(BulletPSType::Contrail)].push_back("WFX_Bullet");
 }
+
+void Script_Weapon_Deus_Rifle::FireBullet()
+{
+	if (!mTarget) {
+		return;
+	}
+
+	const Vec3 look = mObject->GetLook();
+	const Vec3 toTarget = Vector3::Normalized(mTarget->GetPosition() - mMuzzle->GetPosition());
+	const float angle = Vector3::Angle(look, toTarget);
+
+	mMuzzle->SetLocalRotation(Vec3{ angle, 0.f, 0.f });
+
+	base::FireBullet();
+}
+
+void Script_Weapon_Deus_Rifle::InitValues()
+{
+	mMaxFireDelay = 0.1f;	 // 발사 딜레이 거의 없음
+	mMaxReloadTime = 5.9f;
+	mMaxDistance = 43.f;
+	mBulletCntPerMag = mkBulletCntPerMag;
+	mMaxMag = 3;
+
+	mErrX = Vec2(-2.f, 2.f);
+	mErrY = Vec2(-2.f, 2.f);
+
+	mMuzzle = mObject->FindFrame("FirePos");
+
+	SetFireSound("Buronout Fire");
+}
+
+void Script_Weapon_Deus_Rifle::BulletInitFunc(rsptr<InstObject> bullet) const
+{
+	base::InitBullet(bullet, mkBulletDamage, mkBulletSpeed, BulletType::DeusMissile);
+	const auto& missile = bullet->GetComponent<Script_DeusMissile>();
+	missile->SetExplosionDamage(mkExplosionDamage);
+	missile->SetImpactSound("Burnout Impact");
+}
+
+void Script_Weapon_Deus_Rifle::SetParticleSystemNames()
+{
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Missile_Explosion_Smoke");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Missile_Explosion_Add");
+	mPSNames[static_cast<UINT8>(BulletPSType::Building)].push_back("WFX_Missile_Dot_Sparkles");
+
+	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_DeusMissile_Explosion_Smoke");
+	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_DeusMissile_Explosion_Add2");
+	mPSNames[static_cast<UINT8>(BulletPSType::Explosion)].push_back("WFX_DeusMissile_Dot_Sparkles");
+
+	mPSNames[static_cast<UINT8>(BulletPSType::Contrail)].push_back("WFX_Bullet");
+}

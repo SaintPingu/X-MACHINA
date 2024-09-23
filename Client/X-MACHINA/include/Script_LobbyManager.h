@@ -9,9 +9,14 @@ class GameObject;
 
 
 #pragma region Class
+enum class TrooperSkin {
+	Army, Dark, Desert, Forest, White, Winter
+};
+
 struct LobbyPlayerInfo {
-	UINT32 ID;
-	std::string Name;
+	UINT32 ID{};
+	std::string Name{};
+	TrooperSkin Skin{};
 };
 
 
@@ -28,6 +33,7 @@ public:
 	GameObject* GetObj() const { return mObject; }
 
 	void SetObject(GameObject* object) { mObject = object; }
+	void SetSkin(TrooperSkin skin);
 };
 
 
@@ -46,6 +52,7 @@ public:
 public:
 	void AddPlayer(const LobbyPlayerInfo& info);
 	void RemovePlayer(UINT32 id);
+	void ChangeSkin(UINT32 id, TrooperSkin skin);
 
 	const std::unordered_map<UINT32, sptr<LobbyPlayer>>& GetPlayers() const { return mLobbyPlayers; }
 

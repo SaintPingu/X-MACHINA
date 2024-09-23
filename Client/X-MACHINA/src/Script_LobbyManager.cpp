@@ -14,6 +14,8 @@
 #include "GameFramework.h"
 #include "Animator.h"
 #include "AnimatorController.h"
+#include "ResourceMgr.h"
+#include "Texture.h"
 
 #include "Component/Camera.h"
 #include "Component/ParticleSystem.h"
@@ -39,6 +41,35 @@ LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx)
 	const auto& transform = kTransforms[idx];
 	mObject = LobbyScene::I->Instantiate("EliteTrooper", transform.first);
 	mObject->SetLocalRotation(Vec3(0, transform.second, 0));
+}
+
+void LobbyPlayer::SetSkin(TrooperSkin skin)
+{
+	mInfo.Skin = skin;
+	Transform* transform = mObject->FindFrame("SK_EliteTrooper");
+	switch (skin) {
+	case TrooperSkin::Army:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Army_BaseColor"));
+		break;
+	case TrooperSkin::Dark:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Dark_BaseColor"));
+		break;
+	case TrooperSkin::Desert:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_DesertCamo_BaseColor"));
+		break;
+	case TrooperSkin::Forest:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_ForestCamo_BaseColor"));
+		break;
+	case TrooperSkin::White:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_White_BaseColor"));
+		break;
+	case TrooperSkin::Winter:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_WinterCamo_BaseColor"));
+		break;
+	default:
+		assert(0);
+		break;
+	}
 }
 
 
@@ -69,6 +100,14 @@ void Script_LobbyManager::Start()
 void Script_LobbyManager::Update()
 {
 	base::Update();
+
+	static int skinIdx = 0;
+	if (KEY_TAP('0')) {
+		if (++skinIdx > 5) {
+			skinIdx = 0;
+		}
+		mLobbyPlayers.begin()->second->SetSkin(static_cast<TrooperSkin>(skinIdx));
+	}
 }
 
 
@@ -96,6 +135,15 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 	LobbyScene::I->RemoveSkinMeshObject(target);
 
 	--mCurPlayerSize;
+}
+
+void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)
+{
+	if (!mLobbyPlayers.count(id)) {
+		return;
+	}
+
+	mLobbyPlayers[id]->SetSkin(skin);
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

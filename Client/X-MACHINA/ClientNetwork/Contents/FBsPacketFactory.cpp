@@ -82,6 +82,14 @@ bool FBsPacketFactory::ProcessFBsPacket(SPtr_Session session, BYTE* packetBuf, U
 		Process_SPkt_Chat(session, *packet);
 	}
 	break;
+	case FBProtocol::FBsProtocolID::FBsProtocolID_SPkt_Custom:
+	{
+		LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ FBsProtocolID_SPkt_Custom ]\n");
+		const FBProtocol::SPkt_Custom* packet = flatbuffers::GetRoot<FBProtocol::SPkt_Custom>(DataPtr);
+		if (!packet) return false;
+		Process_SPkt_Custom(session, *packet);
+	}
+	break;
 	case FBProtocol::FBsProtocolID::FBsProtocolID_SPkt_NetworkLatency:
 	{
 		//LOG_MGR->Cout(session->GetID(), " - RECV - ", "[ SPkt_NetworkLatency ]\n");

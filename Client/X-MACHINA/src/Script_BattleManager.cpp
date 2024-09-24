@@ -122,6 +122,7 @@ void Script_BattleManager::InitPlayers()
 			player->GetAnimator()->GetController()->SetRemotePlayer();
 		}
 
+		player->FindFrame("SK_EliteTrooper")->SetTexture(lobbyPlayer->GetMatIndex());
 		player->SetName(lobbyPlayer->GetName());
 		player->SetID(id);
 

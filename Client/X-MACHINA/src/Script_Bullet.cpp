@@ -3,7 +3,9 @@
 
 #include "Script_Enemy.h"
 #include "Script_Weapon.h"
+#include "Script_PlayerController.h"
 
+#include "GameFramework.h"
 #include "Object.h"
 #include "Timer.h"
 #include "BattleScene.h"
@@ -19,6 +21,14 @@ void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std:
 {
 	for (auto& name : psNames) {
 		mPSNames[static_cast<UINT8>(type)].emplace_back(name);
+	}
+}
+
+void Script_Bullet::SetPlayerBullet(bool val)
+{
+	mIsPlayerBullet = val;
+	if (val) {
+		mPlayerController = GameFramework::I->GetPlayer()->GetComponent<Script_PlayerController>().get();
 	}
 }
 
@@ -95,6 +105,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			enemy->Hit(0, nullptr);
 			mParticleType = BulletPSType::Explosion;
 			if (mIsPlayerBullet) {
+				mPlayerController->ActiveHitAim();
 				// TODO : send onhit packet here
 				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitEnemy(enemy->GetObj()->GetID(), mObject->GetPosition(), mObject->GetLook());
 				CLIENT_NETWORK->Send(cpkt);

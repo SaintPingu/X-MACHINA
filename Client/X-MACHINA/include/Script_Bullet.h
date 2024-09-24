@@ -7,6 +7,7 @@
 
 
 #pragma region ClassForwardDecl
+class Script_PlayerController;
 class InstObject;
 class ParticleSystem;
 class Script_LiveObject;
@@ -35,6 +36,7 @@ private:
 	bool mIsPlayerBullet{};
 
 protected:
+	Script_PlayerController* mPlayerController{};
 	float mSpeed{};			// speed of bullet
 
 public:
@@ -46,7 +48,7 @@ public:
 	void SetEndDistance(float distance) { mEndDistance = distance; }
 	void SetParticleSystems(BulletPSType type, const std::vector<std::string>& psNames);
 	void SetImpactSound(const std::string& sound) { mImpactSound = sound; }
-	void SetPlayerBullet(bool val) { mIsPlayerBullet = val; }
+	void SetPlayerBullet(bool val);
 
 public:
 	virtual void Update() override;

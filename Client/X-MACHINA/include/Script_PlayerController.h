@@ -36,6 +36,9 @@ private:
 	UI* mHurtUI{};
 	float mHurtUIdelta{};
 
+	UI* mAimHitUI{};
+	float mHitUIDelta{};
+
 public:
 	virtual void Awake() override;
 	virtual void Start() override;
@@ -52,6 +55,7 @@ public:
 public:
 	void Chat(const std::string& text);
 	void Hit();
+	void ActiveHitAim();
 
 private:
 	bool IsInAerialControl();

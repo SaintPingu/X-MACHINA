@@ -3,6 +3,7 @@
 
 #include "Script_LiveObject.h"
 #include "Script_MainCamera.h"
+#include "Script_PlayerController.h"
 
 #include "Component/Collider.h"
 #include "Component/Camera.h"
@@ -48,6 +49,7 @@ void Script_ExplosiveBullet::Explode()
 
 		if (object->GetTag() == ObjectTag::Enemy) {
 			if (IsPlayerBullet()) {
+				mPlayerController->ActiveHitAim();
 				// TODO : send onhit packet here
 				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitExpEnemy(object->GetID());
 				CLIENT_NETWORK->Send(cpkt);

@@ -225,8 +225,12 @@ void Transform::SetLocalTransform(const Matrix& transform, bool isComputeWorldTr
 void Transform::SetTexture(rsptr<Texture> texture)
 {
 	if (texture) {
-		mMatIndex = texture->GetSrvIdx();
+		SetTexture(texture->GetSrvIdx());
 	}
+}
+void Transform::SetTexture(int matIndex)
+{
+	mMatIndex = matIndex;
 }
 #pragma endregion
 

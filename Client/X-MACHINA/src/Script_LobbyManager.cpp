@@ -58,6 +58,30 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 	case TrooperSkin::Army:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Army_BaseColor"));
 		break;
+	case TrooperSkin::Outline:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Outline_BaseColor"));
+		break;
+	case TrooperSkin::Red:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Red_BaseColor"));
+		break;
+	case TrooperSkin::Yellow:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Yellow_BaseColor"));
+		break;
+	case TrooperSkin::Orange:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Orange_BaseColor"));
+		break;
+	case TrooperSkin::Pink:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Pink_BaseColor"));
+		break;
+	case TrooperSkin::Skyblue:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Skyblue_BaseColor"));
+		break;
+	case TrooperSkin::White:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_White_BaseColor"));
+		break;
+	case TrooperSkin::Purple:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Purple_BaseColor"));
+		break;
 	case TrooperSkin::Dark:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Dark_BaseColor"));
 		break;
@@ -67,9 +91,6 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 	case TrooperSkin::Forest:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_ForestCamo_BaseColor"));
 		break;
-	case TrooperSkin::White:
-		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_White_BaseColor"));
-		break;
 	case TrooperSkin::Winter:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_WinterCamo_BaseColor"));
 		break;
@@ -77,6 +98,7 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 		assert(0);
 		break;
 	}
+	mMatIndex = transform->GetMatIndex();
 }
 
 void LobbyPlayer::Update()
@@ -112,6 +134,19 @@ void Script_LobbyManager::Awake()
 
 	mPlayerRotationBound = Canvas::I->CreateUI<Button>(0, "Image", Vec2(310, -220), Vec2(270, 560));
 	mPlayerRotationBound->SetOpacity(0.f);
+
+	{
+		mGBR = LobbyScene::I->Instantiate("GBR", Vec3(5.96f, 3.78f, 5.34f));
+		//mGBR = LobbyScene::I->Instantiate("GBR", Vec3(4.021297f, 0.02f, 18.21149f));
+		//mGBR->SetLocalRotation(Vec3(0, 24.9f, 0));
+		mGBRController = mGBR->GetAnimator()->GetController();
+		mGBRController->FindMotionByName("RunBackwardsCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunBackwardsLeftCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunBackwardsRightCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunForwardCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunForwardRightCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunLeftCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+	}
 }
 
 void Script_LobbyManager::Start()
@@ -128,6 +163,7 @@ void Script_LobbyManager::Update()
 {
 	base::Update();
 
+	mGBR->Rotate(0, 20 * DeltaTime(), 0);
 	for (const auto& [id, lobbyPlayer] : mLobbyPlayers) {
 		lobbyPlayer->Update();
 	}
@@ -159,11 +195,15 @@ void Script_LobbyManager::AddPlayer(const LobbyPlayerInfo& info)
 		return;
 	}
 
-	mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, mCurPlayerSize++);
 
 	if (info.ID == GameFramework::I->GetMyPlayerID()) {
-		ParticleManager::I->Play("Scene Dust", mLobbyPlayers[info.ID]->GetObj());
+		mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, 0);
 	}
+	else {
+		mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, 1 + mCurRemotePlayerSize++);
+	}
+
+	mLobbyPlayers[info.ID]->SetSkin(TrooperSkin::Army);
 }
 
 void Script_LobbyManager::RemovePlayer(UINT32 id)
@@ -176,12 +216,12 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 	mLobbyPlayers[id] = nullptr;
 	LobbyScene::I->RemoveSkinMeshObject(target);
 
-	--mCurPlayerSize;
+	--mCurRemotePlayerSize;
 }
 
 void Script_LobbyManager::ChagneToNextSkin()
 {
-	if (++mCurSkinIdx > 5) {
+	if (++mCurSkinIdx >= static_cast<int>(TrooperSkin::_count)) {
 		mCurSkinIdx = 0;
 	}
 	
@@ -191,10 +231,61 @@ void Script_LobbyManager::ChagneToNextSkin()
 void Script_LobbyManager::ChagneToPrevSkin()
 {
 	if (--mCurSkinIdx < 0) {
-		mCurSkinIdx = 5;
+		mCurSkinIdx = static_cast<int>(TrooperSkin::_count) - 1;
+	}
+	
+	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
+}
+
+void Script_LobbyManager::ChangeSkin(UINT32 id, const std::string& skinName)
+{
+	TrooperSkin skin;
+	switch (Hash(skinName)) {
+	case Hash("Army"):
+		skin = TrooperSkin::Army;
+		break;
+	case Hash("Outline"):
+		skin = TrooperSkin::Outline;
+		break;
+	case Hash("Red"):
+		skin = TrooperSkin::Red;
+		break;
+	case Hash("Yellow"):
+		skin = TrooperSkin::Yellow;
+		break;
+	case Hash("Orange"):
+		skin = TrooperSkin::Orange;
+		break;
+	case Hash("Pink"):
+		skin = TrooperSkin::Pink;
+		break;
+	case Hash("Skyblue"):
+		skin = TrooperSkin::Skyblue;
+		break;
+	case Hash("White"):
+		skin = TrooperSkin::White;
+		break;
+	case Hash("Purple"):
+		skin = TrooperSkin::Purple;
+		break;
+	case Hash("Dark"):
+		skin = TrooperSkin::Dark;
+		break;
+	case Hash("Desert"):
+		skin = TrooperSkin::Desert;
+		break;
+	case Hash("Forest"):
+		skin = TrooperSkin::Forest;
+		break;
+	case Hash("Winter"):
+		skin = TrooperSkin::Winter;
+		break;
+	default:
+		assert(0);
+		break;
 	}
 
-	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
+	ChangeSkin(id, skin);
 }
 
 void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)
@@ -204,6 +295,58 @@ void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)
 	}
 
 	mLobbyPlayers[id]->SetSkin(skin);
+
+#ifdef SERVER_COMMUNICATION
+	if (id == GameFramework::I->GetMyPlayerID()) {
+		auto cpkt = FBS_FACTORY->CPkt_Custom(GetSkinName());
+		CLIENT_NETWORK->Send(cpkt);
+	}
+#endif
+}
+
+std::string Script_LobbyManager::GetSkinName() const
+{
+	switch (static_cast<TrooperSkin>(mCurSkinIdx)) {
+	case TrooperSkin::Army:
+		return "Army";
+	case TrooperSkin::Outline:
+		return "Outline";
+	case TrooperSkin::Red:
+		return "Red";
+	case TrooperSkin::Yellow:
+		return "Yellow";
+	case TrooperSkin::Orange:
+		return "Orange";
+	case TrooperSkin::Pink:
+		return "Pink";
+	case TrooperSkin::Skyblue:
+		return "Skyblue";
+	case TrooperSkin::White:
+		return "White";
+	case TrooperSkin::Purple:
+		return "Purple";
+	case TrooperSkin::Dark:
+		return "Dark";
+	case TrooperSkin::Desert:
+		return "Desert";
+	case TrooperSkin::Forest:
+		return "Forest";
+	case TrooperSkin::Winter:
+		return "Winter";
+	default:
+		assert(0);
+		break;
+	}
+
+	return "";
+}
+
+void Script_LobbyManager::GBREndCallback()
+{
+	if (++mGBRState > 5) {
+		mGBRState = 0;
+	}
+	mGBRController->SetValue("State", mGBRState);
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

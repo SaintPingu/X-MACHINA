@@ -13,7 +13,7 @@ class Script_LobbyUI;
 
 #pragma region Class
 enum class TrooperSkin {
-	Army, Dark, Desert, Forest, White, Winter
+	Army, Outline, Red, Yellow, Orange, Pink, Skyblue, White, Purple, Dark, Desert, Forest, Winter, _count
 };
 
 struct LobbyPlayerInfo {
@@ -31,12 +31,15 @@ private:
 	float mCurLookAroundDelay{};
 	const float mMaxLookAroundDelay{};
 
+	int mMatIndex{};
+
 public:
 	LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx);
 
 	UINT32 GetID() const { return mInfo.ID; }
 	const std::string GetName() const { return mInfo.Name; }
 	GameObject* GetObj() const { return mObject; }
+	int GetMatIndex() const { return mMatIndex; }
 
 	void SetObject(GameObject* object) { mObject = object; }
 	void SetSkin(TrooperSkin skin);
@@ -48,19 +51,23 @@ private:
 	void LookAroundEndCallback();
 };
 
-
 class Script_LobbyManager : public Component {
 	COMPONENT(Script_LobbyManager, Component)
 
 private:
+	GameObject* mGBR{};
+	AnimatorController* mGBRController{};
+	int mGBRState{};
+
 	std::unordered_map<UINT32, sptr<LobbyPlayer>> mLobbyPlayers{};
 	int mCurSkinIdx{};
-	int mCurPlayerSize{};
+	int mCurRemotePlayerSize{};
 
 	Script_LobbyUI* mLobbyUI{};
 	bool mIsInPlayerRotation{};
 	float mPlayerRortationMouseStartX{};
 	UI* mPlayerRotationBound{};
+
 
 public:
 	virtual void Awake() override;
@@ -72,9 +79,14 @@ public:
 	void RemovePlayer(UINT32 id);
 	void ChagneToNextSkin();
 	void ChagneToPrevSkin();
+	void ChangeSkin(UINT32 id, const std::string& skinName);
 	void ChangeSkin(UINT32 id, TrooperSkin skin);
+	std::string GetSkinName() const;
 
 	const std::unordered_map<UINT32, sptr<LobbyPlayer>>& GetPlayers() const { return mLobbyPlayers; }
+
+private:
+	void GBREndCallback();
 
 public:
 	static void ChangeToBattleScene();

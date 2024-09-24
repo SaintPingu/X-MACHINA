@@ -145,13 +145,13 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 		case 'U':
 			mRemoteAbilityMindControl->Toggle();
 			break;
-		case 'T':
+		case VK_F1:
 			mAbilityShield->Toggle();
 			break;
-		case 'I':
+		case VK_F2:
 			mAbilityCloaking->Toggle();
 			break;
-		case 'Y':
+		case VK_F3:
 			mAbilityIRDetector->Toggle();
 			break;
 		case 'N':

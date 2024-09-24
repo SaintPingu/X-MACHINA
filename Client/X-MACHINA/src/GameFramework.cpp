@@ -178,16 +178,16 @@ void GameFramework::ProcessKeyboardMsg(HWND hWnd, UINT message, WPARAM wParam, L
 			::PostQuitMessage(0);
 			break;
 		case VK_F1:
-			Timer::I->Stop();
+			//Timer::I->Stop();
 			break;
 		case VK_F2:
-			Timer::I->Start();
+			//Timer::I->Start();
 			break;
 		case VK_F5:
 			BattleScene::I->ToggleDrawBoundings();
 			break;
 		case VK_F6:
-			ImGuiMgr::I->ToggleImGui();
+			//ImGuiMgr::I->ToggleImGui();
 			break;
 		case VK_F8:
 			BattleScene::I->ToggleFilterOptions();

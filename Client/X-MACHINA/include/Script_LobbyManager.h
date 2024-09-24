@@ -7,6 +7,7 @@
 
 class UI;
 class GameObject;
+class TextBox;
 class AnimatorController;
 class Script_LobbyUI;
 
@@ -27,6 +28,7 @@ class LobbyPlayer {
 private:
 	LobbyPlayerInfo mInfo{};
 	GameObject* mObject{};
+	TextBox* mTextBox{};
 	AnimatorController* mController{};
 	float mCurLookAroundDelay{};
 	const float mMaxLookAroundDelay{};
@@ -46,8 +48,9 @@ public:
 	void SetSkin(TrooperSkin skin);
 
 public:
-	void Init() const;
+	void Init();
 	void Update();
+	void Remove();
 
 private:
 	void LookAroundEndCallback();

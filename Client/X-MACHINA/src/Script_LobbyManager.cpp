@@ -107,7 +107,7 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 	mMatIndex = transform->GetMatIndex();
 }
 
-void LobbyPlayer::Init() const
+void LobbyPlayer::Init()
 {
 	static const std::array<Vec2, 3> kTextPoistions{
 		Vec2(320, 98),
@@ -122,7 +122,7 @@ void LobbyPlayer::Init() const
 		textOption.FontColor = TextFontColor::Type::White;
 		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
 
-		TextMgr::I->CreateText(mInfo.Name, kTextPoistions[mIndex], textOption);
+		mTextBox = TextMgr::I->CreateText(mInfo.Name, kTextPoistions[mIndex], textOption);
 	}
 }
 
@@ -135,6 +135,12 @@ void LobbyPlayer::Update()
 			mController->SetValue("LookAround", true);
 		}
 	}
+}
+
+void LobbyPlayer::Remove()
+{
+	LobbyScene::I->RemoveSkinMeshObject(mObject);
+	TextMgr::I->RemoveTextBox(mTextBox);
 }
 
 void LobbyPlayer::LookAroundEndCallback()
@@ -241,9 +247,8 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 		return;
 	}
 
-	GameObject* target = mLobbyPlayers[id]->GetObj();
-	mLobbyPlayers[id] = nullptr;
-	LobbyScene::I->RemoveSkinMeshObject(target);
+	mLobbyPlayers[id]->Remove();
+	mLobbyPlayers.erase(id);
 
 	--mCurRemotePlayerSize;
 }

@@ -730,6 +730,7 @@ void ClientNetworkManager::ProcessEvent_RemotePlayer_Add(NetworkEvent::Game::Eve
 
 void ClientNetworkManager::ProcessEvent_RemotePlayer_Remove(NetworkEvent::Game::Event_RemotePlayer::Remove* data)
 {
+	Script_SceneManager::I->LobbyManager()->RemovePlayer(data->Id);
 	//if (!mRemotePlayers.count(data->Id)) {
 	//	return;
 	//}

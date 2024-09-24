@@ -94,6 +94,14 @@ void Script_BattleUI::CreatePlayerUI(const Object* player, const std::string& pl
 	if (mLastIdx == mkMaxIdx) {
 		return;
 	}
+	for (int i = 0; i < mPlayerUIs.size(); ++i) {
+		if (!mPlayerUIs[i]) {
+			break;
+		}
+		if (player == mPlayerUIs[i]->GetPlayer()) {
+			return;
+		}
+	}
 	++mLastIdx;
 
 	sptr<PlayerUI> playerUI = std::make_shared<PlayerUI>(GetPos(mLastIdx), GetColor(mLastIdx), player, playerName, playerLevel);

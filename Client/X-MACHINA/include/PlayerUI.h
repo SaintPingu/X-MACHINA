@@ -25,6 +25,7 @@ public:
 	~PlayerUI();
 	
 public:
+	const Object* GetPlayer() const { return mPlayer; }
 	void SetWeapon(rsptr<Script_Weapon> weapon);
 	void SetPosition(const Vec2& position);
 	void SetColor(const Vec3& color);

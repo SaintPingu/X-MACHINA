@@ -19,6 +19,7 @@
 LobbyScene::LobbyScene()
 {
 	mName = "Lobby";
+	mUseOcclusionMask = false;
 }
 
 void LobbyScene::RenderShadow()

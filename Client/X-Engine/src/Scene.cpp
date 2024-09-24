@@ -131,6 +131,7 @@ void Scene::UpdateMainPassCB()
 	passCB.FilterOption = DXGIMgr::I->GetFilterOption();
 	passCB.ShadowIntensity = 0.1f;
 	passCB.FogColor = Colors::Gray;
+	passCB.UseOcclusionMask = mUseOcclusionMask;
 	memcpy(&passCB.Lights, mLight->GetSceneLights().get()->Lights.data(), sizeof(passCB.Lights));
 
 	FRAME_RESOURCE_MGR->CopyData(0, passCB);

@@ -78,6 +78,7 @@ struct PassConstants {
     int     RT0O_OffScreenIndex          = -1;
     int     BloomIndex                   = -1;
     int     RT6G_OutlineIndex            = -1;
+    int     UseOcclusionMask             = 1;
 };
 
 struct PostPassConstants {

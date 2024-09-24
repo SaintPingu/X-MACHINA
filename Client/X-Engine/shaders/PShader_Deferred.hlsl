@@ -75,7 +75,7 @@ PSOutput_MRT PSDeferred(VSOutput_Standard pin)
     float4 mindRimLight = ComputeRimLight(float4(gObjectCB.MindRimColor, 1.f),0.6f, gObjectCB.MindRimFactor, pin.PosW, bumpedNormalW);
 
     // apply occlusion mask
-    if (occlusionMask == TRUE) 
+    if (occlusionMask == TRUE && gPassCB.UseOcclusionMask) 
         ApplyOcculsionMaskByCamera(pin.PosW, pin.UV);
     
     if (gObjectCB.UseRefract == TRUE)

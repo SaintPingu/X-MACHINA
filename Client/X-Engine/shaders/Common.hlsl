@@ -181,6 +181,7 @@ struct PassInfo {
     int         RT0O_OffScreenIndex;
     int         BloomIndex;
     int         RT6G_OutlineIndex;
+    uint        UseOcclusionMask;
 };
 
 struct PostPassInfo {
@@ -574,7 +575,7 @@ void ApplyOcculsionMaskByCamera(float3 posW, float2 uvW)
         lit = 1.f;
     }
 
-    if (yDist < 9.f)
+    //if (yDist < 9.f)
         clip(0.1f - lit);
 }
 

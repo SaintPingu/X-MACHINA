@@ -27,6 +27,7 @@ protected:
 	sptr<Object> mManager{};
 	sptr<Light> mLight{};
 	sptr<SkyBox> mSkyBox{};
+	bool mUseOcclusionMask{ true };
 
 public:
 	Scene();

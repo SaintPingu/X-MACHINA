@@ -101,7 +101,8 @@ public:
 	SPtr_SendPktBuf CPkt_PlayGame();
 	SPtr_SendPktBuf CPkt_Chat(UINT32 sessionID, std::string msg);
 	SPtr_SendPktBuf CPkt_NetworkLatency(long long timestamp);
-	SPtr_SendPktBuf CPkt_Custom()
+	SPtr_SendPktBuf CPkt_Custom(std::string trooperskin);
+
 	/* PLAYER */
 	SPtr_SendPktBuf CPkt_NewPlayer();
 	SPtr_SendPktBuf CPkt_RemovePlayer(uint32_t removeSessionID);

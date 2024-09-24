@@ -13,7 +13,8 @@ class Script_Deus_Phase_1 : public Script_Enemy {
 	COMPONENT(Script_Deus_Phase_1, Script_Enemy)
 
 private:
-	sptr<Script_Weapon_Deus_Rifle> mWeapon{};
+	Object* mWeapon{};
+	sptr<Script_Weapon_Deus_Rifle> mWeaponScript{};
 
 protected:
 	struct DeusPhase1AttackType : AttackType {
@@ -27,6 +28,7 @@ public:
 	virtual void Awake() override;
 	virtual void Start() override;
 	virtual void StartAttack() override;
+	virtual void OnDestroy() override;
 		
 protected:
 	void MeleeAttackCallback();

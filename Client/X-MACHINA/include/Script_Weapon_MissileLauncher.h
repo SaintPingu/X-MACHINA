@@ -85,3 +85,40 @@ private:
 	virtual void BulletInitFunc(rsptr<InstObject> bullet) const override;
 	virtual void SetParticleSystemNames() override;
 };
+
+
+
+
+
+class Script_Weapon_LightBiped : public Script_Weapon_MissileLauncher {
+	COMPONENT(Script_Weapon_LightBiped, Script_Weapon_MissileLauncher)
+
+protected:
+	static constexpr float mkBulletSpeed = 10.f;
+
+private:
+	static constexpr int   mkBulletCntPerMag = 10;
+	static constexpr float mkExplosionDamage = 0.f;
+	static constexpr float mkBulletDamage = 0.f;
+	static constexpr float mkRPM = 0.1f;
+
+	Object* mTarget{};
+
+public:
+	virtual WeaponName GetWeaponName() const { return WeaponName::Burnout; }
+
+public:
+	void SetTarget(Object* target) { mTarget = target; }
+
+public:
+	virtual void FireBullet() override;
+
+protected:
+	virtual float GetBulletSpeed() override { return mkBulletSpeed; }
+
+private:
+	virtual void CreateBulletPool() override;
+	virtual void InitValues() override;
+	virtual void BulletInitFunc(rsptr<InstObject> bullet) const override;
+	virtual void SetParticleSystemNames() override;
+};

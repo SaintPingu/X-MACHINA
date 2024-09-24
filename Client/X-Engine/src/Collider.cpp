@@ -263,6 +263,11 @@ void ObjectCollider::Update()
 	}
 }
 
+void ObjectCollider::UpdateTransform()
+{
+	Update();
+}
+
 void ObjectCollider::Render() const
 {
 	if (!IsActive()) {

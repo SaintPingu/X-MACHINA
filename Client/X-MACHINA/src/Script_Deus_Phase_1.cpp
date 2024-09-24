@@ -23,18 +23,18 @@ void Script_Deus_Phase_1::Awake()
 
 void Script_Deus_Phase_1::Start()
 {
-	auto weapon = BattleScene::I->Instantiate("Deus_Phase_1_Rifle_Rust");
-	weapon->SetLocalTransform(Matrix::Identity);
-	mObject->FindFrame("RefPosGun_R")->SetChild(weapon->GetObj<Transform>()->GetShared());
+	mWeapon = BattleScene::I->Instantiate("Deus_Phase_1_Rifle_Rust");
+	mWeapon->SetLocalTransform(Matrix::Identity);
+	mObject->FindFrame("RefPosGun_R")->SetChild(mWeapon->GetObj<Transform>()->GetShared());
 
-	mWeapon = weapon->AddComponent<Script_Weapon_Deus_Rifle>();
+	mWeaponScript = mWeapon->GetObj<Object>()->AddComponent<Script_Weapon_Deus_Rifle>();
 }
 
 void Script_Deus_Phase_1::StartAttack()
 {
 	base::StartAttack();
 
-	mWeapon->SetTarget(mEnemyMgr->mTarget);
+	mWeaponScript->SetTarget(mEnemyMgr->mTarget);
 
 	switch (mCurrAttackCnt)
 	{
@@ -53,6 +53,13 @@ void Script_Deus_Phase_1::StartAttack()
 		break;
 	}
 
+}
+
+void Script_Deus_Phase_1::OnDestroy()
+{
+	base::OnDestroy();
+
+	mWeapon->Destroy();
 }
 
 void Script_Deus_Phase_1::MeleeAttackCallback()
@@ -76,5 +83,5 @@ void Script_Deus_Phase_1::ExplodeAttackCallback()
 
 void Script_Deus_Phase_1::FireMissille()
 {
-	mWeapon->FireBullet();
+	mWeaponScript->FireBullet();
 }

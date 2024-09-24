@@ -14,17 +14,16 @@ class Script_Deus_Phase_2 : public Script_Enemy {
 protected:
 	struct DeusPhase2AttackType : AttackType {
 		static constexpr int MeleeAttack = 1;
-		static constexpr int RangeAttack = 2;
-		static constexpr int ExplodeAttack = 3;
-		static constexpr int _count = 4;
+		static constexpr int _count = 2;
 	};
+
+private:
+	Object* mLeftWeapon{};
+	Object* mRightWeapon{};
 
 public:
 	virtual void Awake() override;
-
-protected:
-	void MeleeAttackCallback();
-	void RangeAttackCallback();
-	void ExplodeAttackCallback();
+	virtual void Start() override;
+	virtual void OnDestroy() override;
 };
 #pragma endregion

@@ -465,7 +465,6 @@ void Transform::UpdateAxis(bool isComputeWorldTransform)
 
 void Transform::UpdateLocalTransform(bool isComputeWorldTransform)
 {
-
 	::memcpy(&mLocalTransform._11, &mRight, sizeof(Vec3));
 	::memcpy(&mLocalTransform._21, &mUp, sizeof(Vec3));
 	::memcpy(&mLocalTransform._31, &mLook, sizeof(Vec3));

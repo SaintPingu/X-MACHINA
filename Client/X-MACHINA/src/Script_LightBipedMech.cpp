@@ -8,22 +8,30 @@
 #include "BattleScene.h"
 #include "Object.h"
 
+#include "Script_Weapon_MissileLauncher.h"
 
 void Script_LightBipedMech::Awake()
 {
 	base::Awake();
+}
 
-	mEnemyMgr->mController->FindMotionByName(mEnemyMgr->mStat.Attack1AnimName)->AddCallback(std::bind(&Script_LightBipedMech::AttackCallback, this), 20);
-
+void Script_LightBipedMech::Start()
+{
 	mWeapon = BattleScene::I->Instantiate("SM_Phaser");
-	Transform* weaponPos = mObject->FindFrame("RefPos_Weapon");
-	weaponPos->SetChild(mWeapon->GetShared());
+	mObject->FindFrame("RefPos_Weapon")->SetChild(mWeapon->GetObj<Transform>()->GetShared());
 	mWeapon->Rotate(Vector3::Right, 90);
+
+	mWeaponScript = mWeapon->GetObj<Object>()->AddComponent<Script_Weapon_LightBiped>();
+}
+
+void Script_LightBipedMech::StartAttack()
+{
+	mWeaponScript->FireBullet();
 }
 
 void Script_LightBipedMech::OnDestroy()
 {
 	base::OnDestroy();
 
-	mWeapon->OnDestroy();
+	mWeapon->Destroy();
 }

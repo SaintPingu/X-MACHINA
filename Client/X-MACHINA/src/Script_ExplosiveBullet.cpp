@@ -55,6 +55,10 @@ void Script_ExplosiveBullet::Explode()
 		}
 	}
 
+	if (mExplosionCollider) {
+		mExplosionCollider->SetActive(false);
+	}
+
 	MainCamera::I->GetComponent<Script_MainCamera>()->StartShake(1.f, 0.001f);
 }
 

@@ -944,8 +944,11 @@ void ClientNetworkManager::ProcessEvent_Monster_Add(NetworkEvent::Game::Event_Mo
 		// 몬스터가 이미 생성된 적이 있다면 
 		if (mRemoteMonsters.count(monsterID)) {
 			mRemoteMonsters[monsterID]->SetActiveMyObject(true);
-			mRemoteMonsters[monsterID]->SetPosition(position);
-			mRemoteMonsters[monsterID]->SetLocalRotation(Rotation);
+
+			if (monInfos[i].Type != FBProtocol::MONSTER_TYPE_LIGHTBIPEDMECH) {
+				mRemoteMonsters[monsterID]->SetPosition(position);
+				mRemoteMonsters[monsterID]->SetLocalRotation(Rotation);
+			}
 
 			if (monInfos[i].Target_Player_Id == 0) {
 				mRemoteMonsters[monsterID]->SetTarget(nullptr);

@@ -2,6 +2,7 @@
 #include "Script_Missile.h"
 
 #include "Object.h"
+#include "Component/Collider.h"
 #include "Component/ParticleSystem.h"
 
 
@@ -26,6 +27,7 @@ void Script_Missile::Fire(const Vec3& pos, const Vec3& dir)
 {
 	mObject->SetPosition(pos);
 	mObject->SetLook(dir);
+	mObject->GetComponent<ObjectCollider>()->UpdateTransform();
 
 	SetDamage(GetDamage());
 }

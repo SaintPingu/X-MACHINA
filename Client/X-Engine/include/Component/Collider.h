@@ -137,6 +137,7 @@ public:
 	virtual void Update() override;
 
 public:
+	void UpdateTransform();
 	void Render() const;
 
 	bool Intersects(const ObjectCollider* other) const;

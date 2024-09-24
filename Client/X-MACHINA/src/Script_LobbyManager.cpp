@@ -58,6 +58,30 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 	case TrooperSkin::Army:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Army_BaseColor"));
 		break;
+	case TrooperSkin::Outline:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Outline_BaseColor"));
+		break;
+	case TrooperSkin::Red:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Red_BaseColor"));
+		break;
+	case TrooperSkin::Yellow:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Yellow_BaseColor"));
+		break;
+	case TrooperSkin::Orange:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Orange_BaseColor"));
+		break;
+	case TrooperSkin::Pink:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Pink_BaseColor"));
+		break;
+	case TrooperSkin::Skyblue:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Skyblue_BaseColor"));
+		break;
+	case TrooperSkin::White:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_White_BaseColor"));
+		break;
+	case TrooperSkin::Purple:
+		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Purple_BaseColor"));
+		break;
 	case TrooperSkin::Dark:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_Dark_BaseColor"));
 		break;
@@ -66,9 +90,6 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 		break;
 	case TrooperSkin::Forest:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_ForestCamo_BaseColor"));
-		break;
-	case TrooperSkin::White:
-		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_White_BaseColor"));
 		break;
 	case TrooperSkin::Winter:
 		transform->SetTexture(RESOURCE<Texture>("T_EliteTrooper_WinterCamo_BaseColor"));
@@ -167,6 +188,8 @@ void Script_LobbyManager::AddPlayer(const LobbyPlayerInfo& info)
 	else {
 		mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, 1 + mCurRemotePlayerSize++);
 	}
+
+	mLobbyPlayers[info.ID]->SetSkin(TrooperSkin::Army);
 }
 
 void Script_LobbyManager::RemovePlayer(UINT32 id)
@@ -184,7 +207,7 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 
 void Script_LobbyManager::ChagneToNextSkin()
 {
-	if (++mCurSkinIdx > 5) {
+	if (++mCurSkinIdx >= static_cast<int>(TrooperSkin::_count)) {
 		mCurSkinIdx = 0;
 	}
 	
@@ -194,7 +217,7 @@ void Script_LobbyManager::ChagneToNextSkin()
 void Script_LobbyManager::ChagneToPrevSkin()
 {
 	if (--mCurSkinIdx < 0) {
-		mCurSkinIdx = 5;
+		mCurSkinIdx = static_cast<int>(TrooperSkin::_count) - 1;
 	}
 
 	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
@@ -207,6 +230,30 @@ void Script_LobbyManager::ChangeSkin(UINT32 id, const std::string& skinName)
 	case Hash("Army"):
 		skin = TrooperSkin::Army;
 		break;
+	case Hash("Outline"):
+		skin = TrooperSkin::Outline;
+		break;
+	case Hash("Red"):
+		skin = TrooperSkin::Red;
+		break;
+	case Hash("Yellow"):
+		skin = TrooperSkin::Yellow;
+		break;
+	case Hash("Orange"):
+		skin = TrooperSkin::Orange;
+		break;
+	case Hash("Pink"):
+		skin = TrooperSkin::Pink;
+		break;
+	case Hash("Skyblue"):
+		skin = TrooperSkin::Skyblue;
+		break;
+	case Hash("White"):
+		skin = TrooperSkin::White;
+		break;
+	case Hash("Purple"):
+		skin = TrooperSkin::Purple;
+		break;
 	case Hash("Dark"):
 		skin = TrooperSkin::Dark;
 		break;
@@ -215,9 +262,6 @@ void Script_LobbyManager::ChangeSkin(UINT32 id, const std::string& skinName)
 		break;
 	case Hash("Forest"):
 		skin = TrooperSkin::Forest;
-		break;
-	case Hash("White"):
-		skin = TrooperSkin::White;
 		break;
 	case Hash("Winter"):
 		skin = TrooperSkin::Winter;
@@ -251,14 +295,28 @@ std::string Script_LobbyManager::GetSkinName() const
 	switch (static_cast<TrooperSkin>(mCurSkinIdx)) {
 	case TrooperSkin::Army:
 		return "Army";
+	case TrooperSkin::Outline:
+		return "Outline";
+	case TrooperSkin::Red:
+		return "Red";
+	case TrooperSkin::Yellow:
+		return "Yellow";
+	case TrooperSkin::Orange:
+		return "Orange";
+	case TrooperSkin::Pink:
+		return "Pink";
+	case TrooperSkin::Skyblue:
+		return "Skyblue";
+	case TrooperSkin::White:
+		return "White";
+	case TrooperSkin::Purple:
+		return "Purple";
 	case TrooperSkin::Dark:
 		return "Dark";
 	case TrooperSkin::Desert:
 		return "Desert";
 	case TrooperSkin::Forest:
 		return "Forest";
-	case TrooperSkin::White:
-		return "White";
 	case TrooperSkin::Winter:
 		return "Winter";
 	default:

@@ -13,7 +13,7 @@ class Script_LobbyUI;
 
 #pragma region Class
 enum class TrooperSkin {
-	Army, Dark, Desert, Forest, White, Winter
+	Army, Outline, Red, Yellow, Orange, Pink, Skyblue, White, Purple, Dark, Desert, Forest, Winter, _count
 };
 
 struct LobbyPlayerInfo {

@@ -140,6 +140,7 @@ public:
 	void SetUseObjCB(bool val) const { mUseObjCB = val; mObjCBCount = 1; }
 
 	void SetTexture(rsptr<Texture> texture);
+	void SetTexture(int matIndex);
 #pragma endregion
 
 public:

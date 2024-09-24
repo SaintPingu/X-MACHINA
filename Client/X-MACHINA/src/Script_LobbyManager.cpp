@@ -77,6 +77,7 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 		assert(0);
 		break;
 	}
+	mMatIndex = transform->GetMatIndex();
 }
 
 void LobbyPlayer::Update()

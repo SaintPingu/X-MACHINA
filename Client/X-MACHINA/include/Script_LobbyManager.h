@@ -31,12 +31,15 @@ private:
 	float mCurLookAroundDelay{};
 	const float mMaxLookAroundDelay{};
 
+	int mMatIndex{};
+
 public:
 	LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx);
 
 	UINT32 GetID() const { return mInfo.ID; }
 	const std::string GetName() const { return mInfo.Name; }
 	GameObject* GetObj() const { return mObject; }
+	int GetMatIndex() const { return mMatIndex; }
 
 	void SetObject(GameObject* object) { mObject = object; }
 	void SetSkin(TrooperSkin skin);

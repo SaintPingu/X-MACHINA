@@ -14,6 +14,7 @@
 
 #include "ChatBoxUI.h"
 #include "SliderBarUI.h"
+#include "InputMgr.h"
 
 #include "Component/UI.h"
 
@@ -27,9 +28,14 @@ void Script_PlayerController::Awake()
 
 	mObject->AddComponent<Script_FootStepSound>();
 
-	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(30, 30));
+	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(45, 45));
 	mAimController = mObject->AddComponent<Script_AimController>();
 	mAimController->SetIconUI(aimUI);
+
+	mAimHitUI = Canvas::I->CreateUI<UI>(4, "Aim_Hit", Vec2::Zero, Vec2(45, 45));
+	mAimHitUI->SetActive(false);
+	mAimHitUI->SetOpacity(0.f);
+
 
 	mAbilityShield           = mObject->AddComponent<Script_Ability_Shield>(true, false);
 	mAbilityIRDetector       = mObject->AddComponent<Script_Ability_IRDetector>(true, false);
@@ -200,6 +206,13 @@ void Script_PlayerController::Hit()
 	mHurtUIdelta = 1.f;
 }
 
+void Script_PlayerController::ActiveHitAim()
+{
+	mAimHitUI->SetActive(true);
+	mHitUIDelta = 1.f;
+	mAimHitUI->SetOpacity(mHitUIDelta);
+}
+
 bool Script_PlayerController::IsInAerialControl()
 {
 	return mAbilityAerialController && mAbilityAerialController->IsActiveState();
@@ -222,5 +235,15 @@ void Script_PlayerController::UpdateUI()
 			mHurtUIdelta = 0.f;
 		}
 		mHurtUI->SetOpacity(mHurtUIdelta);
+	}
+
+	if (mAimHitUI->IsActive()) {
+		mAimHitUI->SetPosition(InputMgr::I->GetMousePos());
+		mHitUIDelta -= DeltaTime() * 1.3f;
+		if (mHitUIDelta < 0) {
+			mHitUIDelta = 0.f;
+			mAimHitUI->SetActive(false);
+		}
+		mAimHitUI->SetOpacity(mHitUIDelta);
 	}
 }

@@ -94,8 +94,13 @@ bool Script_ShootingPlayer::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LP
 
 void Script_ShootingPlayer::StartFire()
 {
+	if (!mIsAim) {
+		return;
+	}
 	if (mWeaponScript) {
-		mWeaponScript->StartFire();
+		if (fabs(mWeaponScript->GetMuzzle()->GetLook().y) < 0.3f) {
+			mWeaponScript->StartFire();
+		}
 	}
 }
 

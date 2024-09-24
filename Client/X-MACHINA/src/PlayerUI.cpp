@@ -46,10 +46,10 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player
 
 	{
 		TextOption textOption{};
-		textOption.Font = "Malgun Gothic";
+		textOption.Font = "Aerial";
 		textOption.FontSize = 16.f;
 		textOption.FontColor = TextFontColor::Type::GhostWhite;
-		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
+		textOption.FontWeight = TextFontWeight::MEDIUM;
 
 		mNameUI = TextMgr::I->CreateText(playerName, Vec2::Zero, textOption);
 	}

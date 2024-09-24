@@ -49,7 +49,7 @@ void Script_Bullet::Update()
 			Disappear();
 		}
 		else {
-			mObject->MoveForward(mMaxDistance - mCurDistance - 0.5f);	// return to impact point
+			mObject->MoveForward(mMaxDistance - mCurDistance - 0.2f);	// return to impact point
 			Explode();
 		}
 	}

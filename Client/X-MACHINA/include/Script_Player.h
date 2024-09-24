@@ -76,6 +76,7 @@ protected:
 	sptr<Script_Weapon> mWeaponScript{};
 	std::vector<GridObject*> mWeapons{};
 	Transform* mMuzzle{};
+	bool mIsAim{};
 
 public:
 	virtual void Start() override;
@@ -151,7 +152,6 @@ private:
 	float mRotationSpeed{};
 
 	// aim //
-	bool mIsAim{};
 	bool mIsInBodyRotation{};	// is in spine rotation
 	float mCrntSpineAngle{};
 	float mSpineDstAngle{};

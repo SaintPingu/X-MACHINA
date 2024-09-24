@@ -142,6 +142,7 @@ void ChatBoxUI::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam)
 		}
 		else if (wParam == VK_RETURN) {
 			ToggleChatBox();
+			ToggleChatBox();
 		}
 	}
 	break;

@@ -47,8 +47,10 @@ void Script_Ability_Cloaking::Update()
 
 	UpdateCooldownBarUI(mMaxCooldownTime, mCurCooldownTime);
 
-	if (!ReducePheroAmount()) {
-		SetActive(false);
+	if (GetState() == State::Active) {
+		if (!ReducePheroAmount()) {
+			SetActive(false);
+		}
 	}
 }
 

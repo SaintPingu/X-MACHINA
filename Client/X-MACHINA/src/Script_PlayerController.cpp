@@ -244,6 +244,14 @@ void Script_PlayerController::UpdateUI()
 			mHitUIDelta = 0.f;
 			mAimHitUI->SetActive(false);
 		}
+		
+		if (mHitUIDelta > 0.8f) {
+			float scale = 60 * mHitUIDelta;
+			mAimHitUI->SetScale(Vec2(scale, scale));
+		}
+		else {
+			mAimHitUI->SetScale(Vec2(45, 45));
+		}
 		mAimHitUI->SetOpacity(mHitUIDelta);
 	}
 }

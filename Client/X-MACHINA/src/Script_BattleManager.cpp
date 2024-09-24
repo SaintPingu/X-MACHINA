@@ -108,9 +108,9 @@ void Script_BattleManager::InitPlayers()
 		if (id == GameFramework::I->GetMyPlayerID()) {
 			player = BattleScene::I->Instantiate("EliteTrooper", ObjectTag::Player);
 			mPlayer = player;
-			player->AddComponent<Script_PheroPlayer>();
 			GameFramework::I->SetPlayer(player);
 			GameFramework::I->SetPlayerScript(player->AddComponent<Script_PlayerController>().get());
+			player->AddComponent<Script_PheroPlayer>();
 
 #ifdef SERVER_COMMUNICATION
 			player->AddComponent<Script_NetworkPlayer>();

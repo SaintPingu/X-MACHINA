@@ -134,6 +134,19 @@ void Script_LobbyManager::Awake()
 
 	mPlayerRotationBound = Canvas::I->CreateUI<Button>(0, "Image", Vec2(310, -220), Vec2(270, 560));
 	mPlayerRotationBound->SetOpacity(0.f);
+
+	{
+		mGBR = LobbyScene::I->Instantiate("GBR", Vec3(5.96f, 3.78f, 5.34f));
+		//mGBR = LobbyScene::I->Instantiate("GBR", Vec3(4.021297f, 0.02f, 18.21149f));
+		//mGBR->SetLocalRotation(Vec3(0, 24.9f, 0));
+		mGBRController = mGBR->GetAnimator()->GetController();
+		mGBRController->FindMotionByName("RunBackwardsCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunBackwardsLeftCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunBackwardsRightCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunForwardCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunForwardRightCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+		mGBRController->FindMotionByName("RunLeftCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+	}
 }
 
 void Script_LobbyManager::Start()
@@ -150,6 +163,7 @@ void Script_LobbyManager::Update()
 {
 	base::Update();
 
+	mGBR->Rotate(0, 20 * DeltaTime(), 0);
 	for (const auto& [id, lobbyPlayer] : mLobbyPlayers) {
 		lobbyPlayer->Update();
 	}
@@ -219,7 +233,7 @@ void Script_LobbyManager::ChagneToPrevSkin()
 	if (--mCurSkinIdx < 0) {
 		mCurSkinIdx = static_cast<int>(TrooperSkin::_count) - 1;
 	}
-
+	
 	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
 }
 
@@ -325,6 +339,14 @@ std::string Script_LobbyManager::GetSkinName() const
 	}
 
 	return "";
+}
+
+void Script_LobbyManager::GBREndCallback()
+{
+	if (++mGBRState > 5) {
+		mGBRState = 0;
+	}
+	mGBRController->SetValue("State", mGBRState);
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

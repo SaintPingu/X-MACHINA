@@ -51,11 +51,14 @@ private:
 	void LookAroundEndCallback();
 };
 
-
 class Script_LobbyManager : public Component {
 	COMPONENT(Script_LobbyManager, Component)
 
 private:
+	GameObject* mGBR{};
+	AnimatorController* mGBRController{};
+	int mGBRState{};
+
 	std::unordered_map<UINT32, sptr<LobbyPlayer>> mLobbyPlayers{};
 	int mCurSkinIdx{};
 	int mCurRemotePlayerSize{};
@@ -64,6 +67,7 @@ private:
 	bool mIsInPlayerRotation{};
 	float mPlayerRortationMouseStartX{};
 	UI* mPlayerRotationBound{};
+
 
 public:
 	virtual void Awake() override;
@@ -80,6 +84,9 @@ public:
 	std::string GetSkinName() const;
 
 	const std::unordered_map<UINT32, sptr<LobbyPlayer>>& GetPlayers() const { return mLobbyPlayers; }
+
+private:
+	void GBREndCallback();
 
 public:
 	static void ChangeToBattleScene();

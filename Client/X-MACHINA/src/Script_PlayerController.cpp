@@ -24,8 +24,6 @@ void Script_PlayerController::Awake()
 {
 	base::Awake();
 
-	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -775.f, -380.f }, Vec2{ 300.f, 200.f }, "Name");
-
 	mObject->AddComponent<Script_FootStepSound>();
 
 	const auto& aimUI = Canvas::I->CreateUI<UI>(3, "Aim", Vec2::Zero, Vec2(45, 45));
@@ -52,6 +50,8 @@ void Script_PlayerController::Awake()
 void Script_PlayerController::Start()
 {
 	base::Start();
+
+	mChatBoxUI = std::make_shared<ChatBoxUI>(Vec2{ -775.f, -380.f }, Vec2{ 300.f, 200.f }, mObject->GetName());
 
 	mScript = mObject->GetComponent<Script_PheroPlayer>();
 
@@ -196,9 +196,9 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 	return true;
 }
 
-void Script_PlayerController::Chat(const std::string& text)
+void Script_PlayerController::Chat(const std::string& text, const std::string& playerName)
 {
-	mChatBoxUI->AddChat(text, "other");
+	mChatBoxUI->AddChat(text, playerName);
 }
 
 void Script_PlayerController::Hit()

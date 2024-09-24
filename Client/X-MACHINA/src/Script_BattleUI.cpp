@@ -89,6 +89,24 @@ void Script_BattleUI::CreatePlayerUI(const Script_NetworkRemotePlayer* player)
 	CreatePlayerUI(player->GetObj(), playerName, playerLevel);
 }
 
+void Script_BattleUI::On()
+{
+	for (auto& playerUI : mPlayerUIs) {
+		if (playerUI) {
+			playerUI->On();
+		}
+	}
+}
+
+void Script_BattleUI::Off()
+{
+	for (auto& playerUI : mPlayerUIs) {
+		if (playerUI) {
+			playerUI->Off();
+		}
+	}
+}
+
 void Script_BattleUI::CreatePlayerUI(const Object* player, const std::string& playerName, int playerLevel)
 {
 	if (mLastIdx == mkMaxIdx) {

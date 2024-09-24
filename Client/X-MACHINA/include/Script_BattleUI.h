@@ -42,6 +42,9 @@ public:
 	void CreatePlayerUI(const Script_ShootingPlayer* player);
 	void CreatePlayerUI(const Script_NetworkRemotePlayer* player);
 
+	void On();
+	void Off();
+
 private:
 	void CreatePlayerUI(const Object* player, const std::string& playerName, int playerLevel);
 	bool IsValidPlayer(const Object* player) const { return mPlayerIndices.count(player); }

@@ -33,6 +33,9 @@ public:
 	void Update();
 	void UpdateSimple();
 
+	void On();
+	void Off();
+
 private:
 	void Reset();
 	void UpdateWeaponUIPos();

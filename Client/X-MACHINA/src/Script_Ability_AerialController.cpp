@@ -4,6 +4,8 @@
 #include "Airstrike.h"
 #include "Script_AerialCamera.h"
 #include "Script_AimController.h"
+#include "Script_SceneManager.h"
+#include "Script_BattleManager.h"
 
 #include "Component/Camera.h"
 #include "Component/UI.h"
@@ -14,6 +16,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "TextMgr.h"
 #include "Object.h"
 #include "SoundMgr.h"
 #include "ClientNetwork/Contents/FBsPacketFactory.h"
@@ -91,6 +94,9 @@ void Script_Ability_AerialController::On()
 	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mObject->GetID(), FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE);
 	CLIENT_NETWORK->Send(cpkt);
 #endif
+
+	TextMgr::I->Off();
+	Script_SceneManager::I->BattleManager()->OffUI();
 }
 
 void Script_Ability_AerialController::Off()
@@ -101,6 +107,9 @@ void Script_Ability_AerialController::Off()
 	mAerialCamera->SetActive(false);
 	ChangeAimToOrigin();
 	SoundMgr::I->Stop("Ability");
+
+	TextMgr::I->On();
+	Script_SceneManager::I->BattleManager()->OnUI();
 }
 
 void Script_Ability_AerialController::ChangeAimToOrigin()

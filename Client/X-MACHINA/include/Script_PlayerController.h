@@ -53,7 +53,7 @@ public:
 	virtual bool ProcessKeyboardMsg(UINT messageID, WPARAM wParam, LPARAM lParam);
 
 public:
-	void Chat(const std::string& text);
+	void Chat(const std::string& text, const std::string& playerName);
 	void Hit();
 	void ActiveHitAim();
 

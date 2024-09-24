@@ -320,6 +320,7 @@ class TextMgr : public Singleton<TextMgr> {
 
 private:
 	std::unordered_set<sptr<TextBox>> mTextBoxes{};
+    bool mIsEnable{ true };
 
 public:
     TextMgr() = default;
@@ -332,6 +333,9 @@ public:
 	void Render(RComPtr<struct ID2D1DeviceContext2> device);
     void Reset();
     void Clear();
+
+    void On() { mIsEnable = true; }
+    void Off() { mIsEnable = false; }
 
 private:
 	void CreateBrush();

@@ -91,6 +91,16 @@ void Script_BattleManager::Reset()
 	GameFramework::I->ResetPlayer();
 }
 
+void Script_BattleManager::OnUI()
+{
+	mUI->On();
+}
+
+void Script_BattleManager::OffUI()
+{
+	mUI->Off();
+}
+
 void Script_BattleManager::InitComponents()
 {
 	MainCamera::I->AddComponent<Script_MainCamera>();

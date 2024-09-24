@@ -1173,7 +1173,8 @@ void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_
 	std::string chat	= data->chat;
 	uint32_t player_id	= data->Id;
 
-	GameFramework::I->GetPlayerScript()->Chat(chat);
+	std::string name = mRemotePlayers[data->Id]->GetObj<Object>()->GetName();
+	GameFramework::I->GetPlayerScript()->Chat(chat, name);
 }
 
 void ClientNetworkManager::ProcessEvent_Contents_Custom(NetworkEvent::Game::Event_Contents::Custom* data)

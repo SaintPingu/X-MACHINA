@@ -35,6 +35,9 @@ public:
 	rsptr<Script_MainCamera> GetCamera() const { return mMainCamera; }
 	rsptr<Script_AbilityManager> GetAbilityMgr() const { return mAbilityMgr; }
 
+	void OnUI();
+	void OffUI();
+
 private:
 	void InitComponents();
 	void InitPlayers();

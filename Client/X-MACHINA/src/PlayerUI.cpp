@@ -178,6 +178,24 @@ void PlayerUI::UpdateSimple()
 	}
 }
 
+void PlayerUI::On()
+{
+	mBackgroundUI->SetActive(true);
+	mBackgroundDecoUI->SetActive(true);
+	mWeaponUI->SetActive(true);
+	mWeaponMagUI->SetActive(true);
+	mWeaponMagOutlineUI->SetActive(true);
+}
+
+void PlayerUI::Off()
+{
+	mBackgroundUI->SetActive(false);
+	mBackgroundDecoUI->SetActive(false);
+	mWeaponUI->SetActive(false);
+	mWeaponMagUI->SetActive(false);
+	mWeaponMagOutlineUI->SetActive(false);
+}
+
 void PlayerUI::Reset()
 {
 	mWeapon.reset();

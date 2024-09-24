@@ -236,13 +236,16 @@ void TextMgr::RemoveTextBox(TextBox* target)
 
 void TextMgr::Render(RComPtr<ID2D1DeviceContext2> device)
 {
-	for (const auto& textBox : mTextBoxes) {
-		textBox->Render(device);
+	if (mIsEnable) {
+		for (const auto& textBox : mTextBoxes) {
+			textBox->Render(device);
+		}
 	}
 }
 
 void TextMgr::Reset()
 {
+	mIsEnable = true;
 	for (const auto& textBox : mTextBoxes) {
 		textBox->Reset();
 	}

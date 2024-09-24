@@ -72,7 +72,7 @@ PSAerialControllerOutput PSAerialController(VSOutput_Tex pin)
     float t_noise = sin(gAbilityCB.AccTime);
     uiColor += (noiseUI * 0.01f * t_noise);
     
-    float runTime = gAbilityCB.ActiveTime - gAbilityCB.AccTime;
+    float runTime = gAbilityCB.AccTime;
     const float activateTime = 3.5f;
     if (runTime < activateTime)
     {

@@ -3,6 +3,7 @@
 
 #include "Script_MainCamera.h"
 #include "Script_Item.h"
+#include "Script_PlayerController.h"
 
 #include "Component/Camera.h"
 #include "Component/Rigidbody.h"
@@ -22,6 +23,8 @@ void Script_Player::Start()
 	base::Start();
 
 	mCamera = MainCamera::I->GetComponent<Script_MainCamera>().get();
+	mPlayerController = mObject->GetComponent<Script_PlayerController>().get();
+	SetInvincible();
 }
 
 void Script_Player::Update()
@@ -70,6 +73,13 @@ void Script_Player::Respawn()
 {
 	Resurrect();
 	mObject->SetWorldTransform(mSpawnTransform);
+}
+
+bool Script_Player::Hit(float damage, Object* instigator)
+{
+	mPlayerController->Hit();
+
+	return base::Hit(damage, instigator);
 }
 
 void Script_Player::Interact()

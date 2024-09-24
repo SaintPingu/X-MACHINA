@@ -13,6 +13,7 @@ class AnimatorMotion;
 class AnimatorController;
 class Script_Weapon;
 class Script_MainCamera;
+class Script_PlayerController;
 class Script_BattleUI;
 class GridObject;
 #pragma endregion
@@ -26,6 +27,7 @@ private:
 	int mLevel{};
 
 	Matrix			mSpawnTransform{};	// 리스폰 지점
+	Script_PlayerController* mPlayerController{};
 
 protected:
 	Script_MainCamera* mCamera{};
@@ -50,6 +52,8 @@ public:
 
 	virtual void Dead() override;
 	virtual void Respawn();
+
+	virtual bool Hit(float damage, Object* instigator = nullptr) override;
 
 private:
 	virtual void Interact();

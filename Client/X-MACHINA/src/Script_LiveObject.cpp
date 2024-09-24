@@ -47,6 +47,10 @@ bool Script_LiveObject::Hit(float damage, Object* instigator)
 	}
 
 	if (mCrntHP <= 0) {
+		if (mIsInvincible) {
+			mCrntHP = 1;
+			return false;
+		}
 		Dead();
 		return true;
 	}

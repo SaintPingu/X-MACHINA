@@ -21,6 +21,7 @@ protected:
 	float mRemoveTime{};
 
 private:
+	bool mIsInvincible{};
 	float mMaxHP{};
 	float mShieldAmount{};
 	float mCrntHP{};
@@ -31,6 +32,7 @@ public:
 	virtual void Start() override;
 	virtual void Update() override;
 
+	void SetInvincible() { mIsInvincible = true; }
 	void SetMaxHP(float hp) { mMaxHP = hp; }
 	void SetShield(float shield) { mShieldAmount = shield; }
 	void AddShield(float shield) { mShieldAmount += shield; }

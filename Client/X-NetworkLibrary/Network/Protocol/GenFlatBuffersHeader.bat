@@ -14,5 +14,6 @@ flatc --cpp FBP_LogIn.fbs
 flatc --cpp FBP_NetworkLatency.fbs
 flatc --cpp FBP_Phero.fbs
 flatc --cpp FBP_Player.fbs
+flatc --cpp FBP_Custom.fbs
 
 IF ERRORLEVEL 1 PAUSE

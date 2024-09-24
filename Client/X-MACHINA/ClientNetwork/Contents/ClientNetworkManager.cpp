@@ -310,6 +310,13 @@ void ClientNetworkManager::ProcessEvents()
 			NetworkEvent::Game::Event_Contents::Chat* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Chat*>(EventData.get());
 			ProcessEvent_Contents_Chat(data);
 		}
+		break;		
+		
+		case NetworkEvent::Game::ContentsType::Custom:
+		{
+			NetworkEvent::Game::Event_Contents::Custom* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Custom*>(EventData.get());
+			ProcessEvent_Contents_Custom(data);
+		}
 		break;
 
 		/// +---------------------------------------------------------------------------
@@ -640,6 +647,18 @@ sptr<NetworkEvent::Game::Event_Contents::Chat> ClientNetworkManager::CreateEvent
 	
 	Event->Id	= Id;
 	Event->chat = chat;
+
+	return Event;
+}
+
+sptr<NetworkEvent::Game::Event_Contents::Custom> ClientNetworkManager::CreateEvent_Custom(uint32_t Id, std::string trooperskin)
+{
+	sptr<NetworkEvent::Game::Event_Contents::Custom> Event = MEMORY->Make_Shared<NetworkEvent::Game::Event_Contents::Custom>();
+
+	Event->type = NetworkEvent::Game::ContentsType::Custom;
+
+	Event->player_id = Id;
+	Event->trooperskin = trooperskin;
 
 	return Event;
 }
@@ -1151,6 +1170,13 @@ void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_
 	uint32_t player_id	= data->Id;
 
 	GameFramework::I->GetPlayerScript()->Chat(chat);
+}
+
+void ClientNetworkManager::ProcessEvent_Contents_Custom(NetworkEvent::Game::Event_Contents::Custom* data)
+{
+	data->player_id;
+	data->trooperskin;
+
 }
 
 void ClientNetworkManager::ProcessEvent_Item_Interact(NetworkEvent::Game::Event_Item::Item_Interact* data)

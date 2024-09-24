@@ -16,6 +16,7 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
 #include "Enum_generated.h"
 #include "FBP_Bullet_generated.h"
 #include "FBP_Chat_generated.h"
+#include "FBP_Custom_generated.h"
 #include "FBP_Enemy_generated.h"
 #include "FBP_Enter_generated.h"
 #include "FBP_Item_generated.h"
@@ -44,70 +45,72 @@ enum FBsProtocolID : uint8_t {
   FBsProtocolID_SPkt_PlayGame = 12,
   FBsProtocolID_CPkt_EnterGame = 13,
   FBsProtocolID_SPkt_EnterGame = 14,
+  FBsProtocolID_CPkt_Custom = 15,
+  FBsProtocolID_SPkt_Custom = 16,
   /// +-----------------------------------------------------------------------
   ///  PLAYER PACKET HEADER PROTOCOL TYPE
   /// -----------------------------------------------------------------------+
-  FBsProtocolID_CPkt_NewPlayer = 15,
-  FBsProtocolID_SPkt_NewPlayer = 16,
-  FBsProtocolID_CPkt_RemovePlayer = 17,
-  FBsProtocolID_SPkt_RemovePlayer = 18,
-  FBsProtocolID_CPkt_PlayerOnSkill = 19,
-  FBsProtocolID_SPkt_PlayerOnSkill = 20,
-  FBsProtocolID_CPkt_Player_Transform = 21,
-  FBsProtocolID_SPkt_Player_Transform = 22,
-  FBsProtocolID_CPkt_Player_Animation = 23,
-  FBsProtocolID_SPkt_Player_Animation = 24,
-  FBsProtocolID_CPkt_Player_Weapon = 25,
-  FBsProtocolID_SPkt_Player_Weapon = 26,
-  FBsProtocolID_CPkt_Player_AimRotation = 27,
-  FBsProtocolID_SPkt_Player_AimRotation = 28,
-  FBsProtocolID_CPkt_Player_State = 29,
-  FBsProtocolID_SPkt_Player_State = 30,
+  FBsProtocolID_CPkt_NewPlayer = 17,
+  FBsProtocolID_SPkt_NewPlayer = 18,
+  FBsProtocolID_CPkt_RemovePlayer = 19,
+  FBsProtocolID_SPkt_RemovePlayer = 20,
+  FBsProtocolID_CPkt_PlayerOnSkill = 21,
+  FBsProtocolID_SPkt_PlayerOnSkill = 22,
+  FBsProtocolID_CPkt_Player_Transform = 23,
+  FBsProtocolID_SPkt_Player_Transform = 24,
+  FBsProtocolID_CPkt_Player_Animation = 25,
+  FBsProtocolID_SPkt_Player_Animation = 26,
+  FBsProtocolID_CPkt_Player_Weapon = 27,
+  FBsProtocolID_SPkt_Player_Weapon = 28,
+  FBsProtocolID_CPkt_Player_AimRotation = 29,
+  FBsProtocolID_SPkt_Player_AimRotation = 30,
+  FBsProtocolID_CPkt_Player_State = 31,
+  FBsProtocolID_SPkt_Player_State = 32,
   /// +-----------------------------------------------------------------------
   ///  MONSTER PACKET HEADER PROTOCOL TYPE
   /// -----------------------------------------------------------------------+
-  FBsProtocolID_CPkt_NewMonster = 31,
-  FBsProtocolID_SPkt_NewMonster = 32,
-  FBsProtocolID_CPkt_DeadMonster = 33,
-  FBsProtocolID_SPkt_DeadMonster = 34,
-  FBsProtocolID_CPkt_RemoveMonster = 35,
-  FBsProtocolID_SPkt_RemoveMonster = 36,
-  FBsProtocolID_CPkt_Monster_Transform = 37,
-  FBsProtocolID_SPkt_Monster_Transform = 38,
-  FBsProtocolID_CPkt_Monster_HP = 39,
-  FBsProtocolID_SPkt_Monster_HP = 40,
-  FBsProtocolID_CPkt_Monster_State = 41,
-  FBsProtocolID_SPkt_Monster_State = 42,
-  FBsProtocolID_CPkt_Monster_Target = 43,
-  FBsProtocolID_SPkt_Monster_Target = 44,
+  FBsProtocolID_CPkt_NewMonster = 33,
+  FBsProtocolID_SPkt_NewMonster = 34,
+  FBsProtocolID_CPkt_DeadMonster = 35,
+  FBsProtocolID_SPkt_DeadMonster = 36,
+  FBsProtocolID_CPkt_RemoveMonster = 37,
+  FBsProtocolID_SPkt_RemoveMonster = 38,
+  FBsProtocolID_CPkt_Monster_Transform = 39,
+  FBsProtocolID_SPkt_Monster_Transform = 40,
+  FBsProtocolID_CPkt_Monster_HP = 41,
+  FBsProtocolID_SPkt_Monster_HP = 42,
+  FBsProtocolID_CPkt_Monster_State = 43,
+  FBsProtocolID_SPkt_Monster_State = 44,
+  FBsProtocolID_CPkt_Monster_Target = 45,
+  FBsProtocolID_SPkt_Monster_Target = 46,
   /// +-----------------------------------------------------------------------
   ///  PHERO PACKET HEADER PROTOCOL TYPE
   /// -----------------------------------------------------------------------+
-  FBsProtocolID_CPkt_GetPhero = 45,
-  FBsProtocolID_SPkt_GetPhero = 46,
+  FBsProtocolID_CPkt_GetPhero = 47,
+  FBsProtocolID_SPkt_GetPhero = 48,
   /// +-----------------------------------------------------------------------
   ///  BULLET PACKET HEADER PROTOCOL TYPE
   /// -----------------------------------------------------------------------+
-  FBsProtocolID_CPkt_Bullet_OnShoot = 47,
-  FBsProtocolID_SPkt_Bullet_OnShoot = 48,
-  FBsProtocolID_CPkt_Bullet_OnHitEnemy = 49,
-  FBsProtocolID_SPkt_Bullet_OnHitEnemy = 50,
-  FBsProtocolID_CPkt_Bullet_OnHitExpEnemy = 51,
-  FBsProtocolID_SPkt_Bullet_OnHitExpEnemy = 52,
-  FBsProtocolID_CPkt_Bullet_OnCollision = 53,
-  FBsProtocolID_SPkt_Bullet_OnCollision = 54,
+  FBsProtocolID_CPkt_Bullet_OnShoot = 49,
+  FBsProtocolID_SPkt_Bullet_OnShoot = 50,
+  FBsProtocolID_CPkt_Bullet_OnHitEnemy = 51,
+  FBsProtocolID_SPkt_Bullet_OnHitEnemy = 52,
+  FBsProtocolID_CPkt_Bullet_OnHitExpEnemy = 53,
+  FBsProtocolID_SPkt_Bullet_OnHitExpEnemy = 54,
+  FBsProtocolID_CPkt_Bullet_OnCollision = 55,
+  FBsProtocolID_SPkt_Bullet_OnCollision = 56,
   /// +-----------------------------------------------------------------------
   ///  ITEM PACKET HEADER PROTOCOL TYPE
   /// -----------------------------------------------------------------------+
-  FBsProtocolID_CPkt_Item_Interact = 55,
-  FBsProtocolID_SPkt_Item_Interact = 56,
-  FBsProtocolID_CPkt_Item_ThrowAway = 57,
-  FBsProtocolID_SPkt_Item_ThrowAway = 58,
+  FBsProtocolID_CPkt_Item_Interact = 57,
+  FBsProtocolID_SPkt_Item_Interact = 58,
+  FBsProtocolID_CPkt_Item_ThrowAway = 59,
+  FBsProtocolID_SPkt_Item_ThrowAway = 60,
   FBsProtocolID_MIN = FBsProtocolID_None,
   FBsProtocolID_MAX = FBsProtocolID_SPkt_Item_ThrowAway
 };
 
-inline const FBsProtocolID (&EnumValuesFBsProtocolID())[59] {
+inline const FBsProtocolID (&EnumValuesFBsProtocolID())[61] {
   static const FBsProtocolID values[] = {
     FBsProtocolID_None,
     FBsProtocolID_CPkt_LogIn,
@@ -124,6 +127,8 @@ inline const FBsProtocolID (&EnumValuesFBsProtocolID())[59] {
     FBsProtocolID_SPkt_PlayGame,
     FBsProtocolID_CPkt_EnterGame,
     FBsProtocolID_SPkt_EnterGame,
+    FBsProtocolID_CPkt_Custom,
+    FBsProtocolID_SPkt_Custom,
     FBsProtocolID_CPkt_NewPlayer,
     FBsProtocolID_SPkt_NewPlayer,
     FBsProtocolID_CPkt_RemovePlayer,
@@ -173,7 +178,7 @@ inline const FBsProtocolID (&EnumValuesFBsProtocolID())[59] {
 }
 
 inline const char * const *EnumNamesFBsProtocolID() {
-  static const char * const names[60] = {
+  static const char * const names[62] = {
     "None",
     "CPkt_LogIn",
     "SPkt_LogIn",
@@ -189,6 +194,8 @@ inline const char * const *EnumNamesFBsProtocolID() {
     "SPkt_PlayGame",
     "CPkt_EnterGame",
     "SPkt_EnterGame",
+    "CPkt_Custom",
+    "SPkt_Custom",
     "CPkt_NewPlayer",
     "SPkt_NewPlayer",
     "CPkt_RemovePlayer",

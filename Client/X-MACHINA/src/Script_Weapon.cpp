@@ -82,10 +82,11 @@ void Script_Weapon::SetFiringMode(FiringMode firingMode)
 	}
 }
 
-void Script_Weapon::SetPlayerWeapon(bool val)
+void Script_Weapon::SetPlayerWeapon(bool val, const Object* player)
 {
+	mIsPlayerWeapon = val;
 	mBulletPool->DoAllObjects([&](rsptr<InstObject> bullet) {
-		bullet->GetComponent<Script_Bullet>()->SetPlayerBullet(mIsPlayerWeapon);
+		bullet->GetComponent<Script_Bullet>()->SetPlayerBullet(mIsPlayerWeapon, player);
 		});
 }
 

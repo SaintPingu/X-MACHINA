@@ -520,7 +520,7 @@ void Script_GroundPlayer::AquireNewWeapon(WeaponName weaponName)
 	const auto& weaponScript = weapon->GetComponent<Script_Weapon>();
 	weaponScript->Awake();
 	weaponScript->SetOwner(this);
-	weaponScript->SetPlayerWeapon(true);
+	weaponScript->SetPlayerWeapon(true, mObject);
 
 	SwitchWeapon(weapon);
 	SetWeaponChild(weapon);
@@ -532,7 +532,7 @@ void Script_GroundPlayer::TakeWeapon(rsptr<Script_Weapon> weapon)
 	SwitchWeapon(gameObject);
 	SetWeaponChild(gameObject);
 	weapon->SetOwner(this);
-	weapon->SetPlayerWeapon(true);
+	weapon->SetPlayerWeapon(true, mObject);
 	gameObject->GetComponent<Script_Weapon>()->SetOwner(this);
 
 	if (weapon->GetWeaponType() == WeaponType::Sniper) {

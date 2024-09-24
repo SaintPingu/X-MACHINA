@@ -38,7 +38,7 @@ void Script_Ability_AerialController::Awake()
 
 	mAirstrike = std::make_shared<Airstrike>();
 	mAirstrike->Init();
-	mAirstrike->SetPlayerBullet();
+	mAirstrike->SetPlayerBullet(mObject);
 }
 
 void Script_Ability_AerialController::Start()

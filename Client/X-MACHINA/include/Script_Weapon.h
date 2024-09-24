@@ -68,7 +68,7 @@ public:
 	bool IsReloading() const { return mIsReload || mIsBoltAction; }
 	bool IsShooting() const { return mIsShooting; }
 	bool IsPlayerWeapon() const { return mIsPlayerWeapon; }
-	void SetPlayerWeapon(bool val);
+	void SetPlayerWeapon(bool val, const Object* player = nullptr);
 
 	void SetOwner(Script_GroundPlayer* owner);
 

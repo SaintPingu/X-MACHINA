@@ -93,10 +93,10 @@ void Airstrike::Fire(const Vec3& pos, const Vec3& dir)
 	}
 }
 
-void Airstrike::SetPlayerBullet()
+void Airstrike::SetPlayerBullet(const Object* player)
 {
-	mMissilePool->DoAllObjects([](rsptr<InstObject> bullet) {
-		bullet->GetComponent<Script_Bullet>()->SetPlayerBullet(true);
+	mMissilePool->DoAllObjects([&](rsptr<InstObject> bullet) {
+		bullet->GetComponent<Script_Bullet>()->SetPlayerBullet(true, player);
 		});
 }
 

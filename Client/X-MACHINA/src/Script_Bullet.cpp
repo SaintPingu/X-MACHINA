@@ -24,11 +24,14 @@ void Script_Bullet::SetParticleSystems(BulletPSType type, const std::vector<std:
 	}
 }
 
-void Script_Bullet::SetPlayerBullet(bool val)
+void Script_Bullet::SetPlayerBullet(bool val, const Object* player)
 {
 	mIsPlayerBullet = val;
-	if (val) {
-		mPlayerController = GameFramework::I->GetPlayer()->GetComponent<Script_PlayerController>().get();
+	if (val && player) {
+		mPlayerController = player->GetComponent<Script_PlayerController>().get();
+	}
+	else {
+		mPlayerController = nullptr;
 	}
 }
 
@@ -70,7 +73,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 	Ray ray{ pos, dir };
 	ray.Direction.Normalize();
 
-	static const ObjectTag kCollisionTag = ObjectTag::Building | ObjectTag::DissolveBuilding | ObjectTag::Enemy | ObjectTag::Bound | ObjectTag::Player;
+	static const ObjectTag kCollisionTag = ObjectTag::Building | ObjectTag::DissolveBuilding | ObjectTag::Enemy | ObjectTag::Bound;
 
 	GridObject* target{};
 	const std::vector<sptr<Grid>>& grids = BattleScene::I->GetNeighborGrids(BattleScene::I->GetGridIndexFromPos(pos), true);
@@ -85,6 +88,9 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			if (!other->GetCollider()->Intersects(ray, distance)) {
 				continue;
 			}
+			if (otherTag == ObjectTag::Untagged) {
+				continue;
+			}
 			if (otherTag == ObjectTag::Enemy) {
 				const auto& script = other->GetComponent<Script_LiveObject>();
 				if (!script || script->IsDead()) {
@@ -96,6 +102,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 				mMaxDistance = distance;
 				target = other;
 			}
+			
 		}
 	}
 
@@ -105,7 +112,9 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 			enemy->Hit(0, nullptr);
 			mParticleType = BulletPSType::Explosion;
 			if (mIsPlayerBullet) {
-				mPlayerController->ActiveHitAim();
+				if (mPlayerController) {
+					mPlayerController->ActiveHitAim();
+				}
 				// TODO : send onhit packet here
 				auto cpkt = FBS_FACTORY->CPkt_Bullet_OnHitEnemy(enemy->GetObj()->GetID(), mObject->GetPosition(), mObject->GetLook());
 				CLIENT_NETWORK->Send(cpkt);
@@ -119,6 +128,7 @@ void Script_Bullet::Fire(const Vec3& pos, const Vec3& dir)
 
 void Script_Bullet::Fire(const Transform& transform, const Vec2& err)
 {
+	mCurDistance = 0.f;
 	mObject->SetLocalRotation(transform.GetRotation());
 	Vec3 dir = ApplyErr(transform.GetLook(), err);
 	Fire(transform.GetPosition(), dir);

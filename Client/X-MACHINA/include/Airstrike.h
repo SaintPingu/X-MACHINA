@@ -1,6 +1,7 @@
 #pragma once
 
 #pragma region ClassForwardDecl
+class Object;
 class ObjectPool;
 class InstObject;
 #pragma endregion
@@ -40,7 +41,7 @@ public:
 
 	void StartFire(const Vec3& pos, const Vec3& dir);
 	void Fire(const Vec3& pos, const Vec3& dir); // for remote player
-	void SetPlayerBullet();
+	void SetPlayerBullet(const Object* player);
 
 private:
 	void CreateMissilePool();

@@ -22,6 +22,7 @@ public:
 
 	short GetWindowWidth() const { return mWindowWidth; }
 	short GetWindowHeight() const { return mWindowHeight; }
+	Scene* GetCrntScene() const { return mCrntScene; }
 
 public:
 	void Init(HINSTANCE hInstance, HWND hWnd);

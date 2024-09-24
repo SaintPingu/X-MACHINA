@@ -21,7 +21,7 @@ private:
 	TextBox* mLevelText{};
 
 public:
-	PlayerUI(const Vec2& position, const Vec3& color, const Object* player, const std::wstring& playerName, int playerLevel);
+	PlayerUI(const Vec2& position, const Vec3& color, const Object* player, const std::string& playerName, int playerLevel);
 	~PlayerUI();
 	
 public:

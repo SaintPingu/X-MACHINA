@@ -24,7 +24,6 @@ class Script_Player abstract : public Script_LiveObject {
 
 private:
 	int mLevel{};
-	std::wstring mName{ L"Unknown" };
 
 	Matrix			mSpawnTransform{};	// 리스폰 지점
 
@@ -36,10 +35,8 @@ public:
 	virtual void Update() override;
 
 public:
-	const std::wstring& GetName() const { return mName; }
 	int GetLevel() const { return mLevel; }
 
-	void SetName(const std::wstring& name) { mName = name; }
 	void SetLevel(int level) { mLevel = level; }
 
 	// player를 [pos]로 위치시키고 해당 위치를 리스폰 지점으로 설정한다.

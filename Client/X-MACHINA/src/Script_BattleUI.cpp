@@ -75,7 +75,7 @@ void Script_BattleUI::SetWeapon(const Object* player, rsptr<Script_Weapon> weapo
 
 void Script_BattleUI::CreatePlayerUI(const Script_ShootingPlayer* player)
 {
-	const std::wstring& playerName = player->GetName();
+	const std::string& playerName = player->GetObj()->GetName();
 	const int playerLevel = player->GetLevel();
 
 	CreatePlayerUI(player->GetObj(), playerName, playerLevel);
@@ -83,13 +83,13 @@ void Script_BattleUI::CreatePlayerUI(const Script_ShootingPlayer* player)
 
 void Script_BattleUI::CreatePlayerUI(const Script_NetworkRemotePlayer* player)
 {
-	const std::wstring& playerName = player->GetName();
+	const std::string& playerName = player->GetObj()->GetName();
 	const int playerLevel = player->GetLevel();
 
 	CreatePlayerUI(player->GetObj(), playerName, playerLevel);
 }
 
-void Script_BattleUI::CreatePlayerUI(const Object* player, const std::wstring& playerName, int playerLevel)
+void Script_BattleUI::CreatePlayerUI(const Object* player, const std::string& playerName, int playerLevel)
 {
 	if (mLastIdx == mkMaxIdx) {
 		return;

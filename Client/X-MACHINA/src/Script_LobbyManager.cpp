@@ -17,6 +17,7 @@
 #include "AnimatorMotion.h"
 #include "ResourceMgr.h"
 #include "Texture.h"
+#include "TextMgr.h"
 
 #include "Component/UI.h"
 #include "Component/Camera.h"
@@ -29,7 +30,8 @@
 LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx)
 	:
 	mInfo(info),
-	mMaxLookAroundDelay(5.f)
+	mMaxLookAroundDelay(5.f),
+	mIndex(idx)
 {
 	// <pos, rot>
 	static const std::array<std::pair<Vec3, float>, 3> kTransforms {
@@ -48,6 +50,10 @@ LobbyPlayer::LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx)
 	mController = mObject->GetAnimator()->GetController();
 	const auto& motion = mController->FindMotionByName("IdleLookAroundUnarmed", "Body");
 	motion->AddCallback(std::bind(&LobbyPlayer::LookAroundEndCallback, this), 150);
+
+	if (Engine::I->GetCrntScene() == LobbyScene::I.get()) {
+		Init();
+	}
 }
 
 void LobbyPlayer::SetSkin(TrooperSkin skin)
@@ -101,6 +107,25 @@ void LobbyPlayer::SetSkin(TrooperSkin skin)
 	mMatIndex = transform->GetMatIndex();
 }
 
+void LobbyPlayer::Init() const
+{
+	static const std::array<Vec2, 3> kTextPoistions{
+		Vec2(320, 98),
+		Vec2(106, 85),
+		Vec2(623, 86),
+	};
+
+	{
+		TextOption textOption{};
+		textOption.Font = "Malgun Gothic";
+		textOption.FontSize = 18.f;
+		textOption.FontColor = TextFontColor::Type::White;
+		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
+
+		TextMgr::I->CreateText(mInfo.Name, kTextPoistions[mIndex], textOption);
+	}
+}
+
 void LobbyPlayer::Update()
 {
 	mCurLookAroundDelay += DeltaTime();
@@ -146,6 +171,10 @@ void Script_LobbyManager::Awake()
 		mGBRController->FindMotionByName("RunForwardCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
 		mGBRController->FindMotionByName("RunForwardRightCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
 		mGBRController->FindMotionByName("RunLeftCombat")->AddEndCallback(std::bind(&Script_LobbyManager::GBREndCallback, this));
+	}
+
+	for (const auto& [id, lobbyPlayer] : mLobbyPlayers) {
+		lobbyPlayer->Init();
 	}
 }
 

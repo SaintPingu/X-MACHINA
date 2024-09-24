@@ -348,7 +348,8 @@ bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBPro
 	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
 	LOG_MGR->SetColor(TextColor::Default);
 
-	MyInfo.Name = "MyPlayer";
+	GameFramework::I->Login(MyInfo.Id);
+	MyInfo.Name = session->GetName();
 	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(MyInfo);
 	CLIENT_NETWORK->RegisterEvent(EventData);
 
@@ -370,8 +371,6 @@ bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBPro
 		CLIENT_NETWORK->RegisterEvent(EventData);
 	}
 	LOG_MGR->Cout("¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á\n");
-
-	GameFramework::I->Login(MyInfo.Id);
 
 	return true;
 }

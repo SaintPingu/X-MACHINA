@@ -12,7 +12,7 @@
 #include "Component/UI.h"
 #include "Component/Camera.h"
 
-PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player, const std::wstring& playerName, int playerLevel)
+PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player, const std::string& playerName, int playerLevel)
 	: mPlayer(player)
 {
 	mBackgroundUI = Canvas::I->CreateUI<UI>(0, "WeaponUI_Background");
@@ -29,7 +29,7 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player
 		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
 		textOption.HAlignment = TextAlignType::Leading;
 
-		mNameText = TextMgr::I->CreateText(WstringToString(playerName), Vec2::Zero, textOption);
+		mNameText = TextMgr::I->CreateText(playerName, Vec2::Zero, textOption);
 	}
 
 	{
@@ -51,7 +51,7 @@ PlayerUI::PlayerUI(const Vec2& position, const Vec3& color, const Object* player
 		textOption.FontColor = TextFontColor::Type::GhostWhite;
 		textOption.FontWeight = TextFontWeight::DEMI_BOLD;
 
-		mNameUI = TextMgr::I->CreateText(WstringToString(playerName), Vec2::Zero, textOption);
+		mNameUI = TextMgr::I->CreateText(playerName, Vec2::Zero, textOption);
 	}
 
 	SetPosition(position);

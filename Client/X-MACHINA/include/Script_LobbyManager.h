@@ -32,6 +32,7 @@ private:
 	const float mMaxLookAroundDelay{};
 
 	int mMatIndex{};
+	const int mIndex{};
 
 public:
 	LobbyPlayer(const LobbyPlayerInfo& info, unsigned char idx);
@@ -45,6 +46,7 @@ public:
 	void SetSkin(TrooperSkin skin);
 
 public:
+	void Init() const;
 	void Update();
 
 private:

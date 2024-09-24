@@ -43,7 +43,7 @@ public:
 	void CreatePlayerUI(const Script_NetworkRemotePlayer* player);
 
 private:
-	void CreatePlayerUI(const Object* player, const std::wstring& playerName, int playerLevel);
+	void CreatePlayerUI(const Object* player, const std::string& playerName, int playerLevel);
 	bool IsValidPlayer(const Object* player) const { return mPlayerIndices.count(player); }
 
 	Vec2 GetPos(int idx) const;

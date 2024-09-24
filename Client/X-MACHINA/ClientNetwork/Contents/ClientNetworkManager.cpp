@@ -1174,9 +1174,7 @@ void ClientNetworkManager::ProcessEvent_Contents_Chat(NetworkEvent::Game::Event_
 
 void ClientNetworkManager::ProcessEvent_Contents_Custom(NetworkEvent::Game::Event_Contents::Custom* data)
 {
-	data->player_id;
-	data->trooperskin;
-
+	Script_SceneManager::I->LobbyManager()->ChangeSkin(data->player_id, data->trooperskin);
 }
 
 void ClientNetworkManager::ProcessEvent_Item_Interact(NetworkEvent::Game::Event_Item::Item_Interact* data)

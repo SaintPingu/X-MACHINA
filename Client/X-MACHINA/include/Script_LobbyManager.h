@@ -55,7 +55,7 @@ class Script_LobbyManager : public Component {
 private:
 	std::unordered_map<UINT32, sptr<LobbyPlayer>> mLobbyPlayers{};
 	int mCurSkinIdx{};
-	int mCurPlayerSize{};
+	int mCurRemotePlayerSize{};
 
 	Script_LobbyUI* mLobbyUI{};
 	bool mIsInPlayerRotation{};
@@ -72,7 +72,9 @@ public:
 	void RemovePlayer(UINT32 id);
 	void ChagneToNextSkin();
 	void ChagneToPrevSkin();
+	void ChangeSkin(UINT32 id, const std::string& skinName);
 	void ChangeSkin(UINT32 id, TrooperSkin skin);
+	std::string GetSkinName() const;
 
 	const std::unordered_map<UINT32, sptr<LobbyPlayer>>& GetPlayers() const { return mLobbyPlayers; }
 

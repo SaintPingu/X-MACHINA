@@ -159,10 +159,12 @@ void Script_LobbyManager::AddPlayer(const LobbyPlayerInfo& info)
 		return;
 	}
 
-	mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, mCurPlayerSize++);
 
 	if (info.ID == GameFramework::I->GetMyPlayerID()) {
-		ParticleManager::I->Play("Scene Dust", mLobbyPlayers[info.ID]->GetObj());
+		mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, 0);
+	}
+	else {
+		mLobbyPlayers[info.ID] = std::make_shared<LobbyPlayer>(info, 1 + mCurRemotePlayerSize++);
 	}
 }
 
@@ -176,7 +178,7 @@ void Script_LobbyManager::RemovePlayer(UINT32 id)
 	mLobbyPlayers[id] = nullptr;
 	LobbyScene::I->RemoveSkinMeshObject(target);
 
-	--mCurPlayerSize;
+	--mCurRemotePlayerSize;
 }
 
 void Script_LobbyManager::ChagneToNextSkin()
@@ -197,6 +199,36 @@ void Script_LobbyManager::ChagneToPrevSkin()
 	ChangeSkin(GameFramework::I->GetMyPlayerID(), static_cast<TrooperSkin>(mCurSkinIdx));
 }
 
+void Script_LobbyManager::ChangeSkin(UINT32 id, const std::string& skinName)
+{
+	TrooperSkin skin;
+	switch (Hash(skinName)) {
+	case Hash("Army"):
+		skin = TrooperSkin::Army;
+		break;
+	case Hash("Dark"):
+		skin = TrooperSkin::Dark;
+		break;
+	case Hash("Desert"):
+		skin = TrooperSkin::Desert;
+		break;
+	case Hash("Forest"):
+		skin = TrooperSkin::Forest;
+		break;
+	case Hash("White"):
+		skin = TrooperSkin::White;
+		break;
+	case Hash("Winter"):
+		skin = TrooperSkin::Winter;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	ChangeSkin(id, skin);
+}
+
 void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)
 {
 	if (!mLobbyPlayers.count(id)) {
@@ -204,6 +236,36 @@ void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)
 	}
 
 	mLobbyPlayers[id]->SetSkin(skin);
+
+#ifdef SERVER_COMMUNICATION
+	if (id == GameFramework::I->GetMyPlayerID()) {
+		auto cpkt = FBS_FACTORY->CPkt_Custom(GetSkinName());
+		CLIENT_NETWORK->Send(cpkt);
+	}
+#endif
+}
+
+std::string Script_LobbyManager::GetSkinName() const
+{
+	switch (static_cast<TrooperSkin>(mCurSkinIdx)) {
+	case TrooperSkin::Army:
+		return "Army";
+	case TrooperSkin::Dark:
+		return "Dark";
+	case TrooperSkin::Desert:
+		return "Desert";
+	case TrooperSkin::Forest:
+		return "Forest";
+	case TrooperSkin::White:
+		return "White";
+	case TrooperSkin::Winter:
+		return "Winter";
+	default:
+		assert(0);
+		break;
+	}
+
+	return "";
 }
 
 void Script_LobbyManager::ChangeToBattleScene()

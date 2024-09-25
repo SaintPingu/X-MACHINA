@@ -135,29 +135,27 @@ bool Script_PlayerController::ProcessKeyboardMsg(UINT messageID, WPARAM wParam, 
 		case VK_RETURN:
 			mChatBoxUI->ToggleChatBox();
 			return false;
-
 			// weapons //
 		case 'G':
 			mScript->DropCrntWeapon();
 			break;
-
 			// phero skills //
-		case 'U':
+		case VK_F2:
 			mRemoteAbilityMindControl->Toggle();
 			break;
 		case VK_F1:
 			mAbilityShield->Toggle();
 			break;
-		case VK_F2:
+		case VK_F3:
 			mAbilityCloaking->Toggle();
 			break;
-		case VK_F3:
+		case 'Y':
 			mAbilityIRDetector->Toggle();
 			break;
-		case 'N':
+		case 'T':
 			mAbilityNightVision->Toggle();
 			break;
-		case 'M':
+		case 'U':
 			mAbilityAerialController->Toggle();
 			if (!mAbilityAerialController->IsActiveState()) {
 				mScript->SendCrntWeapon();

@@ -39,5 +39,6 @@ private:
 	void Attack();
 	void Idle();
 	void Death();
+	void GetHit();
 };
 

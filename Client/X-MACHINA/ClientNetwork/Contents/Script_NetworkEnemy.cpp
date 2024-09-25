@@ -87,14 +87,17 @@ void Script_NetworkEnemy::SetState(FBProtocol::MONSTER_BT_TYPE btType, int attac
 		SetState(EnemyState::GetHit, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_TARGET:
+		mEnemyMgr->RemoveAllAnimation();
 		mEnemyMgr->mController->SetValue("Walk", true);
 		SetState(EnemyState::MoveToTarget, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_MOVE_TO_PATH:
+		mEnemyMgr->RemoveAllAnimation();
 		mEnemyMgr->mController->SetValue("Walk", true);
 		SetState(EnemyState::MoveToPath, attackCnt);
 		break;
 	case FBProtocol::MONSTER_BT_TYPE_PATROL:
+		mEnemyMgr->RemoveAllAnimation();
 		mEnemyMgr->mController->SetValue("Walk", true);
 		SetState(EnemyState::Patrol, attackCnt);
 		break;
@@ -139,6 +142,8 @@ void Script_NetworkEnemy::Update()
 		Attack();
 	else if (mEnemyMgr->mState == EnemyState::Death)
 		Death();
+	else if (mEnemyMgr->mState == EnemyState::GetHit)
+		GetHit();
 	else if (mEnemyMgr->mState == EnemyState::Idle)
 		Idle();
 }
@@ -199,4 +204,9 @@ void Script_NetworkEnemy::Death()
 		mObject->mObjectCB.HitRimFactor = 0.7f;
 		mObject->Destroy();
 	}
+}
+
+void Script_NetworkEnemy::GetHit()
+{
+	mEnemy->GetHit();
 }

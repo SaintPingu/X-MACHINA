@@ -85,6 +85,12 @@ void Script_Enemy::Attack()
 {
 }
 
+void Script_Enemy::GetHit()
+{
+	mEnemyMgr->RemoveAllAnimation();
+	mEnemyMgr->mController->SetValue("GetHit", true);
+}
+
 void Script_Enemy::Dead()
 {
 	base::Dead();

@@ -44,6 +44,7 @@ public:
 public:
 	virtual void StartAttack();
 	virtual void Attack();
+	virtual void GetHit();
 	virtual void Dead() override;
 	virtual void Detect();
 	virtual bool Hit(float damage, Object* instigator = nullptr) override;

@@ -16,7 +16,7 @@ class Script_AimController : public Component {
 
 private:
 	UI* mUI{};
-	TextBox* mPosText{};
+	//TextBox* mPosText{};
 
 public:
 	virtual void Awake() override;

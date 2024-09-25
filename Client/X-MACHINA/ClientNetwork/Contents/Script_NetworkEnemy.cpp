@@ -151,6 +151,7 @@ void Script_NetworkEnemy::Update()
 void Script_NetworkEnemy::MoveToTarget()
 {
 	if (!mEnemyMgr->mTarget) {
+		mEnemyMgr->mController->SetValue("Walk", false);
 		return;
 	}
 
@@ -174,6 +175,7 @@ void Script_NetworkEnemy::MoveToTarget()
 void Script_NetworkEnemy::Attack()
 {
 	if (!mEnemyMgr->mTarget) {
+		mEnemyMgr->mController->SetValue("Attack", 0);
 		return;
 	}
 

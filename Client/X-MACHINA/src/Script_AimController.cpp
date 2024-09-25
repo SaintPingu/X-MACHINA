@@ -19,7 +19,7 @@ void Script_AimController::Awake()
 		textOption.VAlignment = TextParagraphAlign::Near;
 		textOption.HAlignment = TextAlignType::Trailing;
 
-		mPosText = TextMgr::I->CreateText("(1920, 1080)", Vec2(-10, -10), textOption);
+		//mPosText = TextMgr::I->CreateText("(1920, 1080)", Vec2(-10, -10), textOption);
 	}
 }
 
@@ -56,17 +56,17 @@ void Script_AimController::ChangeAimTexture(rsptr<Texture> newTexture, const Vec
 
 void Script_AimController::UpdatePosText()
 {
-	if (!mPosText) {
-		return;
-	}
+	//if (!mPosText) {
+	//	return;
+	//}
 
-	Vec2 mousePos = InputMgr::I->GetMousePos();
-	std::string x = std::to_string(static_cast<int>(mousePos.x));
-	std::string y = std::to_string(static_cast<int>(mousePos.y));
+	//Vec2 mousePos = InputMgr::I->GetMousePos();
+	//std::string x = std::to_string(static_cast<int>(mousePos.x));
+	//std::string y = std::to_string(static_cast<int>(mousePos.y));
 
-	std::string pX = std::to_string(static_cast<int>(mObject->GetPosition().x));
-	std::string pZ = std::to_string(static_cast<int>(mObject->GetPosition().z));
+	//std::string pX = std::to_string(static_cast<int>(mObject->GetPosition().x));
+	//std::string pZ = std::to_string(static_cast<int>(mObject->GetPosition().z));
 
 
-	mPosText->SetText("(Pos : " + pX  +  ", " + pZ + ") (Dir : " + x + ", " + y + ")");
+	//mPosText->SetText("(Pos : " + pX  +  ", " + pZ + ") (Dir : " + x + ", " + y + ")");
 }

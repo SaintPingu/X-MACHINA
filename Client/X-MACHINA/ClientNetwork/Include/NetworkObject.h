@@ -31,7 +31,7 @@ public:
 public:
 	HANDLE		 GetSocketHandle()		{ return reinterpret_cast<HANDLE>(mSocketData.GetSocket()); }
 	SocketData&  GetSocketData()		{ return mSocketData; }
-	std::string GetName() const { return mName; }
+	
 
 	void		SetSocketData(SocketData& sockData) { mSocketData = sockData; }
 	void		SetName(std::string name) { mName = name; }

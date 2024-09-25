@@ -37,6 +37,7 @@ public:
 	void		SetName(std::string name) { mName = name; }
 
 	UINT32 GetID() { return ID; }
+	std::string GetName() { return mName; }
 
 
 };

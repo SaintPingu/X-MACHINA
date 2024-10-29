@@ -15,6 +15,7 @@
 
 #pragma region Define
 //#define SERVER_COMMUNICATION
+static constexpr UINT32 gkSinglePlayerID = 0;
 
 #define _MATRIX(x)	XMLoadFloat4x4(&x)
 #define _VECTOR4(x)	XMLoadFloat4(&x)

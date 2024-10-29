@@ -209,6 +209,8 @@ std::string Script_Weapon::GetWeaponModelName(WeaponName weaponName)
 uint8_t Script_Weapon::GetWeaponItemType(WeaponName weaponName)
 {
 	switch (weaponName) {
+	case WeaponName::H_Lock:
+		return FBProtocol::ITEM_TYPE_WEAPON_H_LOOK;
 	case WeaponName::SkyLine:
 		return FBProtocol::ITEM_TYPE_WEAPON_SKYLINE;
 	case WeaponName::DBMS:
@@ -225,6 +227,25 @@ uint8_t Script_Weapon::GetWeaponItemType(WeaponName weaponName)
 	}
 
 	return 0;
+}
+
+WeaponName Script_Weapon::GetWeaponName(const std::string& weaponName)
+{
+	static const std::unordered_map<std::string, WeaponName> kWeaponMaps{
+	{"H_Lock", WeaponName::H_Lock },
+	{"SkyLine", WeaponName::SkyLine  },
+	{"DBMS", WeaponName::DBMS },
+	{"Burnout", WeaponName::Burnout  },
+	{"PipeLine", WeaponName::PipeLine },
+	{"MineLauncher", WeaponName::MineLauncher },
+	};
+
+
+	if (!kWeaponMaps.count(weaponName)) {
+		return WeaponName::_count;	// error
+	}
+
+	return kWeaponMaps.at(weaponName);
 }
 
 int Script_Weapon::GetWeaponIdx(WeaponType weaponType)

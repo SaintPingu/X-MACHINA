@@ -1217,10 +1217,19 @@ void ClientNetworkManager::ProcessEvent_Item_Interact(NetworkEvent::Game::Event_
 	data->item_id;
 	data->item_type;
 
-	ItemType itemType = mItems[data->item_id]->GetItemType();
-	if (mItems[data->item_id]->InteractOK(mRemotePlayers[data->player_id])) {
+	Script_Item* item = mItems[data->item_id];
+	ItemType itemType = item->GetItemType();
+	if (item->InteractOK(mRemotePlayers[data->player_id])) {
 		if (itemType == ItemType::WeaponCrate) {
 			mItems.erase(data->item_id);
+
+#ifndef SERVER_COMMUNICATION
+			FBProtocol::ITEM_TYPE itemType = static_cast<FBProtocol::ITEM_TYPE>(((Script_Item_WeaponCrate*)(item))->GetWeaponType());
+			Vec3 itemPos = item->GetObj()->GetPosition();
+
+			auto eventData = CreateEvent_Item_ThrowAway(data->player_id, data->item_id, itemType, itemPos);
+			RegisterEvent(eventData);
+#endif
 		}
 	}
 }
@@ -1245,6 +1254,9 @@ void ClientNetworkManager::ProcessEvent_Item_ThrowAway(NetworkEvent::Game::Event
 	}
 	else {
 		if (mItems[data->item_id]->GetItemType() == ItemType::Weapon) {
+#ifndef SERVER_COMMUNICATION
+			data->drop_Pos = mRemotePlayers[data->player_id]->GetPosition();
+#endif
 			((Script_Item_Weapon*)mItems[data->item_id])->Throw(data->drop_Pos);
 		}
 	}

@@ -47,6 +47,9 @@ protected:
 class Script_Item_WeaponCrate : public Script_Item, SceneScript {
 	COMPONENT(Script_Item_WeaponCrate, Script_Item)
 
+private:
+	std::string mWeaponName{};
+
 public:
 	Transform* mCap{};
 
@@ -64,6 +67,8 @@ public:
 	virtual ItemType GetItemType() override { return ItemType::WeaponCrate; }
 
 	virtual void LoadData(rsptr<ScriptExporter> exporter) override;
+
+	uint8_t GetWeaponType() const;
 
 protected:
 	virtual void DisableInteract();

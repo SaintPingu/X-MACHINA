@@ -56,12 +56,16 @@ void Script_Item_WeaponCrate::OnCollisionEnter(Object& other)
 
 void Script_Item_WeaponCrate::LoadData(rsptr<ScriptExporter> exporter)
 {
-	std::string weaponName;
 	int id{};
-	exporter->GetData("Name", weaponName);
+	exporter->GetData("Name", mWeaponName);
 	exporter->GetData("ID", id);
 	mObject->SetID(id);
 	CLIENT_NETWORK->AddItem(id, this);
+}
+
+uint8_t Script_Item_WeaponCrate::GetWeaponType() const
+{
+	return Script_Weapon::GetWeaponItemType(Script_Weapon::GetWeaponName(mWeaponName));
 }
 
 void Script_Item_WeaponCrate::DisableInteract()

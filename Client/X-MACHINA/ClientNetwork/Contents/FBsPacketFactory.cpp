@@ -962,7 +962,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_LogIn(std::string id, std::string passwor
 	
 #ifndef SERVER_COMMUNICATION
 	GamePlayerInfo info;
-	info.Id = 0;
+	info.Id = gkSinglePlayerID;
 	info.Name = "Unknown";
 	Login(nullptr, info);
 
@@ -1061,6 +1061,12 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayGame()
 {
+#ifndef SERVER_COMMUNICATION
+	Script_SceneManager::I->LobbyManager()->ChangeToBattleScene();
+
+	return nullptr;
+#endif
+
 	flatbuffers::FlatBufferBuilder builder;
 
 	auto cpkt = FBProtocol::CreateCPkt_PlayGame(builder);
@@ -1365,6 +1371,13 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnCollision(uint32_t playerID, uin
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_ThrowAway(uint32_t item_id, FBProtocol::ITEM_TYPE item_type)
 {
+#ifndef SERVER_COMMUNICATION
+	sptr<NetworkEvent::Game::Event_Item::Item_ThrowAway> Ext_EventData = CLIENT_NETWORK->CreateEvent_Item_ThrowAway(gkSinglePlayerID, item_id, item_type, Vector3::Zero);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
+	return nullptr;
+#endif
+
 	flatbuffers::FlatBufferBuilder builder{};
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Item_ThrowAway(builder, item_id, item_type);
@@ -1375,6 +1388,13 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_ThrowAway(uint32_t item_id, FBProtoc
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_Interact(uint32_t item_id, FBProtocol::ITEM_TYPE item_type)
 {
+#ifndef SERVER_COMMUNICATION
+	sptr<NetworkEvent::Game::Event_Item::Item_Interact> Ext_EventData = CLIENT_NETWORK->CreateEvent_Item_Interact(gkSinglePlayerID, item_id, item_type, Vector3::Zero);
+	CLIENT_NETWORK->RegisterEvent(Ext_EventData);
+
+	return nullptr;
+#endif
+
 	flatbuffers::FlatBufferBuilder builder{};
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Item_Interact(builder, item_id, item_type);

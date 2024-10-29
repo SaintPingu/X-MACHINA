@@ -119,10 +119,8 @@ void Airstrike::Fire()
 			SoundMgr::I->Play("Gun", mFireSound);
 		}
 
-#ifdef SERVER_COMMUNICATION
 		auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(missile->GetPosition(), missile->GetLook());
 		CLIENT_NETWORK->Send(cpkt);
-#endif
 	}
 
 }

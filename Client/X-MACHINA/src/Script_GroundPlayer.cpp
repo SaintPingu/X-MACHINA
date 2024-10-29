@@ -474,7 +474,6 @@ void Script_GroundPlayer::BulletFired()
 		mCurRecoil = mMaxRecoil;
 	}
 
-#ifdef SERVER_COMMUNICATION
 	/// +-------------------------------------------------------------------
 	///		Send OnShoot Packet
 	/// -------------------------------------------------------------------+
@@ -483,7 +482,6 @@ void Script_GroundPlayer::BulletFired()
 
 	auto pkt = FBS_FACTORY->CPkt_Player_AimRotation(objYAngle, spineYAngle);
 	CLIENT_NETWORK->Send(pkt);
-#endif
 }
 
 

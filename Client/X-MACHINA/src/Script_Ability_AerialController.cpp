@@ -90,10 +90,8 @@ void Script_Ability_AerialController::On()
 	ChangeAimToActive();
 	SoundMgr::I->Play("Ability", "AerialController");
 
-#ifdef SERVER_COMMUNICATION
 	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mObject->GetID(), FBProtocol::ITEM_TYPE_WEAPON_AIR_STRIKE);
 	CLIENT_NETWORK->Send(cpkt);
-#endif
 
 	TextMgr::I->Off();
 	Script_SceneManager::I->BattleManager()->OffUI();

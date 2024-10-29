@@ -138,10 +138,8 @@ void Script_ShootingPlayer::SetWeapon(int weaponNum)
 			mBattleUI->SetWeapon(mObject, mWeaponScript);
 		}
 
-#ifdef SERVER_COMMUNICATION
 		auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeapon->GetID(), mWeaponScript->GetWeaponName());
 		CLIENT_NETWORK->Send(cpkt); 
-#endif
 	}
 }
 
@@ -185,10 +183,8 @@ void Script_ShootingPlayer::DrawWeapon(int weaponNum)
 
 void Script_ShootingPlayer::SendCrntWeapon()
 {
-#ifdef SERVER_COMMUNICATION
 	auto cpkt = FBS_FACTORY->CPkt_Player_Weapon(mWeapon->GetID(), mWeaponScript->GetWeaponName());
 	CLIENT_NETWORK->Send(cpkt);
-#endif
 }
 
 void Script_ShootingPlayer::RemoveWeaponUI() const
@@ -293,11 +289,9 @@ void Script_ShootingPlayer::DropWeapon(int weaponIdx)
 	/// +-------------------------------------------------------------------
 	///		Send OnShoot Packet
 	/// -------------------------------------------------------------------+
-#ifdef SERVER_COMMUNICATION
 		const auto& itemType = static_cast<FBProtocol::ITEM_TYPE>(Script_Weapon::GetWeaponItemType(weaponScript->GetWeaponName()));
 		auto pkt = FBS_FACTORY->CPkt_Item_ThrowAway(weapon->GetID(), itemType);
 		CLIENT_NETWORK->Send(pkt);
-#endif
 
 		weapon = nullptr;
 	}

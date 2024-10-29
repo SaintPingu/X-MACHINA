@@ -66,6 +66,7 @@ public:
 	void Stop();
 
 	void ProcessEvents();
+	void ProcessEvent(sptr<NetworkEvent::Game::EventData> EventData);
 	void SwapEventsQueue();
 	void RegisterEvent(sptr<NetworkEvent::Game::EventData> data);
 

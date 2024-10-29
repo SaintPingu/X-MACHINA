@@ -156,7 +156,7 @@ void Script_LobbyManager::Awake()
 
 	MainCamera::I->Awake();
 	MainCamera::I->SetPosition(Vec3(3.960061f, 1.980184f, 23.99316f));
-	MainCamera::I->SetLocalRotation(Vec3(4.813f, 173.318, 0.f));
+	MainCamera::I->SetLocalRotation(Vec3(4.813f, 173.318f, 0.f));
 	MainCamera::I->MoveForward(1.f);
 	MAIN_CAMERA->SetProjMtx(0.01f, 200.f, 70.f);
 
@@ -188,7 +188,7 @@ void Script_LobbyManager::Start()
 {
 	base::Start();
 
-	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-0.3f, -0.6f, -0.6));
+	LobbyScene::I->GetLight()->SetSunlightDir(Vec3(-0.3f, -0.6f, -0.6f));
 	LobbyScene::I->GetLight()->SetSunlightColor(Vector3::One * 0.52f);
 
 	SoundMgr::I->Play("BGM", "Lobby", 1.0f, true);
@@ -330,12 +330,10 @@ void Script_LobbyManager::ChangeSkin(UINT32 id, TrooperSkin skin)
 
 	mLobbyPlayers[id]->SetSkin(skin);
 
-#ifdef SERVER_COMMUNICATION
 	if (id == GameFramework::I->GetMyPlayerID()) {
 		auto cpkt = FBS_FACTORY->CPkt_Custom(GetSkinName());
 		CLIENT_NETWORK->Send(cpkt);
 	}
-#endif
 }
 
 std::string Script_LobbyManager::GetSkinName() const

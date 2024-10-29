@@ -105,10 +105,8 @@ void Script_Player::Interact()
 label_end:
 
 	if (interactedItem) {
-#ifdef SERVER_COMMUNICATION
 		auto itemType = FBS_FACTORY->GetItemType(interactedItem->GetItemType());
 		auto cpkt = FBS_FACTORY->CPkt_Item_Interact(interactedItem->GetObj()->GetID(), itemType);
 		CLIENT_NETWORK->Send(cpkt);
-#endif
 	}
 }

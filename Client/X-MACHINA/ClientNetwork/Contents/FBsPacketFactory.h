@@ -94,6 +94,11 @@ public:
 	/// +------------------------
 	///	  CREATE CLIENT PACKET  
 	/// ------------------------+
+private:
+	// 24-10-29 ¹Îµ¿Çö Ãß°¡
+	SPtr_SendPktBuf CreatePacket(const flatbuffers::FlatBufferBuilder& builder, uint16_t ProtocolId);
+
+public:
 	/* LOGIN, ENTER GAME, LATENCY, CHAT */
 	SPtr_SendPktBuf CPkt_LogIn(std::string id, std::string password);
 	SPtr_SendPktBuf CPkt_EnterLobby(uint32_t player_id);
@@ -156,5 +161,11 @@ private:
 public:
 	FBProtocol::ITEM_TYPE GetItemType(ItemType type);
 
+
+	/// +------------------------
+	///	     FOR SINGLE PLAY
+	/// ------------------------+
+private:
+	static void Login(SPtr_Session session, const GamePlayerInfo& info);
 };
 

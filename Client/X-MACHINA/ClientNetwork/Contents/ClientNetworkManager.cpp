@@ -58,7 +58,20 @@ ClientNetworkManager::~ClientNetworkManager()
 
 void ClientNetworkManager::Init(UINT32 port)
 {
+	/// +------------------------
+	///	MEMORY : Memory Pool 관리 
+	/// ------------------------+
+	if (FALSE == MEMORY->InitMemories()) {
 
+		LOG_MGR->SetColor(TextColor::Red);
+		LOG_MGR->Cout("[FAIL] MEMORY INIT\n");
+		LOG_MGR->SetColor(TextColor::Default);
+	}
+	LOG_MGR->Cout("[SUCCESS] MEMORY INIT\n");
+
+#ifndef SERVER_COMMUNICATION
+	return;
+#endif
 
 	/// +------------------------------------
 	///	TLS MGR : Thread Local Storage 관리 
@@ -75,8 +88,8 @@ void ClientNetworkManager::Init(UINT32 port)
 
 	LOG_MGR->Cout("[SUCCESS] TLS_MGR INIT\n");
 	/// +----------------------------------------------------------------
-///	Network Manager : 2.2버젼 Winsock 초기화 및 비동기 함수 Lpfn 초기화
-/// ----------------------------------------------------------------+
+	///	Network Manager : 2.2버젼 Winsock 초기화 및 비동기 함수 Lpfn 초기화
+	/// ----------------------------------------------------------------+
 	if (FALSE == NETWORK_MGR->Init()) {
 
 		LOG_MGR->SetColor(TextColor::Red);
@@ -84,17 +97,6 @@ void ClientNetworkManager::Init(UINT32 port)
 		LOG_MGR->SetColor(TextColor::Default);
 	}
 	LOG_MGR->Cout("[SUCCESS] NETWORK_MGR INIT\n");
-
-	/// +------------------------
-	///	MEMORY : Memory Pool 관리 
-	/// ------------------------+
-	if (FALSE == MEMORY->InitMemories()) {
-
-		LOG_MGR->SetColor(TextColor::Red);
-		LOG_MGR->Cout("[FAIL] MEMORY INIT\n");
-		LOG_MGR->SetColor(TextColor::Default);
-	}
-	LOG_MGR->Cout("[SUCCESS] MEMORY INIT\n");
 
 	/// +-------------------------------------------------------------------
 	///	SEND BUFFERS FACTORY : SendBuffer전용 메모리 풀 및 SendPktBuffer 생산
@@ -135,6 +137,9 @@ void ClientNetworkManager::Init(UINT32 port)
 
 void ClientNetworkManager::Launch(int ThreadNum)
 {
+#ifndef SERVER_COMMUNICATION
+	return;
+#endif
 
 	LOG_MGR->SetColor(TextColor::BrightCyan);
 	LOG_MGR->Cout("+--------------------------------------\n");
@@ -157,12 +162,20 @@ void ClientNetworkManager::Launch(int ThreadNum)
 
 void ClientNetworkManager::Stop()
 {
+#ifndef SERVER_COMMUNICATION
+	return;
+#endif
+
 	mIsRunning = false;
 	THREAD_MGR->JoinAllThreads();
 }
 
 void ClientNetworkManager::ProcessEvents()
 {
+#ifndef SERVER_COMMUNICATION
+	return;
+#endif
+
 	SwapEventsQueue();
 	int FrontIdx = mFrontSceneEventIndex.load();
 
@@ -170,172 +183,179 @@ void ClientNetworkManager::ProcessEvents()
 		sptr<NetworkEvent::Game::EventData> EventData = nullptr;
 
 		mSceneEvnetQueue[FrontIdx].EventsQueue.try_pop(EventData);
-		if (EventData == nullptr) continue;
+		ProcessEvent(EventData);
+	}
+}
 
-		switch (EventData->type)
-		{
-			/// +---------------------------------------------------------------------------
-			/// >> ▶▶▶▶▶ PROCESS EVENT REMOTE PLAYER 
-			/// ---------------------------------------------------------------------------+
-		case NetworkEvent::Game::RemotePlayerType::Register:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer*>(EventData.get());
-			ProcessEvent_RemotePlayer_AddBattlePlayer(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::Add:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::Add* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Add*>(EventData.get());
-			ProcessEvent_RemotePlayer_Add(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::Move:
-		{
+void ClientNetworkManager::ProcessEvent(sptr<NetworkEvent::Game::EventData> EventData)
+{
+	if (EventData == nullptr) {
+		return;
+	}
 
-			NetworkEvent::Game::Event_RemotePlayer::Move* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Move*>(EventData.get());
-			ProcessEvent_RemotePlayer_Move(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::Remove:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::Remove* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Remove*>(EventData.get());
-			ProcessEvent_RemotePlayer_Remove(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::Extrapolate:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Extrapolate*>(EventData.get());
-			ProcessEvent_RemotePlayer_Extrapolate(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::UpdateAnimation:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation*>(EventData.get());
-			ProcessEvent_RemotePlayer_UpdateAnimation(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::AimRotation:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation*>(EventData.get());
-			ProcessEvent_RemotePlayer_AimRotation(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::UpdateWeapon:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon*>(EventData.get());
-			ProcessEvent_RemotePlayer_UpdateWeapon(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::OnShoot:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot*>(EventData.get());
-			ProcessEvent_RemotePlayer_UpdateOnShoot(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::OnSkill:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill*>(EventData.get());
-			ProcessEvent_RemotePlayer_UpdateOnSkill(data);
-		}
-		break;
-		case NetworkEvent::Game::RemotePlayerType::State:
-		{
-			NetworkEvent::Game::Event_RemotePlayer::UpdateState* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateState*>(EventData.get());
-			ProcessEvent_RemotePlayer_UpdateState(data);
-		}
-		break;
-
-
-
+	switch (EventData->type)
+	{
 		/// +---------------------------------------------------------------------------
-		/// >> ▶▶▶▶▶ PROCESS EVENT MONSTER  
+		/// >> ▶▶▶▶▶ PROCESS EVENT REMOTE PLAYER 
 		/// ---------------------------------------------------------------------------+
-		case NetworkEvent::Game::MonsterType::Add:
-		{
-			NetworkEvent::Game::Event_Monster::Add* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Add*>(EventData.get());
-			ProcessEvent_Monster_Add(data);
-		}
-		break;
-		case NetworkEvent::Game::MonsterType::Remove:
-		{
-			NetworkEvent::Game::Event_Monster::Remove* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Remove*>(EventData.get());
-			ProcessEvent_Monster_Remove(data);
-		}
-		break;
-		case NetworkEvent::Game::MonsterType::Dead:
-		{
-			NetworkEvent::Game::Event_Monster::MonsterDead* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterDead*>(EventData.get());
-			ProcessEvent_Monster_Dead(data);
-		}
-		break;
+	case NetworkEvent::Game::RemotePlayerType::Register:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::AddBattlePlayer*>(EventData.get());
+		ProcessEvent_RemotePlayer_AddBattlePlayer(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::Add:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::Add* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Add*>(EventData.get());
+		ProcessEvent_RemotePlayer_Add(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::Move:
+	{
 
-		case NetworkEvent::Game::MonsterType::Move:
-		{
-			NetworkEvent::Game::Event_Monster::Move* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Move*>(EventData.get());
-			ProcessEvent_Monster_Move(data);
-		}
-		break;
-		case NetworkEvent::Game::MonsterType::UpdateHP:
-		{
-			NetworkEvent::Game::Event_Monster::UpdateHP* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateHP*>(EventData.get());
-			ProcessEvent_Monster_UpdateHP(data);
-		}
-		break;
-		case NetworkEvent::Game::MonsterType::UpdateState:
-		{
-			NetworkEvent::Game::Event_Monster::UpdateState* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateState*>(EventData.get());
-			ProcessEvent_Monster_UpdateState(data);
-		}
-		break;
-		case NetworkEvent::Game::MonsterType::Target:
-		{
-			NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate*>(EventData.get());
-			ProcessEvent_Monster_Target(data);
-		}
-		break;
-		/// +---------------------------------------------------------------------------
-		/// >> ▶▶▶▶▶ PROCESS EVENT Phero
-		/// ---------------------------------------------------------------------------+
-		case NetworkEvent::Game::PheroType::GetPhero:
-		{
-			NetworkEvent::Game::Event_Phero::GetPhero* data = reinterpret_cast<NetworkEvent::Game::Event_Phero::GetPhero*>(EventData.get());
-			ProcessEvent_Phero_Get(data);
-		}
-		break;
-		/// +---------------------------------------------------------------------------
-		/// >> ▶▶▶▶▶ PROCESS EVENT Contents
-		/// ---------------------------------------------------------------------------+
-		case NetworkEvent::Game::ContentsType::Chat:
-		{
-			NetworkEvent::Game::Event_Contents::Chat* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Chat*>(EventData.get());
-			ProcessEvent_Contents_Chat(data);
-		}
-		break;		
-		
-		case NetworkEvent::Game::ContentsType::Custom:
-		{
-			NetworkEvent::Game::Event_Contents::Custom* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Custom*>(EventData.get());
-			ProcessEvent_Contents_Custom(data);
-		}
-		break;
+		NetworkEvent::Game::Event_RemotePlayer::Move* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Move*>(EventData.get());
+		ProcessEvent_RemotePlayer_Move(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::Remove:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::Remove* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Remove*>(EventData.get());
+		ProcessEvent_RemotePlayer_Remove(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::Extrapolate:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::Extrapolate* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::Extrapolate*>(EventData.get());
+		ProcessEvent_RemotePlayer_Extrapolate(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::UpdateAnimation:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAnimation*>(EventData.get());
+		ProcessEvent_RemotePlayer_UpdateAnimation(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::AimRotation:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateAimRotation*>(EventData.get());
+		ProcessEvent_RemotePlayer_AimRotation(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::UpdateWeapon:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateWeapon*>(EventData.get());
+		ProcessEvent_RemotePlayer_UpdateWeapon(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::OnShoot:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateOnShoot*>(EventData.get());
+		ProcessEvent_RemotePlayer_UpdateOnShoot(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::OnSkill:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateOnSkill*>(EventData.get());
+		ProcessEvent_RemotePlayer_UpdateOnSkill(data);
+	}
+	break;
+	case NetworkEvent::Game::RemotePlayerType::State:
+	{
+		NetworkEvent::Game::Event_RemotePlayer::UpdateState* data = reinterpret_cast<NetworkEvent::Game::Event_RemotePlayer::UpdateState*>(EventData.get());
+		ProcessEvent_RemotePlayer_UpdateState(data);
+	}
+	break;
 
-		/// +---------------------------------------------------------------------------
-		/// >> ▶▶▶▶▶ PROCESS EVENT Item
-		/// ---------------------------------------------------------------------------+
-		case NetworkEvent::Game::ItemType::Item_Interact:
-		{
-			NetworkEvent::Game::Event_Item::Item_Interact* data = reinterpret_cast<NetworkEvent::Game::Event_Item::Item_Interact*>(EventData.get());
-			ProcessEvent_Item_Interact(data);
-		}
-		break;
-		case NetworkEvent::Game::ItemType::Item_ThrowAway:
-		{
-			NetworkEvent::Game::Event_Item::Item_ThrowAway* data = reinterpret_cast<NetworkEvent::Game::Event_Item::Item_ThrowAway*>(EventData.get());
-			ProcessEvent_Item_ThrowAway(data);
-		}
-		break;
 
-		}
+
+	/// +---------------------------------------------------------------------------
+	/// >> ▶▶▶▶▶ PROCESS EVENT MONSTER  
+	/// ---------------------------------------------------------------------------+
+	case NetworkEvent::Game::MonsterType::Add:
+	{
+		NetworkEvent::Game::Event_Monster::Add* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Add*>(EventData.get());
+		ProcessEvent_Monster_Add(data);
+	}
+	break;
+	case NetworkEvent::Game::MonsterType::Remove:
+	{
+		NetworkEvent::Game::Event_Monster::Remove* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Remove*>(EventData.get());
+		ProcessEvent_Monster_Remove(data);
+	}
+	break;
+	case NetworkEvent::Game::MonsterType::Dead:
+	{
+		NetworkEvent::Game::Event_Monster::MonsterDead* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterDead*>(EventData.get());
+		ProcessEvent_Monster_Dead(data);
+	}
+	break;
+
+	case NetworkEvent::Game::MonsterType::Move:
+	{
+		NetworkEvent::Game::Event_Monster::Move* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::Move*>(EventData.get());
+		ProcessEvent_Monster_Move(data);
+	}
+	break;
+	case NetworkEvent::Game::MonsterType::UpdateHP:
+	{
+		NetworkEvent::Game::Event_Monster::UpdateHP* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateHP*>(EventData.get());
+		ProcessEvent_Monster_UpdateHP(data);
+	}
+	break;
+	case NetworkEvent::Game::MonsterType::UpdateState:
+	{
+		NetworkEvent::Game::Event_Monster::UpdateState* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::UpdateState*>(EventData.get());
+		ProcessEvent_Monster_UpdateState(data);
+	}
+	break;
+	case NetworkEvent::Game::MonsterType::Target:
+	{
+		NetworkEvent::Game::Event_Monster::MonsterTargetUpdate* data = reinterpret_cast<NetworkEvent::Game::Event_Monster::MonsterTargetUpdate*>(EventData.get());
+		ProcessEvent_Monster_Target(data);
+	}
+	break;
+	/// +---------------------------------------------------------------------------
+	/// >> ▶▶▶▶▶ PROCESS EVENT Phero
+	/// ---------------------------------------------------------------------------+
+	case NetworkEvent::Game::PheroType::GetPhero:
+	{
+		NetworkEvent::Game::Event_Phero::GetPhero* data = reinterpret_cast<NetworkEvent::Game::Event_Phero::GetPhero*>(EventData.get());
+		ProcessEvent_Phero_Get(data);
+	}
+	break;
+	/// +---------------------------------------------------------------------------
+	/// >> ▶▶▶▶▶ PROCESS EVENT Contents
+	/// ---------------------------------------------------------------------------+
+	case NetworkEvent::Game::ContentsType::Chat:
+	{
+		NetworkEvent::Game::Event_Contents::Chat* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Chat*>(EventData.get());
+		ProcessEvent_Contents_Chat(data);
+	}
+	break;
+
+	case NetworkEvent::Game::ContentsType::Custom:
+	{
+		NetworkEvent::Game::Event_Contents::Custom* data = reinterpret_cast<NetworkEvent::Game::Event_Contents::Custom*>(EventData.get());
+		ProcessEvent_Contents_Custom(data);
+	}
+	break;
+
+	/// +---------------------------------------------------------------------------
+	/// >> ▶▶▶▶▶ PROCESS EVENT Item
+	/// ---------------------------------------------------------------------------+
+	case NetworkEvent::Game::ItemType::Item_Interact:
+	{
+		NetworkEvent::Game::Event_Item::Item_Interact* data = reinterpret_cast<NetworkEvent::Game::Event_Item::Item_Interact*>(EventData.get());
+		ProcessEvent_Item_Interact(data);
+	}
+	break;
+	case NetworkEvent::Game::ItemType::Item_ThrowAway:
+	{
+		NetworkEvent::Game::Event_Item::Item_ThrowAway* data = reinterpret_cast<NetworkEvent::Game::Event_Item::Item_ThrowAway*>(EventData.get());
+		ProcessEvent_Item_ThrowAway(data);
+	}
+	break;
+
 	}
 }
 
@@ -348,7 +368,11 @@ void ClientNetworkManager::SwapEventsQueue()
 
 void ClientNetworkManager::RegisterEvent(sptr<NetworkEvent::Game::EventData> data)
 {
+#ifdef SERVER_COMMUNICATION
 	mSceneEvnetQueue[mBackSceneEventIndex.load()].EventsQueue.push(data);
+#else
+	ProcessEvent(data);
+#endif
 }
 
 std::string ClientNetworkManager::GetLocalIPv4Address()
@@ -405,6 +429,10 @@ long long ClientNetworkManager::GetTimeStamp()
 
 void ClientNetworkManager::Send(SPtr_PacketSendBuf pkt)
 {
+	if (pkt == nullptr) {
+		return;
+	}
+
 	mClientNetwork->Broadcast(pkt);
 }
 

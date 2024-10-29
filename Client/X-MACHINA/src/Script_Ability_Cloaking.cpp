@@ -64,10 +64,8 @@ void Script_Ability_Cloaking::On()
 	mObject->SetTag(ObjectTag::AfterSkinImage);
 	ActiveIcon(true);
 
-#ifdef SERVER_COMMUNICATION
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
 	CLIENT_NETWORK->Send(cpkt);
-#endif
 }
 
 void Script_Ability_Cloaking::Off()
@@ -82,10 +80,8 @@ void Script_Ability_Cloaking::Off()
 	mObject->SetTag(mPrevInvokerTag);
 	ActiveIcon(false);
 
-#ifdef SERVER_COMMUNICATION
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_CLOACKING);
 	CLIENT_NETWORK->Send(cpkt);
-#endif
 }
 
 bool Script_Ability_Cloaking::ReducePheroAmount(bool checkOnly)

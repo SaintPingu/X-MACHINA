@@ -66,13 +66,11 @@ void Script_Ability_Shield::On()
 	ActiveIcon(true);
 	mPlayer->SetShield(mShieldAmount);
 
-#ifdef SERVER_COMMUNICATION
 	/// +-------------------------------
 	///		SKILLPACKET BROADCAST
 	/// -------------------------------+
 	auto cpkt = FBS_FACTORY->CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_TYPE_SHIELD);
 	CLIENT_NETWORK->Send(cpkt);
-#endif
 }
 
 void Script_Ability_Shield::Off()

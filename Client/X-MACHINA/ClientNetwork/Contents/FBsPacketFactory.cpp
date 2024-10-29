@@ -348,10 +348,7 @@ bool FBsPacketFactory::Process_SPkt_EnterLobby(SPtr_Session session, const FBPro
 	LOG_MGR->Cout("[MY] NAME : ", MyInfo.Name, " ", " SESSION ID : ", MyInfo.Id, '\n');
 	LOG_MGR->SetColor(TextColor::Default);
 
-	GameFramework::I->Login(MyInfo.Id);
-	MyInfo.Name = session->GetName();
-	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(MyInfo);
-	CLIENT_NETWORK->RegisterEvent(EventData);
+	Login(session, MyInfo);
 
 	/// ________________________________________________________________________________
 	/// Remote Player infos ( Range : Same Room ) 
@@ -945,6 +942,15 @@ bool FBsPacketFactory::Process_SPkt_Item_ThrowAway(SPtr_Session session, const F
 ///	�� SEND [ LogIn, Chat, NetworkLatency ] PACKET ��
 /// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------��
 
+SPtr_SendPktBuf FBsPacketFactory::CreatePacket(const flatbuffers::FlatBufferBuilder& builder, uint16_t ProtocolId)
+{
+#ifndef SERVER_COMMUNICATION
+	return nullptr;
+#endif
+
+	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), ProtocolId);
+}
+
 SPtr_SendPktBuf FBsPacketFactory::CPkt_LogIn(std::string id, std::string password)
 {
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
@@ -953,6 +959,18 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_LogIn(std::string id, std::string passwor
 	/// > 
 	/// > }
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
+	
+#ifndef SERVER_COMMUNICATION
+	GamePlayerInfo info;
+	info.Id = 0;
+	info.Name = "Unknown";
+	Login(nullptr, info);
+
+	return nullptr;
+#endif
+
+
+
 	flatbuffers::FlatBufferBuilder builder;
 
 	auto input_id       = builder.CreateString(id);
@@ -963,7 +981,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_LogIn(std::string id, std::string passwor
 	builder.Finish(ServerPacket);
 
 	/* Create SendBuffer */
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_LogIn);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_LogIn);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterLobby(uint32_t player_id)
@@ -973,7 +991,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterLobby(uint32_t player_id)
 	auto ServerPacket = FBProtocol::CreateCPkt_EnterLobby(builder, player_id);
 
 	builder.Finish(ServerPacket);
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_EnterLobby);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_EnterLobby);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Chat(UINT32 sessionID, std::string msg)
@@ -990,7 +1008,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Chat(UINT32 sessionID, std::string msg)
 	auto ServerPacket = FBProtocol::CreateCPkt_Chat(builder, msgOffset);
 
 	builder.Finish(ServerPacket);
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Chat);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Chat);
 }
 
 
@@ -1009,7 +1027,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_NetworkLatency(long long timestamp)
 
 	builder.Finish(ServerPacket);
 
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_NetworkLatency);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_NetworkLatency);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Custom(std::string trooperskin)
@@ -1021,7 +1039,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Custom(std::string trooperskin)
 
 	builder.Finish(ServerPacket);
 
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Custom);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Custom);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
@@ -1037,7 +1055,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_EnterGame(uint32_t player_id)
 	auto enterGamePkt = FBProtocol::CreateCPkt_EnterGame(builder, player_id);
 	builder.Finish(enterGamePkt);
 
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_EnterGame);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_EnterGame);
 
 }
 
@@ -1048,7 +1066,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_PlayGame()
 	auto cpkt = FBProtocol::CreateCPkt_PlayGame(builder);
 	builder.Finish(cpkt);
 
-	return SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_PlayGame);
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_PlayGame);
 }
 
 /// ��---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1067,9 +1085,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_NewPlayer()
 
 	auto ServerPacket = FBProtocol::CreateCPkt_NewPlayer(builder);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_NewPlayer);
 
-	return sendBuffer;
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_NewPlayer);;
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_RemovePlayer(uint32_t removeSessionID)
@@ -1086,9 +1103,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_RemovePlayer(uint32_t removeSessionID)
 	auto ServerPacket = FBProtocol::CreateCPkt_RemovePlayer(builder);
 	builder.Finish(ServerPacket);
 
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_RemovePlayer);
-
-	return sendBuffer;
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_RemovePlayer);
 }
 
 
@@ -1119,8 +1134,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Transform(Vec3 Pos, Vec3 Rot, int3
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Player_Transform(builder, static_cast<FBProtocol::PLAYER_MOTION_STATE_TYPE>(movestate), latency, velocity, moveDir, transform, spine_look, animparam_h, animparam_v);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Transform);
-	return sendBuffer;
+
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Transform);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Animation(int anim_upper_idx, int anim_lower_idx, float anim_param_h, float anim_param_v)
@@ -1143,8 +1158,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Animation(int anim_upper_idx, int 
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Player_Animation(builder, animation_upper_index, animation_lower_index, animation_param_h, animation_param_v);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Animation);
-	return sendBuffer;
+
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Animation);
 
 }
 
@@ -1161,8 +1176,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(uint32_t item_id, FBProtoco
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Player_Weapon(builder, item_id, weaponType);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Weapon);
-	return sendBuffer;
+
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_Weapon);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(uint32_t item_id, WeaponName weaponName)
@@ -1170,7 +1185,7 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_Weapon(uint32_t item_id, WeaponNam
 	switch (weaponName)
 	{
 	case WeaponName::H_Lock:
-		return CPkt_Player_Weapon(item_id ,FBProtocol::ITEM_TYPE_WEAPON_H_LOOK);
+		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_H_LOOK);
 	case WeaponName::DBMS:
 		return CPkt_Player_Weapon(item_id, FBProtocol::ITEM_TYPE_WEAPON_DBMS);
 	case WeaponName::SkyLine:
@@ -1193,8 +1208,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_OnSkill(FBProtocol::PLAYER_SKILL_T
 
 	auto ServerPacket = FBProtocol::CreateCPkt_PlayerOnSkill(builder, skillType, mindcontrol_monster_id);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_PlayerOnSkill);
-	return sendBuffer;
+
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_PlayerOnSkill);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_AimRotation(float aim_rotation_y, float spine_angle)
@@ -1203,8 +1218,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Player_AimRotation(float aim_rotation_y, 
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Player_AimRotation(builder, aim_rotation_y, spine_angle);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_AimRotation);
-	return sendBuffer;
+	
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Player_AimRotation);
 }
 
 /// ��---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1304,13 +1319,13 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnShoot(Vec3 pos, Vec3 ray)
 	/// �ۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡۡ�
 	flatbuffers::FlatBufferBuilder builder{};
 
-	auto RayDir			= FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
-	auto position		= FBProtocol::CreateVector3(builder, pos.x, pos.y, pos.z);
-	auto ServerPacket	= FBProtocol::CreateCPkt_Bullet_OnShoot(builder, position, RayDir);
+	auto RayDir = FBProtocol::CreateVector3(builder, ray.x, ray.y, ray.z);
+	auto position = FBProtocol::CreateVector3(builder, pos.x, pos.y, pos.z);
+	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnShoot(builder, position, RayDir);
 
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Bullet_OnShoot);
-	return sendBuffer;
+	
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Bullet_OnShoot);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec3 fire_pos, Vec3 ray)
@@ -1323,8 +1338,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitEnemy(int32_t monster_id, Vec
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnHitEnemy(builder, monster_id, firePos, RayDir);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Bullet_OnHitEnemy);
-	return sendBuffer;
+	
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Bullet_OnHitEnemy);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitExpEnemy(int32_t monster_id)
@@ -1333,8 +1348,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnHitExpEnemy(int32_t monster_id)
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Bullet_OnHitEnemy(builder, monster_id);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Bullet_OnHitExpEnemy);
-	return sendBuffer;
+	
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Bullet_OnHitExpEnemy);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Bullet_OnCollision(uint32_t playerID, uint32_t gunID, uint32_t bulletID)
@@ -1354,8 +1369,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_ThrowAway(uint32_t item_id, FBProtoc
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Item_ThrowAway(builder, item_id, item_type);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Item_ThrowAway);
-	return sendBuffer;
+	
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Item_ThrowAway);
 }
 
 SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_Interact(uint32_t item_id, FBProtocol::ITEM_TYPE item_type)
@@ -1364,8 +1379,8 @@ SPtr_SendPktBuf FBsPacketFactory::CPkt_Item_Interact(uint32_t item_id, FBProtoco
 
 	auto ServerPacket = FBProtocol::CreateCPkt_Item_Interact(builder, item_id, item_type);
 	builder.Finish(ServerPacket);
-	SPtr_SendPktBuf sendBuffer = SENDBUF_FACTORY->CreatePacket(builder.GetBufferPointer(), static_cast<uint16_t>(builder.GetSize()), FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Item_Interact);
-	return sendBuffer;
+	
+	return CreatePacket(builder, FBProtocol::FBsProtocolID::FBsProtocolID_CPkt_Item_Interact);
 }
 
 
@@ -1476,3 +1491,17 @@ Vec3 FBsPacketFactory::lerp(Vec3 CurrPos, Vec3 TargetPos, float PosLerpParam)
 		(1.0f - PosLerpParam) * CurrPos.z + PosLerpParam * TargetPos.z);
 }
 
+
+
+
+void FBsPacketFactory::Login(SPtr_Session session, const GamePlayerInfo& info)
+{
+	std::string name = "Unknown";
+	if (session) {
+		name = session->GetName();
+	}
+
+	GameFramework::I->Login(info.Id);
+	sptr<NetworkEvent::Game::Event_RemotePlayer::Add> EventData = CLIENT_NETWORK->CreateEvent_Add_RemotePlayer(info);
+	CLIENT_NETWORK->RegisterEvent(EventData);
+}

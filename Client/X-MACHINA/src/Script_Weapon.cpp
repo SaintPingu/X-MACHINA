@@ -286,12 +286,10 @@ void Script_BulletWeapon::FireBullet()
 			SoundMgr::I->Play("Gun", mFireSound);
 		}
 
-#ifdef SERVER_COMMUNICATION
 		if (IsPlayerWeapon()) {
 			auto cpkt = FBS_FACTORY->CPkt_Bullet_OnShoot(bullet->GetPosition(), bullet->GetLook());
 			CLIENT_NETWORK->Send(cpkt);
 		}
-#endif
 	}
 }
 

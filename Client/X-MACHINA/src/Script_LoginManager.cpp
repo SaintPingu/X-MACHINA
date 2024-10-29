@@ -22,9 +22,7 @@ void Script_LoginManager::Start()
 {
 	base::Start();
 
-#ifdef SERVER_COMMUNICATION
 	GameFramework::I->ConnectServer();
-#endif
 }
 
 void Script_LoginManager::Update()
